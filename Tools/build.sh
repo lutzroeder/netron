@@ -22,7 +22,6 @@ cat	Function.js \
 	Element.js \
 	Connection.js \
 	Selection.js \
-	UndoService.js \
 	ContainerUndoUnit.js \
 	InsertElementUndoUnit.js \
 	DeleteElementUndoUnit.js \
@@ -31,6 +30,7 @@ cat	Function.js \
 	ContentChangedUndoUnit.js \
 	TransformUndoUnit.js \
 	SelectionUndoUnit.js \
+	UndoService.js \
 	Graph.js \
 	> ../Build/Debug/netron.js
 

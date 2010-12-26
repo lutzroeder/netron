@@ -9,9 +9,9 @@ function ContentChangedUndoUnit(element, content)
 ContentChangedUndoUnit.prototype.undo = function()
 {
 	this.element.content = this.undoContent;
-}
+};
 
 ContentChangedUndoUnit.prototype.redo = function()
 {
 	this.element.content = this.redoContent;
-}
+};

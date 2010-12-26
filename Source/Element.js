@@ -43,7 +43,7 @@ Element.prototype.getPageRectangle = function()
 	rectangle.x += canvas.offsetLeft;
 	rectangle.y += canvas.offsetTop;
 	return rectangle;
-}
+};
 
 Element.prototype.setRectangle = function(rectangle)
 {
@@ -172,10 +172,7 @@ Element.prototype.getConnectorPosition = function(connector)
 
 Element.prototype.setContent = function(content)
 {
-	this.owner.undoService.begin();
-	this.owner.undoService.add(new ContentChangedUndoUnit(this, content));
-	this.owner.undoService.commit();
-	this.owner.update();
+	this.owner.setElementContent(this, content);
 };
 
 Element.prototype.getContent = function()

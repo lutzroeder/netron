@@ -509,14 +509,12 @@ Graph.prototype.updateMousePosition = function(e)
 {
 	this.mousePosition = new Point(e.pageX, e.pageY);
 	var node = this.canvas;
-	while (node != null)
+	while (node !== null)
 	{
 		this.mousePosition.x -= node.offsetLeft;
 		this.mousePosition.y -= node.offsetTop;
 		node = node.offsetParent;
 	}
-	
-//	this.mousePosition = new Point(e.pageX - this.canvas.offsetLeft, e.pageY - this.canvas.offsetTop);
 };
 
 Graph.prototype.addElement = function(template, point, content)
@@ -534,7 +532,7 @@ Graph.prototype.createElement = function(template)
 	this.activeTemplate = template;
 	this.newElement = new Element(template, this.mousePosition);
 	this.canvas.focus();
-}
+};
 
 Graph.prototype.addConnection = function(connector1, connector2)
 {
@@ -545,6 +543,14 @@ Graph.prototype.addConnection = function(connector1, connector2)
 	connector2.invalidate();
 	connection.invalidate();
 	return connection;
+};
+
+Graph.prototype.setElementContent = function(element, content)
+{
+	this.owner.undoService.begin();
+	this.owner.undoService.add(new ContentChangedUndoUnit(element, content));
+	this.owner.undoService.commit();
+	this.owner.update();
 };
 
 Graph.prototype.update = function()
