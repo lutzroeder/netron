@@ -531,6 +531,7 @@ Graph.prototype.createElement = function(template)
 {
 	this.activeTemplate = template;
 	this.newElement = new Element(template, this.mousePosition);
+	this.update();
 	this.canvas.focus();
 };
 
@@ -547,10 +548,10 @@ Graph.prototype.addConnection = function(connector1, connector2)
 
 Graph.prototype.setElementContent = function(element, content)
 {
-	this.owner.undoService.begin();
-	this.owner.undoService.add(new ContentChangedUndoUnit(element, content));
-	this.owner.undoService.commit();
-	this.owner.update();
+	this.undoService.begin();
+	this.undoService.add(new ContentChangedUndoUnit(element, content));
+	this.undoService.commit();
+	this.update();
 };
 
 Graph.prototype.update = function()
