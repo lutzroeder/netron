@@ -8,7 +8,6 @@ function Selection(startPoint)
 Selection.prototype.paint = function(context)
 {
 	var r = this.getRectangle();
-	context.strokeStyle = "#000";
 	context.lineWidth = 1;
 	context.beginPath();
 	context.dashedLine(r.x - 0.5,           r.y - 0.5,            r.x - 0.5 + r.width, r.y - 0.5);

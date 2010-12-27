@@ -37,12 +37,12 @@ Connector.prototype.paint = function(context)
 {
 	var rectangle = this.getRectangle();
 
-	var strokeStyle = "#ffffff";
-	var fillStyle = "#31456b"; // dark blue
+	var strokeStyle = this.owner.owner.style.connectorBorder; 
+	var fillStyle = this.owner.owner.style.connector;
 	if (this.hover) // TODO || (this.owner.owner.newConnection !== null))
 	{
-		strokeStyle = "#000000";
-		fillStyle = "#ff0000"; // red
+		strokeStyle = this.owner.owner.style.connectorHoverBorder; 
+		fillStyle = this.owner.owner.style.connectorHover;
 		// if ((this.list) || (this.connections.Count != 1))
 		// {
 		//	fillColor = Color.FromArgb(0, 192, 0); // medium green

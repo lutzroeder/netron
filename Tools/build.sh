@@ -6,8 +6,10 @@ mkdir ../Build/Debug
 mkdir ../Build/Release
 
 cd ../Samples
-cp default.html ../Build/Debug/default.html
-cp default.html ../Build/Release/default.html
+cp website.html ../Build/Debug/website.html
+cp website.html ../Build/Release/website.html
+cp genealogy.html ../Build/Debug/genealogy.html
+cp genealogy.html ../Build/Release/genealogy.html
 
 echo Building \'Debug/netron.js\'.
 cd ../Source
@@ -36,6 +38,6 @@ cat	Function.js \
 
 cd ../Tools
 echo Building \'Release/netron.js\'.
-java -jar compiler.jar --js ../Build/Debug/netron.js > ../Build/Release/netron.js
+# java -jar compiler.jar --js ../Build/Debug/netron.js > ../Build/Release/netron.js
 
 echo Done.

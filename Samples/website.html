@@ -10,7 +10,9 @@
 body { background-color: #000; margin-left: 0; margin-right: 0; margin-top: 0; }
 .center { margin-left: auto; margin-right: auto; width: 800px; }
 input[type=text] { border: none; background: #888; color: #fff; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
-input[type=button] { border: 1px solid #444; background: #222; color: #fff; margin-bottom: 6px; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
+input[type=button] { border: 1px solid #000; background: none; color: #000; margin-bottom: 6px; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
+input[type=button]:hover { background: #000; color: #fff; cursor: pointer; }
+input[type=button]:active { border: 1px solid #fff; }
 </style>
 <script src="netron.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -21,7 +23,8 @@ var graph = null;
 function document_load()
 {
 	graph = new Graph(document.getElementById("canvas"));
-	var e1 = graph.addElement(pageTemplate, { x:200, y:100 }, "/home");
+	// graph.style = { background: "#181818", connection: "#666", selection: "#888", connector: "#31456b", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#f00" };
+	var e1 = graph.addElement(pageTemplate, { x:200, y:100 }, "home");
 	var e2 = graph.addElement(pageTemplate, { x:200, y:225 }, "/html5");
 	var e3 = graph.addElement(pageTemplate, { x:150, y:350 }, "/digger");
 	var e4 = graph.addElement(pageTemplate, { x:300, y:475 }, "/netron");
@@ -165,8 +168,8 @@ ContentEditor.prototype.cancel = function()
 <br/>
 <div class="center" style="position: relative;">
 <canvas style="position: absolute;" id="canvas" width="800" height="600" tabindex="0"></canvas>
-<input style="position: absolute; top: 577px; left: 5px; width: 75px; " type="button" value="Add Page" onclick="graph.createElement(pageTemplate);" />
-<input style="position: absolute; top: 577px; left: 85px; width: 75px; "type="button" value="Add Script" onclick="graph.createElement(scriptTemplate);" />
+<input style="position: absolute; top: 4px; left: 5px; width: 75px; " type="button" value="Add Page" onclick="graph.createElement(pageTemplate);" />
+<input style="position: absolute; top: 4px; left: 85px; width: 75px; "type="button" value="Add Script" onclick="graph.createElement(scriptTemplate);" />
 </div>
 </body>
 

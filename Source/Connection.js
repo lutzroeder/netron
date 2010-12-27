@@ -23,11 +23,11 @@ Connection.prototype.remove = function()
 	this.invalidate();
 	if ((this.from !== null) && (this.from.connections.contains(this)))
 	{
-		this.from.connections.pop(this);
+		this.from.connections.remove(this);
 	}
 	if ((this.to !== null) && (this.to.connections.contains(this)))
 	{
-		this.to.connections.pop(this);
+		this.to.connections.remove(this);
 	}
 	this.from = null;
 	this.to = null;
@@ -103,14 +103,14 @@ Connection.prototype.invalidate = function()
 
 Connection.prototype.paint = function(context)
 {
-	context.strokeStyle = "#000000";
+	context.strokeStyle = this.from.owner.owner.style.connection;
 	context.lineWidth = (this.hover) ? 2 : 1;
 	this.paintLine(context, this.selected);
 };
 
 Connection.prototype.paintTrack = function(context)
 {
-	context.strokeStyle = "#000000";
+	context.strokeStyle = this.from.owner.owner.style.connection;
 	context.lineWidth = 1;
 	this.paintLine(context, true);
 };
