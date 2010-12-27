@@ -107,14 +107,14 @@ Connection.prototype.invalidate = function()
 
 Connection.prototype.paint = function(context)
 {
-	context.strokeStyle = this.from.owner.owner.style.connection;
+	context.strokeStyle = this.from.owner.owner.theme.connection;
 	context.lineWidth = (this.hover) ? 2 : 1;
 	this.paintLine(context, this.selected);
 };
 
 Connection.prototype.paintTrack = function(context)
 {
-	context.strokeStyle = this.from.owner.owner.style.connection;
+	context.strokeStyle = this.from.owner.owner.theme.connection;
 	context.lineWidth = 1;
 	this.paintLine(context, true);
 };

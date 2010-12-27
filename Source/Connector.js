@@ -62,12 +62,12 @@ Connector.prototype.isValid = function(value)
 Connector.prototype.paint = function(context, other)
 {
 	var rectangle = this.getRectangle();
-	var strokeStyle = this.owner.owner.style.connectorBorder; 
-	var fillStyle = this.owner.owner.style.connector;
+	var strokeStyle = this.owner.owner.theme.connectorBorder; 
+	var fillStyle = this.owner.owner.theme.connector;
 	if (this.hover)
 	{
-		strokeStyle = this.owner.owner.style.connectorHoverBorder; 
-		fillStyle = this.owner.owner.style.connectorHover;
+		strokeStyle = this.owner.owner.theme.connectorHoverBorder; 
+		fillStyle = this.owner.owner.theme.connectorHover;
 		if (!this.isValid(other))
 		{
 			fillStyle = "#f00";			

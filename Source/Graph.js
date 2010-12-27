@@ -4,7 +4,7 @@ function Graph(element)
 	this.canvas = element;
 	this.canvas.focus();
 	this.context = this.canvas.getContext("2d");
-	this.style = { background: "#fff", connection: "#000", selection: "#000", connector: "#31456b", connectorBorder: "#fff", connectorHoverBorder: "#000", connectorHover: "#0c0" };
+	this.theme = { background: "#fff", connection: "#000", selection: "#000", connector: "#31456b", connectorBorder: "#fff", connectorHoverBorder: "#000", connectorHover: "#0c0" };
 	this.mousePosition = new Point(0, 0);
 	this.undoService = new UndoService();
 	this.elements = [];
@@ -571,7 +571,7 @@ Graph.prototype.update = function()
 	var i, j, k;
 	var element, connector, connection;
 	
-	this.canvas.style.background = this.style.background;
+	this.canvas.style.background = this.theme.background;
 	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	
 	var connections = [];
@@ -638,7 +638,7 @@ Graph.prototype.update = function()
 	
 	if (this.selection !== null)
 	{
-		this.context.strokeStyle = this.style.selection;
+		this.context.strokeStyle = this.theme.selection;
 		this.selection.paint(this.context);
 	}
 };

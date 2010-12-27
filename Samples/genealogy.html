@@ -24,7 +24,7 @@ var graph = null;
 function document_load()
 {
 	graph = new Graph(document.getElementById("canvas"));
- 	graph.style = { background: "#000", connection: "#fff", selection: "#888", connector: "#fff", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#0c0" };
+ 	graph.theme = { background: "#000", connection: "#fff", selection: "#888", connector: "#fff", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#0c0" };
 	var e1 = graph.addElement(personTemplate, { x:200, y:100 }, "John Smith");
 	var e2 = graph.addElement(personTemplate, { x:400, y:100 }, "Emily Jones");
 	var e3 = graph.addElement(personTemplate, { x:300, y:200 }, "Daniel Smith");
