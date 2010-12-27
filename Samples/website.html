@@ -9,10 +9,11 @@
 <style type="text/css">
 body { background-color: #000; margin-left: 0; margin-right: 0; margin-top: 0; }
 .center { margin-left: auto; margin-right: auto; width: 800px; }
-input[type=text] { border: none; background: #888; color: #fff; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
-input[type=button] { border: 1px solid #000; background: none; color: #000; margin-bottom: 6px; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
-input[type=button]:hover { background: #000; color: #fff; cursor: pointer; }
-input[type=button]:active { border: 1px solid #fff; }
+input[type="text"] { border: none; background: #888; color: #fff; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
+input[type="button"] { border: 1px solid #000; background: #fff; color: #000; margin-bottom: 6px; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
+input[type="button"]:hover { border: 1px solid #444; background: #444; color: #fff; cursor: pointer; }
+input[type="button"]:active { border: 1px solid #000; background: #000; }
+input[type="button"]::-moz-focus-inner { border : 0px; }
 </style>
 <script src="netron.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -30,11 +31,11 @@ function document_load()
 	var e4 = graph.addElement(pageTemplate, { x:300, y:475 }, "/netron");
 	var e5 = graph.addElement(scriptTemplate, { x:400, y:275 }, "/digger/digger.js");
 	var e6 = graph.addElement(scriptTemplate, { x:550, y:400 }, "/netron/netron.js");
-	var c1 = graph.addConnection(e1.getConnector("Links"), e2.getConnector("Owners"));
-	var c2 = graph.addConnection(e2.getConnector("Links"), e3.getConnector("Owners"));
-	var c3 = graph.addConnection(e2.getConnector("Links"), e4.getConnector("Owners"));
-	var c4 = graph.addConnection(e3.getConnector("Scripts"), e5.getConnector("Owners"));
-	var c5 = graph.addConnection(e4.getConnector("Scripts"), e6.getConnector("Owners"));
+	var c1 = graph.addConnection(e1.getConnector("links"), e2.getConnector("owners"));
+	var c2 = graph.addConnection(e2.getConnector("links"), e3.getConnector("owners"));
+	var c3 = graph.addConnection(e2.getConnector("links"), e4.getConnector("owners"));
+	var c4 = graph.addConnection(e3.getConnector("scripts"), e5.getConnector("owners"));
+	var c5 = graph.addConnection(e4.getConnector("scripts"), e6.getConnector("owners"));
 	graph.update();
 }
 
@@ -47,9 +48,9 @@ function PageTemplate()
 	this.defaultHeight = 40;
 	this.defaultContent = "";
 	this.connectorTemplates = [
-		{ name: "Owners",  type: "Url[]", description: "Owners",  position: function(element) { return { x: Math.floor(element.getRectangle().width / 2), y: 0 } } },
-		{ name: "Links",   type: "Url[]", description: "Links",   position: function(element) { return { x: Math.floor(element.getRectangle().width / 2), y: Math.floor(element.getRectangle().height) } } },
-		{ name: "Scripts", type: "Url[]", description: "Scripts", position: function(element) { return { x: Math.floor(element.getRectangle().width), y: 30 } } },
+		{ name: "owners",  type: "Url[]", description: "Owners",  position: function(element) { return { x: Math.floor(element.getRectangle().width / 2), y: 0 } } },
+		{ name: "links",   type: "Url[]", description: "Links",   position: function(element) { return { x: Math.floor(element.getRectangle().width / 2), y: Math.floor(element.getRectangle().height) } } },
+		{ name: "scripts", type: "Url[]", description: "Scripts", position: function(element) { return { x: Math.floor(element.getRectangle().width), y: 30 } } },
 	];
 }
 
@@ -83,7 +84,7 @@ function ScriptTemplate()
 	this.defaultHeight = 40;
 	this.defaultContent = "";
 	this.connectorTemplates = [
-		{ name: "Owners", type: "Url[]", description: "Owners", position: function(element) { return { x: 0, y: 30 } } },
+		{ name: "owners", type: "Url[]", description: "Owners", position: function(element) { return { x: 0, y: 30 } } },
 	];
 }
 
@@ -168,8 +169,8 @@ ContentEditor.prototype.cancel = function()
 <br/>
 <div class="center" style="position: relative;">
 <canvas style="position: absolute;" id="canvas" width="800" height="600" tabindex="0"></canvas>
-<input style="position: absolute; top: 4px; left: 5px; width: 75px; " type="button" value="Add Page" onclick="graph.createElement(pageTemplate);" />
-<input style="position: absolute; top: 4px; left: 85px; width: 75px; "type="button" value="Add Script" onclick="graph.createElement(scriptTemplate);" />
+<input style="position: absolute; top: 4px; left: 5px;  width: 75px; height: 19px;" type="button" value="Add Page" onclick="graph.createElement(pageTemplate);" />
+<input style="position: absolute; top: 4px; left: 85px; width: 75px; height: 19px; "type="button" value="Add Script" onclick="graph.createElement(scriptTemplate);" />
 </div>
 </body>
 
