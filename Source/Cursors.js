@@ -2,8 +2,8 @@
 var Cursors = 
 {
 	arrow: "default",
-	grip: "crosshair", 
-	cross: "crosshair", 
+	grip: "pointer", // "crosshair", 
+	cross: "pointer", // "crosshair",
 	move: "move", 
 	select: "pointer" 
 };

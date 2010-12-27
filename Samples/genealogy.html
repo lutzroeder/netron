@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <!-- saved from url=(0014)about:internet -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-
 <head>
-
 <title>Netron for HTML5</title>
 <meta http-equiv="X-UA-Compatible" content="IE=9" />
-<script type="text/javascript" src="http://www.google-analytics.com/ga.js"></script>
-<script type="text/javascript">try { _gat._getTracker("UA-54146-8")._trackPageview(); } catch (e) { }</script>
 <style type="text/css">
 body { background-color: #000; margin-left: 0; margin-right: 0; margin-top: 0; }
-.center { margin-left: auto; margin-right: auto; width: 1024px; }
+.center { margin-left: auto; margin-right: auto; width: 800px; }
 input[type="text"] { text-align: center; border: none; background: #000; color: #fff; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
 input[type="button"] { border: 1px solid #555; background: #555; color: #000; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
 input[type="button"]:hover { border: 1px solid #999; background: #999; color: #000; cursor: pointer; }
-input[type="button"]:active { border: 1px solid #ccc; background: #ccc; }
+input[type="button"]:active { border: 1px solid #ccc; background: #ccc; margin: 0; padding: 0; }
 input[type="button"]::-moz-focus-inner { border: none; }
 #canvas { border: 1px solid #222; outline: none; }
 #canvas:focus { outline: 1px solid #555; }
@@ -62,7 +58,7 @@ PersonTemplate.prototype.paint = function(element, context)
 	context.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 	context.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 	context.font = "bold 10px Verdana";
-	context.fillStyle = "#fff";
+	context.fillStyle = context.strokeStyle;
 	context.textBaseline = "bottom";
 	context.textAlign = "center";
 	context.fillText(element.getContent(), rectangle.x + (rectangle.width / 2), rectangle.y + 20);
@@ -132,7 +128,7 @@ ContentEditor.prototype.cancel = function()
 <a href="../" hidefocus="true"><img src="http://www.lutzroeder.com/Back.png" hidefocus="true" border="0" style="margin:8px;"/></a>
 <br/>
 <div class="center" style="position: relative;">
-<canvas style="position: absolute;" id="canvas" width="1024" height="768" tabindex="0"></canvas>
+<canvas style="position: absolute;" id="canvas" width="800" height="600" tabindex="0"></canvas>
 <input type="button" value="Add Person" style="position: absolute; top: 5px; left: 5px; width: 85px; height: 19px;" onclick="graph.createElement(personTemplate);" />
 
 </div>
