@@ -33,20 +33,45 @@ Connector.prototype.invalidate = function()
 {
 };
 
-Connector.prototype.paint = function(context)
+Connector.prototype.isValid = function(value)
+{
+	if (value === this)
+	{
+		return false;
+	}
+	var t1 = this.template.type.split(' ');
+	if (!t1.contains("[array]") && (this.connections.length == 1))
+	{
+		return false;
+	}
+	if (value instanceof Connector)
+	{	
+		var t2 = value.template.type.split(' ');
+		if ((t1[0] != t2[0]) ||
+		(this.owner == value.owner) || 
+			(t1.contains("[in]") && !t2.contains("[out]")) || 
+			(t1.contains("[out]") && !t2.contains("[in]")) || 
+			(!t2.contains("[array]") && (value.connections.length == 1)))
+		{
+			return false;
+		}
+	}
+	return true;
+};
+
+Connector.prototype.paint = function(context, other)
 {
 	var rectangle = this.getRectangle();
-
 	var strokeStyle = this.owner.owner.style.connectorBorder; 
 	var fillStyle = this.owner.owner.style.connector;
-	if (this.hover) // TODO || (this.owner.owner.newConnection !== null))
+	if (this.hover)
 	{
 		strokeStyle = this.owner.owner.style.connectorHoverBorder; 
 		fillStyle = this.owner.owner.style.connectorHover;
-		// if ((this.list) || (this.connections.Count != 1))
-		// {
-		//	fillColor = Color.FromArgb(0, 192, 0); // medium green
-		// }
+		if (!this.isValid(other))
+		{
+			fillStyle = "#f00";			
+		}
 	}
 
 	context.lineWidth = 1;

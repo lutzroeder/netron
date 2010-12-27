@@ -38,6 +38,6 @@ cat	Function.js \
 
 cd ../Tools
 echo Building \'Release/netron.js\'.
-# java -jar compiler.jar --js ../Build/Debug/netron.js > ../Build/Release/netron.js
+java -jar compiler.jar --js ../Build/Debug/netron.js > ../Build/Release/netron.js
 
 echo Done.
