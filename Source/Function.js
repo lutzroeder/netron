@@ -1,5 +1,5 @@
 
-Function.prototype.delegate = function(obj)
+Function.prototype.bind = function(obj)
 {
 	var fn = this;
 	return function()

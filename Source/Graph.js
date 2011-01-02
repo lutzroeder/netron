@@ -16,15 +16,16 @@ function Graph(element)
 	this.selection = null;
 	this.track = false;
 
-	this.mouseDownHandler = this.mouseDown.delegate(this);
-	this.mouseUpHandler = this.mouseUp.delegate(this);
-	this.mouseMoveHandler = this.mouseMove.delegate(this);
-	this.doubleClickHandler = this.doubleClick.delegate(this);
-	this.touchStartHandler = this.touchStart.delegate(this);
-	this.touchEndHandler = this.touchEnd.delegate(this);
-	this.touchMoveHandler = this.touchMove.delegate(this);
-	this.keyDownHandler = this.keyDown.delegate(this);
-	this.keyUpHandler = this.keyUp.delegate(this);	
+	this.mouseDownHandler = this.mouseDown.bind(this);
+	this.mouseUpHandler = this.mouseUp.bind(this);
+	this.mouseMoveHandler = this.mouseMove.bind(this);
+	this.doubleClickHandler = this.doubleClick.bind(this);
+	this.touchStartHandler = this.touchStart.bind(this);
+	this.touchEndHandler = this.touchEnd.bind(this);
+	this.touchMoveHandler = this.touchMove.bind(this);
+	this.keyDownHandler = this.keyDown.bind(this);
+	this.keyPressHandler = this.keyPress.bind(this);
+	this.keyUpHandler = this.keyUp.bind(this);	
 
 	this.canvas.addEventListener("mousedown", this.mouseDownHandler, false);
 	this.canvas.addEventListener("mouseup", this.mouseUpHandler, false);
@@ -34,7 +35,11 @@ function Graph(element)
 	this.canvas.addEventListener("touchmove", this.touchMoveHandler, false);
 	this.canvas.addEventListener("dblclick", this.doubleClickHandler, false);
 	this.canvas.addEventListener("keydown", this.keyDownHandler, false);
+	this.canvas.addEventListener("keypress", this.keyPressHandler, false);
 	this.canvas.addEventListener("keyup", this.keyUpHandler, false);
+	
+	this.isWebKit = typeof navigator.userAgent.split("WebKit/")[1] !== "undefined";
+	this.isMozilla = navigator.appVersion.indexOf('Gecko/') >= 0 || ((navigator.userAgent.indexOf("Gecko") >= 0) && !this.isWebKit && (typeof navigator.appVersion !== "undefined"));
 }
 
 Graph.prototype.dispose = function()
@@ -49,6 +54,7 @@ Graph.prototype.dispose = function()
 		this.canvas.removeEventListener("touchend", this.touchEndHandler);
 		this.canvas.removeEventListener("touchmove", this.touchMoveHandler);
 		this.canvas.removeEventListener("keydown", this.keyDownHandler);
+		this.canvas.removeEventListener("keypress", this.keyPressHandler);
 		this.canvas.removeEventListener("keyup", this.keyUpHandler);	
 		this.canvas = null;
 		this.context = null;
@@ -338,9 +344,50 @@ Graph.prototype.pointerMove = function()
 
 Graph.prototype.keyDown = function(e)
 {
+	if (!this.isMozilla)
+	{
+		this.processKey(e, e.keyCode);
+	}
+};
+
+Graph.prototype.keyPress = function(e)
+{
+	if (this.isMozilla)
+	{
+		if (typeof this.keyCodeTable === "undefined")
+		{
+			this.keyCodeTable = [];
+			var charCodeTable = {
+				32: ' ',  48: '0',  49: '1',  50: '2',  51: '3',  52: '4', 53:  '5',  54: '6',  55: '7',  56: '8',  57: '9',  59: ';',  61: '=', 
+				65:  'a', 66: 'b',  67: 'c',  68: 'd',  69: 'e',  70: 'f',  71: 'g', 72:  'h',  73: 'i',  74: 'j',  75: 'k',  76: 'l',  77: 'm',  78: 'n', 79:  'o', 80: 'p',  81: 'q',  82: 'r',  83: 's',  84: 't',  85: 'u', 86: 'v', 87: 'w',  88: 'x',  89: 'y',  90: 'z',
+				107: '+', 109: '-', 110: '.', 188: ',', 190: '.', 191: '/', 192: '`', 219: '[', 220: '\\', 221: ']', 222: '\"' 
+			};
+
+			for (var keyCode in charCodeTable)
+			{
+				var key = charCodeTable[keyCode];
+				this.keyCodeTable[key.charCodeAt(0)] = keyCode;
+				if (key.toUpperCase() != key)
+				{
+					this.keyCodeTable[key.toUpperCase().charCodeAt(0)] = keyCode;
+				}
+			}
+		}
+		
+		this.processKey(e, (this.keyCodeTable[e.charCode]) ? this.keyCodeTable[e.charCode] : e.keyCode);
+	}
+};
+
+Graph.prototype.keyUp = function(e)
+{
+	this.updateMouseCursor();
+};
+
+Graph.prototype.processKey = function(e, keyCode)
+{
 	if ((e.ctrlKey || e.metaKey) && !e.altKey) // ctrl or option
 	{
-		if (e.keyCode == 65) // A - select all
+		if (keyCode == 65) // A - select all
 		{
 			this.undoService.begin();
 			var selectionUndoUnit = new SelectionUndoUnit();
@@ -350,38 +397,38 @@ Graph.prototype.keyDown = function(e)
 			this.update();
 			this.updateActiveObject(this.pointerPosition);
 			this.updateMouseCursor();
-			e.preventDefault();
+			this.stopEvent(e);
 		}
 
-		if ((e.keyCode == 90) && (!e.shiftKey)) // Z - undo
+		if ((keyCode == 90) && (!e.shiftKey)) // Z - undo
 		{
 			this.undoService.undo();
 			this.update();
 			this.updateActiveObject(this.pointerPosition);
 			this.updateMouseCursor();
-			e.preventDefault();
+			this.stopEvent(e);
 		}
 		
-		if (((e.keyCode == 90) && (e.shiftKey)) || (e.keyCode == 89)) // Y - redo
+		if (((keyCode == 90) && (e.shiftKey)) || (keyCode == 89)) // Y - redo
 		{
 			this.undoService.redo();
 			this.update();
 			this.updateActiveObject(this.pointerPosition);
 			this.updateMouseCursor();
-			e.preventDefault();
+			this.stopEvent(e);
 		}
 	}
 
-	if ((e.keyCode == 46) || (e.keyCode == 8)) // DEL - delete
+	if ((keyCode == 46) || (keyCode == 8)) // DEL - delete
 	{
 		this.deleteSelection();
 		this.update();
 		this.updateActiveObject(this.pointerPosition);
 		this.updateMouseCursor();
-		e.preventDefault();
+		this.stopEvent(e);
 	}
 
-	if (e.keyCode == 27) // ESC
+	if (keyCode == 27) // ESC
 	{
 		this.newElement = null;
 		this.newConnection = null;
@@ -399,13 +446,14 @@ Graph.prototype.keyDown = function(e)
 		this.update();
 		this.updateActiveObject(this.pointerPosition);
 		this.updateMouseCursor();
-		e.preventDefault();
+		this.stopEvent(e);
 	}
 };
 
-Graph.prototype.keyUp = function(e)
+Graph.prototype.stopEvent = function(e)
 {
-	this.updateMouseCursor();
+	e.preventDefault();
+	e.stopPropagation();
 };
 
 Graph.prototype.deleteSelection = function()
