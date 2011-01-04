@@ -1,5 +1,5 @@
 
-function ContentChangedUndoUnit(element, content)
+ContentChangedUndoUnit = function(element, content)
 {
 	this.element = element;
 	this.undoContent = element.content;

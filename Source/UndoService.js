@@ -1,5 +1,5 @@
 
-function UndoService()
+UndoService = function()
 {
 	this.container = null;
 	this.stack = [];

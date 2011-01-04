@@ -1,5 +1,5 @@
 
-function DeleteConnectionUndoUnit(connection)
+DeleteConnectionUndoUnit = function(connection)
 {
 	this.connection = connection;
 	this.from = connection.from;

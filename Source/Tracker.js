@@ -1,5 +1,5 @@
 
-function Tracker(rectangle, resizable)
+Tracker = function(rectangle, resizable)
 {
 	this.rectangle = new Rectangle(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 	this.resizable = resizable;

@@ -1,5 +1,5 @@
 
-function Graph(element)
+Graph = function(element)
 {
 	this.canvas = element;
 	this.canvas.focus();

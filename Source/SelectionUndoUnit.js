@@ -1,5 +1,5 @@
 
-function SelectionUndoUnit()
+SelectionUndoUnit = function()
 {
 	this.states = [];
 }

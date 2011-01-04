@@ -1,5 +1,5 @@
 
-function TransformUndoUnit(element, undoRectangle, redoRectangle)
+TransformUndoUnit = function(element, undoRectangle, redoRectangle)
 {
 	this.element = element;
 	this.undoRectangle = new Rectangle(undoRectangle.x, undoRectangle.y, undoRectangle.width, undoRectangle.height);

@@ -1,5 +1,5 @@
 
-function Rectangle(x, y, width, height)
+Rectangle = function(x, y, width, height)
 {
 	this.x = x;
 	this.y = y;

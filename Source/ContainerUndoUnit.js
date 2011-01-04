@@ -1,5 +1,5 @@
 
-function ContainerUndoUnit()
+ContainerUndoUnit = function()
 {
 	this.undoUnits = [];
 }

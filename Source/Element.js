@@ -1,5 +1,5 @@
 
-function Element(template, point)
+Element = function(template, point)
 {
 	this.template = template;
 	this.rectangle = new Rectangle(point.x, point.y, template.defaultWidth, template.defaultHeight);

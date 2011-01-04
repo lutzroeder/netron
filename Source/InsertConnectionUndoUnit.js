@@ -1,5 +1,5 @@
 
-function InsertConnectionUndoUnit(connection, from, to)
+InsertConnectionUndoUnit = function(connection, from, to)
 {
 	this.connection = connection;
 	this.from = from;

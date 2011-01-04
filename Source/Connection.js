@@ -1,5 +1,5 @@
 
-function Connection(from, to)
+Connection = function(from, to)
 {
 	this.from = from;
 	this.to = to;

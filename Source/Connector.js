@@ -1,5 +1,5 @@
 
-function Connector(owner, template)
+Connector = function(owner, template)
 {
 	this.owner = owner;
 	this.template = template;

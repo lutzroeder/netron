@@ -1,5 +1,5 @@
 
-function InsertElementUndoUnit(element, owner)
+InsertElementUndoUnit = function(element, owner)
 {
 	this.element = element;
 	this.owner = owner;

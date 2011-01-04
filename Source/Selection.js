@@ -1,5 +1,5 @@
 
-function Selection(startPoint)
+Selection = function(startPoint)
 {
 	this.startPoint = startPoint;
 	this.currentPoint = startPoint;

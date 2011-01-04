@@ -1,5 +1,5 @@
 
-function DeleteElementUndoUnit(element)
+DeleteElementUndoUnit = function(element)
 {
 	this.element = element;
 	this.owner = this.element.owner;
