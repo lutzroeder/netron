@@ -1,5 +1,5 @@
 
-Graph = function(element)
+var Graph = function(element)
 {
 	this.canvas = element;
 	this.canvas.focus();
@@ -40,7 +40,7 @@ Graph = function(element)
 	
 	this.isWebKit = typeof navigator.userAgent.split("WebKit/")[1] !== "undefined";
 	this.isMozilla = navigator.appVersion.indexOf('Gecko/') >= 0 || ((navigator.userAgent.indexOf("Gecko") >= 0) && !this.isWebKit && (typeof navigator.appVersion !== "undefined"));
-}
+};
 
 Graph.prototype.dispose = function()
 {

@@ -1,10 +1,10 @@
 
-InsertConnectionUndoUnit = function(connection, from, to)
+var InsertConnectionUndoUnit = function(connection, from, to)
 {
 	this.connection = connection;
 	this.from = from;
 	this.to = to;
-}
+};
 
 InsertConnectionUndoUnit.prototype.undo = function()
 {

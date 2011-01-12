@@ -1,8 +1,8 @@
 
-ContainerUndoUnit = function()
+var ContainerUndoUnit = function()
 {
 	this.undoUnits = [];
-}
+};
 
 ContainerUndoUnit.prototype.add = function(undoUnit)
 {

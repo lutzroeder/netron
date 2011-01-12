@@ -1,9 +1,9 @@
 
-Selection = function(startPoint)
+var Selection = function(startPoint)
 {
 	this.startPoint = startPoint;
 	this.currentPoint = startPoint;
-}
+};
 
 Selection.prototype.paint = function(context)
 {

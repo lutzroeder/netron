@@ -1,9 +1,9 @@
 
-InsertElementUndoUnit = function(element, owner)
+var InsertElementUndoUnit = function(element, owner)
 {
 	this.element = element;
 	this.owner = owner;
-}
+};
 
 InsertElementUndoUnit.prototype.undo = function()
 {

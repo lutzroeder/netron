@@ -1,10 +1,10 @@
 
-Connection = function(from, to)
+var Connection = function(from, to)
 {
 	this.from = from;
 	this.to = to;
 	this.toPoint = null;
-}
+};
 
 Connection.prototype.select = function()
 {

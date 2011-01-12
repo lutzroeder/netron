@@ -1,5 +1,5 @@
 
-Element = function(template, point)
+var Element = function(template, point)
 {
 	this.template = template;
 	this.rectangle = new Rectangle(point.x, point.y, template.defaultWidth, template.defaultHeight);
@@ -14,7 +14,7 @@ Element = function(template, point)
 		var connectorTemplate = template.connectorTemplates[i];
 		this.connectors.push(new Connector(this, connectorTemplate));
 	}	
-}
+};
 
 Element.prototype.select = function()
 {

@@ -1,9 +1,9 @@
 
-DeleteElementUndoUnit = function(element)
+var DeleteElementUndoUnit = function(element)
 {
 	this.element = element;
 	this.owner = this.element.owner;
-}
+};
 
 DeleteElementUndoUnit.prototype.undo = function()
 {

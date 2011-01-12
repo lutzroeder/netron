@@ -1,10 +1,10 @@
 
-UndoService = function()
+var UndoService = function()
 {
 	this.container = null;
 	this.stack = [];
 	this.position = 0;
-}
+};
 
 UndoService.prototype.begin = function()
 {

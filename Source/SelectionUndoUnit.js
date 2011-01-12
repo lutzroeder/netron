@@ -1,8 +1,8 @@
 
-SelectionUndoUnit = function()
+var SelectionUndoUnit = function()
 {
 	this.states = [];
-}
+};
 
 SelectionUndoUnit.prototype.undo = function()
 {

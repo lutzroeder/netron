@@ -1,11 +1,11 @@
 
-Connector = function(owner, template)
+var Connector = function(owner, template)
 {
 	this.owner = owner;
 	this.template = template;
 	this.connections = [];
 	this.hover = false;
-}
+};
 
 Connector.prototype.getCursor = function(point)
 {
