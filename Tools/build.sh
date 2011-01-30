@@ -6,10 +6,10 @@ mkdir ../Build/Debug
 mkdir ../Build/Release
 
 cd ../Samples
-cp website.html ../Build/Debug/website.html
-cp website.html ../Build/Release/website.html
-cp genealogy.html ../Build/Debug/genealogy.html
-cp genealogy.html ../Build/Release/genealogy.html
+cp demo_web.html ../Build/Debug/demo_web.html
+cp demo_web.html ../Build/Release/demo_web.html
+cp demo_genealogy.html ../Build/Debug/demo_genealogy.html
+cp demo_genealogy.html ../Build/Release/demo_genealogy.html
 
 echo Building \'Debug/netron.js\'.
 cd ../Source
