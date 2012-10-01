@@ -1,43 +1,21 @@
 #!/bin/bash
 
-rm -r ../Build
-mkdir ../Build
-mkdir ../Build/Debug
-mkdir ../Build/Release
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
-cd ../Samples
-cp demo_web.html ../Build/Debug/demo_web.html
-cp demo_web.html ../Build/Release/demo_web.html
-cp demo_genealogy.html ../Build/Debug/demo_genealogy.html
-cp demo_genealogy.html ../Build/Release/demo_genealogy.html
+rm -f -r ../Build
+mkdir -p ../Build/Debug
+mkdir -p ../Build/Release
 
-echo Building \'Debug/netron.js\'.
-cd ../Source
-cat	Function.js \
-	Array.js \
-	Point.js \
-	Rectangle.js \
-	CanvasRenderingContext2D.js \
-	Cursors.js \
-	Connector.js \
-	Tracker.js \
-	Element.js \
-	Connection.js \
-	Selection.js \
-	ContainerUndoUnit.js \
-	InsertElementUndoUnit.js \
-	DeleteElementUndoUnit.js \
-	InsertConnectionUndoUnit.js \
-	DeleteConnectionUndoUnit.js \
-	ContentChangedUndoUnit.js \
-	TransformUndoUnit.js \
-	SelectionUndoUnit.js \
-	UndoService.js \
-	Graph.js \
-	> ../Build/Debug/netron.js
+echo Building \'Release/*.html\'
+cp ../Samples/demo_orgchart.html ../Build/Debug/demo_orgchart.html
 
-cd ../Tools
-echo Building \'Release/netron.js\'.
-java -jar compiler.jar --js ../Build/Debug/netron.js > ../Build/Release/netron.js
+echo Building \'Release/*.html\'
+cp ../Samples/demo_orgchart.html ../Build/Release/demo_orgchart.html
+
+echo Building \'Debug/netron.js\'
+node tsc.js -target ES5 -out ../Build/Debug/netron.js lib.d.ts libex.ts ../Source/*.ts
+
+echo Building \'Release/netron.js\'
+node minify.js ../Build/Debug/netron.js ../Build/Release/netron.js
 
 echo Done.

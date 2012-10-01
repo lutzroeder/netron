@@ -8,12 +8,12 @@
 body { background-color: #000; margin-left: 0; margin-right: 0; margin-top: 0; }
 .center { margin-left: auto; margin-right: auto; width: 800px; }
 input[type="text"] { text-align: center; border: none; background: #000; color: #fff; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
-input[type="button"] { border: 1px solid #555; background: #555; color: #000; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
-input[type="button"]:hover { border: 1px solid #999; background: #999; color: #000; cursor: pointer; }
-input[type="button"]:active { border: 1px solid #ccc; background: #ccc; margin: 0; padding: 0; }
+input[type="button"] { border: 1px solid #777; background: #777; color: #000; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
+input[type="button"]:hover { border: 1px solid #bbb; background: #bbb; color: #000; cursor: pointer; }
+input[type="button"]:active { border: 1px solid #ddd; background: #ddd; margin: 0; padding: 0; }
 input[type="button"]::-moz-focus-inner { border: none; }
-#canvas { border: 1px solid #222; outline: none; }
-#canvas:focus { outline: 1px solid #555; }
+#canvas { border: 1px solid #444; outline: none; }
+#canvas:focus { outline: 1px solid #666; }
 </style>
 <script type="text/javascript" src="netron.js"></script>
 <script type="text/javascript">
@@ -23,14 +23,17 @@ var graph = null;
 
 function document_load()
 {
-	graph = new Graph(document.getElementById("canvas"));
+	graph = new Netron.Graph(document.getElementById("canvas"));
  	graph.theme = { background: "#000", connection: "#fff", selection: "#888", connector: "#fff", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#0c0" };
-	var e1 = graph.addElement(personTemplate, { x:200, y:100 }, "John Smith");
-	var e2 = graph.addElement(personTemplate, { x:400, y:100 }, "Emily Jones");
-	var e3 = graph.addElement(personTemplate, { x:300, y:200 }, "Daniel Smith");
-	var e4 = graph.addElement(personTemplate, { x:325, y:300 }, "Elizabeth Smith");
-	var c1 = graph.addConnection(e1.getConnector("children"), e3.getConnector("father"));
-	var c2 = graph.addConnection(e2.getConnector("children"), e3.getConnector("mother"));
+	var e1 = graph.addElement(personTemplate, { x:250, y: 50 }, "Michael Scott");
+	var e2 = graph.addElement(personTemplate, { x:150, y:150 }, "Angela Martin");
+	var e3 = graph.addElement(personTemplate, { x:350, y:150 }, "Dwight Schrute");
+	var e4 = graph.addElement(personTemplate, { x: 50, y:250 }, "Kevin Malone");
+	var e5 = graph.addElement(personTemplate, { x:250, y:250 }, "Oscar Martinez");
+	var c1 = graph.addConnection(e1.getConnector("reports"), e2.getConnector("manager"));
+	var c2 = graph.addConnection(e1.getConnector("reports"), e3.getConnector("manager"));
+	var c3 = graph.addConnection(e2.getConnector("reports"), e4.getConnector("manager"));
+	var c4 = graph.addConnection(e2.getConnector("reports"), e5.getConnector("manager"));
 	graph.update();
 }
 
@@ -39,19 +42,21 @@ var personTemplate = new PersonTemplate();
 function PersonTemplate()
 {
 	this.resizable = false;
-	this.defaultWidth = 150;
+	this.defaultWidth = 125;
 	this.defaultHeight = 30;
 	this.defaultContent = "";
 	this.connectorTemplates = [
-		{ name: "father",   type: "Person [in]",          description: "Father",   position: function(element) { return { x: Math.floor(element.getRectangle().width / 3), y: 0 } } },
-		{ name: "mother",   type: "Person [in]",          description: "Mother",   position: function(element) { return { x: Math.floor(element.getRectangle().width * 2 / 3), y: 0 } } },
-		{ name: "children", type: "Person [out] [array]", description: "Children", position: function(element) { return { x: Math.floor(element.getRectangle().width / 2), y: element.getRectangle().height } } }
+		{ name: "manager", type: "Person [in]",          description: "Manager", getConnectorPosition: function(element) { return { x: Math.floor(element.rectangle.width / 2), y: 0 } } },
+		{ name: "reports", type: "Person [out] [array]", description: "Reports", getConnectorPosition: function(element) { return { x: Math.floor(element.rectangle.width / 2), y: element.rectangle.height } } }
 	];
 }
 
 PersonTemplate.prototype.paint = function(element, context)
 {
-	var rectangle = element.getRectangle();
+	var rectangle = element.rectangle;
+	rectangle.x += context.canvas.offsetLeft;
+	rectangle.y += context.canvas.offsetTop;
+
 	context.fillStyle = "#000";
 	context.strokeStyle = element.selected ? "#888" : "#fff";
 	context.lineWidth = 2;
@@ -61,12 +66,12 @@ PersonTemplate.prototype.paint = function(element, context)
 	context.fillStyle = context.strokeStyle;
 	context.textBaseline = "bottom";
 	context.textAlign = "center";
-	context.fillText(element.getContent(), rectangle.x + (rectangle.width / 2), rectangle.y + 20);
+	context.fillText(element.content, rectangle.x + (rectangle.width / 2), rectangle.y + 20);
 };
 
-PersonTemplate.prototype.edit = function(element, point)
+PersonTemplate.prototype.edit = function(element, context, point)
 {
-	contentEditor.start(element);
+	contentEditor.start(element, context);
 };
 
 var contentEditor = new ContentEditor();
@@ -76,10 +81,15 @@ function ContentEditor()
 	this.input = null;
 }
 
-ContentEditor.prototype.start = function(element)
+ContentEditor.prototype.start = function(element, context)
 {
-	var rectangle = element.getPageRectangle();
 	this.element = element;
+	this.canvas = context.canvas;
+
+	var rectangle = element.rectangle;
+	rectangle.x += this.canvas.offsetLeft;
+	rectangle.y += this.canvas.offsetTop;
+
 	this.input = document.createElement('input');
 	this.input.type = "text";
 	this.input.style.position = "absolute";
@@ -96,8 +106,8 @@ ContentEditor.prototype.start = function(element)
 		if (e.keyCode == 13) { contentEditor.commit(); } // Enter
 		if (e.keyCode == 27) { contentEditor.cancel(); } // ESC
 	};
-	this.element.owner.canvas.parentNode.appendChild(this.input);
-	this.input.value = element.getContent();
+	this.canvas.parentNode.appendChild(this.input);
+	this.input.value = element.content;
 	this.input.select();
 	this.input.focus();	
 };
@@ -114,8 +124,8 @@ ContentEditor.prototype.cancel = function()
 	{	
 		var input = this.input;
 		this.input = null;
-		this.element.owner.canvas.parentNode.removeChild(input);
-		this.element = null;
+		this.canvas.parentNode.removeChild(input);
+		this.canvas = null;
 	}
 };
 
