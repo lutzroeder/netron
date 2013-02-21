@@ -1,5 +1,4 @@
 // Minifier Client for Closure Compiler Service
-// Copyright (c) Lutz Roeder. All rights reserved.
 //
 
 var fs = require("fs"); 
