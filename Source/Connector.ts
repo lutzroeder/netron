@@ -13,6 +13,14 @@ module Netron
 			this._template = template;
 		}
 
+		private getRectangle() : Rectangle
+		{
+			var point: Point = this._element.getConnectorPosition(this);
+			var rectangle: Rectangle = new Rectangle(point.x, point.y, 0, 0);
+			rectangle.inflate(3, 3);
+			return rectangle;
+		}
+
 		public get element(): Element
 		{
 			return this._element;
@@ -47,9 +55,9 @@ module Netron
 		{
 			if ((rectangle.width === 0) && (rectangle.height === 0))
 			{
-				return this.rectangle.contains(rectangle.topLeft);
+				return this.getRectangle().contains(rectangle.topLeft);
 			}
-			return rectangle.contains(this.rectangle.topLeft);
+			return rectangle.contains(this.getRectangle().topLeft);
 		}
 
 		public invalidate()
@@ -87,7 +95,7 @@ module Netron
 
 		public paint(context: CanvasRenderingContext2D, other)
 		{
-			var rectangle: Rectangle = this.rectangle;
+			var rectangle: Rectangle = this.getRectangle();
 			var strokeStyle: string = this._element.graph.theme.connectorBorder; 
 			var fillStyle: string = this._element.graph.theme.connector;
 			if (this._hover)
@@ -127,14 +135,6 @@ module Netron
 				context.fillStyle = "#000";
 				context.fillText(text, b.x, b.y + 13);
 			}
-		}
-
-		private get rectangle(): Rectangle
-		{
-			var point: Point = this._element.getConnectorPosition(this);
-			var rectangle: Rectangle = new Rectangle(point.x, point.y, 0, 0);
-			rectangle.inflate(3, 3);
-			return rectangle;
 		}
 	}
 }
