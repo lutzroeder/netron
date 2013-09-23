@@ -23,7 +23,7 @@ module Netron
 			this._connection.remove();
 		}
 
-		public get isEmpty(): bool
+		public get isEmpty(): boolean
 		{
 			return false;
 		}

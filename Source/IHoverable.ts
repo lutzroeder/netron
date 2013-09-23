@@ -2,7 +2,7 @@ module Netron
 {
 	export interface IHoverable
 	{
-		hover: bool;
+		hover: boolean;
 		getCursor(point: Point): string;
 	}
 }

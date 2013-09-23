@@ -20,7 +20,7 @@ module Netron
 			}
 		}
 
-		public get isEmpty(): bool
+		public get isEmpty(): boolean
 		{
 			for (var i: number = 0; i < this._states.length; i++)
 			{
@@ -42,7 +42,7 @@ module Netron
 			this.update(value, value.selected, false);
 		}
 
-		private update(value: ISelectable, undo: bool, redo: bool)
+		private update(value: ISelectable, undo: boolean, redo: boolean)
 		{
 			for (var i: number = 0; i < this._states.length; i++)
 			{

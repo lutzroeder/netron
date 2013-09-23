@@ -25,7 +25,7 @@ module Netron
 			}
 		}
 
-		public get isEmpty(): bool
+		public get isEmpty(): boolean
 		{
 			if (this._undoUnits.length > 0)
 			{

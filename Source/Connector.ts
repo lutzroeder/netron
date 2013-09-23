@@ -5,7 +5,7 @@ module Netron
 		private _element: Element;
 		private _template: IConnectorTemplate;
 		private _connections: Connection[] = [];
-		private _hover: bool = false;
+		private _hover: boolean = false;
 
 		constructor(element: Element, template: IConnectorTemplate)
 		{
@@ -36,12 +36,12 @@ module Netron
 			return this._connections;
 		}
 
-		public get hover(): bool
+		public get hover(): boolean
 		{
 			return this._hover;
 		}
 
-		public set hover(value: bool)
+		public set hover(value: boolean)
 		{	
 			this._hover = value;
 		}
@@ -51,7 +51,7 @@ module Netron
 			return Cursors.grip;
 		}
 
-		public hitTest(rectangle: Rectangle): bool
+		public hitTest(rectangle: Rectangle): boolean
 		{
 			if ((rectangle.width === 0) && (rectangle.height === 0))
 			{
@@ -64,7 +64,7 @@ module Netron
 		{
 		}
 
-		public isAssignable(connector: Connector): bool
+		public isAssignable(connector: Connector): boolean
 		{
 			if (connector === this)
 			{

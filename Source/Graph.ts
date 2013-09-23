@@ -6,7 +6,7 @@ module Netron
 		private _context: CanvasRenderingContext2D;
 		private _theme: ITheme;
 		private _pointerPosition: Point = new Point(0, 0);
-		private _shiftKey: bool = false;
+		private _shiftKey: boolean = false;
 		private _undoService : UndoService = new UndoService();
 		private _elements: Element[] = [];
 		private _activeTemplate: IElementTemplate = null;
@@ -14,10 +14,10 @@ module Netron
 		private _newElement: Element = null;
 		private _newConnection: Connection = null;
 		private _selection: Selection = null;
-		private _track: bool = false;
+		private _track: boolean = false;
 		private _keyCodeTable: any;
-		private _isMozilla: bool;
-		private _isWebKit: bool;
+		private _isMozilla: boolean;
+		private _isWebKit: boolean;
 
 		private _mouseDownHandler: (e: MouseEvent) => void;
 		private _mouseUpHandler: (e: MouseEvent) => void;
@@ -763,7 +763,7 @@ module Netron
 				{
 					var connector: Connector = element.connectors[j];
 
-					var hover: bool = false;
+					var hover: boolean = false;
 					for (var k: number = 0; k < connector.connections.length; k++)
 					{
 						if (connector.connections[k].hover)

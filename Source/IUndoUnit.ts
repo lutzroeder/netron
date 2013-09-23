@@ -4,6 +4,6 @@ module Netron
 	{
 		undo(): void;
 		redo(): void;
-		isEmpty: bool;
+		isEmpty: boolean;
 	}
 }

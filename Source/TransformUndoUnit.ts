@@ -23,7 +23,7 @@ module Netron
 			this._element.rectangle = this._redoRectangle;
 		}
 
-		public get isEmpty(): bool
+		public get isEmpty(): boolean
 		{
 			return false;
 		}

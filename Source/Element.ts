@@ -6,8 +6,8 @@ module Netron
 		private _rectangle: Rectangle;
 		private _graph: Graph = null;
 		private _content;
-		private _hover: bool = false;
-		private _selected: bool = false;
+		private _hover: boolean = false;
+		private _selected: boolean = false;
 		private _tracker: Tracker = null;
 		private _connectors: Connector[] = [];
 
@@ -60,12 +60,12 @@ module Netron
 			return this._tracker;
 		}
 
-		public get selected(): bool
+		public get selected(): boolean
 		{
 			return this._selected;
 		}
 
-		public set selected(value: bool)
+		public set selected(value: boolean)
 		{
 			this._selected = value;
 
@@ -81,12 +81,12 @@ module Netron
 			}
 		}
 
-		public get hover(): bool
+		public get hover(): boolean
 		{
 			return this._hover;
 		}
 
-		public set hover(value: bool)
+		public set hover(value: boolean)
 		{
 			this._hover = value;
 		}
@@ -132,7 +132,7 @@ module Netron
 			this._graph = null;
 		}
 
-		public hitTest(rectangle: Rectangle): bool
+		public hitTest(rectangle: Rectangle): boolean
 		{
 			if ((rectangle.width === 0) && (rectangle.height === 0))
 			{

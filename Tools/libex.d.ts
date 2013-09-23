@@ -3,10 +3,10 @@ interface TouchEvent extends UIEvent {
     touches: TouchList;
     targetTouches: TouchList;
     changedTouches: TouchList;
-    altKey: bool;
-    metaKey: bool;
-    ctrlKey: bool;
-    shiftKey: bool;
+    altKey: boolean;
+    metaKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
     relatedTarget: EventTarget;
 }
 

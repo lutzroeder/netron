@@ -23,7 +23,7 @@ module Netron
 			this._element.content = this._redoContent;
 		}
 
-		public get isEmpty(): bool
+		public get isEmpty(): boolean
 		{
 			return false;
 		}

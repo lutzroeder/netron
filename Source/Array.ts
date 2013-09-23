@@ -3,7 +3,7 @@
     interface Array
     {
         remove(obj: any);
-        contains(obj: any): bool;
+        contains(obj: any): boolean;
     }
 // }
 

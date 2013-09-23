@@ -5,8 +5,8 @@ module Netron
 		private _from: Connector;
 		private _to: Connector;
 		private _toPoint: Point = null;
-		private _selected: bool;
-		private _hover: bool;
+		private _selected: boolean;
+		private _hover: boolean;
 
 		constructor(from: Connector, to: Connector)
 		{
@@ -24,23 +24,23 @@ module Netron
 			return this._to;
 		}
 
-		public get selected(): bool
+		public get selected(): boolean
 		{
 			return this._selected;
 		}
 
-		public set selected(value: bool)
+		public set selected(value: boolean)
 		{
 			this._selected = value;
 			this.invalidate();
 		}
 
-		public get hover(): bool
+		public get hover(): boolean
 		{
 			return this._hover;
 		}
 
-		public set hover(value: bool)
+		public set hover(value: boolean)
 		{
 			this._hover = value;
 		}
@@ -81,7 +81,7 @@ module Netron
 			return Cursors.select;
 		}
 
-		public hitTest(rectangle: Rectangle): bool
+		public hitTest(rectangle: Rectangle): boolean
 		{
 			if ((this.from !== null) && (this.to !== null))
 			{
@@ -151,7 +151,7 @@ module Netron
 			this.paintLine(context, true);
 		}
 
-		public paintLine(context: CanvasRenderingContext2D, dashed: bool)
+		public paintLine(context: CanvasRenderingContext2D, dashed: boolean)
 		{
 			if (this._from !== null)
 			{

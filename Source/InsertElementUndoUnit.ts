@@ -21,7 +21,7 @@ module Netron
 			this._element.insertInto(this._graph);
 		}
 
-		public get isEmpty(): bool
+		public get isEmpty(): boolean
 		{
 			return false;
 		}

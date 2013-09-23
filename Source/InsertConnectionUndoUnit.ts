@@ -23,7 +23,7 @@ module Netron
 			this._connection.insert(this._from, this._to);
 		}
 
-		public get isEmpty(): bool
+		public get isEmpty(): boolean
 		{
 			return false;
 		}

@@ -2,7 +2,7 @@ module Netron
 {
 	export interface IElementTemplate
 	{
-		resizable: bool;
+		resizable: boolean;
 		defaultWidth: number;
 		defaultHeight: number;
 		defaultContent: any;

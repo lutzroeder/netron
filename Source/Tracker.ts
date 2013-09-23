@@ -3,12 +3,12 @@ module Netron
 	export class Tracker
 	{
 		private _rectangle: Rectangle;
-		private _resizable: bool;
-		private _track: bool = false;
+		private _resizable: boolean;
+		private _track: boolean = false;
 		private _handle: Point;
 		private _currentPoint: Point;
 
-		constructor(rectangle: Rectangle, resizable: bool)
+		constructor(rectangle: Rectangle, resizable: boolean)
 		{
 			this._rectangle = rectangle.clone();
 			this._resizable = resizable;
@@ -96,7 +96,7 @@ module Netron
 			this._track = false;
 		}
 
-		public get track(): bool
+		public get track(): boolean
 		{
 			return this._track;
 		}
