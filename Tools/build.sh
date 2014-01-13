@@ -13,7 +13,7 @@ echo Building \'Release/*.html\'
 cp ../Samples/demo_orgchart.html ../Build/Release/demo_orgchart.html
 
 echo Building \'Debug/netron.js\'
-node tsc.js -target ES5 -out ../Build/Debug/netron.js -sourcemap lib.d.ts libex.d.ts ../Source/*.ts
+node tsc.js -target ES5 -out ../Build/Debug/netron.js lib.d.ts libex.d.ts ../Source/*.ts
 
 echo Building \'Release/netron.js\'
 node minify.js ../Build/Debug/netron.js ../Build/Release/netron.js
