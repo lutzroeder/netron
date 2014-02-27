@@ -1,11 +1,9 @@
-// module _Core
-// {
-    interface Array
-    {
-        remove(obj: any);
-        contains(obj: any): boolean;
-    }
-// }
+
+interface Array<T>
+{
+    remove(obj: any);
+    contains(obj: any): boolean;
+}
 
 Array.prototype.remove = function(obj)
 {
