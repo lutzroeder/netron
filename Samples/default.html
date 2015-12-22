@@ -23,110 +23,110 @@ var graph = null;
 
 function document_load()
 {
-	graph = new Netron.Graph(document.getElementById("canvas"));
- 	graph.theme = { background: "#000", connection: "#fff", selection: "#888", connector: "#fff", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#0c0" };
-	var e1 = graph.addElement(personTemplate, { x:250, y: 50 }, "Michael Scott");
-	var e2 = graph.addElement(personTemplate, { x:150, y:150 }, "Angela Martin");
-	var e3 = graph.addElement(personTemplate, { x:350, y:150 }, "Dwight Schrute");
-	var e4 = graph.addElement(personTemplate, { x: 50, y:250 }, "Kevin Malone");
-	var e5 = graph.addElement(personTemplate, { x:250, y:250 }, "Oscar Martinez");
-	var c1 = graph.addConnection(e1.getConnector("reports"), e2.getConnector("manager"));
-	var c2 = graph.addConnection(e1.getConnector("reports"), e3.getConnector("manager"));
-	var c3 = graph.addConnection(e2.getConnector("reports"), e4.getConnector("manager"));
-	var c4 = graph.addConnection(e2.getConnector("reports"), e5.getConnector("manager"));
-	graph.update();
+    graph = new Netron.Graph(document.getElementById("canvas"));
+    graph.theme = { background: "#000", connection: "#fff", selection: "#888", connector: "#fff", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#0c0" };
+    var e1 = graph.addElement(personTemplate, { x:250, y: 50 }, "Michael Scott");
+    var e2 = graph.addElement(personTemplate, { x:150, y:150 }, "Angela Martin");
+    var e3 = graph.addElement(personTemplate, { x:350, y:150 }, "Dwight Schrute");
+    var e4 = graph.addElement(personTemplate, { x: 50, y:250 }, "Kevin Malone");
+    var e5 = graph.addElement(personTemplate, { x:250, y:250 }, "Oscar Martinez");
+    var c1 = graph.addConnection(e1.getConnector("reports"), e2.getConnector("manager"));
+    var c2 = graph.addConnection(e1.getConnector("reports"), e3.getConnector("manager"));
+    var c3 = graph.addConnection(e2.getConnector("reports"), e4.getConnector("manager"));
+    var c4 = graph.addConnection(e2.getConnector("reports"), e5.getConnector("manager"));
+    graph.update();
 }
 
 var personTemplate = new PersonTemplate();
 
 function PersonTemplate()
 {
-	this.resizable = false;
-	this.defaultWidth = 125;
-	this.defaultHeight = 30;
-	this.defaultContent = "";
-	this.connectorTemplates = [
-		{ name: "manager", type: "Person [in]",          description: "Manager", getConnectorPosition: function(element) { return { x: Math.floor(element.rectangle.width / 2), y: 0 } } },
-		{ name: "reports", type: "Person [out] [array]", description: "Reports", getConnectorPosition: function(element) { return { x: Math.floor(element.rectangle.width / 2), y: element.rectangle.height } } }
-	];
+    this.resizable = false;
+    this.defaultWidth = 125;
+    this.defaultHeight = 30;
+    this.defaultContent = "";
+    this.connectorTemplates = [
+        { name: "manager", type: "Person [in]",          description: "Manager", getConnectorPosition: function(element) { return { x: Math.floor(element.rectangle.width / 2), y: 0 } } },
+        { name: "reports", type: "Person [out] [array]", description: "Reports", getConnectorPosition: function(element) { return { x: Math.floor(element.rectangle.width / 2), y: element.rectangle.height } } }
+    ];
 }
 
 PersonTemplate.prototype.paint = function(element, context)
 {
-	var rectangle = element.rectangle;
-	rectangle.x += context.canvas.offsetLeft;
-	rectangle.y += context.canvas.offsetTop;
+    var rectangle = element.rectangle;
+    rectangle.x += context.canvas.offsetLeft;
+    rectangle.y += context.canvas.offsetTop;
 
-	context.fillStyle = "#000";
-	context.strokeStyle = element.selected ? "#888" : "#fff";
-	context.lineWidth = 2;
-	context.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-	context.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-	context.font = "bold 10px Verdana";
-	context.fillStyle = context.strokeStyle;
-	context.textBaseline = "bottom";
-	context.textAlign = "center";
-	context.fillText(element.content, rectangle.x + (rectangle.width / 2), rectangle.y + 20);
+    context.fillStyle = "#000";
+    context.strokeStyle = element.selected ? "#888" : "#fff";
+    context.lineWidth = 2;
+    context.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    context.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    context.font = "bold 10px Verdana";
+    context.fillStyle = context.strokeStyle;
+    context.textBaseline = "bottom";
+    context.textAlign = "center";
+    context.fillText(element.content, rectangle.x + (rectangle.width / 2), rectangle.y + 20);
 };
 
 PersonTemplate.prototype.edit = function(element, context, point)
 {
-	contentEditor.start(element, context);
+    contentEditor.start(element, context);
 };
 
 var contentEditor = new ContentEditor();
 
 function ContentEditor()
 {
-	this.input = null;
+    this.input = null;
 }
 
 ContentEditor.prototype.start = function(element, context)
 {
-	this.element = element;
-	this.canvas = context.canvas;
+    this.element = element;
+    this.canvas = context.canvas;
 
-	var rectangle = element.rectangle;
-	rectangle.x += this.canvas.offsetLeft;
-	rectangle.y += this.canvas.offsetTop;
+    var rectangle = element.rectangle;
+    rectangle.x += this.canvas.offsetLeft;
+    rectangle.y += this.canvas.offsetTop;
 
-	this.input = document.createElement('input');
-	this.input.type = "text";
-	this.input.style.position = "absolute";
-	this.input.style.zIndex = 1;
-	this.input.style.top = (rectangle.y + 8) + "px";
-	this.input.style.left = (rectangle.x + 2) + "px";
-	this.input.style.width = (rectangle.width - 5) + "px";
-	this.input.onblur = function(e) 
-	{ 
-		contentEditor.commit(); 
-	}
-	this.input.onkeydown = function(e) 
-	{ 
-		if (e.keyCode == 13) { contentEditor.commit(); } // Enter
-		if (e.keyCode == 27) { contentEditor.cancel(); } // ESC
-	};
-	this.canvas.parentNode.appendChild(this.input);
-	this.input.value = element.content;
-	this.input.select();
-	this.input.focus();	
+    this.input = document.createElement('input');
+    this.input.type = "text";
+    this.input.style.position = "absolute";
+    this.input.style.zIndex = 1;
+    this.input.style.top = (rectangle.y + 8) + "px";
+    this.input.style.left = (rectangle.x + 2) + "px";
+    this.input.style.width = (rectangle.width - 5) + "px";
+    this.input.onblur = function(e) 
+    { 
+        contentEditor.commit(); 
+    }
+    this.input.onkeydown = function(e) 
+    { 
+        if (e.keyCode == 13) { contentEditor.commit(); } // Enter
+        if (e.keyCode == 27) { contentEditor.cancel(); } // ESC
+    };
+    this.canvas.parentNode.appendChild(this.input);
+    this.input.value = element.content;
+    this.input.select();
+    this.input.focus(); 
 };
 
 ContentEditor.prototype.commit = function()
 {
-	this.element.setContent(this.input.value);
-	this.cancel();
+    this.element.setContent(this.input.value);
+    this.cancel();
 }
 
 ContentEditor.prototype.cancel = function()
 {
-	if (this.input !== null)
-	{	
-		var input = this.input;
-		this.input = null;
-		this.canvas.parentNode.removeChild(input);
-		this.canvas = null;
-	}
+    if (this.input !== null)
+    {   
+        var input = this.input;
+        this.input = null;
+        this.canvas.parentNode.removeChild(input);
+        this.canvas = null;
+    }
 };
 
 //]]>
@@ -138,7 +138,7 @@ ContentEditor.prototype.cancel = function()
 <br/>
 <br/>
 <div class="center" style="position: relative;">
-<canvas style="position: absolute;" id="canvas" width="800" height="600" tabindex="0"></canvas>
+<canvas id="canvas" style="position:absolute;width:800px;height:600px" tabindex="0"></canvas>
 <input type="button" value="Add Person" style="position: absolute; top: 5px; left: 5px; width: 85px; height: 19px;" onclick="graph.createElement(personTemplate);" />
 
 </div>

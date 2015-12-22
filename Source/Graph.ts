@@ -33,8 +33,11 @@ module Netron
         constructor(element: HTMLCanvasElement)
         {
             this._canvas = element;
+            this._canvas.width = this._canvas.clientWidth * this.devicePixelRatio;
+            this._canvas.height = this._canvas.clientHeight * this.devicePixelRatio; 
             this._canvas.focus();
             this._context = this._canvas.getContext("2d");
+            this._context.scale(this.devicePixelRatio, this.devicePixelRatio);
 
             this._theme = { background: "#fff", connection: "#000", selection: "#000", connector: "#31456b", connectorBorder: "#fff", connectorHoverBorder: "#000", connectorHover: "#0c0" };
 
@@ -171,6 +174,12 @@ module Netron
             }
 
             this._undoService.commit();
+        }
+
+
+        public get devicePixelRatio(): number 
+        {
+            return (('devicePixelRatio' in window) && (window.devicePixelRatio > 1)) ? window.devicePixelRatio : 1;
         }
 
         private mouseDown(e: MouseEvent)
