@@ -1,31 +1,31 @@
 module Netron
 {
-	export class ContentChangedUndoUnit implements IUndoUnit
-	{
-		private _element: Element;
-		private _undoContent: any;
-		private _redoContent: any;
+    export class ContentChangedUndoUnit implements IUndoUnit
+    {
+        private _element: Element;
+        private _undoContent: any;
+        private _redoContent: any;
 
-		constructor(element: Element, content: any)
-		{
-			this._element = element;
-			this._undoContent = element.content;
-			this._redoContent = content;
-		}
+        constructor(element: Element, content: any)
+        {
+            this._element = element;
+            this._undoContent = element.content;
+            this._redoContent = content;
+        }
 
-		public undo()
-		{
-			this._element.content = this._undoContent;
-		}
+        public undo()
+        {
+            this._element.content = this._undoContent;
+        }
 
-		public redo()
-		{
-			this._element.content = this._redoContent;
-		}
+        public redo()
+        {
+            this._element.content = this._redoContent;
+        }
 
-		public get isEmpty(): boolean
-		{
-			return false;
-		}
-	}
+        public get isEmpty(): boolean
+        {
+            return false;
+        }
+    }
 }
