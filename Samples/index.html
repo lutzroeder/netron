@@ -5,10 +5,10 @@
 <title>Netron for HTML5</title>
 <meta http-equiv="X-UA-Compatible" content="IE=9" />
 <style type="text/css">
-body { background-color: #000; margin-left: 0; margin-right: 0; margin-top: 0; }
+body { background-color: #fff; margin-left: 0; margin-right: 0; margin-top: 0; }
 .center { margin-left: auto; margin-right: auto; width: 800px; }
-input[type="text"] { text-align: center; border: none; background: #000; color: #fff; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
-input[type="button"] { border: 1px solid #777; background: #777; color: #000; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
+input[type="text"] { text-align: center; border: none; background: #fff; color: #000; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
+input[type="button"] { border: 1px solid #aaa; background: #aaa; color: #222; font-family: Verdana; font-size: 10px; font-weight: bold; outline: none; }
 input[type="button"]:hover { border: 1px solid #bbb; background: #bbb; color: #000; cursor: pointer; }
 input[type="button"]:active { border: 1px solid #ddd; background: #ddd; margin: 0; padding: 0; }
 input[type="button"]::-moz-focus-inner { border: none; }
@@ -24,7 +24,7 @@ var graph = null;
 function document_load()
 {
     graph = new Netron.Graph(document.getElementById("canvas"));
-    graph.theme = { background: "#000", connection: "#fff", selection: "#888", connector: "#fff", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#0c0" };
+    graph.theme = { background: "#fafafa", connection: "#000", selection: "#888", connector: "#777", connectorBorder: "#000", connectorHoverBorder: "#000", connectorHover: "#0c0" };
     var e1 = graph.addElement(personTemplate, { x:250, y: 50 }, "Michael Scott");
     var e2 = graph.addElement(personTemplate, { x:150, y:150 }, "Angela Martin");
     var e3 = graph.addElement(personTemplate, { x:350, y:150 }, "Dwight Schrute");
@@ -57,9 +57,9 @@ PersonTemplate.prototype.paint = function(element, context)
     rectangle.x += context.canvas.offsetLeft;
     rectangle.y += context.canvas.offsetTop;
 
-    context.fillStyle = "#000";
-    context.strokeStyle = element.selected ? "#888" : "#fff";
-    context.lineWidth = 2;
+    context.fillStyle = "#fff";
+    context.strokeStyle = element.selected ? "#444" : "#000";
+    context.lineWidth = element.selected ? 2 : 1;
     context.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
     context.strokeRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
     context.font = "bold 10px Verdana";
@@ -138,8 +138,8 @@ ContentEditor.prototype.cancel = function()
 <br/>
 <br/>
 <div class="center" style="position: relative;">
-<canvas id="canvas" style="position:absolute;width:800px;height:600px" tabindex="0"></canvas>
-<input type="button" value="Add Person" style="position: absolute; top: 5px; left: 5px; width: 85px; height: 19px;" onclick="graph.createElement(personTemplate);" />
+<canvas id="canvas" style="position:absolute; width:800px; height:600px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, .09); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .04); outline: none; " tabindex="0"></canvas>
+<input type="button" value="Add Person" style="position: absolute; border-radius: 3px; top: 8px; left: 8px; width: 85px; height: 19px;" onclick="graph.createElement(personTemplate);" />
 
 </div>
 </body>
