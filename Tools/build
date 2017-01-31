@@ -5,21 +5,14 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 npm install
 typescript=./node_modules/typescript/lib
 
-rm -f -r ../Build/Debug
-rm -f -r ../Build/Release
+rm -f -r ../Build
+
+echo $(tput bold)Building Debug$(tput sgr0)
 mkdir -p ../Build/Debug
-mkdir -p ../Build/Release
-
-echo Building \'Release/*.html\'
 cp ../Samples/index.html ../Build/Debug/index.html
-
-echo Building \'Release/*.html\'
-cp ../Samples/index.html ../Build/Release/index.html
-
-echo Building \'Debug/netron.js\'
 node ${typescript}/tsc.js -target ES5 -out ../Build/Debug/netron.js ${typescript}/lib.d.ts ./libex.d.ts ../Source/*.ts
 
-echo Building \'Release/netron.js\'
+echo $(tput bold)Building Release$(tput sgr0)
+mkdir -p ../Build/Release
+cp ../Samples/index.html ../Build/Release/index.html
 node minify.js ../Build/Debug/netron.js ../Build/Release/netron.js
-
-echo Done.
