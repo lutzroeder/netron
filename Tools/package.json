@@ -1,6 +1,7 @@
 {
   "private": true,
   "dependencies": [
-    "typescript"
+    "typescript",
+    "uglify-js"
   ]
 }

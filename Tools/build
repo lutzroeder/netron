@@ -4,15 +4,16 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 npm install
 typescript=./node_modules/typescript/lib
+uglifyjs=./node_modules/uglify-js/bin
 
 rm -f -r ../Build
 
-echo $(tput bold)Building Debug$(tput sgr0)
+echo Building Debug
 mkdir -p ../Build/Debug
 cp ../Samples/index.html ../Build/Debug/index.html
 node ${typescript}/tsc.js -target ES5 -out ../Build/Debug/netron.js ${typescript}/lib.d.ts ./libex.d.ts ../Source/*.ts
 
-echo $(tput bold)Building Release$(tput sgr0)
+echo Building Release
 mkdir -p ../Build/Release
 cp ../Samples/index.html ../Build/Release/index.html
-node minify.js ../Build/Debug/netron.js ../Build/Release/netron.js
+${uglifyjs}/uglifyjs ../Build/Debug/netron.js -o ../Build/Release/netron.js
