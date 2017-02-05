@@ -1,12 +1,14 @@
 {
   "private": true,
   "scripts": {
-    "build": "gulp"
+    "start": "npm install && gulp",
+    "build": "npm install && gulp build"
   },
-  "devDependencies": [
-    "typescript",
-    "gulp",
-    "gulp-typescript",
-    "gulp-uglify"
-  ]
+  "devDependencies": {
+    "typescript": "latest",
+    "gulp": "latest",
+    "gulp-typescript": "latest",
+    "gulp-uglify": "latest",
+    "gulp-open": "latest"
+  }
 }
