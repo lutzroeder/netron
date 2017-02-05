@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "gulp"
+  },
+  "devDependencies": [
+    "typescript",
+    "gulp",
+    "gulp-typescript",
+    "gulp-uglify"
+  ]
+}

@@ -1,5 +1,0 @@
-
-interface Event {
-    shiftKey: boolean;
-}
-
