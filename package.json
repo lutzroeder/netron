@@ -1,0 +1,52 @@
+{
+    "name": "netron",
+    "productName": "Netron",
+    "author": {
+        "name": "Lutz Roeder",
+        "email": "lutzroeder@users.noreply.github.com",
+        "url": "lutzroeder.com"
+    },
+    "version": "0.1.0",
+    "description": "Viewer for ONNX neural network graphs",
+    "license": "MIT",
+    "repository": "lutzroeder/netron",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "electron .",
+        "dist": "electron-builder --mac --linux --win",
+        "postinstall": "electron-builder install-app-deps"
+    },
+    "dependencies": {
+        "dagre-d3-renderer": "x.x.x",
+        "npm-font-open-sans": "^1.1.0",
+        "protobufjs": "x.x.x"
+    },
+    "devDependencies": {
+        "electron": "x.x.x",
+        "electron-builder": "x.x.x"
+    },
+    "build": {
+        "files": [
+            "src/**/*"
+        ],
+        "appId": "com.lutzroeder.netron",
+        "mac": {
+            "category": "public.app-category.developer-tools",
+            "target": [
+                "dmg",
+                "zip"
+            ]
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "deb"
+            ]
+        },
+        "win": {
+            "target": [
+                "nsis"
+            ]
+        }
+    }
+}
