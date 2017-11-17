@@ -1,5 +1,6 @@
 .DS_Store
 .DS_Store?
+/package-lock.json
 /dist/
 /node_modules/
-/package-lock.json
+/third_party/onnx
