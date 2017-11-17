@@ -14,10 +14,13 @@
     "scripts": {
         "start": "electron .",
         "dist": "electron-builder --mac --linux --win",
+        "release": "electron-builder --mac --linux --win --publish always",
         "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
         "dagre-d3-renderer": "x.x.x",
+        "electron-updater": "^2.16.1",
+        "handlebars": "^4.0.11",
         "npm-font-open-sans": "^1.1.0",
         "protobufjs": "x.x.x"
     },
