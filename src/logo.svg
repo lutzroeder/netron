@@ -1,0 +1,46 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024' viewBox='0 0 1024 1024'>
+    <circle cx='512' cy='512' r='450' fill='#bbb'/> 
+    <circle cx='512' cy='512' r='412' fill='#e6e6e6'/> 
+    <circle cx='512' cy='512' r='450' fill='none' stroke='#aaa' stroke-width='6' /> 
+    <circle cx='512' cy='512' r='412' fill='none' stroke='#aaa' stroke-width='6' /> 
+    <line x1='296' y1='392' x2='540' y2='280' stroke-width='12' stroke='#bbb' />
+    <line x1='296' y1='632' x2='540' y2='280' stroke-width='12' stroke='#bbb' />
+    <line x1='296' y1='392' x2='540' y2='435' stroke-width='12' stroke='#bbb' />
+    <line x1='296' y1='632' x2='540' y2='435' stroke-width='12' stroke='#bbb' />
+    <line x1='296' y1='392' x2='540' y2='590' stroke-width='12' stroke='#bbb' />
+    <line x1='296' y1='632' x2='540' y2='590' stroke-width='12' stroke='#bbb' />
+    <line x1='296' y1='392' x2='540' y2='744' stroke-width='12' stroke='#bbb' />
+    <line x1='296' y1='632' x2='540' y2='744' stroke-width='12' stroke='#bbb' />
+    <line x1='540' y1='280' x2='785' y2='512' stroke-width='12' stroke='#bbb' />
+    <line x1='540' y1='435' x2='785' y2='512' stroke-width='12' stroke='#bbb' />
+    <line x1='540' y1='590' x2='785' y2='512' stroke-width='12' stroke='#bbb' />
+    <line x1='540' y1='744' x2='785' y2='512' stroke-width='12' stroke='#bbb' />
+    <g transform='translate(296, 392)'>
+        <circle cx='0' cy='0' r='51' fill='#bbb' />
+        <circle cx='0' cy='0' r='51' fill='none' stroke-width='6' stroke='#aaa' />
+    </g>
+    <g transform='translate(296, 632)'>
+        <circle cx='0' cy='0' r='51' fill='#bbb' />
+        <circle cx='0' cy='0' r='51' fill='none' stroke-width='6' stroke='#aaa' />
+    </g>
+    <g transform='translate(540, 280)'>
+        <circle cx='0' cy='0' r='51' fill='#bbb' />
+        <circle cx='0' cy='0' r='51' fill='none' stroke-width='6' stroke='#aaa' />
+    </g>
+    <g transform='translate(540, 435)'>
+        <circle cx='0' cy='0' r='51' fill='#bbb' />
+        <circle cx='0' cy='0' r='51' fill='none' stroke-width='6' stroke='#aaa' />
+    </g>
+    <g transform='translate(540, 590)'>
+        <circle cx='0' cy='0' r='51' fill='#bbb' />
+        <circle cx='0' cy='0' r='51' fill='none' stroke-width='6' stroke='#aaa' />
+    </g>
+    <g transform='translate(540, 744)'>
+        <circle cx='0' cy='0' r='51' fill='#bbb' />
+        <circle cx='0' cy='0' r='51' fill='none' stroke-width='6' stroke='#aaa' />
+    </g>
+    <g transform='translate(785, 512)'>
+        <circle cx='0' cy='0' r='51' fill='#bbb' />
+        <circle cx='0' cy='0' r='51' fill='none' stroke-width='6' stroke='#aaa' />
+    </g>
+</svg>
