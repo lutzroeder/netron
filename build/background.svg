@@ -1,0 +1,5 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1320' height='800' viewBox='0 0 1320 800'>
+    <rect x='0' y='0' width='1320' height='800' fill='#f8f8f8'/>
+    <path d='M 645 325 L 677 360 L 645 395' fill='none' stroke-width='14' stroke='#aaa' stroke-linecap='square' />
+    <path d='M 645 325 L 677 360 L 645 395' fill='none' stroke-width='12' stroke='#bbb' stroke-linecap='square' />
+</svg>
