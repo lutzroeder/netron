@@ -32,6 +32,7 @@
             "src/**/*"
         ],
         "appId": "com.lutzroeder.netron",
+        "fileAssociations": { "ext": "pb", "name": "Model" },
         "mac": {
             "category": "public.app-category.developer-tools",
             "target": [
@@ -64,6 +65,9 @@
             "target": [
                 "nsis"
             ]
+        },
+        "nsis": {
+            "perMachine": true
         }
     }
 }
