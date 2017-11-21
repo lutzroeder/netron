@@ -1935,10 +1935,10 @@
     "schema": {
       "attributes": [
         {
-          "description": "p value of the Lp norm used to pool over the input data, default is 2.0.",
+          "description": "p value of the Lp norm used to pool over the input data, default is 2.",
           "name": "p",
           "required": false,
-          "type": "float"
+          "type": "int"
         }
       ],
       "doc": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
@@ -2890,10 +2890,10 @@
           "type": "list of ints"
         },
         {
-          "description": "p value of the Lp norm used to pool over the input data, default is 2.0.",
+          "description": "p value of the Lp norm used to pool over the input data, default is 2.",
           "name": "p",
           "required": false,
-          "type": "float"
+          "type": "int"
         },
         {
           "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
@@ -3614,8 +3614,8 @@
           "type": "string"
         },
         {
-          "description": "List of integers indicate the padding element count at the begining and end of each axis, for 2D it is the number of pixel. `paddings` rank should be double of the input's rank. `paddings` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
-          "name": "paddings",
+          "description": "List of integers indicate the padding element count at the begining and end of each axis, for 2D it is the number of pixel. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
+          "name": "pads",
           "required": true,
           "type": "list of ints"
         },
@@ -3626,7 +3626,7 @@
           "type": "float"
         }
       ],
-      "doc": "Given `data` tensor, paddings, mode, and value.\n\nExample:\n  Insert 0 paddings to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  paddings = [0, 0, 2, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
+      "doc": "Given `data` tensor, pads, mode, and value.\n\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 0, 2, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "inputs": [
         {
           "description": "Input tensor.",
@@ -3659,11 +3659,11 @@
       ],
       "snippets": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x'],\n    outputs=['y'],\n    mode='constant',\n    value=1.2,\n    paddings=[0, 0, 0, 0, 1, 2, 3, 4],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.pad(\n    x,\n    pad_width=((0, 0), (0, 0), (1, 2), (3, 4)),\n    mode='constant',\n    constant_values=1.2,\n)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constant_pad')",
+          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x'],\n    outputs=['y'],\n    mode='constant',\n    value=1.2,\n    pads=[0, 0, 0, 0, 1, 2, 3, 4],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.pad(\n    x,\n    pad_width=((0, 0), (0, 0), (1, 2), (3, 4)),\n    mode='constant',\n    constant_values=1.2,\n)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constant_pad')",
           "summary": "constant_pad"
         },
         {
-          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x'],\n        outputs=['y'],\n        mode=mode,\n        paddings=[0, 0, 0, 0, 1, 1, 1, 1]\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.float32)\n    y = np.pad(\n        x,\n        pad_width=((0, 0), (0, 0), (1, 1), (1, 1)),\n        mode=mode,\n    )\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_{}_pad'.format(mode))",
+          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x'],\n        outputs=['y'],\n        mode=mode,\n        pads=[0, 0, 0, 0, 1, 1, 1, 1]\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.float32)\n    y = np.pad(\n        x,\n        pad_width=((0, 0), (0, 0), (1, 1), (1, 1)),\n        mode=mode,\n    )\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_{}_pad'.format(mode))",
           "summary": "reflection_and_edge_pad"
         }
       ],
