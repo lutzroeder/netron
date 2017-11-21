@@ -32,9 +32,12 @@
             "src/**/*"
         ],
         "appId": "com.lutzroeder.netron",
-        "fileAssociations": { 
-            "ext": [ "pb", "onnx" ],
-            "name": "ONNX Model" 
+        "fileAssociations": {
+            "ext": [
+                "pb",
+                "onnx"
+            ],
+            "name": "ONNX Model"
         },
         "mac": {
             "category": "public.app-category.developer-tools",
