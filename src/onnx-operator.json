@@ -698,7 +698,7 @@
           "type": "float"
         }
       ],
-      "doc": "Clip operator limits the given input within an interval. The interval is\nspecified with arguments 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max() respectively. The clipping\noperation can be done in in-place fashion too, where the input and output blobs\nare the same.\n",
+      "doc": "Clip operator limits the given input within an interval. The interval is\nspecified with arguments 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max() respectively.\n",
       "inputs": [
         {
           "description": "Input tensor whose elements to be clipped",
@@ -1409,7 +1409,7 @@
   {
     "op_type": "Exp",
     "schema": {
-      "doc": "Calculates the exponential of the given input tensor, element-wise. This\noperation can be done in an in-place fashion too, by providing the same input\nand output blobs.\n",
+      "doc": "Calculates the exponential of the given input tensor, element-wise.\n",
       "inputs": [
         {
           "description": "Input tensor",
@@ -1830,7 +1830,7 @@
           "type": "int"
         }
       ],
-      "doc": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N). Input tensor C can be used inplace as the output tensor Y.\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "doc": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N). \nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "inputs": [
         {
           "description": "Input tensor A",
@@ -2725,7 +2725,7 @@
   {
     "op_type": "Log",
     "schema": {
-      "doc": "Calculates the natural log of the given input tensor, element-wise. This\noperation can be done in an in-place fashion too, by providing the same input\nand output blobs.\n",
+      "doc": "Calculates the natural log of the given input tensor, element-wise.\n",
       "inputs": [
         {
           "description": "Input tensor",
@@ -3036,10 +3036,10 @@
   {
     "op_type": "Max",
     "schema": {
-      "doc": "Element-wise max of each of the input tensors. The first input tensor can be\nused in-place as the output tensor, in which case the max will be done in\nplace and results will be accumulated in input0. All inputs and outputs must\nhave the same shape and data type.\n",
+      "doc": "Element-wise max of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "inputs": [
         {
-          "description": "First of the input tensors. Can be inplace.",
+          "description": "First of the input tensors.",
           "name": "data_0",
           "optional": false,
           "typeStr": "T",
@@ -3231,10 +3231,10 @@
   {
     "op_type": "Mean",
     "schema": {
-      "doc": "Element-wise mean of each of the input tensors. The first input tensor can be\nused in-place as the output tensor, in which case the sum will be done in\nplace and results will be accumulated in input0. All inputs and outputs must\nhave the same shape and data type.\n",
+      "doc": "Element-wise mean of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "inputs": [
         {
-          "description": "First of the input tensors. Can be inplace.",
+          "description": "First of the input tensors.",
           "name": "data_0",
           "optional": false,
           "typeStr": "T",
@@ -3279,10 +3279,10 @@
   {
     "op_type": "Min",
     "schema": {
-      "doc": "Element-wise min of each of the input tensors. The first input tensor can be\nused in-place as the output tensor, in which case the max will be done in\nplace and results will be accumulated in input0. All inputs and outputs must\nhave the same shape and data type.\n",
+      "doc": "Element-wise min of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "inputs": [
         {
-          "description": "First of the input tensors. Can be inplace.",
+          "description": "First of the input tensors.",
           "name": "data_0",
           "optional": false,
           "typeStr": "T",
@@ -5277,7 +5277,7 @@
   {
     "op_type": "Softsign",
     "schema": {
-      "doc": "Calculates the softsign (x/1+|x|) of the given input tensor element-wise. This\noperation can be done in an in-place fashion too, by providing the same input\nand output blobs.\n",
+      "doc": "Calculates the softsign (x/1+|x|) of the given input tensor element-wise.\n",
       "inputs": [
         {
           "description": "1-D input tensor",
@@ -5620,10 +5620,10 @@
   {
     "op_type": "Sum",
     "schema": {
-      "doc": "Element-wise sum of each of the input tensors. The first input tensor can be\nused in-place as the output tensor, in which case the sum will be done in\nplace and results will be accumulated in input0. All inputs and outputs must\nhave the same shape and data type.\n",
+      "doc": "Element-wise sum of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "inputs": [
         {
-          "description": "First of the input tensors. Can be inplace.",
+          "description": "First of the input tensors.",
           "name": "data_0",
           "optional": false,
           "typeStr": "T",
@@ -5668,7 +5668,7 @@
   {
     "op_type": "Tanh",
     "schema": {
-      "doc": "Calculates the hyperbolic tangent of the given input tensor element-wise. This\noperation can be done in an in-place fashion too, by providing the same input\nand output blobs.\n",
+      "doc": "Calculates the hyperbolic tangent of the given input tensor element-wise.\n",
       "inputs": [
         {
           "description": "1-D input tensor",
@@ -6474,7 +6474,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Tensor to copy input into. Can be in-place",
+          "description": "Tensor to copy input into.",
           "name": "output",
           "optional": false,
           "typeStr": "T",
@@ -6823,7 +6823,7 @@
           "type": "float"
         }
       ],
-      "doc": "Calculates the scaled hyperbolic tangent of the given input tensor element-wise,\nscale * tanh(x). This operation can be done in an in-place fashion too,\nby providing the same input and output blobs.\n    ",
+      "doc": "Calculates the scaled hyperbolic tangent of the given input tensor element-wise,\nscale * tanh(x).\n    ",
       "inputs": [
         {
           "description": "1-D input tensor",
