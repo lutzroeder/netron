@@ -1,8 +1,9 @@
-# Netron
+
+<p align='center'><img width='400' src='media/logo.png'/></p>
 
 Netron is a viewer for [ONNX](http://onnx.ai) neural network models.
 
-<a href="https://www.lutzroeder.com/ai"><img src="https://i.imgur.com/RBxc7h9.png" alt="Screenshot" width="800"></a>
+<p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 
 
 ## Getting Started
