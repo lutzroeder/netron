@@ -3,6 +3,8 @@ const electron = require('electron');
 const fs = require('fs');
 const path = require('path');
 
+var hostService = new ElectronHostService();
+
 function ElectronHostService()
 {
     electron.ipcRenderer.on('open-file', function(event, data) {

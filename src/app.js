@@ -75,7 +75,7 @@ function loadFile(file, view) {
             window.webContents.send("open-file", { file: file });
         });
         var location = url.format({
-            pathname: path.join(__dirname, 'view.html'),
+            pathname: path.join(__dirname, 'view-electron.html'),
             protocol: 'file:',
             slashes: true
         });
@@ -157,7 +157,7 @@ function openView() {
         view['ready'] = true;
     });        
     window.loadURL(url.format({
-        pathname: path.join(__dirname, 'view.html'),
+        pathname: path.join(__dirname, 'view-electron.html'),
         protocol: 'file:',
         slashes: true
     }));
