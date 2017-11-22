@@ -93,16 +93,21 @@ electron.ipcMain.on('open-file-dialog', function(e, data) {
 });
 
 electron.ipcMain.on('open-file', function(e, data) {
-    var view = null;
-    if (data['window']) {
-        var window = electron.BrowserWindow.fromId(data['window']);
-        view = views.find(view => view['window'] == window);
-    }
-    if (view) {
-        loadFile(data['file'], view);
-    }
-    else {
-        openFile(data['file'])
+    var file = data['file'];
+    if (file) { 
+        var view = null;
+        if (data['window']) {
+            var window = electron.BrowserWindow.fromId(data['window']);
+            if (window) {
+                view = views.find(view => view['window'] == window);
+            }
+        }
+        if (view) {
+            loadFile(file, view);
+        }
+        else {
+            openFile(file)
+        }
     }
 });
 
