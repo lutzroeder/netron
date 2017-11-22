@@ -14,11 +14,11 @@ var views = []
 const quit = electron.app.makeSingleInstance(function() {
     if (views.length > 0) {
         var view = views[0];
-        if (view) { 
-            if (view.isMinimized()) {
-                view.restore();
+        if (view && view['window']) { 
+            if (view['window'].isMinimized()) {
+                view['window'].restore();
             }
-            view.show();
+            view['window'].show();
         }
     }
 });
@@ -27,7 +27,7 @@ if (quit) {
     electron.app.quit();
 }
 
-function openFile() {
+function openFileDialog() {
     var showOpenDialogOptions = { 
         properties: [ 'openFile'], 
         filters: [ { name: 'ONNX Model', extensions: ['pb', 'onnx'] } ]
@@ -35,56 +35,78 @@ function openFile() {
     electron.dialog.showOpenDialog(showOpenDialogOptions, function(selectedFiles) {
         if (selectedFiles) {
             selectedFiles.forEach(function(selectedFile) {
-                openFileLocation(selectedFile);
+                openFile(selectedFile);
             });
         }
     });
 };
 
-function openFileLocation(file) {
-    configuration['recents'] = configuration['recents'].filter(recent => file != recent['path']);
+function openFile(file) {
     if (file && file.length > 0 && fs.existsSync(file))
     {
-        var appName = electron.app.getName();
-        var view = null;
-        views.forEach(function (item) {
-            if (item.getTitle() == appName) {
-                view = item;
-            }
-        });
+        // find existing view for this file
+        var view = views.find(view => view['path'] && view['path'] == file);
+        // find empty welcome window
+        if (view == null) {
+            view = views.find(view => !view['path'] || view['path'].length == 0);
+        }
+        // create new window
         if (view == null) {
             view = openView();
         }
-        var title = minimizePath(file);
-        if (process.platform !== 'darwin') {
-            title = file + ' - ' + appName;
-        }
-        view.setTitle(title);
-        if (view.__isReady) {
-            view.webContents.send("open-file", { file: file });
-        }
-        else {
-            view.webContents.on('dom-ready', function() {
-                view.webContents.send("open-file", { file: file });
-            });
-            var location = url.format({
-                pathname: path.join(__dirname, 'view.html'),
-                protocol: 'file:',
-                slashes: true
-            });
-            view.loadURL(location);
-        }
-        configuration['recents'].unshift({ 'path': file });
-        if (configuration['recents'].length > 10) {
-            configuration['recents'].slice(0, 10);
-        }
+        loadFile(file, view);
+    }
+}
+
+function loadFile(file, view) {
+    configuration['recents'] = configuration['recents'].filter(recent => file != recent['path']);
+    var title = minimizePath(file);
+    if (process.platform !== 'darwin') {
+        title = file + ' - ' + electron.app.getName();
+    }
+    var window = view['window'];
+    window.setTitle(title);
+    view['path'] = file;
+    if (view['ready']) {
+        window.webContents.send("open-file", { file: file });
+    }
+    else {
+        window.webContents.on('dom-ready', function() {
+            window.webContents.send("open-file", { file: file });
+        });
+        var location = url.format({
+            pathname: path.join(__dirname, 'view.html'),
+            protocol: 'file:',
+            slashes: true
+        });
+        window.loadURL(location);
+    }
+    configuration['recents'].unshift({ 'path': file });
+    if (configuration['recents'].length > 10) {
+        configuration['recents'].splice(10);
     }
     updateMenu();
 }
 
-electron.ipcMain.on('open-file', function(e, data) {
-    openFile();
+electron.ipcMain.on('open-file-dialog', function(e, data) {
+    openFileDialog();
 });
+
+electron.ipcMain.on('open-file', function(e, data) {
+    var view = null;
+    if (data['window']) {
+        var window = electron.BrowserWindow.fromId(data['window']);
+        view = views.find(view => view['window'] == window);
+    }
+    if (view) {
+        loadFile(data['file'], view);
+    }
+    else {
+        openFile(data['file'])
+    }
+});
+
+
 
 Array.prototype.remove = function(obj) {
     var index = this.length;
@@ -104,7 +126,7 @@ function openView() {
     if (size.height > 768) {
         size.height = 768;
     }
-    var view = new electron.BrowserWindow({ 
+    var window = new electron.BrowserWindow({ 
         title: title,
         // backgroundColor: '#f0fcfe',
         backgroundColor: '#eeeeee',
@@ -115,13 +137,21 @@ function openView() {
         icon: electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'))
     });
     
-    view.on('closed', function () {
-        views.remove(view);
+    window.on('closed', function () {
+        for (var i = views.length - 1; i >= 0; i--) {
+            if (views[i]['window'] == window) {
+                views.splice(i, 1);
+            }   
+        }
     });
-    view.webContents.on('dom-ready', function() {
-        view.__isReady = true;
+    var view = { 
+        'window': window,
+        'ready': false
+    };
+    window.webContents.on('dom-ready', function() {
+        view['ready'] = true;
     });        
-    view.loadURL(url.format({
+    window.loadURL(url.format({
         pathname: path.join(__dirname, 'view.html'),
         protocol: 'file:',
         slashes: true
@@ -138,7 +168,7 @@ electron.app.on('will-finish-launching', function() {
             openFileQueue.push(path);
         }
         else {
-            openFileLocation(path);
+            openFile(path);
         }
     });
 });
@@ -146,12 +176,12 @@ electron.app.on('will-finish-launching', function() {
 var openFileQueue = [];
 
 electron.app.on('ready', function () {
-    updateMenu();
     loadConfiguration();
-
+    updateMenu();
+    
     while (openFileQueue.length > 0) {
         var file = openFileQueue.shift();
-        openFileLocation(file);
+        openFile(file);
     }
     openFileQueue = null;
 
@@ -220,7 +250,7 @@ function updateMenu() {
             var file = recent.path;
             menuRecentsTemplate.push({ 
                 label: minimizePath(recent.path),
-                click: function() { openFileLocation(file) }
+                click: function() { openFile(file) }
             });
         })
     }
@@ -248,7 +278,7 @@ function updateMenu() {
             {
                 label: '&Open...',
                 accelerator: 'CmdOrCtrl+O',
-                click: function() { openFile(); }
+                click: function() { openFileDialog(); }
             },
             {
                 label: 'Open &Recent',
