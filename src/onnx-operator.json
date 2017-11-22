@@ -758,7 +758,7 @@
       "inputs": [
         {
           "description": "List of tensors for concatenation",
-          "name": "inputs...",
+          "name": "inputs",
           "optional": false,
           "typeStr": "T",
           "types": [
@@ -1724,7 +1724,15 @@
   {
     "op_type": "Gather",
     "schema": {
-      "doc": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the outer-most dimension of `data` indexed by `indices`, and concatenate\nthem in an output tensor of rank q + (r - 1).\n\nExample:\n  data  = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n",
+      "attributes": [
+        {
+          "description": "Which axis to gather on, defaults to 0. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "doc": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
       "inputs": [
         {
           "description": "Tensor of rank r >= 1.",
@@ -1741,11 +1749,10 @@
           "description": "Tensor of int32/int64 indices, of any rank q.",
           "name": "indices",
           "optional": false,
-          "typeStr": "T",
+          "typeStr": "Tind",
           "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
+            "tensor(int32)",
+            "tensor(int64)"
           ]
         }
       ],
@@ -1776,6 +1783,14 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain indices to integer types",
+          "type_param_str": "Tind"
         }
       ]
     }
@@ -5401,7 +5416,7 @@
       "outputs": [
         {
           "description": "One or more outputs forming list of tensors after splitting",
-          "name": "outputs...",
+          "name": "outputs",
           "optional": false,
           "typeStr": "T",
           "types": [
