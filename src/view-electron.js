@@ -7,8 +7,34 @@ var hostService = new ElectronHostService();
 
 function ElectronHostService()
 {
+    var self = this;
+
     electron.ipcRenderer.on('open-file', function(event, data) {
         openFile(data['file']);
+    });
+
+    window.addEventListener('load', function(e) {
+        var openFileButton = document.getElementById('open-file-button');
+        if (openFileButton) {
+            openFileButton.style.display = 'block';
+            openFileButton.addEventListener('click', function(e) {
+                self.openFileDialog();
+            });
+        }
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+        });
+        document.body.addEventListener('drop', function(e) { 
+            e.preventDefault();
+            var files = e.dataTransfer.files;
+            for (var i = 0; i < files.length; i++) {
+                self.openFile(files[i].path, i == 0);
+            }
+            return false;
+        });
     });
 
     const contextMenu = new electron.remote.Menu();
