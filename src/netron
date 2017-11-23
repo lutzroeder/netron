@@ -1,0 +1,8 @@
+#!/usr/bin/python
+
+import sys
+import netron
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    netron.serve(args)
