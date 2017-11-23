@@ -5,3 +5,4 @@
 /dist/
 /node_modules/
 /third_party/onnx
+/netron.egg-info
