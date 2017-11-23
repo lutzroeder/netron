@@ -1,0 +1,30 @@
+<html>
+<head>
+<meta charset='utf-8'>
+<link rel='stylesheet' type='text/css' href='../node_modules/npm-font-open-sans/open-sans.css'>
+<link rel='stylesheet' type='text/css' href='view.css'>
+<script type='text/javascript' src='../node_modules/dagre-d3-renderer/dist/dagre-d3.js'></script>
+<script type='text/javascript' src='../node_modules/protobufjs/dist/protobuf.js'></script>
+<script type='text/javascript' src='../node_modules/handlebars/dist/handlebars.js'></script>
+<script type='text/javascript' src='onnx-ml.js'></script>
+<script type='text/javascript' src='view-template.js'></script>
+<script type='text/javascript' src='view-electron.js'></script>
+<script type='text/javascript' src='view-onnx.js'></script>
+<script type='text/javascript' src='view.js'></script>
+<body>
+<div id='welcome' class='background' style='display: block'>
+    <img id='logo' class='center' src='logo.svg' width='124' height='124'>
+    <button id='open-file-button' class='center' style='top: 200px; width: 150px'>Open ONNX Model...</button>
+</div>
+<div id='clock' class='background' style='display: none;'>
+    <img class='center' src='clock.svg' width='124' height='124'>
+</div>
+<svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet'></svg>
+<div id='sidebar' class='sidebar'>
+    <h1 id='sidebar-title' class='sidebar-title'></h1>
+    <a href='javascript:void(0)' id='sidebar-closebutton' class='sidebar-closebutton'>&times;</a>
+    <div id='sidebar-content' class='sidebar-content'>
+    </div>
+</div>
+s</body>
+</html>

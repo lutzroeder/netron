@@ -73,39 +73,44 @@ ElectronHostService.prototype.getResource = function(file, callback) {
     if (fs.existsSync(file)) {
         var data = fs.readFileSync(file);
         if (data) {
-            callback(data);
+            callback(null, data);
             return;
         }
     }
-    callback(null);
+    // TOOD error
 }
 
-ElectronHostService.prototype.openBuffer = function(file, callback) {
+ElectronHostService.prototype.registerCallback = function(callback) {
+    this.callback = callback;
+}
+
+ElectronHostService.prototype.openBuffer = function(file) {
+    var self = this;
     fs.exists(file, function(exists) {
         if (exists) {
             fs.stat(file, function(err, stats) {
                 if (err) {
-                    callback(err, null);
+                    self.callback(err, null);
                 }
                 else {
                     var size = stats.size;
                     var buffer = new Uint8Array(size);
                     fs.open(file, 'r', function(err, fd) {
                         if (err) {
-                            callback(err, null);
+                            self.callback(err, null);
                         }
                         else {
                             fs.read(fd, buffer, 0, size, 0, function(err, bytesRead, buffer) {
                                 if (err) {
-                                    callback(err, null);
+                                    self.callback(err, null);
                                 }
                                 else {
                                     fs.close(fd, function(err) {
                                         if (err) {
-                                            callback(err, null);
+                                            self.callback(err, null);
                                         }
                                         else {
-                                            callback(null, buffer);
+                                            self.callback(null, buffer);
                                         }
                                     });
                                 }
