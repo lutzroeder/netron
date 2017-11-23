@@ -3674,11 +3674,11 @@
       ],
       "snippets": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x'],\n    outputs=['y'],\n    mode='constant',\n    value=1.2,\n    pads=[0, 0, 0, 0, 1, 2, 3, 4],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.pad(\n    x,\n    pad_width=((0, 0), (0, 0), (1, 2), (3, 4)),\n    mode='constant',\n    constant_values=1.2,\n)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constant_pad')",
+          "code": "node = onnx.helper.make_node(\n    'Pad',\n    inputs=['x'],\n    outputs=['y'],\n    mode='constant',\n    value=1.2,\n    pads=[0, 0, 1, 3, 0, 0, 2, 4],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.pad(\n    x,\n    pad_width=((0, 0), (0, 0), (1, 2), (3, 4)),\n    mode='constant',\n    constant_values=1.2,\n)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_constant_pad')",
           "summary": "constant_pad"
         },
         {
-          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x'],\n        outputs=['y'],\n        mode=mode,\n        pads=[0, 0, 0, 0, 1, 1, 1, 1]\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.float32)\n    y = np.pad(\n        x,\n        pad_width=((0, 0), (0, 0), (1, 1), (1, 1)),\n        mode=mode,\n    )\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_{}_pad'.format(mode))",
+          "code": "for mode in ['edge', 'reflect']:\n    node = onnx.helper.make_node(\n        'Pad',\n        inputs=['x'],\n        outputs=['y'],\n        mode=mode,\n        pads=[0, 0, 1, 1, 0, 0, 1, 1]\n    )\n    x = np.random.randn(1, 3, 4, 5).astype(np.float32)\n    y = np.pad(\n        x,\n        pad_width=((0, 0), (0, 0), (1, 1), (1, 1)),\n        mode=mode,\n    )\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_{}_pad'.format(mode))",
           "summary": "reflection_and_edge_pad"
         }
       ],
