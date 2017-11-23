@@ -1,0 +1,12 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024' viewBox='0 0 1024 1024'>
+
+    <circle cx='512' cy='512' r='450' fill='#bbb'/> 
+    <circle cx='512' cy='512' r='380' fill='#e6e6e6'/> 
+
+    <circle cx='512' cy='512' r='450' fill='none' stroke='#aaa' stroke-width='6' /> 
+    <circle cx='512' cy='512' r='380' fill='none' stroke='#aaa' stroke-width='6' /> 
+
+    <path d='M 512 250 L 512 512 L 650 650' fill='none' stroke-width='50' stroke='#aaa' stroke-linecap='square' />
+    <path d='M 512 250 L 512 512 L 650 650' fill='none' stroke-width='38' stroke='#bbb' stroke-linecap='square' />
+
+</svg>
