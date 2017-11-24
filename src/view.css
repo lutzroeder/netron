@@ -64,13 +64,13 @@ text {
     stroke-width: 0;
 }
 
-.value rect {
+.input rect {
     stroke: none;
     fill: none;
     stroke-width: 0;
 }
 
-.value table {
+.input table {
     font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
     font-size: 10px;
     background-color: #ddd;
@@ -81,7 +81,28 @@ text {
     overflow: hidden;
 }
 
-.value table th {
+.input table th {
+    padding: 5px;
+}
+
+.output rect {
+    stroke: none;
+    fill: none;
+    stroke-width: 0;
+}
+
+.output table {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 10px;
+    background-color: #ddd;
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 10px;
+    border: 1px solid #333;
+    overflow: hidden;
+}
+
+.output table th {
     padding: 5px;
 }
 
