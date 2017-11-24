@@ -1,0 +1,192 @@
+
+.background {
+    width: 100%;
+    height: 100%;
+    background-color: #e6e6e6;
+}
+
+.center {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+body {
+    margin: 0;
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 12px;
+}
+
+button {
+    font-family: "Open Sans";
+    font-size: 12px;
+    font-weight: 600;
+    color: #999;
+    background-color: #e6e6e6;
+    line-height: 1.25;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0 10px 0 10px;
+    min-width: 60px;
+    height: 30px;
+    margin: 0;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+}
+
+ button:hover {
+    background-color: #aaa;
+    color: #e6e6e6;
+    cursor: hand;
+}
+
+button:focus
+{
+    outline: 0;
+}
+
+text {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 10px;
+}
+
+.edgePath path {
+    stroke: #000;
+    stroke-width: 1px;
+}
+
+.node rect {
+    stroke: none;
+    fill: none;
+    stroke-width: 0;
+}
+
+.value rect {
+    stroke: none;
+    fill: none;
+    stroke-width: 0;
+}
+
+.value table {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 10px;
+    background-color: #ddd;
+    border-spacing: 0;
+    border-collapse: separate;
+    border-radius: 10px;
+    border: 1px solid #333;
+    overflow: hidden;
+}
+
+.value table th {
+    padding: 5px;
+}
+
+.operator table {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 10px;
+    background-color: #fff;
+    border-spacing: 0;
+    border-collapse: separate;
+    border: 1px solid #333;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.operator table th:first-child {
+    background-color: #333;
+    color: #fff;
+    border-left: 0;
+}
+
+.operator table th:first-child:hover {
+    background-color: #fff;
+    color: #333;
+}
+
+.operator table th {
+    font-size: 10px;
+    font-weight: bold;
+    background-color: #ddd;
+    padding: 5px;
+    border-left: 1px solid #333;
+    border-bottom: 1px solid #333;
+}
+
+.operator table th:hover {
+    background-color: #fff;
+    color: #333;
+}
+
+.operator table td {
+    font-size: 6px;
+    font-weight: normal;
+    padding: 3px 5px 3px 5px;
+}
+
+.operator table td:hover {
+    background-color: #e6e6e6;
+    color: #333;
+}
+
+.sidebar {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 12px;
+    height: 100%;
+    width: 0;
+    position: fixed;
+    transition: 0.2s;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    background-color: #f8f8f8;
+    overflow-x: hidden;
+    border-left: 1px solid #ccc;
+}
+
+.sidebar-title {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-weight: 600;
+    font-size: 12px;
+    height: 20px;
+    margin: 0;
+    padding: 20px;
+}
+
+.sidebar a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    opacity: 1.0;
+    display: block;
+    transition: 0.2s;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
+.sidebar-closebutton {
+    position: absolute;
+    top: 0;
+    right: 15px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.sidebar-content {
+    padding-left: 20px;
+    padding-right: 20px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.graph {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+}
