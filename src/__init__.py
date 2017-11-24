@@ -25,6 +25,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                 '.png':  'image/png',
                 '.gif':  'image/gif',
                 '.jpg':  'image/jpeg',
+                '.ico':  'image/x-icon',
                 '.json': 'application/json',
                 '.ttf': 'font/truetype',
                 '.woff': 'font/woff',

@@ -64,6 +64,7 @@ package_data={
         'spinner.svg',
         'onnx-ml.js',
         'onnx-operator.json',
+        'favicon.ico',
         'view-browser.html',
         'view-browser.js',
         'view-onnx.js',
