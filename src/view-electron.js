@@ -10,7 +10,11 @@ function ElectronHostService()
     var self = this;
 
     electron.ipcRenderer.on('open-file', function(event, data) {
-        openFile(data['file']);
+        var file = data['file'];
+        if (file) {
+            updateView('clock');
+            setTimeout(self.openBuffer(file), 40);
+        }
     });
 
     window.addEventListener('load', function(e) {
