@@ -51,7 +51,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                     headers = { 'Location': pathname + '/' }
         if status_code == 0:
             if pathname == '/model':
-                buffer = base64.b64encode(self.buffer)
+                buffer = base64.b64encode(self.data)
                 headers['Content-Type'] = 'text/plain'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
@@ -87,59 +87,20 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
 class MyHTTPServer(HTTPServer):
-    def serve_forever(self, buffer):
-        self.RequestHandlerClass.buffer = buffer 
+    def serve_forever(self, data):
+        self.RequestHandlerClass.data = data 
         HTTPServer.serve_forever(self)
 
-def show_help():
-    print('')
-    print('Usage:')
-    print('  netron [option(s)] <model-file>')
-    print('')
-    print('Options:')
-    print('  --help          Show help.')
-    print('  --port <port>   Port to serve (default: 8080).')
-    print('  --browse        Launch web browser.')
-    print('  --initializer   Keep graph initializer tensors.')
-    print('')
-
-def serve(args):
-    port = 8080
-    browse = False
-    initializer = False
-    file = ''
-    while len(args) > 0:
-        arg = args.pop(0)
-        if (arg == '--help' or arg == '-h'):
-            show_help()
-            return
-        elif (arg == '--port' or arg == '-p') and len(args) > 0 and args[0].isdigit(): 
-            port = int(args.pop(0))
-        elif arg == '--browse' or arg == '-b':
-            browse = True
-        elif arg == '--initialier' or arg == '-i':
-            initialier = True
-        elif not arg.startswith('-'):
-            file = arg
-    if len(file) == 0:
-        show_help()
-        return
-    if not os.path.exists(file):
-        print("Model file '" + file + "' does not exist.")
-        return
+def serve_data(data, browse=False, port=8080, initializer=False):
     server = MyHTTPServer(('localhost', port), MyHTTPRequestHandler)
     url = 'http://localhost:' + str(port)
-    buffer = None
-    with open(file, 'rb') as binary:
-        buffer = binary.read()
     if not initializer:
         # Remove raw initializer data
         model = onnx.ModelProto()
-        model.ParseFromString(buffer)
+        model.ParseFromString(data)
         for initializer in model.graph.initializer:
           initializer.raw_data = ""
-        buffer = model.SerializeToString()
-    print("Serving '" + file + "' at " + url + "...")
+        data = model.SerializeToString()
     if browse:
         command = 'xdg-open';
         if platform.system() == 'Darwin':
@@ -148,4 +109,12 @@ def serve(args):
             command = 'start ""'
         os.system(command + ' "' + url.replace('"', '\"') + '"')
     sys.stdout.flush()
-    server.serve_forever(buffer)
+    server.serve_forever(data)
+
+def serve_file(file, browse=False, port=8080, initializer=False):
+    data = None
+    with open(file, 'rb') as binary:
+        data = binary.read()
+    url = 'http://localhost:' + str(port)
+    print("Serving '" + file + "' at " + url + "...")
+    serve_data(data, browse, port, initializer)
