@@ -55,7 +55,7 @@ class build_py(setuptools.command.build_py.build_py):
         print("## get_outputs ##")
         return result
 
-packages = ['netron']
+packages = [ 'netron' ]
 
 package_data={
     'netron': [ 
@@ -73,6 +73,8 @@ package_data={
         ]
 }
 
+install_requires = [ 'protobuf' ]
+
 scripts = [ 'src/netron' ]
 
 setuptools.setup(
@@ -84,6 +86,7 @@ setuptools.setup(
     package_dir={ 'netron': 'src' },
     packages=packages,
     package_data=package_data,
+    install_requires=install_requires,
     author='Lutz Roeder',
     author_email='lutzroeder@users.noreply.github.com',
     url='https://github.com/lutzroeder/Netron',
