@@ -22,7 +22,7 @@ function ElectronHostService()
         if (openFileButton) {
             openFileButton.style.display = 'block';
             openFileButton.addEventListener('click', function(e) {
-                self.openFileDialog();
+                electron.ipcRenderer.send('open-file-dialog', {});
             });
         }
         document.addEventListener('dragover', function(e) {
@@ -62,10 +62,6 @@ ElectronHostService.prototype.openFile = function(file, drop) {
         data['window'] = electron.remote.getCurrentWindow().id;
     } 
     electron.ipcRenderer.send('open-file', data);
-}
-
-ElectronHostService.prototype.openFileDialog = function() {
-    electron.ipcRenderer.send('open-file-dialog', {});
 }
 
 ElectronHostService.prototype.showError = function(message) {

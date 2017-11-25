@@ -9,10 +9,6 @@ function BrowserHostService()
     }
 
     /*
-    electron.ipcRenderer.on('open-file', function(event, data) {
-        openFile(data['file']);
-    });
-
     const contextMenu = new electron.remote.Menu();
     contextMenu.append(new electron.remote.MenuItem({
         label: 'Properties...', 
@@ -62,16 +58,8 @@ BrowserHostService.prototype.openFile = function(file, drop) {
     */
 }
 
-BrowserHostService.prototype.openFileDialog = function() {
-    /*
-    electron.ipcRenderer.send('open-file-dialog', {});
-    */
-}
-
 BrowserHostService.prototype.showError = function(message) {
-    /*
-    electron.remote.dialog.showErrorBox(electron.remote.app.getName(), message);
-    */
+    alert(message);
 }
 
 BrowserHostService.prototype.getResource = function(file, callback) {
