@@ -8,7 +8,7 @@ OnnxModelService.prototype.openBuffer = function(buffer) {
     this.model = onnx.ModelProto.decode(buffer);
 }
 
-OnnxModelService.prototype.getProperties = function() {
+OnnxModelService.prototype.getModelProperties = function() {
 
     var result = { 'groups': [] };
 

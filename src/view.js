@@ -265,10 +265,7 @@ function renderModel(model) {
         }
     });
 
-    document.getElementsByClassName('')
-
     var svgElement = document.getElementById('graph');
-
     while (svgElement.lastChild) {
         svgElement.removeChild(svgElement.lastChild);
     }
@@ -281,15 +278,13 @@ function renderModel(model) {
         inner.attr('transform', 'translate(' + dagreD3.d3.event.translate + ')' + 'scale(' + dagreD3.d3.event.scale + ')');
     });
     svg.call(zoom);
-
-    var graphElement = document.getElementById('graph');
-    graphElement.style.display = 'block';
-
+    
     var render = new dagreD3.render();
     render(dagreD3.d3.select('svg g'), g);
 
-    var inputElements = document.getElementsByClassName('input');
+    var inputElements = svgElement.getElementsByClassName('input');
     if (inputElements && inputElements.length > 0) {
+        // Center view based on input elements
         var x = 0;
         var y = 0;
         for (var i = 0; i < inputElements.length; i++) {
@@ -359,7 +354,7 @@ function formatElementType(elementType) {
         return name;
     }
     debugger;
-    return '[UNKNOWN]';
+    return elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
 }
 
 function formatAttributeValue(attribute) {
@@ -394,15 +389,14 @@ function formatAttributeValue(attribute) {
 }
 
 function showDocumentation(operator) {
-
     var documentation = modelService.getOperatorService().getHtmlDocumentation(operator);
     if (documentation) {
         openSidebar(documentation, 'Documentation');
     }
 }
 
-function showProperties() {
-    var view = modelService.getProperties();
+function showModelProperties() {
+    var view = modelService.getModelProperties();
     if (view) {
         var template = Handlebars.compile(propertiesTemplate, 'utf-8');
         var data = template(view);

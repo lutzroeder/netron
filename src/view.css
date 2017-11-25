@@ -207,7 +207,7 @@ text {
 }
 
 .graph {
-    display: none;
+    display: block;
     position: absolute;
     background-color: #fff;
 }

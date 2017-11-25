@@ -13,7 +13,7 @@ function ElectronHostService()
         var file = data['file'];
         if (file) {
             updateView('clock');
-            setTimeout(self.openBuffer(file), 40);
+            setTimeout(self.openBuffer(file), 20);
         }
     });
 
@@ -44,7 +44,7 @@ function ElectronHostService()
     const contextMenu = new electron.remote.Menu();
     contextMenu.append(new electron.remote.MenuItem({
         label: 'Properties...', 
-        click: function() { showProperties(); }
+        click: function() { showModelProperties(); }
     }));
     
     window.addEventListener('contextmenu', function(e) {
