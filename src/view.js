@@ -112,7 +112,7 @@ function renderModel(model) {
             }
             else {
                 // TODO is there a way to infer the type of the input?
-                header.append('th').style('background-color', '#f8f8f8').append('span').attr('title', "xxxx").text(name);
+                header.append('th').style('background-color', '#f8f8f8').append('span').text(name);
 
                 var tuple = edgeMap[edge];
                 if (!tuple) {
@@ -160,7 +160,7 @@ function renderModel(model) {
                     snippet += ' title="' + doc + '"';
                     doc = doc.substring(0, 25) + '...';
                 }
-                snippet += '><b>doc </b> = ' + doc + '</span><br>';
+                snippet += '><b>doc</b>: ' + doc + '</span><br>';
                 html.push(snippet);
             }
 
@@ -309,7 +309,7 @@ function formatType(type) {
     if (type.value == 'tensorType') {
         var tensorType = type.tensorType;
         var text = formatElementType(tensorType.elemType); 
-        if (tensorType.shape.dim) {
+        if (tensorType.shape && tensorType.shape.dim) {
             text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
         }
         return text;

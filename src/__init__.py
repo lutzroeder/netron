@@ -68,7 +68,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                         status_code = 200
                 else:
                     status_code = 404
-        # print(str(status_code) + ' ' + self.command + ' ' + self.path)
+        print(str(status_code) + ' ' + self.command + ' ' + self.path)
         sys.stdout.flush()
         self.send_response(status_code)
         for key in headers:

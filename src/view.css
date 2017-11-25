@@ -67,7 +67,7 @@ text {
 .input rect {
     stroke: none;
     fill: none;
-    stroke-width: 0;
+    stroke-width: 1px;
 }
 
 .input table {
@@ -106,6 +106,12 @@ text {
     padding: 5px;
 }
 
+.operator rect {
+    stroke: none;
+    fill: none;
+    stroke-width: 1px;
+}
+
 .operator table {
     font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
     font-size: 10px;
@@ -134,7 +140,6 @@ text {
     background-color: #ddd;
     padding: 5px;
     border-left: 1px solid #333;
-    border-bottom: 1px solid #333;
 }
 
 .operator table th:hover {
@@ -143,6 +148,7 @@ text {
 }
 
 .operator table td {
+    border-top: 1px solid #333;
     font-size: 6px;
     font-weight: normal;
     padding: 3px 5px 3px 5px;
