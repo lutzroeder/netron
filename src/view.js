@@ -96,7 +96,7 @@ function renderModel(model) {
 
         var formatter = new NodeFormatter();
 
-        formatter.addItem(operator, 'node-header-operator', null, function() { showDocumentation(operator) });
+        formatter.addItem(operator, 'node-item-operator', null, function() { showDocumentation(operator) });
 
         node.input.forEach(function (edge, index)
         {
@@ -108,7 +108,7 @@ function renderModel(model) {
             var initializer = initializerMap[edge];
             if (initializer) {
                 var type = formatTensorType(initializer);
-                formatter.addItem(name, 'node-header-input', type, function() { showInitializer(initializer); });
+                formatter.addItem(name, 'node-item-input', type, function() { showInitializer(initializer); });
             }
             else {
                 // TODO is there a way to infer the type of the input?
@@ -163,7 +163,8 @@ function renderModel(model) {
                 {
                     attributeValue = attributeValue.substring(0, 25) + '...';
                 }
-                formatter.addAttribute(attribute.name, attributeValue);
+                var attributeType = formatAttributeType(attribute);
+                formatter.addAttribute(attribute.name, attributeValue, attributeType);
             });
 
             formatter.setAttributeHandler(function() { showNodeAttributes(node.attribute); });
@@ -322,6 +323,20 @@ function formatElementType(elementType) {
     return elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
 }
 
+function formatAttributeType(attribute) {
+    if (attribute.type) { 
+        var elementType = formatElementType(attribute.type);
+        if ((attribute.ints && attribute.ints.length > 0) ||
+            (attribute.floats && attribute.floats.length > 0) ||
+            (attribute.strings && attribute.strings.length > 0))
+        {
+            return elementType + '[]';
+        }
+        return elementType;
+    }
+    return null;
+}
+
 function formatAttributeValue(attribute) {
     if (attribute.ints && attribute.ints.length > 0) {
         return attribute.ints.map(v => v.toString()).join(', ');
@@ -409,11 +424,11 @@ function showNodeAttributes(attributes) {
                 var item = {};
                 item['name'] = attribute.name;
                 item['value'] = formatAttributeValue(attribute);
+                item['type'] = formatAttributeType(attribute);
                 if (attribute.docString) {
                     item['doc'] = attribute.docString;
                 }
-                
-                view['attributes'].push({ 'name': attribute.name, 'value': formatAttributeValue(attribute) });
+                view['attributes'].push(item);
             });
         }
 

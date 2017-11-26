@@ -30,8 +30,8 @@ NodeFormatter.prototype.setPropertyHandler = function(handler) {
     this.propertyHandler = handler;
 }
 
-NodeFormatter.prototype.addAttribute = function(name, value) {
-    this.attributes.push({ 'name': name, 'value': value });
+NodeFormatter.prototype.addAttribute = function(name, value, title) {
+    this.attributes.push({ 'name': name, 'value': value, 'title': title });
 }
 
 NodeFormatter.prototype.setAttributeHandler = function(handler) {
@@ -50,7 +50,7 @@ NodeFormatter.prototype.format = function(context) {
     self.items.forEach(function (header, index) {
         var yPadding = 4;
         var xPadding = 7;
-        var itemGroup = root.append('g').classed('node-header', true).attr('transform', 'translate(' + x + ',' + y + ')');
+        var itemGroup = root.append('g').classed('node-item', true).attr('transform', 'translate(' + x + ',' + y + ')');
         var rect = itemGroup.append('path');
         var text = itemGroup.append('text');
         var content = header['content'];
@@ -88,6 +88,10 @@ NodeFormatter.prototype.format = function(context) {
         }
     });
 
+    if (hasAttributes || hasProperties) {
+        maxHeight += 0.5;
+    }
+
     var itemWidth = maxWidth;
     var itemHeight = maxHeight;
 
@@ -119,7 +123,7 @@ NodeFormatter.prototype.format = function(context) {
             text.attr('y', propertiesHeight + yPadding - size.y);
             propertiesHeight += yPadding + size.height + yPadding;
         });
-        propertiesHeight += 4;
+        propertiesHeight += hasAttributes ? 1 : 4;
     }
 
     y += propertiesHeight;
@@ -134,11 +138,14 @@ NodeFormatter.prototype.format = function(context) {
         }
         attributesPath = attributeGroup.append('path');
         attributeGroup.attr('transform', 'translate(' + x + ',' + y + ')');
-        attributesHeight += 4;
+        attributesHeight += hasProperties ? 1 : 4;
         self.attributes.forEach(function (attribute) {
             var yPadding = 1;
             var xPadding = 4;
             var text = attributeGroup.append('text').attr('xml:space', 'preserve');
+            if (attribute['title']) {
+                text.append('title').text(attribute['title']);
+            }
             var text_name = text.append('tspan').style('font-weight', 'bold').text(attribute.name);
             var text_value = text.append('tspan').text(' = ' + attribute.value)
             var size = text.node().getBBox();
@@ -183,6 +190,8 @@ NodeFormatter.prototype.format = function(context) {
     if (hasAttributes && attributesPath) {
         attributesPath.attr('d', self.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
     }
+
+    root.append('path').classed('node', true).attr('d', self.roundedRect(0, 0, maxWidth, itemHeight + propertiesHeight + attributesHeight, true, true, true, true));
 
     context.html("");
     return root;

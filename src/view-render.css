@@ -1,62 +1,27 @@
 
-.node-header path { stroke-width: 1px; stroke: #000; fill: #fff; }
+.node path { stroke: #000; fill: none; stroke-width: 1px; }
+.node-item path { stroke-width: 1px; stroke: #000; fill: #fff; }
+.node-item text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; font-weight: 600;  text-rendering: geometricPrecision; }
 
-.node-header text {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 10px;
-    font-weight: 600; 
-    text-rendering: geometricPrecision;
-}
+.node-item-operator path { fill: #000; }
+.node-item-operator text { fill: #fff; }
+.node-item-operator:hover { cursor: hand; }
+.node-item-operator:hover path { fill: #fff; }
+.node-item-operator:hover text { fill: #000; }
+.node-item-input path { fill: #eee; }
+.node-item-input:hover { cursor: hand; }
+.node-item-input:hover path { fill: #fff; }
 
-.node-header-operator path { fill: #000; }
-.node-header-operator text { fill: #fff; }
-.node-header-operator:hover { cursor: hand; }
-.node-header-operator:hover path { fill: #fff; }
-.node-header-operator:hover text { fill: #000; }
-.node-header-input path { fill: #eee; }
-.node-header-input:hover { cursor: hand; }
-.node-header-input:hover path { fill: #fff; }
-
-.node-property:hover {
-    cursor: hand;
-}
-
-.node-property text {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 7px;
-    font-weight: normal;
-    text-rendering: geometricPrecision;
-}
-
-.node-property path { fill: #fff; stroke-width: 1px; stroke: #000; }
+.node-property:hover { cursor: hand; }
+.node-property text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 7px; font-weight: normal; text-rendering: geometricPrecision; }
+.node-property path { fill: #fff; stroke-width: 0; stroke: #000; }
 .node-property:hover path { fill: #f6f6f6; }
 
-.node-attribute:hover {
-    cursor: hand;
-}
-
-.node-attribute text {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 7px;
-    font-weight: normal;
-    text-rendering: geometricPrecision;
-}
-
-.node-attribute path { fill: #fff; stroke-width: 1px; stroke: #000; }
+.node-attribute:hover { cursor: hand; }
+.node-attribute text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 7px; font-weight: normal; text-rendering: geometricPrecision; }
+.node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }
 .node-attribute:hover path { fill: #f6f6f6; }
 
-.edgeLabel text {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 10px;
-}
-
-.edgePath path {
-    stroke: #000;
-    stroke-width: 1px;
-}
-
-.node rect {
-    stroke: none;
-    fill: none;
-    stroke-width: 0;
-}
+.edgeLabel text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
+.edgePath path { stroke: #000; stroke-width: 1px; }
+.node rect { stroke: none; fill: none; stroke-width: 0; }

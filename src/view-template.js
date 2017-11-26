@@ -11,6 +11,9 @@ var attributesTemplate = `
 .attribute {
     margin-bottom: 20px;
 }
+.attribute b {
+    font-weight: 600;
+}
 .attribute h1 {
     font-weight: 600;
     font-size: 14px;
@@ -45,7 +48,7 @@ var attributesTemplate = `
 
 {{#attributes}}
 <div class='attribute'>    
-<h1>{{{name}}}</h1>
+<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
 {{#if doc}}
 {{{doc}}}
 {{/if}}
@@ -65,6 +68,9 @@ var initializerTemplate = `
     line-height: 1.5;
     margin: 0;
 }
+.initializer b {
+    font-weight: 600;
+}
 .initializer h1 {
     font-weight: 600;
     font-size: 14px;
@@ -81,10 +87,18 @@ var initializerTemplate = `
     margin-bottom: 16px;
     border-bottom: 1px solid #eaecef
 }
+.initializer code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 10px;
+    background-color: rgba(27, 31, 35, 0.05);
+    padding: 0.2em 0.4em;
+    margin: 0;
+    border-radius: 3px
+}
 .initializer pre {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     font-size: 11px;
-    padding: 16px;
+    padding: 12px;
     overflow: auto;
     line-height: 1.45;
     background-color: rgba(27, 31, 35, 0.05);
@@ -95,13 +109,10 @@ var initializerTemplate = `
 </style>
 
 <div class='initializer'>
-<h1>{{{name}}}</h1>
+<b>{{{name}}}</b>: <code>{{{type}}}</code><br>
 {{#if doc}}
 {{{doc}}}
 {{/if}}
-<h2>type</h2>
-<pre>{{{type}}}</pre>
-<h2>value</h2>
 <pre>{{{value}}}</pre>
 </div>
 `;
