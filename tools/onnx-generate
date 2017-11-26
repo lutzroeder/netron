@@ -4,11 +4,13 @@ mkdir -p ../third_party
 
 pushd "../third_party" > /dev/null
 # sudo rm -rf onnx
-#git clone --recursive git@github.com:onnx/onnx.git
+# git clone --recursive git@github.com:onnx/onnx.git
 popd > /dev/null
 
+ONNX_ML=1
+
 pushd "../third_party/onnx" > /dev/null
-# sudo python setup.py install
+sudo -E python setup.py build install
 popd > /dev/null
 
 echo "Generate '../src/onnx-ml.js'"
