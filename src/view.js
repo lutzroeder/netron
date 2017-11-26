@@ -139,7 +139,7 @@ function renderModel(model) {
             };
         });
 
-        if (node.name || node.docString) {
+        if (node.name || node.docString || node.domain) {
             if (node.name) {
                 formatter.addProperty('name', node.name);
             }
@@ -149,6 +149,9 @@ function renderModel(model) {
                     doc = doc.substring(0, 25) + '...';
                 }
                 formatter.addProperty('doc', doc);
+            }
+            if (node.domain) {
+                formatter.addProperty('domain', node.domain);
             }
             formatter.setPropertyHandler(function() { showNodeProperties(node) });
         }
@@ -377,7 +380,7 @@ function showInitializer(initializer) {
 }
 
 function showNodeProperties(node) {
-    if (node.name || node.docString) {
+    if (node.name || node.docString || node.domain) {
         
         var view = { 'attributes': [] };        
         if (node.name) {
@@ -385,6 +388,9 @@ function showNodeProperties(node) {
         }
         if (node.docString) {
             view['attributes'].push({ 'name': 'documentation', 'value': node.docString });
+        }
+        if (node.domain) {
+            view['attributes'].push({ 'name': 'domain', 'value': node.domain });
         }
 
         var template = Handlebars.compile(attributesTemplate, 'utf-8');
