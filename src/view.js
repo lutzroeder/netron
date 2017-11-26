@@ -69,6 +69,13 @@ function openBuffer(err, buffer) {
 }
 
 function renderModel(model) {
+
+    var svgElement = document.getElementById('graph');
+    while (svgElement.lastChild) {
+        svgElement.removeChild(svgElement.lastChild);
+    }
+    var svg = dagreD3.d3.select(svgElement);
+
     var g = new dagreD3.graphlib.Graph();
     g.setGraph({});
     g.setDefaultEdgeLabel(() => { return {}; });
@@ -87,13 +94,10 @@ function renderModel(model) {
 
         var operator = node.opType;
 
-        var element = document.createElement('table');
-        var content = dagreD3.d3.select(element);
-        var header = content.append('tr');
-        header.append('th').text(operator).style('cursor', 'pointer').on('click', function() {
-            showDocumentation(operator);
-        });
-    
+        var formatter = new NodeFormatter();
+
+        formatter.addItem(operator, 'node-header-operator', null, function() { showDocumentation(operator) });
+
         node.input.forEach(function (edge, index)
         {
             var name = modelService.getOperatorService().getInputName(operator, index);
@@ -104,15 +108,11 @@ function renderModel(model) {
             var initializer = initializerMap[edge];
             if (initializer) {
                 var type = formatTensorType(initializer);
-                var th = header.append('th');
-                th.style('cursor', 'pointer').on('click', function () {
-                    showInitializer(initializer);
-                });
-                th.append('span').attr('title', type).text(name);
+                formatter.addItem(name, 'node-header-input', type, function() { showInitializer(initializer); });
             }
             else {
                 // TODO is there a way to infer the type of the input?
-                header.append('th').style('background-color', '#f8f8f8').append('span').text(name);
+                formatter.addItem(name, null, null, null);
 
                 var tuple = edgeMap[edge];
                 if (!tuple) {
@@ -140,61 +140,33 @@ function renderModel(model) {
         });
 
         if (node.name || node.docString) {
-
-            var tr = content.append('tr');
-            var td = tr.append('td').attr('colspan', '100%');
-            tr.style('cursor', 'pointer').on('click', function() {
-                showNodeDetails(node);
-            });
-
-            var html = []; 
-            
             if (node.name) {
-                html.push('<span style="white-space: nowrap;"><b>name</b>: ' + node.name + "</b><br></span>");
+                formatter.addProperty('name', node.name);
             }
-            
             if (node.docString) {
-                var snippet = '<span style="white-space: nowrap;"'
                 var doc = node.docString;
                 if (doc.length > 50) {
-                    snippet += ' title="' + doc + '"';
                     doc = doc.substring(0, 25) + '...';
                 }
-                snippet += '><b>doc</b>: ' + doc + '</span><br>';
-                html.push(snippet);
+                formatter.addProperty('doc', doc);
             }
-
-            td.html(html.join(''));            
+            formatter.setPropertyHandler(function() { showNodeProperties(node) });
         }
 
         if (node.attribute && node.attribute.length > 0) {
-
-            var tr = content.append('tr');
-            var td = tr.append('td').attr('colspan', '100%');
-            tr.style('cursor', 'pointer').on('click', function() {
-                showAttributes(node.attribute);
+            node.attribute.forEach(function (attribute) {
+                var attributeValue = formatAttributeValue(attribute);
+                if (attributeValue.length > 25)
+                {
+                    attributeValue = attributeValue.substring(0, 25) + '...';
+                }
+                formatter.addAttribute(attribute.name, attributeValue);
             });
 
-            var html = []; 
-
-            if (node.attribute && node.attribute.length > 0) {
-                node.attribute.forEach(function (attribute) {
-                    var snippet = '<span style="white-space: nowrap;"'
-                    var attributeValue = formatAttributeValue(attribute);
-                    if (attributeValue.length > 25)
-                    {
-                        snippet += ' title="' + attributeValue + '"';
-                        attributeValue = attributeValue.substring(0, 25) + '...';
-                    }
-                    snippet += '><b>' + attribute.name + ' </b> = ' + attributeValue + '</span><br>';
-                    html.push(snippet);
-                });
-            }
-
-            td.html(html.join(''));
+            formatter.setAttributeHandler(function() { showNodeAttributes(node.attribute); });
         }
 
-        g.setNode(nodeId++, { label: element, class: 'operator', padding: 0 } );
+        g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 });
     });
 
     graph.input.forEach(function (valueInfo) {
@@ -211,12 +183,9 @@ function renderModel(model) {
     
             var type = formatType(valueInfo.type);
 
-            var element = document.createElement('table');
-            var content = dagreD3.d3.select(element);
-            var header = content.append('tr');
-            header.append('th').append('span').attr('title', type).html(valueInfo.name);
-            
-            g.setNode(nodeId++, { label: element, class: 'input', padding: 0 } ); 
+            var formatter = new NodeFormatter();
+            formatter.addItem(valueInfo.name, null, type, null);
+            g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
         }
     });
 
@@ -231,11 +200,10 @@ function renderModel(model) {
             node: nodeId,
             // name: valueInfo.name
         });
-        var element = document.createElement('table');
-        var content = dagreD3.d3.select(element);
-        var header = content.append('tr');
-        header.append('th').html(valueInfo.name);
-        g.setNode(nodeId++, { label: element, class: 'output', padding: 0 } );        
+
+        var formatter = new NodeFormatter();
+        formatter.addItem(valueInfo.name, null, null, null);
+        g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
     });
 
     Object.keys(edgeMap).forEach(function (edge) {
@@ -265,12 +233,6 @@ function renderModel(model) {
         }
     });
 
-    var svgElement = document.getElementById('graph');
-    while (svgElement.lastChild) {
-        svgElement.removeChild(svgElement.lastChild);
-    }
-
-    var svg = dagreD3.d3.select(svgElement);
     var inner = svg.append('g');
 
     // Set up zoom support
@@ -414,7 +376,7 @@ function showInitializer(initializer) {
     openSidebar(data, 'Initializer');
 }
 
-function showNodeDetails(node) {
+function showNodeProperties(node) {
     if (node.name || node.docString) {
         
         var view = { 'attributes': [] };        
@@ -427,11 +389,11 @@ function showNodeDetails(node) {
 
         var template = Handlebars.compile(attributesTemplate, 'utf-8');
         var data = template(view);
-        openSidebar(data, 'Node Details');
+        openSidebar(data, 'Node Properties');
     }
 }
 
-function showAttributes(attributes) {
+function showNodeAttributes(attributes) {
     if (attributes && attributes.length > 0) {
 
         var view = { 'attributes': [] };        
@@ -451,7 +413,7 @@ function showAttributes(attributes) {
 
         var template = Handlebars.compile(attributesTemplate, 'utf-8');
         var data = template(view);
-        openSidebar(data, 'Attributes');
+        openSidebar(data, 'Node Attributes');
     }
 }
 

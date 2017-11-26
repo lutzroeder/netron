@@ -37,7 +37,7 @@ button {
     border: 1px solid #aaa;
 }
 
- button:hover {
+button:hover {
     background-color: #aaa;
     color: #e6e6e6;
     cursor: hand;
@@ -46,117 +46,6 @@ button {
 button:focus
 {
     outline: 0;
-}
-
-text {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 10px;
-}
-
-.edgePath path {
-    stroke: #000;
-    stroke-width: 1px;
-}
-
-.node rect {
-    stroke: none;
-    fill: none;
-    stroke-width: 0;
-}
-
-.input rect {
-    stroke: none;
-    fill: none;
-    stroke-width: 1px;
-}
-
-.input table {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 10px;
-    background-color: #ddd;
-    border-spacing: 0;
-    border-collapse: separate;
-    border-radius: 10px;
-    border: 1px solid #333;
-    overflow: hidden;
-}
-
-.input table th {
-    padding: 5px;
-}
-
-.output rect {
-    stroke: none;
-    fill: none;
-    stroke-width: 0;
-}
-
-.output table {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 10px;
-    background-color: #ddd;
-    border-spacing: 0;
-    border-collapse: separate;
-    border-radius: 10px;
-    border: 1px solid #333;
-    overflow: hidden;
-}
-
-.output table th {
-    padding: 5px;
-}
-
-.operator rect {
-    stroke: none;
-    fill: none;
-    stroke-width: 1px;
-}
-
-.operator table {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 10px;
-    background-color: #fff;
-    border-spacing: 0;
-    border-collapse: separate;
-    border: 1px solid #333;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.operator table th:first-child {
-    background-color: #333;
-    color: #fff;
-    border-left: 0;
-}
-
-.operator table th:first-child:hover {
-    background-color: #fff;
-    color: #333;
-}
-
-.operator table th {
-    font-size: 10px;
-    font-weight: bold;
-    background-color: #ddd;
-    padding: 5px;
-    border-left: 1px solid #333;
-}
-
-.operator table th:hover {
-    background-color: #fff;
-    color: #333;
-}
-
-.operator table td {
-    border-top: 1px solid #333;
-    font-size: 6px;
-    font-weight: normal;
-    padding: 3px 5px 3px 5px;
-}
-
-.operator table td:hover {
-    background-color: #e6e6e6;
-    color: #333;
 }
 
 .sidebar {

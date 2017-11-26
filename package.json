@@ -5,7 +5,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "0.4.3",
+    "version": "0.4.5",
     "description": "Viewer for ONNX neural network models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -35,9 +35,12 @@
         "directories": {
             "buildResources": "setup"
         },
-        "fileAssociations": { 
-            "ext": [ "pb", "onnx" ],
-            "name": "ONNX Model" 
+        "fileAssociations": {
+            "ext": [
+                "pb",
+                "onnx"
+            ],
+            "name": "ONNX Model"
         },
         "mac": {
             "category": "public.app-category.developer-tools",

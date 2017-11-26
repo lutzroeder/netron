@@ -68,6 +68,8 @@ package_data={
         'view-browser.html',
         'view-browser.js',
         'view-onnx.js',
+        'view-render.css',
+        'view-render.js',
         'view-template.js',
         'view.css',
         'view.js',
