@@ -128,7 +128,9 @@ OnnxOperatorService.prototype.getHtmlDocumentation = function(operator) {
                             output.push('<pre>' + lines.join('') + '</pre>');
                         }
                         else {
-                            var text = lines.join('').replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
+                            var text = lines.join('');
+                            var text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
+                            var text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
                             output.push('<p>' + text + '</p>')
                         }
                     }
