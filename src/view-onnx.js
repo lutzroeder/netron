@@ -33,7 +33,7 @@ OnnxModelService.prototype.getModelProperties = function() {
         producer.push(this.model.producerName);
     }
     if (this.model.producerVersion && this.model.producerVersion.length > 0) {
-        producer.push(model.producerVersion);
+        producer.push(this.model.producerVersion);
     }
     if (producer.length > 0) {
         generalProperties['properties'].push({ 'name': 'Producer', 'value': producer.join(' ') });
