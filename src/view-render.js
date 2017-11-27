@@ -47,25 +47,25 @@ NodeFormatter.prototype.format = function(context) {
     var y = 0;
     var maxWidth = 0;
     var itemHeight = 0;
+    var itemBoxes = []
     self.items.forEach(function (item, index) {
         var yPadding = 4;
         var xPadding = 7;
-        var itemGroup = root.append('g').classed('node-item', true);
-        itemGroup.attr('transform', 'translate(' + x + ',' + y + ')');
-        var path = itemGroup.append('path');
-        var text = itemGroup.append('text');
+        var group = root.append('g').classed('node-item', true);
+        var path = group.append('path');
+        var text = group.append('text');
         var content = item['content'];
         var className = item['class']; 
         var handler = item['handler'];
         var title = item['title']
         if (className) {
-            itemGroup.classed(className, true);
+            group.classed(className, true);
         }
         if (handler) {
-            itemGroup.on('click', handler);
+            group.on('click', handler);
         }
         if (title) {
-            itemGroup.append('title').text(title);
+            group.append('title').text(title);
         }
         if (content) {
             text.text(content);
@@ -73,15 +73,14 @@ NodeFormatter.prototype.format = function(context) {
         var boundingBox = text.node().getBBox();
         var width = boundingBox.width + xPadding + xPadding;
         var height = boundingBox.height + yPadding + yPadding;
-        text.attr('x', xPadding);
-        text.attr('y', yPadding - boundingBox.y);
-        var r1 = index == 0;
-        var r2 = index == self.items.length - 1;
-        var r3 = !hasAttributes && !hasProperties && r2;
-        var r4 = !hasAttributes && !hasProperties && r1;
-        path.attr('d', self.roundedRect(0, 0, width, height, r1, r2, r3, r4));
+        itemBoxes.push({
+            'group': group, 'text': text, 'path': path,
+            'x': x, 'y': y,
+            'width': width, 'height': height,
+            'tx': xPadding, 'ty': yPadding - boundingBox.y
+        });
         x += width;
-        if (height > itemHeight) {
+        if (itemHeight < height) {
             itemHeight = height;
         }
         if (x > maxWidth) { 
@@ -97,17 +96,17 @@ NodeFormatter.prototype.format = function(context) {
     var propertiesHeight = 0;
     var propertiesPath = null;
     if (hasProperties) {
-        var propertiesGroup = root.append('g').classed('node-property', true);
+        var group = root.append('g').classed('node-property', true);
         if (self.propertyHandler) {
-            propertiesGroup.on('click', self.propertyHandler);
+            group.on('click', self.propertyHandler);
         }
-        propertiesPath = propertiesGroup.append('path');
-        propertiesGroup.attr('transform', 'translate(' + x + ',' + y + ')');
+        propertiesPath = group.append('path');
+        group.attr('transform', 'translate(' + x + ',' + y + ')');
         propertiesHeight += 4;
         self.properties.forEach(function (property) {
             var yPadding = 1;
             var xPadding = 4;
-            var text = propertiesGroup.append('text').attr('xml:space', 'preserve');
+            var text = group.append('text').attr('xml:space', 'preserve');
             var text_name = text.append('tspan').style('font-weight', 'bold').text(property.name);
             var text_value = text.append('tspan').text(': ' + property.value)
             var size = text.node().getBBox();
@@ -128,17 +127,17 @@ NodeFormatter.prototype.format = function(context) {
     var attributesPath = null;
     if (hasAttributes)
     {
-        var attributeGroup = root.append('g').classed('node-attribute', true);
+        var group = root.append('g').classed('node-attribute', true);
         if (self.attributeHandler) {
-            attributeGroup.on('click', self.attributeHandler);
+            group.on('click', self.attributeHandler);
         }
-        attributesPath = attributeGroup.append('path');
-        attributeGroup.attr('transform', 'translate(' + x + ',' + y + ')');
+        attributesPath = group.append('path');
+        group.attr('transform', 'translate(' + x + ',' + y + ')');
         attributesHeight += hasProperties ? 1 : 4;
         self.attributes.forEach(function (attribute) {
             var yPadding = 1;
             var xPadding = 4;
-            var text = attributeGroup.append('text').attr('xml:space', 'preserve');
+            var text = group.append('text').attr('xml:space', 'preserve');
             if (attribute['title']) {
                 text.append('title').text(attribute['title']);
             }
@@ -158,22 +157,22 @@ NodeFormatter.prototype.format = function(context) {
 
     if (maxWidth > itemWidth) {
         var d = (maxWidth - itemWidth) / self.items.length;
-        self.items.forEach(function (item, index) {
-            var itemGroup = dagreD3.d3.select(root.node().children[index]);
-            var t = dagreD3.d3.transform(itemGroup.attr('transform')).translate;
-            itemGroup.attr('transform', 'translate(' + (t[0] + index * d) + ',' + t[1] + ')');
-            var path = dagreD3.d3.select(itemGroup.node().children[0]);
-            var r1 = index == 0;
-            var r2 = index == self.items.length - 1;
-            var r3 = !hasAttributes && !hasProperties && r2;
-            var r4 = !hasAttributes && !hasProperties && r1;
-            var box = path.node().getBBox();
-            path.attr('d', self.roundedRect(0, 0, box.width + d, box.height, r1, r2, r3, r4));
-            var text = dagreD3.d3.select(itemGroup.node().children[1]);
-            var t2 = dagreD3.d3.transform(text.attr('transform')).translate;
-            text.attr('transform', 'translate(' + (t2[0] + 0.5 * d) + ',' + t2[1] + ')');
+        itemBoxes.forEach(function (itemBox, index) {
+            itemBox['x'] = itemBox['x'] + (index * d);
+            itemBox['width'] = itemBox['width'] + d;
+            itemBox['tx'] = itemBox['tx'] + (0.5 * d);
         });
     }
+
+    itemBoxes.forEach(function(itemBox, index) {
+        itemBox['group'].attr('transform', 'translate(' + itemBox['x'] + ',' + itemBox['y'] + ')');        
+        var r1 = index == 0;
+        var r2 = index == itemBoxes.length - 1;
+        var r3 = !hasAttributes && !hasProperties && r2;
+        var r4 = !hasAttributes && !hasProperties && r1;
+        itemBox['path'].attr('d', self.roundedRect(0, 0, itemBox['width'], itemBox['height'], r1, r2, r3, r4));
+        itemBox['text'].attr('x', itemBox['tx']).attr('y', itemBox['ty']);
+    });
 
     if (hasProperties) {
         propertiesPath.attr('d', self.roundedRect(0, 0, maxWidth, propertiesHeight, false, false, !hasAttributes, !hasAttributes));
@@ -183,18 +182,14 @@ NodeFormatter.prototype.format = function(context) {
         attributesPath.attr('d', self.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
     }
 
-    self.items.forEach(function(item, index) {
+    itemBoxes.forEach(function(itemBox, index) {
         if (index != 0) {
-            var itemGroup = dagreD3.d3.select(root.node().children[index]);
-            var t = dagreD3.d3.transform(itemGroup.attr('transform')).translate;
-            root.append('line').classed('node', true).attr('x1', t[0]).attr('y1', 0).attr('x2', t[0]).attr('y2', itemHeight);
+            root.append('line').classed('node', true).attr('x1', itemBox['x']).attr('y1', 0).attr('x2', itemBox['x']).attr('y2', itemHeight);
         }
     });
-
     if (hasAttributes || hasProperties) {
         root.append('line').classed('node', true).attr('x1', 0).attr('y1', itemHeight).attr('x2', maxWidth).attr('y2', itemHeight);
     }
-
     root.append('path').classed('node', true).attr('d', self.roundedRect(0, 0, maxWidth, itemHeight + propertiesHeight + attributesHeight, true, true, true, true));
 
     context.html("");
@@ -202,7 +197,7 @@ NodeFormatter.prototype.format = function(context) {
 };
 
 NodeFormatter.prototype.roundedRect = function(x, y, width, height, r1, r2, r3, r4) {
-    var radius = 5;
+    var radius = 5;    
     r1 = r1 ? radius : 0;
     r2 = r2 ? radius : 0;
     r3 = r3 ? radius : 0;
