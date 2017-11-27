@@ -378,18 +378,21 @@ function showDocumentation(operator) {
 function showModelProperties() {
     var view = modelService.getModelProperties();
     if (view) {
-        var template = Handlebars.compile(propertiesTemplate, 'utf-8');
+        var template = Handlebars.compile(modelPropertiesTemplate, 'utf-8');
         var data = template(view);
         openSidebar(data, 'Model Properties');
     }
 }
 
 function showInitializer(initializer) {
-    var view = {
+    var view = { 'items': [] };
+    view['items'].push({
         'name': initializer.name,
         'type': formatTensorType(initializer),
-        'value': '// TODO' };
-    var template = Handlebars.compile(initializerTemplate, 'utf-8');
+        'value': '// TODO'
+    });
+
+    var template = Handlebars.compile(itemsTemplate, 'utf-8');
     var data = template(view);
     openSidebar(data, 'Initializer');
 }
@@ -399,13 +402,13 @@ function showNodeProperties(node) {
         
         var view = { 'items': [] };        
         if (node.name) {
-            view['items'].push({ 'name': 'name', 'value': node.name });
+            view['items'].push({ 'name': 'Name', 'value': node.name });
         }
         if (node.docString) {
-            view['items'].push({ 'name': 'documentation', 'value': node.docString });
+            view['items'].push({ 'name': 'Documentation', 'value': node.docString });
         }
         if (node.domain) {
-            view['items'].push({ 'name': 'domain', 'value': node.domain });
+            view['items'].push({ 'name': 'Domain', 'value': node.domain });
         }
 
         var template = Handlebars.compile(itemsTemplate, 'utf-8');

@@ -34,7 +34,7 @@ var itemsTemplate = `
 .item pre {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     font-size: 11px;
-    padding: 12px;
+    padding: 8px 12px 8px 12px;
     overflow: auto;
     line-height: 1.45;
     background-color: rgba(27, 31, 35, 0.05);
@@ -56,65 +56,7 @@ var itemsTemplate = `
 </div>
 `;
 
-var initializerTemplate = `
-<style type='text/css'>
-
-.initializer {
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    font-size: 12px;
-    line-height: 1.5;
-    margin: 0;
-}
-.initializer b {
-    font-weight: 600;
-}
-.initializer h1 {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.25;
-    border-bottom: 1px solid #eaecef;
-    padding-bottom: 0.3em;
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-.initializer h2 {
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.25;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #eaecef
-}
-.initializer code {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 10px;
-    background-color: rgba(27, 31, 35, 0.05);
-    padding: 0.2em 0.4em;
-    margin: 0;
-    border-radius: 3px
-}
-.initializer pre {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 11px;
-    padding: 12px;
-    overflow: auto;
-    line-height: 1.45;
-    background-color: rgba(27, 31, 35, 0.05);
-    border-radius: 3px;
-    white-space: pre-wrap;
-    word-wrap: break-word;  
-}
-</style>
-
-<div class='initializer'>
-<b>{{{name}}}</b>: <code>{{{type}}}</code><br>
-{{#if doc}}
-{{{doc}}}
-{{/if}}
-<pre>{{{value}}}</pre>
-</div>
-`;
-
-var propertiesTemplate = `
+var modelPropertiesTemplate = `
 <style type='text/css'>
 
 .properties {
