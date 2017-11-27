@@ -45,18 +45,19 @@ NodeFormatter.prototype.format = function(context) {
     var hasAttributes = self.attributes && self.attributes.length > 0;
     var x = 0;
     var y = 0;
-    var maxHeight = 0;
     var maxWidth = 0;
-    self.items.forEach(function (header, index) {
+    var itemHeight = 0;
+    self.items.forEach(function (item, index) {
         var yPadding = 4;
         var xPadding = 7;
-        var itemGroup = root.append('g').classed('node-item', true).attr('transform', 'translate(' + x + ',' + y + ')');
-        var rect = itemGroup.append('path');
+        var itemGroup = root.append('g').classed('node-item', true);
+        itemGroup.attr('transform', 'translate(' + x + ',' + y + ')');
+        var path = itemGroup.append('path');
         var text = itemGroup.append('text');
-        var content = header['content'];
-        var className = header['class']; 
-        var handler = header['handler'];
-        var title = header['title']
+        var content = item['content'];
+        var className = item['class']; 
+        var handler = item['handler'];
+        var title = item['title']
         if (className) {
             itemGroup.classed(className, true);
         }
@@ -78,25 +79,20 @@ NodeFormatter.prototype.format = function(context) {
         var r2 = index == self.items.length - 1;
         var r3 = !hasAttributes && !hasProperties && r2;
         var r4 = !hasAttributes && !hasProperties && r1;
-        rect.attr('d', self.roundedRect(0, 0, width, height, r1, r2, r3, r4));
+        path.attr('d', self.roundedRect(0, 0, width, height, r1, r2, r3, r4));
         x += width;
-        if (height > maxHeight) {
-            maxHeight = height;
+        if (height > itemHeight) {
+            itemHeight = height;
         }
         if (x > maxWidth) { 
             maxWidth = x;
         }
     });
 
-    if (hasAttributes || hasProperties) {
-        maxHeight += 0.5;
-    }
-
     var itemWidth = maxWidth;
-    var itemHeight = maxHeight;
 
     x = 0;
-    y += maxHeight;
+    y += itemHeight;
 
     var propertiesHeight = 0;
     var propertiesPath = null;
@@ -160,13 +156,9 @@ NodeFormatter.prototype.format = function(context) {
         attributesHeight += 4;
     }
 
-    if (maxHeight < y) {
-        maxHeight = y;
-    }
-
     if (maxWidth > itemWidth) {
         var d = (maxWidth - itemWidth) / self.items.length;
-        self.items.forEach(function (header, index) {
+        self.items.forEach(function (item, index) {
             var itemGroup = dagreD3.d3.select(root.node().children[index]);
             var t = dagreD3.d3.transform(itemGroup.attr('transform')).translate;
             itemGroup.attr('transform', 'translate(' + (t[0] + index * d) + ',' + t[1] + ')');
@@ -183,12 +175,24 @@ NodeFormatter.prototype.format = function(context) {
         });
     }
 
-    if (hasProperties && propertiesPath) {
+    if (hasProperties) {
         propertiesPath.attr('d', self.roundedRect(0, 0, maxWidth, propertiesHeight, false, false, !hasAttributes, !hasAttributes));
     }
 
-    if (hasAttributes && attributesPath) {
+    if (hasAttributes) {
         attributesPath.attr('d', self.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
+    }
+
+    self.items.forEach(function(item, index) {
+        if (index != 0) {
+            var itemGroup = dagreD3.d3.select(root.node().children[index]);
+            var t = dagreD3.d3.transform(itemGroup.attr('transform')).translate;
+            root.append('line').classed('node', true).attr('x1', t[0]).attr('y1', 0).attr('x2', t[0]).attr('y2', itemHeight);
+        }
+    });
+
+    if (hasAttributes || hasProperties) {
+        root.append('line').classed('node', true).attr('x1', 0).attr('y1', itemHeight).attr('x2', maxWidth).attr('y2', itemHeight);
     }
 
     root.append('path').classed('node', true).attr('d', self.roundedRect(0, 0, maxWidth, itemHeight + propertiesHeight + attributesHeight, true, true, true, true));

@@ -3,7 +3,6 @@
 import os
 import platform
 import sys
-import base64
 import onnx
 
 if sys.version_info[0] > 2:
@@ -52,7 +51,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                     headers = { 'Location': pathname + '/' }
         if status_code == 0:
             if pathname == '/model':
-                buffer = base64.b64encode(self.data)
+                buffer = self.data
                 headers['Content-Type'] = 'text/plain'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200

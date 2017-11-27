@@ -59,7 +59,7 @@ function openBuffer(err, buffer) {
             modelService.openBuffer(buffer);
         }
         catch (err) {
-            hostService.showError('Decoding failure: ' + message);
+            hostService.showError('Decoding failure: ' + err);
             updateView('welcome');
             return;
         }
@@ -369,7 +369,7 @@ function formatAttributeValue(attribute) {
 }
 
 function showDocumentation(operator) {
-    var documentation = modelService.getOperatorService().getHtmlDocumentation(operator);
+    var documentation = modelService.getOperatorService().getOperatorDocumentation(operator);
     if (documentation) {
         openSidebar(documentation, 'Documentation');
     }
@@ -397,18 +397,18 @@ function showInitializer(initializer) {
 function showNodeProperties(node) {
     if (node.name || node.docString || node.domain) {
         
-        var view = { 'attributes': [] };        
+        var view = { 'items': [] };        
         if (node.name) {
-            view['attributes'].push({ 'name': 'name', 'value': node.name });
+            view['items'].push({ 'name': 'name', 'value': node.name });
         }
         if (node.docString) {
-            view['attributes'].push({ 'name': 'documentation', 'value': node.docString });
+            view['items'].push({ 'name': 'documentation', 'value': node.docString });
         }
         if (node.domain) {
-            view['attributes'].push({ 'name': 'domain', 'value': node.domain });
+            view['items'].push({ 'name': 'domain', 'value': node.domain });
         }
 
-        var template = Handlebars.compile(attributesTemplate, 'utf-8');
+        var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template(view);
         openSidebar(data, 'Node Properties');
     }
@@ -417,7 +417,7 @@ function showNodeProperties(node) {
 function showNodeAttributes(attributes) {
     if (attributes && attributes.length > 0) {
 
-        var view = { 'attributes': [] };        
+        var view = { 'items': [] };        
 
         if (attributes && attributes.length > 0) {
             attributes.forEach(function (attribute) { 
@@ -428,11 +428,11 @@ function showNodeAttributes(attributes) {
                 if (attribute.docString) {
                     item['doc'] = attribute.docString;
                 }
-                view['attributes'].push(item);
+                view['items'].push(item);
             });
         }
 
-        var template = Handlebars.compile(attributesTemplate, 'utf-8');
+        var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template(view);
         openSidebar(data, 'Node Attributes');
     }

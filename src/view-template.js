@@ -1,20 +1,20 @@
 
-var attributesTemplate = `
+var itemsTemplate = `
 <style type='text/css'>
 
-.attributes {
+.items {
     font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     font-size: 12px;
     line-height: 1.5;
     margin: 0;
 }
-.attribute {
+.item {
     margin-bottom: 20px;
 }
-.attribute b {
+.item b {
     font-weight: 600;
 }
-.attribute h1 {
+.item h1 {
     font-weight: 600;
     font-size: 14px;
     line-height: 1.25;
@@ -23,7 +23,7 @@ var attributesTemplate = `
     margin-top: 0;
     margin-bottom: 16px;
 }
-.attribute code {
+.item code {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     font-size: 10px;
     background-color: rgba(27, 31, 35, 0.05);
@@ -31,7 +31,7 @@ var attributesTemplate = `
     margin: 0;
     border-radius: 3px
 }
-.attribute pre {
+.item pre {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     font-size: 11px;
     padding: 12px;
@@ -43,19 +43,16 @@ var attributesTemplate = `
     word-wrap: break-word;  
 }
 </style>
-
-<div class='attributes'>
-
-{{#attributes}}
-<div class='attribute'>    
+<div class='items'>
+{{#items}}
+<div class='item'>    
 <b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
 {{#if doc}}
 {{{doc}}}
 {{/if}}
 <pre>{{{value}}}</pre>
 </div>
-{{/attributes}}
-
+{{/items}}
 </div>
 `;
 

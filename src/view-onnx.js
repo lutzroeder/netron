@@ -109,7 +109,7 @@ OnnxOperatorService.prototype.getOutputName = function(operator, index) {
     return "(" + index.toString() + ")";
 }
 
-OnnxOperatorService.prototype.getHtmlDocumentation = function(operator) {
+OnnxOperatorService.prototype.getOperatorDocumentation = function(operator) {
     var schema = this.map[operator];
     if (schema) {
         schema = Object.assign({}, schema);

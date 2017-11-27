@@ -26,25 +26,18 @@ function BrowserHostService()
     var self = this;
 
     window.addEventListener('load', function(e) {
-        var request = new XMLHttpRequest();
         updateView('clock');
-        request.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var base64 = this.responseText;
-                var raw = window.atob(base64);
-                var length = raw.length;
-                var buffer = new Uint8Array(new ArrayBuffer(length));
-                for(var i = 0; i < length; i++) {
-                    buffer[i] = raw.charCodeAt(i);
-                }
-                self.callback(null, buffer);
-            }
-        };
-        request.open("GET", "model", true);
+        var request = new XMLHttpRequest();
+        request.responseType = 'arraybuffer';
+        request.onload = function () {
+            self.callback(null, new Uint8Array(request.response));
+        }
+        request.onerror = function () {
+            self.callback(request.status, null);
+        }
+        request.open("GET", "model");
         request.send();
     });
-
-    // TODO error
 }
 
 BrowserHostService.prototype.openFile = function(file, drop) {
