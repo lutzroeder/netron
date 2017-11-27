@@ -189,7 +189,7 @@ function renderModel(model) {
 
             var formatter = new NodeFormatter();
             formatter.addItem(valueInfo.name, null, type, null);
-            g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
+            g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'node-input', labelType: 'svg', padding: 0 } ); 
         }
     });
 
@@ -248,7 +248,7 @@ function renderModel(model) {
     var render = new dagreD3.render();
     render(dagreD3.d3.select('svg g'), g);
 
-    var inputElements = svgElement.getElementsByClassName('input');
+    var inputElements = svgElement.getElementsByClassName('node-input');
     if (inputElements && inputElements.length > 0) {
         // Center view based on input elements
         var x = 0;
