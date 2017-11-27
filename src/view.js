@@ -389,13 +389,61 @@ function showInitializer(initializer) {
     view['items'].push({
         'name': initializer.name,
         'type': formatTensorType(initializer),
-        'value': '// TODO'
+        'value': formatTensorValue(initializer)
     });
 
     var template = Handlebars.compile(itemsTemplate, 'utf-8');
     var data = template(view);
     openSidebar(data, 'Initializer');
 }
+
+function formatTensorValue(tensor) {
+
+    // var formatter = new TensorFormatter(tensor);
+    // return formatter.format();
+
+    return '// TODO ';
+}
+
+function TensorFormatter(tensor) {
+    this.tensor = tensor;
+    this.elementType = tensor.dataType;
+    this.dimensions = tensor.dims;
+    if (this.elementType == onnx.TensorProto.DataType.FLOAT && this.dimensions && tensor.floatData) {
+        this.data = tensor.floatData;
+    }
+    if (this.data) {
+        this.index = 0;
+        this.output = this.read(0);
+    }
+    else {
+        debugger;
+    }
+}
+
+TensorFormatter.prototype.read = function(dimension) {
+    var size = this.dimensions[dimension];
+    var result = [];
+    if (dimension == this.dimensions.length - 1) {
+        for (var i = 0; i < size; i++) {
+            result.push(this.data[this.index++]);
+        }
+    }
+    else {
+        for (var i = 0; i < size; i++) {
+            result.push(this.read(dimension + 1));
+        }
+    }
+    return result;
+};
+
+TensorFormatter.prototype.format = function() { 
+    if (this.output) {
+        return JSON.stringify(this.output);
+    }
+    debugger;
+    return '?';
+};
 
 function showNodeProperties(node) {
     if (node.name || node.docString || node.domain) {
