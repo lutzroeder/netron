@@ -25,14 +25,14 @@ if __name__ == '__main__':
             file = arg
     if show_help or len(file) == 0:
         print('')
-        print('Usage:')
-        print('  netron [option(s)] <model-file>')
+        print('Usage: netron [--help]')
+        print('              [--browse] [--port PORT] [--initializer] MODEL_FILE')
         print('')
         print('Options:')
-        print('  --help          Show help.')
-        print('  --port <port>   Port to serve (default: 8080).')
-        print('  --browse        Launch web browser.')
-        print('  --initializer   Keep graph initializer tensors.')
+        print('  -h, --help          Show this help message.')
+        print('  -p, --port PORT     Port to serve (default: 8080).')
+        print('  -b, --browse        Launch web browser.')
+        print('  -i, --initializer   Keep graph initializer tensors.')
         print('')
         sys.exit(1)
     if not os.path.exists(file):

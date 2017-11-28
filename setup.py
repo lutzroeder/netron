@@ -13,6 +13,32 @@ with open(os.path.join(TOP_DIR, 'package.json')) as package_file:
     package_manifest = json.load(package_file)
     package_version = package_manifest['version']
 
+packages = [ 'netron' ]
+
+package_data={
+    'netron': [ 
+        'netron',
+        'netron.py',
+        'logo.svg',
+        'spinner.svg',
+        'onnx-ml.js',
+        'onnx-operator.json',
+        'favicon.ico',
+        'view-browser.html',
+        'view-browser.js',
+        'view-onnx.js',
+        'view-render.css',
+        'view-render.js',
+        'view-template.js',
+        'view.css',
+        'view.js',
+        ]
+}
+
+install_requires = [ 'protobuf' ]
+
+scripts = [ 'src/netron' ]
+
 custom_files = [ 
     ( 'netron', [
         'node_modules/protobufjs/dist/protobuf.js',
@@ -54,31 +80,6 @@ class build_py(setuptools.command.build_py.build_py):
         result = setuptools.command.build_py.build_py.get_outputs(self, include_bytecode)
         print("## get_outputs ##")
         return result
-
-packages = [ 'netron' ]
-
-package_data={
-    'netron': [ 
-        'netron',
-        'logo.svg',
-        'spinner.svg',
-        'onnx-ml.js',
-        'onnx-operator.json',
-        'favicon.ico',
-        'view-browser.html',
-        'view-browser.js',
-        'view-onnx.js',
-        'view-render.css',
-        'view-render.js',
-        'view-template.js',
-        'view.css',
-        'view.js',
-        ]
-}
-
-install_requires = [ 'protobuf' ]
-
-scripts = [ 'src/netron' ]
 
 setuptools.setup(
     name="netron",
