@@ -135,9 +135,11 @@ OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
     }
     else if (attribute.s && attribute.s.length > 0) {
         if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
-            return '"' + String.fromCharCode.apply(null, attribute.s) + '"';
+            value = '"' + String.fromCharCode.apply(null, attribute.s) + '"';
         }
-        value = attribute.s.map(v => v.toString()).join(', ');
+        else {
+            value = attribute.s.map(v => v.toString()).join(', ');           
+        }
     }
     else if (attribute.f && attribute.f != 0 || attribute.f == 0 || isNaN(attribute.f)) {
         value = attribute.f.toString();
