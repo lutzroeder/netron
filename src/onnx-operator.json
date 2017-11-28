@@ -1364,7 +1364,7 @@
           "type": "int"
         }
       ],
-      "doc": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data. \nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of \nthe input tensor where values from the depth dimension are moved in spatial blocks to the height \nand width dimensions.\n",
+      "doc": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions.\n",
       "inputs": [
         {
           "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width.",
@@ -4480,7 +4480,7 @@
           "type": "float"
         }
       ],
-      "doc": "Given `data` tensor, pads, mode, and value.\n\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 0, 2, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
+      "doc": "Given `data` tensor, pads, mode, and value.\n\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 2, 0, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "inputs": [
         {
           "description": "Input tensor.",
@@ -6466,7 +6466,7 @@
           "type": "int"
         }
       ],
-      "doc": "SpaceToDepth rearranges blocks of spatial data into depth. More specifically, \nthis op outputs a copy of the input tensor where values from the height and width dimensions \nare moved to the depth dimension.\n",
+      "doc": "SpaceToDepth rearranges blocks of spatial data into depth. More specifically,\nthis op outputs a copy of the input tensor where values from the height and width dimensions\nare moved to the depth dimension.\n",
       "inputs": [
         {
           "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width.",
@@ -8199,77 +8199,6 @@
     }
   },
   {
-    "op_type": "ResizeNearest",
-    "schema": {
-      "attributes": [
-        {
-          "description": "The scale along height dimension",
-          "name": "height_scale",
-          "required": true,
-          "type": "float"
-        },
-        {
-          "description": "The scale along width dimension",
-          "name": "width_scale",
-          "required": true,
-          "type": "float"
-        }
-      ],
-      "doc": "Resize the width and height dimensions:\noutput_width = floor(input_width * width_scale),\noutput_height = floor(input_height * height_scale).\nFor example:\nX = [[[[1, 2],[3, 4]]]],\nwidth_scale = 2,\nheight_scale = 2,\nY = [[[[1, 1, 2, 2], [1, 1, 2, 2], [3, 3, 4, 4], [3, 3, 4, 4]]]]\n",
-      "inputs": [
-        {
-          "description": "4-D tensor, [N,C,H,W]",
-          "name": "X",
-          "optional": false,
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)",
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "4-D tensor after resizing, [N,C,H,W]",
-          "name": "Y",
-          "optional": false,
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)",
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
-        }
-      ],
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(bool)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain output types to bool, int32, int64, float16, float, double tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "op_type": "Scale",
     "schema": {
       "attributes": [
@@ -8432,6 +8361,83 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "op_type": "Upsample",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The scale along height dimension. It takes value greater than or equal to 1.",
+          "name": "height_scale",
+          "required": true,
+          "type": "float"
+        },
+        {
+          "description": "Two interpolation modes: nearest(default), bilinear",
+          "name": "mode",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "The scale along width dimension. It takes value greater than or equal to 1.",
+          "name": "width_scale",
+          "required": true,
+          "type": "float"
+        }
+      ],
+      "doc": "Upsample the input tensor.\nThe width and height of the output tensor are:\n  output_width = floor(input_width * width_scale),\n  output_height = floor(input_height * height_scale).\n\nExmpale:\n  Given `data` tensor, width_scale, height_scale, mode,\n  Upsample the input 4-D tensor in nearest mode:\n\n  data = [[[\n      [1, 2],\n      [3, 4]\n  ]]]\n  width_scale = 2\n  height_scale = 2\n  mode = \"nearest\"\n\n  output = [[[\n      [1, 1, 2, 2],\n      [1, 1, 2, 2],\n      [3, 3, 4, 4],\n      [3, 3, 4, 4]\n  ]]]\n",
+      "inputs": [
+        {
+          "description": "4-D tensor, [N,C,H,W]",
+          "name": "X",
+          "optional": false,
+          "typeStr": "T",
+          "types": [
+            "tensor(bool)",
+            "tensor(double)",
+            "tensor(float)",
+            "tensor(float16)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ]
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "4-D tensor after resizing, [N,C,H,W]",
+          "name": "Y",
+          "optional": false,
+          "typeStr": "T",
+          "types": [
+            "tensor(bool)",
+            "tensor(double)",
+            "tensor(float)",
+            "tensor(float16)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ]
+        }
+      ],
+      "support_level": "experimental",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(bool)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain output types to bool, int32, int64, float16, float, double tensors.",
           "type_param_str": "T"
         }
       ]
