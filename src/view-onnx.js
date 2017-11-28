@@ -287,6 +287,11 @@ OnnxOperatorService.prototype.getOperatorDocumentation = function(operator) {
             var code = true;
             while (input.length > 0) {
                 var line = input.shift();
+                if (line.length > 0)
+                {
+                    code = code && line.startsWith('  ');
+                    lines.push(line + "\n");
+                }
                 if (line.length == 0 || input.length == 0) {
                     if (lines.length > 0) {
                         if (code) {
@@ -302,13 +307,6 @@ OnnxOperatorService.prototype.getOperatorDocumentation = function(operator) {
                     }
                     lines = [];
                     code = true;
-                }
-                else if (!line.startsWith('  ')) {
-                    code = false;
-                    lines.push(line + "\n");
-                }
-                else {
-                    lines.push(line + "\n");
                 }
             }
             schema['doc'] = output.join('');
