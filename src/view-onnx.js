@@ -172,6 +172,19 @@ OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
     return result;
 }
 
+OnnxModelService.prototype.formatTensor = function(tensor) {
+    var result = {};
+    result['name'] = tensor.name;
+    result['type'] = this.formatElementType(tensor.dataType);
+    if (tensor.dims) { 
+        result['type'] += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
+    }
+    result['value'] = function() {
+        return new OnnxTensorFormatter(tensor).toString();
+    }
+    return result;
+}
+
 OnnxModelService.prototype.formatElementType = function(elementType) {
     var name = this.elementTypeMap[elementType];
     if (name) {
@@ -181,28 +194,58 @@ OnnxModelService.prototype.formatElementType = function(elementType) {
     return this.elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
 }
 
-function TensorFormatter(tensor) {
+function OnnxTensorFormatter(tensor) {
     this.tensor = tensor;
     this.elementType = tensor.dataType;
     this.dimensions = tensor.dims;
-    if (this.elementType == onnx.TensorProto.DataType.FLOAT && this.dimensions && tensor.floatData) {
-        this.data = tensor.floatData;
+
+    if (!this.dimensions) {
+        this.text = 'Tensor has no dimensions.';
+        return;
     }
-    if (this.data) {
-        this.index = 0;
-        this.output = this.read(0);
+    var size = 1;
+    this.dimensions.forEach(function (dimensionSize) {
+        size *= dimensionSize;
+    });
+    if (size > 65536) {
+        this.text = 'Tensor is too large to display.' 
+        return;
     }
-    else {
+
+    if (this.elementType == onnx.TensorProto.DataType.FLOAT) {
+        if (tensor.floatData && tensor.floatData.length > 0) {
+            this.data = tensor.floatData;
+        }
+        else if (tensor.rawData && tensor.rawData.length > 0) {
+            this.rawData = new DataView(tensor.rawData.buffer);
+        }
+    }
+
+    if (!this.data && !this.rawData) {
+        this.text = '// TODO'
         debugger;
+        return
     }
+
+    this.index = 0;
+    var result = this.read(0);
+    this.text = JSON.stringify(result, null, 4);
 }
 
-TensorFormatter.prototype.read = function(dimension) {
+OnnxTensorFormatter.prototype.read = function(dimension) {
     var size = this.dimensions[dimension];
     var result = [];
     if (dimension == this.dimensions.length - 1) {
         for (var i = 0; i < size; i++) {
-            result.push(this.data[this.index++]);
+            if (this.data) {
+                result.push(this.data[this.index++]);
+            }
+            else if (this.rawData) {
+                if (this.elementType == onnx.TensorProto.DataType.FLOAT) {
+                    result.push(this.rawData.getFloat32(this.index));
+                    this.index += 4;
+                }
+            }
         }
     }
     else {
@@ -213,12 +256,8 @@ TensorFormatter.prototype.read = function(dimension) {
     return result;
 };
 
-TensorFormatter.prototype.format = function() { 
-    if (this.output) {
-        return JSON.stringify(this.output);
-    }
-    debugger;
-    return '?';
+OnnxTensorFormatter.prototype.toString = function() { 
+    return this.text;
 };
 
 function OnnxOperatorService(hostService) {

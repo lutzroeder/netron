@@ -107,8 +107,8 @@ function renderModel(model) {
     
             var initializer = initializerMap[edge];
             if (initializer) {
-                var type = formatTensorType(initializer);
-                formatter.addItem(name, 'node-item-input', type, function() { showInitializer(initializer); });
+                var result = modelService.formatTensor(initializer);
+                formatter.addItem(name, 'node-item-input', result['type'], function() { showInitializer(initializer); });
             }
             else {
                 // TODO is there a way to infer the type of the input?
@@ -273,14 +273,6 @@ function formatType(type) {
     return '[UNKNOWN]';
 }
 
-function formatTensorType(type) {
-    var text = modelService.formatElementType(type.dataType);
-    if (type.dims) {
-        text += '[' + type.dims.map(dimension => dimension.toString()).join(',') + ']';        
-    }
-    return text;
-}
-
 function showDocumentation(operator) {
     var documentation = modelService.getOperatorService().getOperatorDocumentation(operator);
     if (documentation) {
@@ -298,24 +290,10 @@ function showModelProperties() {
 }
 
 function showInitializer(initializer) {
-    var view = { 'items': [] };
-    view['items'].push({
-        'name': initializer.name,
-        'type': formatTensorType(initializer),
-        'value': formatTensorValue(initializer)
-    });
-
+    var view = { 'items': [ modelService.formatTensor(initializer) ] };
     var template = Handlebars.compile(itemsTemplate, 'utf-8');
     var data = template(view);
     openSidebar(data, 'Initializer');
-}
-
-function formatTensorValue(tensor) {
-
-    // var formatter = new TensorFormatter(tensor);
-    // return formatter.format();
-
-    return '// TODO ';
 }
 
 function showNodeProperties(node) {
