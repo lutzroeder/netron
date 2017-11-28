@@ -139,35 +139,20 @@ function renderModel(model) {
             };
         });
 
-        if (node.name || node.docString || node.domain) {
-            if (node.name) {
-                formatter.addProperty('name', node.name);
-            }
-            if (node.docString) {
-                var doc = node.docString;
-                if (doc.length > 50) {
-                    doc = doc.substring(0, 25) + '...';
-                }
-                formatter.addProperty('doc', doc);
-            }
-            if (node.domain) {
-                formatter.addProperty('domain', node.domain);
-            }
+        var properties = modelService.formatNodeProperties(node);
+        if (properties) {
             formatter.setPropertyHandler(function() { showNodeProperties(node) });
+            properties.forEach(function (property) {
+                formatter.addProperty(property['name'], property['value_short']());
+            });
         }
 
-        if (node.attribute && node.attribute.length > 0) {
-            node.attribute.forEach(function (attribute) {
-                var attributeValue = formatAttributeValue(attribute);
-                if (attributeValue.length > 25)
-                {
-                    attributeValue = attributeValue.substring(0, 25) + '...';
-                }
-                var attributeType = formatAttributeType(attribute);
-                formatter.addAttribute(attribute.name, attributeValue, attributeType);
+        var attributes = modelService.formatNodeAttributes(node);
+        if (attributes) {
+            formatter.setAttributeHandler(function() { showNodeAttributes(node); });
+            attributes.forEach(function (attribute) {
+                formatter.addAttribute(attribute['name'], attribute['value_short'](), attribute['type']);
             });
-
-            formatter.setAttributeHandler(function() { showNodeAttributes(node.attribute); });
         }
 
         g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 });
@@ -189,7 +174,7 @@ function renderModel(model) {
 
             var formatter = new NodeFormatter();
             formatter.addItem(valueInfo.name, null, type, null);
-            g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'node-input', labelType: 'svg', padding: 0 } ); 
+            g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input', labelType: 'svg', padding: 0 } ); 
         }
     });
 
@@ -248,7 +233,7 @@ function renderModel(model) {
     var render = new dagreD3.render();
     render(dagreD3.d3.select('svg g'), g);
 
-    var inputElements = svgElement.getElementsByClassName('node-input');
+    var inputElements = svgElement.getElementsByClassName('graph-input');
     if (inputElements && inputElements.length > 0) {
         // Center view based on input elements
         var x = 0;
@@ -274,7 +259,7 @@ function renderModel(model) {
 function formatType(type) {
     if (type.value == 'tensorType') {
         var tensorType = type.tensorType;
-        var text = formatElementType(tensorType.elemType); 
+        var text = modelService.formatElementType(tensorType.elemType); 
         if (tensorType.shape && tensorType.shape.dim) {
             text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
         }
@@ -282,90 +267,18 @@ function formatType(type) {
     }
     if (type.value == 'mapType') {
         var mapType = type.mapType;
-        return '<' + formatElementType(mapType.keyType) + ', ' + formatType(mapType.valueType) + '>';
+        return '<' + modelService.formatElementType(mapType.keyType) + ', ' + formatType(mapType.valueType) + '>';
     }
     debugger;
     return '[UNKNOWN]';
 }
 
 function formatTensorType(type) {
-    var text = formatElementType(type.dataType);
+    var text = modelService.formatElementType(type.dataType);
     if (type.dims) {
         text += '[' + type.dims.map(dimension => dimension.toString()).join(',') + ']';        
     }
     return text;
-}
-
-const elementTypeMap = { };
-elementTypeMap[onnx.TensorProto.DataType.UNDEFINED] = 'UNDEFINED';
-elementTypeMap[onnx.TensorProto.DataType.FLOAT] = 'float';
-elementTypeMap[onnx.TensorProto.DataType.UINT8] = 'uint8';
-elementTypeMap[onnx.TensorProto.DataType.INT8] = 'int8';
-elementTypeMap[onnx.TensorProto.DataType.UINT16] = 'uint16';
-elementTypeMap[onnx.TensorProto.DataType.INT16] = 'int16';
-elementTypeMap[onnx.TensorProto.DataType.INT32] = 'int32';
-elementTypeMap[onnx.TensorProto.DataType.INT64] = 'int64';
-elementTypeMap[onnx.TensorProto.DataType.STRING] = 'string';
-elementTypeMap[onnx.TensorProto.DataType.BOOL] = 'bool';
-elementTypeMap[onnx.TensorProto.DataType.FLOAT16] = 'float16';
-elementTypeMap[onnx.TensorProto.DataType.DOUBLE] = 'double';
-elementTypeMap[onnx.TensorProto.DataType.UINT32] = 'uint32';
-elementTypeMap[onnx.TensorProto.DataType.UINT64] = 'uint64';
-elementTypeMap[onnx.TensorProto.DataType.COMPLEX64] = 'complex64';
-elementTypeMap[onnx.TensorProto.DataType.COMPLEX128] = 'complex128';
-
-function formatElementType(elementType) {
-    var name = elementTypeMap[elementType];
-    if (name) {
-        return name;
-    }
-    debugger;
-    return elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
-}
-
-function formatAttributeType(attribute) {
-    if (attribute.type) { 
-        var elementType = formatElementType(attribute.type);
-        if ((attribute.ints && attribute.ints.length > 0) ||
-            (attribute.floats && attribute.floats.length > 0) ||
-            (attribute.strings && attribute.strings.length > 0))
-        {
-            return elementType + '[]';
-        }
-        return elementType;
-    }
-    return null;
-}
-
-function formatAttributeValue(attribute) {
-    if (attribute.ints && attribute.ints.length > 0) {
-        return attribute.ints.map(v => v.toString()).join(', ');
-    }
-    if (attribute.floats && attribute.floats.length > 0) {
-        return attribute.floats.map(v => v.toString()).join(', ');
-    }
-    if (attribute.strings && attribute.strings.length > 0) {
-        return attribute.strings.map(function(s) {
-            if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                return '"' + String.fromCharCode.apply(null, s) + '"';
-            }
-            return s.map(v => v.toString()).join(', ');    
-        }).join(', ');
-    }
-    if (attribute.s && attribute.s.length > 0) {
-        if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
-            return '"' + String.fromCharCode.apply(null, attribute.s) + '"';
-        }
-        return attribute.s.map(v => v.toString()).join(', ');
-    }
-    if (attribute.f && attribute.f != 0 || attribute.f == 0 || isNaN(attribute.f)) {
-        return attribute.f.toString();
-    }
-    if (attribute.i && (attribute.i != 0 || attribute.i == 0)) {
-        return attribute.i.toString();
-    }
-    debugger;
-    return '?';
 }
 
 function showDocumentation(operator) {
@@ -405,86 +318,20 @@ function formatTensorValue(tensor) {
     return '// TODO ';
 }
 
-function TensorFormatter(tensor) {
-    this.tensor = tensor;
-    this.elementType = tensor.dataType;
-    this.dimensions = tensor.dims;
-    if (this.elementType == onnx.TensorProto.DataType.FLOAT && this.dimensions && tensor.floatData) {
-        this.data = tensor.floatData;
-    }
-    if (this.data) {
-        this.index = 0;
-        this.output = this.read(0);
-    }
-    else {
-        debugger;
-    }
-}
-
-TensorFormatter.prototype.read = function(dimension) {
-    var size = this.dimensions[dimension];
-    var result = [];
-    if (dimension == this.dimensions.length - 1) {
-        for (var i = 0; i < size; i++) {
-            result.push(this.data[this.index++]);
-        }
-    }
-    else {
-        for (var i = 0; i < size; i++) {
-            result.push(this.read(dimension + 1));
-        }
-    }
-    return result;
-};
-
-TensorFormatter.prototype.format = function() { 
-    if (this.output) {
-        return JSON.stringify(this.output);
-    }
-    debugger;
-    return '?';
-};
-
 function showNodeProperties(node) {
-    if (node.name || node.docString || node.domain) {
-        
-        var view = { 'items': [] };        
-        if (node.name) {
-            view['items'].push({ 'name': 'Name', 'value': node.name });
-        }
-        if (node.docString) {
-            view['items'].push({ 'name': 'Documentation', 'value': node.docString });
-        }
-        if (node.domain) {
-            view['items'].push({ 'name': 'Domain', 'value': node.domain });
-        }
-
+    var properties = modelService.formatNodeProperties(node);
+    if (properties) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
-        var data = template(view);
+        var data = template({ 'items': properties });
         openSidebar(data, 'Node Properties');
     }
 }
 
-function showNodeAttributes(attributes) {
-    if (attributes && attributes.length > 0) {
-
-        var view = { 'items': [] };        
-
-        if (attributes && attributes.length > 0) {
-            attributes.forEach(function (attribute) { 
-                var item = {};
-                item['name'] = attribute.name;
-                item['value'] = formatAttributeValue(attribute);
-                item['type'] = formatAttributeType(attribute);
-                if (attribute.docString) {
-                    item['doc'] = attribute.docString;
-                }
-                view['items'].push(item);
-            });
-        }
-
+function showNodeAttributes(node) {
+    var attributes = modelService.formatNodeAttributes(node);
+    if (attributes) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
-        var data = template(view);
+        var data = template({ 'items': attributes });
         openSidebar(data, 'Node Attributes');
     }
 }
