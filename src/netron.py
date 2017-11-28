@@ -99,6 +99,10 @@ def serve_data(data, browse=False, port=8080, initializer=False):
         model = onnx.ModelProto()
         model.ParseFromString(data)
         for initializer in model.graph.initializer:
+          del initializer.string_data[:]
+          del initializer.int32_data[:]
+          del initializer.int64_data[:]
+          del initializer.float_data[:]
           initializer.raw_data = ""
         data = model.SerializeToString()
     if browse:
