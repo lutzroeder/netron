@@ -196,35 +196,72 @@ OnnxModelService.prototype.formatElementType = function(elementType) {
 
 function OnnxTensorFormatter(tensor) {
     this.tensor = tensor;
-    this.elementType = tensor.dataType;
-    this.dimensions = tensor.dims;
 
-    if (!this.dimensions) {
-        this.text = 'Tensor has no dimensions.';
+    if (!this.tensor.dataType) {
+        this.output = 'Tensor has no data type.'
         return;
     }
+
+    if (!this.tensor.dims) {
+        this.output = 'Tensor has no dimensions.';
+        return;
+    }
+
     var size = 1;
-    this.dimensions.forEach(function (dimensionSize) {
-        size *= dimensionSize;
+    this.tensor.dims.forEach(function (dimSize) {
+        size *= dimSize;
     });
     if (size > 65536) {
         this.text = 'Tensor is too large to display.' 
         return;
     }
 
-    if (this.elementType == onnx.TensorProto.DataType.FLOAT) {
-        if (tensor.floatData && tensor.floatData.length > 0) {
-            this.data = tensor.floatData;
-        }
-        else if (tensor.rawData && tensor.rawData.length > 0) {
-            this.rawData = new DataView(tensor.rawData.buffer);
-        }
-    }
-
-    if (!this.data && !this.rawData) {
-        this.text = '// TODO'
-        debugger;
-        return
+    switch (this.tensor.dataType) {
+        case onnx.TensorProto.DataType.FLOAT:
+            if (tensor.floatData && tensor.floatData.length > 0) {
+                this.data = tensor.floatData;
+            }
+            else if (tensor.rawData && tensor.rawData.length > 0) {
+                this.rawData = new DataView(tensor.rawData.buffer);
+            }
+            else {
+                this.output = 'Tensor data is empty.';
+            }
+            break;
+        case onnx.TensorProto.DataType.DOUBLE:
+            if (tensor.doubleData && tensor.doubleData.length > 0) {
+                this.data = tensor.doubleData;
+            }
+            else if (tensor.rawData && tensor.rawData.length > 0) {
+                this.rawData = new DataView(tensor.rawData.buffer);
+            }
+            else {
+                this.output = 'Tensor data is empty.';
+            }
+            break;
+        case onnx.TensorProto.DataType.INT32:
+            if (tensor.int32Data && tensor.int32Data.length > 0) {
+                this.data = tensor.int32Data;
+            }
+            else if (tensor.rawData && tensor.rawData.length > 0) {
+                this.rawData = new DataView(tensor.rawData.buffer);
+            }
+            else {
+                this.output = 'Tensor data is empty.';
+            }
+        /* case onnx.TensorProto.DataType.INT64:
+            if (tensor.int64Data && tensor.int64Data.length > 0) {
+                this.data = tensor.int64Data;
+            }
+            else if (tensor.rawData && tensor.rawData.length > 0) {
+                this.rawData = new DataView(tensor.rawData.buffer);
+            }
+            else {
+                this.output = 'Tensor data is empty.';
+            } */
+        default:
+            this.output = 'Tensor data type is not implemented.';
+            break;
     }
 
     this.index = 0;
@@ -233,17 +270,32 @@ function OnnxTensorFormatter(tensor) {
 }
 
 OnnxTensorFormatter.prototype.read = function(dimension) {
-    var size = this.dimensions[dimension];
+    var size = this.tensor.dims[dimension];
     var result = [];
-    if (dimension == this.dimensions.length - 1) {
+    if (dimension == this.tensor.dims.length - 1) {
         for (var i = 0; i < size; i++) {
             if (this.data) {
                 result.push(this.data[this.index++]);
             }
             else if (this.rawData) {
-                if (this.elementType == onnx.TensorProto.DataType.FLOAT) {
-                    result.push(this.rawData.getFloat32(this.index));
-                    this.index += 4;
+                switch (this.tensor.dataType)
+                {
+                    case onnx.TensorProto.DataType.FLOAT:
+                        result.push(this.rawData.getFloat32(this.index));
+                        this.index += 4;
+                        break;
+                    case onnx.TensorProto.DataType.DOUBLE:
+                        result.push(this.rawData.getFloat64(this.index));
+                        this.index += 8;
+                        break;
+                    case onnx.TensorProto.DataType.INT32:
+                        result.push(this.rawData.getInt32(this.index));
+                        this.index += 4;
+                        break;
+                    /* case onnx.TensorProto.DataType.INT64:
+                        result.push(this.rawData.getInt64(this.index));
+                        this.index += 8;
+                        break;*/
                 }
             }
         }
