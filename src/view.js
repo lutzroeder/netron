@@ -5,7 +5,7 @@ debugger;
 // electron.remote.getCurrentWindow().webContents.openDevTools();
 
 hostService.registerCallback(openBuffer);
-var modelService = new OnnxModelService(hostService);
+var modelService = null;
 
 window.addEventListener('load', function(e) {
     updateSize();
@@ -58,20 +58,19 @@ function openBuffer(err, buffer) {
         updateView('welcome');
     }
     else {
-        try {
-            modelService.openBuffer(buffer);
-        }
-        catch (err) {
+        modelService = new OnnxModelService(hostService);
+        var err = modelService.openBuffer(buffer);        
+        if (err) {
             hostService.showError('Decoding failure: ' + err);
             updateView('welcome');
             return;
         }
 
-        renderModel(modelService.model);
+        renderModel();
     }
 }
 
-function renderModel(model) {
+function renderModel() {
 
     var svgElement = document.getElementById('graph');
     while (svgElement.lastChild) {
@@ -111,7 +110,9 @@ function renderModel(model) {
             var initializer = initializerMap[edge];
             if (initializer) {
                 var result = modelService.formatTensor(initializer);
-                formatter.addItem(name, 'node-item-input', result['type'], function() { showInitializer(initializer); });
+                formatter.addItem(name, 'node-item-input', result['type'], function() { 
+                    showInitializer(initializer);
+                });
             }
             else {
                 // TODO is there a way to infer the type of the input?
@@ -284,7 +285,7 @@ function showDocumentation(operator) {
 }
 
 function showModelProperties() {
-    var view = modelService.getModelProperties();
+    var view = modelService.formatModelProperties();
     if (view) {
         var template = Handlebars.compile(modelPropertiesTemplate, 'utf-8');
         var data = template(view);

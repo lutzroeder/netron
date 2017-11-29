@@ -1,6 +1,5 @@
 
 function OnnxModelService(hostService) {
-    this.hostService = hostService;
     this.operatorService = new OnnxOperatorService(hostService);
 
     this.elementTypeMap = { };
@@ -23,28 +22,42 @@ function OnnxModelService(hostService) {
 }
 
 OnnxModelService.prototype.openBuffer = function(buffer) { 
-    this.model = onnx.ModelProto.decode(buffer);
+    try {
+        this.model = onnx.ModelProto.decode(buffer);
+    }
+    catch (err) {
+        return err;
+    }
+    return null;
 }
 
-OnnxModelService.prototype.getModelProperties = function() {
+OnnxModelService.prototype.getOperatorService = function() {
+    return this.operatorService;
+}
 
+OnnxModelService.prototype.formatModelProperties = function() {
+    
     var result = { 'groups': [] };
 
     var generalProperties = { 'name': 'General', 'properties': [] };
     result['groups'].push(generalProperties);
 
-    generalProperties['properties'].push({ 'name': 'Format', 'value': 'ONNX' });
+    var format = 'ONNX';
     if (this.model.irVersion) {
-        generalProperties['properties'].push({ 'name': 'Version', 'value': this.model.irVersion.toString() });
+        format += ' v' + this.model.irVersion;
     }
+    generalProperties['properties'].push({ 'name': 'Format', 'value': format });
     if (this.model.domain) {
         generalProperties['properties'].push({ 'name': 'Domain', 'value': this.model.domain });
     }
     if (this.model.graph && this.model.graph != null && this.model.graph.name) {
         generalProperties['properties'].push({ 'name': 'Name', 'value': this.model.graph.name });
     }
-    if (this.model.model_version) {
-        generalProperties['properties'].push({ 'name': 'Model Version', 'value': this.model.model_version });
+    if (this.model.modelVersion) {
+        generalProperties['properties'].push({ 'name': 'Model Version', 'value': this.model.modelVersion });
+    }
+    if (this.model.docString) {
+        generalProperties['properties'].push({ 'name': 'Documentation', 'value': this.model.docString });
     }
     var producer = [];
     if (this.model.producerName) {
@@ -67,9 +80,23 @@ OnnxModelService.prototype.getModelProperties = function() {
     return result;
 }
 
-OnnxModelService.prototype.getOperatorService = function() {
-    return this.operatorService;
+/*
+OnnxModelService.prototype.getGraphs = function() {
+
 }
+*/
+
+/*
+OnnxModelService.prototype.getNodes = function(graph) {
+    
+}
+*/
+
+/*
+OnnxModelService.prototype.formatNode = function(node) {
+
+}
+*/
 
 OnnxModelService.prototype.formatNodeProperties = function(node) {
     var result = null;
@@ -314,9 +341,8 @@ OnnxTensorFormatter.prototype.toString = function() {
 
 function OnnxOperatorService(hostService) {
     var self = this;
-    self.hostService = hostService;
     self.map = {};
-    self.hostService.getResource('onnx-operator.json', function(err, data) {
+    hostService.getResource('onnx-operator.json', function(err, data) {
         if (err != null) {
             // TODO error
         }
