@@ -237,6 +237,10 @@ function renderModel() {
     var render = new dagreD3.render();
     render(dagreD3.d3.select('svg g'), g);
 
+    // Workaround for Safari background drag/zoom issue:
+    // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+    svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
+
     var inputElements = svgElement.getElementsByClassName('graph-input');
     if (inputElements && inputElements.length > 0) {
         // Center view based on input elements
