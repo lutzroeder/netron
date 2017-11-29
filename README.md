@@ -13,7 +13,7 @@ Download example ONNX models [here](https://github.com/onnx/models).
 
 ## Python Model Server 
 
-Install the Python web server using pip: 
+To run Netron in a web browser, install the Python web server using pip: 
 ```
 pip install netron
 ```
