@@ -21,11 +21,9 @@ body {
 }
 
 button {
-    font-family: "Open Sans";
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
     font-size: 12px;
     font-weight: 600;
-    color: #999;
-    background-color: #e6e6e6;
     line-height: 1.25;
     text-align: center;
     vertical-align: middle;
@@ -34,18 +32,39 @@ button {
     height: 30px;
     margin: 0;
     border-radius: 6px;
-    border: 1px solid #aaa;
 }
 
 button:hover {
-    background-color: #aaa;
-    color: #e6e6e6;
     cursor: hand;
 }
 
 button:focus
 {
     outline: 0;
+}
+
+button {
+    color: #aaa;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    transition: 0.2s;
+}
+
+button:hover { 
+    color: #fff;
+    background-color: #aaa;
+    transition: 0.2s;
+}
+
+.background button {
+    color: #999;
+    background-color: #e6e6e6;
+    border: 1px solid #aaa;
+}
+
+.background button:hover { 
+    color: #e6e6e6;
+    background-color: #aaa;
 }
 
 .sidebar {

@@ -28,24 +28,27 @@ function updateView(page) {
 
     var welcomeElement = document.getElementById('welcome');
     var clockElement = document.getElementById('clock');
+    var propertiesElement = document.getElementById('properties-button');
 
     if (page == 'welcome') {
         welcomeElement.style.display = 'block';
         clockElement.style.display = 'none';
         document.body.style.cursor = 'default';
-        
+        propertiesElement.style.display = 'none';
     }
 
     if (page == 'clock') {
         welcomeElement.style.display = 'none';
         clockElement.style.display = 'block';
         document.body.style.cursor = 'wait';
+        propertiesElement.style.display = 'none';
     }
 
     if (page == 'graph') {
         welcomeElement.style.display = 'none';
         clockElement.style.display = 'none';
         document.body.style.cursor = 'default';
+        propertiesElement.style.display = 'block';
     }
 }
 
@@ -276,7 +279,7 @@ function formatType(type) {
 function showDocumentation(operator) {
     var documentation = modelService.getOperatorService().getOperatorDocumentation(operator);
     if (documentation) {
-        openSidebar(documentation, 'Documentation');
+        sidebar.open(documentation, 'Documentation');
     }
 }
 
@@ -285,15 +288,18 @@ function showModelProperties() {
     if (view) {
         var template = Handlebars.compile(modelPropertiesTemplate, 'utf-8');
         var data = template(view);
-        openSidebar(data, 'Model Properties');
+        sidebar.open(data, 'Model Properties');
     }
 }
 
 function showInitializer(initializer) {
-    var view = { 'items': [ modelService.formatTensor(initializer) ] };
-    var template = Handlebars.compile(itemsTemplate, 'utf-8');
-    var data = template(view);
-    openSidebar(data, 'Initializer');
+    var initializer = modelService.formatTensor(initializer);
+    if (initializer) {
+        var view = { 'items': [ initializer ] };
+        var template = Handlebars.compile(itemsTemplate, 'utf-8');
+        var data = template(view);
+        sidebar.open(data, 'Initializer');
+    }
 }
 
 function showNodeProperties(node) {
@@ -301,7 +307,7 @@ function showNodeProperties(node) {
     if (properties) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template({ 'items': properties });
-        openSidebar(data, 'Node Properties');
+        sidebar.open(data, 'Node Properties');
     }
 }
 
@@ -310,23 +316,33 @@ function showNodeAttributes(node) {
     if (attributes) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template({ 'items': attributes });
-        openSidebar(data, 'Node Attributes');
+        sidebar.open(data, 'Node Attributes');
     }
 }
 
-var closeSidebarHandler = closeSidebar;
-var closeSidebarKeyDownHandler = closeSidebarKeyDown; 
+function Sidebar() {
+    var self = this;
+    this.closeSidebarHandler = function (e) {
+        self.close();
+    };
+    this.closeSidebarKeyDownHandler = function (e) {
+        if (e.keyCode == 27) {
+            e.preventDefault()
+            self.close();
+        }
+    }
+}
 
-function openSidebar(content, title) {
+Sidebar.prototype.open = function(content, title) {
     var sidebarElement = document.getElementById('sidebar');
     var titleElement = document.getElementById('sidebar-title');
     var contentElement = document.getElementById('sidebar-content');
     var closeButtonElement = document.getElementById('sidebar-closebutton');
     if (sidebarElement && contentElement && closeButtonElement && titleElement) {
         titleElement.innerHTML = title ? title.toUpperCase() : '';
-        closeButtonElement.addEventListener('click', closeSidebarHandler);
+        closeButtonElement.addEventListener('click', this.closeSidebarHandler);
         closeButtonElement.style.color = '#818181';
-        document.addEventListener('keydown', closeSidebarKeyDownHandler);
+        document.addEventListener('keydown', this.closeSidebarKeyDownHandler);
         contentElement.style.height = window.innerHeight - 60;
         sidebarElement.style.height = window.innerHeight;
         contentElement.innerHTML = content
@@ -335,21 +351,16 @@ function openSidebar(content, title) {
     }
 }
 
-function closeSidebarKeyDown(e) {
-    if (e.keyCode == 27) {
-        e.preventDefault()
-        closeSidebar();
-    }
-}
-
-function closeSidebar() {
+Sidebar.prototype.close = function() {
     var sidebarElement = document.getElementById('sidebar');
     var contentElement = document.getElementById('sidebar-content');
     var closeButtonElement = document.getElementById('sidebar-closebutton');
     if (sidebarElement && contentElement && closeButtonElement) {
-        closeButtonElement.removeEventListener('click', closeSidebarHandler);
+        closeButtonElement.removeEventListener('click', this.closeSidebarHandler);
         closeButtonElement.style.color = '#f8f8f8';
-        document.removeEventListener('keydown', closeSidebarKeyDownHandler);
+        document.removeEventListener('keydown', this.closeSidebarKeyDownHandler);
         sidebarElement.style.width = '0';
     }
 }
+
+var sidebar = new Sidebar();

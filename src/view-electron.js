@@ -18,13 +18,21 @@ function ElectronHostService()
     });
 
     window.addEventListener('load', function(e) {
+
         var openFileButton = document.getElementById('open-file-button');
         if (openFileButton) {
-            openFileButton.style.display = 'block';
             openFileButton.addEventListener('click', function(e) {
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
         }
+
+        var propertiesButton = document.getElementById('properties-button');
+        if (propertiesButton) {
+            propertiesButton.addEventListener('click', function(e) {
+                showModelProperties();
+            });
+        }
+
         document.addEventListener('dragover', function(e) {
             e.preventDefault();
         });
@@ -40,19 +48,6 @@ function ElectronHostService()
             return false;
         });
     });
-
-    const contextMenu = new electron.remote.Menu();
-    contextMenu.append(new electron.remote.MenuItem({
-        label: 'Properties...', 
-        click: function() { showModelProperties(); }
-    }));
-    
-    window.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        if (contextMenu) {
-            contextMenu.popup(electron.remote.getCurrentWindow(), { async: true });
-        }
-    }, false);
 }
 
 ElectronHostService.prototype.openFile = function(file, drop) {

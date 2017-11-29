@@ -19,14 +19,15 @@
     <img id='logo' class='center' src='logo.svg' width='124' height='124'>
     <button id='open-file-button' class='center' style='top: 200px; width: 150px; display: none;'>Open ONNX Model...</button>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
-    <div style='font-family: "Open Sans"; font-size: 10px; font-weight: normal; color: #e6e6e6'>.</div>
-    <div style='font-family: "Open Sans"; font-size: 10px; font-weight: 600; color: #e6e6e6'>.</div>
-    <div style='font-family: "Open Sans"; font-size: 10px; font-weight: bold; color: #e6e6e6'>.</div>
+    <div style='font-weight: normal; color: #e6e6e6'>.</div>
+    <div style='font-weight: 600; color: #e6e6e6'>.</div>
+    <div style='font-weight: bold; color: #e6e6e6'>.</div>
 </div>
 <div id='clock' class='background' style='display: none;'>
     <img class='center' src='logo.svg' width='124' height='124'>
 </div>
 <svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet'></svg>
+<button id='properties-button' style='position: absolute; top: 10px; left: 10px; display: none;'>Properties</button> 
 <div id='sidebar' class='sidebar'>
     <h1 id='sidebar-title' class='sidebar-title'></h1>
     <a href='javascript:void(0)' id='sidebar-closebutton' class='sidebar-closebutton'>&times;</a>
