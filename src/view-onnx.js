@@ -239,7 +239,7 @@ function OnnxTensorFormatter(tensor) {
         size *= dimSize;
     });
     if (size > 65536) {
-        this.text = 'Tensor is too large to display.' 
+        this.output = 'Tensor is too large to display.' 
         return;
     }
 
@@ -291,9 +291,11 @@ function OnnxTensorFormatter(tensor) {
             break;
     }
 
-    this.index = 0;
-    var result = this.read(0);
-    this.text = JSON.stringify(result, null, 4);
+    if (!this.output) {
+        this.index = 0;
+        var result = this.read(0);
+        this.output = JSON.stringify(result, null, 4);
+    }
 }
 
 OnnxTensorFormatter.prototype.read = function(dimension) {
@@ -336,7 +338,7 @@ OnnxTensorFormatter.prototype.read = function(dimension) {
 };
 
 OnnxTensorFormatter.prototype.toString = function() { 
-    return this.text;
+    return this.output;
 };
 
 function OnnxOperatorService(hostService) {
