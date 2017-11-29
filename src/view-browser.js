@@ -18,7 +18,12 @@ function BrowserHostService()
         var request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
         request.onload = function () {
-            self.callback(null, new Uint8Array(request.response));
+            if (request.status == 200) {
+                self.callback(null, new Uint8Array(request.response));
+            }
+            else {
+                self.callback(request.status, null);
+            }
         }
         request.onerror = function () {
             self.callback(request.status, null);

@@ -31,24 +31,26 @@ function updateView(page) {
     var propertiesElement = document.getElementById('properties-button');
 
     if (page == 'welcome') {
-        welcomeElement.style.display = 'block';
-        clockElement.style.display = 'none';
         document.body.style.cursor = 'default';
+        welcomeElement.style.display = 'block';
+        welcomeElement.offsetHeight;
+        clockElement.style.display = 'none';
         propertiesElement.style.display = 'none';
     }
 
     if (page == 'clock') {
+        document.body.style.cursor = 'wait';
         welcomeElement.style.display = 'none';
         clockElement.style.display = 'block';
-        document.body.style.cursor = 'wait';
+        clockElement.offsetHeight;
         propertiesElement.style.display = 'none';
     }
 
     if (page == 'graph') {
         welcomeElement.style.display = 'none';
         clockElement.style.display = 'none';
-        document.body.style.cursor = 'default';
         propertiesElement.style.display = 'block';
+        document.body.style.cursor = 'default';
     }
 }
 
@@ -58,15 +60,19 @@ function openBuffer(err, buffer) {
         updateView('welcome');
     }
     else {
-        modelService = new OnnxModelService(hostService);
-        var err = modelService.openBuffer(buffer);        
-        if (err) {
-            hostService.showError('Decoding failure: ' + err);
-            updateView('welcome');
-            return;
-        }
-
-        renderModel();
+        setTimeout(function () {
+            modelService = new OnnxModelService(hostService);
+            var err = modelService.openBuffer(buffer);        
+            if (err) {
+                hostService.showError('Decoding failure: ' + err);
+                updateView('welcome');
+                return;
+            }
+    
+            setTimeout(function () {
+                renderModel();
+            }, 20);    
+        }, 20);
     }
 }
 
@@ -233,35 +239,38 @@ function renderModel() {
         inner.attr('transform', 'translate(' + dagreD3.d3.event.translate + ')' + 'scale(' + dagreD3.d3.event.scale + ')');
     });
     svg.call(zoom);
+
+    setTimeout(function () {
+
+        var render = new dagreD3.render();
+        render(dagreD3.d3.select('svg g'), g);
     
-    var render = new dagreD3.render();
-    render(dagreD3.d3.select('svg g'), g);
-
-    // Workaround for Safari background drag/zoom issue:
-    // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-    svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
-
-    var inputElements = svgElement.getElementsByClassName('graph-input');
-    if (inputElements && inputElements.length > 0) {
-        // Center view based on input elements
-        var x = 0;
-        var y = 0;
-        for (var i = 0; i < inputElements.length; i++) {
-            var inputTransform = dagreD3.d3.transform(dagreD3.d3.select(inputElements[i]).attr('transform'));
-            x += inputTransform.translate[0];
-            y += inputTransform.translate[1];
+        // Workaround for Safari background drag/zoom issue:
+        // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+        svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
+    
+        var inputElements = svgElement.getElementsByClassName('graph-input');
+        if (inputElements && inputElements.length > 0) {
+            // Center view based on input elements
+            var x = 0;
+            var y = 0;
+            for (var i = 0; i < inputElements.length; i++) {
+                var inputTransform = dagreD3.d3.transform(dagreD3.d3.select(inputElements[i]).attr('transform'));
+                x += inputTransform.translate[0];
+                y += inputTransform.translate[1];
+            }
+            x = x / inputElements.length;
+            y = y / inputElements.length;
+            zoom.translate([ 
+                (svg.attr('width') / 2) - x,
+                (svg.attr('height') / 4) - y ]).event(svg);
         }
-        x = x / inputElements.length;
-        y = y / inputElements.length;
-        zoom.translate([ 
-            (svg.attr('width') / 2) - x,
-            (svg.attr('height') / 4) - y ]).event(svg);
-    }
-    else {
-        zoom.translate([ (svg.attr('width') - g.graph().width) / 2, 40 ]).event(svg);
-    }    
-
-    updateView('graph');
+        else {
+            zoom.translate([ (svg.attr('width') - g.graph().width) / 2, 40 ]).event(svg);
+        }    
+    
+        updateView('graph');
+    }, 20);
 }
 
 function formatType(type) {

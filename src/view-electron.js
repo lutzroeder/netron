@@ -13,7 +13,7 @@ function ElectronHostService()
         var file = data['file'];
         if (file) {
             updateView('clock');
-            setTimeout(self.openBuffer(file), 20);
+            self.openBuffer(file);
         }
     });
 
