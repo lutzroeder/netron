@@ -20,7 +20,7 @@ echo "Generate '../src/onnx-operator.json'"
 python onnx-operator-json.py
 
 echo "Generate '../src/onnx.js'"
-protoc --js_out=library=onnx:../src --proto_path ../third_party/onnx/onnx onnx-ml.proto
+# protoc --js_out=import_style=browser,binary:. --proto_path ../third_party/onnx/onnx onnx-ml.proto
 
 echo "Generate '../src/onnx.py'"
 protoc --python_out=../src --proto_path ../third_party/onnx/onnx onnx-ml.proto
