@@ -20,7 +20,6 @@ package_data={
         'netron',
         'netron.py',
         'logo.svg',
-        'spinner.svg',
         'onnx-ml.js',
         'onnx-operator.json',
         'favicon.ico',
