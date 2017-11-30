@@ -135,7 +135,7 @@ OnnxModelService.prototype.formatNodeAttributes = function(node) {
 
 OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
 
-    var type = null;
+    var type = "";
     if (attribute.type) { 
         type = this.formatElementType(attribute.type);
         if ((attribute.ints && attribute.ints.length > 0) ||
@@ -144,39 +144,61 @@ OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
             type = type + '[]';
         }
     }
+    else if (attribute.hasOwnProperty('t')) {
+        type = this.formatTensorType(attribute.t);
+    }
 
-    var value = "";
+    var tensor = false;
+    var callback = '';
     if (attribute.ints && attribute.ints.length > 0) {
-        value = attribute.ints.map(v => v.toString()).join(', ');
+        callback = function () {
+            return attribute.ints.map(v => v.toString()).join(', ');
+        }
     }
     else if (attribute.floats && attribute.floats.length > 0) {
-        value = attribute.floats.map(v => v.toString()).join(', ');
+        callback = function () {
+            return attribute.floats.map(v => v.toString()).join(', ');
+        }
     }
     else if (attribute.strings && attribute.strings.length > 0) {
-        value = attribute.strings.map(function(s) {
-            if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                return '"' + String.fromCharCode.apply(null, s) + '"';
-            }
-            return s.map(v => v.toString()).join(', ');    
-        }).join(', ');
+        callback = function () { 
+            return attribute.strings.map(function(s) {
+                if (s.filter(c => c <= 32 && c >= 128).length == 0) {
+                    return '"' + String.fromCharCode.apply(null, s) + '"';
+                }
+                return s.map(v => v.toString()).join(', ');    
+            }).join(', ');
+        }
     }
     else if (attribute.s && attribute.s.length > 0) {
-        if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
-            value = '"' + String.fromCharCode.apply(null, attribute.s) + '"';
-        }
-        else {
-            value = attribute.s.map(v => v.toString()).join(', ');           
+        callback = function () { 
+            if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
+                return '"' + String.fromCharCode.apply(null, attribute.s) + '"';
+            }
+            return attribute.s.map(v => v.toString()).join(', ');           
         }
     }
-    else if (attribute.f && attribute.f != 0 || attribute.f == 0 || isNaN(attribute.f)) {
-        value = attribute.f.toString();
+    else if (attribute.hasOwnProperty('f')) {
+        callback = function () { 
+            return attribute.f.toString();
+        }
     }
-    else if (attribute.i && (attribute.i != 0 || attribute.i == 0)) {
-        value = attribute.i.toString();
+    else if (attribute.hasOwnProperty('i')) {
+        callback = function() {
+            return attribute.i.toString();
+        }
+    }
+    else if (attribute.hasOwnProperty('t')) {
+        tensor = true;
+        callback = function() {
+            return new OnnxTensorFormatter(attribute.t).toString();
+        }
     }
     else {
         debugger;
-        value = '?';
+        callback = function() {
+            return "?";
+        }
     }
 
     var result = {};
@@ -184,8 +206,12 @@ OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
     if (type) {
         result['type'] = type;
     }
-    result['value'] = value;
+    result['value'] = callback;
     result['value_short'] = function() {
+        if (tensor) {
+            return "[...]";
+        }
+        var value = callback();
         if (value.length > 25)
         {
             return value.substring(0, 25) + '...';
@@ -199,13 +225,18 @@ OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
     return result;
 }
 
+OnnxModelService.prototype.formatTensorType = function(tensor) {
+    var result = this.formatElementType(tensor.dataType);
+    if (tensor.dims) { 
+        result += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
+    }
+    return result;
+}
+
 OnnxModelService.prototype.formatTensor = function(tensor) {
     var result = {};
     result['name'] = tensor.name;
-    result['type'] = this.formatElementType(tensor.dataType);
-    if (tensor.dims) { 
-        result['type'] += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
-    }
+    result['type'] = this.formatTensorType(tensor);
     result['value'] = function() {
         return new OnnxTensorFormatter(tensor).toString();
     }
