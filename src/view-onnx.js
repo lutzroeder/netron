@@ -383,10 +383,12 @@ function OnnxOperatorService(hostService) {
             var items = JSON.parse(data);
             if (items) {
                 items.forEach(function (item) {
-                    if (item["op_type"] && item["schema"])
-                    var op_type = item["op_type"];
-                    var schema = item["schema"];
-                    self.map[op_type] = schema;
+                    if (item["name"] && item["schema"])
+                    {
+                        var name = item["name"];
+                        var schema = item["schema"];
+                        self.map[name] = schema;
+                    }
                 });
             }
         }
@@ -400,9 +402,11 @@ OnnxOperatorService.prototype.getInputName = function(operator, index) {
         if (inputs && index < inputs.length) {
             var input = inputs[index];
             if (input) {
-                var name = input["name"];
-                if (name) {
-                    return name;
+                if (!input['option'] || input['option'] != 'variadic') {
+                    var name = input["name"];
+                    if (name) {
+                        return name;
+                    }
                 }
             } 
         }
@@ -417,9 +421,11 @@ OnnxOperatorService.prototype.getOutputName = function(operator, index) {
         if (outputs && index < outputs.length) {
             var output = outputs[index];
             if (output) {
-                var name = output["name"];
-                if (name) {
-                    return name;
+                if (!output['option'] || output['option'] != 'variadic') {
+                    var name = output["name"];
+                    if (name) {
+                        return name;
+                    }
                 }
             } 
         }
@@ -431,7 +437,7 @@ OnnxOperatorService.prototype.getOperatorDocumentation = function(operator) {
     var schema = this.map[operator];
     if (schema) {
         schema = Object.assign({}, schema);
-        schema['op_type'] = operator;
+        schema['name'] = operator;
         if (schema['doc']) {
             var input = schema['doc'].split('\n');
             var output = [];
@@ -462,6 +468,15 @@ OnnxOperatorService.prototype.getOperatorDocumentation = function(operator) {
                 }
             }
             schema['doc'] = output.join('');
+        }
+        function formatRange(value) {
+            return (value == 2147483647) ? '&#8734;' : value.toString();
+        }
+        if (schema['min_input'] != schema['max_input']) {
+            schema['inputs_range'] = formatRange(schema['min_input']) + ' - ' + formatRange(schema['max_input']);
+        }
+        if (schema['min_output'] != schema['max_output']) {
+            schema['outputs_range'] = formatRange(schema['min_output']) + ' - ' + formatRange(schema['max_output']);
         }
         if (schema['type_constraints']) {
             schema['type_constraints'].forEach(function (item) {

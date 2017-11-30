@@ -32,20 +32,30 @@ def generate_json_types(types):
     r = sorted(r)
     return r
 
-def generate_json(sorted_ops, file):
+def generate_json(schemas, file):
     json_root = []
-    for _, op_type, schema in sorted_ops:
+    for schema in schemas:
         json_schema = {}
+        if schema.domain:
+            json_schema['domain'] = schema.domain
+        else:
+            json_schema['domain'] = 'ai.onnx'
+        json_schema['since_version'] = schema.since_version
         json_schema['support_level'] = generate_json_support_level_name(schema.support_level)
         if schema.doc:
             json_schema['doc'] = schema.doc.lstrip();
         if schema.inputs:
             json_schema['inputs'] = []
             for input in schema.inputs:
+                option = ''
+                if input.option == OpSchema.FormalParameterOption.Optional:
+                    option = 'optional'
+                elif input.option == OpSchema.FormalParameterOption.Variadic:
+                    option = 'variadic' 
                 json_schema['inputs'].append({ 
                     'name': input.name, 
                     'description': input.description,
-                    'optional': input.optional,
+                    'option': option,
                     'typeStr': input.typeStr,
                     'types': generate_json_types(input.types) })
         json_schema['min_input'] = schema.min_input;
@@ -53,10 +63,15 @@ def generate_json(sorted_ops, file):
         if schema.outputs:
             json_schema['outputs'] = []
             for output in schema.outputs:
+                option = ''
+                if output.option == OpSchema.FormalParameterOption.Optional:
+                    option = 'optional'
+                elif output.option == OpSchema.FormalParameterOption.Variadic:
+                    option = 'variadic' 
                 json_schema['outputs'].append({ 
                     'name': output.name, 
                     'description': output.description,
-                    'optional': output.optional,
+                    'option': option,
                     'typeStr': output.typeStr,
                     'types': generate_json_types(output.types) })
         json_schema['min_output'] = schema.min_output;
@@ -77,15 +92,15 @@ def generate_json(sorted_ops, file):
                     'type_param_str': type_constraint.type_param_str,
                     'allowed_type_strs': type_constraint.allowed_type_strs
                 })
-        if op_type in SNIPPETS:
+        if schema.name in SNIPPETS:
             json_schema['snippets'] = []
-            for summary, code in sorted(SNIPPETS[op_type]):
+            for summary, code in sorted(SNIPPETS[schema.name]):
                 json_schema['snippets'].append({
                     'summary': summary,
                     'code': code
                 })
         json_root.append({
-            "op_type": op_type,
+            "name": schema.name,
             "schema": json_schema })
     with io.open(file, 'w', newline='') as fout:
         json_root = json.dumps(json_root, sort_keys=True, indent=2)
@@ -97,7 +112,11 @@ def generate_json(sorted_ops, file):
             fout.write('\n')
 
 if __name__ == '__main__':
-    sorted_ops = sorted(
-        (int(schema.support_level), op_type, schema)
-        for (op_type, schema) in defs.get_all_schemas().items())
-    generate_json(sorted_ops, '../src/onnx-operator.json')
+
+    schemas = sorted(defs.get_all_schemas_with_history(), key=lambda schema: schema.name)
+    generate_json(schemas, '../src/onnx-operator.json')
+
+#        print(schema.name + "|" + schema.domain + "|" + str(schema.since_version))
+#    sorted_ops = sorted(
+#        (int(schema.support_level), op_type, schema)
+#        for (op_type, schema) in defs.get_all_schemas().items())

@@ -181,7 +181,7 @@ var operatorTemplate = `
 
 <div class='documentation'>
 
-<h1>{{{op_type}}}</h1>
+<h1>{{{name}}}</h1>
 {{#if doc}}
 {{{doc}}}
 {{/if}}
@@ -197,34 +197,34 @@ var operatorTemplate = `
 {{/if}}
 
 {{#if inputs}}
-<h2>Inputs</h2>
+<h2>Inputs{{#if inputs_range}} ({{{inputs_range}}}){{/if}}</h2>
 <dl>
 {{/if}}
 {{#inputs}}
-<dt><tt>{{{name}}}</tt> {{#if optional}}(optional){{/if}}: {{{typeStr}}}</dt>
+<dt><tt>{{{name}}}</tt> {{#if option}}({{{option}}}){{/if}}: {{{typeStr}}}</dt>
 <dd>{{{description}}}</dd>
 {{/inputs}}
 </dl>
 
 {{#if outputs.length}}
-<h2>Outputs</h2>
+<h2>Outputs{{#if outputs_range}} ({{{outputs_range}}}){{/if}}</h2>
 <dl>
 {{/if}}
 {{#outputs}}
-<dt><tt>{{{name}}}</tt> : {{{typeStr}}}</dt>
+<dt><tt>{{{name}}}</tt> {{#if option}}({{{option}}}){{/if}}: {{{typeStr}}}</dt>
 <dd>{{{description}}}</dd>
 {{/outputs}}
 </dl>
 
 {{#if type_constraints}}
 <h2>Type Constraints</h2>
-{{/if}}
-{{#type_constraints}}
 <dl>
+{{#type_constraints}}
 <dt><tt>{{{type_param_str}}}</tt>: {{{allowed_type_strs_display}}}</dt>
 <dd>{{{description}}}</dd>
-</dl>
 {{/type_constraints}}
+</dl>
+{{/if}}
 
 {{#if snippets}}
 <h2>Examples</h2>
@@ -233,6 +233,11 @@ var operatorTemplate = `
 <h3>{{{summary}}}</h3>
 <pre>{{{code}}}</pre>
 {{/snippets}}
+
+<h2>Support</h2>
+<dl>
+In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at support level <tt>{{{support_level}}}</tt>.
+</dl>
 
 </div>
 `;

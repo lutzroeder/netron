@@ -117,9 +117,6 @@ function renderModel() {
         node.input.forEach(function (edge, index)
         {
             var name = modelService.getOperatorService().getInputName(operator, index);
-            if (!name) {
-                name = '(' + index.toString() + ')';
-            }
     
             var initializer = initializerMap[edge];
             if (initializer) {
