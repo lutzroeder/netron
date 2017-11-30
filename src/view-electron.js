@@ -21,7 +21,9 @@ function ElectronHostService()
 
         var openFileButton = document.getElementById('open-file-button');
         if (openFileButton) {
+            openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', function(e) {
+                openFileButton.style.opacity = 0;
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
         }

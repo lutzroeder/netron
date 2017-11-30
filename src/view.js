@@ -7,7 +7,10 @@ debugger;
 hostService.registerCallback(openBuffer);
 var modelService = null;
 
+document.documentElement.style.overflow = 'hidden';
+
 window.addEventListener('load', function(e) {
+    document.body.scroll = 'no';
     updateSize();
 });
 
@@ -27,28 +30,33 @@ function updateView(page) {
     updateSize();
 
     var welcomeElement = document.getElementById('welcome');
-    var clockElement = document.getElementById('clock');
+    var openFileButton = document.getElementById('open-file-button');
+    var spinnerElement = document.getElementById('spinner');
     var propertiesElement = document.getElementById('properties-button');
 
     if (page == 'welcome') {
         document.body.style.cursor = 'default';
         welcomeElement.style.display = 'block';
         welcomeElement.offsetHeight;
-        clockElement.style.display = 'none';
+        openFileButton.style.display = 'block';
+        spinnerElement.style.display = 'none';
         propertiesElement.style.display = 'none';
+        
     }
 
     if (page == 'clock') {
         document.body.style.cursor = 'wait';
-        welcomeElement.style.display = 'none';
-        clockElement.style.display = 'block';
-        clockElement.offsetHeight;
+        welcomeElement.style.display = 'block';
+        openFileButton.style.display = 'none';
+        spinnerElement.style.display = 'block';
+        spinnerElement.offsetHeight;
         propertiesElement.style.display = 'none';
     }
 
     if (page == 'graph') {
         welcomeElement.style.display = 'none';
-        clockElement.style.display = 'none';
+        openFileButton.style.display = 'none';
+        spinnerElement.style.display = 'none';
         propertiesElement.style.display = 'block';
         document.body.style.cursor = 'default';
     }

@@ -16,15 +16,13 @@
 </head>
 <body>
 <div id='welcome' class='background' style='display: block'>
-    <img id='logo' class='center' src='logo.svg' width='124' height='124'>
+    <img id='logo' class='center' src='logo.svg' width='128' height='128'>
     <button id='open-file-button' class='center' style='top: 200px; width: 150px; display: none;'>Open ONNX Model...</button>
+    <div id='spinner' class='spinner' style='display: none'></div>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style='font-weight: normal; color: #e6e6e6'>.</div>
     <div style='font-weight: 600; color: #e6e6e6'>.</div>
     <div style='font-weight: bold; color: #e6e6e6'>.</div>
-</div>
-<div id='clock' class='background' style='display: none;'>
-    <img class='center' src='logo.svg' width='124' height='124'>
 </div>
 <svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet'></svg>
 <button id='properties-button' style='position: absolute; top: 10px; left: 10px; display: none;'>Properties</button> 
