@@ -5,7 +5,8 @@ debugger;
 // electron.remote.getCurrentWindow().webContents.openDevTools();
 
 hostService.registerCallback(openBuffer);
-var modelService = null;
+var model = null;
+var modelService = new ModelService(hostService);
 
 document.documentElement.style.overflow = 'hidden';
 
@@ -69,22 +70,21 @@ function openBuffer(err, buffer) {
     }
     else {
         setTimeout(function () {
-            modelService = new OnnxModelService(hostService);
-            var err = modelService.openBuffer(buffer);        
-            if (err) {
-                hostService.showError('Decoding failure: ' + err);
-                updateView('welcome');
-                return;
-            }
-    
-            setTimeout(function () {
-                renderModel();
-            }, 20);    
+            modelService.openBuffer(buffer, function(err, model) {
+                if (err) {
+                    hostService.showError('Decoding failure: ' + err);
+                    updateView('welcome');
+                    return;
+                }
+                setTimeout(function () {
+                    renderModel(model);
+                }, 20);   
+            });    
         }, 20);
     }
 }
 
-function renderModel() {
+function renderModel(model) {
 
     var svgElement = document.getElementById('graph');
     while (svgElement.lastChild) {
@@ -99,7 +99,7 @@ function renderModel() {
     var nodeId = 0;
     var edgeMap = {};
 
-    var graph = modelService.model.graph;
+    var graph = model.model.graph;
     
     var initializerMap = {};
     graph.initializer.forEach(function (tensor) {
@@ -112,17 +112,19 @@ function renderModel() {
 
         var formatter = new NodeFormatter();
 
-        formatter.addItem(operator, 'node-item-operator', null, function() { showDocumentation(operator) });
+        formatter.addItem(operator, 'node-item-operator', null, function() { 
+            showOperatorDocumentation(model, operator)
+        });
 
         node.input.forEach(function (edge, index)
         {
-            var name = modelService.getOperatorService().getInputName(operator, index);
+            var name = model.getOperatorService().getInputName(operator, index);
     
             var initializer = initializerMap[edge];
             if (initializer) {
-                var result = modelService.formatTensor(initializer);
+                var result = model.formatTensor(initializer);
                 formatter.addItem(name, 'node-item-input', result['type'], function() { 
-                    showInitializer(initializer);
+                    showInitializer(model, initializer);
                 });
             }
             else {
@@ -150,21 +152,25 @@ function renderModel() {
             }
             tuple.from = { 
                 node: nodeId,
-                name: modelService.getOperatorService().getOutputName(operator, index) 
+                name: model.getOperatorService().getOutputName(operator, index) 
             };
         });
 
-        var properties = modelService.formatNodeProperties(node);
+        var properties = model.formatNodeProperties(node);
         if (properties) {
-            formatter.setPropertyHandler(function() { showNodeProperties(node) });
+            formatter.setPropertyHandler(function() {
+                showNodeProperties(model, node);
+            });
             properties.forEach(function (property) {
                 formatter.addProperty(property['name'], property['value_short']());
             });
         }
 
-        var attributes = modelService.formatNodeAttributes(node);
+        var attributes = model.formatNodeAttributes(node);
         if (attributes) {
-            formatter.setAttributeHandler(function() { showNodeAttributes(node); });
+            formatter.setAttributeHandler(function() { 
+                showNodeAttributes(model, node);
+            });
             attributes.forEach(function (attribute) {
                 formatter.addAttribute(attribute['name'], attribute['value_short'](), attribute['type']);
             });
@@ -185,7 +191,7 @@ function renderModel() {
                 // name: valueInfo.name
             };
     
-            var type = formatType(valueInfo.type);
+            var type = model.formatType(valueInfo.type);
 
             var formatter = new NodeFormatter();
             formatter.addItem(valueInfo.name, null, type, null);
@@ -278,32 +284,15 @@ function renderModel() {
     }, 20);
 }
 
-function formatType(type) {
-    if (type.value == 'tensorType') {
-        var tensorType = type.tensorType;
-        var text = modelService.formatElementType(tensorType.elemType); 
-        if (tensorType.shape && tensorType.shape.dim) {
-            text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
-        }
-        return text;
-    }
-    if (type.value == 'mapType') {
-        var mapType = type.mapType;
-        return '<' + modelService.formatElementType(mapType.keyType) + ', ' + formatType(mapType.valueType) + '>';
-    }
-    debugger;
-    return '[UNKNOWN]';
-}
-
-function showDocumentation(operator) {
-    var documentation = modelService.getOperatorService().getOperatorDocumentation(operator);
+function showOperatorDocumentation(model, operator) {
+    var documentation = model.getOperatorService().getOperatorDocumentation(operator);
     if (documentation) {
         sidebar.open(documentation, 'Documentation');
     }
 }
 
-function showModelProperties() {
-    var view = modelService.formatModelProperties();
+function showModelProperties(model) {
+    var view = model.formatModelProperties();
     if (view) {
         var template = Handlebars.compile(modelPropertiesTemplate, 'utf-8');
         var data = template(view);
@@ -311,8 +300,8 @@ function showModelProperties() {
     }
 }
 
-function showInitializer(initializer) {
-    var initializer = modelService.formatTensor(initializer);
+function showInitializer(model, initializer) {
+    var initializer = model.formatTensor(initializer);
     if (initializer) {
         var view = { 'items': [ initializer ] };
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
@@ -321,8 +310,8 @@ function showInitializer(initializer) {
     }
 }
 
-function showNodeProperties(node) {
-    var properties = modelService.formatNodeProperties(node);
+function showNodeProperties(model, node) {
+    var properties = model.formatNodeProperties(node);
     if (properties) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template({ 'items': properties });
@@ -330,8 +319,8 @@ function showNodeProperties(node) {
     }
 }
 
-function showNodeAttributes(node) {
-    var attributes = modelService.formatNodeAttributes(node);
+function showNodeAttributes(model, node) {
+    var attributes = model.formatNodeAttributes(node);
     if (attributes) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template({ 'items': attributes });
@@ -383,3 +372,19 @@ Sidebar.prototype.close = function() {
 }
 
 var sidebar = new Sidebar();
+
+function ModelService(hostService) {
+    this.hostService = hostService;
+}
+
+ModelService.prototype.openBuffer = function(buffer, callback) {
+    var model = new OnnxModel(hostService);
+    var err = model.openBuffer(buffer);
+    if (err) {
+        callback(err, null);
+    }
+    else {
+        this.activeModel = model;
+        callback(null, model);
+    }
+}

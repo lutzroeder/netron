@@ -31,7 +31,7 @@ function ElectronHostService()
         var propertiesButton = document.getElementById('properties-button');
         if (propertiesButton) {
             propertiesButton.addEventListener('click', function(e) {
-                showModelProperties();
+                showModelProperties(modelService.activeModel);
             });
         }
 

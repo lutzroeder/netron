@@ -1,5 +1,5 @@
 
-function OnnxModelService(hostService) {
+function OnnxModel(hostService) {
     this.operatorService = new OnnxOperatorService(hostService);
 
     this.elementTypeMap = { };
@@ -21,7 +21,7 @@ function OnnxModelService(hostService) {
     this.elementTypeMap[onnx.TensorProto.DataType.COMPLEX128] = 'complex128';    
 }
 
-OnnxModelService.prototype.openBuffer = function(buffer) { 
+OnnxModel.prototype.openBuffer = function(buffer) { 
     try {
         this.model = onnx.ModelProto.decode(buffer);
     }
@@ -31,11 +31,11 @@ OnnxModelService.prototype.openBuffer = function(buffer) {
     return null;
 }
 
-OnnxModelService.prototype.getOperatorService = function() {
+OnnxModel.prototype.getOperatorService = function() {
     return this.operatorService;
 }
 
-OnnxModelService.prototype.formatModelProperties = function() {
+OnnxModel.prototype.formatModelProperties = function() {
     
     var result = { 'groups': [] };
 
@@ -81,24 +81,24 @@ OnnxModelService.prototype.formatModelProperties = function() {
 }
 
 /*
-OnnxModelService.prototype.getGraphs = function() {
+OnnxModel.prototype.getGraphs = function() {
 
 }
 */
 
 /*
-OnnxModelService.prototype.getNodes = function(graph) {
+OnnxModel.prototype.getNodes = function(graph) {
     
 }
 */
 
 /*
-OnnxModelService.prototype.formatNode = function(node) {
+OnnxModel.prototype.formatNode = function(node) {
 
 }
 */
 
-OnnxModelService.prototype.formatNodeProperties = function(node) {
+OnnxModel.prototype.formatNodeProperties = function(node) {
     var result = null;
     if (node.name || node.docString || node.domain) {
         result = [];
@@ -121,7 +121,7 @@ OnnxModelService.prototype.formatNodeProperties = function(node) {
     return result;
 }
 
-OnnxModelService.prototype.formatNodeAttributes = function(node) {
+OnnxModel.prototype.formatNodeAttributes = function(node) {
     var self = this;
     var result = null;
     if (node.attribute && node.attribute.length > 0) {
@@ -133,10 +133,10 @@ OnnxModelService.prototype.formatNodeAttributes = function(node) {
     return result;
 }
 
-OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
+OnnxModel.prototype.formatNodeAttribute = function(attribute) {
 
     var type = "";
-    if (attribute.type) { 
+    if (attribute.hasOwnProperty('type')) { 
         type = this.formatElementType(attribute.type);
         if ((attribute.ints && attribute.ints.length > 0) ||
             (attribute.floats && attribute.floats.length > 0) ||
@@ -225,15 +225,18 @@ OnnxModelService.prototype.formatNodeAttribute = function(attribute) {
     return result;
 }
 
-OnnxModelService.prototype.formatTensorType = function(tensor) {
-    var result = this.formatElementType(tensor.dataType);
-    if (tensor.dims) { 
-        result += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
+OnnxModel.prototype.formatTensorType = function(tensor) {
+    var result = "";
+    if (tensor.hasOwnProperty('dataType')) {
+        result = this.formatElementType(tensor.dataType);
+        if (tensor.dims) { 
+            result += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
+        }
     }
     return result;
 }
 
-OnnxModelService.prototype.formatTensor = function(tensor) {
+OnnxModel.prototype.formatTensor = function(tensor) {
     var result = {};
     result['name'] = tensor.name;
     result['type'] = this.formatTensorType(tensor);
@@ -243,13 +246,30 @@ OnnxModelService.prototype.formatTensor = function(tensor) {
     return result;
 }
 
-OnnxModelService.prototype.formatElementType = function(elementType) {
+OnnxModel.prototype.formatElementType = function(elementType) {
     var name = this.elementTypeMap[elementType];
     if (name) {
         return name;
     }
     debugger;
     return this.elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
+}
+
+OnnxModel.prototype.formatType = function(type) {
+    if (type.value == 'tensorType') {
+        var tensorType = type.tensorType;
+        var text = this.formatElementType(tensorType.elemType); 
+        if (tensorType.shape && tensorType.shape.dim) {
+            text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
+        }
+        return text;
+    }
+    if (type.value == 'mapType') {
+        var mapType = type.mapType;
+        return '<' + this.formatElementType(mapType.keyType) + ', ' + this.formatType(mapType.valueType) + '>';
+    }
+    debugger;
+    return '[UNKNOWN]';
 }
 
 function OnnxTensorFormatter(tensor) {

@@ -30,7 +30,9 @@ if (quit) {
 function openFileDialog() {
     var showOpenDialogOptions = { 
         properties: [ 'openFile'], 
-        filters: [ { name: 'ONNX Model', extensions: ['pb', 'onnx'] } ]
+        filters: [ 
+            { name: 'ONNX Model', extensions: ['pb', 'onnx'] }
+        ]
     };
     electron.dialog.showOpenDialog(showOpenDialogOptions, function(selectedFiles) {
         if (selectedFiles) {
