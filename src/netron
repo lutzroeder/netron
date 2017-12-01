@@ -6,21 +6,27 @@ import os
 
 if __name__ == '__main__':
     args = sys.argv[1:]
-    port = 8080
-    browse = False
-    initializer = False
-    file = ''
     show_help = False
+    verbose = False
+    port = 8080
+    host = 'localhost'
+    browse = False
+    tensor = False
+    file = ''
     while len(args) > 0:
         arg = args.pop(0)
         if (arg == '--help' or arg == '-h'):
             show_help = True
+        if (arg == '--verbose' or arg == '-v'):
+            verbose = True
         elif (arg == '--port' or arg == '-p') and len(args) > 0 and args[0].isdigit(): 
             port = int(args.pop(0))
+        elif (arg == '--host') and len(args) > 0 and args[0].isdigit(): 
+            host = int(args.pop(0))
         elif arg == '--browse' or arg == '-b':
             browse = True
-        elif arg == '--initialier' or arg == '-i':
-            initialier = True
+        elif arg == '--tensor' or arg == '-t':
+            tensor = True
         elif not arg.startswith('-'):
             file = arg
     if show_help or len(file) == 0:
@@ -30,13 +36,14 @@ if __name__ == '__main__':
         print('')
         print('Options:')
         print('  -h, --help          Show this help message.')
+        print('  -v, --verbose       Log details to console.')
         print('  -p, --port PORT     Port to serve (default: 8080).')
         print('  -b, --browse        Launch web browser.')
-        print('  -i, --initializer   Keep graph initializer tensors.')
+        print('  -t, --tensor        Keep all tensor data.')
         print('')
         sys.exit(1)
     if not os.path.exists(file):
         print("Model file '" + file + "' does not exist.")
         sys.exit(2)
-    netron.serve_file(file, browse=browse, port=port, initializer=initializer)
+    netron.serve_file(file, verbose=verbose, browse=browse, port=port, host=host, tensor=tensor)
     sys.exit(0)

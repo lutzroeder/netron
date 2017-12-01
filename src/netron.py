@@ -68,7 +68,8 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                         status_code = 200
                 else:
                     status_code = 404
-        print(str(status_code) + ' ' + self.command + ' ' + self.path)
+        if self.verbose:
+            print(str(status_code) + ' ' + self.command + ' ' + self.path)
         sys.stdout.flush()
         self.send_response(status_code)
         for key in headers:
@@ -88,32 +89,45 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
 class MyHTTPServer(HTTPServer):
-    def serve_forever(self, data):
-        self.RequestHandlerClass.data = data 
+    def serve_forever(self, data, verbose):
+        self.RequestHandlerClass.data = data
+        self.RequestHandlerClass.verbose = verbose
         HTTPServer.serve_forever(self)
 
-def serve_data(data, browse=False, port=8080, initializer=False):
-    server = MyHTTPServer(('localhost', port), MyHTTPRequestHandler)
-    if not initializer:
+def remove_tensor_data(tensor):
+    del tensor.string_data[:]
+    del tensor.int32_data[:]
+    del tensor.int64_data[:]
+    del tensor.float_data[:]
+    tensor.raw_data = ""
+
+def serve_data(data, verbose=False, browse=False, port=8080, host='localhost', tensor=False, context=None):
+    server = MyHTTPServer((host, port), MyHTTPRequestHandler)
+    item = context if context else (string(len(data)) + ' bytes')
+    if not tensor:
+        if verbose or context:
+            print("Processing '" + item + "'...")
         # Remove raw initializer data
         model = onnx.ModelProto()
         model.ParseFromString(data)
         for initializer in model.graph.initializer:
-          del initializer.string_data[:]
-          del initializer.int32_data[:]
-          del initializer.int64_data[:]
-          del initializer.float_data[:]
-          initializer.raw_data = ""
+            remove_tensor_data(initializer)
+        for node in model.graph.node:
+            for attribute in node.attribute:
+                if attribute.t:
+                    remove_tensor_data(attribute.t)
         data = model.SerializeToString()
+    url = 'http://' + host + ':' + str(port)
+    if verbose or context:
+        print("Serving '" + item + "' at " + url + "...")
     if browse:
-        webbrowser.open('http://localhost:' + str(port));
+        webbrowser.open(url);
     sys.stdout.flush()
-    server.serve_forever(data)
+    server.serve_forever(data, verbose)
 
-def serve_file(file, browse=False, port=8080, initializer=False):
+def serve_file(file, verbose=False, browse=False, port=8080, host='localhost', tensor=False):
+    print("Reading '" + file + "'...")
     data = None
     with open(file, 'rb') as binary:
         data = binary.read()
-    url = 'http://localhost:' + str(port)
-    print("Serving '" + file + "' at " + url + "...")
-    serve_data(data, browse, port, initializer)
+    serve_data(data, verbose=verbose, browse=browse, port=port, host=host, tensor=tensor, context=file)
