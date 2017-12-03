@@ -72,53 +72,68 @@ TensorFlowLiteModel.prototype.getGraph = function(index) {
 }
 
 TensorFlowLiteModel.prototype.getGraphInputs = function(graph) {
-    var result = [];
+    var results = [];
     for (var i = 0; i < graph.inputsLength(); i++) {
         var tensorIndex = graph.inputs(i);
         var tensor = graph.tensors(tensorIndex);
-        result.push({ 
+        results.push({ 
                 'id': tensorIndex.toString(),
                 'name': tensor.name(),
                 'type': this.formatTensorType(tensor) 
             });
     }
-    return result;
+    return results;
 }
 
 TensorFlowLiteModel.prototype.getGraphOutputs = function(graph) {
-    var result = [];
+    var results = [];
     for (var i = 0; i < graph.outputsLength(); i++) {
         var tensorIndex = graph.outputs(i);
         var tensor = graph.tensors(tensorIndex);
-        result.push({ 
+        results.push({ 
                 'id': tensorIndex.toString(),
                 'name': tensor.name(),
                 'type': this.formatTensorType(tensor) 
             });
     }
-    return result;
+    return results;
 }
 
 TensorFlowLiteModel.prototype.getGraphInitializers = function(graph) {
-    var result = []
+    var results = []
     for (var i = 0; i < graph.tensorsLength(); i++) {
         var tensor = graph.tensors(i);
-        if (tensor.buffer() != 0) {
+        var buffer = tensor.buffer();
+        if (this.model.buffers(buffer).dataLength() > 0) {
             tensor = this.formatTensor(tensor);
             tensor['id'] = i.toString();
-            result.push(tensor);
+            results.push(tensor);
         }
     }
-    return result;
+    return results;
 }
 
 TensorFlowLiteModel.prototype.getNodes = function(graph) {
-    var result = []
+
+    /* for (var i = 0; i < graph.operatorsLength(); i++) {
+        var node = graph.operators(i);
+        var inputs = [];
+        for (var j = 0; j < node.inputsLength(); j++) {
+            inputs.push(node.inputs(j));
+        }
+        var outputs = [];
+        for (var j = 0; j < node.outputsLength(); j++) {
+            outputs.push(node.outputs(j));
+        }
+        console.log(this.getNodeOperator(node) + ' [' + inputs.join(',') + '] -> [' + outputs.join(',') + ']');
+    } */
+
+    var results = []
     for (var i = 0; i < graph.operatorsLength(); i++) {
         var node = graph.operators(i);
-        result.push(node);
+        results.push(node);
     } 
-    return result;
+    return results;
 }
 
 TensorFlowLiteModel.prototype.getNodeOperator = function(node) {
