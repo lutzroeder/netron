@@ -1,27 +1,11 @@
 
+const onnx = protobuf.roots.onnx.onnx;
+
 function OnnxModel(hostService) {
     this.operatorService = new OnnxOperatorService(hostService);
-
-    this.elementTypeMap = { };
-    this.elementTypeMap[onnx.TensorProto.DataType.UNDEFINED] = 'UNDEFINED';
-    this.elementTypeMap[onnx.TensorProto.DataType.FLOAT] = 'float';
-    this.elementTypeMap[onnx.TensorProto.DataType.UINT8] = 'uint8';
-    this.elementTypeMap[onnx.TensorProto.DataType.INT8] = 'int8';
-    this.elementTypeMap[onnx.TensorProto.DataType.UINT16] = 'uint16';
-    this.elementTypeMap[onnx.TensorProto.DataType.INT16] = 'int16';
-    this.elementTypeMap[onnx.TensorProto.DataType.INT32] = 'int32';
-    this.elementTypeMap[onnx.TensorProto.DataType.INT64] = 'int64';
-    this.elementTypeMap[onnx.TensorProto.DataType.STRING] = 'string';
-    this.elementTypeMap[onnx.TensorProto.DataType.BOOL] = 'bool';
-    this.elementTypeMap[onnx.TensorProto.DataType.FLOAT16] = 'float16';
-    this.elementTypeMap[onnx.TensorProto.DataType.DOUBLE] = 'double';
-    this.elementTypeMap[onnx.TensorProto.DataType.UINT32] = 'uint32';
-    this.elementTypeMap[onnx.TensorProto.DataType.UINT64] = 'uint64';
-    this.elementTypeMap[onnx.TensorProto.DataType.COMPLEX64] = 'complex64';
-    this.elementTypeMap[onnx.TensorProto.DataType.COMPLEX128] = 'complex128';    
 }
 
-OnnxModel.prototype.openBuffer = function(buffer) { 
+OnnxModel.prototype.openBuffer = function(buffer, identifier) { 
     try {
         this.model = onnx.ModelProto.decode(buffer);
     }
@@ -31,34 +15,18 @@ OnnxModel.prototype.openBuffer = function(buffer) {
     return null;
 }
 
-OnnxModel.prototype.getOperatorService = function() {
-    return this.operatorService;
-}
-
 OnnxModel.prototype.formatModelProperties = function() {
     
     var result = { 'groups': [] };
 
-    var generalProperties = { 'name': 'General', 'properties': [] };
-    result['groups'].push(generalProperties);
+    var modelProperties = { 'name': 'Model', 'properties': [] };
+    result['groups'].push(modelProperties);
 
     var format = 'ONNX';
     if (this.model.irVersion) {
         format += ' v' + this.model.irVersion;
     }
-    generalProperties['properties'].push({ 'name': 'Format', 'value': format });
-    if (this.model.domain) {
-        generalProperties['properties'].push({ 'name': 'Domain', 'value': this.model.domain });
-    }
-    if (this.model.graph && this.model.graph != null && this.model.graph.name) {
-        generalProperties['properties'].push({ 'name': 'Name', 'value': this.model.graph.name });
-    }
-    if (this.model.modelVersion) {
-        generalProperties['properties'].push({ 'name': 'Model Version', 'value': this.model.modelVersion });
-    }
-    if (this.model.docString) {
-        generalProperties['properties'].push({ 'name': 'Documentation', 'value': this.model.docString });
-    }
+    modelProperties['properties'].push({ 'name': 'Format', 'value': format });
     var producer = [];
     if (this.model.producerName) {
         producer.push(this.model.producerName);
@@ -67,7 +35,27 @@ OnnxModel.prototype.formatModelProperties = function() {
         producer.push(this.model.producerVersion);
     }
     if (producer.length > 0) {
-        generalProperties['properties'].push({ 'name': 'Producer', 'value': producer.join(' ') });
+        modelProperties['properties'].push({ 'name': 'Producer', 'value': producer.join(' ') });
+    }
+    if (this.model.domain) {
+        modelProperties['properties'].push({ 'name': 'Domain', 'value': this.model.domain });
+    }
+    if (this.model.modelVersion) {
+        modelProperties['properties'].push({ 'name': 'Model Version', 'value': this.model.modelVersion });
+    }
+    if (this.model.docString) {
+        modelProperties['properties'].push({ 'name': 'Documentation', 'value': this.model.docString });
+    }
+
+    if (this.model.graph && (this.model.graph.name || this.model.graph.docString)) {
+        var graphProperties = { 'name': 'Graph', 'properties': [] };
+        result['groups'].push(graphProperties);
+        if (this.model.graph.name) {
+            graphProperties['properties'].push({ 'name': 'Name', 'value': this.model.graph.name });            
+        }
+        if (this.model.graph.docString) {
+            graphProperties['properties'].push({ 'name': 'Name', 'value': this.model.graph.docString });            
+        }
     }
 
     if (this.model.metadataProps && this.model.metadataProps.length > 0)
@@ -86,17 +74,93 @@ OnnxModel.prototype.getGraphs = function() {
 }
 */
 
-/*
+OnnxModel.prototype.getGraph = function(index) {
+    if (index == 0 && this.model && this.model.graph) {
+        return this.model.graph;
+    }
+    return null;
+}
+
+OnnxModel.prototype.getGraphInputs = function(graph) {
+    var self = this;
+    return graph.input.map(function (valueInfo) {
+        return {
+            'id': valueInfo.name,
+            'name': valueInfo.name,
+            'type': self.formatType(valueInfo.type)
+        }
+    });
+}
+
+OnnxModel.prototype.getGraphOutputs = function(graph) {
+    var self = this;
+    return graph.output.map(function (valueInfo) {
+        return {
+            'id': valueInfo.name,
+            'name': valueInfo.name,
+            'type': self.formatType(valueInfo.type)
+        }
+    });
+}
+
+OnnxModel.prototype.getGraphInitializers = function(graph) {
+    var self = this;
+    var results = [];
+    graph.initializer.forEach(function (tensor) {
+        var result = self.formatTensor(tensor);
+        result['id'] = tensor.name;
+        results.push(result);
+    });
+/*    graph.node.forEach(function (node) {
+        if (node.opType == 'Constant') {
+            node.attribute.forEach(function (attribute) {
+                if (attribute.name == 'value') {
+                    result[node.output[0]] = attribute.value;
+                }
+            });
+        }
+    }); */
+    return results;
+}
+
 OnnxModel.prototype.getNodes = function(graph) {
-    
+    return graph.node;
+    // return graph.node.filter(node => node.opType != 'Constant');
 }
-*/
 
-/*
-OnnxModel.prototype.formatNode = function(node) {
-
+OnnxModel.prototype.getNodeOperator = function(node) {
+    return node.opType;    
 }
-*/
+
+OnnxModel.prototype.getNodeOperatorDocumentation = function(graph, node) {
+    return this.operatorService.getOperatorDocumentation(node.opType);
+}
+
+OnnxModel.prototype.getNodeInputs = function(graph, node) {
+    var self = this;
+    var results = [];
+    node.input.forEach(function (input, index) {
+        results.push({
+            'id': input,
+            'name': self.operatorService.getInputName(node.opType, index),
+            'type': ""
+        });
+    });
+    return results;
+}
+
+OnnxModel.prototype.getNodeOutputs = function(graph, node) {
+    var self = this;
+    var results = [];
+    node.output.forEach(function (output, index) {
+        results.push({
+            'id': output,
+            'name': self.operatorService.getOutputName(node.opType, index),
+            'type': ""
+        });
+    });
+    return results;
+}
 
 OnnxModel.prototype.formatNodeProperties = function(node) {
     var result = null;
@@ -240,13 +304,30 @@ OnnxModel.prototype.formatTensor = function(tensor) {
     var result = {};
     result['name'] = tensor.name;
     result['type'] = this.formatTensorType(tensor);
-    result['value'] = function() {
-        return new OnnxTensorFormatter(tensor).toString();
-    }
+    result['value'] = function() { return new OnnxTensorFormatter(tensor).toString(); }
     return result;
 }
 
 OnnxModel.prototype.formatElementType = function(elementType) {
+    if (!this.elementTypeMap) {
+        this.elementTypeMap = { };
+        this.elementTypeMap[onnx.TensorProto.DataType.UNDEFINED] = 'UNDEFINED';
+        this.elementTypeMap[onnx.TensorProto.DataType.FLOAT] = 'float';
+        this.elementTypeMap[onnx.TensorProto.DataType.UINT8] = 'uint8';
+        this.elementTypeMap[onnx.TensorProto.DataType.INT8] = 'int8';
+        this.elementTypeMap[onnx.TensorProto.DataType.UINT16] = 'uint16';
+        this.elementTypeMap[onnx.TensorProto.DataType.INT16] = 'int16';
+        this.elementTypeMap[onnx.TensorProto.DataType.INT32] = 'int32';
+        this.elementTypeMap[onnx.TensorProto.DataType.INT64] = 'int64';
+        this.elementTypeMap[onnx.TensorProto.DataType.STRING] = 'string';
+        this.elementTypeMap[onnx.TensorProto.DataType.BOOL] = 'bool';
+        this.elementTypeMap[onnx.TensorProto.DataType.FLOAT16] = 'float16';
+        this.elementTypeMap[onnx.TensorProto.DataType.DOUBLE] = 'double';
+        this.elementTypeMap[onnx.TensorProto.DataType.UINT32] = 'uint32';
+        this.elementTypeMap[onnx.TensorProto.DataType.UINT64] = 'uint64';
+        this.elementTypeMap[onnx.TensorProto.DataType.COMPLEX64] = 'complex64';
+        this.elementTypeMap[onnx.TensorProto.DataType.COMPLEX128] = 'complex128';    
+    }
     var name = this.elementTypeMap[elementType];
     if (name) {
         return name;
@@ -274,15 +355,15 @@ OnnxModel.prototype.formatType = function(type) {
 
 function OnnxTensorFormatter(tensor) {
     this.tensor = tensor;
+}
 
+OnnxTensorFormatter.prototype.toString = function() { 
     if (!this.tensor.dataType) {
-        this.output = 'Tensor has no data type.'
-        return;
+        return 'Tensor has no data type.'
     }
 
     if (!this.tensor.dims) {
-        this.output = 'Tensor has no dimensions.';
-        return;
+        return 'Tensor has no dimensions.';
     }
 
     var size = 1;
@@ -290,42 +371,41 @@ function OnnxTensorFormatter(tensor) {
         size *= dimSize;
     });
     if (size > 65536) {
-        this.output = 'Tensor is too large to display.' 
-        return;
+        return 'Tensor is too large to display.' 
     }
 
     switch (this.tensor.dataType) {
         case onnx.TensorProto.DataType.FLOAT:
-            if (tensor.floatData && tensor.floatData.length > 0) {
-                this.data = tensor.floatData;
+            if (this.tensor.floatData && this.tensor.floatData.length > 0) {
+                this.data = this.tensor.floatData;
             }
-            else if (tensor.rawData && tensor.rawData.length > 0) {
-                this.rawData = new DataView(tensor.rawData.buffer);
+            else if (this.tensor.rawData && this.tensor.rawData.length > 0) {
+                this.rawData = new DataView(this.tensor.rawData.buffer, this.tensor.rawData.byteOffset, this.tensor.rawData.byteLength);
             }
             else {
-                this.output = 'Tensor data is empty.';
+                return 'Tensor data is empty.';
             }
             break;
         case onnx.TensorProto.DataType.DOUBLE:
-            if (tensor.doubleData && tensor.doubleData.length > 0) {
+            if (this.tensor.doubleData && this.tensor.doubleData.length > 0) {
                 this.data = tensor.doubleData;
             }
-            else if (tensor.rawData && tensor.rawData.length > 0) {
-                this.rawData = new DataView(tensor.rawData.buffer);
+            else if (this.tensor.rawData && this.tensor.rawData.length > 0) {
+                this.rawData = new DataView(this.tensor.rawData.buffer, this.tensor.rawData.byteOffset, this.tensor.rawData.byteLength);
             }
             else {
-                this.output = 'Tensor data is empty.';
+                return 'Tensor data is empty.';
             }
             break;
         case onnx.TensorProto.DataType.INT32:
-            if (tensor.int32Data && tensor.int32Data.length > 0) {
+            if (this.tensor.int32Data && this.tensor.int32Data.length > 0) {
                 this.data = tensor.int32Data;
             }
-            else if (tensor.rawData && tensor.rawData.length > 0) {
-                this.rawData = new DataView(tensor.rawData.buffer);
+            else if (this.tensor.rawData && this.tensor.rawData.length > 0) {
+                this.rawData = new DataView(this.tensor.rawData.buffer, this.tensor.rawData.byteOffset, this.tensor.rawData.byteLength);
             }
             else {
-                this.output = 'Tensor data is empty.';
+                return 'Tensor data is empty.';
             }
         /* case onnx.TensorProto.DataType.INT64:
             if (tensor.int64Data && tensor.int64Data.length > 0) {
@@ -338,16 +418,16 @@ function OnnxTensorFormatter(tensor) {
                 this.output = 'Tensor data is empty.';
             } */
         default:
-            this.output = 'Tensor data type is not implemented.';
-            break;
+            return 'Tensor data type is not implemented.';
     }
 
-    if (!this.output) {
-        this.index = 0;
-        var result = this.read(0);
-        this.output = JSON.stringify(result, null, 4);
-    }
-}
+    this.index = 0;                
+    var result = this.read(0);
+    this.data = null;
+    this.rawData = null;
+
+    return JSON.stringify(result, null, 4);
+};
 
 OnnxTensorFormatter.prototype.read = function(dimension) {
     var size = this.tensor.dims[dimension];
@@ -386,10 +466,6 @@ OnnxTensorFormatter.prototype.read = function(dimension) {
         }
     }
     return result;
-};
-
-OnnxTensorFormatter.prototype.toString = function() { 
-    return this.output;
 };
 
 function OnnxOperatorService(hostService) {

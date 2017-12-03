@@ -4,5 +4,5 @@
 /build/
 /dist/
 /node_modules/
-/third_party/onnx
+/third_party/
 /netron.egg-info

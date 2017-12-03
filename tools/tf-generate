@@ -1,0 +1,26 @@
+#!/bin/bash
+
+pushd "../third_party" > /dev/null
+sudo rm -rf tensorflow
+git clone --recursive git@github.com:tensorflow/tensorflow.git
+popd > /dev/null
+
+echo "Generate '../src/tf.js'"
+../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ../src/tf.js \
+    ../third_party/tensorflow/tensorflow/core/protobuf/saved_model.proto \
+    ../third_party/tensorflow/tensorflow/core/protobuf/meta_graph.proto \
+    ../third_party/tensorflow/tensorflow/core/protobuf/saver.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/graph.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/op_def.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/tensor_shape.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/types.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/node_def.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/versions.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/function.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/attr_value.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/tensor.proto \
+    ../third_party/tensorflow/tensorflow/core/framework/resource_handle.proto \
+
+echo "Generate '../src/tflite.js'"
+flatc --js ../third_party/tensorflow/tensorflow/contrib/lite/schema/schema.fbs 
+mv ./schema_generated.js ../src/tflite.js

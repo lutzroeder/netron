@@ -30,8 +30,10 @@ if (quit) {
 function openFileDialog() {
     var showOpenDialogOptions = { 
         properties: [ 'openFile'], 
-        filters: [ 
-            { name: 'ONNX Model', extensions: ['pb', 'onnx'] }
+        filters: [
+            { name: 'ONNX Model', extensions: [ 'onnx', 'pb' ] },
+            { name: 'TensorFlow Saved Model', extensions: [ 'saved_model.pb' ] },
+            { name: 'TensorFlow Lite Model', extensions: [ 'tflite' ]}
         ]
     };
     electron.dialog.showOpenDialog(showOpenDialogOptions, function(selectedFiles) {

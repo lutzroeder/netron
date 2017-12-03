@@ -19,7 +19,7 @@ function BrowserHostService()
         request.responseType = 'arraybuffer';
         request.onload = function () {
             if (request.status == 200) {
-                self.callback(null, new Uint8Array(request.response));
+                self.callback(null, new Uint8Array(request.response), 'TODO');
             }
             else {
                 self.callback(request.status, null);

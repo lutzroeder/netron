@@ -87,19 +87,19 @@ ElectronHostService.prototype.openBuffer = function(file) {
         if (exists) {
             fs.stat(file, function(err, stats) {
                 if (err) {
-                    self.callback(err, null);
+                    self.callback(err, null, null);
                 }
                 else {
                     var size = stats.size;
                     var buffer = new Uint8Array(size);
                     fs.open(file, 'r', function(err, fd) {
                         if (err) {
-                            self.callback(err, null);
+                            self.callback(err, null, null);
                         }
                         else {
                             fs.read(fd, buffer, 0, size, 0, function(err, bytesRead, buffer) {
                                 if (err) {
-                                    self.callback(err, null);
+                                    self.callback(err, null, null);
                                 }
                                 else {
                                     fs.close(fd, function(err) {
@@ -107,7 +107,7 @@ ElectronHostService.prototype.openBuffer = function(file) {
                                             self.callback(err, null);
                                         }
                                         else {
-                                            self.callback(null, buffer);
+                                            self.callback(null, buffer, path.basename(file));
                                         }
                                     });
                                 }

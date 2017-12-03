@@ -5,7 +5,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "0.7.1",
+    "version": "0.8.0",
     "description": "Viewer for ONNX neural network models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -19,8 +19,9 @@
     "dependencies": {
         "dagre-d3-renderer": "x.x.x",
         "electron-updater": "^2.16.1",
-        "handlebars": "^4.0.11",
-        "npm-font-open-sans": "^1.1.0",
+        "flatbuffers": "^1.8.0",
+        "handlebars": "x.x.x",
+        "npm-font-open-sans": "x.x.x",
         "protobufjs": "x.x.x"
     },
     "devDependencies": {
@@ -35,13 +36,29 @@
         "directories": {
             "buildResources": "setup"
         },
-        "fileAssociations": {
-            "ext": [
-                "pb",
-                "onnx"
-            ],
-            "name": "ONNX Model"
-        },
+        "fileAssociations": [
+            {
+                "ext": [
+                    "saved_model.pb",
+                    "saved_model.pbtxt"
+                ],
+                "name": "TensorFlow Saved Model"
+            },
+            {
+                "ext": [
+                    "pb",
+                    "pbtxt",
+                    "onnx"
+                ],
+                "name": "ONNX Model"
+            },
+            {
+                "ext": [
+                    "tflite"
+                ],
+                "name": "TensorFlow Lite Model"
+            }
+        ],
         "mac": {
             "category": "public.app-category.developer-tools",
             "target": [

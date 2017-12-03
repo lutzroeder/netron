@@ -20,18 +20,22 @@ package_data={
         'netron',
         'netron.py',
         'logo.svg',
-        'onnx-ml.js',
+        'onnx.js',
         'onnx-operator.json',
+        'tf.js',
+        'tflite.js',
         'favicon.ico',
         'view-browser.html',
         'view-browser.js',
         'view-onnx.js',
+        'view-tf.js',
+        'view-tflite.js',
         'view-render.css',
         'view-render.js',
         'view-template.js',
         'view.css',
         'view.js',
-        ]
+    ]
 }
 
 install_requires = [ 'protobuf' ]
@@ -41,6 +45,7 @@ scripts = [ 'src/netron' ]
 custom_files = [ 
     ( 'netron', [
         'node_modules/protobufjs/dist/protobuf.js',
+        'node_modules/flatbuffers/js/flatbuffers.js',
         'node_modules/handlebars/dist/handlebars.js',
         'node_modules/dagre-d3-renderer/dist/dagre-d3.core.js',
         'node_modules/dagre-d3-renderer/dist/dagre-d3.js',

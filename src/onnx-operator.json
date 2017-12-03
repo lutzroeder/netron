@@ -4,10 +4,10 @@
     "schema": {
       "doc": "Experimental allowing ATen operations to be accessed directly from Caffe2\nto allow for quick prototyping when ONNX is missing standard versions of\nand op",
       "domain": "ai.onnx",
-      "max_input": "&#8734;",
-      "max_output": "&#8734;",
-      "min_input": "0",
-      "min_output": "0",
+      "max_input": 2147483647,
+      "max_output": 2147483647,
+      "min_input": 0,
+      "min_output": 0,
       "since_version": 1,
       "support_level": "experimental"
     }
@@ -30,10 +30,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -111,10 +111,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result, has same dimensions and type as A",
@@ -185,10 +185,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "1D output tensor",
@@ -256,10 +256,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result tensor.",
@@ -323,20 +323,18 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor with integer data type.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
+          "typeStr": "tensor(int32)",
           "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
+            "tensor(int32)"
           ]
         }
       ],
@@ -387,20 +385,18 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor with integer data type.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
+          "typeStr": "tensor(int32)",
           "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
+            "tensor(int32)"
           ]
         }
       ],
@@ -448,10 +444,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Selected output data as an array",
@@ -535,10 +531,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
@@ -655,10 +651,10 @@
           ]
         }
       ],
-      "max_input": "5",
-      "max_output": "&#8734;",
-      "min_input": "5",
-      "min_output": "0",
+      "max_input": 5,
+      "max_output": 2147483647,
+      "min_input": 5,
+      "min_output": 0,
       "outputs": [
         {
           "description": "The output 4-dimensional tensor of the same shape as X.",
@@ -758,10 +754,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Binarized output data",
@@ -818,10 +814,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor with the same shape as input with type specified by the 'to' argument",
@@ -896,10 +892,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "encoded output data",
@@ -979,10 +975,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data, if strings are input, then output is int64s, and vice versa.",
@@ -1035,10 +1031,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -1099,10 +1095,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor with clipped input elements",
@@ -1157,10 +1153,10 @@
           ]
         }
       ],
-      "max_input": "&#8734;",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Concatenated tensor",
@@ -1202,10 +1198,10 @@
       ],
       "doc": "A constant tensor.",
       "domain": "ai.onnx",
-      "max_input": "0",
-      "max_output": "1",
-      "min_input": "0",
-      "min_output": "1",
+      "max_input": 0,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor containing the same value of the provided tensor.",
@@ -1291,10 +1287,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "0",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of constant values specified by 'value'argument and its type is specified by the 'dtype' argument",
@@ -1413,10 +1409,10 @@
           ]
         }
       ],
-      "max_input": "3",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
@@ -1529,10 +1525,10 @@
           ]
         }
       ],
-      "max_input": "3",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
@@ -1593,10 +1589,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result, has same type as input, with H and W dimensions reduced.",
@@ -1651,10 +1647,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of [N, C/(blocksize * blocksize), H * blocksize, W * blocksize].",
@@ -1714,10 +1710,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The tensor",
@@ -1786,10 +1782,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result, has same dimensions and type as A",
@@ -1850,10 +1846,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "2",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The output.",
@@ -1919,10 +1915,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "1D input tensor",
@@ -1987,10 +1983,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of computed features [N, O].",
@@ -2062,10 +2058,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result tensor.",
@@ -2117,10 +2113,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The exponential of the input tensor computed element-wise",
@@ -2203,10 +2199,10 @@
           ]
         }
       ],
-      "max_input": "3",
-      "max_output": "1",
-      "min_input": "3",
-      "min_output": "1",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
       "outputs": [
         {
           "description": "2D output tensor",
@@ -2259,10 +2255,10 @@
           ]
         }
       ],
-      "max_input": "&#8734;",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Full output array, in order assigned in the inputlist, as floats",
@@ -2313,10 +2309,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "A 2D tensor with the contents of the input tensor, with input dimensions up to axis flattened to the outer dimension of the output and remaining input dimensions flattened into the inner dimension of the output.",
@@ -2363,10 +2359,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -2510,10 +2506,10 @@
           ]
         }
       ],
-      "max_input": "6",
-      "max_output": "2",
-      "min_input": "3",
-      "min_output": "1",
+      "max_input": 6,
+      "max_output": 2,
+      "min_input": 3,
+      "min_output": 1,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -2619,10 +2615,10 @@
           ]
         }
       ],
-      "max_input": "4",
-      "max_output": "1",
-      "min_input": "4",
-      "min_output": "1",
+      "max_input": 4,
+      "max_output": 1,
+      "min_input": 4,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The new GRU hidden state calculated by this op.",
@@ -2687,10 +2683,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Tensor of rank q + (r - 1).",
@@ -2799,10 +2795,10 @@
           ]
         }
       ],
-      "max_input": "3",
-      "max_output": "1",
-      "min_input": "3",
-      "min_output": "1",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor.",
@@ -2874,10 +2870,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "0",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The filled tensor",
@@ -2924,10 +2920,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
@@ -2982,10 +2978,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
@@ -3040,10 +3036,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
@@ -3090,10 +3086,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
@@ -3165,10 +3161,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result tensor.",
@@ -3234,10 +3230,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -3292,10 +3288,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The softmax normalized output values with the same shape as input tensor.",
@@ -3342,10 +3338,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Tensor to copy input into.",
@@ -3406,10 +3402,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result, has same shape and type as input",
@@ -3483,10 +3479,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Imputed output data",
@@ -3565,10 +3561,10 @@
           ]
         }
       ],
-      "max_input": "3",
-      "max_output": "1",
-      "min_input": "3",
-      "min_output": "1",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The output 4-dimensional tensor of the same shape as input.",
@@ -3641,10 +3637,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -3816,10 +3812,10 @@
           ]
         }
       ],
-      "max_input": "8",
-      "max_output": "2",
-      "min_input": "3",
-      "min_output": "1",
+      "max_input": 8,
+      "max_output": 2,
+      "min_input": 3,
+      "min_output": 1,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -3903,10 +3899,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Encoded output data",
@@ -3967,10 +3963,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -4042,10 +4038,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result tensor.",
@@ -4136,10 +4132,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "2",
-      "min_input": "1",
-      "min_output": "2",
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 2,
       "outputs": [
         {
           "description": "Classification outputs (one class per example",
@@ -4230,10 +4226,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Regression outputs (one per target, per example",
@@ -4279,10 +4275,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The natural log of the input tensor computed element-wise",
@@ -4337,10 +4333,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The softmax normalized output values with the same shape as input tensor.",
@@ -4401,10 +4397,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Matrix after normalization",
@@ -4483,10 +4479,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from Lp pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
@@ -4565,10 +4561,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from Lp pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
@@ -4626,10 +4622,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Matrix multiply results from A * B",
@@ -4682,10 +4678,10 @@
           ]
         }
       ],
-      "max_input": "&#8734;",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor. Same dimension as inputs.",
@@ -4758,10 +4754,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
@@ -4833,10 +4829,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "RoI pooled output 4-D tensor of shape (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
@@ -4883,10 +4879,10 @@
           ]
         }
       ],
-      "max_input": "&#8734;",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor. Same dimension as inputs.",
@@ -4947,10 +4943,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result, has same shape and type as input",
@@ -4997,10 +4993,10 @@
           ]
         }
       ],
-      "max_input": "&#8734;",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor. Same dimension as inputs.",
@@ -5072,10 +5068,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result, has same dimensions and type as A",
@@ -5122,10 +5118,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -5181,10 +5177,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "encoded output data",
@@ -5228,10 +5224,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -5293,10 +5289,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "encoded output data",
@@ -5361,10 +5357,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result tensor.",
@@ -5425,10 +5421,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -5495,10 +5491,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Tensor after padding.",
@@ -5575,10 +5571,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Tensor after padding.",
@@ -5649,10 +5645,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "1D input tensor",
@@ -5710,10 +5706,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor (same size as X)",
@@ -5857,10 +5853,10 @@
           ]
         }
       ],
-      "max_input": "6",
-      "max_output": "2",
-      "min_input": "3",
-      "min_output": "1",
+      "max_input": 6,
+      "max_output": 2,
+      "min_input": 3,
+      "min_output": 1,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -5944,10 +5940,10 @@
       ],
       "doc": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is specified by the `shape` argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
       "domain": "ai.onnx",
-      "max_input": "0",
-      "max_output": "1",
-      "min_input": "0",
-      "min_output": "1",
+      "max_input": 0,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of random values drawn from normal distribution",
@@ -6020,10 +6016,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of random values drawn from normal distribution",
@@ -6089,10 +6085,10 @@
       ],
       "doc": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is specified by the `shape` argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
       "domain": "ai.onnx",
-      "max_input": "0",
-      "max_output": "1",
-      "min_input": "0",
-      "min_output": "1",
+      "max_input": 0,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of random values drawn from uniform distribution",
@@ -6165,10 +6161,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of random values drawn from uniform distribution",
@@ -6215,10 +6211,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -6279,10 +6275,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6343,10 +6339,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6407,10 +6403,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6471,10 +6467,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6535,10 +6531,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6599,10 +6595,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6663,10 +6659,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6727,10 +6723,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6791,10 +6787,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6855,10 +6851,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reduced output tensor.",
@@ -6905,10 +6901,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -6969,10 +6965,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reshaped data.",
@@ -7088,10 +7084,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "2",
-      "min_input": "1",
-      "min_output": "2",
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 2,
       "outputs": [
         {
           "description": "Classification outputs (one class per example)",
@@ -7206,10 +7202,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Regression outputs (one score per target per example)",
@@ -7263,10 +7259,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output data after scaling",
@@ -7327,10 +7323,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The scaled hyperbolic tangent values of the input tensor computed element-wise",
@@ -7392,10 +7388,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Scaled output data",
@@ -7455,10 +7451,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -7505,10 +7501,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -7575,10 +7571,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Sliced data tensor.",
@@ -7647,10 +7643,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The softmax normalized output values with the same shape as input tensor.",
@@ -7697,10 +7693,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "1D input tensor",
@@ -7747,10 +7743,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The softsign (x/1+|x|) values of the input tensor computed element-wise",
@@ -7805,10 +7801,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of [N, C * blocksize * blocksize, H/blocksize, W/blocksize].",
@@ -7880,10 +7876,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "&#8734;",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 2147483647,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "One or more outputs forming list of tensors after splitting",
@@ -7944,10 +7940,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "&#8734;",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 2147483647,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "One or more outputs forming list of tensors after splitting",
@@ -7994,10 +7990,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -8052,10 +8048,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Reshaped tensor with same data as input.",
@@ -8127,10 +8123,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result, has same dimensions and type as A",
@@ -8177,10 +8173,10 @@
           ]
         }
       ],
-      "max_input": "&#8734;",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor. Same dimension as inputs.",
@@ -8227,10 +8223,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The hyperbolic tangent values of the input tensor computed element-wise",
@@ -8285,10 +8281,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor",
@@ -8357,10 +8353,10 @@
           ]
         }
       ],
-      "max_input": "3",
-      "max_output": "1",
-      "min_input": "3",
-      "min_output": "1",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Output tensor of same shape and type as input.",
@@ -8415,10 +8411,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Transposed output.",
@@ -8570,10 +8566,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "2",
-      "min_input": "1",
-      "min_output": "2",
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 2,
       "outputs": [
         {
           "description": "N, Top class for each point",
@@ -8742,10 +8738,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "N classes",
@@ -8814,10 +8810,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "4-D tensor after resizing, [N,C,H,W]",
@@ -8891,10 +8887,10 @@
           ]
         }
       ],
-      "max_input": "2",
-      "max_output": "1",
-      "min_input": "2",
-      "min_output": "1",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "Result tensor.",
@@ -8956,10 +8952,10 @@
           ]
         }
       ],
-      "max_input": "1",
-      "max_output": "1",
-      "min_input": "1",
-      "min_output": "1",
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The output map",
