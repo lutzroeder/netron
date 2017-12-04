@@ -441,15 +441,15 @@ OnnxTensorFormatter.prototype.read = function(dimension) {
                 switch (this.tensor.dataType)
                 {
                     case onnx.TensorProto.DataType.FLOAT:
-                        result.push(this.rawData.getFloat32(this.index));
+                        result.push(this.rawData.getFloat32(this.index, true));
                         this.index += 4;
                         break;
                     case onnx.TensorProto.DataType.DOUBLE:
-                        result.push(this.rawData.getFloat64(this.index));
+                        result.push(this.rawData.getFloat64(this.index, true));
                         this.index += 8;
                         break;
                     case onnx.TensorProto.DataType.INT32:
-                        result.push(this.rawData.getInt32(this.index));
+                        result.push(this.rawData.getInt32(this.index, true));
                         this.index += 4;
                         break;
                     /* case onnx.TensorProto.DataType.INT64:
