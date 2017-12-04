@@ -19,6 +19,7 @@ package_data={
     'netron': [ 
         'netron',
         'netron.py',
+        'onnx_ml_pb2.py',
         'logo.svg',
         'onnx.js',
         'onnx-operator.json',

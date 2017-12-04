@@ -21,4 +21,3 @@ python onnx-operator-json.py
 
 echo "Generate '../src/onnx.py'"
 protoc --python_out=../src --proto_path ../third_party/onnx/onnx onnx-ml.proto
-mv ../src/onnx_ml_pb2.py ../src/onnx.py

@@ -5,7 +5,7 @@ import os
 import platform
 import sys
 import webbrowser
-import onnx
+import onnx_ml_pb2
 
 if sys.version_info[0] > 2:
     from urllib.parse import urlparse
@@ -99,7 +99,7 @@ class OnnxModel:
         self.file = file
     def optimize(self):
         # Remove raw initializer data
-        model = onnx.ModelProto()
+        model = onnx_ml_pb2.ModelProto()
         model.ParseFromString(self.data)
         for initializer in model.graph.initializer:
             self.remove_tensor_data(initializer)
