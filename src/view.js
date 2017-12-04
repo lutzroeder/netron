@@ -2,16 +2,13 @@
 debugger;
 // electron.remote.getCurrentWindow().webContents.openDevTools();
 
-hostService.registerCallback(openBuffer);
+hostService.initialize(openBuffer);
 var model = null;
 var modelService = new ModelService(hostService);
 
 document.documentElement.style.overflow = 'hidden';
-
-window.addEventListener('load', function(e) {
-    document.body.scroll = 'no';
-    updateSize();
-});
+document.body.scroll = 'no';
+updateSize();
 
 window.addEventListener('resize', function() {
     updateSize();

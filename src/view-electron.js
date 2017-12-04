@@ -7,49 +7,6 @@ var hostService = new ElectronHostService();
 
 function ElectronHostService()
 {
-    var self = this;
-
-    electron.ipcRenderer.on('open-file', function(event, data) {
-        var file = data['file'];
-        if (file) {
-            updateView('clock');
-            self.openBuffer(file);
-        }
-    });
-
-    window.addEventListener('load', function(e) {
-
-        var openFileButton = document.getElementById('open-file-button');
-        if (openFileButton) {
-            openFileButton.style.opacity = 1;
-            openFileButton.addEventListener('click', function(e) {
-                openFileButton.style.opacity = 0;
-                electron.ipcRenderer.send('open-file-dialog', {});
-            });
-        }
-
-        var propertiesButton = document.getElementById('properties-button');
-        if (propertiesButton) {
-            propertiesButton.addEventListener('click', function(e) {
-                showModelProperties(modelService.activeModel);
-            });
-        }
-
-        document.addEventListener('dragover', function(e) {
-            e.preventDefault();
-        });
-        document.addEventListener('drop', function(e) {
-            e.preventDefault();
-        });
-        document.body.addEventListener('drop', function(e) { 
-            e.preventDefault();
-            var files = e.dataTransfer.files;
-            for (var i = 0; i < files.length; i++) {
-                self.openFile(files[i].path, i == 0);
-            }
-            return false;
-        });
-    });
 }
 
 ElectronHostService.prototype.openFile = function(file, drop) {
@@ -77,8 +34,48 @@ ElectronHostService.prototype.getResource = function(file, callback) {
     // TOOD error
 }
 
-ElectronHostService.prototype.registerCallback = function(callback) {
-    this.callback = callback;
+ElectronHostService.prototype.initialize = function(callback) {
+    var self = this;
+    self.callback = callback;
+
+    electron.ipcRenderer.on('open-file', function(event, data) {
+        var file = data['file'];
+        if (file) {
+            updateView('clock');
+            self.openBuffer(file);
+        }
+    });
+
+    var openFileButton = document.getElementById('open-file-button');
+    if (openFileButton) {
+        openFileButton.style.opacity = 1;
+        openFileButton.addEventListener('click', function(e) {
+            openFileButton.style.opacity = 0;
+            electron.ipcRenderer.send('open-file-dialog', {});
+        });
+    }
+
+    var propertiesButton = document.getElementById('properties-button');
+    if (propertiesButton) {
+        propertiesButton.addEventListener('click', function(e) {
+            showModelProperties(modelService.activeModel);
+        });
+    }
+
+    document.addEventListener('dragover', function(e) {
+        e.preventDefault();
+    });
+    document.addEventListener('drop', function(e) {
+        e.preventDefault();
+    });
+    document.body.addEventListener('drop', function(e) { 
+        e.preventDefault();
+        var files = e.dataTransfer.files;
+        for (var i = 0; i < files.length; i++) {
+            self.openFile(files[i].path, i == 0);
+        }
+        return false;
+    });
 }
 
 ElectronHostService.prototype.openBuffer = function(file) {
