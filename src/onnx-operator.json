@@ -4,8 +4,8 @@
     "schema": {
       "doc": "Experimental allowing ATen operations to be accessed directly from Caffe2\nto allow for quick prototyping when ONNX is missing standard versions of\nand op",
       "domain": "ai.onnx",
-      "max_input": 2147483647,
-      "max_output": 2147483647,
+      "max_input": 0,
+      "max_output": 0,
       "min_input": 0,
       "min_output": 0,
       "since_version": 1,
@@ -652,9 +652,9 @@
         }
       ],
       "max_input": 5,
-      "max_output": 2147483647,
+      "max_output": 5,
       "min_input": 5,
-      "min_output": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "The output 4-dimensional tensor of the same shape as X.",
@@ -670,7 +670,7 @@
         {
           "description": "The running mean after the BatchNormalization operator. Must be in-place with the input mean. Should not be used for testing.",
           "name": "mean",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -681,7 +681,7 @@
         {
           "description": "The running variance after the BatchNormalization operator. Must be in-place with the input var. Should not be used for testing.",
           "name": "var",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -692,7 +692,7 @@
         {
           "description": "Saved mean used during training to speed up gradient computation. Should not be used for testing.",
           "name": "saved_mean",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -703,7 +703,7 @@
         {
           "description": "Saved variance used during training to speed up gradient computation. Should not be used for testing.",
           "name": "saved_var",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -1865,7 +1865,7 @@
         {
           "description": "The output mask. If is_test is nonzero, this output is not filled.",
           "name": "mask",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -2514,7 +2514,7 @@
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -3820,7 +3820,7 @@
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -5861,7 +5861,7 @@
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
-          "option": "",
+          "option": "optional",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -7884,7 +7884,7 @@
         {
           "description": "One or more outputs forming list of tensors after splitting",
           "name": "outputs...",
-          "option": "",
+          "option": "variadic",
           "typeStr": "T",
           "types": [
             "tensor(double)",
@@ -7948,7 +7948,7 @@
         {
           "description": "One or more outputs forming list of tensors after splitting",
           "name": "outputs",
-          "option": "",
+          "option": "variadic",
           "typeStr": "T",
           "types": [
             "tensor(double)",
