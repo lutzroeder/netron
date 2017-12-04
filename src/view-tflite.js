@@ -103,9 +103,9 @@ TensorFlowLiteModel.prototype.getGraphInitializers = function(graph) {
     var results = []
     for (var i = 0; i < graph.tensorsLength(); i++) {
         var tensor = graph.tensors(i);
-        var buffer = tensor.buffer();
-        if (this.model.buffers(buffer).dataLength() > 0) {
-            tensor = this.formatTensor(tensor);
+        var buffer = this.model.buffers(tensor.buffer());
+        if (buffer.dataLength() > 0) {
+            tensor = this.formatTensor(tensor, buffer);
             tensor['id'] = i.toString();
             results.push(tensor);
         }
@@ -114,7 +114,6 @@ TensorFlowLiteModel.prototype.getGraphInitializers = function(graph) {
 }
 
 TensorFlowLiteModel.prototype.getNodes = function(graph) {
-
     /* for (var i = 0; i < graph.operatorsLength(); i++) {
         var node = graph.operators(i);
         var inputs = [];
@@ -127,7 +126,6 @@ TensorFlowLiteModel.prototype.getNodes = function(graph) {
         }
         console.log(this.getNodeOperator(node) + ' [' + inputs.join(',') + '] -> [' + outputs.join(',') + ']');
     } */
-
     var results = []
     for (var i = 0; i < graph.operatorsLength(); i++) {
         var node = graph.operators(i);
@@ -181,12 +179,12 @@ TensorFlowLiteModel.prototype.formatNodeProperties = function(node) {
 }
 
 TensorFlowLiteModel.prototype.formatNodeAttributes = function(node) {
-    var result = [];
-
+    var self = this;
+    var results = [];
     var operatorName = this.getNodeOperator(node);
     var optionsTypeName = 'tflite.' + operatorName + 'Options';
     var optionsType = eval(optionsTypeName);
-    if (typeof eval(optionsTypeName) === 'function') {
+    if (typeof optionsType === 'function') {
         var options = eval('new ' + optionsTypeName + '()');
         node.builtinOptions(options);
         var attributeNames = [];
@@ -198,16 +196,19 @@ TensorFlowLiteModel.prototype.formatNodeAttributes = function(node) {
         attributeNames.forEach(function (attributeName) {
             if (options[attributeName] && typeof options[attributeName] == 'function') {
                 var value = options[attributeName]();
-                result.push({
-                    'name': attributeName,
-                    'type': '',
-                    'value': function() { return value; }, 
-                    'value_short': function() { return value; }
-                });
+                value = self.formatAttributeValue(value, attributeName, optionsTypeName);
+                if (value != null) {
+                    results.push({
+                        'name': attributeName,
+                        'type': '',
+                        'value': function() { return value; }, 
+                        'value_short': function() { return value; }
+                    });
+                }
             }
         });
     }
-    return result;
+    return results;
 }
 
 TensorFlowLiteModel.prototype.formatTensorType = function(tensor) {
@@ -237,18 +238,171 @@ TensorFlowLiteModel.prototype.formatTensorType = function(tensor) {
     return result;
 }
 
-TensorFlowLiteModel.prototype.formatTensor = function(tensor) {
+TensorFlowLiteModel.prototype.formatTensor = function(tensor, buffer) {
     var result = {};
     result['name'] = tensor.name();
     result['type'] = this.formatTensorType(tensor);
-    result['value'] = function () { return new TensorFlowLiteTensorFormatter(tensor).toString(); };
+    result['value'] = function () { return new TensorFlowLiteTensorFormatter(tensor, buffer).toString(); };
     return result;
 }
 
-function TensorFlowLiteTensorFormatter(tensor) {
+TensorFlowLiteModel.prototype.formatAttributeValue = function(attributeValue, attributeName, optionsTypeName) {
+    if (!this.optionsEnumTypeMap) {
+        this.optionsEnumTypeMap = {};
+        this.optionsEnumTypeMap['tflite.Conv2DOptions'] = {
+            'padding': { 'type': tflite.Padding },
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.Pool2DOptions'] = {
+            'padding': { 'type': tflite.Padding },
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.DepthwiseConv2DOptions'] = {
+            'padding': { 'type': tflite.Padding },
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.LSHProjectionOptions'] = {
+            'type': { 'type': tflite.LSHProjectionType }
+        },
+        this.optionsEnumTypeMap['tflite.SVDFOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.RNNOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.FullyConnectedOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.ConcatenationOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.AddOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.MulOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.L2NormOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.LSTMOptions'] = {
+            'fusedActivationFunction': { 'type': tflite.ActivationFunctionType, 'default': 'NONE' }
+        },
+        this.optionsEnumTypeMap['tflite.EmbeddingLookupSparseOptions'] = {
+            'combiner': { 'type': tflite.CombinerType },
+        }
+    }
+    var optionsEnumType = this.optionsEnumTypeMap[optionsTypeName];
+    if (optionsEnumType) {
+        var attributeType = optionsEnumType[attributeName];
+        if (attributeType) {
+            var map = attributeType['map'];
+            if (!map) {
+                map = {};
+                var enumType = attributeType['type'];
+                Object.keys(enumType).forEach(function (key) {
+                    map[enumType[key]] = key;
+                });
+                attributeType['map'] = map;
+            }
+            var enumValue = map[attributeValue];
+            if (enumValue) {
+                var defaultValue = attributeType['default'];
+                if (defaultValue && defaultValue == enumValue) {
+                    return null;
+                }
+                return enumValue;
+            }
+        }
+    }
+    return attributeValue;
+}
+    
+
+function TensorFlowLiteTensorFormatter(tensor, buffer) {
     this.tensor = tensor;
+    this.buffer = buffer;
 }
 
 TensorFlowLiteTensorFormatter.prototype.toString = function() {
-    return "Not implemented (yet).";
-}
+    var size = 1;
+    for (var i = 0; i < this.tensor.shapeLength(); i++) {
+        size *= this.tensor.shape(i);
+    }
+    if (size > 65536) {
+        return 'Tensor is too large to display.' 
+    }
+
+    if (this.buffer.dataLength() == 0) {
+        return 'Tensor data is empty.';
+    }
+
+    switch (this.tensor.type()) {
+        case tflite.TensorType.FLOAT16:
+        case tflite.TensorType.INT64:
+            return 'Tensor data type is not supported (yet).';
+    }
+
+    var array = this.buffer.dataArray();
+    this.data = new DataView(array.buffer, array.byteOffset, array.byteLength);
+
+    if (this.tensor.type() == tflite.TensorType.STRING) {
+        var offset = 0;
+        var count = this.data.getInt32(0, true);
+        offset += 4;
+        var offsetTable = [];
+        for (var i = 0; i < count; i++) {
+            offsetTable.push(this.data.getInt32(offset, true));
+            offset += 4;
+        }
+        offsetTable.push(array.length);
+        var stringTable = [];
+        for (var i = 0; i < count; i++) {
+            var textArray = array.subarray(offsetTable[i], offsetTable[i + 1]);
+            var text = String.fromCharCode.apply(null, textArray);
+            stringTable.push(text);
+        }
+        this.data = stringTable;
+    }
+
+    this.index = 0;                
+    var result = this.read(0);
+    this.data = null;
+
+    return JSON.stringify(result, null, 4);
+};
+
+TensorFlowLiteTensorFormatter.prototype.read = function(dimension) {
+    var size = this.tensor.shape(dimension);
+    var results = [];
+    if (dimension == this.tensor.shapeLength() - 1) {
+        for (var i = 0; i < size; i++) {
+            switch (this.tensor.type())
+            {
+                case tflite.TensorType.FLOAT32:
+                    results.push(this.data.getFloat32(this.index, true));
+                    this.index += 4;
+                    break;
+                case tflite.TensorType.INT32:
+                    results.push(this.data.getInt32(this.index, true));
+                    this.index += 4;
+                    break;
+                case tflite.TensorType.UINT8:
+                    results.push(this.data.getUint8(this.index));
+                    this.index += 4;
+                    break;
+                case tflite.TensorType.STRING:
+                    results.push(this.data[this.index++]);
+                    break;
+                default:
+                    debugger;
+            }
+        }
+    }
+    else {
+        for (var i = 0; i < size; i++) {
+            results.push(this.read(dimension + 1));
+        }
+    }
+    return results;
+};
