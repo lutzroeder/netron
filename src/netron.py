@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import codecs
 import os
 import platform
 import sys
@@ -37,22 +38,20 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             }
         pathname = urlparse(self.path).path
         folder = os.path.dirname(os.path.realpath(__file__))
-        if pathname == '/':
-            pathname = '/view-browser.html'
         location = folder + pathname;
         status_code = 0
         headers = {}
         buffer = None
         if status_code == 0:
-            if os.path.exists(location) and os.path.isdir(location):
-                if location.endswith('/'):
-                    location += 'view-browser.html'
-                else:
-                    status_code = 302
-                    headers = { 'Location': pathname + '/' }
-        if status_code == 0:
-            if pathname == '/model':
-                buffer = self.data
+            if pathname == '/':
+                with codecs.open(location + 'view-browser.html', mode="r", encoding="utf-8") as open_file:
+                    buffer = open_file.read()
+                buffer = buffer.replace('{{{title}}}', self.model.file)
+                headers['Content-Type'] = 'text/html'
+                headers['Content-Length'] = len(buffer)
+                status_code = 200
+            elif pathname == '/model':
+                buffer = self.model.data
                 headers['Content-Type'] = 'text/plain'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
@@ -89,45 +88,63 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
 class MyHTTPServer(HTTPServer):
-    def serve_forever(self, data, verbose):
-        self.RequestHandlerClass.data = data
+    def serve_forever(self, model, verbose):
+        self.RequestHandlerClass.model = model
         self.RequestHandlerClass.verbose = verbose
         HTTPServer.serve_forever(self)
 
-def remove_tensor_data(tensor):
-    del tensor.string_data[:]
-    del tensor.int32_data[:]
-    del tensor.int64_data[:]
-    del tensor.float_data[:]
-    tensor.raw_data = ""
-
-def serve_data(data, verbose=False, browse=False, port=8080, host='localhost', tensor=False, context=None):
-    server = MyHTTPServer((host, port), MyHTTPRequestHandler)
-    item = context if context else (string(len(data)) + ' bytes')
-    if not tensor:
-        if verbose or context:
-            print("Processing '" + item + "'...")
+class OnnxModel:
+    def __init__(self, data, file):
+        self.data = data
+        self.file = file
+    def optimize(self):
         # Remove raw initializer data
         model = onnx.ModelProto()
-        model.ParseFromString(data)
+        model.ParseFromString(self.data)
         for initializer in model.graph.initializer:
-            remove_tensor_data(initializer)
+            self.remove_tensor_data(initializer)
         for node in model.graph.node:
             for attribute in node.attribute:
                 if attribute.t:
-                    remove_tensor_data(attribute.t)
-        data = model.SerializeToString()
+                    self.remove_tensor_data(attribute.t)
+        self.data = model.SerializeToString()
+    def remove_tensor_data(self, tensor):
+        del tensor.string_data[:]
+        del tensor.int32_data[:]
+        del tensor.int64_data[:]
+        del tensor.float_data[:]
+        tensor.raw_data = ""
+
+class TensorFlowLiteModel:
+    def __init__(self, data, file):
+        self.data = data
+        self.file = file
+    def optimize(self):
+        return
+
+def serve_data(data, file, verbose=False, browse=False, port=8080, host='localhost', tensor=False):
+    server = MyHTTPServer((host, port), MyHTTPRequestHandler)
+    model = None
+    if file.endswith('.tflite'):
+        model = TensorFlowLiteModel(data, file)
+    elif os.path.basename(file) == 'saved_model.pb':
+        print('Not supported.')
+        return
+    else:
+        model = OnnxModel(data, file)
+    if not tensor:
+        print("Processing '" + file + "'...")
+        model.optimize()
     url = 'http://' + host + ':' + str(port)
-    if verbose or context:
-        print("Serving '" + item + "' at " + url + "...")
+    print("Serving '" + file + "' at " + url + "...")
     if browse:
         webbrowser.open(url);
     sys.stdout.flush()
-    server.serve_forever(data, verbose)
+    server.serve_forever(model, verbose)
 
 def serve_file(file, verbose=False, browse=False, port=8080, host='localhost', tensor=False):
     print("Reading '" + file + "'...")
     data = None
     with open(file, 'rb') as binary:
         data = binary.read()
-    serve_data(data, verbose=verbose, browse=browse, port=port, host=host, tensor=tensor, context=file)
+    serve_data(data, file, verbose=verbose, browse=browse, port=port, host=host, tensor=tensor)
