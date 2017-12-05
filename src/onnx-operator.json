@@ -2509,7 +2509,7 @@
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
-      "min_output": 1,
+      "min_output": 2,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -3815,7 +3815,7 @@
       "max_input": 8,
       "max_output": 2,
       "min_input": 3,
-      "min_output": 1,
+      "min_output": 2,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -5856,7 +5856,7 @@
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
-      "min_output": 1,
+      "min_output": 2,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",

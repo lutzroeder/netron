@@ -9,9 +9,10 @@
 .node-item-operator:hover { cursor: hand; }
 .node-item-operator:hover path { fill: #fff; }
 .node-item-operator:hover text { fill: #000; }
-.node-item-input path { fill: #eee; }
-.node-item-input:hover { cursor: hand; }
-.node-item-input:hover path { fill: #fff; }
+
+.node-item-constant path { fill: #eee; }
+.node-item-constant:hover { cursor: hand; }
+.node-item-constant:hover path { fill: #fff; }
 
 .node-property:hover { cursor: hand; }
 .node-property text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 7px; font-weight: normal; text-rendering: geometricPrecision; }

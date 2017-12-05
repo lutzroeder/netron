@@ -3,7 +3,6 @@ debugger;
 // electron.remote.getCurrentWindow().webContents.openDevTools();
 
 hostService.initialize(openBuffer);
-var model = null;
 var modelService = new ModelService(hostService);
 
 document.documentElement.style.overflow = 'hidden';
@@ -66,7 +65,7 @@ function openBuffer(err, buffer, identifier) {
         setTimeout(function () {
             modelService.openBuffer(buffer, identifier, function(err, model) {
                 if (err) {
-                    hostService.showError('Decoding failure: ' + err);
+                    hostService.showError(err);
                     updateView('welcome');
                     return;
                 }
@@ -104,7 +103,8 @@ function renderModel(model) {
         model.getNodes(graph).forEach(function (node) {
             var operator = model.getNodeOperator(node);
             var formatter = new NodeFormatter();
-            formatter.addItem(operator, 'node-item-operator', null, function() { 
+            var style = (operator != 'Constant' && operator != 'Const') ? 'node-item-operator' : 'node-item-constant';
+            formatter.addItem(operator, style, null, function() { 
                 showNodeOperatorDocumentation(model, graph, node)
             });
     
@@ -113,7 +113,7 @@ function renderModel(model) {
                 var inputId = input['id'];
                 var initializer = initializerMap[inputId];
                 if (initializer) {
-                    formatter.addItem(input['name'], 'node-item-input', initializer['type'], function() { 
+                    formatter.addItem(input['name'], 'node-item-constant', initializer['type'], function() { 
                         showTensor(model, initializerMap[input['id']]);
                     });
                 }
@@ -406,4 +406,20 @@ ModelService.prototype.openBuffer = function(buffer, identifier, callback) {
             callback(null, model);
         }
     }
+}
+
+function Int64(data) {
+    this.data = data;
+}
+
+Int64.prototype.toString = function() {
+    return this.data;
+}
+
+function Uint64(data) {
+    this.data = data;
+}
+
+Uint64.prototype.toString = function() {
+    return this.data;
 }
