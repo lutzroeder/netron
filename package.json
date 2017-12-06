@@ -14,7 +14,9 @@
         "start": "electron .",
         "dist": "electron-builder --mac --linux --win",
         "release": "electron-builder --mac --linux --win --publish always",
-        "postinstall": "electron-builder install-app-deps"
+        "postinstall": "electron-builder install-app-deps",
+        "server_install": "sudo python ./setup.py build install",
+        "server_release": "python ./setup.py build bdist_wheel upload"
     },
     "dependencies": {
         "dagre-d3-renderer": "x.x.x",
