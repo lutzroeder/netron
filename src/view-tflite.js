@@ -322,6 +322,9 @@ TensorFlowLiteModel.prototype.formatAttributeValue = function(attributeValue, at
 function TensorFlowLiteTensorFormatter(tensor, buffer) {
     this.tensor = tensor;
     this.buffer = buffer;
+    if (window['TextDecoder']) {
+        this.utf8Decoder = new TextDecoder('utf-8');
+    }
 }
 
 TensorFlowLiteTensorFormatter.prototype.toString = function() {
@@ -335,12 +338,6 @@ TensorFlowLiteTensorFormatter.prototype.toString = function() {
 
     if (this.buffer.dataLength() == 0) {
         return 'Tensor data is empty.';
-    }
-
-    switch (this.tensor.type()) {
-        case tflite.TensorType.FLOAT16:
-        case tflite.TensorType.INT64:
-            return 'Tensor data type is not supported (yet).';
     }
 
     var array = this.buffer.dataArray();
@@ -359,8 +356,12 @@ TensorFlowLiteTensorFormatter.prototype.toString = function() {
         var stringTable = [];
         for (var i = 0; i < count; i++) {
             var textArray = array.subarray(offsetTable[i], offsetTable[i + 1]);
-            var text = String.fromCharCode.apply(null, textArray);
-            stringTable.push(text);
+            if (this.utf8Decoder) {
+                stringTable.push(this.utf8Decoder.decode(textArray));
+            }
+            else {
+                stringTable.push(String.fromCharCode.apply(null, textArray));
+            }
         }
         this.data = stringTable;
     }
@@ -383,13 +384,21 @@ TensorFlowLiteTensorFormatter.prototype.read = function(dimension) {
                     results.push(this.data.getFloat32(this.index, true));
                     this.index += 4;
                     break;
-                case tflite.TensorType.INT32:
-                    results.push(this.data.getInt32(this.index, true));
-                    this.index += 4;
+                case tflite.TensorType.FLOAT16:
+                    results.push(this.decodeNumberFromFloat16(this.data.getUint16(this.index, true)))
+                    this.index += 2;
                     break;
                 case tflite.TensorType.UINT8:
                     results.push(this.data.getUint8(this.index));
                     this.index += 4;
+                    break;
+                case tflite.TensorType.INT32:
+                    results.push(this.data.getInt32(this.index, true));
+                    this.index += 4;
+                    break;
+                case tflite.TensorType.INT64:
+                    results.push(new Int64(this.data.getInt64(this.index, true)));
+                    this.index += 8;
                     break;
                 case tflite.TensorType.STRING:
                     results.push(this.data[this.index++]);
@@ -406,3 +415,16 @@ TensorFlowLiteTensorFormatter.prototype.read = function(dimension) {
     }
     return results;
 };
+
+TensorFlowLiteTensorFormatter.prototype.decodeNumberFromFloat16 = function(value) {
+    var s = (value & 0x8000) >> 15;
+    var e = (value & 0x7C00) >> 10;
+    var f = value & 0x03FF;
+    if(e == 0) {
+        return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+    }
+    else if (e == 0x1F) {
+        return f ? NaN : ((s ? -1 : 1) * Infinity);
+    }
+    return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+}

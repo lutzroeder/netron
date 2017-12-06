@@ -354,9 +354,12 @@ OnnxModel.prototype.formatType = function(type) {
         }
         return text;
     }
-    if (type.value == 'mapType') {
+    else if (type.value == 'mapType') {
         var mapType = type.mapType;
         return '<' + this.formatElementType(mapType.keyType) + ', ' + this.formatType(mapType.valueType) + '>';
+    }
+    else if (!type.value) {
+        return '';
     }
     debugger;
     return '[UNKNOWN]';
