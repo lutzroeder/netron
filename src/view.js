@@ -7,22 +7,8 @@ var modelService = new ModelService(hostService);
 
 document.documentElement.style.overflow = 'hidden';
 document.body.scroll = 'no';
-updateSize();
-
-window.addEventListener('resize', function() {
-    updateSize();
-});
-
-function updateSize() {
-    var graphElement = document.getElementById('graph');
-    if (graphElement) {
-        graphElement.setAttribute('width', window.innerWidth.toString());
-        graphElement.setAttribute('height', window.innerHeight.toString());
-    }
-}
 
 function updateView(page) {
-    updateSize();
 
     var welcomeElement = document.getElementById('welcome');
     var openFileButton = document.getElementById('open-file-button');
@@ -70,7 +56,7 @@ function openBuffer(err, buffer, identifier) {
                     return;
                 }
                 setTimeout(function () {
-                    renderModel(model);
+                    renderModel(model)
                 }, 20);   
             });    
         }, 20);
@@ -264,11 +250,11 @@ function renderModel(model) {
                 x = x / inputElements.length;
                 y = y / inputElements.length;
                 zoom.translate([ 
-                    (svg.attr('width') / 2) - x,
-                    (svg.attr('height') / 4) - y ]).event(svg);
+                    (svgElement.clientWidth / 2) - x,
+                    (svgElement.clientHeight / 4) - y ]).event(svg);
             }
             else {
-                zoom.translate([ (svg.attr('width') - g.graph().width) / 2, 40 ]).event(svg);
+                zoom.translate([ (svg.clientWidth - g.graph().width) / 2, 40 ]).event(svg);
             }    
         
             updateView('graph');
@@ -333,7 +319,13 @@ function Sidebar() {
             self.close();
         }
     }
-}
+    this.resizeSidebarHandler = function (e) {
+        var contentElement = document.getElementById('sidebar-content');
+        if (sidebarElement && contentElement) {
+            contentElement.style.height = window.innerHeight - 60;
+        }
+    }
+ }
 
 Sidebar.prototype.open = function(content, title) {
     var sidebarElement = document.getElementById('sidebar');
@@ -341,12 +333,12 @@ Sidebar.prototype.open = function(content, title) {
     var contentElement = document.getElementById('sidebar-content');
     var closeButtonElement = document.getElementById('sidebar-closebutton');
     if (sidebarElement && contentElement && closeButtonElement && titleElement) {
+        window.addEventListener('resize', this.resizeSidebarHandler);
+        document.addEventListener('keydown', this.closeSidebarKeyDownHandler);
         titleElement.innerHTML = title ? title.toUpperCase() : '';
         closeButtonElement.addEventListener('click', this.closeSidebarHandler);
         closeButtonElement.style.color = '#818181';
-        document.addEventListener('keydown', this.closeSidebarKeyDownHandler);
         contentElement.style.height = window.innerHeight - 60;
-        sidebarElement.style.height = window.innerHeight;
         contentElement.innerHTML = content
         contentElement.style.width = '460px';
         sidebarElement.style.width = '500px';
@@ -358,9 +350,10 @@ Sidebar.prototype.close = function() {
     var contentElement = document.getElementById('sidebar-content');
     var closeButtonElement = document.getElementById('sidebar-closebutton');
     if (sidebarElement && contentElement && closeButtonElement) {
+        document.removeEventListener('keydown', this.closeSidebarKeyDownHandler);
+        sidebarElement.removeEventListener('resize', this.resizeSidebarHandler);
         closeButtonElement.removeEventListener('click', this.closeSidebarHandler);
         closeButtonElement.style.color = '#f8f8f8';
-        document.removeEventListener('keydown', this.closeSidebarKeyDownHandler);
         sidebarElement.style.width = '0';
     }
 }

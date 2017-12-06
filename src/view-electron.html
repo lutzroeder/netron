@@ -11,11 +11,11 @@
     <button id='open-file-button' class='center' style='top: 200px; width: 150px; opacity: 0;'>Open ONNX Model...</button>
     <div id='spinner' class='spinner' style='display: none'></div>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
-    <div style='font-weight: normal; color: #e6e6e6'>.</div>
-    <div style='font-weight: 600; color: #e6e6e6'>.</div>
-    <div style='font-weight: bold; color: #e6e6e6'>.</div>
+    <div style='font-weight: normal; color: #e6e6e6; user-select: none;'>.</div>
+    <div style='font-weight: 600; color: #e6e6e6; user-select: none;'>.</div>
+    <div style='font-weight: bold; color: #e6e6e6; user-select: none;'>.</div>
 </div>
-<svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet'></svg>
+<svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet' width='100%' height='100%'></svg>
 <button id='properties-button' style='position: absolute; top: 10px; left: 10px; display: none;'>Properties</button> 
 <div id='sidebar' class='sidebar'>
     <h1 id='sidebar-title' class='sidebar-title'></h1>

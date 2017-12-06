@@ -112,7 +112,7 @@ button:hover {
     top: 0;
     right: 0;
     background-color: #f8f8f8;
-    overflow-x: hidden;
+    overflow: hidden;
     border-left: 1px solid #ccc;
 }
 
@@ -133,6 +133,7 @@ button:hover {
     opacity: 1.0;
     display: block;
     transition: 0.2s;
+    height: 100%;
 }
 
 .sidebar a:hover {
