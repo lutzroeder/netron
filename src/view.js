@@ -402,7 +402,7 @@ ModelService.prototype.openBuffer = function(buffer, identifier, callback) {
 }
 
 function Int64(data) {
-    this.data = data;
+    this.data = String.fromCharCode(parseInt(data, 2));		// byte data converted to string
 }
 
 Int64.prototype.toString = function() {
@@ -410,7 +410,7 @@ Int64.prototype.toString = function() {
 }
 
 function Uint64(data) {
-    this.data = data;
+    this.data = String.fromCharCode(parseInt(data, 2));		// byte data converted to string
 }
 
 Uint64.prototype.toString = function() {
