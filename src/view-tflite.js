@@ -385,7 +385,7 @@ TensorFlowLiteTensorFormatter.prototype.read = function(dimension) {
                     this.index += 4;
                     break;
                 case tflite.TensorType.FLOAT16:
-                    results.push(this.decodeNumberFromFloat16(this.data.getUint16(this.index, true)))
+                    results.push(this.decodeNumberFromFloat16(this.data.getUint16(this.index, true)));
                     this.index += 2;
                     break;
                 case tflite.TensorType.UINT8:
