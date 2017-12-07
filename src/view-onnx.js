@@ -15,6 +15,19 @@ OnnxModel.prototype.openBuffer = function(buffer, identifier) {
     return null;
 }
 
+OnnxModel.prototype.formatGraphProperties = function(graph) {
+    var result = {};
+    if (graph.name) {
+        result.push({ 'Name': graph.name });
+    }
+    if (graph.docString) { 
+        result.push({ 'Description': graph.docString });
+    }
+    result.push({ 'Inputs': this.getGraphInputs(graph) });
+    result.push({ 'Outputs': this.getGraphInputs(graph) });
+    return result;
+}
+
 OnnxModel.prototype.formatModelProperties = function() {
     
     var result = { 'groups': [] };
@@ -516,7 +529,7 @@ OnnxTensorFormatter.prototype.read = function(dimension) {
 function OnnxOperatorService(hostService) {
     var self = this;
     self.map = {};
-    hostService.getResource('onnx-operator.json', function(err, data) {
+    hostService.request('/onnx-operator.json', function(err, data) {
         if (err != null) {
             // TODO error
         }

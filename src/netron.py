@@ -46,12 +46,12 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             if pathname == '/':
                 with codecs.open(location + 'view-browser.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
-                buffer = buffer.replace('{{{title}}}', self.model.file)
+                buffer = buffer.replace('{{{title}}}', self.data.file)
                 headers['Content-Type'] = 'text/html'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
-            elif pathname == '/model':
-                buffer = self.model.data
+            elif pathname == '/data':
+                buffer = self.data.data
                 headers['Content-Type'] = 'text/plain'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
@@ -88,8 +88,8 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
 class MyHTTPServer(HTTPServer):
-    def serve_forever(self, model, verbose):
-        self.RequestHandlerClass.model = model
+    def serve_forever(self, data, verbose):
+        self.RequestHandlerClass.data = data
         self.RequestHandlerClass.verbose = verbose
         HTTPServer.serve_forever(self)
 

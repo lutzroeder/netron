@@ -22,7 +22,7 @@ ElectronHostService.prototype.showError = function(message) {
     electron.remote.dialog.showErrorBox(electron.remote.app.getName(), message);
 }
 
-ElectronHostService.prototype.getResource = function(file, callback) {
+ElectronHostService.prototype.request = function(file, callback) {
     var file = path.join(__dirname, file);
     if (fs.existsSync(file)) {
         var data = fs.readFileSync(file);
