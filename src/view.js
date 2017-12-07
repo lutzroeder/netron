@@ -100,7 +100,7 @@ function renderModel(model) {
                 var initializer = initializerMap[inputId];
                 if (initializer) {
                     formatter.addItem(input['name'], 'node-item-constant', initializer['type'], function() { 
-                        showTensor(model, initializerMap[input['id']]);
+                        showTensor(model, initializer);
                     });
                 }
                 else {
@@ -237,6 +237,8 @@ function renderModel(model) {
             // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
             svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
         
+            var svgSize = svgElement.getBoundingClientRect();
+
             var inputElements = svgElement.getElementsByClassName('graph-input');
             if (inputElements && inputElements.length > 0) {
                 // Center view based on input elements
@@ -250,11 +252,11 @@ function renderModel(model) {
                 x = x / inputElements.length;
                 y = y / inputElements.length;
                 zoom.translate([ 
-                    (svgElement.clientWidth / 2) - x,
-                    (svgElement.clientHeight / 4) - y ]).event(svg);
+                    (svgSize.width / 2) - x,
+                    (svgSize.height / 4) - y ]).event(svg);
             }
             else {
-                zoom.translate([ (svg.clientWidth - g.graph().width) / 2, 40 ]).event(svg);
+                zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
             }    
         
             updateView('graph');
