@@ -323,7 +323,7 @@ function Sidebar() {
     };
     this.resizeSidebarHandler = function (e) {
         var contentElement = document.getElementById('sidebar-content');
-        if (sidebarElement && contentElement) {
+        if (contentElement) {
             contentElement.style.height = window.innerHeight - 60;
         }
     };
