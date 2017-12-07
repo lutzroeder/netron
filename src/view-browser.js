@@ -1,13 +1,12 @@
 
 var hostService = new BrowserHostService();
 
-function BrowserHostService()
-{
+function BrowserHostService() {
 }
 
 BrowserHostService.prototype.showError = function(message) {
     alert(message);
-}
+};
 
 BrowserHostService.prototype.request = function(file, callback) {
     var request = new XMLHttpRequest();
@@ -18,13 +17,13 @@ BrowserHostService.prototype.request = function(file, callback) {
         else {
             callback(request.status, null);
         }
-    }
+    };
     request.onerror = function () {
         callback(request.status, null);
-    }
+    };
     request.open('GET', file, true);
     request.send();
-}
+};
 
 BrowserHostService.prototype.initialize = function(callback) {
     var self = this;
@@ -46,10 +45,10 @@ BrowserHostService.prototype.initialize = function(callback) {
         else {
             self.callback(request.status, null);
         }
-    }
+    };
     request.onerror = function () {
         self.callback(request.status, null);
-    }
+    };
     request.open('GET', '/data', true);
     request.send();
-}
+};

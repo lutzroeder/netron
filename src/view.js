@@ -56,7 +56,7 @@ function openBuffer(err, buffer, identifier) {
                     return;
                 }
                 setTimeout(function () {
-                    renderModel(model)
+                    renderModel(model);
                 }, 20);   
             });    
         }, 20);
@@ -73,7 +73,7 @@ function renderModel(model) {
 
     var g = new dagreD3.graphlib.Graph();
     g.setGraph({});
-    g.setDefaultEdgeLabel(() => { return {}; });
+    g.setDefaultEdgeLabel(function() { return {}; });
 
     var nodeId = 0;
     var edgeMap = {};
@@ -82,7 +82,7 @@ function renderModel(model) {
     if (graph) {
         var initializerMap = {};
         model.getGraphInitializers(graph).forEach(function (initializer) {
-            var id = initializer['id'];
+            var id = initializer.id;
             initializerMap[id] = initializer;
         });
 
@@ -91,21 +91,21 @@ function renderModel(model) {
             var formatter = new NodeFormatter();
             var style = (operator != 'Constant' && operator != 'Const') ? 'node-item-operator' : 'node-item-constant';
             formatter.addItem(operator, style, null, function() { 
-                showNodeOperatorDocumentation(model, graph, node)
+                showNodeOperatorDocumentation(model, graph, node);
             });
     
             model.getNodeInputs(graph, node).forEach(function (input)
             {
-                var inputId = input['id'];
+                var inputId = input.id;
                 var initializer = initializerMap[inputId];
                 if (initializer) {
-                    formatter.addItem(input['name'], 'node-item-constant', initializer['type'], function() { 
+                    formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
                         showTensor(model, initializer);
                     });
                 }
                 else {
                     // TODO is there a way to infer the type of the6 input?
-                    formatter.addItem(input['name'], null, input['type'], null);
+                    formatter.addItem(input.name, null, input.type, null);
                     var tuple = edgeMap[inputId];
                     if (!tuple) {
                         tuple = { from: null, to: [] };
@@ -113,14 +113,14 @@ function renderModel(model) {
                     }
                     tuple.to.push({ 
                         node: nodeId, 
-                        name: input['name']
+                        name: input.name
                     });
                 }
             });
     
             model.getNodeOutputs(graph, node).forEach(function (output)
             {
-                var outputId = output['id'];
+                var outputId = output.id;
                 var tuple = edgeMap[outputId];
                 if (!tuple) {
                     tuple = { from: null, to: [] };
@@ -128,7 +128,7 @@ function renderModel(model) {
                 }
                 tuple.from = { 
                     node: nodeId,
-                    name: output['name']
+                    name: output.name
                 };
             });
     
@@ -138,7 +138,7 @@ function renderModel(model) {
                     showNodeProperties(model, node);
                 });
                 properties.forEach(function (property) {
-                    formatter.addProperty(property['name'], property['value_short']());
+                    formatter.addProperty(property.name, property.value_short());
                 });
             }
     
@@ -148,7 +148,7 @@ function renderModel(model) {
                     showNodeAttributes(model, node);
                 });
                 attributes.forEach(function (attribute) {
-                    formatter.addAttribute(attribute['name'], attribute['value_short'](), attribute['type']);
+                    formatter.addAttribute(attribute.name, attribute.value_short(), attribute.type);
                 });
             }
     
@@ -156,8 +156,8 @@ function renderModel(model) {
         });
     
         model.getGraphInputs(graph).forEach(function (input) {
-            var inputId = input['id'];
-            var inputName = input['name'];
+            var inputId = input.id;
+            var inputName = input.name;
             if (!initializerMap[inputId]) {
                 var tuple = edgeMap[inputId];
                 if (!tuple) {
@@ -170,14 +170,14 @@ function renderModel(model) {
                 };
         
                 var formatter = new NodeFormatter();
-                formatter.addItem(input['name'], null, input['type'], null);
+                formatter.addItem(input.name, null, input.type, null);
                 g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input', labelType: 'svg', padding: 0 } ); 
             }
         });
     
         model.getGraphOutputs(graph).forEach(function (output) {
-            var outputId = output['id'];
-            var outputName = output['name'];
+            var outputId = output.id;
+            var outputName = output.name;
             var tuple = edgeMap[outputId];
             if (!tuple) {
                 tuple = { from: null, to: [] };
@@ -189,7 +189,7 @@ function renderModel(model) {
             });
     
             var formatter = new NodeFormatter();
-            formatter.addItem(output['name'], null, output['type'], null);
+            formatter.addItem(output.name, null, output.type, null);
             g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
         });
     
@@ -197,19 +197,19 @@ function renderModel(model) {
             var tuple = edgeMap[edge];
             if (tuple.from != null) {
                 tuple.to.forEach(function (to) {
-                    var text = ''
-                    if (tuple.from['name'] && to['name']) {
-                        text = tuple.from['name'] + ' => ' + to['name'];
+                    var text = '';
+                    if (tuple.from.name && to.name) {
+                        text = tuple.from.name + ' => ' + to.name;
                     }
-                    else if (tuple.from['name']) {
-                        text = tuple.from['name'];
+                    else if (tuple.from.name) {
+                        text = tuple.from.name;
                     }
                     else {
-                        text = to['name'];
+                        text = to.name;
                     }
     
                     g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee' });
-                })
+                });
             }
             else {
                 console.log('?');
@@ -317,16 +317,16 @@ function Sidebar() {
     };
     this.closeSidebarKeyDownHandler = function (e) {
         if (e.keyCode == 27) {
-            e.preventDefault()
+            e.preventDefault();
             self.close();
         }
-    }
+    };
     this.resizeSidebarHandler = function (e) {
         var contentElement = document.getElementById('sidebar-content');
         if (sidebarElement && contentElement) {
             contentElement.style.height = window.innerHeight - 60;
         }
-    }
+    };
  }
 
 Sidebar.prototype.open = function(content, title) {
@@ -341,11 +341,11 @@ Sidebar.prototype.open = function(content, title) {
         closeButtonElement.addEventListener('click', this.closeSidebarHandler);
         closeButtonElement.style.color = '#818181';
         contentElement.style.height = window.innerHeight - 60;
-        contentElement.innerHTML = content
+        contentElement.innerHTML = content;
         contentElement.style.width = '460px';
         sidebarElement.style.width = '500px';
     }
-}
+};
 
 Sidebar.prototype.close = function() {
     var sidebarElement = document.getElementById('sidebar');
@@ -358,7 +358,7 @@ Sidebar.prototype.close = function() {
         closeButtonElement.style.color = '#f8f8f8';
         sidebarElement.style.width = '0';
     }
-}
+};
 
 var sidebar = new Sidebar();
 
@@ -367,41 +367,31 @@ function ModelService(hostService) {
 }
 
 ModelService.prototype.openBuffer = function(buffer, identifier, callback) {
+    var model = null;
+    var err = null;
+
     if (identifier != null && identifier.split('.').pop() == 'tflite')
     {
-        var model = new TensorFlowLiteModel(hostService); 
-        var err = model.openBuffer(buffer, identifier);
-        if (err) {
-            callback(err, null);
-        }
-        else {
-            this.activeModel = model;
-            callback(null, model);
-        }
+        model = new TensorFlowLiteModel(hostService); 
+        err = model.openBuffer(buffer, identifier);
     }
     else if (identifier != null && identifier == 'saved_model.pb') {
-        var model = new TensorFlowModel(hostService);
-        var err = model.openBuffer(buffer, identifier);
-        if (err) {
-            callback(err, null);
-        }
-        else {
-            this.activeModel = model;
-            callback(null, model);
-        }
+        model = new TensorFlowModel(hostService);
+        err = model.openBuffer(buffer, identifier);
     }
     else {
-        var model = new OnnxModel(hostService);
-        var err = model.openBuffer(buffer, identifier);
-        if (err) {
-            callback(err, null);
-        }
-        else {
-            this.activeModel = model;
-            callback(null, model);
-        }
+        model = new OnnxModel(hostService);
+        err = model.openBuffer(buffer, identifier);
     }
-}
+
+    if (err) {
+        callback(err, null);
+    }
+    else {
+        this.activeModel = model;
+        callback(null, model);
+    }
+};
 
 function Int64(data) {
     this.data = data;
@@ -409,7 +399,7 @@ function Int64(data) {
 
 Int64.prototype.toString = function() {
     return this.data;
-}
+};
 
 function Uint64(data) {
     this.data = data;
@@ -417,4 +407,4 @@ function Uint64(data) {
 
 Uint64.prototype.toString = function() {
     return this.data;
-}
+};

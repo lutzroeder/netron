@@ -1,45 +1,51 @@
 
-const electron = require('electron');
-const fs = require('fs');
-const path = require('path');
+var electron = require('electron');
+var fs = require('fs');
+var path = require('path');
 
 var hostService = new ElectronHostService();
 
-function ElectronHostService()
-{
+function ElectronHostService() {
 }
 
 ElectronHostService.prototype.openFile = function(file, drop) {
     var data = {};
-    data['file'] = file;
+    data.file = file;
     if (drop) {
-        data['window'] = electron.remote.getCurrentWindow().id;
+        data.window = electron.remote.getCurrentWindow().id;
     } 
     electron.ipcRenderer.send('open-file', data);
-}
+};
 
 ElectronHostService.prototype.showError = function(message) {
     electron.remote.dialog.showErrorBox(electron.remote.app.getName(), message);
-}
+};
 
 ElectronHostService.prototype.request = function(file, callback) {
-    var file = path.join(__dirname, file);
-    if (fs.existsSync(file)) {
-        var data = fs.readFileSync(file);
-        if (data) {
-            callback(null, data);
-            return;
+    var pathname = path.join(__dirname, file);
+    fs.exists(pathname, function(exists) {
+        if (!exists) {
+            callback('File not found.', null);
         }
-    }
-    // TOOD error
-}
+        else {
+            fs.readFile(pathname, function(err, data) {
+                if (err) {
+                    callback(err, null);
+                }
+                else {
+                    callback(null, data);
+                }
+            });
+        }
+    });
+};
 
 ElectronHostService.prototype.initialize = function(callback) {
     var self = this;
     self.callback = callback;
 
     electron.ipcRenderer.on('open-file', function(event, data) {
-        var file = data['file'];
+        var file = data.file;
         if (file) {
             updateView('clock');
             self.openBuffer(file);
@@ -76,12 +82,15 @@ ElectronHostService.prototype.initialize = function(callback) {
         }
         return false;
     });
-}
+};
 
 ElectronHostService.prototype.openBuffer = function(file) {
     var self = this;
     fs.exists(file, function(exists) {
-        if (exists) {
+        if (!exists) {
+            self.callback('File not found.', null, null);
+        }
+        else {
             fs.stat(file, function(err, stats) {
                 if (err) {
                     self.callback(err, null, null);
@@ -115,4 +124,4 @@ ElectronHostService.prototype.openBuffer = function(file) {
             });
         }
     });
-}
+};

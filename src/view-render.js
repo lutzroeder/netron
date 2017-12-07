@@ -8,35 +8,35 @@ function NodeFormatter(context) {
 NodeFormatter.prototype.addItem = function(content, className, title, handler) {
     var item = {};
     if (content) {
-        item['content'] = content;
+        item.content = content;
     }
     if (className) {
-        item['class'] = className;
+        item.class = className;
     }
     if (title) {
-        item['title'] = title;
+        item.title = title;
     }
     if (handler) {
-        item['handler'] = handler;
+        item.handler = handler;
     }
     this.items.push(item);
 };
 
 NodeFormatter.prototype.addProperty = function(name, value) {
-    this.properties.push({ 'name': name, 'value': value });
-}
+    this.properties.push({ name: name, value: value });
+};
 
 NodeFormatter.prototype.setPropertyHandler = function(handler) {
     this.propertyHandler = handler;
-}
+};
 
 NodeFormatter.prototype.addAttribute = function(name, value, title) {
-    this.attributes.push({ 'name': name, 'value': value, 'title': title });
-}
+    this.attributes.push({ name: name, value: value, title: title });
+};
 
 NodeFormatter.prototype.setAttributeHandler = function(handler) {
     this.attributeHandler = handler;
-}
+};
 
 NodeFormatter.prototype.format = function(context) {
     var self = this;
@@ -47,17 +47,17 @@ NodeFormatter.prototype.format = function(context) {
     var y = 0;
     var maxWidth = 0;
     var itemHeight = 0;
-    var itemBoxes = []
+    var itemBoxes = [];
     self.items.forEach(function (item, index) {
         var yPadding = 4;
         var xPadding = 7;
         var group = root.append('g').classed('node-item', true);
         var path = group.append('path');
         var text = group.append('text');
-        var content = item['content'];
-        var className = item['class']; 
-        var handler = item['handler'];
-        var title = item['title']
+        var content = item.content;
+        var className = item.class; 
+        var handler = item.handler;
+        var title = item.title;
         if (className) {
             group.classed(className, true);
         }
@@ -138,11 +138,11 @@ NodeFormatter.prototype.format = function(context) {
             var yPadding = 1;
             var xPadding = 4;
             var text = group.append('text').attr('xml:space', 'preserve');
-            if (attribute['title']) {
-                text.append('title').text(attribute['title']);
+            if (attribute.title) {
+                text.append('title').text(attribute.title);
             }
             var text_name = text.append('tspan').style('font-weight', 'bold').text(attribute.name);
-            var text_value = text.append('tspan').text(' = ' + attribute.value)
+            var text_value = text.append('tspan').text(' = ' + attribute.value);
             var size = text.node().getBBox();
             var width = xPadding + size.width + xPadding;
             if (maxWidth < width) {
@@ -158,20 +158,20 @@ NodeFormatter.prototype.format = function(context) {
     if (maxWidth > itemWidth) {
         var d = (maxWidth - itemWidth) / self.items.length;
         itemBoxes.forEach(function (itemBox, index) {
-            itemBox['x'] = itemBox['x'] + (index * d);
-            itemBox['width'] = itemBox['width'] + d;
-            itemBox['tx'] = itemBox['tx'] + (0.5 * d);
+            itemBox.x = itemBox.x + (index * d);
+            itemBox.width = itemBox.width + d;
+            itemBox.tx = itemBox.tx + (0.5 * d);
         });
     }
 
     itemBoxes.forEach(function(itemBox, index) {
-        itemBox['group'].attr('transform', 'translate(' + itemBox['x'] + ',' + itemBox['y'] + ')');        
+        itemBox.group.attr('transform', 'translate(' + itemBox.x + ',' + itemBox.y + ')');        
         var r1 = index == 0;
         var r2 = index == itemBoxes.length - 1;
         var r3 = !hasAttributes && !hasProperties && r2;
         var r4 = !hasAttributes && !hasProperties && r1;
-        itemBox['path'].attr('d', self.roundedRect(0, 0, itemBox['width'], itemBox['height'], r1, r2, r3, r4));
-        itemBox['text'].attr('x', itemBox['tx']).attr('y', itemBox['ty']);
+        itemBox.path.attr('d', self.roundedRect(0, 0, itemBox.width, itemBox.height, r1, r2, r3, r4));
+        itemBox.text.attr('x', itemBox.tx).attr('y', itemBox.ty);
     });
 
     if (hasProperties) {
@@ -184,7 +184,7 @@ NodeFormatter.prototype.format = function(context) {
 
     itemBoxes.forEach(function(itemBox, index) {
         if (index != 0) {
-            root.append('line').classed('node', true).attr('x1', itemBox['x']).attr('y1', 0).attr('x2', itemBox['x']).attr('y2', itemHeight);
+            root.append('line').classed('node', true).attr('x1', itemBox.x).attr('y1', 0).attr('x2', itemBox.x).attr('y2', itemHeight);
         }
     });
     if (hasAttributes || hasProperties) {
@@ -202,14 +202,14 @@ NodeFormatter.prototype.roundedRect = function(x, y, width, height, r1, r2, r3, 
     r2 = r2 ? radius : 0;
     r3 = r3 ? radius : 0;
     r4 = r4 ? radius : 0;
-    return "M" + (x + r1) + "," + y
-       + "h" + (width - r1 - r2)
-       + "a" + r2 + "," + r2 + " 0 0 1 " + r2 + "," + r2
-       + "v" + (height - r2 - r3)
-       + "a" + r3 + "," + r3 + " 0 0 1 " + -r3 + "," + r3
-       + "h" + (r3 + r4 - width)
-       + "a" + r4 + "," + r4 + " 0 0 1 " + -r4 + "," + -r4
-       + 'v' + (-height + r4 + r1)
-       + "a" + r1 + "," + r1 + " 0 0 1 " + r1 + "," + -r1
-       + "z";
+    return "M" + (x + r1) + "," + y +
+       "h" + (width - r1 - r2) +
+       "a" + r2 + "," + r2 + " 0 0 1 " + r2 + "," + r2 +
+       "v" + (height - r2 - r3) +
+       "a" + r3 + "," + r3 + " 0 0 1 " + -r3 + "," + r3 +
+       "h" + (r3 + r4 - width) +
+       "a" + r4 + "," + r4 + " 0 0 1 " + -r4 + "," + -r4 +
+       'v' + (-height + r4 + r1) +
+       "a" + r1 + "," + r1 + " 0 0 1 " + r1 + "," + -r1 +
+       "z";
 };
