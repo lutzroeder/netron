@@ -365,6 +365,12 @@ Sidebar.prototype.open = function(content, title, width, margin) {
         contentElement.style.height = window.innerHeight - 60;
         contentElement.innerHTML = content;
         sidebarElement.style.width = width ? width : '500px';    
+        if (width && width.endsWith('%')) {
+            contentElement.style.width = '100%';
+        }
+        else {
+            contentElement.style.width = 'calc(' + sidebarElement.style.width + ' - 40px)';
+        }
     }
 };
 
