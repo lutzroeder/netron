@@ -8,12 +8,20 @@ var modelService = new ModelService(hostService);
 document.documentElement.style.overflow = 'hidden';
 document.body.scroll = 'no';
 
+var navigationButton = document.getElementById('navigation-button');
+if (navigationButton) {
+    navigationButton.addEventListener('click', function(e) {
+        showModelSummary(modelService.getActiveModel());
+    });
+}
+
 function updateView(page) {
 
     var welcomeElement = document.getElementById('welcome');
     var openFileButton = document.getElementById('open-file-button');
     var spinnerElement = document.getElementById('spinner');
-    var propertiesElement = document.getElementById('properties-button');
+    var graphElement = document.getElementById('graph');
+    var navigationElement = document.getElementById('navigation-button');
 
     if (page == 'welcome') {
         document.body.style.cursor = 'default';
@@ -21,23 +29,29 @@ function updateView(page) {
         welcomeElement.offsetHeight;
         openFileButton.style.display = 'block';
         spinnerElement.style.display = 'none';
-        propertiesElement.style.display = 'none';
+        graphElement.style.display = 'none';
+        graphElement.style.opacity = 0;
+        navigationElement.style.display = 'none';
     }
 
-    if (page == 'clock') {
+    if (page == 'spinner') {
         document.body.style.cursor = 'wait';
         welcomeElement.style.display = 'block';
         openFileButton.style.display = 'none';
         spinnerElement.style.display = 'block';
         spinnerElement.offsetHeight;
-        propertiesElement.style.display = 'none';
+        graphElement.style.display = 'block';
+        graphElement.style.opacity = 0;
+        navigationElement.style.display = 'none';
     }
 
     if (page == 'graph') {
         welcomeElement.style.display = 'none';
         openFileButton.style.display = 'none';
         spinnerElement.style.display = 'none';
-        propertiesElement.style.display = 'block';
+        graphElement.style.display = 'block';
+        graphElement.style.opacity = 1;
+        navigationElement.style.display = 'block';
         document.body.style.cursor = 'default';
     }
 }
@@ -56,14 +70,32 @@ function openBuffer(err, buffer, identifier) {
                     return;
                 }
                 setTimeout(function () {
-                    renderModel(model);
+                    updateGraph(model);
                 }, 20);   
             });    
         }, 20);
     }
 }
 
-function renderModel(model) {
+function updateActiveGraph(name) {
+    sidebar.close();
+    var model = modelService.getActiveModel();
+    if (model) {
+        model.updateActiveGraph(name);
+        updateView('spinner');
+        setTimeout(function () {
+            updateGraph(model);
+        }, 250);
+    }
+}
+
+function updateGraph(model) {
+
+    var graph = model.getActiveGraph();
+    if (!graph) {
+        this.updateView('graph');
+        return;
+    }
 
     var svgElement = document.getElementById('graph');
     while (svgElement.lastChild) {
@@ -78,193 +110,183 @@ function renderModel(model) {
     var nodeId = 0;
     var edgeMap = {};
 
-    var graph = model.getGraph(0);
-    if (graph) {
-        var initializerMap = {};
-        model.getGraphInitializers(graph).forEach(function (initializer) {
-            var id = initializer.id;
-            initializerMap[id] = initializer;
+    var initializerMap = {};
+    model.getGraphInitializers(graph).forEach(function (initializer) {
+        var id = initializer.id;
+        initializerMap[id] = initializer;
+    });
+
+    model.getNodes(graph).forEach(function (node) {
+        var operator = model.getNodeOperator(node);
+        var formatter = new NodeFormatter();
+        var style = (operator != 'Constant' && operator != 'Const') ? 'node-item-operator' : 'node-item-constant';
+        formatter.addItem(operator, style, null, function() { 
+            showNodeOperatorDocumentation(model, graph, node);
         });
 
-        model.getNodes(graph).forEach(function (node) {
-            var operator = model.getNodeOperator(node);
-            var formatter = new NodeFormatter();
-            var style = (operator != 'Constant' && operator != 'Const') ? 'node-item-operator' : 'node-item-constant';
-            formatter.addItem(operator, style, null, function() { 
-                showNodeOperatorDocumentation(model, graph, node);
-            });
-    
-            model.getNodeInputs(graph, node).forEach(function (input)
-            {
-                var inputId = input.id;
-                var initializer = initializerMap[inputId];
-                if (initializer) {
-                    formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
-                        showTensor(model, initializer);
-                    });
-                }
-                else {
-                    // TODO is there a way to infer the type of the6 input?
-                    formatter.addItem(input.name, null, input.type, null);
-                    var tuple = edgeMap[inputId];
-                    if (!tuple) {
-                        tuple = { from: null, to: [] };
-                        edgeMap[inputId] = tuple;
-                    }
-                    tuple.to.push({ 
-                        node: nodeId, 
-                        name: input.name
-                    });
-                }
-            });
-    
-            model.getNodeOutputs(graph, node).forEach(function (output)
-            {
-                var outputId = output.id;
-                var tuple = edgeMap[outputId];
-                if (!tuple) {
-                    tuple = { from: null, to: [] };
-                    edgeMap[outputId] = tuple;
-                }
-                tuple.from = { 
-                    node: nodeId,
-                    name: output.name
-                };
-            });
-    
-            var properties = model.formatNodeProperties(node);
-            if (properties) {
-                formatter.setPropertyHandler(function() {
-                    showNodeProperties(model, node);
-                });
-                properties.forEach(function (property) {
-                    formatter.addProperty(property.name, property.value_short());
-                });
-            }
-    
-            var attributes = model.formatNodeAttributes(node);
-            if (attributes) {
-                formatter.setAttributeHandler(function() { 
-                    showNodeAttributes(model, node);
-                });
-                attributes.forEach(function (attribute) {
-                    formatter.addAttribute(attribute.name, attribute.value_short(), attribute.type);
-                });
-            }
-    
-            g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 });
-        });
-    
-        model.getGraphInputs(graph).forEach(function (input) {
+        model.getNodeInputs(graph, node).forEach(function (input)
+        {
             var inputId = input.id;
-            var inputName = input.name;
-            if (!initializerMap[inputId]) {
+            var initializer = initializerMap[inputId];
+            if (initializer) {
+                formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
+                    showTensor(model, initializer);
+                });
+            }
+            else {
+                // TODO is there a way to infer the type of the6 input?
+                formatter.addItem(input.name, null, input.type, null);
                 var tuple = edgeMap[inputId];
                 if (!tuple) {
                     tuple = { from: null, to: [] };
                     edgeMap[inputId] = tuple;
                 }
-                tuple.from = { 
-                    node: nodeId,
-                    // name: valueInfo.name
-                };
-        
-                var formatter = new NodeFormatter();
-                formatter.addItem(input.name, null, input.type, null);
-                g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input', labelType: 'svg', padding: 0 } ); 
+                tuple.to.push({ 
+                    node: nodeId, 
+                    name: input.name
+                });
             }
         });
-    
-        model.getGraphOutputs(graph).forEach(function (output) {
+
+        model.getNodeOutputs(graph, node).forEach(function (output)
+        {
             var outputId = output.id;
-            var outputName = output.name;
             var tuple = edgeMap[outputId];
             if (!tuple) {
                 tuple = { from: null, to: [] };
                 edgeMap[outputId] = tuple;
             }
-            tuple.to.push({ 
+            tuple.from = { 
                 node: nodeId,
-                // name: valueInfo.name
-            });
-    
-            var formatter = new NodeFormatter();
-            formatter.addItem(output.name, null, output.type, null);
-            g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
+                name: output.name
+            };
         });
-    
-        Object.keys(edgeMap).forEach(function (edge) {
-            var tuple = edgeMap[edge];
-            if (tuple.from != null) {
-                tuple.to.forEach(function (to) {
-                    var text = '';
-                    if (tuple.from.name && to.name) {
-                        text = tuple.from.name + ' => ' + to.name;
-                    }
-                    else if (tuple.from.name) {
-                        text = tuple.from.name;
-                    }
-                    else {
-                        text = to.name;
-                    }
-    
-                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee' });
-                });
-            }
-            else {
-                console.log('?');
-            }
-    
-            if (tuple.from == null || tuple.to.length == 0) {
-                console.log(edge);
-            }
-        });
-    
-        var inner = svg.append('g');
-    
-        // Set up zoom support
-        var zoom = dagreD3.d3.behavior.zoom().scaleExtent([0.2, 2]).on('zoom', function() {
-            inner.attr('transform', 'translate(' + dagreD3.d3.event.translate + ')' + 'scale(' + dagreD3.d3.event.scale + ')');
-        });
-        svg.call(zoom);
-    
-        setTimeout(function () {
-    
-            var render = new dagreD3.render();
-            render(dagreD3.d3.select('svg g'), g);
-        
-            // Workaround for Safari background drag/zoom issue:
-            // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-            svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
-        
-            var svgSize = svgElement.getBoundingClientRect();
 
-            var inputElements = svgElement.getElementsByClassName('graph-input');
-            if (inputElements && inputElements.length > 0) {
-                // Center view based on input elements
-                var x = 0;
-                var y = 0;
-                for (var i = 0; i < inputElements.length; i++) {
-                    var inputTransform = dagreD3.d3.transform(dagreD3.d3.select(inputElements[i]).attr('transform'));
-                    x += inputTransform.translate[0];
-                    y += inputTransform.translate[1];
+        var properties = model.formatNodeProperties(node);
+        if (properties) {
+            formatter.setPropertyHandler(function() {
+                showNodeProperties(model, node);
+            });
+            properties.forEach(function (property) {
+                formatter.addProperty(property.name, property.value_short());
+            });
+        }
+
+        var attributes = model.formatNodeAttributes(node);
+        if (attributes) {
+            formatter.setAttributeHandler(function() { 
+                showNodeAttributes(model, node);
+            });
+            attributes.forEach(function (attribute) {
+                formatter.addAttribute(attribute.name, attribute.value_short(), attribute.type);
+            });
+        }
+
+        g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 });
+    });
+
+    model.getGraphInputs(graph).forEach(function (input) {
+        var tuple = edgeMap[input.id];
+        if (!tuple) {
+            tuple = { from: null, to: [] };
+            edgeMap[input.id] = tuple;
+        }
+        tuple.from = { 
+            node: nodeId,
+            // name: valueInfo.name
+        };
+
+        var formatter = new NodeFormatter();
+        formatter.addItem(input.name, null, input.type, null);
+        g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input', labelType: 'svg', padding: 0 } ); 
+    });
+
+    model.getGraphOutputs(graph).forEach(function (output) {
+        var outputId = output.id;
+        var outputName = output.name;
+        var tuple = edgeMap[outputId];
+        if (!tuple) {
+            tuple = { from: null, to: [] };
+            edgeMap[outputId] = tuple;
+        }
+        tuple.to.push({ 
+            node: nodeId,
+            // name: valueInfo.name
+        });
+
+        var formatter = new NodeFormatter();
+        formatter.addItem(output.name, null, output.type, null);
+        g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
+    });
+
+    Object.keys(edgeMap).forEach(function (edge) {
+        var tuple = edgeMap[edge];
+        if (tuple.from != null) {
+            tuple.to.forEach(function (to) {
+                var text = '';
+                if (tuple.from.name && to.name) {
+                    text = tuple.from.name + ' => ' + to.name;
                 }
-                x = x / inputElements.length;
-                y = y / inputElements.length;
-                zoom.translate([ 
-                    (svgSize.width / 2) - x,
-                    (svgSize.height / 4) - y ]).event(svg);
+                else if (tuple.from.name) {
+                    text = tuple.from.name;
+                }
+                else {
+                    text = to.name;
+                }
+
+                g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee' });
+            });
+        }
+        else {
+            console.log('?');
+        }
+
+        if (tuple.from == null || tuple.to.length == 0) {
+            console.log(edge);
+        }
+    });
+
+    var inner = svg.append('g');
+
+    // Set up zoom support
+    var zoom = dagreD3.d3.behavior.zoom().scaleExtent([0.2, 2]).on('zoom', function() {
+        inner.attr('transform', 'translate(' + dagreD3.d3.event.translate + ')' + 'scale(' + dagreD3.d3.event.scale + ')');
+    });
+    svg.call(zoom);
+
+    setTimeout(function () {
+
+        var render = new dagreD3.render();
+        render(dagreD3.d3.select('svg g'), g);
+    
+        // Workaround for Safari background drag/zoom issue:
+        // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+        svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
+    
+        var svgSize = svgElement.getBoundingClientRect();
+
+        var inputElements = svgElement.getElementsByClassName('graph-input');
+        if (inputElements && inputElements.length > 0) {
+            // Center view based on input elements
+            var x = 0;
+            var y = 0;
+            for (var i = 0; i < inputElements.length; i++) {
+                var inputTransform = dagreD3.d3.transform(dagreD3.d3.select(inputElements[i]).attr('transform'));
+                x += inputTransform.translate[0];
+                y += inputTransform.translate[1];
             }
-            else {
-                zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
-            }    
-        
-            updateView('graph');
-        }, 20);
-    }
-    else {
+            x = x / inputElements.length;
+            y = y / inputElements.length;
+            zoom.translate([ 
+                (svgSize.width / 2) - x,
+                (svgSize.height / 4) - y ]).event(svg);
+        }
+        else {
+            zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
+        }    
+    
         updateView('graph');
-    }
+    }, 20);
 }
 
 function showNodeOperatorDocumentation(model, graph, node) {
@@ -274,12 +296,12 @@ function showNodeOperatorDocumentation(model, graph, node) {
     }
 }
 
-function showModelProperties(model) {
-    var view = model.formatModelProperties();
+function showModelSummary(model) {
+    var view = model.formatModelSummary();
     if (view) {
-        var template = Handlebars.compile(modelPropertiesTemplate, 'utf-8');
+        var template = Handlebars.compile(summaryTemplate, 'utf-8');
         var data = template(view);
-        sidebar.open(data, 'Model Properties');
+        sidebar.open(data, 'Summary', '100%');
     }
 }
 
@@ -329,7 +351,7 @@ function Sidebar() {
     };
  }
 
-Sidebar.prototype.open = function(content, title) {
+Sidebar.prototype.open = function(content, title, width, margin) {
     var sidebarElement = document.getElementById('sidebar');
     var titleElement = document.getElementById('sidebar-title');
     var contentElement = document.getElementById('sidebar-content');
@@ -342,8 +364,7 @@ Sidebar.prototype.open = function(content, title) {
         closeButtonElement.style.color = '#818181';
         contentElement.style.height = window.innerHeight - 60;
         contentElement.innerHTML = content;
-        contentElement.style.width = '460px';
-        sidebarElement.style.width = '500px';
+        sidebarElement.style.width = width ? width : '500px';    
     }
 };
 
@@ -391,6 +412,10 @@ ModelService.prototype.openBuffer = function(buffer, identifier, callback) {
         this.activeModel = model;
         callback(null, model);
     }
+};
+
+ModelService.prototype.getActiveModel = function() {
+    return this.activeModel;
 };
 
 function Int64(data) {

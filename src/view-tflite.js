@@ -13,6 +13,7 @@ TensorFlowLiteModel.prototype.openBuffer = function(buffer, identifier) {
             throw 'Invalid identifier';
         }
         this.model = tflite.Model.getRootAsModel(byteBuffer);
+        this.activeGraph = this.model.subgraphsLength() > 0 ? this.model.subgraphs(0) : null;
         this.initialize();
     }
     catch (err) {
@@ -46,29 +47,61 @@ TensorFlowLiteModel.prototype.initialize = function() {
     }
 };
 
-TensorFlowLiteModel.prototype.formatModelProperties = function() {
-    
-    var result = { groups: [] };
+TensorFlowLiteModel.prototype.formatModelSummary = function() {
+    var summary = { properties: [], graphs: [] };
 
-    var modelProperties = { name: 'Model', properties: [] };
-    result.groups.push(modelProperties);
+    for (var i = 0; i < this.model.subgraphsLength(); i++) {
+        var graph = this.model.subgraphs(i);
+        var graphName = graph.name() ? graph.name() : ('(' + i.toString() + ')'); 
+        summary.graphs.push({
+            name: graphName,
+            inputs: this.getGraphInputs(graph),
+            outputs: this.getGraphOutputs(graph)
+        });
+    }
 
     var format = 'TensorFlow Lite v' + this.model.version().toString();
-    modelProperties.properties.push({ name: 'Format', value: format });
+    summary.properties.push({ name: 'Format', value: format });
 
     var description = this.model.description();
     if (description && description.length > 0) {
-        modelProperties.properties.push({ name: 'Description', value: description });
+        summary.properties.push({ name: 'Description', value: description });
     }
 
-    return result;
+    return summary;
 };
 
-TensorFlowLiteModel.prototype.getGraph = function(index) {
-    if (index < this.model.subgraphsLength()) {
-        return this.model.subgraphs(0);
+TensorFlowLiteModel.prototype.getActiveGraph = function() {
+    return this.activeGraph;
+};
+
+TensorFlowLiteModel.prototype.updateActiveGraph = function(name) {
+    for (var i = 0; i < this.model.subgraphsLength(); i++) {
+        var graph = this.model.subgraphs(i);
+        var graphName = graph.name() ? graph.name() : ('(' + i.toString() + ')'); 
+        if (name == graphName) {
+            this.activeGraph = graph;
+            return;
+        }
     }
-    return null;
+};
+
+TensorFlowLiteModel.prototype.getGraphs = function() {
+    return this.model.subgraphs;
+};
+
+TensorFlowLiteModel.prototype.getGraphInitializers = function(graph) {
+    var results = [];
+    for (var i = 0; i < graph.tensorsLength(); i++) {
+        var tensor = graph.tensors(i);
+        var buffer = this.model.buffers(tensor.buffer());
+        if (buffer.dataLength() > 0) {
+            tensor = this.formatTensor(tensor, buffer);
+            tensor.id = i.toString();
+            results.push(tensor);
+        }
+    }
+    return results;
 };
 
 TensorFlowLiteModel.prototype.getGraphInputs = function(graph) {
@@ -95,20 +128,6 @@ TensorFlowLiteModel.prototype.getGraphOutputs = function(graph) {
                 name: tensor.name(),
                 type: this.formatTensorType(tensor) 
             });
-    }
-    return results;
-};
-
-TensorFlowLiteModel.prototype.getGraphInitializers = function(graph) {
-    var results = [];
-    for (var i = 0; i < graph.tensorsLength(); i++) {
-        var tensor = graph.tensors(i);
-        var buffer = this.model.buffers(tensor.buffer());
-        if (buffer.dataLength() > 0) {
-            tensor = this.formatTensor(tensor, buffer);
-            tensor.id = i.toString();
-            results.push(tensor);
-        }
     }
     return results;
 };
@@ -405,6 +424,7 @@ TensorFlowLiteTensorFormatter.prototype.read = function(dimension) {
                     break;
                 default:
                     debugger;
+                    break;
             }
         }
     }

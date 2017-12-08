@@ -56,60 +56,6 @@ var itemsTemplate = `
 </div>
 `;
 
-var modelPropertiesTemplate = `
-<style type='text/css'>
-
-.properties {
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    font-size: 12px;
-    line-height: 1.5;
-    margin: 0;
-}
-
-.properties h1 {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.25;
-    padding-top: 5px;
-    padding-left: 0px;
-    padding-right: 0px;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 0.3em;
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-
-.properties table { 
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    font-size: 12px;
-    margin-bottom: 30px;
-    border-spacing: 0;
-}
-
-.properties table td:first-child {
-    font-weight: 600;
-    width: 100px;
-}
-
-</style>
-
-<div class='properties'>
-
-{{#groups}}
-<h1>{{{name}}}</h1>
-<table id='{{{name}}}' class='content'>
-{{#properties}}
-<tr>
-<td>{{{name}}}</td>
-<td>{{{value}}}</td>
-</tr>
-{{/properties}}
-</table>
-{{/groups}}
-
-</div>
-`;
-
 var operatorTemplate = `
 <style type='text/css'>
 
@@ -239,5 +185,120 @@ var operatorTemplate = `
 In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at support level <tt>{{{support_level}}}</tt>.
 </dl>
 
+</div>
+`;
+
+var summaryTemplate = `
+<style type='text/css'>
+.summary {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow: hidden;
+    width: 500;
+    margin: auto;
+}
+
+.summary h1 {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-weight: 600;
+    font-size: 12px;
+    margin: 0;
+    color: #666;
+    letter-spacing: 0.5px;
+    padding: 10px 0px 0px 0px;
+    margin: 20px 0px 0px 0px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+.summary .section {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid none;
+}
+
+.summary .section table code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 10px;
+    background-color: rgba(27, 31, 35, 0.05);
+    padding: 0.2em 0.4em;
+    margin: 0;
+    border-radius: 3px;
+    background-color: #d6d6d6;
+}
+
+.summary .border {
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.summary .section table { 
+    color: #777;
+    float: left;
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-size: 12px;
+    border-spacing: 0;
+    line-height: 150%;
+}
+
+.summary .section table td:first-child {
+    font-weight: 600;
+    width: 75px;
+    vertical-align: top;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+.summary .section table td { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
+</style>
+<div class='summary'>
+<h1>MODEL PROPERTIES</h1>
+<div class='border section'>
+<table>
+{{#properties}}
+<tr><td>{{{name}}}</td><td>{{{value}}}</td></tr>
+{{/properties}}
+</table>
+</div>
+<h1>GRAPHS</h1>
+{{#graphs}}
+<div class='border section'>
+<table>
+{{#if name}}
+<tr><td>Name</td><td>{{{name}}}</td></tr>
+{{/if}}
+<tr>
+{{#if inputs}}
+<td>Inputs</td>
+<td>
+{{#inputs}}
+<code>{{{type}}}</code> : {{{name}}}<br>
+{{/inputs}}
+</td>
+</tr>
+{{/if}}
+{{#if outputs}}
+<tr>
+<td>Outputs</td>
+<td>
+{{#outputs}}
+<code>{{{type}}}</code> : {{{name}}}<br>
+{{/outputs}}
+</td>
+</tr>
+{{/if}}
+{{#if description}}
+<tr><td>{{{name}}}</td><td>{{{value}}}</td></tr>
+{{/if}}
+</table>
+<button style='float: right; width: 80px;' onclick='javascript:updateActiveGraph("{{{name}}}");'>View</button>
+</div>
+{{/graphs}}
 </div>
 `;

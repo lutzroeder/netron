@@ -1,45 +1,37 @@
 
-const onnx = protobuf.roots.onnx.onnx;
+var onnx = protobuf.roots.onnx.onnx;
 
 function OnnxModel(hostService) {
-    this.operatorService = new OnnxOperatorService(hostService);
+    this.operatorMetadata = new OnnxOperatorMetadata(hostService);
 }
 
 OnnxModel.prototype.openBuffer = function(buffer, identifier) { 
     try {
         this.model = onnx.ModelProto.decode(buffer);
+        this.activeGraph = this.model.graph;
     }
     catch (err) {
         return err;
     }
     return null;
-}
+};
 
-OnnxModel.prototype.formatGraphProperties = function(graph) {
-    var result = {};
-    if (graph.name) {
-        result.push({ 'Name': graph.name });
-    }
-    if (graph.docString) { 
-        result.push({ 'Description': graph.docString });
-    }
-    result.push({ 'Inputs': this.getGraphInputs(graph) });
-    result.push({ 'Outputs': this.getGraphInputs(graph) });
-    return result;
-}
+OnnxModel.prototype.formatModelSummary = function() {
+    var summary = { properties: [], graphs: [] };
 
-OnnxModel.prototype.formatModelProperties = function() {
-    
-    var result = { 'groups': [] };
+    var graph = this.model.graph;
 
-    var modelProperties = { 'name': 'Model', 'properties': [] };
-    result['groups'].push(modelProperties);
+    summary.graphs.push({
+        name: graph.name ? graph.name : '(0)',
+        inputs: this.getGraphInputs(graph),
+        outputs: this.getGraphOutputs(graph),
+        description: graph.docString ? graph.docString : ''
+    });
 
-    var format = 'ONNX';
-    if (this.model.irVersion) {
-        format += ' v' + this.model.irVersion;
-    }
-    modelProperties['properties'].push({ 'name': 'Format', 'value': format });
+    summary.properties.push({ 
+        name: 'Format', 
+        value: 'ONNX' + (this.model.irVersion ? (' v' + this.model.irVersion) : '') 
+    });
     var producer = [];
     if (this.model.producerName) {
         producer.push(this.model.producerName);
@@ -48,80 +40,75 @@ OnnxModel.prototype.formatModelProperties = function() {
         producer.push(this.model.producerVersion);
     }
     if (producer.length > 0) {
-        modelProperties['properties'].push({ 'name': 'Producer', 'value': producer.join(' ') });
+        summary.properties.push({ 'name': 'Producer', 'value': producer.join(' ') });
     }
     if (this.model.domain) {
-        modelProperties['properties'].push({ 'name': 'Domain', 'value': this.model.domain });
+        summary.properties.push({ name: 'Domain', value: this.model.domain });
     }
     if (this.model.modelVersion) {
-        modelProperties['properties'].push({ 'name': 'Model Version', 'value': this.model.modelVersion });
+        summary.properties.push({ name: 'Version', value: this.model.modelVersion });
     }
     if (this.model.docString) {
-        modelProperties['properties'].push({ 'name': 'Documentation', 'value': this.model.docString });
-    }
-
-    if (this.model.graph && (this.model.graph.name || this.model.graph.docString)) {
-        var graphProperties = { 'name': 'Graph', 'properties': [] };
-        result['groups'].push(graphProperties);
-        if (this.model.graph.name) {
-            graphProperties['properties'].push({ 'name': 'Name', 'value': this.model.graph.name });            
-        }
-        if (this.model.graph.docString) {
-            graphProperties['properties'].push({ 'name': 'Name', 'value': this.model.graph.docString });            
-        }
+        summary.properties.push({ name: 'Documentation', value: this.model.docString });
     }
 
     if (this.model.metadataProps && this.model.metadataProps.length > 0)
     {
-        var metadataProperties = { 'name': 'Metadata', 'properties': [] };
-        result['groups'].push(metadataProperties);
         debugger;
     }
 
-    return result;
-}
+    return summary;
+};
 
-/*
+OnnxModel.prototype.getActiveGraph = function() {
+    return this.activeGraph;
+};
+
+OnnxModel.prototype.updateActiveGraph = function(name) {
+    this.activeGraph = (name == this.model.graph.name) ? this.model.graph : null;
+};
+
 OnnxModel.prototype.getGraphs = function() {
-
-}
-*/
-
-OnnxModel.prototype.getGraph = function(index) {
-    if (index == 0 && this.model && this.model.graph) {
-        return this.model.graph;
-    }
-    return null;
-}
+    return [ this.model.graph ];
+};
 
 OnnxModel.prototype.getGraphInputs = function(graph) {
     var self = this;
-    return graph.input.map(function (valueInfo) {
-        return {
-            'id': valueInfo.name,
-            'name': valueInfo.name,
-            'type': self.formatType(valueInfo.type)
-        }
+    var initializerMap = {};
+    graph.initializer.forEach(function (tensor) {
+        initializerMap[tensor.name] = true;
     });
-}
+    var results = [];
+    for (var i = 0; i < graph.input.length; i++) {
+        var valueInfo = graph.input[i];
+        if (!initializerMap[valueInfo.name]) {
+            results.push({
+                id: valueInfo.name,
+                name: valueInfo.name,
+                type: self.formatType(valueInfo.type)
+            });
+        }
+    }
+    return results;
+};
 
 OnnxModel.prototype.getGraphOutputs = function(graph) {
     var self = this;
     return graph.output.map(function (valueInfo) {
         return {
-            'id': valueInfo.name,
-            'name': valueInfo.name,
-            'type': self.formatType(valueInfo.type)
-        }
+            id: valueInfo.name,
+            name: valueInfo.name,
+            type: self.formatType(valueInfo.type)
+        };
     });
-}
+};
 
 OnnxModel.prototype.getGraphInitializers = function(graph) {
     var self = this;
     var results = [];
     graph.initializer.forEach(function (tensor) {
         var result = self.formatTensor(tensor);
-        result['id'] = tensor.name;
+        result.id = tensor.name;
         results.push(result);
     });
 /*    graph.node.forEach(function (node) {
@@ -134,20 +121,20 @@ OnnxModel.prototype.getGraphInitializers = function(graph) {
         }
     }); */
     return results;
-}
+};
 
 OnnxModel.prototype.getNodes = function(graph) {
     return graph.node;
     // return graph.node.filter(node => node.opType != 'Constant');
-}
+};
 
 OnnxModel.prototype.getNodeOperator = function(node) {
     return node.opType;    
-}
+};
 
 OnnxModel.prototype.getNodeOperatorDocumentation = function(graph, node) {
-    return this.operatorService.getOperatorDocumentation(node.opType);
-}
+    return this.operatorMetadata.getOperatorDocumentation(node.opType);
+};
 
 OnnxModel.prototype.getNodeInputs = function(graph, node) {
     var self = this;
@@ -155,35 +142,35 @@ OnnxModel.prototype.getNodeInputs = function(graph, node) {
     node.input.forEach(function (input, index) {
         results.push({
             'id': input,
-            'name': self.operatorService.getInputName(node.opType, index),
+            'name': self.operatorMetadata.getInputName(node.opType, index),
             'type': ""
         });
     });
     return results;
-}
+};
 
 OnnxModel.prototype.getNodeOutputs = function(graph, node) {
     var self = this;
     var results = [];
     node.output.forEach(function (output, index) {
         results.push({
-            'id': output,
-            'name': self.operatorService.getOutputName(node.opType, index),
-            'type': ""
+            id: output,
+            name: self.operatorMetadata.getOutputName(node.opType, index),
+            type: ""
         });
     });
     return results;
-}
+};
 
 OnnxModel.prototype.formatNodeProperties = function(node) {
     var result = null;
     if (node.name || node.docString || node.domain) {
         result = [];
         if (node.name) {
-            result.push({ 'name': 'name', 'value': node.name, 'value_short': function() { return node.name; } });
+            result.push({ name: 'name', value: node.name, value_short: function() { return node.name; } });
         }
         if (node.docString) {
-            result.push({ 'name': 'doc', 'value': node.docString, 'value_short': function() {
+            result.push({ name: 'doc', value: node.docString, value_short: function() {
                 var value = node.docString;
                 if (value.length > 50) {
                     return value.substring(0, 25) + '...';
@@ -192,11 +179,11 @@ OnnxModel.prototype.formatNodeProperties = function(node) {
             } });
         }
         if (node.domain) {
-            result.push({ 'name': 'domain', 'value': node.domain, 'value_short': function() { return node.domain } });
+            result.push({ name: 'domain', value: node.domain, value_short: function() { return node.domain; } });
         }        
     }
     return result;
-}
+};
 
 OnnxModel.prototype.formatNodeAttributes = function(node) {
     var self = this;
@@ -208,7 +195,7 @@ OnnxModel.prototype.formatNodeAttributes = function(node) {
         });
     }
     return result;
-}
+};
 
 OnnxModel.prototype.formatNodeAttribute = function(attribute) {
 
@@ -232,8 +219,8 @@ OnnxModel.prototype.formatNodeAttribute = function(attribute) {
             if (attribute.ints.length > 65536) {
                 return "Too large to render.";
             }
-            return attribute.ints.map(v => v.toString()).join(', ');
-        }
+            return attribute.ints.map(function(v) { return v.toString(); }).join(', '); 
+        };
     }
     else if (attribute.floats && attribute.floats.length > 0) {
         callback = function () {
@@ -241,7 +228,7 @@ OnnxModel.prototype.formatNodeAttribute = function(attribute) {
                 return "Too large to render.";
             }
             return attribute.floats.map(v => v.toString()).join(', ');
-        }
+        };
     }
     else if (attribute.strings && attribute.strings.length > 0) {
         callback = function () { 
@@ -254,7 +241,7 @@ OnnxModel.prototype.formatNodeAttribute = function(attribute) {
                 }
                 return s.map(v => v.toString()).join(', ');    
             }).join(', ');
-        }
+        };
     }
     else if (attribute.s && attribute.s.length > 0) {
         callback = function () { 
@@ -262,38 +249,38 @@ OnnxModel.prototype.formatNodeAttribute = function(attribute) {
                 return '"' + String.fromCharCode.apply(null, attribute.s) + '"';
             }
             return attribute.s.map(v => v.toString()).join(', ');           
-        }
+        };
     }
     else if (attribute.hasOwnProperty('f')) {
         callback = function () { 
             return attribute.f.toString();
-        }
+        };
     }
     else if (attribute.hasOwnProperty('i')) {
         callback = function() {
             return attribute.i.toString();
-        }
+        };
     }
     else if (attribute.hasOwnProperty('t')) {
         tensor = true;
         callback = function() {
             return new OnnxTensorFormatter(attribute.t).toString();
-        }
+        };
     }
     else {
         debugger;
         callback = function() {
             return "?";
-        }
+        };
     }
 
     var result = {};
-    result['name'] = attribute.name;
+    result.name = attribute.name;
     if (type) {
-        result['type'] = type;
+        result.type = type;
     }
-    result['value'] = callback;
-    result['value_short'] = function() {
+    result.value = callback;
+    result.value_short = function() {
         if (tensor) {
             return "[...]";
         }
@@ -305,11 +292,11 @@ OnnxModel.prototype.formatNodeAttribute = function(attribute) {
         return value;
     };
     if (attribute.docString) {
-        result['doc'] = attribute.docString;
+        result.doc = attribute.docString;
     }
 
     return result;
-}
+};
 
 OnnxModel.prototype.formatTensorType = function(tensor) {
     var result = "";
@@ -320,15 +307,15 @@ OnnxModel.prototype.formatTensorType = function(tensor) {
         }
     }
     return result;
-}
+};
 
 OnnxModel.prototype.formatTensor = function(tensor) {
-    var result = {};
-    result['name'] = tensor.name;
-    result['type'] = this.formatTensorType(tensor);
-    result['value'] = function() { return new OnnxTensorFormatter(tensor).toString(); }
-    return result;
-}
+    return {
+        name: tensor.name,
+        type: this.formatTensorType(tensor),
+        value: function() { return new OnnxTensorFormatter(tensor).toString(); }
+    };
+};
 
 OnnxModel.prototype.formatElementType = function(elementType) {
     if (!this.elementTypeMap) {
@@ -356,7 +343,7 @@ OnnxModel.prototype.formatElementType = function(elementType) {
     }
     debugger;
     return this.elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
-}
+};
 
 OnnxModel.prototype.formatType = function(type) {
     if (type.value == 'tensorType') {
@@ -372,11 +359,11 @@ OnnxModel.prototype.formatType = function(type) {
         return '<' + this.formatElementType(mapType.keyType) + ', ' + this.formatType(mapType.valueType) + '>';
     }
     else if (!type.value) {
-        return '';
+        return '?';
     }
     debugger;
     return '[UNKNOWN]';
-}
+};
 
 function OnnxTensorFormatter(tensor) {
     this.tensor = tensor;
@@ -384,7 +371,7 @@ function OnnxTensorFormatter(tensor) {
 
 OnnxTensorFormatter.prototype.toString = function() { 
     if (!this.tensor.dataType) {
-        return 'Tensor has no data type.'
+        return 'Tensor has no data type.';
     }
 
     if (!this.tensor.dims) {
@@ -396,7 +383,7 @@ OnnxTensorFormatter.prototype.toString = function() {
         size *= dimSize;
     });
     if (size > 65536) {
-        return 'Tensor is too large to display.' 
+        return 'Tensor is too large to display.';
     }
 
     switch (this.tensor.dataType) {
@@ -526,7 +513,7 @@ OnnxTensorFormatter.prototype.read = function(dimension) {
     return results;
 };
 
-function OnnxOperatorService(hostService) {
+function OnnxOperatorMetadata(hostService) {
     var self = this;
     self.map = {};
     hostService.request('/onnx-operator.json', function(err, data) {
@@ -537,10 +524,10 @@ function OnnxOperatorService(hostService) {
             var items = JSON.parse(data);
             if (items) {
                 items.forEach(function (item) {
-                    if (item["name"] && item["schema"])
+                    if (item.name && item.schema)
                     {
-                        var name = item["name"];
-                        var schema = item["schema"];
+                        var name = item.name;
+                        var schema = item.schema;
                         self.map[name] = schema;
                     }
                 });
@@ -549,15 +536,15 @@ function OnnxOperatorService(hostService) {
     });
 }
 
-OnnxOperatorService.prototype.getInputName = function(operator, index) {
+OnnxOperatorMetadata.prototype.getInputName = function(operator, index) {
     var schema = this.map[operator];
     if (schema) {
-        var inputs = schema["inputs"];
+        var inputs = schema.inputs;
         if (inputs && index < inputs.length) {
             var input = inputs[index];
             if (input) {
-                if (!input['option'] || input['option'] != 'variadic') {
-                    var name = input["name"];
+                if (!input.option || input.option != 'variadic') {
+                    var name = input.name;
                     if (name) {
                         return name;
                     }
@@ -566,17 +553,17 @@ OnnxOperatorService.prototype.getInputName = function(operator, index) {
         }
     }
     return "(" + index.toString() + ")";
-}
+};
 
-OnnxOperatorService.prototype.getOutputName = function(operator, index) {
+OnnxOperatorMetadata.prototype.getOutputName = function(operator, index) {
     var schema = this.map[operator];
     if (schema) {
-        var outputs = schema["outputs"];
+        var outputs = schema.outputs;
         if (outputs && index < outputs.length) {
             var output = outputs[index];
             if (output) {
-                if (!output['option'] || output['option'] != 'variadic') {
-                    var name = output["name"];
+                if (!output.option || output.option != 'variadic') {
+                    var name = output.name;
                     if (name) {
                         return name;
                     }
@@ -585,15 +572,15 @@ OnnxOperatorService.prototype.getOutputName = function(operator, index) {
         }
     }
     return "(" + index.toString() + ")";
-}
+};
 
-OnnxOperatorService.prototype.getOperatorDocumentation = function(operator) {
+OnnxOperatorMetadata.prototype.getOperatorDocumentation = function(operator) {
     var schema = this.map[operator];
     if (schema) {
         schema = Object.assign({}, schema);
-        schema['name'] = operator;
-        if (schema['doc']) {
-            var input = schema['doc'].split('\n');
+        schema.name = operator;
+        if (schema.doc) {
+            var input = schema.doc.split('\n');
             var output = [];
             var lines = [];
             var code = true;
@@ -607,40 +594,40 @@ OnnxOperatorService.prototype.getOperatorDocumentation = function(operator) {
                 if (line.length == 0 || input.length == 0) {
                     if (lines.length > 0) {
                         if (code) {
-                            lines = lines.map(text => text.substring(2));
+                            lines = lines.map(function (text) { return text.substring(2); });
                             output.push('<pre>' + lines.join('') + '</pre>');
                         }
                         else {
                             var text = lines.join('');
-                            var text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
-                            var text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
-                            output.push('<p>' + text + '</p>')
+                            text += text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
+                            text += text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
+                            output.push('<p>' + text + '</p>');
                         }
                     }
                     lines = [];
                     code = true;
                 }
             }
-            schema['doc'] = output.join('');
+            schema.doc = output.join('');
         }
-        function formatRange(value) {
+        var formatRange = function (value) {
             return (value == 2147483647) ? '&#8734;' : value.toString();
+        };
+        if (schema.min_input != schema.max_input) {
+            schema.inputs_range = formatRange(schema.min_input) + ' - ' + formatRange(schema.max_input);
         }
-        if (schema['min_input'] != schema['max_input']) {
-            schema['inputs_range'] = formatRange(schema['min_input']) + ' - ' + formatRange(schema['max_input']);
+        if (schema.min_output != schema.max_output) {
+            schema.outputs_range = formatRange(schema.min_output) + ' - ' + formatRange(schema.max_output);
         }
-        if (schema['min_output'] != schema['max_output']) {
-            schema['outputs_range'] = formatRange(schema['min_output']) + ' - ' + formatRange(schema['max_output']);
-        }
-        if (schema['type_constraints']) {
-            schema['type_constraints'].forEach(function (item) {
-                if (item['allowed_type_strs']) {
-                    item['allowed_type_strs_display'] = item['allowed_type_strs'].map(function (type) { return type; }).join(', ');
+        if (schema.type_constraints) {
+            schema.type_constraints.forEach(function (item) {
+                if (item.allowed_type_strs) {
+                    item.allowed_type_strs_display = item.allowed_type_strs.map(function (type) { return type; }).join(', ');
                 }
             });
-            var template = Handlebars.compile(operatorTemplate, 'utf-8');
         }
+        var template = Handlebars.compile(operatorTemplate, 'utf-8');
         return template(schema);
     }
     return "";
-}
+};

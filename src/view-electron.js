@@ -44,10 +44,12 @@ ElectronHostService.prototype.initialize = function(callback) {
     var self = this;
     self.callback = callback;
 
+    updateView('welcome');
+    
     electron.ipcRenderer.on('open-file', function(event, data) {
         var file = data.file;
         if (file) {
-            updateView('clock');
+            updateView('spinner');
             self.openBuffer(file);
         }
     });
@@ -58,13 +60,6 @@ ElectronHostService.prototype.initialize = function(callback) {
         openFileButton.addEventListener('click', function(e) {
             openFileButton.style.opacity = 0;
             electron.ipcRenderer.send('open-file-dialog', {});
-        });
-    }
-
-    var propertiesButton = document.getElementById('properties-button');
-    if (propertiesButton) {
-        propertiesButton.addEventListener('click', function(e) {
-            showModelProperties(modelService.activeModel);
         });
     }
 

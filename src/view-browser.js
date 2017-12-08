@@ -29,13 +29,8 @@ BrowserHostService.prototype.initialize = function(callback) {
     var self = this;
     this.callback = callback;
 
-    var propertiesButton = document.getElementById('properties-button');
-    if (propertiesButton) {
-        propertiesButton.addEventListener('click', function(e) {
-            showModelProperties(modelService.activeModel);
-        });
-    }
-    updateView('clock');
+    updateView('spinner');
+    
     var request = new XMLHttpRequest();
     request.responseType = 'arraybuffer';
     request.onload = function () {

@@ -1,22 +1,22 @@
 
 // Experimental
 
-const tensorflow = protobuf.roots.tf.tensorflow;
+var tensorflow = protobuf.roots.tf.tensorflow;
 
 function TensorFlowModel(hostService) {
-    this.operatorService = null;
     this.metadataMap = {};
 }
 
 TensorFlowModel.prototype.openBuffer = function(buffer, identifier) { 
     try {
         this.model = tensorflow.SavedModel.decode(buffer);
+        this.activeGraph = (this.model.metaGraphs.length > 0) ? this.model.metaGraphs[0] : null;
     }
     catch (err) {
         return err;
     }
     return null;
-}
+};
 
 TensorFlowModel.prototype.getGraphMetadata = function(graph) {
     var graphMetadata = this.metadataMap[graph];
@@ -24,43 +24,55 @@ TensorFlowModel.prototype.getGraphMetadata = function(graph) {
         graphMetadata = new TensorFlowGraphMetadata(graph.metaInfoDef);
     }
     return graphMetadata;
-}
+};
 
-TensorFlowModel.prototype.formatModelProperties = function() {
-    
-    var result = { 'groups': [] };
+TensorFlowModel.prototype.formatModelSummary = function() {
+    var summary = { properties: [], graphs: [] };
 
-    var modelProperties = { 'name': 'Model', 'properties': [] };
-    result['groups'].push(modelProperties);
+    var format = 'TensorFlow Saved Model' + (this.model.savedModelSchemaVersion ? (' v' + this.model.savedModelSchemaVersion.toString()) : '');
+    summary.properties.push({ name: 'Format', value: format });
 
-    var format = 'TensorFlow Saved Model';
-    if (this.model.savedModelSchemaVersion) {
-        format += ' v' + this.model.savedModelSchemaVersion.toString();
+    for (var i = 0; i < this.model.metaGraphs.length; i++) {
+        var graph = this.model.metaGraphs[i];
+        summary.graphs.push({
+            name: graph.anyInfo ? graph.anyInfo.toString() : ('(' + i.toString() + ')')
+        });
     }
-    modelProperties['properties'].push({ 'name': 'Format', 'value': format });
-
     // model.metaGraphs[x].metaInfoDef.tensorflowGitVersion/tensorflowVersion
 
-    return result;
-}
+    // TODO
+    return summary;
+};
 
-TensorFlowModel.prototype.getGraph = function(index) {
-    if (this.model.metaGraphs && index < this.model.metaGraphs.length) {
-        return this.model.metaGraphs[0];
+TensorFlowModel.prototype.getActiveGraph = function() {
+    return this.activeGraph;
+};
+
+TensorFlowModel.prototype.updateActiveGraph = function(name) {
+    for (var i = 0; i < this.model.metaGraphs.length; i++) {
+        var graph = this.model.metaGraphs[i];
+        var graphName = graph.anyInfo ? graph.anyInfo.toString() : ('(' + i.toString() + ')');
+        if (name == graphName) {
+            this.activeGraph = graph;
+            return;            
+        }
     }
-    return null;
-}
+};
+
+TensorFlowModel.prototype.getGraphs = function() {
+    return this.model.metaGraphs;    
+};
 
 TensorFlowModel.prototype.getGraphInputs = function(graph) {
     return [];
-}
+};
 
 TensorFlowModel.prototype.getGraphOutputs = function(graph) {
     return [];
-}
+};
 
 TensorFlowModel.prototype.getGraphInitializers = function(graph) {
-    var results = []
+    var results = [];
     graph.graphDef.node.forEach(function (node) {
         if (node.op == 'Const') {
             results.push({
@@ -71,12 +83,12 @@ TensorFlowModel.prototype.getGraphInitializers = function(graph) {
         }
     });
     return results;
-}
+};
 
 TensorFlowModel.prototype.getNodes = function(graph) {
-   graph.graphDef.node.forEach(function (node) {
-        console.log(node.name + ' [' + (!node.input ? "" : node.input.map(s => s).join(',')) + ']');
-   })
+   // graph.graphDef.node.forEach(function (node) {
+   //     console.log(node.name + ' [' + (!node.input ? "" : node.input.map(s => s).join(',')) + ']');
+   // });
     var result = [];
     graph.graphDef.node.forEach(function (node) {
         if (node.op != 'Const') {
@@ -84,15 +96,15 @@ TensorFlowModel.prototype.getNodes = function(graph) {
         }
     });
     return result;
-}
+};
 
 TensorFlowModel.prototype.getNodeOperator = function(node) {
     return node.op;
-}
+};
 
 TensorFlowModel.prototype.getNodeOperatorDocumentation = function(graph, node) {
     return null;
-}
+};
 
 TensorFlowModel.prototype.getNodeInputs = function(graph, node) {
     var graphMetadata = this.getGraphMetadata(graph);
@@ -111,7 +123,7 @@ TensorFlowModel.prototype.getNodeInputs = function(graph, node) {
         });
     }
     return result;
-}
+};
 
 TensorFlowModel.prototype.getNodeOutputs = function(graph, node) {
     var graphMetadata = this.getGraphMetadata(graph);
@@ -121,7 +133,7 @@ TensorFlowModel.prototype.getNodeOutputs = function(graph, node) {
         'name': graphMetadata ? graphMetadata.getOutputName(node.op, index) : ('(' + index.toString() + ')'),
         'type': ''
     } ];
-}
+};
 
 TensorFlowModel.prototype.formatNodeProperties = function(node) {
     var result = null;
@@ -132,7 +144,7 @@ TensorFlowModel.prototype.formatNodeProperties = function(node) {
         }
     }
     return result;
-}
+};
 
 TensorFlowModel.prototype.formatNodeAttributes = function(node) {
     var self = this;
@@ -149,35 +161,35 @@ TensorFlowModel.prototype.formatNodeAttributes = function(node) {
         });
     }
     return result;
-}
+};
 
 TensorFlowModel.prototype.formatTensorType = function(tensor) {
     var result = "?";
     return result;
-}
+};
 
 TensorFlowModel.prototype.formatTensor = function(tensor) {
     var result = {};
-    result['name'] = tensor.name;
-    result['type'] = this.formatTensorType(tensor);
-    result['value'] = function() {
+    result.name = tensor.name;
+    result.type = this.formatTensorType(tensor);
+    result.value = function() {
         return '?';
     }
     return result;
-}
+};
 
 function TensorFlowGraphMetadata(metaInfoDef) {
     var self = this;
-    self.schemaMap = {}
+    self.schemaMap = {};
     metaInfoDef.strippedOpList.op.forEach(function (opDef) {
         var schema = {};
-        schema['inputs'] = [];
-        schema['outputs'] = [];
+        schema.inputs = [];
+        schema.outputs = [];
         opDef.inputArg.forEach(function (inputArg) {
-            schema['inputs'].push({ 'name': inputArg.name });
+            schema.inputs.push({ name: inputArg.name });
         });
         opDef.outputArg.forEach(function (outputArg) {
-            schema['outputs'].push({ 'name': outputArg.name });
+            schema.outputs.push({ name: outputArg.name });
         });
         self.schemaMap[opDef.name] = schema;
     });
@@ -186,11 +198,11 @@ function TensorFlowGraphMetadata(metaInfoDef) {
 TensorFlowGraphMetadata.prototype.getInputName = function(operator, index) {
     var schema = this.schemaMap[operator];
     if (schema) {
-        var inputs = schema['inputs'];
+        var inputs = schema.inputs;
         if (inputs && index < inputs.length) {
             var input = inputs[index];
             if (input) {
-                var name = input['name'];
+                var name = input.name;
                 if (name) {
                     return name;
                 }
@@ -198,16 +210,16 @@ TensorFlowGraphMetadata.prototype.getInputName = function(operator, index) {
         }
     }
     return '(' + index.toString() + ')';
-}
+};
 
 TensorFlowGraphMetadata.prototype.getOutputName = function(operator, index) {
     var schema = this.schemaMap[operator];
     if (schema) {
-        var outputs = schema['outputs'];
+        var outputs = schema.outputs;
         if (outputs && index < outputs.length) {
             var output = outputs[index];
             if (output) {
-                var name = output['name'];
+                var name = output.name;
                 if (name) {
                     return name;
                 }
@@ -215,4 +227,4 @@ TensorFlowGraphMetadata.prototype.getOutputName = function(operator, index) {
         }
     }
     return '(' + index.toString() + ')';
-}
+};
