@@ -4,6 +4,7 @@ import codecs
 import os
 import platform
 import sys
+import threading
 import webbrowser
 import onnx_ml_pb2
 
@@ -88,10 +89,9 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
 class MyHTTPServer(HTTPServer):
-    def serve_forever(self, data, verbose):
+    def initialize_data(self, data,verbose):
         self.RequestHandlerClass.data = data
         self.RequestHandlerClass.verbose = verbose
-        HTTPServer.serve_forever(self)
 
 class OnnxModel:
     def __init__(self, data, file):
@@ -137,10 +137,15 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
         model.optimize()
     url = 'http://' + host + ':' + str(port)
     print("Serving '" + file + "' at " + url + "...")
-    if browse:
-        webbrowser.open(url);
+    server.initialize_data(model, verbose)
     sys.stdout.flush()
-    server.serve_forever(model, verbose)
+    if browse:
+        threading.Timer(0.5, webbrowser.open, args=(url,)).start()
+    try:
+        server.serve_forever()
+    except (KeyboardInterrupt, SystemExit):
+        print("\nStopping...")
+        server.server_close()
 
 def serve_file(file, verbose=False, browse=False, port=8080, host='localhost', tensor=False):
     print("Reading '" + file + "'...")
