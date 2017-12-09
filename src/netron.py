@@ -75,15 +75,15 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_header(key, headers[key])
         self.end_headers()
         if self.command != 'HEAD':
-            if status_code == 404 and buffer == None:
+            if status_code == 404 and buffer is None:
                 self.wfile.write(str(status_code))
             elif (status_code == 200 or status_code == 404) and buffer != None:
                 self.wfile.write(buffer)
-        return;
+        return
     def do_GET(self):
-        self.handler();
+        self.handler()
     def do_HEAD(self):
-        self.handler();
+        self.handler()
     def log_message(self, format, *args):
         return
 
