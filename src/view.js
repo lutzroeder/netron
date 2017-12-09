@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 debugger;
 // electron.remote.getCurrentWindow().webContents.openDevTools();
@@ -10,7 +11,7 @@ document.body.scroll = 'no';
 
 var navigationButton = document.getElementById('navigation-button');
 if (navigationButton) {
-    navigationButton.addEventListener('click', function(e) {
+    navigationButton.addEventListener('click', (e) => {
         showModelSummary(modelService.getActiveModel());
     });
 }
@@ -310,7 +311,7 @@ function showTensor(model, tensor) {
         var view = { 'items': [ tensor ] };
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template(view);
-        sidebar.open(data, 'Initializer');
+        sidebar.open(data, 'Tensor');
     }
 }
 
@@ -333,17 +334,16 @@ function showNodeAttributes(model, node) {
 }
 
 function Sidebar() {
-    var self = this;
-    this.closeSidebarHandler = function (e) {
-        self.close();
+    this.closeSidebarHandler = (e) => {
+        this.close();
     };
-    this.closeSidebarKeyDownHandler = function (e) {
+    this.closeSidebarKeyDownHandler = (e) => {
         if (e.keyCode == 27) {
             e.preventDefault();
-            self.close();
+            this.close();
         }
     };
-    this.resizeSidebarHandler = function (e) {
+    this.resizeSidebarHandler = (e) => {
         var contentElement = document.getElementById('sidebar-content');
         if (contentElement) {
             contentElement.style.height = window.innerHeight - 60;

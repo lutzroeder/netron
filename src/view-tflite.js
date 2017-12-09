@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 // Experimental
 
@@ -198,7 +199,6 @@ TensorFlowLiteModel.prototype.formatNodeProperties = function(node) {
 };
 
 TensorFlowLiteModel.prototype.formatNodeAttributes = function(node) {
-    var self = this;
     var results = [];
     var operatorName = this.getNodeOperator(node);
     var optionsTypeName = 'tflite.' + operatorName + 'Options';
@@ -207,21 +207,21 @@ TensorFlowLiteModel.prototype.formatNodeAttributes = function(node) {
         var options = eval('new ' + optionsTypeName + '()');
         node.builtinOptions(options);
         var attributeNames = [];
-        Object.keys(options.__proto__).forEach(function (attributeName) {
+        Object.keys(Object.getPrototypeOf(options)).forEach(function (attributeName) {
             if (attributeName != '__init') {
                 attributeNames.push(attributeName);
             }
         });
-        attributeNames.forEach(function (attributeName) {
+        attributeNames.forEach((attributeName) => {
             if (options[attributeName] && typeof options[attributeName] == 'function') {
                 var value = options[attributeName]();
-                value = self.formatAttributeValue(value, attributeName, optionsTypeName);
+                value = this.formatAttributeValue(value, attributeName, optionsTypeName);
                 if (value != null) {
                     results.push({
                         name: attributeName,
                         type: '',
-                        value: function() { return value; }, 
-                        value_short: function() { return value; }
+                        value: () => { return value; }, 
+                        value_short: () => { return value; }
                     });
                 }
             }

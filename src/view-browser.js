@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 var hostService = new BrowserHostService();
 
@@ -26,23 +27,22 @@ BrowserHostService.prototype.request = function(file, callback) {
 };
 
 BrowserHostService.prototype.initialize = function(callback) {
-    var self = this;
     this.callback = callback;
 
     updateView('spinner');
     
     var request = new XMLHttpRequest();
     request.responseType = 'arraybuffer';
-    request.onload = function () {
+    request.onload = () => {
         if (request.status == 200) {
-            self.callback(null, new Uint8Array(request.response), document.title);
+            this.callback(null, new Uint8Array(request.response), document.title);
         }
         else {
-            self.callback(request.status, null);
+            this.callback(request.status, null);
         }
     };
-    request.onerror = function () {
-        self.callback(request.status, null);
+    request.onerror = () => {
+        this.callback(request.status, null);
     };
     request.open('GET', '/data', true);
     request.send();

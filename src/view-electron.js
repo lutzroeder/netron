@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 var electron = require('electron');
 var fs = require('fs');
@@ -23,12 +24,12 @@ ElectronHostService.prototype.showError = function(message) {
 
 ElectronHostService.prototype.request = function(file, callback) {
     var pathname = path.join(__dirname, file);
-    fs.exists(pathname, function(exists) {
+    fs.exists(pathname, (exists) => {
         if (!exists) {
             callback('File not found.', null);
         }
         else {
-            fs.readFile(pathname, function(err, data) {
+            fs.readFile(pathname, (err, data) => {
                 if (err) {
                     callback(err, null);
                 }
@@ -41,23 +42,22 @@ ElectronHostService.prototype.request = function(file, callback) {
 };
 
 ElectronHostService.prototype.initialize = function(callback) {
-    var self = this;
-    self.callback = callback;
+    this.callback = callback;
 
     updateView('welcome');
     
-    electron.ipcRenderer.on('open-file', function(event, data) {
+    electron.ipcRenderer.on('open-file', (event, data) => {
         var file = data.file;
         if (file) {
             updateView('spinner');
-            self.openBuffer(file);
+            this.openBuffer(file);
         }
     });
 
     var openFileButton = document.getElementById('open-file-button');
     if (openFileButton) {
         openFileButton.style.opacity = 1;
-        openFileButton.addEventListener('click', function(e) {
+        openFileButton.addEventListener('click', (e) => {
             openFileButton.style.opacity = 0;
             electron.ipcRenderer.send('open-file-dialog', {});
         });
@@ -73,42 +73,41 @@ ElectronHostService.prototype.initialize = function(callback) {
         e.preventDefault();
         var files = e.dataTransfer.files;
         for (var i = 0; i < files.length; i++) {
-            self.openFile(files[i].path, i == 0);
+            this.openFile(files[i].path, i == 0);
         }
         return false;
     });
 };
 
 ElectronHostService.prototype.openBuffer = function(file) {
-    var self = this;
-    fs.exists(file, function(exists) {
+    fs.exists(file, (exists) => {
         if (!exists) {
-            self.callback('File not found.', null, null);
+            this.callback('File not found.', null, null);
         }
         else {
-            fs.stat(file, function(err, stats) {
+            fs.stat(file, (err, stats) => {
                 if (err) {
-                    self.callback(err, null, null);
+                    this.callback(err, null, null);
                 }
                 else {
                     var size = stats.size;
                     var buffer = new Uint8Array(size);
-                    fs.open(file, 'r', function(err, fd) {
+                    fs.open(file, 'r', (err, fd) => {
                         if (err) {
-                            self.callback(err, null, null);
+                            this.callback(err, null, null);
                         }
                         else {
-                            fs.read(fd, buffer, 0, size, 0, function(err, bytesRead, buffer) {
+                            fs.read(fd, buffer, 0, size, 0, (err, bytesRead, buffer) => {
                                 if (err) {
-                                    self.callback(err, null, null);
+                                    this.callback(err, null, null);
                                 }
                                 else {
                                     fs.close(fd, function(err) {
                                         if (err) {
-                                            self.callback(err, null);
+                                            this.callback(err, null);
                                         }
                                         else {
-                                            self.callback(null, buffer, path.basename(file));
+                                            this.callback(null, buffer, path.basename(file));
                                         }
                                     });
                                 }

@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 var itemsTemplate = `
 <style type='text/css'>

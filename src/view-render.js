@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 
 function NodeFormatter(context) {
     this.items = [];
@@ -39,16 +40,15 @@ NodeFormatter.prototype.setAttributeHandler = function(handler) {
 };
 
 NodeFormatter.prototype.format = function(context) {
-    var self = this;
     var root = context.append('g');
-    var hasProperties = self.properties && self.properties.length > 0;
-    var hasAttributes = self.attributes && self.attributes.length > 0;
+    var hasProperties = this.properties && this.properties.length > 0;
+    var hasAttributes = this.attributes && this.attributes.length > 0;
     var x = 0;
     var y = 0;
     var maxWidth = 0;
     var itemHeight = 0;
     var itemBoxes = [];
-    self.items.forEach(function (item, index) {
+    this.items.forEach((item, index) => {
         var yPadding = 4;
         var xPadding = 7;
         var group = root.append('g').classed('node-item', true);
@@ -97,13 +97,13 @@ NodeFormatter.prototype.format = function(context) {
     var propertiesPath = null;
     if (hasProperties) {
         var group = root.append('g').classed('node-property', true);
-        if (self.propertyHandler) {
-            group.on('click', self.propertyHandler);
+        if (this.propertyHandler) {
+            group.on('click', this.propertyHandler);
         }
         propertiesPath = group.append('path');
         group.attr('transform', 'translate(' + x + ',' + y + ')');
         propertiesHeight += 4;
-        self.properties.forEach(function (property) {
+        this.properties.forEach((property) => {
             var yPadding = 1;
             var xPadding = 4;
             var text = group.append('text').attr('xml:space', 'preserve');
@@ -128,13 +128,13 @@ NodeFormatter.prototype.format = function(context) {
     if (hasAttributes)
     {
         var group = root.append('g').classed('node-attribute', true);
-        if (self.attributeHandler) {
-            group.on('click', self.attributeHandler);
+        if (this.attributeHandler) {
+            group.on('click', this.attributeHandler);
         }
         attributesPath = group.append('path');
         group.attr('transform', 'translate(' + x + ',' + y + ')');
         attributesHeight += hasProperties ? 1 : 4;
-        self.attributes.forEach(function (attribute) {
+        this.attributes.forEach((attribute) => {
             var yPadding = 1;
             var xPadding = 4;
             var text = group.append('text').attr('xml:space', 'preserve');
@@ -156,33 +156,33 @@ NodeFormatter.prototype.format = function(context) {
     }
 
     if (maxWidth > itemWidth) {
-        var d = (maxWidth - itemWidth) / self.items.length;
-        itemBoxes.forEach(function (itemBox, index) {
+        var d = (maxWidth - itemWidth) / this.items.length;
+        itemBoxes.forEach((itemBox, index) => {
             itemBox.x = itemBox.x + (index * d);
             itemBox.width = itemBox.width + d;
             itemBox.tx = itemBox.tx + (0.5 * d);
         });
     }
 
-    itemBoxes.forEach(function(itemBox, index) {
+    itemBoxes.forEach((itemBox, index) => {
         itemBox.group.attr('transform', 'translate(' + itemBox.x + ',' + itemBox.y + ')');        
         var r1 = index == 0;
         var r2 = index == itemBoxes.length - 1;
         var r3 = !hasAttributes && !hasProperties && r2;
         var r4 = !hasAttributes && !hasProperties && r1;
-        itemBox.path.attr('d', self.roundedRect(0, 0, itemBox.width, itemBox.height, r1, r2, r3, r4));
+        itemBox.path.attr('d', this.roundedRect(0, 0, itemBox.width, itemBox.height, r1, r2, r3, r4));
         itemBox.text.attr('x', itemBox.tx).attr('y', itemBox.ty);
     });
 
     if (hasProperties) {
-        propertiesPath.attr('d', self.roundedRect(0, 0, maxWidth, propertiesHeight, false, false, !hasAttributes, !hasAttributes));
+        propertiesPath.attr('d', this.roundedRect(0, 0, maxWidth, propertiesHeight, false, false, !hasAttributes, !hasAttributes));
     }
 
     if (hasAttributes) {
-        attributesPath.attr('d', self.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
+        attributesPath.attr('d', this.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
     }
 
-    itemBoxes.forEach(function(itemBox, index) {
+    itemBoxes.forEach((itemBox, index) => {
         if (index != 0) {
             root.append('line').classed('node', true).attr('x1', itemBox.x).attr('y1', 0).attr('x2', itemBox.x).attr('y2', itemHeight);
         }
@@ -190,7 +190,7 @@ NodeFormatter.prototype.format = function(context) {
     if (hasAttributes || hasProperties) {
         root.append('line').classed('node', true).attr('x1', 0).attr('y1', itemHeight).attr('x2', maxWidth).attr('y2', itemHeight);
     }
-    root.append('path').classed('node', true).attr('d', self.roundedRect(0, 0, maxWidth, itemHeight + propertiesHeight + attributesHeight, true, true, true, true));
+    root.append('path').classed('node', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + propertiesHeight + attributesHeight, true, true, true, true));
 
     context.html("");
     return root;

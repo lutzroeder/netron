@@ -52,7 +52,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                 status_code = 200
             elif pathname == '/data':
                 buffer = self.data.data
-                headers['Content-Type'] = 'text/plain'
+                headers['Content-Type'] = 'application/octet-stream'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
             else:

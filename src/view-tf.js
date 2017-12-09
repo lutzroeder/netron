@@ -103,6 +103,10 @@ TensorFlowModel.prototype.getNodeOperator = function(node) {
 };
 
 TensorFlowModel.prototype.getNodeOperatorDocumentation = function(graph, node) {
+    var graphMetadata = this.getGraphMetadata(graph);
+    if (graphMetadata) {
+        return graphMetadata.getOperatorDocumentation(node.op);       
+    }
     return null;
 };
 
@@ -151,13 +155,15 @@ TensorFlowModel.prototype.formatNodeAttributes = function(node) {
     var result = [];
     if (node.attr) {
         Object.keys(node.attr).forEach(function (name) {
-            var value = node.attr[name];
-            result.push({ 
-                'name': name,
-                'type': '',
-                'value': function() { return '...'; }, 
-                'value_short': function() { return '...'; }
-            });
+            if (name != '_output_shapes') {
+                var value = node.attr[name];
+                result.push({ 
+                    'name': name,
+                    'type': '',
+                    'value': function() { return '...'; }, 
+                    'value_short': function() { return '...'; }
+                });    
+            }
         });
     }
     return result;
@@ -174,7 +180,7 @@ TensorFlowModel.prototype.formatTensor = function(tensor) {
     result.type = this.formatTensorType(tensor);
     result.value = function() {
         return '?';
-    }
+    };
     return result;
 };
 
@@ -182,14 +188,15 @@ function TensorFlowGraphMetadata(metaInfoDef) {
     var self = this;
     self.schemaMap = {};
     metaInfoDef.strippedOpList.op.forEach(function (opDef) {
-        var schema = {};
-        schema.inputs = [];
-        schema.outputs = [];
+        var schema = { inputs: [], outputs: [], attributes: [] };
         opDef.inputArg.forEach(function (inputArg) {
-            schema.inputs.push({ name: inputArg.name });
+            schema.inputs.push({ name: inputArg.name, typeStr: inputArg.typeAttr });
         });
         opDef.outputArg.forEach(function (outputArg) {
-            schema.outputs.push({ name: outputArg.name });
+            schema.outputs.push({ name: outputArg.name, typeStr: outputArg.typeAttr });
+        });
+        opDef.attr.forEach(function (attr) {
+            schema.attributes.push({ name: attr.name, type: attr.type });
         });
         self.schemaMap[opDef.name] = schema;
     });
@@ -227,4 +234,13 @@ TensorFlowGraphMetadata.prototype.getOutputName = function(operator, index) {
         }
     }
     return '(' + index.toString() + ')';
+};
+
+TensorFlowGraphMetadata.prototype.getOperatorDocumentation = function(operator) {
+    var schema = this.schemaMap[operator];
+    if (schema) {
+        var template = Handlebars.compile(operatorTemplate, 'utf-8');
+        return template(schema);
+    }
+    return null;
 };
