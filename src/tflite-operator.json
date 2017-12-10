@@ -1,0 +1,119 @@
+[
+  {
+    "name": "Conv2D",
+    "schema": {
+      "inputs": [
+        { "name": "X", "typeStr": "T" },
+        { "name": "weights", "typeStr": "T" },
+        { "name": "bias", "typeStr": "T" }
+      ],
+      "outputs": [
+        { "name": "Y", "typeStr": "T" }
+      ]
+    }
+  },
+  {
+    "name": "DepthwiseConv2D",
+    "schema": {
+      "inputs": [
+        { "name": "X", "typeStr": "T" },
+        { "name": "weights", "typeStr": "T" },
+        { "name": "bias", "typeStr": "T" }
+      ],
+      "outputs": [
+        { "name": "Y", "typeStr": "T" }
+      ]
+    }
+  },
+  {
+    "name": "AveragePool2D",
+    "schema": {
+      "inputs": [
+        { "name": "X", "typeStr": "T" }
+      ],
+      "outputs": [
+        { "name": "Y", "typeStr": "T" }
+      ]
+    }
+  },
+  {
+    "name": "Softmax",
+    "schema": {
+      "inputs": [
+        { "name": "input", "typeStr": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "typeStr": "T" }
+      ]
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "outputs": [
+        { "name": "reshaped", "typeStr": "T" }
+      ]
+    }
+  },
+  {
+    "name": "MaxPool2D",
+    "schema": {
+      "inputs": [
+        { "name": "X", "typeStr": "T" }
+      ]
+    }
+  },
+  {
+    "name": "LSHProjection",
+    "schema": {
+      "inputs": [
+        { "name": "hash" },
+        { "name": "input" },
+        { "name": "weight" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Normalize",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Predict",
+    "schema": {
+      "inputs": [
+        { "name": "hashes" },
+        { "name": "keys" },
+        { "name": "labels" },
+        { "name": "weights" }
+      ],
+      "outputs": [
+        { "name": "label" },
+        { "name": "weight" }
+      ]
+    }
+  },
+  {
+    "name": "HashtableLookup",
+    "schema": {
+      "inputs": [
+        { "name": "key" },
+        { "name": "keys" },
+        { "name": "values" }
+      ],
+      "outputs": [
+        { "name": "value" },
+        { "name": "hits" }
+      ]
+    }
+  }
+]

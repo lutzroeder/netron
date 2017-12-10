@@ -5,13 +5,17 @@ var onnx = protobuf.roots.onnx.onnx;
 class OnnxModel {
 
     constructor(hostService) {
-        this.operatorMetadata = new OnnxOperatorMetadata(hostService);
+        this.hostService = hostService;
     }
 
     openBuffer(buffer, identifier) { 
         try {
             this.model = onnx.ModelProto.decode(buffer);
             this.activeGraph = this.model.graph;
+
+            if (!this.operatorMetadata) {
+                this.operatorMetadata = new OnnxOperatorMetadata(this.hostService);
+            }
         }
         catch (err) {
             return err;
@@ -108,23 +112,45 @@ class OnnxModel {
         graph.initializer.forEach((tensor) => {
             var result = this.formatTensor(tensor);
             result.id = tensor.name;
+            result.title = 'Initializer';
             results.push(result);
         });
-    /*    graph.node.forEach((node) => {
-            if (node.opType == 'Constant') {
+        graph.node.forEach((node) => {
+            if (node.opType == 'Constant' && node.output && node.output.length == 1) {
+                var result = null;
                 node.attribute.forEach((attribute) => {
-                    if (attribute.name == 'value') {
-                        result[node.output[0]] = attribute.value;
-                    }
+                    if (attribute.name == 'value' && attribute.t) {
+                        result = this.formatTensor(attribute.t);
+                    }                    
                 });
+                if (result) {
+                    result.id = node.output[0];
+                    if (!result.name) {
+                        result.name = result.id;
+                    }
+                    result.title = 'Constant';
+                    results.push(result);
+                }
             }
-        }); */
+        });
         return results;
     }
 
     getNodes(graph) {
-        return graph.node;
-        // return graph.node.filter(node => node.opType != 'Constant');
+        var results = [];
+        var initializerMap = {}
+        this.getGraphInitializers(graph).forEach((initializer) => {
+            initializerMap[initializer.id] = true;
+        });
+        graph.node.forEach((node) => {
+            if (node.opType == 'Constant' && node.output.length == 1 && initializerMap[node.output[0]]) {
+
+            }
+            else {
+                results.push(node);
+            }
+        });
+        return results;
     }
 
     getNodeOperator(node) {

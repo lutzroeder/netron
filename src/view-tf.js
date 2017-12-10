@@ -12,8 +12,19 @@ class TensorFlowModel {
 
     openBuffer(buffer, identifier) { 
         try {
-            this.model = tensorflow.SavedModel.decode(buffer);
-            this.activeGraph = (this.model.metaGraphs.length > 0) ? this.model.metaGraphs[0] : null;
+            if (identifier == 'saved_model.pb') {
+                this.model = tensorflow.SavedModel.decode(buffer);
+                this.activeGraph = (this.model.metaGraphs.length > 0) ? this.model.metaGraphs[0] : null;
+            }
+            else {
+                var graphDef = tensorflow.GraphDef.decode(buffer);
+                var metaGraph = new tensorflow.MetaGraphDef();
+                metaGraph.graphDef = graphDef;
+                var savedModel = new tensorflow.SavedModel();
+                savedModel.metaGraphs.push(metaGraph);
+                this.model = savedModel;
+                this.activeGraph = metaGraph;
+            }
         }
         catch (err) {
             return err;
@@ -89,9 +100,9 @@ class TensorFlowModel {
     }
 
     getNodes(graph) {
-    // graph.graphDef.node.forEach(function (node) {
-    //     console.log(node.name + ' [' + (!node.input ? "" : node.input.map(s => s).join(',')) + ']');
-    // });
+        // graph.graphDef.node.forEach(function (node) {
+        //     console.log(node.name + ' [' + (!node.input ? "" : node.input.map(s => s).join(',')) + ']');
+        // });
         var result = [];
         graph.graphDef.node.forEach(function (node) {
             if (node.op != 'Const') {
@@ -193,19 +204,21 @@ class TensorFlowGraphMetadata {
     constructor(metaInfoDef) {
         var self = this;
         self.schemaMap = {};
-        metaInfoDef.strippedOpList.op.forEach(function (opDef) {
-            var schema = { inputs: [], outputs: [], attributes: [] };
-            opDef.inputArg.forEach(function (inputArg) {
-                schema.inputs.push({ name: inputArg.name, typeStr: inputArg.typeAttr });
+        if (metaInfoDef && metaInfoDef.strippedOpList && metaInfoDef.strippedOpList.op) {
+            metaInfoDef.strippedOpList.op.forEach(function (opDef) {
+                var schema = { inputs: [], outputs: [], attributes: [] };
+                opDef.inputArg.forEach(function (inputArg) {
+                    schema.inputs.push({ name: inputArg.name, typeStr: inputArg.typeAttr });
+                });
+                opDef.outputArg.forEach(function (outputArg) {
+                    schema.outputs.push({ name: outputArg.name, typeStr: outputArg.typeAttr });
+                });
+                opDef.attr.forEach(function (attr) {
+                    schema.attributes.push({ name: attr.name, type: attr.type });
+                });
+                self.schemaMap[opDef.name] = schema;
             });
-            opDef.outputArg.forEach(function (outputArg) {
-                schema.outputs.push({ name: outputArg.name, typeStr: outputArg.typeAttr });
-            });
-            opDef.attr.forEach(function (attr) {
-                schema.attributes.push({ name: attr.name, type: attr.type });
-            });
-            self.schemaMap[opDef.name] = schema;
-        });
+        }
     }
 
     getInputName(operator, index) {

@@ -311,7 +311,7 @@ function showTensor(model, tensor) {
         var view = { 'items': [ tensor ] };
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
         var data = template(view);
-        sidebar.open(data, 'Tensor');
+        sidebar.open(data, tensor.title ? tensor.title : 'Tensor');
     }
 }
 
@@ -397,7 +397,9 @@ ModelService.prototype.openBuffer = function(buffer, identifier, callback) {
     var model = null;
     var err = null;
 
-    if (identifier != null && identifier.split('.').pop() == 'tflite')
+    var extension = identifier.split('.').pop();
+
+    if (identifier != null && extension == 'tflite')
     {
         model = new TensorFlowLiteModel(hostService); 
         err = model.openBuffer(buffer, identifier);
@@ -406,9 +408,17 @@ ModelService.prototype.openBuffer = function(buffer, identifier, callback) {
         model = new TensorFlowModel(hostService);
         err = model.openBuffer(buffer, identifier);
     }
-    else {
+    else if (extension == 'onnx') {
         model = new OnnxModel(hostService);
         err = model.openBuffer(buffer, identifier);
+    }
+    else if (extension == 'pb') {
+        model = new OnnxModel(hostService);
+        err = model.openBuffer(buffer, identifier);
+        if (err) {
+            model = new TensorFlowModel(hostService);
+            err = model.openBuffer(buffer, identifier);
+        }
     }
 
     if (err) {

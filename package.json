@@ -41,15 +41,13 @@
         "fileAssociations": [
             {
                 "ext": [
-                    "saved_model.pb",
-                    "saved_model.pbtxt"
+                    "saved_model.pb"
                 ],
                 "name": "TensorFlow Saved Model"
             },
             {
                 "ext": [
                     "pb",
-                    "pbtxt",
                     "onnx"
                 ],
                 "name": "ONNX Model"

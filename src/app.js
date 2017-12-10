@@ -29,7 +29,7 @@ if (quit) {
 
 function openFileDialog() {
     var showOpenDialogOptions = { 
-        properties: [ 'openFile'], 
+        properties: [ 'openFile' ], 
         filters: [
             { name: 'ONNX Model', extensions: [ 'onnx', 'pb' ] },
             { name: 'TensorFlow Saved Model', extensions: [ 'saved_model.pb' ] },

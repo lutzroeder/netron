@@ -4,9 +4,8 @@
 
 class TensorFlowLiteModel {
     
-    
     constructor(hostService) {
-        this.operatorService = null;
+        this.operatorMetadata = new TensorFlowLiteOperatorMetadata(hostService);
     }
 
     openBuffer(buffer, identifier) { 
@@ -174,9 +173,10 @@ class TensorFlowLiteModel {
         for (var i = 0; i < node.inputsLength(); i++) {
             var tensorIndex = node.inputs(i);
             var tensor = graph.tensors(tensorIndex);
+            var operator = this.getNodeOperator(node);
             result.push({
                 id: tensorIndex.toString(),
-                name: '(' + i.toString() + ')',
+                name: this.operatorMetadata.getInputName(operator, i),
                 type: this.formatTensorType(tensor)
             });
         }
@@ -188,9 +188,10 @@ class TensorFlowLiteModel {
         for (var i = 0; i < node.outputsLength(); i++) {
             var tensorIndex = node.outputs(i);
             var tensor = graph.tensors(tensorIndex);
+            var operator = this.getNodeOperator(node);
             result.push({
                 id: tensorIndex.toString(),
-                name: '(' + i.toString() + ')',
+                name: this.operatorMetadata.getOutputName(operator, i),
                 type: this.formatTensorType(tensor)
             });
         }
@@ -452,5 +453,67 @@ class TensorFlowLiteTensorFormatter {
             return f ? NaN : ((s ? -1 : 1) * Infinity);
         }
         return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+    }
+}
+
+class TensorFlowLiteOperatorMetadata {
+    constructor() {
+        this.map = {};
+        hostService.request('/tflite-operator.json', (err, data) => {
+            if (err != null) {
+                // TODO error
+            }
+            else {
+                var items = JSON.parse(data);
+                if (items) {
+                    items.forEach((item) => {
+                        if (item.name && item.schema)
+                        {
+                            var name = item.name;
+                            var schema = item.schema;
+                            this.map[name] = schema;
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    getInputName(operator, index) {
+        var schema = this.map[operator];
+        if (schema) {
+            var inputs = schema.inputs;
+            if (inputs && index < inputs.length) {
+                var input = inputs[index];
+                if (input) {
+                    if (!input.option || input.option != 'variadic') {
+                        var name = input.name;
+                        if (name) {
+                            return name;
+                        }
+                    }
+                } 
+            }
+        }
+        return "(" + index.toString() + ")";
+    }
+
+    getOutputName(operator, index) {
+        var schema = this.map[operator];
+        if (schema) {
+            var outputs = schema.outputs;
+            if (outputs && index < outputs.length) {
+                var output = outputs[index];
+                if (output) {
+                    if (!output.option || output.option != 'variadic') {
+                        var name = output.name;
+                        if (name) {
+                            return name;
+                        }
+                    }
+                } 
+            }
+        }
+        return "(" + index.toString() + ")";
     }
 }
