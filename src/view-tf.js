@@ -15,15 +15,21 @@ class TensorFlowModel {
             if (identifier == 'saved_model.pb') {
                 this.model = tensorflow.SavedModel.decode(buffer);
                 this.activeGraph = (this.model.metaGraphs.length > 0) ? this.model.metaGraphs[0] : null;
+                this.format = 'TensorFlow Saved Model';
+                if (this.model.savedModelSchemaVersion) {
+                    this.format += ' v' + this.model.savedModelSchemaVersion.toString();
+                }
             }
             else {
                 var graphDef = tensorflow.GraphDef.decode(buffer);
                 var metaGraph = new tensorflow.MetaGraphDef();
                 metaGraph.graphDef = graphDef;
+                metaGraph.anyInfo = identifier;
                 var savedModel = new tensorflow.SavedModel();
                 savedModel.metaGraphs.push(metaGraph);
                 this.model = savedModel;
                 this.activeGraph = metaGraph;
+                this.format = 'TensorFlow Graph Defintion';
             }
         }
         catch (err) {
@@ -42,19 +48,25 @@ class TensorFlowModel {
 
     formatModelSummary() {
         var summary = { properties: [], graphs: [] };
-
-        var format = 'TensorFlow Saved Model' + (this.model.savedModelSchemaVersion ? (' v' + this.model.savedModelSchemaVersion.toString()) : '');
-        summary.properties.push({ name: 'Format', value: format });
+        summary.properties.push({ name: 'Format', value: this.format });
 
         for (var i = 0; i < this.model.metaGraphs.length; i++) {
-            var graph = this.model.metaGraphs[i];
-            summary.graphs.push({
-                name: graph.anyInfo ? graph.anyInfo.toString() : ('(' + i.toString() + ')')
-            });
+            var metaGraph = this.model.metaGraphs[i];
+            var result = {};
+            result.name = metaGraph.anyInfo ? metaGraph.anyInfo.toString() : ('(' + i.toString() + ')');
+            if (metaGraph.metaInfoDef) {
+                if (metaGraph.metaInfoDef.tensorflowVersion) {
+                    result.version = 'TensorFlow ' + metaGraph.metaInfoDef.tensorflowVersion;
+                }
+                if (metaGraph.metaInfoDef.tags) {
+                    result.tags = metaGraph.metaInfoDef.tags.join(', ');
+                }
+            }
+            // metaInfoDef.tensorflowGitVersion
+            // TODO signature
+            summary.graphs.push(result);
         }
-        // model.metaGraphs[x].metaInfoDef.tensorflowGitVersion/tensorflowVersion
 
-        // TODO
         return summary;
     }
 

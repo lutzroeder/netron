@@ -274,6 +274,12 @@ var summaryTemplate = `
 {{#if name}}
 <tr><td>Name</td><td>{{{name}}}</td></tr>
 {{/if}}
+{{#if version}}
+<tr><td>Version</td><td>{{{version}}}</td></tr>
+{{/if}}
+{{#if tags}}
+<tr><td>Tags</td><td>{{{tags}}}</td></tr>
+{{/if}}
 <tr>
 {{#if inputs}}
 <td>Inputs</td>
@@ -295,7 +301,7 @@ var summaryTemplate = `
 </tr>
 {{/if}}
 {{#if description}}
-<tr><td>{{{name}}}</td><td>{{{value}}}</td></tr>
+<tr><td>{{{Description}}}</td><td>{{{description}}}</td></tr>
 {{/if}}
 </table>
 <button style='float: right; width: 80px;' onclick='javascript:updateActiveGraph("{{{name}}}");'>View</button>

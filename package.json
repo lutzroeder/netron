@@ -41,16 +41,22 @@
         "fileAssociations": [
             {
                 "ext": [
+                    "onnx",
+                    "pb"
+                ],
+                "name": "ONNX Model"
+            },
+            {
+                "ext": [
                     "saved_model.pb"
                 ],
                 "name": "TensorFlow Saved Model"
             },
             {
                 "ext": [
-                    "pb",
-                    "onnx"
+                    "pb"
                 ],
-                "name": "ONNX Model"
+                "name": "TensorFlow Graph Definition"
             },
             {
                 "ext": [
