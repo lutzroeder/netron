@@ -23,6 +23,7 @@ body {
     margin: 0;
     font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
     font-size: 12px;
+    text-rendering: geometricPrecision;
 }
 
 button {
@@ -185,4 +186,5 @@ button:hover {
     display: block;
     position: absolute;
     background-color: #fff;
+    text-rendering: geometricPrecision
 }
