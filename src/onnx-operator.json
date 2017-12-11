@@ -596,7 +596,7 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "The input 4-dimensional tensor of shape NCHW or NHWC depending on the order parameter.",
+          "description": "The input 4-dimensional tensor of shape NCHW.",
           "name": "X",
           "option": "",
           "typeStr": "T",
