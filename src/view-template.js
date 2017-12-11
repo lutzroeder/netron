@@ -48,6 +48,9 @@ var itemsTemplate = `
 {{#items}}
 <div class='item'>    
 <b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
+{{#if quantization}}
+<pre>{{{quantization}}}</pre>
+{{/if}}
 {{#if doc}}
 {{{doc}}}
 {{/if}}
