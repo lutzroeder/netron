@@ -140,7 +140,8 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
     server.initialize_data(model, verbose)
     sys.stdout.flush()
     if browse:
-        threading.Timer(0.5, webbrowser.open, args=(url,)).start()
+        start_browser = lambda: webbrowser.open(url)
+        threading.Thread(target=start_browser).start()
     try:
         server.serve_forever()
     except (KeyboardInterrupt, SystemExit):
