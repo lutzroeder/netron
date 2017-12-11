@@ -12,7 +12,7 @@ document.body.scroll = 'no';
 var navigationButton = document.getElementById('navigation-button');
 if (navigationButton) {
     navigationButton.addEventListener('click', (e) => {
-        showModelSummary(modelService.getActiveModel());
+        showSummary(modelService.activeModel);
     });
 }
 
@@ -92,7 +92,7 @@ function updateActiveGraph(name) {
 
 function updateGraph(model) {
 
-    var graph = model.getActiveGraph();
+    var graph = model.activeGraph;
     if (!graph) {
         this.updateView('graph');
         return;
@@ -112,20 +112,19 @@ function updateGraph(model) {
     var edgeMap = {};
 
     var initializerMap = {};
-    model.getGraphInitializers(graph).forEach(function (initializer) {
+    graph.initializers.forEach(function (initializer) {
         var id = initializer.id;
         initializerMap[id] = initializer;
     });
 
-    model.getNodes(graph).forEach(function (node) {
-        var operator = model.getNodeOperator(node);
+    graph.nodes.forEach(function (node) {
         var formatter = new NodeFormatter();
-        var style = (operator != 'Constant' && operator != 'Const') ? 'node-item-operator' : 'node-item-constant';
-        formatter.addItem(operator, style, null, function() { 
-            showNodeOperatorDocumentation(model, graph, node);
+        var style = (node.operator != 'Constant' && node.operator != 'Const') ? 'node-item-operator' : 'node-item-constant';
+        formatter.addItem(node.operator, style, null, function() { 
+            showNodeOperatorDocumentation(node);
         });
 
-        model.getNodeInputs(graph, node).forEach(function (input)
+        node.inputs.forEach(function (input)
         {
             var inputId = input.id;
             var initializer = initializerMap[inputId];
@@ -149,7 +148,7 @@ function updateGraph(model) {
             }
         });
 
-        model.getNodeOutputs(graph, node).forEach(function (output)
+        node.outputs.forEach(function (output)
         {
             var outputId = output.id;
             var tuple = edgeMap[outputId];
@@ -163,22 +162,20 @@ function updateGraph(model) {
             };
         });
 
-        var properties = model.formatNodeProperties(node);
-        if (properties) {
+        if (node.properties) {
             formatter.setPropertyHandler(function() {
-                showNodeProperties(model, node);
+                showNodeProperties(node);
             });
-            properties.forEach(function (property) {
+            node.properties.forEach(function (property) {
                 formatter.addProperty(property.name, property.value_short());
             });
         }
 
-        var attributes = model.formatNodeAttributes(node);
-        if (attributes) {
+        if (node.attributes) {
             formatter.setAttributeHandler(function() { 
-                showNodeAttributes(model, node);
+                showNodeAttributes(node);
             });
-            attributes.forEach(function (attribute) {
+            node.attributes.forEach(function (attribute) {
                 formatter.addAttribute(attribute.name, attribute.value_short(), attribute.type);
             });
         }
@@ -186,7 +183,7 @@ function updateGraph(model) {
         g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 });
     });
 
-    model.getGraphInputs(graph).forEach(function (input) {
+    graph.inputs.forEach(function (input) {
         var tuple = edgeMap[input.id];
         if (!tuple) {
             tuple = { from: null, to: [] };
@@ -202,7 +199,7 @@ function updateGraph(model) {
         g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input', labelType: 'svg', padding: 0 } ); 
     });
 
-    model.getGraphOutputs(graph).forEach(function (output) {
+    graph.outputs.forEach(function (output) {
         var outputId = output.id;
         var outputName = output.name;
         var tuple = edgeMap[outputId];
@@ -290,15 +287,8 @@ function updateGraph(model) {
     }, 20);
 }
 
-function showNodeOperatorDocumentation(model, graph, node) {
-    var documentation = model.getNodeOperatorDocumentation(graph, node);
-    if (documentation) {
-        sidebar.open(documentation, 'Documentation');
-    }
-}
-
-function showModelSummary(model) {
-    var view = model.formatModelSummary();
+function showSummary(model) {
+    var view = model.format();
     if (view) {
         var template = Handlebars.compile(summaryTemplate, 'utf-8');
         var data = template(view);
@@ -315,20 +305,25 @@ function showTensor(model, tensor) {
     }
 }
 
-function showNodeProperties(model, node) {
-    var properties = model.formatNodeProperties(node);
-    if (properties) {
+function showNodeOperatorDocumentation(node) {
+    var documentation = node.documentation;
+    if (documentation) {
+        sidebar.open(documentation, 'Documentation');
+    }
+}
+
+function showNodeProperties(node) {
+    if (node.properties) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
-        var data = template({ 'items': properties });
+        var data = template({ 'items': node.properties });
         sidebar.open(data, 'Node Properties');
     }
 }
 
-function showNodeAttributes(model, node) {
-    var attributes = model.formatNodeAttributes(node);
-    if (attributes) {
+function showNodeAttributes(node) {
+    if (node.attributes) {
         var template = Handlebars.compile(itemsTemplate, 'utf-8');
-        var data = template({ 'items': attributes });
+        var data = template({ 'items': node.attributes });
         sidebar.open(data, 'Node Attributes');
     }
 }

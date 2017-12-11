@@ -10,11 +10,16 @@ class OnnxModel {
 
     openBuffer(buffer, identifier) { 
         try {
-            this.model = onnx.ModelProto.decode(buffer);
-            this.activeGraph = this.model.graph;
 
-            if (!this.operatorMetadata) {
-                this.operatorMetadata = new OnnxOperatorMetadata(this.hostService);
+            this._model = onnx.ModelProto.decode(buffer);
+
+            if (this._model.graph) {
+                this._graph = new OnnxGraph(this, this._model.graph, 0);
+                this._activeGraph = this._graph;
+            }
+
+            if (!this._operatorMetadata) {
+                this._operatorMetadata = new OnnxOperatorMetadata(this.hostService);
             }
         }
         catch (err) {
@@ -23,43 +28,43 @@ class OnnxModel {
         return null;
     }
 
-    formatModelSummary() {
+    format() {
         var summary = { properties: [], graphs: [] };
 
-        var graph = this.model.graph;
-
-        summary.graphs.push({
-            name: graph.name ? graph.name : '(0)',
-            inputs: this.getGraphInputs(graph),
-            outputs: this.getGraphOutputs(graph),
-            description: graph.docString ? graph.docString : ''
+        this.graphs.forEach((graph) => {
+            summary.graphs.push({
+                name: graph.name,
+                inputs: graph.inputs,
+                outputs: graph.outputs,
+                description: graph.description
+            });
         });
 
         summary.properties.push({ 
             name: 'Format', 
-            value: 'ONNX' + (this.model.irVersion ? (' v' + this.model.irVersion) : '') 
+            value: 'ONNX' + (this._model.irVersion ? (' v' + this._model.irVersion) : '') 
         });
         var producer = [];
-        if (this.model.producerName) {
-            producer.push(this.model.producerName);
+        if (this._model.producerName) {
+            producer.push(this._model.producerName);
         }
-        if (this.model.producerVersion && this.model.producerVersion.length > 0) {
-            producer.push(this.model.producerVersion);
+        if (this._model.producerVersion && this._model.producerVersion.length > 0) {
+            producer.push(this._model.producerVersion);
         }
         if (producer.length > 0) {
             summary.properties.push({ 'name': 'Producer', 'value': producer.join(' ') });
         }
-        if (this.model.domain) {
-            summary.properties.push({ name: 'Domain', value: this.model.domain });
+        if (this._model.domain) {
+            summary.properties.push({ name: 'Domain', value: this._model.domain });
         }
-        if (this.model.modelVersion) {
-            summary.properties.push({ name: 'Version', value: this.model.modelVersion });
+        if (this._model.modelVersion) {
+            summary.properties.push({ name: 'Version', value: this._model.modelVersion });
         }
-        if (this.model.docString) {
-            summary.properties.push({ name: 'Documentation', value: this.model.docString });
+        if (this._model.docString) {
+            summary.properties.push({ name: 'Documentation', value: this._model.docString });
         }
 
-        if (this.model.metadataProps && this.model.metadataProps.length > 0)
+        if (this._model.metadataProps && this._model.metadataProps.length > 0)
         {
             debugger;
         }
@@ -67,126 +72,232 @@ class OnnxModel {
         return summary;
     }
 
-    getActiveGraph() {
-        return this.activeGraph;
+    get graphs() {
+        return [ this._graph ];
+    }
+
+    get activeGraph() {
+        return this._activeGraph;
     }
 
     updateActiveGraph(name) {
-        this.activeGraph = (name == this.model.graph.name) ? this.model.graph : null;
+        this._activeGraph = (name == this._graph._graph.name) ? this._graph : null;
+    }
+}
+
+class OnnxGraph {
+
+    constructor(model, graph, index) {
+        this._model = model;
+        this._graph = graph;
+        this._name = this._graph.name ? this._graph.name : ('(' + index.toString() + ')');
     }
 
-    getGraphs() {
-        return [ this.model.graph ];
+    get model() {
+        return this._model;
     }
 
-    getGraphInputs(graph) {
-        var initializerMap = {};
-        graph.initializer.forEach((tensor) => {
-            initializerMap[tensor.name] = true;
-        });
-        var results = [];
-        graph.input.forEach((valueInfo, index) => {
-            if (!initializerMap[valueInfo.name]) {
-                results.push({
+    get name() {
+        return this._name;
+    }
+
+    get description() {
+        return this._graph.docString ? this._graph.docString : '';
+    }
+
+    get inputs() {
+        if (!this._inputs) {
+            this._inputs = [];
+            var initializerMap = {};
+            this._graph.initializer.forEach((tensor) => {
+                initializerMap[tensor.name] = true;
+            });
+            this._graph.input.forEach((valueInfo, index) => {
+                if (!initializerMap[valueInfo.name]) {
+                    this._inputs.push({
+                        id: valueInfo.name,
+                        name: valueInfo.name,
+                        type: this.formatType(valueInfo.type)
+                    });
+                }
+            });
+        }
+        return this._inputs;
+    }
+
+    get outputs() {
+        if (!this._outputs) {
+            this._outputs = this._graph.output.map((valueInfo) => {
+                return {
                     id: valueInfo.name,
                     name: valueInfo.name,
                     type: this.formatType(valueInfo.type)
-                });
-            }
-        });
-        return results;
+                };
+            });
+        }
+        return this._outputs;
     }
 
-    getGraphOutputs(graph) {
-        return graph.output.map((valueInfo) => {
-            return {
-                id: valueInfo.name,
-                name: valueInfo.name,
-                type: this.formatType(valueInfo.type)
-            };
-        });
-    }
-
-    getGraphInitializers(graph) {
-        var results = [];
-        graph.initializer.forEach((tensor) => {
-            var result = this.formatTensor(tensor);
-            result.id = tensor.name;
-            result.title = 'Initializer';
-            results.push(result);
-        });
-        graph.node.forEach((node) => {
-            if (node.opType == 'Constant' && node.output && node.output.length == 1) {
-                var result = null;
-                node.attribute.forEach((attribute) => {
-                    if (attribute.name == 'value' && attribute.t) {
-                        result = this.formatTensor(attribute.t);
-                    }                    
-                });
-                if (result) {
-                    result.id = node.output[0];
-                    if (!result.name) {
-                        result.name = result.id;
+    get initializers() {
+        if (!this._initializers) {
+            this._initializers = [];
+            this._graph.initializer.forEach((tensor) => {
+                var result = this.formatTensor(tensor);
+                result.id = tensor.name;
+                result.title = 'Initializer';
+                this._initializers.push(result);
+            });
+            this._graph.node.forEach((node) => {
+                if (node.opType == 'Constant' && node.output && node.output.length == 1) {
+                    var result = null;
+                    node.attribute.forEach((attribute) => {
+                        if (attribute.name == 'value' && attribute.t) {
+                            result = this.formatTensor(attribute.t);
+                        }                    
+                    });
+                    if (result) {
+                        result.id = node.output[0];
+                        if (!result.name) {
+                            result.name = result.id;
+                        }
+                        result.title = 'Constant';
+                        this._initializers.push(result);
                     }
-                    result.title = 'Constant';
-                    results.push(result);
                 }
-            }
-        });
-        return results;
+            });
+        }
+        return this._initializers;
     }
 
-    getNodes(graph) {
+    get nodes() {
         var results = [];
-        var initializerMap = {}
-        this.getGraphInitializers(graph).forEach((initializer) => {
+        var initializerMap = {};
+        this.initializers.forEach((initializer) => {
             initializerMap[initializer.id] = true;
         });
-        graph.node.forEach((node) => {
+        this._graph.node.forEach((node) => {
             if (node.opType == 'Constant' && node.output.length == 1 && initializerMap[node.output[0]]) {
 
             }
             else {
-                results.push(node);
+                results.push(new OnnxNode(this, node));
             }
         });
         return results;
     }
 
-    getNodeOperator(node) {
-        return node.opType;    
+    formatTensorType(tensor) {
+        var result = "";
+        if (tensor.hasOwnProperty('dataType')) {
+            result = this.formatElementType(tensor.dataType);
+            if (tensor.dims) { 
+                result += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
+            }
+        }
+        return result;
     }
 
-    getNodeOperatorDocumentation(graph, node) {
-        return this.operatorMetadata.getOperatorDocumentation(node.opType);
+    formatTensor(tensor) {
+        return {
+            name: tensor.name,
+            type: this.formatTensorType(tensor),
+            value: () => { return new OnnxTensorFormatter(tensor).toString(); }
+        };
     }
 
-    getNodeInputs(graph, node) {
+    formatElementType(elementType) {
+        if (!this._elementTypeMap) {
+            this._elementTypeMap = { };
+            this._elementTypeMap[onnx.TensorProto.DataType.UNDEFINED] = 'UNDEFINED';
+            this._elementTypeMap[onnx.TensorProto.DataType.FLOAT] = 'float';
+            this._elementTypeMap[onnx.TensorProto.DataType.UINT8] = 'uint8';
+            this._elementTypeMap[onnx.TensorProto.DataType.INT8] = 'int8';
+            this._elementTypeMap[onnx.TensorProto.DataType.UINT16] = 'uint16';
+            this._elementTypeMap[onnx.TensorProto.DataType.INT16] = 'int16';
+            this._elementTypeMap[onnx.TensorProto.DataType.INT32] = 'int32';
+            this._elementTypeMap[onnx.TensorProto.DataType.INT64] = 'int64';
+            this._elementTypeMap[onnx.TensorProto.DataType.STRING] = 'string';
+            this._elementTypeMap[onnx.TensorProto.DataType.BOOL] = 'bool';
+            this._elementTypeMap[onnx.TensorProto.DataType.FLOAT16] = 'float16';
+            this._elementTypeMap[onnx.TensorProto.DataType.DOUBLE] = 'double';
+            this._elementTypeMap[onnx.TensorProto.DataType.UINT32] = 'uint32';
+            this._elementTypeMap[onnx.TensorProto.DataType.UINT64] = 'uint64';
+            this._elementTypeMap[onnx.TensorProto.DataType.COMPLEX64] = 'complex64';
+            this._elementTypeMap[onnx.TensorProto.DataType.COMPLEX128] = 'complex128';    
+        }
+        var name = this._elementTypeMap[elementType];
+        if (name) {
+            return name;
+        }
+        debugger;
+        return this._elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
+    }
+
+    formatType(type) {
+        if (type.value == 'tensorType') {
+            var tensorType = type.tensorType;
+            var text = this.formatElementType(tensorType.elemType); 
+            if (tensorType.shape && tensorType.shape.dim) {
+                text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
+            }
+            return text;
+        }
+        else if (type.value == 'mapType') {
+            var mapType = type.mapType;
+            return '<' + this.formatElementType(mapType.keyType) + ', ' + this.formatType(mapType.valueType) + '>';
+        }
+        else if (!type.value) {
+            return '?';
+        }
+        debugger;
+        return '[UNKNOWN]';
+    }
+}
+
+class OnnxNode {
+
+    constructor(graph, node) {
+        this._graph = graph;
+        this._node = node;
+    }
+
+    get documentation() {
+        return this._graph.model._operatorMetadata.getOperatorDocumentation(this.operator);
+    }
+
+    get operator() {
+        return this._node.opType;
+    }
+
+    get inputs() {
+        var operatorMetadata = this._graph.model._operatorMetadata;
         var results = [];
-        node.input.forEach((input, index) => {
+        this._node.input.forEach((input, index) => {
             results.push({
                 'id': input,
-                'name': this.operatorMetadata.getInputName(node.opType, index),
+                'name': operatorMetadata.getInputName(this.operator, index),
                 'type': ""
             });
         });
         return results;
     }
 
-    getNodeOutputs(graph, node) {
+    get outputs() {
+        var operatorMetadata = this._graph.model._operatorMetadata;
         var results = [];
-        node.output.forEach((output, index) => {
+        this._node.output.forEach((output, index) => {
             results.push({
                 id: output,
-                name: this.operatorMetadata.getOutputName(node.opType, index),
-                type: ""
+                name: operatorMetadata.getOutputName(this.operator, index),
+                type: ''
             });
         });
         return results;
     }
 
-    formatNodeProperties(node) {
+    get properties() {
         var result = null;
+        var node = this._node;
         if (node.name || node.docString || node.domain) {
             result = [];
             if (node.name) {
@@ -208,8 +319,9 @@ class OnnxModel {
         return result;
     }
 
-    formatNodeAttributes(node) {
+    get attributes() {
         var result = null;
+        var node = this._node;
         if (node.attribute && node.attribute.length > 0) {
             result = [];
             node.attribute.forEach((attribute) => { 
@@ -222,7 +334,7 @@ class OnnxModel {
     formatNodeAttribute(attribute) {
         var type = "";
         if (attribute.hasOwnProperty('type')) { 
-            type = this.formatElementType(attribute.type);
+            type = this._graph.formatElementType(attribute.type);
             if ((attribute.ints && attribute.ints.length > 0) ||
                 (attribute.floats && attribute.floats.length > 0) ||
                 (attribute.strings && attribute.strings.length > 0)) {
@@ -230,7 +342,7 @@ class OnnxModel {
             }
         }
         else if (attribute.hasOwnProperty('t')) {
-            type = this.formatTensorType(attribute.t);
+            type = this._graph.formatTensorType(attribute.t);
         }
 
         var tensor = false;
@@ -317,73 +429,6 @@ class OnnxModel {
         }
 
         return result;
-    }
-
-    formatTensorType(tensor) {
-        var result = "";
-        if (tensor.hasOwnProperty('dataType')) {
-            result = this.formatElementType(tensor.dataType);
-            if (tensor.dims) { 
-                result += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
-            }
-        }
-        return result;
-    }
-
-    formatTensor(tensor) {
-        return {
-            name: tensor.name,
-            type: this.formatTensorType(tensor),
-            value: () => { return new OnnxTensorFormatter(tensor).toString(); }
-        };
-    }
-
-    formatElementType(elementType) {
-        if (!this.elementTypeMap) {
-            this.elementTypeMap = { };
-            this.elementTypeMap[onnx.TensorProto.DataType.UNDEFINED] = 'UNDEFINED';
-            this.elementTypeMap[onnx.TensorProto.DataType.FLOAT] = 'float';
-            this.elementTypeMap[onnx.TensorProto.DataType.UINT8] = 'uint8';
-            this.elementTypeMap[onnx.TensorProto.DataType.INT8] = 'int8';
-            this.elementTypeMap[onnx.TensorProto.DataType.UINT16] = 'uint16';
-            this.elementTypeMap[onnx.TensorProto.DataType.INT16] = 'int16';
-            this.elementTypeMap[onnx.TensorProto.DataType.INT32] = 'int32';
-            this.elementTypeMap[onnx.TensorProto.DataType.INT64] = 'int64';
-            this.elementTypeMap[onnx.TensorProto.DataType.STRING] = 'string';
-            this.elementTypeMap[onnx.TensorProto.DataType.BOOL] = 'bool';
-            this.elementTypeMap[onnx.TensorProto.DataType.FLOAT16] = 'float16';
-            this.elementTypeMap[onnx.TensorProto.DataType.DOUBLE] = 'double';
-            this.elementTypeMap[onnx.TensorProto.DataType.UINT32] = 'uint32';
-            this.elementTypeMap[onnx.TensorProto.DataType.UINT64] = 'uint64';
-            this.elementTypeMap[onnx.TensorProto.DataType.COMPLEX64] = 'complex64';
-            this.elementTypeMap[onnx.TensorProto.DataType.COMPLEX128] = 'complex128';    
-        }
-        var name = this.elementTypeMap[elementType];
-        if (name) {
-            return name;
-        }
-        debugger;
-        return this.elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
-    }
-
-    formatType(type) {
-        if (type.value == 'tensorType') {
-            var tensorType = type.tensorType;
-            var text = this.formatElementType(tensorType.elemType); 
-            if (tensorType.shape && tensorType.shape.dim) {
-                text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
-            }
-            return text;
-        }
-        else if (type.value == 'mapType') {
-            var mapType = type.mapType;
-            return '<' + this.formatElementType(mapType.keyType) + ', ' + this.formatType(mapType.valueType) + '>';
-        }
-        else if (!type.value) {
-            return '?';
-        }
-        debugger;
-        return '[UNKNOWN]';
     }
 }
 

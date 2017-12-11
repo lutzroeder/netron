@@ -181,10 +181,12 @@ var operatorTemplate = `
 <pre>{{{code}}}</pre>
 {{/snippets}}
 
+{{#if domain}}{{#if since_version}}{{#if support_level}}
 <h2>Support</h2>
 <dl>
 In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at support level <tt>{{{support_level}}}</tt>.
 </dl>
+{{/if}}{{/if}}{{/if}}
 
 </div>
 `;

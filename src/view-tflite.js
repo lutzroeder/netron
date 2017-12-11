@@ -5,7 +5,7 @@
 class TensorFlowLiteModel {
     
     constructor(hostService) {
-        this.operatorMetadata = new TensorFlowLiteOperatorMetadata(hostService);
+        this._hostService = hostService;
     }
 
     openBuffer(buffer, identifier) { 
@@ -15,9 +15,27 @@ class TensorFlowLiteModel {
             {
                 throw 'Invalid identifier';
             }
-            this.model = tflite.Model.getRootAsModel(byteBuffer);
-            this.activeGraph = this.model.subgraphsLength() > 0 ? this.model.subgraphs(0) : null;
-            this.initialize();
+            this._model = tflite.Model.getRootAsModel(byteBuffer);
+            this._graphs = [];
+            for (var subgraph = 0; subgraph < this._model.subgraphsLength(); subgraph++) {
+                this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), subgraph));
+            }
+            this._activeGraph = this._graphs.length > 0 ? this._graphs[0] : null;
+            this._operatorMetadata = new TensorFlowLiteOperatorMetadata(this._hostService);
+            this._operatorCodeList = [];
+            var builtinOperatorMap = {};
+            Object.keys(tflite.BuiltinOperator).forEach(function (key) {
+                var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
+                var builtinOperatorIndex = tflite.BuiltinOperator[key]; 
+                builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
+                    return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
+                }).join('');
+            });
+            for (var operatorIndex = 0; operatorIndex < this._model.operatorCodesLength(); operatorIndex++) {
+                var operatorCode = this._model.operatorCodes(operatorIndex);
+                var builtinCode = operatorCode.builtinCode();
+                this._operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
+            }
         }
         catch (err) {
             return err;
@@ -25,48 +43,21 @@ class TensorFlowLiteModel {
         return null;
     }
 
-    initialize() {
-        if (!this.model) {
-            return;
-        }
-        var builtinOperatorMap = {};
-        this.operatorCodeList = [];
-        Object.keys(tflite.BuiltinOperator).forEach(function (key) {
-            var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
-            var operatorName = key.split('_').map(function (s) {
-                if (s.length < 1 || upperCase[s]) {
-                    return s;
-                }
-                return s.substring(0, 1) + s.substring(1).toLowerCase();
-            }).join('');
-            builtinOperatorMap[tflite.BuiltinOperator[key]] = operatorName;
-        });
-        for (var i = 0; i < this.model.operatorCodesLength(); i++) {
-            var operatorCode = this.model.operatorCodes(i);
-            var builtinCode = operatorCode.builtinCode();
-            this.operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ?
-                operatorCode.customCode() :
-                builtinOperatorMap[builtinCode]);
-        }
-    }
-
-    formatModelSummary() {
+    format() {
         var summary = { properties: [], graphs: [] };
 
-        for (var i = 0; i < this.model.subgraphsLength(); i++) {
-            var graph = this.model.subgraphs(i);
-            var graphName = graph.name() ? graph.name() : ('(' + i.toString() + ')'); 
+        this.graphs.forEach((graph) => {
             summary.graphs.push({
-                name: graphName,
-                inputs: this.getGraphInputs(graph),
-                outputs: this.getGraphOutputs(graph)
+                name: graph.name,
+                inputs: graph.inputs,
+                outputs: graph.outputs
             });
-        }
+        });
 
-        var format = 'TensorFlow Lite v' + this.model.version().toString();
+        var format = 'TensorFlow Lite v' + this._model.version().toString();
         summary.properties.push({ name: 'Format', value: format });
 
-        var description = this.model.description();
+        var description = this._model.description();
         if (description && description.length > 0) {
             summary.properties.push({ name: 'Description', value: description });
         }
@@ -74,68 +65,94 @@ class TensorFlowLiteModel {
         return summary;
     }
 
-    getActiveGraph() {
-        return this.activeGraph;
+    get graphs() {
+        return this._graphs;
+    }
+
+    get activeGraph() {
+        return this._activeGraph;
     }
 
     updateActiveGraph(name) {
-        for (var i = 0; i < this.model.subgraphsLength(); i++) {
-            var graph = this.model.subgraphs(i);
-            var graphName = graph.name() ? graph.name() : ('(' + i.toString() + ')'); 
-            if (name == graphName) {
-                this.activeGraph = graph;
+        this.graphs.forEach((graph) => {
+            if (name == graph.name) {
+                this._activeGraph = graph;
                 return;
-            }
-        }
+            }            
+        });
+    }
+} 
+
+class TensorFlowLiteGraph {
+
+    constructor(model, graph, index) {
+        this._model = model;
+        this._graph = graph;
+        this._name = this._graph.name() ? this._graph.name() : ('(' + index.toString() + ')');            
     }
 
-    getGraphs() {
-        return this.model.subgraphs;
+    get model() {
+        return this._model;
     }
 
-    getGraphInitializers(graph) {
-        var results = [];
-        for (var i = 0; i < graph.tensorsLength(); i++) {
-            var tensor = graph.tensors(i);
-            var buffer = this.model.buffers(tensor.buffer());
-            if (buffer.dataLength() > 0) {
-                tensor = this.formatTensor(tensor, buffer);
-                tensor.id = i.toString();
-                results.push(tensor);
-            }
-        }
-        return results;
+    get name() {
+        return this._name;
     }
 
-    getGraphInputs(graph) {
-        var results = [];
-        for (var i = 0; i < graph.inputsLength(); i++) {
-            var tensorIndex = graph.inputs(i);
-            var tensor = graph.tensors(tensorIndex);
-            results.push({ 
+    get inputs() {
+        if (!this._inputs) {
+            this._inputs = [];
+            var graph = this._graph;
+            for (var i = 0; i < graph.inputsLength(); i++) {
+                var tensorIndex = graph.inputs(i);
+                var tensor = graph.tensors(tensorIndex);
+                this._inputs.push({ 
                     id: tensorIndex.toString(),
                     name: tensor.name(),
                     type: this.formatTensorType(tensor) 
                 });
+            }
         }
-        return results;
+        return this._inputs;
     }
 
-    getGraphOutputs(graph) {
-        var results = [];
-        for (var i = 0; i < graph.outputsLength(); i++) {
-            var tensorIndex = graph.outputs(i);
-            var tensor = graph.tensors(tensorIndex);
-            results.push({ 
+    get outputs() {
+        if (!this._outputs) {
+            this._outputs = [];
+            var graph = this._graph;
+            for (var i = 0; i < graph.outputsLength(); i++) {
+                var tensorIndex = graph.outputs(i);
+                var tensor = graph.tensors(tensorIndex);
+                this._outputs.push({ 
                     id: tensorIndex.toString(),
                     name: tensor.name(),
                     type: this.formatTensorType(tensor) 
                 });
+            }
         }
-        return results;
+        return this._outputs;
     }
 
-    getNodes(graph) {
+    get initializers() {
+        if (!this._initializers)
+        {
+            this._initializers = [];
+            var graph = this._graph;
+            var model = this._model._model;
+            for (var i = 0; i < graph.tensorsLength(); i++) {
+                var tensor = graph.tensors(i);
+                var buffer = model.buffers(tensor.buffer());
+                if (buffer.dataLength() > 0) {
+                    tensor = this.formatTensor(tensor, buffer);
+                    tensor.id = i.toString();
+                    this._initializers.push(tensor);
+                }
+            }    
+        }
+        return this._initializers;
+    }
+
+    get nodes() {
         /* for (var i = 0; i < graph.operatorsLength(); i++) {
             var node = graph.operators(i);
             var inputs = [];
@@ -149,88 +166,10 @@ class TensorFlowLiteModel {
             console.log(this.getNodeOperator(node) + ' [' + inputs.join(',') + '] -> [' + outputs.join(',') + ']');
         } */
         var results = [];
-        for (var i = 0; i < graph.operatorsLength(); i++) {
-            var node = graph.operators(i);
-            results.push(node);
+        for (var i = 0; i < this._graph.operatorsLength(); i++) {
+            var node = this._graph.operators(i);
+            results.push(new TensorFlowLiteNode(this, node));
         } 
-        return results;
-    }
-
-    getNodeOperator(node) {
-        var opcodeIndex = node.opcodeIndex();
-        if (opcodeIndex < this.operatorCodeList.length) {
-            return this.operatorCodeList[opcodeIndex];
-        }
-        return '(' + opcodeIndex.toString() + ')';
-    }
-
-    getNodeOperatorDocumentation(graph, node) {
-        return null;
-    }
-
-    getNodeInputs(graph, node) {
-        var result = [];
-        for (var i = 0; i < node.inputsLength(); i++) {
-            var tensorIndex = node.inputs(i);
-            var tensor = graph.tensors(tensorIndex);
-            var operator = this.getNodeOperator(node);
-            result.push({
-                id: tensorIndex.toString(),
-                name: this.operatorMetadata.getInputName(operator, i),
-                type: this.formatTensorType(tensor)
-            });
-        }
-        return result;
-    }
-
-    getNodeOutputs(graph, node) {
-        var result = [];
-        for (var i = 0; i < node.outputsLength(); i++) {
-            var tensorIndex = node.outputs(i);
-            var tensor = graph.tensors(tensorIndex);
-            var operator = this.getNodeOperator(node);
-            result.push({
-                id: tensorIndex.toString(),
-                name: this.operatorMetadata.getOutputName(operator, i),
-                type: this.formatTensorType(tensor)
-            });
-        }
-        return result;
-    }
-
-    formatNodeProperties(node) {
-        return [];
-    }
-
-    formatNodeAttributes(node) {
-        var results = [];
-        var operatorName = this.getNodeOperator(node);
-        var optionsTypeName = 'tflite.' + operatorName + 'Options';
-        var optionsType = eval(optionsTypeName);
-        if (typeof optionsType === 'function') {
-            var options = eval('new ' + optionsTypeName + '()');
-            node.builtinOptions(options);
-            var attributeNames = [];
-            Object.keys(Object.getPrototypeOf(options)).forEach(function (attributeName) {
-                if (attributeName != '__init') {
-                    attributeNames.push(attributeName);
-                }
-            });
-            attributeNames.forEach((attributeName) => {
-                if (options[attributeName] && typeof options[attributeName] == 'function') {
-                    var value = options[attributeName]();
-                    value = this.formatAttributeValue(value, attributeName, optionsTypeName);
-                    if (value != null) {
-                        results.push({
-                            name: attributeName,
-                            type: '',
-                            value: () => { return value; }, 
-                            value_short: () => { return value; }
-                        });
-                    }
-                }
-            });
-        }
         return results;
     }
 
@@ -268,54 +207,165 @@ class TensorFlowLiteModel {
         result.value = function () { return new TensorFlowLiteTensorFormatter(tensor, buffer).toString(); };
         return result;
     }
+}
+
+class TensorFlowLiteNode {
+
+    constructor(graph, node) {
+        this._graph = graph;
+        this._node = node;
+    }
+
+    get operator() {
+        if (!this._operator) {
+            var operatorCodeList = this._graph.model._operatorCodeList;
+            var opcodeIndex = this._node.opcodeIndex();
+            this._operator = (opcodeIndex < operatorCodeList.length) ?
+                operatorCodeList[opcodeIndex] :
+                ('(' + opcodeIndex.toString() + ')');
+        }
+        return this._operator;
+    }
+
+    get inputs() {
+        if (!this._inputs) {
+            this._inputs = [];
+            var operatorMetadata = this._graph.model._operatorMetadata;
+            var graph = this._graph._graph;
+            var node = this._node;
+            for (var i = 0; i < node.inputsLength(); i++) {
+                var tensorIndex = node.inputs(i);
+                var tensor = graph.tensors(tensorIndex);
+                this._inputs.push({
+                    id: tensorIndex.toString(),
+                    name: operatorMetadata.getInputName(this.operator, i),
+                    type: this._graph.formatTensorType(tensor)
+                });
+            }
+        }
+        return this._inputs;
+    }
+
+    get outputs() {
+        if (!this._outputs) {
+            this._outputs = [];
+            var operatorMetadata = this._graph.model._operatorMetadata;
+            var graph = this._graph._graph;
+            var node = this._node;
+            var result = [];
+            for (var i = 0; i < node.outputsLength(); i++) {
+                var tensorIndex = node.outputs(i);
+                var tensor = graph.tensors(tensorIndex);
+                this._outputs.push({
+                    id: tensorIndex.toString(),
+                    name: operatorMetadata.getOutputName(this.operator, i),
+                    type: this._graph.formatTensorType(tensor)
+                });
+            }
+        }
+        return this._outputs;
+    }
+
+    get properties() {
+        return [];
+    }
+
+    get attributes() {
+        if (!this._attributes) {
+            this._attributes = [];
+            var node = this._node;
+            var operatorName = this._operator;
+            var optionsTypeName = 'tflite.' + operatorName + 'Options';
+            var optionsType = eval(optionsTypeName);
+            if (typeof optionsType === 'function') {
+                var options = eval('new ' + optionsTypeName + '()');
+                node.builtinOptions(options);
+                var attributeNames = [];
+                Object.keys(Object.getPrototypeOf(options)).forEach(function (attributeName) {
+                    if (attributeName != '__init') {
+                        attributeNames.push(attributeName);
+                    }
+                });
+                attributeNames.forEach((attributeName) => {
+                    if (options[attributeName] && typeof options[attributeName] == 'function') {
+                        var value = options[attributeName]();
+                        value = this.formatAttributeValue(value, attributeName, optionsTypeName);
+                        if (value != null) {
+                            this._attributes.push({
+                                name: this.formatAttributeName(attributeName),
+                                type: '',
+                                value: () => { return value; }, 
+                                value_short: () => { return value; }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+        return this._attributes;
+    }
+
+    get documentation() {
+        return null;
+    }
+
+    formatAttributeName(name) {
+        var lower = name.toLowerCase();
+        var result = '';
+        for (var i = 0; i < name.length; i++) {
+            result += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
+        }
+        return result;
+    }
 
     formatAttributeValue(attributeValue, attributeName, optionsTypeName) {
-        if (!this.optionsEnumTypeMap) {
-            this.optionsEnumTypeMap = {};
-            this.optionsEnumTypeMap['tflite.Conv2DOptions'] = {
+        if (!this._graph._model._optionsEnumTypeMap) {
+            this._graph._model._optionsEnumTypeMap = {};
+            var optionsEnumTypeMap = this._graph._model._optionsEnumTypeMap;
+            optionsEnumTypeMap['tflite.Conv2DOptions'] = {
                 padding: { type: tflite.Padding },
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.Pool2DOptions'] = {
+            optionsEnumTypeMap['tflite.Pool2DOptions'] = {
                 padding: { type: tflite.Padding },
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.DepthwiseConv2DOptions'] = {
+            optionsEnumTypeMap['tflite.DepthwiseConv2DOptions'] = {
                 padding: { type: tflite.Padding },
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.LSHProjectionOptions'] = {
+            optionsEnumTypeMap['tflite.LSHProjectionOptions'] = {
                 type: { type: tflite.LSHProjectionType }
             };
-            this.optionsEnumTypeMap['tflite.SVDFOptions'] = {
+            optionsEnumTypeMap['tflite.SVDFOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.RNNOptions'] = {
+            optionsEnumTypeMap['tflite.RNNOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.FullyConnectedOptions'] = {
+            optionsEnumTypeMap['tflite.FullyConnectedOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.ConcatenationOptions'] = {
+            optionsEnumTypeMap['tflite.ConcatenationOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.AddOptions'] = {
+            optionsEnumTypeMap['tflite.AddOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.MulOptions'] = {
+            optionsEnumTypeMap['tflite.MulOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.L2NormOptions'] = {
+            optionsEnumTypeMap['tflite.L2NormOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.LSTMOptions'] = {
+            optionsEnumTypeMap['tflite.LSTMOptions'] = {
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
             };
-            this.optionsEnumTypeMap['tflite.EmbeddingLookupSparseOptions'] = {
+            optionsEnumTypeMap['tflite.EmbeddingLookupSparseOptions'] = {
                 combiner: { type: tflite.CombinerType }
             };
         }
-        var optionsEnumType = this.optionsEnumTypeMap[optionsTypeName];
+        var optionsEnumType = this._graph._model._optionsEnumTypeMap[optionsTypeName];
         if (optionsEnumType) {
             var attributeType = optionsEnumType[attributeName];
             if (attributeType) {
@@ -340,7 +390,7 @@ class TensorFlowLiteModel {
         }
         return attributeValue;
     }
-} 
+}
 
 class TensorFlowLiteTensorFormatter {
 

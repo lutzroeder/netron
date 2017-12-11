@@ -7,17 +7,19 @@ var tensorflow = protobuf.roots.tf.tensorflow;
 class TensorFlowModel {
 
     constructor(hostService) {
-        this.metadataMap = {};
     }
 
     openBuffer(buffer, identifier) { 
         try {
             if (identifier == 'saved_model.pb') {
-                this.model = tensorflow.SavedModel.decode(buffer);
-                this.activeGraph = (this.model.metaGraphs.length > 0) ? this.model.metaGraphs[0] : null;
-                this.format = 'TensorFlow Saved Model';
-                if (this.model.savedModelSchemaVersion) {
-                    this.format += ' v' + this.model.savedModelSchemaVersion.toString();
+                this._model = tensorflow.SavedModel.decode(buffer);
+                this._graphs = [];
+                for (var i = 0; i < this._model.metaGraphs.length; i++) {
+                    this._graphs.push(new TensorFlowGraph(this, this._model.metaGraphs[i], i));
+                }
+                this._format = 'TensorFlow Saved Model';
+                if (this._model.savedModelSchemaVersion) {
+                    this._format += ' v' + this._model.savedModelSchemaVersion.toString();
                 }
             }
             else {
@@ -25,12 +27,13 @@ class TensorFlowModel {
                 var metaGraph = new tensorflow.MetaGraphDef();
                 metaGraph.graphDef = graphDef;
                 metaGraph.anyInfo = identifier;
-                var savedModel = new tensorflow.SavedModel();
-                savedModel.metaGraphs.push(metaGraph);
-                this.model = savedModel;
-                this.activeGraph = metaGraph;
-                this.format = 'TensorFlow Graph Defintion';
+                this._model = new tensorflow.SavedModel();
+                this._model.metaGraphs.push(metaGraph);
+                this._graphs = [ new TensorFlowGraph(this._model, metaGraph) ];
+                this._format = 'TensorFlow Graph Defintion';
             }
+
+            this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;            
         }
         catch (err) {
             return err;
@@ -38,68 +41,87 @@ class TensorFlowModel {
         return null;
     }
 
-    getGraphMetadata(graph) {
-        var graphMetadata = this.metadataMap[graph];
-        if (!graphMetadata) {
-            graphMetadata = new TensorFlowGraphMetadata(graph.metaInfoDef);
-        }
-        return graphMetadata;
-    }
-
-    formatModelSummary() {
+    format() {
         var summary = { properties: [], graphs: [] };
-        summary.properties.push({ name: 'Format', value: this.format });
+        summary.properties.push({ name: 'Format', value: this._format });
 
-        for (var i = 0; i < this.model.metaGraphs.length; i++) {
-            var metaGraph = this.model.metaGraphs[i];
-            var result = {};
-            result.name = metaGraph.anyInfo ? metaGraph.anyInfo.toString() : ('(' + i.toString() + ')');
-            if (metaGraph.metaInfoDef) {
-                if (metaGraph.metaInfoDef.tensorflowVersion) {
-                    result.version = 'TensorFlow ' + metaGraph.metaInfoDef.tensorflowVersion;
-                }
-                if (metaGraph.metaInfoDef.tags) {
-                    result.tags = metaGraph.metaInfoDef.tags.join(', ');
-                }
-            }
+        this.graphs.forEach((graph) => {
+            summary.graphs.push({
+                name: graph.name,
+                version: graph.version,
+                tags: graph.tags
+            });
             // metaInfoDef.tensorflowGitVersion
             // TODO signature
-            summary.graphs.push(result);
-        }
-
+        });
+    
         return summary;
     }
 
-    getActiveGraph() {
-        return this.activeGraph;
+    get graphs() {
+        return this._graphs;    
+    }
+
+    get activeGraph() {
+        return this._activeGraph;
     }
 
     updateActiveGraph(name) {
-        for (var i = 0; i < this.model.metaGraphs.length; i++) {
-            var graph = this.model.metaGraphs[i];
-            var graphName = graph.anyInfo ? graph.anyInfo.toString() : ('(' + i.toString() + ')');
-            if (name == graphName) {
-                this.activeGraph = graph;
-                return;            
-            }
+        this.graphs.forEach((graph) => {
+            if (name == graph.name) {
+                this._activeGraph = graph;
+                return;
+            }            
+        });
+    }
+}
+
+class TensorFlowGraph {
+
+    constructor(model, graph, index) {
+        this._model = model;
+        this._graph = graph;
+        this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
+
+        this._outputMap = {};
+        this._graph.graphDef.node.forEach((node) => {
+            
+        });
+    }
+
+    get model() {
+        return this._model;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get version() {
+        if (this._graph.metaInfoDef && this._graph.metaInfoDef.tensorflowVersion) {
+            return 'TensorFlow ' + this._graph.metaInfoDef.tensorflowVersion;
         }
+        return null;
     }
 
-    getGraphs() {
-        return this.model.metaGraphs;    
+    get tags() {
+        if (this._graph.metaInfoDef && this._graph.metaInfoDef.tags) {
+            return this._graph.metaInfoDef.tags.join(', ');
+        }
+        return null;
     }
 
-    getGraphInputs(graph) {
+    get inputs() {
         return [];
     }
 
-    getGraphOutputs(graph) {
+    get outputs() {
         return [];
     }
 
-    getGraphInitializers(graph) {
+    get initializers() {
         var results = [];
-        graph.graphDef.node.forEach(function (node) {
+        this._graph.graphDef.node.forEach(function (node) {
             if (node.op == 'Const') {
                 results.push({
                     'id': node.name,
@@ -111,39 +133,64 @@ class TensorFlowModel {
         return results;
     }
 
-    getNodes(graph) {
+    get nodes() {
         // graph.graphDef.node.forEach(function (node) {
         //     console.log(node.name + ' [' + (!node.input ? "" : node.input.map(s => s).join(',')) + ']');
         // });
-        var result = [];
-        graph.graphDef.node.forEach(function (node) {
+        var results = [];
+        this._graph.graphDef.node.forEach((node) => {
             if (node.op != 'Const') {
-                result.push(node);
+                results.push(new TensorFlowNode(this, node));
             }
         });
+        return results;
+    }
+
+    formatTensorType(tensor) {
+        var result = "?";
         return result;
     }
 
-    getNodeOperator(node) {
-        return node.op;
+    formatTensor(tensor) {
+        var result = {};
+        result.name = tensor.name;
+        result.type = this.formatTensorType(tensor);
+        result.value = () => {
+            return '?';
+        };
+        return result;
     }
 
-    getNodeOperatorDocumentation(graph, node) {
-        var graphMetadata = this.getGraphMetadata(graph);
-        if (graphMetadata) {
-            return graphMetadata.getOperatorDocumentation(node.op);       
+    get metadata() {
+        if (!this._metadata) {
+            this._metadata = new TensorFlowGraphMetadata(this._graph.metaInfoDef);
         }
-        return null;
+        return this._metadata;
+    }
+}
+
+class TensorFlowNode {
+
+    constructor(graph, node) {
+        this._graph = graph;
+        this._node = node;
     }
 
-    getNodeInputs(graph, node) {
-        var graphMetadata = this.getGraphMetadata(graph);
-        var self = this;
+    get operator() {
+        return this._node.op;
+    }
+
+    get inputs() {
+        var graphMetadata = this._graph.metadata;
+        var node = this._node;
         var result = [];
         if (node.input) {
             node.input.forEach(function(input, index) {
                 if (input.startsWith('^')) {
                     input = input.substring(1);
+                }
+                if (input.indexOf(':') == -1) {
+                    input += ':0';
                 }
                 result.push({
                     'id': input, 
@@ -155,29 +202,36 @@ class TensorFlowModel {
         return result;
     }
 
-    getNodeOutputs(graph, node) {
-        var graphMetadata = this.getGraphMetadata(graph);
+    get outputs() {
+        var graphMetadata = this._graph.metadata;
+        var node = this._node;
         var index = 0;
+        var id = node.name + ':0';
         return [ { 
-            'id': node.name,
+            'id': id,
             'name': graphMetadata ? graphMetadata.getOutputName(node.op, index) : ('(' + index.toString() + ')'),
             'type': ''
         } ];
     }
 
-    formatNodeProperties(node) {
+    get properties() {
+        var node = this._node;
         var result = null;
         if (node.name) {
             result = [];
             if (node.name) {
-                result.push({ 'name': 'name', 'value': node.name, 'value_short': function() { return node.name; } });
+                result.push({
+                    'name': 'name', 
+                    'value': node.name,
+                    'value_short': function() { return node.name; } 
+                });
             }
         }
         return result;
     }
 
-    formatNodeAttributes(node) {
-        var self = this;
+    get attributes() {
+        var node = this._node;
         var result = [];
         if (node.attr) {
             Object.keys(node.attr).forEach(function (name) {
@@ -195,19 +249,12 @@ class TensorFlowModel {
         return result;
     }
 
-    formatTensorType(tensor) {
-        var result = "?";
-        return result;
-    }
-
-    formatTensor(tensor) {
-        var result = {};
-        result.name = tensor.name;
-        result.type = this.formatTensorType(tensor);
-        result.value = () => {
-            return '?';
-        };
-        return result;
+    get documentation() {
+        var graphMetadata = this._graph.metadata;
+        if (graphMetadata) {
+            return graphMetadata.getOperatorDocumentation(this.operator);       
+        }
+        return null;
     }
 }
 

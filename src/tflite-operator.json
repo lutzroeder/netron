@@ -50,6 +50,10 @@
   {
     "name": "Reshape",
     "schema": {
+      "inputs": [
+        { "name": "data", "typeStr": "T" },
+        { "name": "shape", "typeStr": "T" }
+      ],
       "outputs": [
         { "name": "reshaped", "typeStr": "T" }
       ]
