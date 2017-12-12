@@ -356,13 +356,13 @@ class TensorFlowLiteNode {
 class TensorFlowLiteTensor {
 
     constructor(tensor, buffer, index) {
-        this._index = index;
+        this._id = index;
         this._tensor = tensor;
         this._buffer = buffer;
     }
 
     get id() {
-        return this._index.toString();
+        return this._id.toString();
     }
 
     get name() {
