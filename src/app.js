@@ -1,24 +1,25 @@
+/*jshint esversion: 6 */
 
-const electron = require('electron')
-const updater = require('electron-updater')
-const fs = require('fs')
-const os = require('os')
-const path = require('path')
-const process = require('process')
-const url = require('url')
+const electron = require('electron');
+const updater = require('electron-updater');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const process = require('process');
+const url = require('url');
 
 electron.app.setAppUserModelId('com.lutzroeder.netron');
 
-var views = []
+var views = [];
 
-const quit = electron.app.makeSingleInstance(function() {
+const quit = electron.app.makeSingleInstance(() => {
     if (views.length > 0) {
         var view = views[0];
-        if (view && view['window']) { 
-            if (view['window'].isMinimized()) {
-                view['window'].restore();
+        if (view && view.window) { 
+            if (view.window.isMinimized()) {
+                view.window.restore();
             }
-            view['window'].show();
+            view.window.show();
         }
     }
 });
@@ -37,23 +38,23 @@ function openFileDialog() {
             { name: 'TensorFlow Lite Model', extensions: [ 'tflite' ]}
         ]
     };
-    electron.dialog.showOpenDialog(showOpenDialogOptions, function(selectedFiles) {
+    electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {
         if (selectedFiles) {
-            selectedFiles.forEach(function(selectedFile) {
+            selectedFiles.forEach((selectedFile) => {
                 openFile(selectedFile);
             });
         }
     });
-};
+}
 
 function openFile(file) {
     if (file && file.length > 0 && fs.existsSync(file))
     {
         // find existing view for this file
-        var view = views.find(view => view['path'] && view['path'] == file);
+        var view = views.find(view => view.path && view.path == file);
         // find empty welcome window
         if (view == null) {
-            view = views.find(view => !view['path'] || view['path'].length == 0);
+            view = views.find(view => !view.path || view.path.length == 0);
         }
         // create new window
         if (view == null) {
@@ -64,19 +65,19 @@ function openFile(file) {
 }
 
 function loadFile(file, view) {
-    configuration['recents'] = configuration['recents'].filter(recent => file != recent['path']);
+    configuration.recents = configuration.recents.filter(recent => file != recent.path);
     var title = minimizePath(file);
     if (process.platform !== 'darwin') {
         title = file + ' - ' + electron.app.getName();
     }
-    var window = view['window'];
+    var window = view.window;
     window.setTitle(title);
-    view['path'] = file;
-    if (view['ready']) {
+    view.pathh = file;
+    if (view.ready) {
         window.webContents.send("open-file", { file: file });
     }
     else {
-        window.webContents.on('dom-ready', function() {
+        window.webContents.on('dom-ready', () => {
             window.webContents.send("open-file", { file: file });
         });
         var location = url.format({
@@ -86,37 +87,35 @@ function loadFile(file, view) {
         });
         window.loadURL(location);
     }
-    configuration['recents'].unshift({ 'path': file });
-    if (configuration['recents'].length > 10) {
-        configuration['recents'].splice(10);
+    configuration.recents.unshift({ path: file });
+    if (configuration.recents.length > 10) {
+        configuration.recents.splice(10);
     }
     updateMenu();
 }
 
-electron.ipcMain.on('open-file-dialog', function(e, data) {
+electron.ipcMain.on('open-file-dialog', (e, data) => {
     openFileDialog();
 });
 
-electron.ipcMain.on('open-file', function(e, data) {
-    var file = data['file'];
+electron.ipcMain.on('open-file', (e, data) => {
+    var file = data.file;
     if (file) { 
         var view = null;
-        if (data['window']) {
-            var window = electron.BrowserWindow.fromId(data['window']);
+        if (data.window) {
+            var window = electron.BrowserWindow.fromId(data.window);
             if (window) {
-                view = views.find(view => view['window'] == window);
+                view = views.find(view => view.window == window);
             }
         }
         if (view) {
             loadFile(file, view);
         }
         else {
-            openFile(file)
+            openFile(file);
         }
     }
 });
-
-
 
 Array.prototype.remove = function(obj) {
     var index = this.length;
@@ -125,7 +124,7 @@ Array.prototype.remove = function(obj) {
             this.splice(index, 1);
         }
     }
-}
+};
 
 function openView() {
     const title = electron.app.getName();
@@ -149,17 +148,17 @@ function openView() {
     
     window.on('closed', function () {
         for (var i = views.length - 1; i >= 0; i--) {
-            if (views[i]['window'] == window) {
+            if (views[i].window == window) {
                 views.splice(i, 1);
             }   
         }
     });
     var view = { 
-        'window': window,
-        'ready': false
+        window: window,
+        ready: false
     };
     window.webContents.on('dom-ready', function() {
-        view['ready'] = true;
+        view.ready = true;
     });        
     window.loadURL(url.format({
         pathname: path.join(__dirname, 'view-electron.html'),
@@ -172,8 +171,8 @@ function openView() {
 
 update();
 
-electron.app.on('will-finish-launching', function() {
-    electron.app.on('open-file', function(e, path) {
+electron.app.on('will-finish-launching', () => {
+    electron.app.on('open-file', (e, path) => {
         if (openFileQueue) {
             openFileQueue.push(path);
         }
@@ -185,7 +184,7 @@ electron.app.on('will-finish-launching', function() {
 
 var openFileQueue = [];
 
-electron.app.on('ready', function () {
+electron.app.on('ready', () => {
     loadConfiguration();
     updateMenu();
     
@@ -200,13 +199,13 @@ electron.app.on('ready', function () {
     }
 });
 
-electron.app.on('window-all-closed', function () {
+electron.app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         electron.app.quit();
     }
 });
 
-electron.app.on('will-quit', function() {
+electron.app.on('will-quit', () => {
     saveConfiguration();
 });
 
@@ -255,14 +254,14 @@ function saveConfiguration() {
 function updateMenu() {
 
     var menuRecentsTemplate = [];
-    if (configuration && configuration['recents']) {
-        configuration['recents'].forEach(function(recent) {
+    if (configuration && configuration.recents) {
+        configuration.recents.forEach((recent) => {
             var file = recent.path;
             menuRecentsTemplate.push({ 
                 label: minimizePath(recent.path),
-                click: function() { openFile(file) }
+                click: () => { openFile(file); }
             });
-        })
+        });
     }
 
     var menuTemplate = [];
@@ -288,7 +287,7 @@ function updateMenu() {
             {
                 label: '&Open...',
                 accelerator: 'CmdOrCtrl+O',
-                click: function() { openFileDialog(); }
+                click: () => { openFileDialog(); }
             },
             {
                 label: 'Open &Recent',
@@ -300,7 +299,7 @@ function updateMenu() {
     });
     
     if (process.platform !== 'darwin') {
-        menuTemplate.slice(-1)[0]['submenu'].push(
+        menuTemplate.slice(-1)[0].submenu.push(
             { type: 'separator' },
             { role: 'quit' }
         );
@@ -323,11 +322,11 @@ function updateMenu() {
         submenu: [
             {
                 label: '&Search Feature Requests',
-                click() { electron.shell.openExternal('https://www.github.com/lutzroeder/Netron/issues') }
+                click: () => { electron.shell.openExternal('https://www.github.com/lutzroeder/Netron/issues'); }
             },
             {
                 label: 'Report &Issues',
-                click() { electron.shell.openExternal('https://www.github.com/lutzroeder/Netron/issues/new') }
+                click: () => { electron.shell.openExternal('https://www.github.com/lutzroeder/Netron/issues/new'); }
             }
         ]
     });
