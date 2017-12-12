@@ -4,7 +4,6 @@ debugger;
 // electron.remote.getCurrentWindow().webContents.openDevTools();
 
 hostService.initialize(openBuffer);
-var modelService = new ModelService(hostService);
 
 document.documentElement.style.overflow = 'hidden';
 document.body.scroll = 'no';
@@ -80,7 +79,7 @@ function openBuffer(err, buffer, identifier) {
 
 function updateActiveGraph(name) {
     sidebar.close();
-    var model = modelService.getActiveModel();
+    var model = modelService.activeModel;
     if (model) {
         model.updateActiveGraph(name);
         updateView('spinner');
@@ -328,119 +327,132 @@ function showNodeAttributes(node) {
     }
 }
 
-function Sidebar() {
-    this.closeSidebarHandler = (e) => {
-        this.close();
-    };
-    this.closeSidebarKeyDownHandler = (e) => {
-        if (e.keyCode == 27) {
-            e.preventDefault();
+class Sidebar {
+
+    constructor() {
+        this._closeSidebarHandler = (e) => {
             this.close();
-        }
-    };
-    this.resizeSidebarHandler = (e) => {
+        };
+        this._closeSidebarKeyDownHandler = (e) => {
+            if (e.keyCode == 27) {
+                e.preventDefault();
+                this.close();
+            }
+        };
+        this._resizeSidebarHandler = (e) => {
+            var contentElement = document.getElementById('sidebar-content');
+            if (contentElement) {
+                contentElement.style.height = window.innerHeight - 60;
+            }
+        };
+    
+    }
+
+    open(content, title, width) {
+        var sidebarElement = document.getElementById('sidebar');
+        var titleElement = document.getElementById('sidebar-title');
         var contentElement = document.getElementById('sidebar-content');
-        if (contentElement) {
+        var closeButtonElement = document.getElementById('sidebar-closebutton');
+        if (sidebarElement && contentElement && closeButtonElement && titleElement) {
+            titleElement.innerHTML = title ? title.toUpperCase() : '';
+            window.addEventListener('resize', this._resizeSidebarHandler);
+            document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
+            closeButtonElement.addEventListener('click', this._closeSidebarHandler);
+            closeButtonElement.style.color = '#818181';
             contentElement.style.height = window.innerHeight - 60;
-        }
-    };
- }
-
-Sidebar.prototype.open = function(content, title, width, margin) {
-    var sidebarElement = document.getElementById('sidebar');
-    var titleElement = document.getElementById('sidebar-title');
-    var contentElement = document.getElementById('sidebar-content');
-    var closeButtonElement = document.getElementById('sidebar-closebutton');
-    if (sidebarElement && contentElement && closeButtonElement && titleElement) {
-        window.addEventListener('resize', this.resizeSidebarHandler);
-        document.addEventListener('keydown', this.closeSidebarKeyDownHandler);
-        titleElement.innerHTML = title ? title.toUpperCase() : '';
-        closeButtonElement.addEventListener('click', this.closeSidebarHandler);
-        closeButtonElement.style.color = '#818181';
-        contentElement.style.height = window.innerHeight - 60;
-        contentElement.innerHTML = content;
-        sidebarElement.style.width = width ? width : '500px';    
-        if (width && width.endsWith('%')) {
-            contentElement.style.width = '100%';
-        }
-        else {
-            contentElement.style.width = 'calc(' + sidebarElement.style.width + ' - 40px)';
+            contentElement.innerHTML = content;
+            sidebarElement.style.width = width ? width : '500px';    
+            if (width && width.endsWith('%')) {
+                contentElement.style.width = '100%';
+            }
+            else {
+                contentElement.style.width = 'calc(' + sidebarElement.style.width + ' - 40px)';
+            }
         }
     }
-};
-
-Sidebar.prototype.close = function() {
-    var sidebarElement = document.getElementById('sidebar');
-    var contentElement = document.getElementById('sidebar-content');
-    var closeButtonElement = document.getElementById('sidebar-closebutton');
-    if (sidebarElement && contentElement && closeButtonElement) {
-        document.removeEventListener('keydown', this.closeSidebarKeyDownHandler);
-        sidebarElement.removeEventListener('resize', this.resizeSidebarHandler);
-        closeButtonElement.removeEventListener('click', this.closeSidebarHandler);
-        closeButtonElement.style.color = '#f8f8f8';
-        sidebarElement.style.width = '0';
+    
+    close() {
+        var sidebarElement = document.getElementById('sidebar');
+        var contentElement = document.getElementById('sidebar-content');
+        var closeButtonElement = document.getElementById('sidebar-closebutton');
+        if (sidebarElement && contentElement && closeButtonElement) {
+            document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
+            sidebarElement.removeEventListener('resize', this._resizeSidebarHandler);
+            closeButtonElement.removeEventListener('click', this._closeSidebarHandler);
+            closeButtonElement.style.color = '#f8f8f8';
+            sidebarElement.style.width = '0';
+        }
     }
-};
+}
 
 var sidebar = new Sidebar();
 
-function ModelService(hostService) {
-    this.hostService = hostService;
-}
+class ModelService {
 
-ModelService.prototype.openBuffer = function(buffer, identifier, callback) {
-    var model = null;
-    var err = null;
+    constructor(hostService) {
+        this.hostService = hostService;
+    }
 
-    var extension = identifier.split('.').pop();
-
-    if (identifier != null && extension == 'tflite')
-    {
-        model = new TensorFlowLiteModel(hostService); 
-        err = model.openBuffer(buffer, identifier);
-    }
-    else if (identifier != null && identifier == 'saved_model.pb') {
-        model = new TensorFlowModel(hostService);
-        err = model.openBuffer(buffer, identifier);
-    }
-    else if (extension == 'onnx') {
-        model = new OnnxModel(hostService);
-        err = model.openBuffer(buffer, identifier);
-    }
-    else if (extension == 'pb') {
-        model = new OnnxModel(hostService);
-        err = model.openBuffer(buffer, identifier);
-        if (err) {
+    openBuffer(buffer, identifier, callback) {
+        var model = null;
+        var err = null;
+    
+        var extension = identifier.split('.').pop();
+    
+        if (identifier != null && extension == 'tflite')
+        {
+            model = new TensorFlowLiteModel(hostService); 
+            err = model.openBuffer(buffer, identifier);
+        }
+        else if (identifier != null && identifier == 'saved_model.pb') {
             model = new TensorFlowModel(hostService);
             err = model.openBuffer(buffer, identifier);
         }
+        else if (extension == 'onnx') {
+            model = new OnnxModel(hostService);
+            err = model.openBuffer(buffer, identifier);
+        }
+        else if (extension == 'pb') {
+            model = new OnnxModel(hostService);
+            err = model.openBuffer(buffer, identifier);
+            if (err) {
+                model = new TensorFlowModel(hostService);
+                err = model.openBuffer(buffer, identifier);
+            }
+        }
+    
+        if (err) {
+            callback(err, null);
+        }
+        else {
+            this._activeModel = model;
+            callback(null, model);
+        }
     }
 
-    if (err) {
-        callback(err, null);
+    get activeModel() {
+        return this._activeModel;
     }
-    else {
-        this.activeModel = model;
-        callback(null, model);
-    }
-};
-
-ModelService.prototype.getActiveModel = function() {
-    return this.activeModel;
-};
-
-function Int64(data) {
-    this.data = data;
 }
 
-Int64.prototype.toString = function() {
-    return this.data;
-};
+var modelService = new ModelService(hostService);
 
-function Uint64(data) {
-    this.data = data;
+class Int64 {
+    constructor(data) {
+        this._data = data;
+    }
+
+    toString() {
+        return this._data;
+    }
 }
 
-Uint64.prototype.toString = function() {
-    return this.data;
-};
+class Uint64 {
+    constructor(data) {
+        this._data = data;
+    }
+
+    toString() {
+        return this._data;
+    }
+}
