@@ -305,6 +305,18 @@ function updateMenu() {
         );
     }
     
+    if (process.platform == 'darwin') {
+        electron.systemPreferences.setUserDefault('NSDisabledDictationMenuItem', 'boolean', true);
+        electron.systemPreferences.setUserDefault('NSDisabledCharacterPaletteMenuItem', 'boolean', true);
+    }
+
+    menuTemplate.push({
+        label: '&Edit',
+        submenu: [
+            { role: 'copy' }
+        ]
+    });
+
     if (process.platform === 'darwin') {
         menuTemplate.push({
             role: 'window',
