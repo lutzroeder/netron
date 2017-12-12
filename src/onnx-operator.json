@@ -1703,9 +1703,13 @@
           "description": "The input dictionary",
           "name": "X",
           "option": "",
-          "typeStr": "T",
+          "typeStr": "T1",
           "types": [
+            "map(int64,double)",
+            "map(int64,float)",
             "map(int64,string)",
+            "map(string,double)",
+            "map(string,float)",
             "map(string,int64)"
           ]
         }
@@ -1719,9 +1723,12 @@
           "description": "The tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "tensor(int64)",
+          "typeStr": "T2",
           "types": [
-            "tensor(int64)"
+            "tensor(double)",
+            "tensor(float)",
+            "tensor(int64)",
+            "tensor(string)"
           ]
         }
       ],
@@ -1731,10 +1738,24 @@
         {
           "allowed_type_strs": [
             "map(string, int64)",
-            "map(int64, string)"
+            "map(int64, string)",
+            "map(int64, float)",
+            "map(int64, double)",
+            "map(string, float)",
+            "map(string, double)"
           ],
           "description": " allowed types.",
-          "type_param_str": "T"
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)"
+          ],
+          "description": " allowed types.",
+          "type_param_str": "T2"
         }
       ]
     }
@@ -7925,7 +7946,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Split a tensor into a list of tensors, along the specified\n'axis'. The lengths of the split can be specified using argument 'axis' or\noptional second input blob to the operator. Otherwise, the tensor is split\nto equal sized parts.\n",
+      "doc": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
