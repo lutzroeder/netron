@@ -246,7 +246,7 @@ function updateGraph(model) {
     var inner = svg.append('g');
 
     // Set up zoom support
-    var zoom = dagreD3.d3.behavior.zoom().scaleExtent([0.2, 2]).on('zoom', function() {
+    var zoom = dagreD3.d3.behavior.zoom().scaleExtent([0.1, 2]).on('zoom', function() {
         inner.attr('transform', 'translate(' + dagreD3.d3.event.translate + ')' + 'scale(' + dagreD3.d3.event.scale + ')');
     });
     svg.call(zoom);
@@ -279,7 +279,7 @@ function updateGraph(model) {
                 (svgSize.height / 4) - y ]).event(svg);
         }
         else {
-            zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
+        //    zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
         }    
     
         updateView('graph');

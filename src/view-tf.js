@@ -121,13 +121,20 @@ class TensorFlowGraph {
 
     get initializers() {
         var results = [];
-        this._graph.graphDef.node.forEach(function (node) {
+        this._graph.graphDef.node.forEach((node) => {
             if (node.op == 'Const') {
-                results.push({
-                    'id': node.name,
-                    'name': node.name,
-                    'type': ''
+                var id = node.name;
+                if (id.indexOf(':') == -1) {
+                    id += ':0';
+                }
+                var tensor = null;
+                Object.keys(node.attr).forEach((name) => {
+                    if (name == 'value') {
+                        tensor = node.attr[name];
+                        return;
+                    }
                 });
+                results.push(new TensorFlowTensor(tensor, id, node.name));
             }
         });
         return results;
@@ -144,21 +151,6 @@ class TensorFlowGraph {
             }
         });
         return results;
-    }
-
-    formatTensorType(tensor) {
-        var result = "?";
-        return result;
-    }
-
-    formatTensor(tensor) {
-        var result = {};
-        result.name = tensor.name;
-        result.type = this.formatTensorType(tensor);
-        result.value = () => {
-            return '?';
-        };
-        return result;
     }
 
     get metadata() {
@@ -255,6 +247,35 @@ class TensorFlowNode {
             return graphMetadata.getOperatorDocumentation(this.operator);       
         }
         return null;
+    }
+}
+
+class TensorFlowTensor {
+
+    constructor(tensor, id) {
+        this._tensor = tensor;
+        this._id = id;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get name() {
+        return this._tensor.name;
+    }
+
+    get type() {
+        return TensorFlowTensor.formatTensorType(this._tensor);
+    }
+
+    get value() {
+        return '?';        
+    }
+
+    static formatTensorType(tensor) {
+        var result = "?";
+        return result;
     }
 }
 
