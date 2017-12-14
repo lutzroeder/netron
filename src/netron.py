@@ -6,7 +6,7 @@ import platform
 import sys
 import threading
 import webbrowser
-import onnx_ml_pb2
+from .onnx_ml_pb2 import ModelProto
 
 if sys.version_info[0] > 2:
     from urllib.parse import urlparse
@@ -48,6 +48,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                 with codecs.open(location + 'view-browser.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
                 buffer = buffer.replace('{{{title}}}', self.data.file)
+                buffer = buffer.encode('utf-8');
                 headers['Content-Type'] = 'text/html'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
@@ -99,7 +100,7 @@ class OnnxModel:
         self.file = file
     def optimize(self):
         # Remove raw initializer data
-        model = onnx_ml_pb2.ModelProto()
+        model = ModelProto()
         model.ParseFromString(self.data)
         for initializer in model.graph.initializer:
             self.remove_tensor_data(initializer)
@@ -113,7 +114,7 @@ class OnnxModel:
         del tensor.int32_data[:]
         del tensor.int64_data[:]
         del tensor.float_data[:]
-        tensor.raw_data = ""
+        tensor.raw_data = b''
 
 class TensorFlowLiteModel:
     def __init__(self, data, file):
