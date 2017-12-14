@@ -2,20 +2,66 @@
   {
     "name": "ATen",
     "schema": {
-      "doc": "Experimental allowing ATen operations to be accessed directly from Caffe2\nto allow for quick prototyping when ONNX is missing standard versions of\nand op",
+      "description": "Experimental allowing ATen operations to be accessed directly from Caffe2\nto allow for quick prototyping when ONNX is missing standard versions of\nand op",
       "domain": "ai.onnx",
-      "max_input": 0,
-      "max_output": 0,
-      "min_input": 0,
-      "min_output": 0,
+      "inputs": [
+        {
+          "description": "Arbitrary input",
+          "name": "input",
+          "option": "variadic",
+          "typeStr": "T",
+          "types": [
+            "tensor(bool)",
+            "tensor(double)",
+            "tensor(float)",
+            "tensor(float16)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ]
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 2147483647,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Arbitrary output",
+          "name": "output",
+          "option": "variadic",
+          "typeStr": "T",
+          "types": [
+            "tensor(bool)",
+            "tensor(double)",
+            "tensor(float)",
+            "tensor(float16)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ]
+        }
+      ],
       "since_version": 1,
-      "support_level": "experimental"
+      "support_level": "experimental",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(bool)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain output types to bool, int32, int64, float16, float, double tensors.",
+          "type_param_str": "T"
+        }
+      ]
     }
   },
   {
     "name": "Abs",
     "schema": {
-      "doc": "Absolute takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the absolute is, y = abs(x), is applied to\nthe tensor elementwise.\n",
+      "description": "Absolute takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the absolute is, y = abs(x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -85,7 +131,7 @@
           "type": "int"
         }
       ],
-      "doc": "Performs element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -170,7 +216,7 @@
           "type": "float"
         }
       ],
-      "doc": "Affine takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the affine function, y = alpha * x + beta,\nis applied to the tensor elementwise.\n",
+      "description": "Affine takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the affine function, y = alpha * x + beta,\nis applied to the tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -234,7 +280,7 @@
           "type": "int"
         }
       ],
-      "doc": "Returns the tensor resulted from performing the `and` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
+      "description": "Returns the tensor resulted from performing the `and` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -308,7 +354,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -370,7 +416,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -418,7 +464,7 @@
   {
     "name": "ArrayFeatureExtractor",
     "schema": {
-      "doc": "Select a subset of the data based on the indices passed.\n",
+      "description": "Select a subset of the data based on the indices passed.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -516,7 +562,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -592,7 +638,7 @@
           "type": "int"
         }
       ],
-      "doc": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, mean, var, saved_mean, saved_var (training mode)\nOutput case #2: Y (test mode)\n    ",
+      "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, mean, var, saved_mean, saved_var (training mode)\nOutput case #2: Y (test mode)\n    ",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -738,7 +784,7 @@
           "type": "float"
         }
       ],
-      "doc": "Makes values 1 or 0 based on a single threshold.\n",
+      "description": "Makes values 1 or 0 based on a single threshold.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -799,7 +845,7 @@
           "type": "string"
         }
       ],
-      "doc": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message. If the 'to' argument\nis not provided or is not one of the enumerated types in DataType, Caffe2\nthrows an Enforce error.\n\nNOTE: Casting to and from strings is not supported yet.\n",
+      "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message. If the 'to' argument\nis not provided or is not one of the enumerated types in DataType, Caffe2\nthrows an Enforce error.\n\nNOTE: Casting to and from strings is not supported yet.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -878,7 +924,7 @@
           "type": "int"
         }
       ],
-      "doc": "Converts a map to a tensor.  Map key must be int64 and the values will be ordered\n    in ascending order based on this key.  Supports dense packing or sparse packing.\n    If using sparse packing, the key cannot exceed the max_map-1 value.\n",
+      "description": "Converts a map to a tensor.  Map key must be int64 and the values will be ordered\n    in ascending order based on this key.  Supports dense packing or sparse packing.\n    If using sparse packing, the key cannot exceed the max_map-1 value.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -961,7 +1007,7 @@
           "type": "string"
         }
       ],
-      "doc": "Convert strings to int64s and vice versa.\n    Takes in a map to use for the conversion.\n    The index position in the strings and ints repeated inputs\n     is used to do the mapping.\n    Each instantiated operator converts either ints to strings or strings to ints.\n    This behavior is triggered based on which default value is set.\n    If the string default value is set, it will convert ints to strings.\n    If the int default value is set, it will convert strings to ints.\n",
+      "description": "Convert strings to int64s and vice versa.\n    Takes in a map to use for the conversion.\n    The index position in the strings and ints repeated inputs\n     is used to do the mapping.\n    Each instantiated operator converts either ints to strings or strings to ints.\n    This behavior is triggered based on which default value is set.\n    If the string default value is set, it will convert ints to strings.\n    If the int default value is set, it will convert strings to ints.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -1016,7 +1062,7 @@
   {
     "name": "Ceil",
     "schema": {
-      "doc": "Ceil takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the ceil is, y = ceil(x), is applied to\nthe tensor elementwise.\n",
+      "description": "Ceil takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the ceil is, y = ceil(x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1080,7 +1126,7 @@
           "type": "float"
         }
       ],
-      "doc": "Clip operator limits the given input within an interval. The interval is\nspecified with arguments 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max() respectively.\n",
+      "description": "Clip operator limits the given input within an interval. The interval is\nspecified with arguments 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max() respectively.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1138,7 +1184,7 @@
           "type": "int"
         }
       ],
-      "doc": "Concatenate a list of tensors into a single tensor",
+      "description": "Concatenate a list of tensors into a single tensor",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1196,7 +1242,7 @@
           "type": "tensor"
         }
       ],
-      "doc": "A constant tensor.",
+      "description": "A constant tensor.",
       "domain": "ai.onnx",
       "max_input": 0,
       "max_output": 1,
@@ -1271,7 +1317,7 @@
           "type": "float"
         }
       ],
-      "doc": "The operator fills the elements of the output tensor with a constant value\nspecified by the 'value' attribute.\n\nThe data type is specified by the 'dtype' attribute. The 'dtype' attribute must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message. If the 'dtype' attribute is not provided, the data type of\n'value' is used.\n\nThe output tensor shape is specified by the 'shape' attribute. If the number of\ninput is 1, the shape will be identical to that of the input at run time with\noptional additional dimensions appended at the end as specified by 'extra_shape'\nattribute. In that case the 'shape' attribute should not be set.\n\nIf input_as_shape is set to true, then the input should be a 1D tensor\ncontaining the desired output shape (the dimensions specified in extra_shape\nwill also be appended)\n\nNOTE: Currently, it supports data type of float, int32, int64, and bool.\n",
+      "description": "The operator fills the elements of the output tensor with a constant value\nspecified by the 'value' attribute.\n\nThe data type is specified by the 'dtype' attribute. The 'dtype' attribute must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message. If the 'dtype' attribute is not provided, the data type of\n'value' is used.\n\nThe output tensor shape is specified by the 'shape' attribute. If the number of\ninput is 1, the shape will be identical to that of the input at run time with\noptional additional dimensions appended at the end as specified by 'extra_shape'\nattribute. In that case the 'shape' attribute should not be set.\n\nIf input_as_shape is set to true, then the input should be a 1D tensor\ncontaining the desired output shape (the dimensions specified in extra_shape\nwill also be appended)\n\nNOTE: Currently, it supports data type of float, int32, int64, and bool.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1372,7 +1418,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "The convolution operator consumes an input tensor and a filter, and\ncomputes the output.",
+      "description": "The convolution operator consumes an input tensor and a filter, and\ncomputes the output.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1488,7 +1534,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output.",
+      "description": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1574,7 +1620,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Crop and image to the specified spatial dimensions. If scale is given,\nthen optionally start the crop offset by the left/top border amounts.\nIf scale is not provided, crop the borders as provided.",
+      "description": "Crop and image to the specified spatial dimensions. If scale is given,\nthen optionally start the crop offset by the left/top border amounts.\nIf scale is not provided, crop the borders as provided.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1632,7 +1678,7 @@
           "type": "int"
         }
       ],
-      "doc": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions.\n",
+      "description": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1696,7 +1742,7 @@
           "type": "list of strings"
         }
       ],
-      "doc": "Uses an index mapping to convert a dictionary to an array.\n    The output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the ouput array.\n    The position of the insertion is determined by the position of the item's key\n    in the index mapping. Any keys not present in the input dictionary, will be\n    zero in the output array.  Use either string_vocabulary or int64_vocabulary, not both.\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
+      "description": "Uses an index mapping to convert a dictionary to an array.\n    The output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the ouput array.\n    The position of the insertion is determined by the position of the item's key\n    in the index mapping. Any keys not present in the input dictionary, will be\n    zero in the output array.  Use either string_vocabulary or int64_vocabulary, not both.\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -1777,7 +1823,7 @@
           "type": "int"
         }
       ],
-      "doc": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1852,7 +1898,7 @@
           "type": "float"
         }
       ],
-      "doc": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\n",
+      "description": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1921,7 +1967,7 @@
           "type": "float"
         }
       ],
-      "doc": "Elu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the function `f(x) = alpha * (exp(x) - 1.) for x <\n0`, `f(x) = x for x >= 0`., is applied to the tensor elementwise.\n\n",
+      "description": "Elu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the function `f(x) = alpha * (exp(x) - 1.) for x <\n0`, `f(x) = x for x >= 0`., is applied to the tensor elementwise.\n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1991,7 +2037,7 @@
           "type": "tensor"
         }
       ],
-      "doc": "Turns positive integers (indexes) into dense vectors of fixed size.",
+      "description": "Turns positive integers (indexes) into dense vectors of fixed size.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2053,7 +2099,7 @@
           "type": "int"
         }
       ],
-      "doc": "Returns the tensor resulted from performing the `equal` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
+      "description": "Returns the tensor resulted from performing the `equal` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2119,7 +2165,7 @@
   {
     "name": "Exp",
     "schema": {
-      "doc": "Calculates the exponential of the given input tensor, element-wise.\n",
+      "description": "Calculates the exponential of the given input tensor, element-wise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2183,7 +2229,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the result of passing an input vector X into a fully\nconnected layer with 2D weight matrix W and 1D bias vector b. That is,\nthe layer computes Y = X * W^T + b, where X has size (M x K),\nW has size (N x K), b has size (N), and Y has size (M x N),\nwhere M is often the batch size.\nNOTE: X does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \\in N+ and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = M and a_1 * ... * a_{n-1} = K.\nLastly, even though b is a 1D vector of size N, it is copied/resized to\nbe size (M x N) implicitly and added to each vector in the batch.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "Computes the result of passing an input vector X into a fully\nconnected layer with 2D weight matrix W and 1D bias vector b. That is,\nthe layer computes Y = X * W^T + b, where X has size (M x K),\nW has size (N x K), b has size (N), and Y has size (M x N),\nwhere M is often the batch size.\nNOTE: X does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \\in N+ and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = M and a_1 * ... * a_{n-1} = K.\nLastly, even though b is a 1D vector of size N, it is copied/resized to\nbe size (M x N) implicitly and added to each vector in the batch.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2263,7 +2309,7 @@
           "type": "int"
         }
       ],
-      "doc": "Concatenates input features into one continuous output.  \n    Inputlist is a list of input feature names, inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    All inputs are tensors of float.  Any feature that is not a tensor of float should\n    be converted using either Cast or CastMap.\n",
+      "description": "Concatenates input features into one continuous output.  \n    Inputlist is a list of input feature names, inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    All inputs are tensors of float.  Any feature that is not a tensor of float should\n    be converted using either Cast or CastMap.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -2315,7 +2361,7 @@
           "type": "int"
         }
       ],
-      "doc": "Flattens the input tensor into a 2D matrix. If input tensor has shape\n(d_0, d_1, ... d_n) then the output will have shape\n(d_0 X d_1 ... d_(axis-1), d_axis X d_(axis+1) ... X dn).\n",
+      "description": "Flattens the input tensor into a 2D matrix. If input tensor has shape\n(d_0, d_1, ... d_n) then the output will have shape\n(d_0 X d_1 ... d_(axis-1), d_axis X d_(axis+1) ... X dn).\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2365,7 +2411,7 @@
   {
     "name": "Floor",
     "schema": {
-      "doc": "Floor takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the floor is, y = floor(x), is applied to\nthe tensor elementwise.\n",
+      "description": "Floor takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the floor is, y = floor(x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2459,7 +2505,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh)\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh)\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2588,7 +2634,7 @@
           "type": "int"
         }
       ],
-      "doc": "GRUUnit computes the activations of a standard GRU,\nin a sequence-length aware fashion.\nConcretely, given the (fused) inputs X (TxNxD), the previous hidden\nstate (NxD), and the sequence lengths (N), computes the GRU\nactivations, avoiding computation if the input is invalid (as in, the\nvalue at X[t][n] >= seqLengths[n].\n",
+      "description": "GRUUnit computes the activations of a standard GRU,\nin a sequence-length aware fashion.\nConcretely, given the (fused) inputs X (TxNxD), the previous hidden\nstate (NxD), and the sequence lengths (N), computes the GRU\nactivations, avoiding computation if the input is invalid (as in, the\nvalue at X[t][n] >= seqLengths[n].\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2679,7 +2725,7 @@
           "type": "int"
         }
       ],
-      "doc": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
+      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2779,7 +2825,7 @@
           "type": "int"
         }
       ],
-      "doc": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N). \nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N). \nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2926,7 +2972,7 @@
   {
     "name": "GlobalAveragePool",
     "schema": {
-      "doc": "GlobalAveragePool consumes an input tensor X and applies average pooling across the\n the values in the same channel. This is equivalent to AveragePool with kernel size\n equal to the spatial dimension of input tensor.",
+      "description": "GlobalAveragePool consumes an input tensor X and applies average pooling across the\n the values in the same channel. This is equivalent to AveragePool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2984,7 +3030,7 @@
           "type": "float"
         }
       ],
-      "doc": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
+      "description": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3042,7 +3088,7 @@
           "type": "int"
         }
       ],
-      "doc": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
+      "description": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3092,7 +3138,7 @@
   {
     "name": "GlobalMaxPool",
     "schema": {
-      "doc": "GlobalMaxPool consumes an input tensor X and applies max pooling across the\n the values in the same channel. This is equivalent to MaxPool with kernel size\n equal to the spatial dimension of input tensor.",
+      "description": "GlobalMaxPool consumes an input tensor X and applies max pooling across the\n the values in the same channel. This is equivalent to MaxPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3156,7 +3202,7 @@
           "type": "int"
         }
       ],
-      "doc": "Returns the tensor resulted from performing the `greater` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
+      "description": "Returns the tensor resulted from performing the `greater` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3236,7 +3282,7 @@
           "type": "float"
         }
       ],
-      "doc": "HardSigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the HardSigmoid function, y = max(0, min(1, alpha * x + beta)),\nis applied to the tensor elementwise.\n",
+      "description": "HardSigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the HardSigmoid function, y = max(0, min(1, alpha * x + beta)),\nis applied to the tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3294,7 +3340,7 @@
           "type": "int"
         }
       ],
-      "doc": "The operator computes the hardmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the hardmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "The operator computes the hardmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the hardmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3344,7 +3390,7 @@
   {
     "name": "Identity",
     "schema": {
-      "doc": "Identity operator",
+      "description": "Identity operator",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3408,7 +3454,7 @@
           "type": "float"
         }
       ],
-      "doc": "Scale and bias the input image. Bias values are stored in\nthe same ordering as the image pixel format.",
+      "description": "Scale and bias the input image. Bias values are stored in\nthe same ordering as the image pixel format.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3484,7 +3530,7 @@
           "type": "int"
         }
       ],
-      "doc": "Replace imputs that equal replaceValue/s  with  imputeValue/s.\n    All other inputs are copied to the output unchanged.\n    This op is used to replace missing values where we know what a missing value looks like.\n    Only one of imputed_value_floats or imputed_value_int64s should be used.\n    The size can be 1 element, which will be reused, or the size of the feature set F in input N,F\n",
+      "description": "Replace imputs that equal replaceValue/s  with  imputeValue/s.\n    All other inputs are copied to the output unchanged.\n    This op is used to replace missing values where we know what a missing value looks like.\n    Only one of imputed_value_floats or imputed_value_int64s should be used.\n    The size can be 1 element, which will be reused, or the size of the feature set F in input N,F\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -3545,7 +3591,7 @@
           "type": "float"
         }
       ],
-      "doc": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022. \n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B, \nwhere mean and B are computed per instance per channel. \n\n",
+      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022. \n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B, \nwhere mean and B are computed per instance per channel. \n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3643,7 +3689,7 @@
           "type": "int"
         }
       ],
-      "doc": "Local Response Normalization. It normalizes over local input regions.\nEach input value is divided by\n(bias+(alpha/size)*sum(xi^2 for every xi in the local region))^beta.\n",
+      "description": "Local Response Normalization. It normalizes over local input regions.\nEach input value is divided by\n(bias+(alpha/size)*sum(xi^2 for every xi in the local region))^beta.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3743,7 +3789,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh, h=tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*Ri + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*Rf + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*Rc + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*Ro + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\n",
+      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh, h=tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*Ri + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*Rf + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*Rc + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*Ro + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3906,7 +3952,7 @@
           "type": "string"
         }
       ],
-      "doc": "Convert class label to their integral type and vice versa.\n    In both cases the operator is instantiated with the list of class strings.\n    The integral value of the string is the index position in the list.\n",
+      "description": "Convert class label to their integral type and vice versa.\n    In both cases the operator is instantiated with the list of class strings.\n    The integral value of the string is the index position in the list.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -3969,7 +4015,7 @@
           "type": "float"
         }
       ],
-      "doc": "LeakyRelu takes input data (Tensor<T>) and an argument alpha, and produces one\noutput data (Tensor<T>) where the function `f(x) = alpha * x for x < 0`,\n`f(x) = x for x >= 0`, is applied to the data tensor elementwise.\n",
+      "description": "LeakyRelu takes input data (Tensor<T>) and an argument alpha, and produces one\noutput data (Tensor<T>) where the function `f(x) = alpha * x for x < 0`,\n`f(x) = x for x >= 0`, is applied to the data tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4033,7 +4079,7 @@
           "type": "int"
         }
       ],
-      "doc": "Returns the tensor resulted from performing the `less` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
+      "description": "Returns the tensor resulted from performing the `less` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4137,7 +4183,7 @@
           "type": "string"
         }
       ],
-      "doc": "Linear classifier prediction (choose class)\n",
+      "description": "Linear classifier prediction (choose class)\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -4231,7 +4277,7 @@
           "type": "int"
         }
       ],
-      "doc": "Generalized linear regression evaluation.\n    If targets is set to 1 (default) then univariate regression is performed.\n    If targets is set to M then M sets of coefficients must be passed in as a sequence\n    and M results will be output for each input n in N.\n    Coefficients are of the same length as an n, and coefficents for each target are contiguous.\n    Intercepts are optional but if provided must match the number of targets.\n",
+      "description": "Generalized linear regression evaluation.\n    If targets is set to 1 (default) then univariate regression is performed.\n    If targets is set to M then M sets of coefficients must be passed in as a sequence\n    and M results will be output for each input n in N.\n    Coefficients are of the same length as an n, and coefficents for each target are contiguous.\n    Intercepts are optional but if provided must match the number of targets.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -4281,7 +4327,7 @@
   {
     "name": "Log",
     "schema": {
-      "doc": "Calculates the natural log of the given input tensor, element-wise.\n",
+      "description": "Calculates the natural log of the given input tensor, element-wise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4339,7 +4385,7 @@
           "type": "int"
         }
       ],
-      "doc": "The operator computes the logsoftmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the logsoftmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "The operator computes the logsoftmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the logsoftmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4403,7 +4449,7 @@
           "type": "int"
         }
       ],
-      "doc": "Given a matrix, apply Lp-normalization along the provided axis.\n",
+      "description": "Given a matrix, apply Lp-normalization along the provided axis.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4485,7 +4531,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4567,7 +4613,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4617,7 +4663,7 @@
   {
     "name": "MatMul",
     "schema": {
-      "doc": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html\n",
+      "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4684,7 +4730,7 @@
   {
     "name": "Max",
     "schema": {
-      "doc": "Element-wise max of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "description": "Element-wise max of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4760,7 +4806,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4824,7 +4870,7 @@
           "type": "float"
         }
       ],
-      "doc": "ROI max pool consumes an input tensor X and region of interests (RoIs) to \n apply max pooling across each RoI, to produce output 4-D tensor of shape \n (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
+      "description": "ROI max pool consumes an input tensor X and region of interests (RoIs) to \n apply max pooling across each RoI, to produce output 4-D tensor of shape \n (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4885,7 +4931,7 @@
   {
     "name": "Mean",
     "schema": {
-      "doc": "Element-wise mean of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "description": "Element-wise mean of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4949,7 +4995,7 @@
           "type": "int"
         }
       ],
-      "doc": "Perform mean variance normalization.",
+      "description": "Perform mean variance normalization.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4999,7 +5045,7 @@
   {
     "name": "Min",
     "schema": {
-      "doc": "Element-wise min of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "description": "Element-wise min of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5063,7 +5109,7 @@
           "type": "int"
         }
       ],
-      "doc": "Performs element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5124,7 +5170,7 @@
   {
     "name": "Neg",
     "schema": {
-      "doc": "Neg takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where each element flipped sign, y = -x, is applied to\nthe tensor elementwise.\n",
+      "description": "Neg takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where each element flipped sign, y = -x, is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5182,7 +5228,7 @@
           "type": "string"
         }
       ],
-      "doc": "Normalize the input.  There are three normalization modes,\n    which have the corresponding formulas:\n    Max .. math::     max(x_i)\n    L1  .. math::  z = ||x||_1 = \\sum_{i=1}^{n} |x_i|\n    L2  .. math::  z = ||x||_2 = \\sqrt{\\sum_{i=1}^{n} x_i^2}\n",
+      "description": "Normalize the input.  There are three normalization modes,\n    which have the corresponding formulas:\n    Max .. math::     max(x_i)\n    L1  .. math::  z = ||x||_1 = \\sum_{i=1}^{n} |x_i|\n    L2  .. math::  z = ||x||_2 = \\sqrt{\\sum_{i=1}^{n} x_i^2}\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -5232,7 +5278,7 @@
   {
     "name": "Not",
     "schema": {
-      "doc": "Returns the negation of the input tensor element-wise.\n",
+      "description": "Returns the negation of the input tensor element-wise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5296,7 +5342,7 @@
           "type": "int"
         }
       ],
-      "doc": "Replace the inputs with an array of ones and zeros, where the only\n    one is the zero-based category that was passed in.  The total category count \n    will determine the length of the vector. For example if we pass a \n    tensor with a single value of 4, and a category count of 8, the \n    output will be a tensor with 0,0,0,0,1,0,0,0 .\n\n    This operator assumes every input in X is of the same category set \n    (meaning there is only one category count).\n",
+      "description": "Replace the inputs with an array of ones and zeros, where the only\n    one is the zero-based category that was passed in.  The total category count \n    will determine the length of the vector. For example if we pass a \n    tensor with a single value of 4, and a category count of 8, the \n    output will be a tensor with 0,0,0,0,1,0,0,0 .\n\n    This operator assumes every input in X is of the same category set \n    (meaning there is only one category count).\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -5356,7 +5402,7 @@
           "type": "int"
         }
       ],
-      "doc": "Returns the tensor resulted from performing the `or` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
+      "description": "Returns the tensor resulted from performing the `or` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5416,7 +5462,7 @@
   {
     "name": "PRelu",
     "schema": {
-      "doc": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\n\n",
+      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5497,7 +5543,7 @@
           "type": "float"
         }
       ],
-      "doc": "Given `data` tensor, paddings, mode, and value.\n\nExample:\n  Insert 0 paddings to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  paddings = [0, 0, 2, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
+      "description": "Given `data` tensor, paddings, mode, and value.\n\nExample:\n  Insert 0 paddings to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  paddings = [0, 0, 2, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5577,7 +5623,7 @@
           "type": "float"
         }
       ],
-      "doc": "Given `data` tensor, pads, mode, and value.\n\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 2, 0, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
+      "description": "Given `data` tensor, pads, mode, and value.\n\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 2, 0, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5651,7 +5697,7 @@
           "type": "float"
         }
       ],
-      "doc": "ParametricSoftplus takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the softplus function, y = alpha * ln(exp(beta * x) + 1), is applied to\nthe tensor elementwise.\n",
+      "description": "ParametricSoftplus takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the softplus function, y = alpha * ln(exp(beta * x) + 1), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5701,7 +5747,7 @@
   {
     "name": "Pow",
     "schema": {
-      "doc": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\n",
+      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5806,7 +5852,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*Ri + Wbi + Rbi)\n",
+      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*Ri + Wbi + Rbi)\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5959,7 +6005,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is specified by the `shape` argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
+      "description": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is specified by the `shape` argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
       "domain": "ai.onnx",
       "max_input": 0,
       "max_output": 1,
@@ -6022,7 +6068,7 @@
           "type": "float"
         }
       ],
-      "doc": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is computed from the input argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
+      "description": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is computed from the input argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6104,7 +6150,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is specified by the `shape` argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
+      "description": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is specified by the `shape` argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
       "domain": "ai.onnx",
       "max_input": 0,
       "max_output": 1,
@@ -6167,7 +6213,7 @@
           "type": "float"
         }
       ],
-      "doc": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is computed from the input argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
+      "description": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is computed from the input argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6217,7 +6263,7 @@
   {
     "name": "Reciprocal",
     "schema": {
-      "doc": "Reciprocal takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the reciprocal is, y = 1/x, is applied to\nthe tensor elementwise.\n",
+      "description": "Reciprocal takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the reciprocal is, y = 1/x, is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6281,7 +6327,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6345,7 +6391,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6409,7 +6455,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6473,7 +6519,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6537,7 +6583,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6601,7 +6647,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6665,7 +6711,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6729,7 +6775,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6793,7 +6839,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6857,7 +6903,7 @@
           "type": "int"
         }
       ],
-      "doc": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6907,7 +6953,7 @@
   {
     "name": "Relu",
     "schema": {
-      "doc": "Relu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = max(0, x), is applied to\nthe tensor elementwise.\n",
+      "description": "Relu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = max(0, x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6971,7 +7017,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Reshape the input tensor similar to numpy.reshape.\n\nIt takes a tensor as input and an argument `shape`. It outputs the reshaped tensor.\n\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is going to be copied\nfrom the shape argument.",
+      "description": "Reshape the input tensor similar to numpy.reshape.\n\nIt takes a tensor as input and an argument `shape`. It outputs the reshaped tensor.\n\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is going to be copied\nfrom the shape argument.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7089,7 +7135,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "SVM classifier prediction \n",
+      "description": "SVM classifier prediction \n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -7207,7 +7253,7 @@
           "type": "list of floats"
         }
       ],
-      "doc": "SVM regression prediction and one-class svm anomaly detection\n",
+      "description": "SVM regression prediction and one-class svm anomaly detection\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -7265,7 +7311,7 @@
           "type": "float"
         }
       ],
-      "doc": "Scale takes one input data (Tensor<float>) and produces one output data\n(Tensor<float>) whose value is the input data tensor scaled element-wise.\n",
+      "description": "Scale takes one input data (Tensor<float>) and produces one output data\n(Tensor<float>) whose value is the input data tensor scaled element-wise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7329,7 +7375,7 @@
           "type": "float"
         }
       ],
-      "doc": "Calculates the scaled hyperbolic tangent of the given input tensor element-wise,\nalpha * tanh(beta * x). This operation can be done in an in-place fashion too,\nby providing the same input and output blobs.\n    ",
+      "description": "Calculates the scaled hyperbolic tangent of the given input tensor element-wise,\nalpha * tanh(beta * x). This operation can be done in an in-place fashion too,\nby providing the same input and output blobs.\n    ",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7393,7 +7439,7 @@
           "type": "list of floats"
         }
       ],
-      "doc": "Rescale input data, for example to standardize features by removing the mean and scaling to unit variance.\n",
+      "description": "Rescale input data, for example to standardize features by removing the mean and scaling to unit variance.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -7457,7 +7503,7 @@
           "type": "float"
         }
       ],
-      "doc": "Selu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the scaled exponential linear unit function,\n`y = gamma * (alpha * e^x - alpha) for x <= 0`, `y = gamma * x for x > 0`,\nis applied to the tensor elementwise.\n",
+      "description": "Selu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the scaled exponential linear unit function,\n`y = gamma * (alpha * e^x - alpha) for x <= 0`, `y = gamma * x for x > 0`,\nis applied to the tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7507,7 +7553,7 @@
   {
     "name": "Sigmoid",
     "schema": {
-      "doc": "Sigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the sigmoid function, y = 1 / (1 + exp(-x)), is applied to the\ntensor elementwise.\n",
+      "description": "Sigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the sigmoid function, y = 1 / (1 + exp(-x)), is applied to the\ntensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7577,7 +7623,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\n\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension.\n\nExample 1:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n\n  result = [\n      [5, 6, 7],\n  ]\n\n\nExample 2:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0]\n  ends = [-1]\n\n  result = [\n      [1, 2, 3, 4],\n  ]\n\n",
+      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\n\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension.\n\nExample 1:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n\n  result = [\n      [5, 6, 7],\n  ]\n\n\nExample 2:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0]\n  ends = [-1]\n\n  result = [\n      [1, 2, 3, 4],\n  ]\n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7649,7 +7695,7 @@
           "type": "int"
         }
       ],
-      "doc": "The operator computes the softmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the softmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "The operator computes the softmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the softmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7699,7 +7745,7 @@
   {
     "name": "Softplus",
     "schema": {
-      "doc": "Softplus takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the softplus function, y = ln(exp(x) + 1), is applied to\nthe tensor elementwise.\n",
+      "description": "Softplus takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the softplus function, y = ln(exp(x) + 1), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7749,7 +7795,7 @@
   {
     "name": "Softsign",
     "schema": {
-      "doc": "Calculates the softsign (x/1+|x|) of the given input tensor element-wise.\n",
+      "description": "Calculates the softsign (x/1+|x|) of the given input tensor element-wise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7807,7 +7853,7 @@
           "type": "int"
         }
       ],
-      "doc": "SpaceToDepth rearranges blocks of spatial data into depth. More specifically,\nthis op outputs a copy of the input tensor where values from the height and width dimensions\nare moved to the depth dimension.\n",
+      "description": "SpaceToDepth rearranges blocks of spatial data into depth. More specifically,\nthis op outputs a copy of the input tensor where values from the height and width dimensions\nare moved to the depth dimension.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7871,7 +7917,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Split a tensor into a list of tensors, along the specified\n'axis'. The lengths of the split can be specified using argument 'axis' or\noptional second input blob to the operator. Otherwise, the tensor is split\nto equal sized parts.\n",
+      "description": "Split a tensor into a list of tensors, along the specified\n'axis'. The lengths of the split can be specified using argument 'axis' or\noptional second input blob to the operator. Otherwise, the tensor is split\nto equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7946,7 +7992,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
+      "description": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7996,7 +8042,7 @@
   {
     "name": "Sqrt",
     "schema": {
-      "doc": "Square root takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the square root is, y = x^0.5, is applied to\nthe tensor elementwise. If x is negative, then it will return NaN.\n",
+      "description": "Square root takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the square root is, y = x^0.5, is applied to\nthe tensor elementwise. If x is negative, then it will return NaN.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8054,7 +8100,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Remove single-dimensional entries from the shape of a tensor.\nTakes a  parameter `axes` with a list of axes to squeeze.\n",
+      "description": "Remove single-dimensional entries from the shape of a tensor.\nTakes a  parameter `axes` with a list of axes to squeeze.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8118,7 +8164,7 @@
           "type": "int"
         }
       ],
-      "doc": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8179,7 +8225,7 @@
   {
     "name": "Sum",
     "schema": {
-      "doc": "Element-wise sum of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "description": "Element-wise sum of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8229,7 +8275,7 @@
   {
     "name": "Tanh",
     "schema": {
-      "doc": "Calculates the hyperbolic tangent of the given input tensor element-wise.\n",
+      "description": "Calculates the hyperbolic tangent of the given input tensor element-wise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8287,7 +8333,7 @@
           "type": "float"
         }
       ],
-      "doc": "ThresholdedRelu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = x for x > alpha, y = 0 otherwise,\nis applied to the tensor elementwise.\n",
+      "description": "ThresholdedRelu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = x for x > alpha, y = 0 otherwise,\nis applied to the tensor elementwise.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8337,7 +8383,7 @@
   {
     "name": "Tile",
     "schema": {
-      "doc": "Repeat the elements of a tensor along an axis.",
+      "description": "Repeat the elements of a tensor along an axis.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8417,7 +8463,7 @@
           "type": "list of ints"
         }
       ],
-      "doc": "Transpose the input tensor similar to numpy.transpose. For example, when\naxes=(1, 0, 2), given an input tensor of shape (1, 2, 3), the output shape\nwill be (2, 1, 3).\n",
+      "description": "Transpose the input tensor similar to numpy.transpose. For example, when\naxes=(1, 0, 2), given an input tensor of shape (1, 2, 3), the output shape\nwill be (2, 1, 3).\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8571,7 +8617,7 @@
           "type": "string"
         }
       ],
-      "doc": "Tree Ensemble classifier.  Returns the top class for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and \n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once \n    for each tree id.\n    All fields prefixed with class_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.  \n    It is expected that either classlabels_strings or classlabels_int64s\n    will be passed and the class_ids are an index into this list.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+      "description": "Tree Ensemble classifier.  Returns the top class for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and \n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once \n    for each tree id.\n    All fields prefixed with class_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.  \n    It is expected that either classlabels_strings or classlabels_int64s\n    will be passed and the class_ids are an index into this list.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -8743,7 +8789,7 @@
           "type": "list of floats"
         }
       ],
-      "doc": "Tree Ensemble regressor.  Returns the regressed values for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and \n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once \n    for each tree id.\n    All fields prefixed with target_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.  \n    All trees must have their node ids start at 0 and increment by 1.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+      "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and \n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once \n    for each tree id.\n    All fields prefixed with target_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.  \n    All trees must have their node ids start at 0 and increment by 1.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -8813,7 +8859,7 @@
           "type": "float"
         }
       ],
-      "doc": "Upsample the input tensor.\nThe width and height of the output tensor are:\n  output_width = floor(input_width * width_scale),\n  output_height = floor(input_height * height_scale).\n\nExmpale:\n  Given `data` tensor, width_scale, height_scale, mode,\n  Upsample the input 4-D tensor in nearest mode:\n\n  data = [[[\n      [1, 2],\n      [3, 4]\n  ]]]\n  width_scale = 2\n  height_scale = 2\n  mode = \"nearest\"\n\n  output = [[[\n      [1, 1, 2, 2],\n      [1, 1, 2, 2],\n      [3, 3, 4, 4],\n      [3, 3, 4, 4]\n  ]]]\n",
+      "description": "Upsample the input tensor.\nThe width and height of the output tensor are:\n  output_width = floor(input_width * width_scale),\n  output_height = floor(input_height * height_scale).\n\nExmpale:\n  Given `data` tensor, width_scale, height_scale, mode,\n  Upsample the input 4-D tensor in nearest mode:\n\n  data = [[[\n      [1, 2],\n      [3, 4]\n  ]]]\n  width_scale = 2\n  height_scale = 2\n  mode = \"nearest\"\n\n  output = [[[\n      [1, 1, 2, 2],\n      [1, 1, 2, 2],\n      [3, 3, 4, 4],\n      [3, 3, 4, 4]\n  ]]]\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8886,7 +8932,7 @@
           "type": "int"
         }
       ],
-      "doc": "Returns the tensor resulted from performing the `xor` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
+      "description": "Returns the tensor resulted from performing the `xor` logical operation\nelementwise on the input tensors `A` and `B`.\n\nIf broadcasting is enabled, the right-hand-side argument will be broadcasted\nto match the shape of left-hand-side argument. See the doc of `Add` for a\ndetailed description of the broadcasting rules.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -8960,7 +9006,7 @@
           "type": "list of strings"
         }
       ],
-      "doc": "Makes a map from the input and the attributes.  \n    Assumes input 0 are the values, and the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).\n    Input 0 may have a batch size larger than 1, \n    but each input in the batch must be the size of the keys specified by the attributes.\n    The order of the input and attributes determines the key-value mapping.\n",
+      "description": "Makes a map from the input and the attributes.  \n    Assumes input 0 are the values, and the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).\n    Input 0 may have a batch size larger than 1, \n    but each input in the batch must be the size of the keys specified by the attributes.\n    The order of the input and attributes determines the key-value mapping.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {

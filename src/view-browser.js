@@ -9,7 +9,7 @@ class BrowserHostService {
         this.callback = callback;
     
         updateView('spinner');
-        
+
         var request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
         request.onload = () => {

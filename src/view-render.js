@@ -4,7 +4,6 @@ class NodeFormatter {
 
     constructor(context) {
         this.items = [];
-        this.properties = [];
         this.attributes = [];
     }
 
@@ -25,14 +24,6 @@ class NodeFormatter {
         this.items.push(item);
     }
 
-    addProperty(name, value) {
-        this.properties.push({ name: name, value: value });
-    }
-
-    setPropertyHandler(handler) {
-        this.propertyHandler = handler;
-    }
-
     addAttribute(name, value, title) {
         this.attributes.push({ name: name, value: value, title: title });
     }
@@ -43,7 +34,6 @@ class NodeFormatter {
 
     format(context) {
         var root = context.append('g');
-        var hasProperties = this.properties && this.properties.length > 0;
         var hasAttributes = this.attributes && this.attributes.length > 0;
         var x = 0;
         var y = 0;
@@ -95,36 +85,6 @@ class NodeFormatter {
         x = 0;
         y += itemHeight;
 
-        var propertiesHeight = 0;
-        var propertiesPath = null;
-        if (hasProperties) {
-            var propertyGroup = root.append('g').classed('node-property', true);
-            if (this.propertyHandler) {
-                propertyGroup.on('click', this.propertyHandler);
-            }
-            propertiesPath = propertyGroup.append('path');
-            propertyGroup.attr('transform', 'translate(' + x + ',' + y + ')');
-            propertiesHeight += 4;
-            this.properties.forEach((property) => {
-                var yPadding = 1;
-                var xPadding = 4;
-                var text = propertyGroup.append('text').attr('xml:space', 'preserve');
-                var text_name = text.append('tspan').style('font-weight', 'bold').text(property.name);
-                var text_value = text.append('tspan').text(': ' + property.value);
-                var size = text.node().getBBox();
-                var width = xPadding + size.width + xPadding;
-                if (maxWidth < width) {
-                    maxWidth = width;
-                }
-                text.attr('x', x + xPadding);
-                text.attr('y', propertiesHeight + yPadding - size.y);
-                propertiesHeight += yPadding + size.height + yPadding;
-            });
-            propertiesHeight += hasAttributes ? 1 : 4;
-        }
-
-        y += propertiesHeight;
-
         var attributesHeight = 0;
         var attributesPath = null;
         if (hasAttributes)
@@ -135,7 +95,7 @@ class NodeFormatter {
             }
             attributesPath = attributeGroup.append('path');
             attributeGroup.attr('transform', 'translate(' + x + ',' + y + ')');
-            attributesHeight += hasProperties ? 1 : 4;
+            attributesHeight += 4;
             this.attributes.forEach((attribute) => {
                 var yPadding = 1;
                 var xPadding = 4;
@@ -170,15 +130,11 @@ class NodeFormatter {
             itemBox.group.attr('transform', 'translate(' + itemBox.x + ',' + itemBox.y + ')');        
             var r1 = index == 0;
             var r2 = index == itemBoxes.length - 1;
-            var r3 = !hasAttributes && !hasProperties && r2;
-            var r4 = !hasAttributes && !hasProperties && r1;
+            var r3 = !hasAttributes && r2;
+            var r4 = !hasAttributes && r1;
             itemBox.path.attr('d', this.roundedRect(0, 0, itemBox.width, itemBox.height, r1, r2, r3, r4));
             itemBox.text.attr('x', itemBox.tx).attr('y', itemBox.ty);
         });
-
-        if (hasProperties) {
-            propertiesPath.attr('d', this.roundedRect(0, 0, maxWidth, propertiesHeight, false, false, !hasAttributes, !hasAttributes));
-        }
 
         if (hasAttributes) {
             attributesPath.attr('d', this.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
@@ -189,10 +145,10 @@ class NodeFormatter {
                 root.append('line').classed('node', true).attr('x1', itemBox.x).attr('y1', 0).attr('x2', itemBox.x).attr('y2', itemHeight);
             }
         });
-        if (hasAttributes || hasProperties) {
+        if (hasAttributes) {
             root.append('line').classed('node', true).attr('x1', 0).attr('y1', itemHeight).attr('x2', maxWidth).attr('y2', itemHeight);
         }
-        root.append('path').classed('node', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + propertiesHeight + attributesHeight, true, true, true, true));
+        root.append('path').classed('node', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
 
         context.html("");
         return root;

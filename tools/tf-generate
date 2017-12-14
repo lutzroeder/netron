@@ -24,3 +24,6 @@ echo "Generate '../src/tf.js'"
 echo "Generate '../src/tflite.js'"
 flatc --js ../third_party/tensorflow/tensorflow/contrib/lite/schema/schema.fbs 
 mv ./schema_generated.js ../src/tflite.js
+
+echo "Generate '../src/tf-operator.json'"
+python tf-operator-json.py

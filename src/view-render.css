@@ -14,11 +14,6 @@
 .node-item-constant:hover { cursor: hand; }
 .node-item-constant:hover path { fill: #fff; }
 
-.node-property:hover { cursor: hand; }
-.node-property text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 7px; font-weight: normal; text-rendering: geometricPrecision; }
-.node-property path { fill: #fff; stroke-width: 0; stroke: #000; }
-.node-property:hover path { fill: #f6f6f6; }
-
 .node-attribute:hover { cursor: hand; }
 .node-attribute text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 7px; font-weight: normal; text-rendering: geometricPrecision; }
 .node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }

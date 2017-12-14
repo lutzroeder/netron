@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 from __future__ import unicode_literals
 
@@ -32,7 +32,7 @@ def generate_json_types(types):
     r = sorted(r)
     return r
 
-def generate_json(schemas, file):
+def generate_json(schemas, json_file):
     json_root = []
     for schema in schemas:
         json_schema = {}
@@ -43,7 +43,7 @@ def generate_json(schemas, file):
         json_schema['since_version'] = schema.since_version
         json_schema['support_level'] = generate_json_support_level_name(schema.support_level)
         if schema.doc:
-            json_schema['doc'] = schema.doc.lstrip();
+            json_schema['description'] = schema.doc.lstrip();
         if schema.inputs:
             json_schema['inputs'] = []
             for input in schema.inputs:
@@ -101,8 +101,9 @@ def generate_json(schemas, file):
                 })
         json_root.append({
             "name": schema.name,
-            "schema": json_schema })
-    with io.open(file, 'w', newline='') as fout:
+            "schema": json_schema 
+        })
+    with io.open(json_file, 'w', newline='') as fout:
         json_root = json.dumps(json_root, sort_keys=True, indent=2)
         for line in json_root.splitlines():
             line = line.rstrip()

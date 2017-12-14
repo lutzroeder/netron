@@ -33,7 +33,11 @@ class TensorFlowModel {
                 this._format = 'TensorFlow Graph Defintion';
             }
 
-            this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;            
+            this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
+
+            if (!TensorFlowModel.operatorMetadata) {
+                TensorFlowModel.operatorMetadata = new TensorFlowOperatorMetadata(hostService);
+            }
         }
         catch (err) {
             return err;
@@ -83,9 +87,69 @@ class TensorFlowGraph {
         this._graph = graph;
         this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
 
+        this._nodeMap = {};
+        var nodes = this._graph.graphDef.node;
+        nodes.forEach((node) => {
+            this._nodeMap[node.name] = node;   
+            node.output = [];         
+        });
+        nodes.forEach((node) => {
+            for (var i = 0; i < node.input.length; i++)
+            {
+                var split = node.input[i].split(':', 1);
+                if (split.length == 1) {
+                    split.push('0');
+                }
+                // TODO
+                if (split[0].startsWith('^')) {
+                    split[0] = split[0].substring(1);
+                }
+                var outputName = split[0];
+                var outputIndex = parseInt(split[1]);
+                var outputNode = this._nodeMap[outputName];
+                node.input[i] = outputName + ':' + outputIndex.toString();
+                if (outputNode) {
+                    for (var j = outputNode.output.length; j <= outputIndex; j++) {
+                        outputNode.output.push('');
+                    }
+                    outputNode.output[outputIndex] = node.input[i];
+                }
+            }
+        });
         this._outputMap = {};
+        nodes.forEach((node) => {
+            node.output.forEach((output) => {
+                var count = this._outputMap[output];
+                if (!count) {
+                    count = 0;
+                }
+                this._outputMap[output] = count + 1;
+            });
+        });
+
+        this._initializerMap = {};
         this._graph.graphDef.node.forEach((node) => {
-            
+            if (this.checkNode(node, 'Const', 0, 1)) {
+                var tensor = null;
+                Object.keys(node.attr).forEach((name) => {
+                    if (name == 'value') {
+                        tensor = node.attr[name];
+                        return;
+                    }
+                });
+                this._initializerMap[node.output[0]] = new TensorFlowTensor(tensor, node.output[0], 'Constant');
+            }
+        });
+        this._graph.graphDef.node.forEach((node) => {
+            if (this.checkNode(node, 'Identity', 1, 1)) {
+                var tensor = this._initializerMap[node.input[0]];
+                if (tensor) {
+                    this._initializerMap[node.input[0]] = "-";
+                    tensor._id = node.output[0]; // TODO update tensor id
+                    tensor._title = 'Constant Identity';
+                    this._initializerMap[node.output[0]] = tensor;
+                }
+            }
         });
     }
 
@@ -121,20 +185,10 @@ class TensorFlowGraph {
 
     get initializers() {
         var results = [];
-        this._graph.graphDef.node.forEach((node) => {
-            if (node.op == 'Const') {
-                var id = node.name;
-                if (id.indexOf(':') == -1) {
-                    id += ':0';
-                }
-                var tensor = null;
-                Object.keys(node.attr).forEach((name) => {
-                    if (name == 'value') {
-                        tensor = node.attr[name];
-                        return;
-                    }
-                });
-                results.push(new TensorFlowTensor(tensor, id, node.name));
+        Object.keys(this._initializerMap).forEach((key) => {
+            var value = this._initializerMap[key];
+            if (value != '-') {
+                results.push(value);
             }
         });
         return results;
@@ -146,7 +200,7 @@ class TensorFlowGraph {
         // });
         var results = [];
         this._graph.graphDef.node.forEach((node) => {
-            if (node.op != 'Const') {
+            if (!this._initializerMap[node.name + ':0']) {
                 results.push(new TensorFlowNode(this, node));
             }
         });
@@ -155,10 +209,30 @@ class TensorFlowGraph {
 
     get metadata() {
         if (!this._metadata) {
-            this._metadata = new TensorFlowGraphMetadata(this._graph.metaInfoDef);
+            this._metadata = new TensorFlowGraphOperatorMetadata(this._graph.metaInfoDef);
         }
         return this._metadata;
     }
+
+    checkNode(node, operator, inputs, outputs) {
+        if (node.op != operator) {
+            return false;
+        }
+        if (outputs == 0 && node.output.length != 0) {
+            return false;
+        }
+        if (inputs == 0 && node.input.length != 0) {
+            return false;
+        }
+        if (outputs > 0 && node.output.length != 1 && this._outputMap[node.output[0] != outputs]) {
+            return false;
+        }
+        if (inputs > 0 && node.input.length != 1 && this._outputMap[node.input[0] != inputs]) {
+            return false;
+        }
+        return true;
+    }
+
 }
 
 class TensorFlowNode {
@@ -172,54 +246,72 @@ class TensorFlowNode {
         return this._node.op;
     }
 
+    get name() {
+        return this._node.name;
+    }
+
+    get description() {
+        return null;
+    }
+
+    get primitive() {
+        /*
+        switch (this._node.op) {
+            case 'Add': return '+';
+            case 'Mul': return '*';
+            case 'Sub': return '-';
+            case 'Identity': return 'I';
+        }
+        */
+        return null;
+    }
+
+    get constant() {
+        return this._node.op == 'Const';
+    }
+
+    get documentation() {
+        var graphMetadata = this._graph.metadata;
+        if (graphMetadata) {
+            return graphMetadata.getOperatorDocumentation(this.operator);       
+        }
+        return null;
+    }
+
+    get domain() {
+        return null;
+    }
+
     get inputs() {
         var graphMetadata = this._graph.metadata;
         var node = this._node;
-        var result = [];
+        var results = [];
         if (node.input) {
-            node.input.forEach(function(input, index) {
-                if (input.startsWith('^')) {
-                    input = input.substring(1);
-                }
-                if (input.indexOf(':') == -1) {
-                    input += ':0';
-                }
-                result.push({
+            node.input.forEach((input, index) => {
+                results.push({
                     'id': input, 
                     'name': graphMetadata ? graphMetadata.getInputName(node.op, index) : ('(' + index.toString() + ')'),
                     'type': ''
                 });
             });
         }
-        return result;
+        return results;
     }
 
     get outputs() {
         var graphMetadata = this._graph.metadata;
         var node = this._node;
-        var index = 0;
-        var id = node.name + ':0';
-        return [ { 
-            'id': id,
-            'name': graphMetadata ? graphMetadata.getOutputName(node.op, index) : ('(' + index.toString() + ')'),
-            'type': ''
-        } ];
-    }
-
-    get properties() {
-        var node = this._node;
-        var result = null;
-        if (node.name) {
-            result = [];
-            if (node.name) {
-                result.push({
-                    'name': 'name', 
-                    'value': node.name,
-                    'value_short': function() { return node.name; } 
+        var results = [];
+        if (node.output) {
+            node.output.forEach((output, index) => {
+                results.push({
+                    'id': output, 
+                    'name': graphMetadata ? graphMetadata.getOutputName(node.op, index) : ('(' + index.toString() + ')'),
+                    'type': ''
                 });
-            }
+            });
         }
-        return result;
+        return results;
     }
 
     get attributes() {
@@ -227,7 +319,7 @@ class TensorFlowNode {
         var result = [];
         if (node.attr) {
             Object.keys(node.attr).forEach(function (name) {
-                if (name != '_output_shapes') {
+                if (name != '_output_shapes' && name != 'T') {
                     var value = node.attr[name];
                     result.push({ 
                         'name': name,
@@ -240,21 +332,16 @@ class TensorFlowNode {
         }
         return result;
     }
-
-    get documentation() {
-        var graphMetadata = this._graph.metadata;
-        if (graphMetadata) {
-            return graphMetadata.getOperatorDocumentation(this.operator);       
-        }
-        return null;
-    }
 }
 
 class TensorFlowTensor {
 
-    constructor(tensor, id) {
+    constructor(tensor, id, title) {
         this._tensor = tensor;
         this._id = id;
+        if (title) {
+            this._title = title;
+        }
     }
 
     get id() {
@@ -269,6 +356,10 @@ class TensorFlowTensor {
         return TensorFlowTensor.formatTensorType(this._tensor);
     }
 
+    get title() {
+        return this._title;
+    }
+
     get value() {
         return '?';        
     }
@@ -279,13 +370,41 @@ class TensorFlowTensor {
     }
 }
 
-class TensorFlowGraphMetadata {
+class TensorFlowOperatorMetadata {
+
+    constructor(hostService) {
+        this._map = {};
+        hostService.request('/tf-operator.json', (err, data) => {
+            if (err != null) {
+                // TODO error
+            }
+            else {
+                var items = JSON.parse(data);
+                if (items) {
+                    items.forEach((item) => {
+                        if (item.name && item.schema)
+                        {
+                            var name = item.name;
+                            var schema = item.schema;
+                            this._map[name] = schema;
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    getSchema(operator) {
+        return this._map[operator];
+    }
+}
+
+class TensorFlowGraphOperatorMetadata {
 
     constructor(metaInfoDef) {
-        var self = this;
-        self.schemaMap = {};
+        this._map = {};
         if (metaInfoDef && metaInfoDef.strippedOpList && metaInfoDef.strippedOpList.op) {
-            metaInfoDef.strippedOpList.op.forEach(function (opDef) {
+            metaInfoDef.strippedOpList.op.forEach((opDef) => {
                 var schema = { inputs: [], outputs: [], attributes: [] };
                 opDef.inputArg.forEach(function (inputArg) {
                     schema.inputs.push({ name: inputArg.name, typeStr: inputArg.typeAttr });
@@ -296,13 +415,21 @@ class TensorFlowGraphMetadata {
                 opDef.attr.forEach(function (attr) {
                     schema.attributes.push({ name: attr.name, type: attr.type });
                 });
-                self.schemaMap[opDef.name] = schema;
+                this._map[opDef.name] = schema;
             });
         }
     }
 
+    getSchema(operator) {
+        var schema = TensorFlowModel.operatorMetadata.getSchema(operator);
+        if (!schema) {
+            schema = this._map[operator];
+        }
+        return schema;
+    }
+
     getInputName(operator, index) {
-        var schema = this.schemaMap[operator];
+        var schema = this.getSchema(operator);
         if (schema) {
             var inputs = schema.inputs;
             if (inputs && index < inputs.length) {
@@ -319,7 +446,7 @@ class TensorFlowGraphMetadata {
     }
 
     getOutputName(operator, index) {
-        var schema = this.schemaMap[operator];
+        var schema = this.getSchema(operator);
         if (schema) {
             var outputs = schema.outputs;
             if (outputs && index < outputs.length) {
@@ -336,8 +463,21 @@ class TensorFlowGraphMetadata {
     }
 
     getOperatorDocumentation(operator) {
-        var schema = this.schemaMap[operator];
+        var schema = this.getSchema(operator);
         if (schema) {
+            schema = Object.assign({}, schema);
+            schema.name = operator;
+            schema.summary = marked(schema.summary);
+            schema.description = marked(schema.description);
+            schema.inputs.forEach((input) => {
+                input.description = marked(input.description);
+            });
+            schema.outputs.forEach((output) => {
+                output.description = marked(output.description);
+            });
+            schema.attributes.forEach((attribute) => {
+                attribute.description = marked(attribute.description);
+            });
             var template = Handlebars.compile(operatorTemplate, 'utf-8');
             return template(schema);
         }

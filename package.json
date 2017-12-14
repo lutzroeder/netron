@@ -23,6 +23,7 @@
         "electron-updater": "^2.16.1",
         "flatbuffers": "^1.8.0",
         "handlebars": "x.x.x",
+        "marked": "x.x.x",
         "npm-font-open-sans": "x.x.x",
         "protobufjs": "x.x.x"
     },

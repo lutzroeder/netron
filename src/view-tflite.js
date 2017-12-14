@@ -188,6 +188,26 @@ class TensorFlowLiteNode {
         return this._operator;
     }
 
+    get name() {
+        return null;
+    }
+
+    get primitive() {
+        return null;
+    }
+
+    get constant() {
+        return null;
+    }
+
+    get documentation() {
+        return null;
+    }
+
+    get domain() {
+        return null;
+    }
+
     get inputs() {
         if (!this._inputs) {
             this._inputs = [];
@@ -225,10 +245,6 @@ class TensorFlowLiteNode {
             }
         }
         return this._outputs;
-    }
-
-    get properties() {
-        return [];
     }
 
     get attributes() {

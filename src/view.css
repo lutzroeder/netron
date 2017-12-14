@@ -138,7 +138,7 @@ button:hover {
     user-select: none;
 }
 
-.sidebar a {
+.sidebar-closebutton {
     padding: 8px 8px 8px 32px;
     text-decoration: none;
     font-size: 25px;
@@ -146,22 +146,17 @@ button:hover {
     opacity: 1.0;
     display: block;
     transition: 0.2s;
-    height: 100%;
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
-}
-
-.sidebar a:hover {
-    color: #f1f1f1;
-}
-
-.sidebar-closebutton {
     position: absolute;
     top: 0;
     right: 15px;
-    font-size: 36px;
     margin-left: 50px;
+}
+
+.sidebar-closebutton:hover {
+    color: #f1f1f1;
 }
 
 .sidebar-content {

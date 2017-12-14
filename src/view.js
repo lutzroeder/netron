@@ -11,7 +11,7 @@ document.body.scroll = 'no';
 var navigationButton = document.getElementById('navigation-button');
 if (navigationButton) {
     navigationButton.addEventListener('click', (e) => {
-        showSummary(modelService.activeModel);
+        showModelSummary(modelService.activeModel);
     });
 }
 
@@ -111,30 +111,41 @@ function updateGraph(model) {
     var edgeMap = {};
 
     var initializerMap = {};
-    graph.initializers.forEach(function (initializer) {
+    graph.initializers.forEach((initializer) => {
         var id = initializer.id;
         initializerMap[id] = initializer;
     });
 
-    graph.nodes.forEach(function (node) {
+    graph.nodes.forEach((node) => {
         var formatter = new NodeFormatter();
-        var style = (node.operator != 'Constant' && node.operator != 'Const') ? 'node-item-operator' : 'node-item-constant';
-        formatter.addItem(node.operator, style, null, function() { 
+        var style = node.constant ? 'node-item-constant' : 'node-item-operator';
+        var primitive = node.primitive;
+        formatter.addItem(primitive ? primitive : node.operator, style, node.name, function() { 
             showNodeOperatorDocumentation(node);
         });
 
-        node.inputs.forEach(function (input)
-        {
+        var hasInitializerInputs = false;
+        node.inputs.forEach((input) => {
+            if (initializerMap[input.id]) {
+                hasInitializerInputs = true;
+            }
+        });
+
+        node.inputs.forEach((input) => {
             var inputId = input.id;
             var initializer = initializerMap[inputId];
             if (initializer) {
-                formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
-                    showTensor(model, initializer);
-                });
+                if (!primitive || hasInitializerInputs) {
+                    formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
+                        showTensor(model, initializer);
+                    });
+                }
             }
             else {
                 // TODO is there a way to infer the type of the6 input?
-                formatter.addItem(input.name, null, input.type, null);
+                if (!primitive || hasInitializerInputs) {
+                    formatter.addItem(input.name, null, input.type, null);
+                }
                 var tuple = edgeMap[inputId];
                 if (!tuple) {
                     tuple = { from: null, to: [] };
@@ -147,7 +158,7 @@ function updateGraph(model) {
             }
         });
 
-        node.outputs.forEach(function (output)
+        node.outputs.forEach((output) =>
         {
             var outputId = output.id;
             var tuple = edgeMap[outputId];
@@ -161,20 +172,11 @@ function updateGraph(model) {
             };
         });
 
-        if (node.properties) {
-            formatter.setPropertyHandler(function() {
-                showNodeProperties(node);
+        if (node.attributes && !primitive) {
+            formatter.setAttributeHandler(() => { 
+                showNodeDetails(node);
             });
-            node.properties.forEach(function (property) {
-                formatter.addProperty(property.name, property.value_short());
-            });
-        }
-
-        if (node.attributes) {
-            formatter.setAttributeHandler(function() { 
-                showNodeAttributes(node);
-            });
-            node.attributes.forEach(function (attribute) {
+            node.attributes.forEach((attribute) => {
                 formatter.addAttribute(attribute.name, attribute.value_short(), attribute.type);
             });
         }
@@ -182,7 +184,7 @@ function updateGraph(model) {
         g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 });
     });
 
-    graph.inputs.forEach(function (input) {
+    graph.inputs.forEach((input) => {
         var tuple = edgeMap[input.id];
         if (!tuple) {
             tuple = { from: null, to: [] };
@@ -198,7 +200,7 @@ function updateGraph(model) {
         g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input', labelType: 'svg', padding: 0 } ); 
     });
 
-    graph.outputs.forEach(function (output) {
+    graph.outputs.forEach((output) => {
         var outputId = output.id;
         var outputName = output.name;
         var tuple = edgeMap[outputId];
@@ -216,7 +218,7 @@ function updateGraph(model) {
         g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
     });
 
-    Object.keys(edgeMap).forEach(function (edge) {
+    Object.keys(edgeMap).forEach((edge) => {
         var tuple = edgeMap[edge];
         if (tuple.from != null) {
             tuple.to.forEach(function (to) {
@@ -286,7 +288,7 @@ function updateGraph(model) {
     }, 20);
 }
 
-function showSummary(model) {
+function showModelSummary(model) {
     var view = model.format();
     if (view) {
         var template = Handlebars.compile(summaryTemplate, 'utf-8');
@@ -308,6 +310,14 @@ function showNodeOperatorDocumentation(node) {
     var documentation = node.documentation;
     if (documentation) {
         sidebar.open(documentation, 'Documentation');
+    }
+}
+
+function showNodeDetails(node) {
+    if (node) {
+        var template = Handlebars.compile(nodeTemplate, 'utf-8');
+        var data = template(node);
+        sidebar.open(data, 'Node Details');
     }
 }
 

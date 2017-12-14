@@ -2,51 +2,16 @@
 
 var itemsTemplate = `
 <style type='text/css'>
-
-.items {
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    font-size: 12px;
-    line-height: 1.5;
-    margin: 0;
-}
-.item {
-    margin-bottom: 20px;
-}
-.item b {
-    font-weight: 600;
-}
-.item h1 {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.25;
-    border-bottom: 1px solid #eaecef;
-    padding-bottom: 0.3em;
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-.item code {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 10px;
-    background-color: rgba(27, 31, 35, 0.05);
-    padding: 0.2em 0.4em;
-    margin: 0;
-    border-radius: 3px
-}
-.item pre {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 11px;
-    padding: 8px 12px 8px 12px;
-    overflow: auto;
-    line-height: 1.45;
-    background-color: rgba(27, 31, 35, 0.05);
-    border-radius: 3px;
-    white-space: pre-wrap;
-    word-wrap: break-word;  
-}
+.items { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
+.item { margin-bottom: 20px; }
+.item b { font-weight: 600; }
+.item h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px }
+.item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 11px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; white-space: pre-wrap; word-wrap: break-word; }
 </style>
 <div class='items'>
 {{#items}}
-<div class='item'>    
+<div class='item'>
 <b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
 {{#if quantization}}
 <pre>{{{quantization}}}</pre>
@@ -62,78 +27,27 @@ var itemsTemplate = `
 
 var operatorTemplate = `
 <style type='text/css'>
-
-.documentation {
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    font-size: 12px;
-    line-height: 1.5;
-    margin: 0;
-}
-.documentation h1 {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 1.25;
-    border-bottom: 1px solid #eaecef;
-    padding-bottom: 0.3em;
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-.documentation h2 {
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.25;
-    margin-bottom: 16px;
-    border-bottom: 1px solid #eaecef
-}
-.documentation h3 {
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.25;
-}
-.documentation code {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 10px;
-    background-color: rgba(27, 31, 35, 0.05);
-    padding: 0.2em 0.4em;
-    margin: 0;
-    border-radius: 3px
-}
-.documentation pre {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 11px;
-    padding: 16px;
-    overflow: auto;
-    line-height: 1.45;
-    background-color: rgba(27, 31, 35, 0.05);
-    border-radius: 3px
-}
-.documentation tt {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-weight: 600;
-    font-size: 85%;
-    background-color: rgba(27, 31, 35, 0.05);
-    border-radius: 3px;
-    padding: 0.2em 0.4em;
-    margin: 0;
-}
-.documentation dl dt {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 0;
-    margin-top: 16px;
-}
-.documentation dd {
-    padding: 0 16px;
-    margin-left: 0;
-    margin-bottom: 16px;
-}
+.documentation { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
+.documentation h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.documentation h2 { font-weight: 600; font-size: 12px; line-height: 1.25; margin-bottom: 16px; border-bottom: 1px solid #eaecef; }
+.documentation h3 { font-weight: 600; font-size: 12px; line-height: 1.25; }
+.documentation p { }
+.documentation code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px }
+.documentation pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 11px; padding: 16px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; }
+.documentation pre code { font-size: 11px; padding: 16px; line-height: 1.45; background-color: transparent; padding: 0; border-radius: 0; }
+.documentation tt { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 85%; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
+.documentation dl dt { font-size: 12px; font-weight: 600; padding: 0; margin-top: 16px; }
+.documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
 </style>
 
 <div class='documentation'>
 
 <h1>{{{name}}}</h1>
-{{#if doc}}
-{{{doc}}}
+{{#if summary}}
+<p>{{{summary}}}</p>
+{{/if}}
+{{#if description}}
+<p>{{{description}}}</p>
 {{/if}}
 
 {{#if attributes}}
@@ -196,71 +110,13 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
 
 var summaryTemplate = `
 <style type='text/css'>
-.summary {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 12px;
-    line-height: 1.5;
-    overflow: hidden;
-    width: 500;
-    margin: auto;
-}
-
-.summary h1 {
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-weight: 600;
-    font-size: 12px;
-    margin: 0;
-    color: #666;
-    letter-spacing: 0.5px;
-    padding: 10px 0px 0px 0px;
-    margin: 20px 0px 0px 0px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
-}
-
-.summary .section {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding: 10px;
-    overflow-y: auto;
-    position: relative;
-    border: 1px solid none;
-}
-
-.summary .section table code {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 10px;
-    background-color: rgba(27, 31, 35, 0.05);
-    padding: 0.2em 0.4em;
-    margin: 0;
-    border-radius: 3px;
-    background-color: #d6d6d6;
-}
-
-.summary .border {
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-.summary .section table { 
-    color: #777;
-    float: left;
-    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    font-size: 12px;
-    border-spacing: 0;
-    line-height: 150%;
-}
-
-.summary .section table td:first-child {
-    font-weight: 600;
-    width: 75px;
-    vertical-align: top;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-}
-
+.summary { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 12px; line-height: 1.5; overflow: hidden; width: 500; margin: auto; }
+.summary h1 { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-weight: 600; font-size: 12px; margin: 0; color: #666; letter-spacing: 0.5px; padding: 10px 0px 0px 0px; margin: 20px 0px 0px 0px; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+.summary .section { margin-top: 10px; margin-bottom: 10px; padding: 10px; overflow-y: auto; position: relative; border: 1px solid none; }
+.summary .section table code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px; background-color: #d6d6d6; }
+.summary .border { border-radius: 10px; border: 1px solid #ccc; }
+.summary .section table { color: #777; float: left; font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; border-spacing: 0; line-height: 150%; }
+.summary .section table td:first-child { font-weight: 600; width: 75px; vertical-align: top; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .summary .section table td { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 </style>
 <div class='summary'>
@@ -312,5 +168,43 @@ var summaryTemplate = `
 <button style='float: right; width: 80px;' onclick='javascript:updateActiveGraph("{{{name}}}");'>View</button>
 </div>
 {{/graphs}}
+</div>
+`;
+
+var nodeTemplate = `
+<style type='text/css'>
+.details h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.details .items { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
+.details .item { margin-bottom: 20px; }
+.details .item b { font-weight: 600; }
+.details .item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px }
+.details .item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 11px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; white-space: pre-wrap; word-wrap: break-word; }
+</style>
+<div class='details'>
+<div class='items'>
+{{#if name}}
+<div class='item'><b>name</b><br><pre>{{{name}}}</pre></div>
+{{/if}}
+{{#if description}}
+<div class='item'><b>description</b><br><pre>{{{description}}}</pre></div>
+{{/if}}
+{{#if domain}}
+<div class='item'><b>domain</b><br><pre>{{{domain}}}</pre></div>
+{{/if}}
+</div>
+{{#if attributes}}
+<h1>Attributes</h1>
+{{/if}}
+<div class='items'>
+{{#attributes}}
+<div class='item'>    
+<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
+{{#if description}}
+{{{description}}}
+{{/if}}
+<pre>{{{value}}}</pre>
+</div>
+{{/attributes}}
+</div>
 </div>
 `;
