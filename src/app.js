@@ -72,7 +72,7 @@ function loadFile(file, view) {
     }
     var window = view.window;
     window.setTitle(title);
-    view.pathh = file;
+    view.path = file;
     if (view.ready) {
         window.webContents.send("open-file", { file: file });
     }
@@ -255,6 +255,7 @@ function updateMenu() {
 
     var menuRecentsTemplate = [];
     if (configuration && configuration.recents) {
+        configuration.recents = configuration.recents.filter(recent => fs.existsSync(recent.path));
         configuration.recents.forEach((recent) => {
             var file = recent.path;
             menuRecentsTemplate.push({ 
