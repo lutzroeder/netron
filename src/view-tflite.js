@@ -265,14 +265,13 @@ class TensorFlowLiteNode {
                 });
                 attributeNames.forEach((attributeName) => {
                     if (options[attributeName] && typeof options[attributeName] == 'function') {
-                        var value = options[attributeName]();
-                        value = this.formatAttributeValue(value, attributeName, optionsTypeName);
-                        if (value != null) {
+                        var attributeValue = options[attributeName]();
+                        attributeValue = this.formatAttributeValue(attributeValue, attributeName, optionsTypeName);
+                        if (attributeValue != null) {
                             this._attributes.push({
                                 name: this.formatAttributeName(attributeName),
                                 type: '',
-                                value: () => { return value; }, 
-                                value_short: () => { return value; }
+                                value: attributeValue
                             });
                         }
                     }
@@ -296,9 +295,9 @@ class TensorFlowLiteNode {
     }
 
     formatAttributeValue(attributeValue, attributeName, optionsTypeName) {
-        if (!this._graph._model._optionsEnumTypeMap) {
-            this._graph._model._optionsEnumTypeMap = {};
-            var optionsEnumTypeMap = this._graph._model._optionsEnumTypeMap;
+        if (!TensorFlowLiteNode._optionsEnumTypeMap) {
+            TensorFlowLiteNode._optionsEnumTypeMap = {};
+            var optionsEnumTypeMap = TensorFlowLiteNode._optionsEnumTypeMap;
             optionsEnumTypeMap['tflite.Conv2DOptions'] = {
                 padding: { type: tflite.Padding },
                 fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
@@ -342,7 +341,7 @@ class TensorFlowLiteNode {
                 combiner: { type: tflite.CombinerType }
             };
         }
-        var optionsEnumType = this._graph._model._optionsEnumTypeMap[optionsTypeName];
+        var optionsEnumType = TensorFlowLiteNode._optionsEnumTypeMap[optionsTypeName];
         if (optionsEnumType) {
             var attributeType = optionsEnumType[attributeName];
             if (attributeType) {

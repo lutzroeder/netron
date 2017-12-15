@@ -177,7 +177,17 @@ function updateGraph(model) {
                 showNodeDetails(node);
             });
             node.attributes.forEach((attribute) => {
-                formatter.addAttribute(attribute.name, attribute.value_short(), attribute.type);
+                var attributeValue = '';
+                if (attribute.tensor) {
+                    attributeValue = '[...]';
+                }
+                else {
+                    attributeValue = attribute.value;
+                    if (attributeValue.length > 25) {
+                        attributeValue = attributeValue.substring(0, 25) + '...';
+                    }
+                }
+                formatter.addAttribute(attribute.name, attributeValue, attribute.type);
             });
         }
 

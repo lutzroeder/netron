@@ -251,110 +251,86 @@ class OnnxNode {
         if (node.attribute && node.attribute.length > 0) {
             result = [];
             node.attribute.forEach((attribute) => { 
-                result.push(this.formatAttribute(attribute));
+                result.push(new OnnxAttribute(attribute));
             });
         }
         return result;
     }
+}
 
-    formatAttribute(attribute) {
-        var type = "";
-        if (attribute.hasOwnProperty('type')) { 
-            type = OnnxTensor.formatElementType(attribute.type);
-            if ((attribute.ints && attribute.ints.length > 0) ||
-                (attribute.floats && attribute.floats.length > 0) ||
-                (attribute.strings && attribute.strings.length > 0)) {
-                type = type + '[]';
+class OnnxAttribute {
+    constructor(attribute) {
+        this._attribute = attribute;
+    }
+
+    get name() {
+        return this._attribute.name;
+    }
+
+    get type() {
+        if (this._attribute.hasOwnProperty('type')) { 
+            var type = OnnxTensor.formatElementType(this._attribute.type);
+            if ((this._attribute.ints && this._attribute.ints.length > 0) ||
+                (this._attribute.floats && this._attribute.floats.length > 0) ||
+                (this._attribute.strings && this._attribute.strings.length > 0)) {
+                return type + '[]';
             }
         }
-        else if (attribute.hasOwnProperty('t')) {
-            type = OnnxTensor.formatTensorType(attribute.t);
+        else if (this._attribute.hasOwnProperty('t')) {
+            return OnnxTensor.formatTensorType(this._attribute.t);
         }
+        return '';
+    }
 
-        var tensor = false;
-        var callback = '';
-        if (attribute.ints && attribute.ints.length > 0) {
-            callback = () => {
-                if (attribute.ints.length > 65536) {
-                    return "Too large to render.";
-                }
-                return attribute.ints.map((v) => { return v.toString(); }).join(', '); 
-            };
-        }
-        else if (attribute.floats && attribute.floats.length > 0) {
-            callback = () => {
-                if (attribute.floats.length > 65536) {
-                    return "Too large to render.";
-                }
-                return attribute.floats.map(v => v.toString()).join(', ');
-            };
-        }
-        else if (attribute.strings && attribute.strings.length > 0) {
-            callback = () => { 
-                if (attribute.strings.length > 65536) {
-                    return "Too large to render.";
-                }
-                return attribute.strings.map((s) => {
-                    if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                        return '"' + String.fromCharCode.apply(null, s) + '"';
-                    }
-                    return s.map(v => v.toString()).join(', ');    
-                }).join(', ');
-            };
-        }
-        else if (attribute.s && attribute.s.length > 0) {
-            callback = () => { 
-                if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
-                    return '"' + String.fromCharCode.apply(null, attribute.s) + '"';
-                }
-                return attribute.s.map(v => v.toString()).join(', ');           
-            };
-        }
-        else if (attribute.hasOwnProperty('f')) {
-            callback = () => { 
-                return attribute.f.toString();
-            };
-        }
-        else if (attribute.hasOwnProperty('i')) {
-            callback = () => {
-                return attribute.i.toString();
-            };
-        }
-        else if (attribute.hasOwnProperty('t')) {
-            tensor = true;
-            callback = () => {
-                return new OnnxTensor(attribute.t).value();
-            };
-        }
-        else {
-            debugger;
-            callback = () => {
-                return "?";
-            };
-        }
-
-        var result = {};
-        result.name = attribute.name;
-        if (type) {
-            result.type = type;
-        }
-        result.value = callback;
-        result.value_short = () => {
-            if (tensor) {
-                return "[...]";
+    get value() {
+        if (this._attribute.ints && this._attribute.ints.length > 0) {
+            if (this._attribute.ints.length > 65536) {
+                return "Too large to render.";
             }
-            var value = callback();
-            if (value.length > 25)
-            {
-                return value.substring(0, 25) + '...';
-            }
-            return value;
-        };
-        if (attribute.docString) {
-            result.description = attribute.docString;
+            return this._attribute.ints.map((v) => { return v.toString(); }).join(', '); 
         }
+        else if (this._attribute.floats && this._attribute.floats.length > 0) {
+            if (this._attribute.floats.length > 65536) {
+                return "Too large to render.";
+            }
+            return this._attribute.floats.map(v => v.toString()).join(', ');
+        }
+        else if (this._attribute.strings && this._attribute.strings.length > 0) {
+            if (this._attribute.strings.length > 65536) {
+                return "Too large to render.";
+            }
+            return this._attribute.strings.map((s) => {
+                if (s.filter(c => c <= 32 && c >= 128).length == 0) {
+                    return '"' + String.fromCharCode.apply(null, s) + '"';
+                }
+                return s.map(v => v.toString()).join(', ');    
+            }).join(', ');
+        }
+        else if (this._attribute.s && this._attribute.s.length > 0) {
+            if (this._attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
+                return '"' + String.fromCharCode.apply(null, this._attribute.s) + '"';
+            }
+            return this._attribute.s.map(v => v.toString()).join(', ');           
+        }
+        else if (this._attribute.hasOwnProperty('f')) {
+            return this._attribute.f.toString();
+        }
+        else if (this._attribute.hasOwnProperty('i')) {
+            return this._attribute.i.toString();
+        }
+        else if (this._attribute.hasOwnProperty('t')) {
+            return new OnnxTensor(this._attribute.t).value;
+        }
+        debugger;
+        return '?';
+    }
 
-        return result;
+    get description() {
+        return this._attribute.docString ? this._attribute.docString : null;
+    }
+
+    get tensor() {
+        return this._attribute.hasOwnProperty('t');
     }
 }
 

@@ -53,7 +53,9 @@ class TensorFlowModel {
             summary.graphs.push({
                 name: graph.name,
                 version: graph.version,
-                tags: graph.tags
+                tags: graph.tags,
+                inputs: graph.inputs,
+                outputs: graph.outputs
             });
             // metaInfoDef.tensorflowGitVersion
             // TODO signature
@@ -130,14 +132,16 @@ class TensorFlowGraph {
         this._initializerMap = {};
         this._graph.graphDef.node.forEach((node) => {
             if (this.checkNode(node, 'Const', 0, 1)) {
-                var tensor = null;
+                var attributeValue = null;
                 Object.keys(node.attr).forEach((name) => {
                     if (name == 'value') {
-                        tensor = node.attr[name];
+                        attributeValue = node.attr[name];
                         return;
                     }
                 });
-                this._initializerMap[node.output[0]] = new TensorFlowTensor(tensor, node.output[0], 'Constant');
+                if (attributeValue && attributeValue.hasOwnProperty('tensor')) {
+                    this._initializerMap[node.output[0]] = new TensorFlowTensor(attributeValue.tensor, node.output[0], node.name, 'Constant');
+                }
             }
         });
         this._graph.graphDef.node.forEach((node) => {
@@ -318,15 +322,10 @@ class TensorFlowNode {
         var node = this._node;
         var result = [];
         if (node.attr) {
-            Object.keys(node.attr).forEach(function (name) {
+            Object.keys(node.attr).forEach((name) => {
                 if (name != '_output_shapes' && name != 'T') {
                     var value = node.attr[name];
-                    result.push({ 
-                        'name': name,
-                        'type': '',
-                        'value': function() { return '...'; }, 
-                        'value_short': function() { return '...'; }
-                    });    
+                    result.push(new TensorFlowAttribute(name, value));
                 }
             });
         }
@@ -334,11 +333,89 @@ class TensorFlowNode {
     }
 }
 
+class TensorFlowAttribute { 
+    constructor(name, value) {
+        this._name = name;
+        this._value = value;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get type() {
+        return '';
+    }
+
+    get value() {
+        if (this._value.hasOwnProperty('type')) {
+            return TensorFlowTensor.formatDataType(this._value.type);
+        }
+        else if (this._value.hasOwnProperty('i')) {
+            return this._value.i.toString();
+        }
+        else if (this._value.hasOwnProperty('f')) {
+            return this._value.f.toString();
+        }
+        else if (this._value.hasOwnProperty('b')) {
+            return this._value.b.toString();
+        }
+        else if (this._value.hasOwnProperty('shape')) {
+            return TensorFlowTensor.formatTensorShape(this._value.shape);;
+        }
+        else if (this._value.hasOwnProperty('s')) {
+            if (this._value.s.filter(c => c <= 32 && c >= 128).length == 0) {
+                return '"' + String.fromCharCode.apply(null, this._value.s) + '"';
+            }
+            return this._value.s.map(v => v.toString()).join(', ');           
+        }
+        else if (this._value.hasOwnProperty('list')) {
+            var list = this._value.list;
+            if (list.s && list.s.length > 0) {
+                if (list.s.length > 65536) {
+                    return "Too large to render.";
+                }
+                return list.s.map((s) => {
+                    if (s.filter(c => c <= 32 && c >= 128).length == 0) {
+                        return '"' + String.fromCharCode.apply(null, s) + '"';
+                    }
+                    return s.map(v => v.toString()).join(', ');    
+                }).join(', ');
+            }
+            else if (list.i && list.i.length > 0) {
+                if (list.i.length > 65536) {
+                    return "Too large to render.";
+                }
+                return list.i.map((v) => v.toString()).join(', ');
+            }
+            else if (list.f && list.f.length > 0) {
+                if (list.f.length > 65536) {
+                    return "Too large to render.";
+                }
+                return list.f.map((v) => v.toString()).join(', ');
+            }
+            else if (list.type && list.type.length > 0) {
+                if (list.type.length > 65536) {
+                    return "Too large to render.";
+                }
+                return list.type.map((type) => TensorFlowTensor.formatDataType(type)).join(', ');
+            }
+        }
+        debugger;
+        return '?';        
+    }
+
+    get tensor() {
+        return this._value.hasOwnProperty('tensor');
+    }
+}
+
 class TensorFlowTensor {
 
-    constructor(tensor, id, title) {
+    constructor(tensor, id, name, title) {
         this._tensor = tensor;
         this._id = id;
+        this._name = name;
         if (title) {
             this._title = title;
         }
@@ -349,7 +426,7 @@ class TensorFlowTensor {
     }
 
     get name() {
-        return this._tensor.name;
+        return this._name;
     }
 
     get type() {
@@ -365,8 +442,41 @@ class TensorFlowTensor {
     }
 
     static formatTensorType(tensor) {
-        var result = "?";
-        return result;
+        if (tensor.dtype) {
+            var type = TensorFlowTensor.formatDataType(tensor.dtype);
+            if (tensor.tensorShape) {
+                type += TensorFlowTensor.formatTensorShape(tensor.tensorShape);
+            }
+            return type;
+        }
+        debugger;
+        return '?';
+    }
+
+    static formatDataType(type) {
+        if (!TensorFlowTensor.dataType)
+        {
+            TensorFlowTensor.dataType = {};
+            Object.keys(tensorflow.DataType).forEach((key) => {
+                var value = tensorflow.DataType[key];
+                key = key.startsWith('DT_') ? key.substring(3) : key;
+                TensorFlowTensor.dataType[value] = key.toLowerCase();
+            });
+        }
+        var text = TensorFlowTensor.dataType[type];
+        if (text) { 
+            return text;
+        }
+        debugger;
+        return '?';
+    }
+
+    static formatTensorShape(shape) {
+        if (shape.dim) {
+            return '[' + shape.dim.map((dim) => dim.size ? dim.size.toString() : '?').join(',') + ']';
+        }
+        debugger;
+        return '?';
     }
 }
 
@@ -469,15 +579,21 @@ class TensorFlowGraphOperatorMetadata {
             schema.name = operator;
             schema.summary = marked(schema.summary);
             schema.description = marked(schema.description);
-            schema.inputs.forEach((input) => {
-                input.description = marked(input.description);
-            });
-            schema.outputs.forEach((output) => {
-                output.description = marked(output.description);
-            });
-            schema.attributes.forEach((attribute) => {
-                attribute.description = marked(attribute.description);
-            });
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    input.description = marked(input.description);
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    output.description = marked(output.description);
+                });
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    attribute.description = marked(attribute.description);
+                });
+            }
             var template = Handlebars.compile(operatorTemplate, 'utf-8');
             return template(schema);
         }
