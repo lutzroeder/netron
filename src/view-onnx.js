@@ -329,6 +329,10 @@ class OnnxAttribute {
         return this._attribute.docString ? this._attribute.docString : null;
     }
 
+    get hidden() {
+        return false;
+    }
+
     get tensor() {
         return this._attribute.hasOwnProperty('t');
     }

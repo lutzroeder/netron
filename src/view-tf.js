@@ -323,10 +323,9 @@ class TensorFlowNode {
         var result = [];
         if (node.attr) {
             Object.keys(node.attr).forEach((name) => {
-                if (name != '_output_shapes' && name != 'T') {
-                    var value = node.attr[name];
-                    result.push(new TensorFlowAttribute(name, value));
-                }
+                var hidden = (name == '_output_shapes' || name == 'T');
+                var value = node.attr[name];
+                result.push(new TensorFlowAttribute(name, value, hidden));
             });
         }
         return result;
@@ -334,9 +333,12 @@ class TensorFlowNode {
 }
 
 class TensorFlowAttribute { 
-    constructor(name, value) {
+    constructor(name, value, hidden) {
         this._name = name;
         this._value = value;
+        if (hidden) {
+            this._hidden = hidden;
+        }
     }
 
     get name() {
@@ -403,6 +405,10 @@ class TensorFlowAttribute {
         }
         debugger;
         return '?';        
+    }
+
+    get hidden() {
+        return this._hidden ? this._hidden : false;
     }
 
     get tensor() {
@@ -577,8 +583,12 @@ class TensorFlowGraphOperatorMetadata {
         if (schema) {
             schema = Object.assign({}, schema);
             schema.name = operator;
-            schema.summary = marked(schema.summary);
-            schema.description = marked(schema.description);
+            if (schema.summary) {
+                schema.summary = marked(schema.summary);
+            }
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
             if (schema.inputs) {
                 schema.inputs.forEach((input) => {
                     input.description = marked(input.description);

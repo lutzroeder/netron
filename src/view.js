@@ -177,17 +177,21 @@ function updateGraph(model) {
                 showNodeDetails(node);
             });
             node.attributes.forEach((attribute) => {
-                var attributeValue = '';
-                if (attribute.tensor) {
-                    attributeValue = '[...]';
+                if (attribute.hidden) {
                 }
                 else {
-                    attributeValue = attribute.value;
-                    if (attributeValue.length > 25) {
-                        attributeValue = attributeValue.substring(0, 25) + '...';
+                    var attributeValue = '';
+                    if (attribute.tensor) {
+                        attributeValue = '[...]';
                     }
+                    else {
+                        attributeValue = attribute.value;
+                        if (attributeValue.length > 25) {
+                            attributeValue = attributeValue.substring(0, 25) + '...';
+                        }
+                    }
+                    formatter.addAttribute(attribute.name, attributeValue, attribute.type);
                 }
-                formatter.addAttribute(attribute.name, attributeValue, attribute.type);
             });
         }
 
