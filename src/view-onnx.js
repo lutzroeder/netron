@@ -456,8 +456,8 @@ class OnnxTensor {
     }
 
     read(dimension) {
-        var size = this._tensor.dims[dimension];
         var results = [];
+        var size = this._tensor.dims[dimension];
         if (dimension == this._tensor.dims.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (this._count > 10000) {

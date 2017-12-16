@@ -150,7 +150,7 @@ class TensorFlowGraph {
                 if (tensor) {
                     this._initializerMap[node.input[0]] = "-";
                     tensor._id = node.output[0]; // TODO update tensor id
-                    tensor._title = 'Constant Identity';
+                    tensor._title = 'Identity Constant';
                     this._initializerMap[node.output[0]] = tensor;
                 }
             }
@@ -402,9 +402,15 @@ class TensorFlowAttribute {
                 }
                 return list.type.map((type) => TensorFlowTensor.formatDataType(type)).join(', ');
             }
+            else if (list.shape && list.shape.length > 0) {
+                if (list.shape.length > 65536) {
+                    return "Too large to render.";
+                }
+                return list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape)).join(', ');
+            }
         }
         debugger;
-        return '?';        
+        return '';        
     }
 
     get hidden() {
@@ -444,7 +450,75 @@ class TensorFlowTensor {
     }
 
     get value() {
-        return '?';        
+        if (!this._tensor.dtype) {
+            return 'Tensor has no data type.';
+        }
+        if (!this._tensor.tensorShape) {
+            return 'Tensor has no dimensions.';
+        }
+
+        switch (this._tensor.dtype) {
+            case tensorflow.DataType.DT_FLOAT:
+                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
+                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength)
+                }
+                else {
+                    return 'Tensor data is empty.';
+                }
+                break;
+            default:
+                debugger;
+                return 'Tensor data type is not implemented.';
+        }
+
+        this._index = 0;
+        this._count = 0;
+        var result = this.read(0);
+        delete this._index;
+        delete this._count;
+        delete this._data;
+        delete this._rawData;
+
+        return JSON.stringify(result, null, 4);
+    }
+
+    read(dimension) {
+        var results = [];
+        var dim = this._tensor.tensorShape.dim[dimension];
+        var size = dim.size;
+        if (dimension == this._tensor.tensorShape.dim.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (this._count > 10000) {
+                    results.push('...');
+                    return results;
+                }
+                if (this._data) {
+                    results.push(this._data[this._index++]);
+                }
+                else {
+                    if (this._rawData) {
+                        switch (this._tensor.dtype)
+                        {
+                            case tensorflow.DataType.DT_FLOAT:
+                                results.push(this._rawData.getFloat32(this._index, true));
+                                this._index += 4;
+                                this._count++;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (this._count > 10000) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this.read(dimension + 1));
+            }
+        }
+        return results;
     }
 
     static formatTensorType(tensor) {
