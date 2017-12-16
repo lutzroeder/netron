@@ -462,6 +462,20 @@ class TensorFlowTensor {
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
                     this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength)
                 }
+                else if (this._tensor.floatVal && this._tensor.floatVal.length > 0) {
+                    this._data = this._tensor.floatVal;
+                }
+                else {
+                    return 'Tensor data is empty.';
+                }
+                break;
+            case tensorflow.DataType.DT_INT32:
+                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
+                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength)
+                }
+                else if (this._tensor.intVal && this._tensor.intVal.length > 0) {
+                    this._data = this._tensor.intVal;
+                }
                 else {
                     return 'Tensor data is empty.';
                 }
@@ -484,9 +498,13 @@ class TensorFlowTensor {
 
     read(dimension) {
         var results = [];
-        var dim = this._tensor.tensorShape.dim[dimension];
+        var dimensions = this._tensor.tensorShape.dim;
+        if (dimensions.length == 0 && this._data.length == 1) {
+            return this._data[0];
+        }
+        var dim = dimensions[dimension];
         var size = dim.size;
-        if (dimension == this._tensor.tensorShape.dim.length - 1) {
+        if (dimension == dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (this._count > 10000) {
                     results.push('...');
@@ -501,6 +519,11 @@ class TensorFlowTensor {
                         {
                             case tensorflow.DataType.DT_FLOAT:
                                 results.push(this._rawData.getFloat32(this._index, true));
+                                this._index += 4;
+                                this._count++;
+                                break;
+                            case tensorflow.DataType.DT_INT32:
+                                results.push(this._rawData.getInt32(this._index, true));
                                 this._index += 4;
                                 this._count++;
                                 break;
@@ -553,6 +576,9 @@ class TensorFlowTensor {
 
     static formatTensorShape(shape) {
         if (shape.dim) {
+            if (shape.dim.length == 0) {
+                return '';
+            }
             return '[' + shape.dim.map((dim) => dim.size ? dim.size.toString() : '?').join(',') + ']';
         }
         debugger;
