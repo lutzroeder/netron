@@ -462,21 +462,67 @@ class ModelService {
 var modelService = new ModelService(hostService);
 
 class Int64 {
-    constructor(data) {
-        this._data = data;
+
+    constructor(buffer) {
+        this._buffer = buffer;
     }
 
-    toString() {
-        return this._data;
+    toString(radix) {
+        var high = this.readInt32(4);
+        var low = this.readInt32(0);
+        var str = '';
+        var sign = high & 0x80000000;
+        if (sign) {
+            high = ~high;
+            low = 0x100000000 - low;
+        }
+        radix = radix || 10;
+        while (true) {
+            var mod = (high % radix) * 0x100000000 + low;
+            high = Math.floor(high / radix);
+            low = Math.floor(mod / radix);
+            str = (mod % radix).toString(radix) + str;
+            if (!high && !low) 
+            {
+                break;
+            }
+        }
+        if (sign) {
+            str = "-" + str;
+        }
+        return str;
+    }
+
+    readInt32(offset) {
+      return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
     }
 }
 
 class Uint64 {
-    constructor(data) {
-        this._data = data;
+
+    constructor(buffer) {
+        this._buffer = buffer;
     }
 
-    toString() {
-        return this._data;
+    toString(radix) {
+        var high = this.readInt32(4);
+        var low = this.readInt32(0);
+        var str = '';
+        radix = radix || 10;
+        while (true) {
+            var mod = (high % radix) * 0x100000000 + low;
+            high = Math.floor(high / radix);
+            low = Math.floor(mod / radix);
+            str = (mod % radix).toString(radix) + str;
+            if (!high && !low) 
+            {
+                break;
+            }
+        }
+        return str;
+    }
+
+    readInt32(offset) {
+      return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
     }
 }
