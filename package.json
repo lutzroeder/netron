@@ -5,7 +5,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "Viewer for ONNX neural network models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -13,14 +13,12 @@
     "scripts": {
         "start": "electron .",
         "dist": "electron-builder --mac --linux --win",
-        "release": "electron-builder --mac --linux --win --publish always",
-        "postinstall": "electron-builder install-app-deps",
-        "server_install": "sudo python ./setup.py build install",
-        "server_release": "python ./setup.py build bdist_wheel upload"
+        "release": "GH_TOKEN=${GITHUB_TOKEN} && electron-builder --mac --linux --win --publish always --draft false --prerelease false",
+        "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
         "dagre-d3-renderer": "x.x.x",
-        "electron-updater": "^2.16.1",
+        "electron-updater": "^2.17.6",
         "flatbuffers": "^1.8.0",
         "handlebars": "x.x.x",
         "marked": "x.x.x",
@@ -32,6 +30,12 @@
         "electron-builder": "x.x.x"
     },
     "build": {
+        "publish": [
+            {
+                "provider": "github",
+                "releaseType": "release"
+            }
+        ],
         "files": [
             "src/**/*"
         ],
