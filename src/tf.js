@@ -23,14 +23,15 @@
              * Properties of a SavedModel.
              * @memberof tensorflow
              * @interface ISavedModel
-             * @property {number|Long} [savedModelSchemaVersion] SavedModel savedModelSchemaVersion
-             * @property {Array.<tensorflow.IMetaGraphDef>} [metaGraphs] SavedModel metaGraphs
+             * @property {number|Long|null} [savedModelSchemaVersion] SavedModel savedModelSchemaVersion
+             * @property {Array.<tensorflow.IMetaGraphDef>|null} [metaGraphs] SavedModel metaGraphs
              */
     
             /**
              * Constructs a new SavedModel.
              * @memberof tensorflow
              * @classdesc Represents a SavedModel.
+             * @implements ISavedModel
              * @constructor
              * @param {tensorflow.ISavedModel=} [properties] Properties to set
              */
@@ -44,7 +45,7 @@
     
             /**
              * SavedModel savedModelSchemaVersion.
-             * @member {number|Long}savedModelSchemaVersion
+             * @member {number|Long} savedModelSchemaVersion
              * @memberof tensorflow.SavedModel
              * @instance
              */
@@ -52,7 +53,7 @@
     
             /**
              * SavedModel metaGraphs.
-             * @member {Array.<tensorflow.IMetaGraphDef>}metaGraphs
+             * @member {Array.<tensorflow.IMetaGraphDef>} metaGraphs
              * @memberof tensorflow.SavedModel
              * @instance
              */
@@ -267,18 +268,19 @@
              * Properties of a MetaGraphDef.
              * @memberof tensorflow
              * @interface IMetaGraphDef
-             * @property {tensorflow.MetaGraphDef.IMetaInfoDef} [metaInfoDef] MetaGraphDef metaInfoDef
-             * @property {tensorflow.IGraphDef} [graphDef] MetaGraphDef graphDef
-             * @property {tensorflow.ISaverDef} [saverDef] MetaGraphDef saverDef
-             * @property {Object.<string,tensorflow.ICollectionDef>} [collectionDef] MetaGraphDef collectionDef
-             * @property {Object.<string,tensorflow.ISignatureDef>} [signatureDef] MetaGraphDef signatureDef
-             * @property {Array.<tensorflow.IAssetFileDef>} [assetFileDef] MetaGraphDef assetFileDef
+             * @property {tensorflow.MetaGraphDef.IMetaInfoDef|null} [metaInfoDef] MetaGraphDef metaInfoDef
+             * @property {tensorflow.IGraphDef|null} [graphDef] MetaGraphDef graphDef
+             * @property {tensorflow.ISaverDef|null} [saverDef] MetaGraphDef saverDef
+             * @property {Object.<string,tensorflow.ICollectionDef>|null} [collectionDef] MetaGraphDef collectionDef
+             * @property {Object.<string,tensorflow.ISignatureDef>|null} [signatureDef] MetaGraphDef signatureDef
+             * @property {Array.<tensorflow.IAssetFileDef>|null} [assetFileDef] MetaGraphDef assetFileDef
              */
     
             /**
              * Constructs a new MetaGraphDef.
              * @memberof tensorflow
              * @classdesc Represents a MetaGraphDef.
+             * @implements IMetaGraphDef
              * @constructor
              * @param {tensorflow.IMetaGraphDef=} [properties] Properties to set
              */
@@ -294,7 +296,7 @@
     
             /**
              * MetaGraphDef metaInfoDef.
-             * @member {(tensorflow.MetaGraphDef.IMetaInfoDef|null|undefined)}metaInfoDef
+             * @member {tensorflow.MetaGraphDef.IMetaInfoDef|null|undefined} metaInfoDef
              * @memberof tensorflow.MetaGraphDef
              * @instance
              */
@@ -302,7 +304,7 @@
     
             /**
              * MetaGraphDef graphDef.
-             * @member {(tensorflow.IGraphDef|null|undefined)}graphDef
+             * @member {tensorflow.IGraphDef|null|undefined} graphDef
              * @memberof tensorflow.MetaGraphDef
              * @instance
              */
@@ -310,7 +312,7 @@
     
             /**
              * MetaGraphDef saverDef.
-             * @member {(tensorflow.ISaverDef|null|undefined)}saverDef
+             * @member {tensorflow.ISaverDef|null|undefined} saverDef
              * @memberof tensorflow.MetaGraphDef
              * @instance
              */
@@ -318,7 +320,7 @@
     
             /**
              * MetaGraphDef collectionDef.
-             * @member {Object.<string,tensorflow.ICollectionDef>}collectionDef
+             * @member {Object.<string,tensorflow.ICollectionDef>} collectionDef
              * @memberof tensorflow.MetaGraphDef
              * @instance
              */
@@ -326,7 +328,7 @@
     
             /**
              * MetaGraphDef signatureDef.
-             * @member {Object.<string,tensorflow.ISignatureDef>}signatureDef
+             * @member {Object.<string,tensorflow.ISignatureDef>} signatureDef
              * @memberof tensorflow.MetaGraphDef
              * @instance
              */
@@ -334,7 +336,7 @@
     
             /**
              * MetaGraphDef assetFileDef.
-             * @member {Array.<tensorflow.IAssetFileDef>}assetFileDef
+             * @member {Array.<tensorflow.IAssetFileDef>} assetFileDef
              * @memberof tensorflow.MetaGraphDef
              * @instance
              */
@@ -488,12 +490,12 @@
                         return "metaInfoDef." + error;
                 }
                 if (message.graphDef != null && message.hasOwnProperty("graphDef")) {
-                    error = $root.tensorflow.GraphDef.verify(message.graphDef);
+                    var error = $root.tensorflow.GraphDef.verify(message.graphDef);
                     if (error)
                         return "graphDef." + error;
                 }
                 if (message.saverDef != null && message.hasOwnProperty("saverDef")) {
-                    error = $root.tensorflow.SaverDef.verify(message.saverDef);
+                    var error = $root.tensorflow.SaverDef.verify(message.saverDef);
                     if (error)
                         return "saverDef." + error;
                 }
@@ -502,7 +504,7 @@
                         return "collectionDef: object expected";
                     var key = Object.keys(message.collectionDef);
                     for (var i = 0; i < key.length; ++i) {
-                        error = $root.tensorflow.CollectionDef.verify(message.collectionDef[key[i]]);
+                        var error = $root.tensorflow.CollectionDef.verify(message.collectionDef[key[i]]);
                         if (error)
                             return "collectionDef." + error;
                     }
@@ -512,7 +514,7 @@
                         return "signatureDef: object expected";
                     var key = Object.keys(message.signatureDef);
                     for (var i = 0; i < key.length; ++i) {
-                        error = $root.tensorflow.SignatureDef.verify(message.signatureDef[key[i]]);
+                        var error = $root.tensorflow.SignatureDef.verify(message.signatureDef[key[i]]);
                         if (error)
                             return "signatureDef." + error;
                     }
@@ -521,7 +523,7 @@
                     if (!Array.isArray(message.assetFileDef))
                         return "assetFileDef: array expected";
                     for (var i = 0; i < message.assetFileDef.length; ++i) {
-                        error = $root.tensorflow.AssetFileDef.verify(message.assetFileDef[i]);
+                        var error = $root.tensorflow.AssetFileDef.verify(message.assetFileDef[i]);
                         if (error)
                             return "assetFileDef." + error;
                     }
@@ -655,18 +657,19 @@
                  * Properties of a MetaInfoDef.
                  * @memberof tensorflow.MetaGraphDef
                  * @interface IMetaInfoDef
-                 * @property {string} [metaGraphVersion] MetaInfoDef metaGraphVersion
-                 * @property {tensorflow.IOpList} [strippedOpList] MetaInfoDef strippedOpList
-                 * @property {google.protobuf.IAny} [anyInfo] MetaInfoDef anyInfo
-                 * @property {Array.<string>} [tags] MetaInfoDef tags
-                 * @property {string} [tensorflowVersion] MetaInfoDef tensorflowVersion
-                 * @property {string} [tensorflowGitVersion] MetaInfoDef tensorflowGitVersion
+                 * @property {string|null} [metaGraphVersion] MetaInfoDef metaGraphVersion
+                 * @property {tensorflow.IOpList|null} [strippedOpList] MetaInfoDef strippedOpList
+                 * @property {google.protobuf.IAny|null} [anyInfo] MetaInfoDef anyInfo
+                 * @property {Array.<string>|null} [tags] MetaInfoDef tags
+                 * @property {string|null} [tensorflowVersion] MetaInfoDef tensorflowVersion
+                 * @property {string|null} [tensorflowGitVersion] MetaInfoDef tensorflowGitVersion
                  */
     
                 /**
                  * Constructs a new MetaInfoDef.
                  * @memberof tensorflow.MetaGraphDef
                  * @classdesc Represents a MetaInfoDef.
+                 * @implements IMetaInfoDef
                  * @constructor
                  * @param {tensorflow.MetaGraphDef.IMetaInfoDef=} [properties] Properties to set
                  */
@@ -680,7 +683,7 @@
     
                 /**
                  * MetaInfoDef metaGraphVersion.
-                 * @member {string}metaGraphVersion
+                 * @member {string} metaGraphVersion
                  * @memberof tensorflow.MetaGraphDef.MetaInfoDef
                  * @instance
                  */
@@ -688,7 +691,7 @@
     
                 /**
                  * MetaInfoDef strippedOpList.
-                 * @member {(tensorflow.IOpList|null|undefined)}strippedOpList
+                 * @member {tensorflow.IOpList|null|undefined} strippedOpList
                  * @memberof tensorflow.MetaGraphDef.MetaInfoDef
                  * @instance
                  */
@@ -696,7 +699,7 @@
     
                 /**
                  * MetaInfoDef anyInfo.
-                 * @member {(google.protobuf.IAny|null|undefined)}anyInfo
+                 * @member {google.protobuf.IAny|null|undefined} anyInfo
                  * @memberof tensorflow.MetaGraphDef.MetaInfoDef
                  * @instance
                  */
@@ -704,7 +707,7 @@
     
                 /**
                  * MetaInfoDef tags.
-                 * @member {Array.<string>}tags
+                 * @member {Array.<string>} tags
                  * @memberof tensorflow.MetaGraphDef.MetaInfoDef
                  * @instance
                  */
@@ -712,7 +715,7 @@
     
                 /**
                  * MetaInfoDef tensorflowVersion.
-                 * @member {string}tensorflowVersion
+                 * @member {string} tensorflowVersion
                  * @memberof tensorflow.MetaGraphDef.MetaInfoDef
                  * @instance
                  */
@@ -720,7 +723,7 @@
     
                 /**
                  * MetaInfoDef tensorflowGitVersion.
-                 * @member {string}tensorflowGitVersion
+                 * @member {string} tensorflowGitVersion
                  * @memberof tensorflow.MetaGraphDef.MetaInfoDef
                  * @instance
                  */
@@ -861,7 +864,7 @@
                             return "strippedOpList." + error;
                     }
                     if (message.anyInfo != null && message.hasOwnProperty("anyInfo")) {
-                        error = $root.google.protobuf.Any.verify(message.anyInfo);
+                        var error = $root.google.protobuf.Any.verify(message.anyInfo);
                         if (error)
                             return "anyInfo." + error;
                     }
@@ -982,17 +985,18 @@
              * Properties of a CollectionDef.
              * @memberof tensorflow
              * @interface ICollectionDef
-             * @property {tensorflow.CollectionDef.INodeList} [nodeList] CollectionDef nodeList
-             * @property {tensorflow.CollectionDef.IBytesList} [bytesList] CollectionDef bytesList
-             * @property {tensorflow.CollectionDef.IInt64List} [int64List] CollectionDef int64List
-             * @property {tensorflow.CollectionDef.IFloatList} [floatList] CollectionDef floatList
-             * @property {tensorflow.CollectionDef.IAnyList} [anyList] CollectionDef anyList
+             * @property {tensorflow.CollectionDef.INodeList|null} [nodeList] CollectionDef nodeList
+             * @property {tensorflow.CollectionDef.IBytesList|null} [bytesList] CollectionDef bytesList
+             * @property {tensorflow.CollectionDef.IInt64List|null} [int64List] CollectionDef int64List
+             * @property {tensorflow.CollectionDef.IFloatList|null} [floatList] CollectionDef floatList
+             * @property {tensorflow.CollectionDef.IAnyList|null} [anyList] CollectionDef anyList
              */
     
             /**
              * Constructs a new CollectionDef.
              * @memberof tensorflow
              * @classdesc Represents a CollectionDef.
+             * @implements ICollectionDef
              * @constructor
              * @param {tensorflow.ICollectionDef=} [properties] Properties to set
              */
@@ -1005,7 +1009,7 @@
     
             /**
              * CollectionDef nodeList.
-             * @member {(tensorflow.CollectionDef.INodeList|null|undefined)}nodeList
+             * @member {tensorflow.CollectionDef.INodeList|null|undefined} nodeList
              * @memberof tensorflow.CollectionDef
              * @instance
              */
@@ -1013,7 +1017,7 @@
     
             /**
              * CollectionDef bytesList.
-             * @member {(tensorflow.CollectionDef.IBytesList|null|undefined)}bytesList
+             * @member {tensorflow.CollectionDef.IBytesList|null|undefined} bytesList
              * @memberof tensorflow.CollectionDef
              * @instance
              */
@@ -1021,7 +1025,7 @@
     
             /**
              * CollectionDef int64List.
-             * @member {(tensorflow.CollectionDef.IInt64List|null|undefined)}int64List
+             * @member {tensorflow.CollectionDef.IInt64List|null|undefined} int64List
              * @memberof tensorflow.CollectionDef
              * @instance
              */
@@ -1029,7 +1033,7 @@
     
             /**
              * CollectionDef floatList.
-             * @member {(tensorflow.CollectionDef.IFloatList|null|undefined)}floatList
+             * @member {tensorflow.CollectionDef.IFloatList|null|undefined} floatList
              * @memberof tensorflow.CollectionDef
              * @instance
              */
@@ -1037,7 +1041,7 @@
     
             /**
              * CollectionDef anyList.
-             * @member {(tensorflow.CollectionDef.IAnyList|null|undefined)}anyList
+             * @member {tensorflow.CollectionDef.IAnyList|null|undefined} anyList
              * @memberof tensorflow.CollectionDef
              * @instance
              */
@@ -1048,7 +1052,7 @@
     
             /**
              * CollectionDef kind.
-             * @member {string|undefined} kind
+             * @member {"nodeList"|"bytesList"|"int64List"|"floatList"|"anyList"|undefined} kind
              * @memberof tensorflow.CollectionDef
              * @instance
              */
@@ -1178,41 +1182,51 @@
                 var properties = {};
                 if (message.nodeList != null && message.hasOwnProperty("nodeList")) {
                     properties.kind = 1;
-                    var error = $root.tensorflow.CollectionDef.NodeList.verify(message.nodeList);
-                    if (error)
-                        return "nodeList." + error;
+                    {
+                        var error = $root.tensorflow.CollectionDef.NodeList.verify(message.nodeList);
+                        if (error)
+                            return "nodeList." + error;
+                    }
                 }
                 if (message.bytesList != null && message.hasOwnProperty("bytesList")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
-                    error = $root.tensorflow.CollectionDef.BytesList.verify(message.bytesList);
-                    if (error)
-                        return "bytesList." + error;
+                    {
+                        var error = $root.tensorflow.CollectionDef.BytesList.verify(message.bytesList);
+                        if (error)
+                            return "bytesList." + error;
+                    }
                 }
                 if (message.int64List != null && message.hasOwnProperty("int64List")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
-                    error = $root.tensorflow.CollectionDef.Int64List.verify(message.int64List);
-                    if (error)
-                        return "int64List." + error;
+                    {
+                        var error = $root.tensorflow.CollectionDef.Int64List.verify(message.int64List);
+                        if (error)
+                            return "int64List." + error;
+                    }
                 }
                 if (message.floatList != null && message.hasOwnProperty("floatList")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
-                    error = $root.tensorflow.CollectionDef.FloatList.verify(message.floatList);
-                    if (error)
-                        return "floatList." + error;
+                    {
+                        var error = $root.tensorflow.CollectionDef.FloatList.verify(message.floatList);
+                        if (error)
+                            return "floatList." + error;
+                    }
                 }
                 if (message.anyList != null && message.hasOwnProperty("anyList")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
-                    error = $root.tensorflow.CollectionDef.AnyList.verify(message.anyList);
-                    if (error)
-                        return "anyList." + error;
+                    {
+                        var error = $root.tensorflow.CollectionDef.AnyList.verify(message.anyList);
+                        if (error)
+                            return "anyList." + error;
+                    }
                 }
                 return null;
             };
@@ -1315,13 +1329,14 @@
                  * Properties of a NodeList.
                  * @memberof tensorflow.CollectionDef
                  * @interface INodeList
-                 * @property {Array.<string>} [value] NodeList value
+                 * @property {Array.<string>|null} [value] NodeList value
                  */
     
                 /**
                  * Constructs a new NodeList.
                  * @memberof tensorflow.CollectionDef
                  * @classdesc Represents a NodeList.
+                 * @implements INodeList
                  * @constructor
                  * @param {tensorflow.CollectionDef.INodeList=} [properties] Properties to set
                  */
@@ -1335,7 +1350,7 @@
     
                 /**
                  * NodeList value.
-                 * @member {Array.<string>}value
+                 * @member {Array.<string>} value
                  * @memberof tensorflow.CollectionDef.NodeList
                  * @instance
                  */
@@ -1517,13 +1532,14 @@
                  * Properties of a BytesList.
                  * @memberof tensorflow.CollectionDef
                  * @interface IBytesList
-                 * @property {Array.<Uint8Array>} [value] BytesList value
+                 * @property {Array.<Uint8Array>|null} [value] BytesList value
                  */
     
                 /**
                  * Constructs a new BytesList.
                  * @memberof tensorflow.CollectionDef
                  * @classdesc Represents a BytesList.
+                 * @implements IBytesList
                  * @constructor
                  * @param {tensorflow.CollectionDef.IBytesList=} [properties] Properties to set
                  */
@@ -1537,7 +1553,7 @@
     
                 /**
                  * BytesList value.
-                 * @member {Array.<Uint8Array>}value
+                 * @member {Array.<Uint8Array>} value
                  * @memberof tensorflow.CollectionDef.BytesList
                  * @instance
                  */
@@ -1722,13 +1738,14 @@
                  * Properties of an Int64List.
                  * @memberof tensorflow.CollectionDef
                  * @interface IInt64List
-                 * @property {Array.<number|Long>} [value] Int64List value
+                 * @property {Array.<number|Long>|null} [value] Int64List value
                  */
     
                 /**
                  * Constructs a new Int64List.
                  * @memberof tensorflow.CollectionDef
                  * @classdesc Represents an Int64List.
+                 * @implements IInt64List
                  * @constructor
                  * @param {tensorflow.CollectionDef.IInt64List=} [properties] Properties to set
                  */
@@ -1742,7 +1759,7 @@
     
                 /**
                  * Int64List value.
-                 * @member {Array.<number|Long>}value
+                 * @member {Array.<number|Long>} value
                  * @memberof tensorflow.CollectionDef.Int64List
                  * @instance
                  */
@@ -1942,13 +1959,14 @@
                  * Properties of a FloatList.
                  * @memberof tensorflow.CollectionDef
                  * @interface IFloatList
-                 * @property {Array.<number>} [value] FloatList value
+                 * @property {Array.<number>|null} [value] FloatList value
                  */
     
                 /**
                  * Constructs a new FloatList.
                  * @memberof tensorflow.CollectionDef
                  * @classdesc Represents a FloatList.
+                 * @implements IFloatList
                  * @constructor
                  * @param {tensorflow.CollectionDef.IFloatList=} [properties] Properties to set
                  */
@@ -1962,7 +1980,7 @@
     
                 /**
                  * FloatList value.
-                 * @member {Array.<number>}value
+                 * @member {Array.<number>} value
                  * @memberof tensorflow.CollectionDef.FloatList
                  * @instance
                  */
@@ -2152,13 +2170,14 @@
                  * Properties of an AnyList.
                  * @memberof tensorflow.CollectionDef
                  * @interface IAnyList
-                 * @property {Array.<google.protobuf.IAny>} [value] AnyList value
+                 * @property {Array.<google.protobuf.IAny>|null} [value] AnyList value
                  */
     
                 /**
                  * Constructs a new AnyList.
                  * @memberof tensorflow.CollectionDef
                  * @classdesc Represents an AnyList.
+                 * @implements IAnyList
                  * @constructor
                  * @param {tensorflow.CollectionDef.IAnyList=} [properties] Properties to set
                  */
@@ -2172,7 +2191,7 @@
     
                 /**
                  * AnyList value.
-                 * @member {Array.<google.protobuf.IAny>}value
+                 * @member {Array.<google.protobuf.IAny>} value
                  * @memberof tensorflow.CollectionDef.AnyList
                  * @instance
                  */
@@ -2362,16 +2381,17 @@
              * Properties of a TensorInfo.
              * @memberof tensorflow
              * @interface ITensorInfo
-             * @property {string} [name] TensorInfo name
-             * @property {tensorflow.TensorInfo.ICooSparse} [cooSparse] TensorInfo cooSparse
-             * @property {tensorflow.DataType} [dtype] TensorInfo dtype
-             * @property {tensorflow.ITensorShapeProto} [tensorShape] TensorInfo tensorShape
+             * @property {string|null} [name] TensorInfo name
+             * @property {tensorflow.TensorInfo.ICooSparse|null} [cooSparse] TensorInfo cooSparse
+             * @property {tensorflow.DataType|null} [dtype] TensorInfo dtype
+             * @property {tensorflow.ITensorShapeProto|null} [tensorShape] TensorInfo tensorShape
              */
     
             /**
              * Constructs a new TensorInfo.
              * @memberof tensorflow
              * @classdesc Represents a TensorInfo.
+             * @implements ITensorInfo
              * @constructor
              * @param {tensorflow.ITensorInfo=} [properties] Properties to set
              */
@@ -2384,7 +2404,7 @@
     
             /**
              * TensorInfo name.
-             * @member {string}name
+             * @member {string} name
              * @memberof tensorflow.TensorInfo
              * @instance
              */
@@ -2392,7 +2412,7 @@
     
             /**
              * TensorInfo cooSparse.
-             * @member {(tensorflow.TensorInfo.ICooSparse|null|undefined)}cooSparse
+             * @member {tensorflow.TensorInfo.ICooSparse|null|undefined} cooSparse
              * @memberof tensorflow.TensorInfo
              * @instance
              */
@@ -2400,7 +2420,7 @@
     
             /**
              * TensorInfo dtype.
-             * @member {tensorflow.DataType}dtype
+             * @member {tensorflow.DataType} dtype
              * @memberof tensorflow.TensorInfo
              * @instance
              */
@@ -2408,7 +2428,7 @@
     
             /**
              * TensorInfo tensorShape.
-             * @member {(tensorflow.ITensorShapeProto|null|undefined)}tensorShape
+             * @member {tensorflow.ITensorShapeProto|null|undefined} tensorShape
              * @memberof tensorflow.TensorInfo
              * @instance
              */
@@ -2419,7 +2439,7 @@
     
             /**
              * TensorInfo encoding.
-             * @member {string|undefined} encoding
+             * @member {"name"|"cooSparse"|undefined} encoding
              * @memberof tensorflow.TensorInfo
              * @instance
              */
@@ -2551,9 +2571,11 @@
                     if (properties.encoding === 1)
                         return "encoding: multiple values";
                     properties.encoding = 1;
-                    var error = $root.tensorflow.TensorInfo.CooSparse.verify(message.cooSparse);
-                    if (error)
-                        return "cooSparse." + error;
+                    {
+                        var error = $root.tensorflow.TensorInfo.CooSparse.verify(message.cooSparse);
+                        if (error)
+                            return "cooSparse." + error;
+                    }
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     switch (message.dtype) {
@@ -2609,7 +2631,7 @@
                         break;
                     }
                 if (message.tensorShape != null && message.hasOwnProperty("tensorShape")) {
-                    error = $root.tensorflow.TensorShapeProto.verify(message.tensorShape);
+                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensorShape);
                     if (error)
                         return "tensorShape." + error;
                 }
@@ -2884,15 +2906,16 @@
                  * Properties of a CooSparse.
                  * @memberof tensorflow.TensorInfo
                  * @interface ICooSparse
-                 * @property {string} [valuesTensorName] CooSparse valuesTensorName
-                 * @property {string} [indicesTensorName] CooSparse indicesTensorName
-                 * @property {string} [denseShapeTensorName] CooSparse denseShapeTensorName
+                 * @property {string|null} [valuesTensorName] CooSparse valuesTensorName
+                 * @property {string|null} [indicesTensorName] CooSparse indicesTensorName
+                 * @property {string|null} [denseShapeTensorName] CooSparse denseShapeTensorName
                  */
     
                 /**
                  * Constructs a new CooSparse.
                  * @memberof tensorflow.TensorInfo
                  * @classdesc Represents a CooSparse.
+                 * @implements ICooSparse
                  * @constructor
                  * @param {tensorflow.TensorInfo.ICooSparse=} [properties] Properties to set
                  */
@@ -2905,7 +2928,7 @@
     
                 /**
                  * CooSparse valuesTensorName.
-                 * @member {string}valuesTensorName
+                 * @member {string} valuesTensorName
                  * @memberof tensorflow.TensorInfo.CooSparse
                  * @instance
                  */
@@ -2913,7 +2936,7 @@
     
                 /**
                  * CooSparse indicesTensorName.
-                 * @member {string}indicesTensorName
+                 * @member {string} indicesTensorName
                  * @memberof tensorflow.TensorInfo.CooSparse
                  * @instance
                  */
@@ -2921,7 +2944,7 @@
     
                 /**
                  * CooSparse denseShapeTensorName.
-                 * @member {string}denseShapeTensorName
+                 * @member {string} denseShapeTensorName
                  * @memberof tensorflow.TensorInfo.CooSparse
                  * @instance
                  */
@@ -3118,15 +3141,16 @@
              * Properties of a SignatureDef.
              * @memberof tensorflow
              * @interface ISignatureDef
-             * @property {Object.<string,tensorflow.ITensorInfo>} [inputs] SignatureDef inputs
-             * @property {Object.<string,tensorflow.ITensorInfo>} [outputs] SignatureDef outputs
-             * @property {string} [methodName] SignatureDef methodName
+             * @property {Object.<string,tensorflow.ITensorInfo>|null} [inputs] SignatureDef inputs
+             * @property {Object.<string,tensorflow.ITensorInfo>|null} [outputs] SignatureDef outputs
+             * @property {string|null} [methodName] SignatureDef methodName
              */
     
             /**
              * Constructs a new SignatureDef.
              * @memberof tensorflow
              * @classdesc Represents a SignatureDef.
+             * @implements ISignatureDef
              * @constructor
              * @param {tensorflow.ISignatureDef=} [properties] Properties to set
              */
@@ -3141,7 +3165,7 @@
     
             /**
              * SignatureDef inputs.
-             * @member {Object.<string,tensorflow.ITensorInfo>}inputs
+             * @member {Object.<string,tensorflow.ITensorInfo>} inputs
              * @memberof tensorflow.SignatureDef
              * @instance
              */
@@ -3149,7 +3173,7 @@
     
             /**
              * SignatureDef outputs.
-             * @member {Object.<string,tensorflow.ITensorInfo>}outputs
+             * @member {Object.<string,tensorflow.ITensorInfo>} outputs
              * @memberof tensorflow.SignatureDef
              * @instance
              */
@@ -3157,7 +3181,7 @@
     
             /**
              * SignatureDef methodName.
-             * @member {string}methodName
+             * @member {string} methodName
              * @memberof tensorflow.SignatureDef
              * @instance
              */
@@ -3302,7 +3326,7 @@
                         return "outputs: object expected";
                     var key = Object.keys(message.outputs);
                     for (var i = 0; i < key.length; ++i) {
-                        error = $root.tensorflow.TensorInfo.verify(message.outputs[key[i]]);
+                        var error = $root.tensorflow.TensorInfo.verify(message.outputs[key[i]]);
                         if (error)
                             return "outputs." + error;
                     }
@@ -3405,14 +3429,15 @@
              * Properties of an AssetFileDef.
              * @memberof tensorflow
              * @interface IAssetFileDef
-             * @property {tensorflow.ITensorInfo} [tensorInfo] AssetFileDef tensorInfo
-             * @property {string} [filename] AssetFileDef filename
+             * @property {tensorflow.ITensorInfo|null} [tensorInfo] AssetFileDef tensorInfo
+             * @property {string|null} [filename] AssetFileDef filename
              */
     
             /**
              * Constructs a new AssetFileDef.
              * @memberof tensorflow
              * @classdesc Represents an AssetFileDef.
+             * @implements IAssetFileDef
              * @constructor
              * @param {tensorflow.IAssetFileDef=} [properties] Properties to set
              */
@@ -3425,7 +3450,7 @@
     
             /**
              * AssetFileDef tensorInfo.
-             * @member {(tensorflow.ITensorInfo|null|undefined)}tensorInfo
+             * @member {tensorflow.ITensorInfo|null|undefined} tensorInfo
              * @memberof tensorflow.AssetFileDef
              * @instance
              */
@@ -3433,7 +3458,7 @@
     
             /**
              * AssetFileDef filename.
-             * @member {string}filename
+             * @member {string} filename
              * @memberof tensorflow.AssetFileDef
              * @instance
              */
@@ -3619,19 +3644,20 @@
              * Properties of a SaverDef.
              * @memberof tensorflow
              * @interface ISaverDef
-             * @property {string} [filenameTensorName] SaverDef filenameTensorName
-             * @property {string} [saveTensorName] SaverDef saveTensorName
-             * @property {string} [restoreOpName] SaverDef restoreOpName
-             * @property {number} [maxToKeep] SaverDef maxToKeep
-             * @property {boolean} [sharded] SaverDef sharded
-             * @property {number} [keepCheckpointEveryNHours] SaverDef keepCheckpointEveryNHours
-             * @property {tensorflow.SaverDef.CheckpointFormatVersion} [version] SaverDef version
+             * @property {string|null} [filenameTensorName] SaverDef filenameTensorName
+             * @property {string|null} [saveTensorName] SaverDef saveTensorName
+             * @property {string|null} [restoreOpName] SaverDef restoreOpName
+             * @property {number|null} [maxToKeep] SaverDef maxToKeep
+             * @property {boolean|null} [sharded] SaverDef sharded
+             * @property {number|null} [keepCheckpointEveryNHours] SaverDef keepCheckpointEveryNHours
+             * @property {tensorflow.SaverDef.CheckpointFormatVersion|null} [version] SaverDef version
              */
     
             /**
              * Constructs a new SaverDef.
              * @memberof tensorflow
              * @classdesc Represents a SaverDef.
+             * @implements ISaverDef
              * @constructor
              * @param {tensorflow.ISaverDef=} [properties] Properties to set
              */
@@ -3644,7 +3670,7 @@
     
             /**
              * SaverDef filenameTensorName.
-             * @member {string}filenameTensorName
+             * @member {string} filenameTensorName
              * @memberof tensorflow.SaverDef
              * @instance
              */
@@ -3652,7 +3678,7 @@
     
             /**
              * SaverDef saveTensorName.
-             * @member {string}saveTensorName
+             * @member {string} saveTensorName
              * @memberof tensorflow.SaverDef
              * @instance
              */
@@ -3660,7 +3686,7 @@
     
             /**
              * SaverDef restoreOpName.
-             * @member {string}restoreOpName
+             * @member {string} restoreOpName
              * @memberof tensorflow.SaverDef
              * @instance
              */
@@ -3668,7 +3694,7 @@
     
             /**
              * SaverDef maxToKeep.
-             * @member {number}maxToKeep
+             * @member {number} maxToKeep
              * @memberof tensorflow.SaverDef
              * @instance
              */
@@ -3676,7 +3702,7 @@
     
             /**
              * SaverDef sharded.
-             * @member {boolean}sharded
+             * @member {boolean} sharded
              * @memberof tensorflow.SaverDef
              * @instance
              */
@@ -3684,7 +3710,7 @@
     
             /**
              * SaverDef keepCheckpointEveryNHours.
-             * @member {number}keepCheckpointEveryNHours
+             * @member {number} keepCheckpointEveryNHours
              * @memberof tensorflow.SaverDef
              * @instance
              */
@@ -3692,7 +3718,7 @@
     
             /**
              * SaverDef version.
-             * @member {tensorflow.SaverDef.CheckpointFormatVersion}version
+             * @member {tensorflow.SaverDef.CheckpointFormatVersion} version
              * @memberof tensorflow.SaverDef
              * @instance
              */
@@ -3949,6 +3975,7 @@
     
             /**
              * CheckpointFormatVersion enum.
+             * @name tensorflow.SaverDef.CheckpointFormatVersion
              * @enum {string}
              * @property {number} LEGACY=0 LEGACY value
              * @property {number} V1=1 V1 value
@@ -3971,16 +3998,17 @@
              * Properties of a GraphDef.
              * @memberof tensorflow
              * @interface IGraphDef
-             * @property {Array.<tensorflow.INodeDef>} [node] GraphDef node
-             * @property {tensorflow.IVersionDef} [versions] GraphDef versions
-             * @property {number} [version] GraphDef version
-             * @property {tensorflow.IFunctionDefLibrary} [library] GraphDef library
+             * @property {Array.<tensorflow.INodeDef>|null} [node] GraphDef node
+             * @property {tensorflow.IVersionDef|null} [versions] GraphDef versions
+             * @property {number|null} [version] GraphDef version
+             * @property {tensorflow.IFunctionDefLibrary|null} [library] GraphDef library
              */
     
             /**
              * Constructs a new GraphDef.
              * @memberof tensorflow
              * @classdesc Represents a GraphDef.
+             * @implements IGraphDef
              * @constructor
              * @param {tensorflow.IGraphDef=} [properties] Properties to set
              */
@@ -3994,7 +4022,7 @@
     
             /**
              * GraphDef node.
-             * @member {Array.<tensorflow.INodeDef>}node
+             * @member {Array.<tensorflow.INodeDef>} node
              * @memberof tensorflow.GraphDef
              * @instance
              */
@@ -4002,7 +4030,7 @@
     
             /**
              * GraphDef versions.
-             * @member {(tensorflow.IVersionDef|null|undefined)}versions
+             * @member {tensorflow.IVersionDef|null|undefined} versions
              * @memberof tensorflow.GraphDef
              * @instance
              */
@@ -4010,7 +4038,7 @@
     
             /**
              * GraphDef version.
-             * @member {number}version
+             * @member {number} version
              * @memberof tensorflow.GraphDef
              * @instance
              */
@@ -4018,7 +4046,7 @@
     
             /**
              * GraphDef library.
-             * @member {(tensorflow.IFunctionDefLibrary|null|undefined)}library
+             * @member {tensorflow.IFunctionDefLibrary|null|undefined} library
              * @memberof tensorflow.GraphDef
              * @instance
              */
@@ -4150,7 +4178,7 @@
                     }
                 }
                 if (message.versions != null && message.hasOwnProperty("versions")) {
-                    error = $root.tensorflow.VersionDef.verify(message.versions);
+                    var error = $root.tensorflow.VersionDef.verify(message.versions);
                     if (error)
                         return "versions." + error;
                 }
@@ -4158,7 +4186,7 @@
                     if (!$util.isInteger(message.version))
                         return "version: integer expected";
                 if (message.library != null && message.hasOwnProperty("library")) {
-                    error = $root.tensorflow.FunctionDefLibrary.verify(message.library);
+                    var error = $root.tensorflow.FunctionDefLibrary.verify(message.library);
                     if (error)
                         return "library." + error;
                 }
@@ -4256,23 +4284,24 @@
              * Properties of an OpDef.
              * @memberof tensorflow
              * @interface IOpDef
-             * @property {string} [name] OpDef name
-             * @property {Array.<tensorflow.OpDef.IArgDef>} [inputArg] OpDef inputArg
-             * @property {Array.<tensorflow.OpDef.IArgDef>} [outputArg] OpDef outputArg
-             * @property {Array.<tensorflow.OpDef.IAttrDef>} [attr] OpDef attr
-             * @property {tensorflow.IOpDeprecation} [deprecation] OpDef deprecation
-             * @property {string} [summary] OpDef summary
-             * @property {string} [description] OpDef description
-             * @property {boolean} [isCommutative] OpDef isCommutative
-             * @property {boolean} [isAggregate] OpDef isAggregate
-             * @property {boolean} [isStateful] OpDef isStateful
-             * @property {boolean} [allowsUninitializedInput] OpDef allowsUninitializedInput
+             * @property {string|null} [name] OpDef name
+             * @property {Array.<tensorflow.OpDef.IArgDef>|null} [inputArg] OpDef inputArg
+             * @property {Array.<tensorflow.OpDef.IArgDef>|null} [outputArg] OpDef outputArg
+             * @property {Array.<tensorflow.OpDef.IAttrDef>|null} [attr] OpDef attr
+             * @property {tensorflow.IOpDeprecation|null} [deprecation] OpDef deprecation
+             * @property {string|null} [summary] OpDef summary
+             * @property {string|null} [description] OpDef description
+             * @property {boolean|null} [isCommutative] OpDef isCommutative
+             * @property {boolean|null} [isAggregate] OpDef isAggregate
+             * @property {boolean|null} [isStateful] OpDef isStateful
+             * @property {boolean|null} [allowsUninitializedInput] OpDef allowsUninitializedInput
              */
     
             /**
              * Constructs a new OpDef.
              * @memberof tensorflow
              * @classdesc Represents an OpDef.
+             * @implements IOpDef
              * @constructor
              * @param {tensorflow.IOpDef=} [properties] Properties to set
              */
@@ -4288,7 +4317,7 @@
     
             /**
              * OpDef name.
-             * @member {string}name
+             * @member {string} name
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4296,7 +4325,7 @@
     
             /**
              * OpDef inputArg.
-             * @member {Array.<tensorflow.OpDef.IArgDef>}inputArg
+             * @member {Array.<tensorflow.OpDef.IArgDef>} inputArg
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4304,7 +4333,7 @@
     
             /**
              * OpDef outputArg.
-             * @member {Array.<tensorflow.OpDef.IArgDef>}outputArg
+             * @member {Array.<tensorflow.OpDef.IArgDef>} outputArg
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4312,7 +4341,7 @@
     
             /**
              * OpDef attr.
-             * @member {Array.<tensorflow.OpDef.IAttrDef>}attr
+             * @member {Array.<tensorflow.OpDef.IAttrDef>} attr
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4320,7 +4349,7 @@
     
             /**
              * OpDef deprecation.
-             * @member {(tensorflow.IOpDeprecation|null|undefined)}deprecation
+             * @member {tensorflow.IOpDeprecation|null|undefined} deprecation
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4328,7 +4357,7 @@
     
             /**
              * OpDef summary.
-             * @member {string}summary
+             * @member {string} summary
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4336,7 +4365,7 @@
     
             /**
              * OpDef description.
-             * @member {string}description
+             * @member {string} description
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4344,7 +4373,7 @@
     
             /**
              * OpDef isCommutative.
-             * @member {boolean}isCommutative
+             * @member {boolean} isCommutative
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4352,7 +4381,7 @@
     
             /**
              * OpDef isAggregate.
-             * @member {boolean}isAggregate
+             * @member {boolean} isAggregate
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4360,7 +4389,7 @@
     
             /**
              * OpDef isStateful.
-             * @member {boolean}isStateful
+             * @member {boolean} isStateful
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4368,7 +4397,7 @@
     
             /**
              * OpDef allowsUninitializedInput.
-             * @member {boolean}allowsUninitializedInput
+             * @member {boolean} allowsUninitializedInput
              * @memberof tensorflow.OpDef
              * @instance
              */
@@ -4547,7 +4576,7 @@
                     if (!Array.isArray(message.outputArg))
                         return "outputArg: array expected";
                     for (var i = 0; i < message.outputArg.length; ++i) {
-                        error = $root.tensorflow.OpDef.ArgDef.verify(message.outputArg[i]);
+                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.outputArg[i]);
                         if (error)
                             return "outputArg." + error;
                     }
@@ -4556,13 +4585,13 @@
                     if (!Array.isArray(message.attr))
                         return "attr: array expected";
                     for (var i = 0; i < message.attr.length; ++i) {
-                        error = $root.tensorflow.OpDef.AttrDef.verify(message.attr[i]);
+                        var error = $root.tensorflow.OpDef.AttrDef.verify(message.attr[i]);
                         if (error)
                             return "attr." + error;
                     }
                 }
                 if (message.deprecation != null && message.hasOwnProperty("deprecation")) {
-                    error = $root.tensorflow.OpDeprecation.verify(message.deprecation);
+                    var error = $root.tensorflow.OpDeprecation.verify(message.deprecation);
                     if (error)
                         return "deprecation." + error;
                 }
@@ -4730,19 +4759,20 @@
                  * Properties of an ArgDef.
                  * @memberof tensorflow.OpDef
                  * @interface IArgDef
-                 * @property {string} [name] ArgDef name
-                 * @property {string} [description] ArgDef description
-                 * @property {tensorflow.DataType} [type] ArgDef type
-                 * @property {string} [typeAttr] ArgDef typeAttr
-                 * @property {string} [numberAttr] ArgDef numberAttr
-                 * @property {string} [typeListAttr] ArgDef typeListAttr
-                 * @property {boolean} [isRef] ArgDef isRef
+                 * @property {string|null} [name] ArgDef name
+                 * @property {string|null} [description] ArgDef description
+                 * @property {tensorflow.DataType|null} [type] ArgDef type
+                 * @property {string|null} [typeAttr] ArgDef typeAttr
+                 * @property {string|null} [numberAttr] ArgDef numberAttr
+                 * @property {string|null} [typeListAttr] ArgDef typeListAttr
+                 * @property {boolean|null} [isRef] ArgDef isRef
                  */
     
                 /**
                  * Constructs a new ArgDef.
                  * @memberof tensorflow.OpDef
                  * @classdesc Represents an ArgDef.
+                 * @implements IArgDef
                  * @constructor
                  * @param {tensorflow.OpDef.IArgDef=} [properties] Properties to set
                  */
@@ -4755,7 +4785,7 @@
     
                 /**
                  * ArgDef name.
-                 * @member {string}name
+                 * @member {string} name
                  * @memberof tensorflow.OpDef.ArgDef
                  * @instance
                  */
@@ -4763,7 +4793,7 @@
     
                 /**
                  * ArgDef description.
-                 * @member {string}description
+                 * @member {string} description
                  * @memberof tensorflow.OpDef.ArgDef
                  * @instance
                  */
@@ -4771,7 +4801,7 @@
     
                 /**
                  * ArgDef type.
-                 * @member {tensorflow.DataType}type
+                 * @member {tensorflow.DataType} type
                  * @memberof tensorflow.OpDef.ArgDef
                  * @instance
                  */
@@ -4779,7 +4809,7 @@
     
                 /**
                  * ArgDef typeAttr.
-                 * @member {string}typeAttr
+                 * @member {string} typeAttr
                  * @memberof tensorflow.OpDef.ArgDef
                  * @instance
                  */
@@ -4787,7 +4817,7 @@
     
                 /**
                  * ArgDef numberAttr.
-                 * @member {string}numberAttr
+                 * @member {string} numberAttr
                  * @memberof tensorflow.OpDef.ArgDef
                  * @instance
                  */
@@ -4795,7 +4825,7 @@
     
                 /**
                  * ArgDef typeListAttr.
-                 * @member {string}typeListAttr
+                 * @member {string} typeListAttr
                  * @memberof tensorflow.OpDef.ArgDef
                  * @instance
                  */
@@ -4803,7 +4833,7 @@
     
                 /**
                  * ArgDef isRef.
-                 * @member {boolean}isRef
+                 * @member {boolean} isRef
                  * @memberof tensorflow.OpDef.ArgDef
                  * @instance
                  */
@@ -5287,19 +5317,20 @@
                  * Properties of an AttrDef.
                  * @memberof tensorflow.OpDef
                  * @interface IAttrDef
-                 * @property {string} [name] AttrDef name
-                 * @property {string} [type] AttrDef type
-                 * @property {tensorflow.IAttrValue} [defaultValue] AttrDef defaultValue
-                 * @property {string} [description] AttrDef description
-                 * @property {boolean} [hasMinimum] AttrDef hasMinimum
-                 * @property {number|Long} [minimum] AttrDef minimum
-                 * @property {tensorflow.IAttrValue} [allowedValues] AttrDef allowedValues
+                 * @property {string|null} [name] AttrDef name
+                 * @property {string|null} [type] AttrDef type
+                 * @property {tensorflow.IAttrValue|null} [defaultValue] AttrDef defaultValue
+                 * @property {string|null} [description] AttrDef description
+                 * @property {boolean|null} [hasMinimum] AttrDef hasMinimum
+                 * @property {number|Long|null} [minimum] AttrDef minimum
+                 * @property {tensorflow.IAttrValue|null} [allowedValues] AttrDef allowedValues
                  */
     
                 /**
                  * Constructs a new AttrDef.
                  * @memberof tensorflow.OpDef
                  * @classdesc Represents an AttrDef.
+                 * @implements IAttrDef
                  * @constructor
                  * @param {tensorflow.OpDef.IAttrDef=} [properties] Properties to set
                  */
@@ -5312,7 +5343,7 @@
     
                 /**
                  * AttrDef name.
-                 * @member {string}name
+                 * @member {string} name
                  * @memberof tensorflow.OpDef.AttrDef
                  * @instance
                  */
@@ -5320,7 +5351,7 @@
     
                 /**
                  * AttrDef type.
-                 * @member {string}type
+                 * @member {string} type
                  * @memberof tensorflow.OpDef.AttrDef
                  * @instance
                  */
@@ -5328,7 +5359,7 @@
     
                 /**
                  * AttrDef defaultValue.
-                 * @member {(tensorflow.IAttrValue|null|undefined)}defaultValue
+                 * @member {tensorflow.IAttrValue|null|undefined} defaultValue
                  * @memberof tensorflow.OpDef.AttrDef
                  * @instance
                  */
@@ -5336,7 +5367,7 @@
     
                 /**
                  * AttrDef description.
-                 * @member {string}description
+                 * @member {string} description
                  * @memberof tensorflow.OpDef.AttrDef
                  * @instance
                  */
@@ -5344,7 +5375,7 @@
     
                 /**
                  * AttrDef hasMinimum.
-                 * @member {boolean}hasMinimum
+                 * @member {boolean} hasMinimum
                  * @memberof tensorflow.OpDef.AttrDef
                  * @instance
                  */
@@ -5352,7 +5383,7 @@
     
                 /**
                  * AttrDef minimum.
-                 * @member {number|Long}minimum
+                 * @member {number|Long} minimum
                  * @memberof tensorflow.OpDef.AttrDef
                  * @instance
                  */
@@ -5360,7 +5391,7 @@
     
                 /**
                  * AttrDef allowedValues.
-                 * @member {(tensorflow.IAttrValue|null|undefined)}allowedValues
+                 * @member {tensorflow.IAttrValue|null|undefined} allowedValues
                  * @memberof tensorflow.OpDef.AttrDef
                  * @instance
                  */
@@ -5515,7 +5546,7 @@
                         if (!$util.isInteger(message.minimum) && !(message.minimum && $util.isInteger(message.minimum.low) && $util.isInteger(message.minimum.high)))
                             return "minimum: integer|Long expected";
                     if (message.allowedValues != null && message.hasOwnProperty("allowedValues")) {
-                        error = $root.tensorflow.AttrValue.verify(message.allowedValues);
+                        var error = $root.tensorflow.AttrValue.verify(message.allowedValues);
                         if (error)
                             return "allowedValues." + error;
                     }
@@ -5633,14 +5664,15 @@
              * Properties of an OpDeprecation.
              * @memberof tensorflow
              * @interface IOpDeprecation
-             * @property {number} [version] OpDeprecation version
-             * @property {string} [explanation] OpDeprecation explanation
+             * @property {number|null} [version] OpDeprecation version
+             * @property {string|null} [explanation] OpDeprecation explanation
              */
     
             /**
              * Constructs a new OpDeprecation.
              * @memberof tensorflow
              * @classdesc Represents an OpDeprecation.
+             * @implements IOpDeprecation
              * @constructor
              * @param {tensorflow.IOpDeprecation=} [properties] Properties to set
              */
@@ -5653,7 +5685,7 @@
     
             /**
              * OpDeprecation version.
-             * @member {number}version
+             * @member {number} version
              * @memberof tensorflow.OpDeprecation
              * @instance
              */
@@ -5661,7 +5693,7 @@
     
             /**
              * OpDeprecation explanation.
-             * @member {string}explanation
+             * @member {string} explanation
              * @memberof tensorflow.OpDeprecation
              * @instance
              */
@@ -5842,13 +5874,14 @@
              * Properties of an OpList.
              * @memberof tensorflow
              * @interface IOpList
-             * @property {Array.<tensorflow.IOpDef>} [op] OpList op
+             * @property {Array.<tensorflow.IOpDef>|null} [op] OpList op
              */
     
             /**
              * Constructs a new OpList.
              * @memberof tensorflow
              * @classdesc Represents an OpList.
+             * @implements IOpList
              * @constructor
              * @param {tensorflow.IOpList=} [properties] Properties to set
              */
@@ -5862,7 +5895,7 @@
     
             /**
              * OpList op.
-             * @member {Array.<tensorflow.IOpDef>}op
+             * @member {Array.<tensorflow.IOpDef>} op
              * @memberof tensorflow.OpList
              * @instance
              */
@@ -6049,14 +6082,15 @@
              * Properties of a TensorShapeProto.
              * @memberof tensorflow
              * @interface ITensorShapeProto
-             * @property {Array.<tensorflow.TensorShapeProto.IDim>} [dim] TensorShapeProto dim
-             * @property {boolean} [unknownRank] TensorShapeProto unknownRank
+             * @property {Array.<tensorflow.TensorShapeProto.IDim>|null} [dim] TensorShapeProto dim
+             * @property {boolean|null} [unknownRank] TensorShapeProto unknownRank
              */
     
             /**
              * Constructs a new TensorShapeProto.
              * @memberof tensorflow
              * @classdesc Represents a TensorShapeProto.
+             * @implements ITensorShapeProto
              * @constructor
              * @param {tensorflow.ITensorShapeProto=} [properties] Properties to set
              */
@@ -6070,7 +6104,7 @@
     
             /**
              * TensorShapeProto dim.
-             * @member {Array.<tensorflow.TensorShapeProto.IDim>}dim
+             * @member {Array.<tensorflow.TensorShapeProto.IDim>} dim
              * @memberof tensorflow.TensorShapeProto
              * @instance
              */
@@ -6078,7 +6112,7 @@
     
             /**
              * TensorShapeProto unknownRank.
-             * @member {boolean}unknownRank
+             * @member {boolean} unknownRank
              * @memberof tensorflow.TensorShapeProto
              * @instance
              */
@@ -6276,14 +6310,15 @@
                  * Properties of a Dim.
                  * @memberof tensorflow.TensorShapeProto
                  * @interface IDim
-                 * @property {number|Long} [size] Dim size
-                 * @property {string} [name] Dim name
+                 * @property {number|Long|null} [size] Dim size
+                 * @property {string|null} [name] Dim name
                  */
     
                 /**
                  * Constructs a new Dim.
                  * @memberof tensorflow.TensorShapeProto
                  * @classdesc Represents a Dim.
+                 * @implements IDim
                  * @constructor
                  * @param {tensorflow.TensorShapeProto.IDim=} [properties] Properties to set
                  */
@@ -6296,7 +6331,7 @@
     
                 /**
                  * Dim size.
-                 * @member {number|Long}size
+                 * @member {number|Long} size
                  * @memberof tensorflow.TensorShapeProto.Dim
                  * @instance
                  */
@@ -6304,7 +6339,7 @@
     
                 /**
                  * Dim name.
-                 * @member {string}name
+                 * @member {string} name
                  * @memberof tensorflow.TensorShapeProto.Dim
                  * @instance
                  */
@@ -6498,6 +6533,7 @@
     
         /**
          * DataType enum.
+         * @name tensorflow.DataType
          * @enum {string}
          * @property {number} DT_INVALID=0 DT_INVALID value
          * @property {number} DT_FLOAT=1 DT_FLOAT value
@@ -6605,17 +6641,18 @@
              * Properties of a NodeDef.
              * @memberof tensorflow
              * @interface INodeDef
-             * @property {string} [name] NodeDef name
-             * @property {string} [op] NodeDef op
-             * @property {Array.<string>} [input] NodeDef input
-             * @property {string} [device] NodeDef device
-             * @property {Object.<string,tensorflow.IAttrValue>} [attr] NodeDef attr
+             * @property {string|null} [name] NodeDef name
+             * @property {string|null} [op] NodeDef op
+             * @property {Array.<string>|null} [input] NodeDef input
+             * @property {string|null} [device] NodeDef device
+             * @property {Object.<string,tensorflow.IAttrValue>|null} [attr] NodeDef attr
              */
     
             /**
              * Constructs a new NodeDef.
              * @memberof tensorflow
              * @classdesc Represents a NodeDef.
+             * @implements INodeDef
              * @constructor
              * @param {tensorflow.INodeDef=} [properties] Properties to set
              */
@@ -6630,7 +6667,7 @@
     
             /**
              * NodeDef name.
-             * @member {string}name
+             * @member {string} name
              * @memberof tensorflow.NodeDef
              * @instance
              */
@@ -6638,7 +6675,7 @@
     
             /**
              * NodeDef op.
-             * @member {string}op
+             * @member {string} op
              * @memberof tensorflow.NodeDef
              * @instance
              */
@@ -6646,7 +6683,7 @@
     
             /**
              * NodeDef input.
-             * @member {Array.<string>}input
+             * @member {Array.<string>} input
              * @memberof tensorflow.NodeDef
              * @instance
              */
@@ -6654,7 +6691,7 @@
     
             /**
              * NodeDef device.
-             * @member {string}device
+             * @member {string} device
              * @memberof tensorflow.NodeDef
              * @instance
              */
@@ -6662,7 +6699,7 @@
     
             /**
              * NodeDef attr.
-             * @member {Object.<string,tensorflow.IAttrValue>}attr
+             * @member {Object.<string,tensorflow.IAttrValue>} attr
              * @memberof tensorflow.NodeDef
              * @instance
              */
@@ -6926,15 +6963,16 @@
              * Properties of a VersionDef.
              * @memberof tensorflow
              * @interface IVersionDef
-             * @property {number} [producer] VersionDef producer
-             * @property {number} [minConsumer] VersionDef minConsumer
-             * @property {Array.<number>} [badConsumers] VersionDef badConsumers
+             * @property {number|null} [producer] VersionDef producer
+             * @property {number|null} [minConsumer] VersionDef minConsumer
+             * @property {Array.<number>|null} [badConsumers] VersionDef badConsumers
              */
     
             /**
              * Constructs a new VersionDef.
              * @memberof tensorflow
              * @classdesc Represents a VersionDef.
+             * @implements IVersionDef
              * @constructor
              * @param {tensorflow.IVersionDef=} [properties] Properties to set
              */
@@ -6948,7 +6986,7 @@
     
             /**
              * VersionDef producer.
-             * @member {number}producer
+             * @member {number} producer
              * @memberof tensorflow.VersionDef
              * @instance
              */
@@ -6956,7 +6994,7 @@
     
             /**
              * VersionDef minConsumer.
-             * @member {number}minConsumer
+             * @member {number} minConsumer
              * @memberof tensorflow.VersionDef
              * @instance
              */
@@ -6964,7 +7002,7 @@
     
             /**
              * VersionDef badConsumers.
-             * @member {Array.<number>}badConsumers
+             * @member {Array.<number>} badConsumers
              * @memberof tensorflow.VersionDef
              * @instance
              */
@@ -7182,14 +7220,15 @@
              * Properties of a FunctionDefLibrary.
              * @memberof tensorflow
              * @interface IFunctionDefLibrary
-             * @property {Array.<tensorflow.IFunctionDef>} ["function"] FunctionDefLibrary function
-             * @property {Array.<tensorflow.IGradientDef>} [gradient] FunctionDefLibrary gradient
+             * @property {Array.<tensorflow.IFunctionDef>|null} ["function"] FunctionDefLibrary function
+             * @property {Array.<tensorflow.IGradientDef>|null} [gradient] FunctionDefLibrary gradient
              */
     
             /**
              * Constructs a new FunctionDefLibrary.
              * @memberof tensorflow
              * @classdesc Represents a FunctionDefLibrary.
+             * @implements IFunctionDefLibrary
              * @constructor
              * @param {tensorflow.IFunctionDefLibrary=} [properties] Properties to set
              */
@@ -7204,7 +7243,7 @@
     
             /**
              * FunctionDefLibrary function.
-             * @member {Array.<tensorflow.IFunctionDef>}function_
+             * @member {Array.<tensorflow.IFunctionDef>} function
              * @memberof tensorflow.FunctionDefLibrary
              * @instance
              */
@@ -7212,7 +7251,7 @@
     
             /**
              * FunctionDefLibrary gradient.
-             * @member {Array.<tensorflow.IGradientDef>}gradient
+             * @member {Array.<tensorflow.IGradientDef>} gradient
              * @memberof tensorflow.FunctionDefLibrary
              * @instance
              */
@@ -7340,7 +7379,7 @@
                     if (!Array.isArray(message.gradient))
                         return "gradient: array expected";
                     for (var i = 0; i < message.gradient.length; ++i) {
-                        error = $root.tensorflow.GradientDef.verify(message.gradient[i]);
+                        var error = $root.tensorflow.GradientDef.verify(message.gradient[i]);
                         if (error)
                             return "gradient." + error;
                     }
@@ -7433,16 +7472,17 @@
              * Properties of a FunctionDef.
              * @memberof tensorflow
              * @interface IFunctionDef
-             * @property {tensorflow.IOpDef} [signature] FunctionDef signature
-             * @property {Object.<string,tensorflow.IAttrValue>} [attr] FunctionDef attr
-             * @property {Array.<tensorflow.INodeDef>} [nodeDef] FunctionDef nodeDef
-             * @property {Object.<string,string>} [ret] FunctionDef ret
+             * @property {tensorflow.IOpDef|null} [signature] FunctionDef signature
+             * @property {Object.<string,tensorflow.IAttrValue>|null} [attr] FunctionDef attr
+             * @property {Array.<tensorflow.INodeDef>|null} [nodeDef] FunctionDef nodeDef
+             * @property {Object.<string,string>|null} [ret] FunctionDef ret
              */
     
             /**
              * Constructs a new FunctionDef.
              * @memberof tensorflow
              * @classdesc Represents a FunctionDef.
+             * @implements IFunctionDef
              * @constructor
              * @param {tensorflow.IFunctionDef=} [properties] Properties to set
              */
@@ -7458,7 +7498,7 @@
     
             /**
              * FunctionDef signature.
-             * @member {(tensorflow.IOpDef|null|undefined)}signature
+             * @member {tensorflow.IOpDef|null|undefined} signature
              * @memberof tensorflow.FunctionDef
              * @instance
              */
@@ -7466,7 +7506,7 @@
     
             /**
              * FunctionDef attr.
-             * @member {Object.<string,tensorflow.IAttrValue>}attr
+             * @member {Object.<string,tensorflow.IAttrValue>} attr
              * @memberof tensorflow.FunctionDef
              * @instance
              */
@@ -7474,7 +7514,7 @@
     
             /**
              * FunctionDef nodeDef.
-             * @member {Array.<tensorflow.INodeDef>}nodeDef
+             * @member {Array.<tensorflow.INodeDef>} nodeDef
              * @memberof tensorflow.FunctionDef
              * @instance
              */
@@ -7482,7 +7522,7 @@
     
             /**
              * FunctionDef ret.
-             * @member {Object.<string,string>}ret
+             * @member {Object.<string,string>} ret
              * @memberof tensorflow.FunctionDef
              * @instance
              */
@@ -7628,7 +7668,7 @@
                         return "attr: object expected";
                     var key = Object.keys(message.attr);
                     for (var i = 0; i < key.length; ++i) {
-                        error = $root.tensorflow.AttrValue.verify(message.attr[key[i]]);
+                        var error = $root.tensorflow.AttrValue.verify(message.attr[key[i]]);
                         if (error)
                             return "attr." + error;
                     }
@@ -7637,7 +7677,7 @@
                     if (!Array.isArray(message.nodeDef))
                         return "nodeDef: array expected";
                     for (var i = 0; i < message.nodeDef.length; ++i) {
-                        error = $root.tensorflow.NodeDef.verify(message.nodeDef[i]);
+                        var error = $root.tensorflow.NodeDef.verify(message.nodeDef[i]);
                         if (error)
                             return "nodeDef." + error;
                     }
@@ -7762,14 +7802,15 @@
              * Properties of a GradientDef.
              * @memberof tensorflow
              * @interface IGradientDef
-             * @property {string} [functionName] GradientDef functionName
-             * @property {string} [gradientFunc] GradientDef gradientFunc
+             * @property {string|null} [functionName] GradientDef functionName
+             * @property {string|null} [gradientFunc] GradientDef gradientFunc
              */
     
             /**
              * Constructs a new GradientDef.
              * @memberof tensorflow
              * @classdesc Represents a GradientDef.
+             * @implements IGradientDef
              * @constructor
              * @param {tensorflow.IGradientDef=} [properties] Properties to set
              */
@@ -7782,7 +7823,7 @@
     
             /**
              * GradientDef functionName.
-             * @member {string}functionName
+             * @member {string} functionName
              * @memberof tensorflow.GradientDef
              * @instance
              */
@@ -7790,7 +7831,7 @@
     
             /**
              * GradientDef gradientFunc.
-             * @member {string}gradientFunc
+             * @member {string} gradientFunc
              * @memberof tensorflow.GradientDef
              * @instance
              */
@@ -7971,22 +8012,23 @@
              * Properties of an AttrValue.
              * @memberof tensorflow
              * @interface IAttrValue
-             * @property {Uint8Array} [s] AttrValue s
-             * @property {number|Long} [i] AttrValue i
-             * @property {number} [f] AttrValue f
-             * @property {boolean} [b] AttrValue b
-             * @property {tensorflow.DataType} [type] AttrValue type
-             * @property {tensorflow.ITensorShapeProto} [shape] AttrValue shape
-             * @property {tensorflow.ITensorProto} [tensor] AttrValue tensor
-             * @property {tensorflow.AttrValue.IListValue} [list] AttrValue list
-             * @property {tensorflow.INameAttrList} [func] AttrValue func
-             * @property {string} [placeholder] AttrValue placeholder
+             * @property {Uint8Array|null} [s] AttrValue s
+             * @property {number|Long|null} [i] AttrValue i
+             * @property {number|null} [f] AttrValue f
+             * @property {boolean|null} [b] AttrValue b
+             * @property {tensorflow.DataType|null} [type] AttrValue type
+             * @property {tensorflow.ITensorShapeProto|null} [shape] AttrValue shape
+             * @property {tensorflow.ITensorProto|null} [tensor] AttrValue tensor
+             * @property {tensorflow.AttrValue.IListValue|null} [list] AttrValue list
+             * @property {tensorflow.INameAttrList|null} [func] AttrValue func
+             * @property {string|null} [placeholder] AttrValue placeholder
              */
     
             /**
              * Constructs a new AttrValue.
              * @memberof tensorflow
              * @classdesc Represents an AttrValue.
+             * @implements IAttrValue
              * @constructor
              * @param {tensorflow.IAttrValue=} [properties] Properties to set
              */
@@ -7999,7 +8041,7 @@
     
             /**
              * AttrValue s.
-             * @member {Uint8Array}s
+             * @member {Uint8Array} s
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8007,7 +8049,7 @@
     
             /**
              * AttrValue i.
-             * @member {number|Long}i
+             * @member {number|Long} i
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8015,7 +8057,7 @@
     
             /**
              * AttrValue f.
-             * @member {number}f
+             * @member {number} f
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8023,7 +8065,7 @@
     
             /**
              * AttrValue b.
-             * @member {boolean}b
+             * @member {boolean} b
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8031,7 +8073,7 @@
     
             /**
              * AttrValue type.
-             * @member {tensorflow.DataType}type
+             * @member {tensorflow.DataType} type
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8039,7 +8081,7 @@
     
             /**
              * AttrValue shape.
-             * @member {(tensorflow.ITensorShapeProto|null|undefined)}shape
+             * @member {tensorflow.ITensorShapeProto|null|undefined} shape
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8047,7 +8089,7 @@
     
             /**
              * AttrValue tensor.
-             * @member {(tensorflow.ITensorProto|null|undefined)}tensor
+             * @member {tensorflow.ITensorProto|null|undefined} tensor
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8055,7 +8097,7 @@
     
             /**
              * AttrValue list.
-             * @member {(tensorflow.AttrValue.IListValue|null|undefined)}list
+             * @member {tensorflow.AttrValue.IListValue|null|undefined} list
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8063,7 +8105,7 @@
     
             /**
              * AttrValue func.
-             * @member {(tensorflow.INameAttrList|null|undefined)}func
+             * @member {tensorflow.INameAttrList|null|undefined} func
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8071,7 +8113,7 @@
     
             /**
              * AttrValue placeholder.
-             * @member {string}placeholder
+             * @member {string} placeholder
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8082,7 +8124,7 @@
     
             /**
              * AttrValue value.
-             * @member {string|undefined} value
+             * @member {"s"|"i"|"f"|"b"|"type"|"shape"|"tensor"|"list"|"func"|"placeholder"|undefined} value
              * @memberof tensorflow.AttrValue
              * @instance
              */
@@ -8322,33 +8364,41 @@
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
-                    var error = $root.tensorflow.TensorShapeProto.verify(message.shape);
-                    if (error)
-                        return "shape." + error;
+                    {
+                        var error = $root.tensorflow.TensorShapeProto.verify(message.shape);
+                        if (error)
+                            return "shape." + error;
+                    }
                 }
                 if (message.tensor != null && message.hasOwnProperty("tensor")) {
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
-                    error = $root.tensorflow.TensorProto.verify(message.tensor);
-                    if (error)
-                        return "tensor." + error;
+                    {
+                        var error = $root.tensorflow.TensorProto.verify(message.tensor);
+                        if (error)
+                            return "tensor." + error;
+                    }
                 }
                 if (message.list != null && message.hasOwnProperty("list")) {
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
-                    error = $root.tensorflow.AttrValue.ListValue.verify(message.list);
-                    if (error)
-                        return "list." + error;
+                    {
+                        var error = $root.tensorflow.AttrValue.ListValue.verify(message.list);
+                        if (error)
+                            return "list." + error;
+                    }
                 }
                 if (message.func != null && message.hasOwnProperty("func")) {
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
-                    error = $root.tensorflow.NameAttrList.verify(message.func);
-                    if (error)
-                        return "func." + error;
+                    {
+                        var error = $root.tensorflow.NameAttrList.verify(message.func);
+                        if (error)
+                            return "func." + error;
+                    }
                 }
                 if (message.placeholder != null && message.hasOwnProperty("placeholder")) {
                     if (properties.value === 1)
@@ -8691,20 +8741,21 @@
                  * Properties of a ListValue.
                  * @memberof tensorflow.AttrValue
                  * @interface IListValue
-                 * @property {Array.<Uint8Array>} [s] ListValue s
-                 * @property {Array.<number|Long>} [i] ListValue i
-                 * @property {Array.<number>} [f] ListValue f
-                 * @property {Array.<boolean>} [b] ListValue b
-                 * @property {Array.<tensorflow.DataType>} [type] ListValue type
-                 * @property {Array.<tensorflow.ITensorShapeProto>} [shape] ListValue shape
-                 * @property {Array.<tensorflow.ITensorProto>} [tensor] ListValue tensor
-                 * @property {Array.<tensorflow.INameAttrList>} [func] ListValue func
+                 * @property {Array.<Uint8Array>|null} [s] ListValue s
+                 * @property {Array.<number|Long>|null} [i] ListValue i
+                 * @property {Array.<number>|null} [f] ListValue f
+                 * @property {Array.<boolean>|null} [b] ListValue b
+                 * @property {Array.<tensorflow.DataType>|null} [type] ListValue type
+                 * @property {Array.<tensorflow.ITensorShapeProto>|null} [shape] ListValue shape
+                 * @property {Array.<tensorflow.ITensorProto>|null} [tensor] ListValue tensor
+                 * @property {Array.<tensorflow.INameAttrList>|null} [func] ListValue func
                  */
     
                 /**
                  * Constructs a new ListValue.
                  * @memberof tensorflow.AttrValue
                  * @classdesc Represents a ListValue.
+                 * @implements IListValue
                  * @constructor
                  * @param {tensorflow.AttrValue.IListValue=} [properties] Properties to set
                  */
@@ -8725,7 +8776,7 @@
     
                 /**
                  * ListValue s.
-                 * @member {Array.<Uint8Array>}s
+                 * @member {Array.<Uint8Array>} s
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -8733,7 +8784,7 @@
     
                 /**
                  * ListValue i.
-                 * @member {Array.<number|Long>}i
+                 * @member {Array.<number|Long>} i
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -8741,7 +8792,7 @@
     
                 /**
                  * ListValue f.
-                 * @member {Array.<number>}f
+                 * @member {Array.<number>} f
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -8749,7 +8800,7 @@
     
                 /**
                  * ListValue b.
-                 * @member {Array.<boolean>}b
+                 * @member {Array.<boolean>} b
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -8757,7 +8808,7 @@
     
                 /**
                  * ListValue type.
-                 * @member {Array.<tensorflow.DataType>}type
+                 * @member {Array.<tensorflow.DataType>} type
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -8765,7 +8816,7 @@
     
                 /**
                  * ListValue shape.
-                 * @member {Array.<tensorflow.ITensorShapeProto>}shape
+                 * @member {Array.<tensorflow.ITensorShapeProto>} shape
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -8773,7 +8824,7 @@
     
                 /**
                  * ListValue tensor.
-                 * @member {Array.<tensorflow.ITensorProto>}tensor
+                 * @member {Array.<tensorflow.ITensorProto>} tensor
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -8781,7 +8832,7 @@
     
                 /**
                  * ListValue func.
-                 * @member {Array.<tensorflow.INameAttrList>}func
+                 * @member {Array.<tensorflow.INameAttrList>} func
                  * @memberof tensorflow.AttrValue.ListValue
                  * @instance
                  */
@@ -9074,7 +9125,7 @@
                         if (!Array.isArray(message.tensor))
                             return "tensor: array expected";
                         for (var i = 0; i < message.tensor.length; ++i) {
-                            error = $root.tensorflow.TensorProto.verify(message.tensor[i]);
+                            var error = $root.tensorflow.TensorProto.verify(message.tensor[i]);
                             if (error)
                                 return "tensor." + error;
                         }
@@ -9083,7 +9134,7 @@
                         if (!Array.isArray(message.func))
                             return "func: array expected";
                         for (var i = 0; i < message.func.length; ++i) {
-                            error = $root.tensorflow.NameAttrList.verify(message.func[i]);
+                            var error = $root.tensorflow.NameAttrList.verify(message.func[i]);
                             if (error)
                                 return "func." + error;
                         }
@@ -9463,14 +9514,15 @@
              * Properties of a NameAttrList.
              * @memberof tensorflow
              * @interface INameAttrList
-             * @property {string} [name] NameAttrList name
-             * @property {Object.<string,tensorflow.IAttrValue>} [attr] NameAttrList attr
+             * @property {string|null} [name] NameAttrList name
+             * @property {Object.<string,tensorflow.IAttrValue>|null} [attr] NameAttrList attr
              */
     
             /**
              * Constructs a new NameAttrList.
              * @memberof tensorflow
              * @classdesc Represents a NameAttrList.
+             * @implements INameAttrList
              * @constructor
              * @param {tensorflow.INameAttrList=} [properties] Properties to set
              */
@@ -9484,7 +9536,7 @@
     
             /**
              * NameAttrList name.
-             * @member {string}name
+             * @member {string} name
              * @memberof tensorflow.NameAttrList
              * @instance
              */
@@ -9492,7 +9544,7 @@
     
             /**
              * NameAttrList attr.
-             * @member {Object.<string,tensorflow.IAttrValue>}attr
+             * @member {Object.<string,tensorflow.IAttrValue>} attr
              * @memberof tensorflow.NameAttrList
              * @instance
              */
@@ -9700,29 +9752,30 @@
              * Properties of a TensorProto.
              * @memberof tensorflow
              * @interface ITensorProto
-             * @property {tensorflow.DataType} [dtype] TensorProto dtype
-             * @property {tensorflow.ITensorShapeProto} [tensorShape] TensorProto tensorShape
-             * @property {number} [versionNumber] TensorProto versionNumber
-             * @property {Uint8Array} [tensorContent] TensorProto tensorContent
-             * @property {Array.<number>} [halfVal] TensorProto halfVal
-             * @property {Array.<number>} [floatVal] TensorProto floatVal
-             * @property {Array.<number>} [doubleVal] TensorProto doubleVal
-             * @property {Array.<number>} [intVal] TensorProto intVal
-             * @property {Array.<Uint8Array>} [stringVal] TensorProto stringVal
-             * @property {Array.<number>} [scomplexVal] TensorProto scomplexVal
-             * @property {Array.<number|Long>} [int64Val] TensorProto int64Val
-             * @property {Array.<boolean>} [boolVal] TensorProto boolVal
-             * @property {Array.<number>} [dcomplexVal] TensorProto dcomplexVal
-             * @property {Array.<tensorflow.IResourceHandleProto>} [resourceHandleVal] TensorProto resourceHandleVal
-             * @property {Array.<tensorflow.IVariantTensorDataProto>} [variantVal] TensorProto variantVal
-             * @property {Array.<number>} [uint32Val] TensorProto uint32Val
-             * @property {Array.<number|Long>} [uint64Val] TensorProto uint64Val
+             * @property {tensorflow.DataType|null} [dtype] TensorProto dtype
+             * @property {tensorflow.ITensorShapeProto|null} [tensorShape] TensorProto tensorShape
+             * @property {number|null} [versionNumber] TensorProto versionNumber
+             * @property {Uint8Array|null} [tensorContent] TensorProto tensorContent
+             * @property {Array.<number>|null} [halfVal] TensorProto halfVal
+             * @property {Array.<number>|null} [floatVal] TensorProto floatVal
+             * @property {Array.<number>|null} [doubleVal] TensorProto doubleVal
+             * @property {Array.<number>|null} [intVal] TensorProto intVal
+             * @property {Array.<Uint8Array>|null} [stringVal] TensorProto stringVal
+             * @property {Array.<number>|null} [scomplexVal] TensorProto scomplexVal
+             * @property {Array.<number|Long>|null} [int64Val] TensorProto int64Val
+             * @property {Array.<boolean>|null} [boolVal] TensorProto boolVal
+             * @property {Array.<number>|null} [dcomplexVal] TensorProto dcomplexVal
+             * @property {Array.<tensorflow.IResourceHandleProto>|null} [resourceHandleVal] TensorProto resourceHandleVal
+             * @property {Array.<tensorflow.IVariantTensorDataProto>|null} [variantVal] TensorProto variantVal
+             * @property {Array.<number>|null} [uint32Val] TensorProto uint32Val
+             * @property {Array.<number|Long>|null} [uint64Val] TensorProto uint64Val
              */
     
             /**
              * Constructs a new TensorProto.
              * @memberof tensorflow
              * @classdesc Represents a TensorProto.
+             * @implements ITensorProto
              * @constructor
              * @param {tensorflow.ITensorProto=} [properties] Properties to set
              */
@@ -9748,7 +9801,7 @@
     
             /**
              * TensorProto dtype.
-             * @member {tensorflow.DataType}dtype
+             * @member {tensorflow.DataType} dtype
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9756,7 +9809,7 @@
     
             /**
              * TensorProto tensorShape.
-             * @member {(tensorflow.ITensorShapeProto|null|undefined)}tensorShape
+             * @member {tensorflow.ITensorShapeProto|null|undefined} tensorShape
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9764,7 +9817,7 @@
     
             /**
              * TensorProto versionNumber.
-             * @member {number}versionNumber
+             * @member {number} versionNumber
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9772,7 +9825,7 @@
     
             /**
              * TensorProto tensorContent.
-             * @member {Uint8Array}tensorContent
+             * @member {Uint8Array} tensorContent
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9780,7 +9833,7 @@
     
             /**
              * TensorProto halfVal.
-             * @member {Array.<number>}halfVal
+             * @member {Array.<number>} halfVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9788,7 +9841,7 @@
     
             /**
              * TensorProto floatVal.
-             * @member {Array.<number>}floatVal
+             * @member {Array.<number>} floatVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9796,7 +9849,7 @@
     
             /**
              * TensorProto doubleVal.
-             * @member {Array.<number>}doubleVal
+             * @member {Array.<number>} doubleVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9804,7 +9857,7 @@
     
             /**
              * TensorProto intVal.
-             * @member {Array.<number>}intVal
+             * @member {Array.<number>} intVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9812,7 +9865,7 @@
     
             /**
              * TensorProto stringVal.
-             * @member {Array.<Uint8Array>}stringVal
+             * @member {Array.<Uint8Array>} stringVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9820,7 +9873,7 @@
     
             /**
              * TensorProto scomplexVal.
-             * @member {Array.<number>}scomplexVal
+             * @member {Array.<number>} scomplexVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9828,7 +9881,7 @@
     
             /**
              * TensorProto int64Val.
-             * @member {Array.<number|Long>}int64Val
+             * @member {Array.<number|Long>} int64Val
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9836,7 +9889,7 @@
     
             /**
              * TensorProto boolVal.
-             * @member {Array.<boolean>}boolVal
+             * @member {Array.<boolean>} boolVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9844,7 +9897,7 @@
     
             /**
              * TensorProto dcomplexVal.
-             * @member {Array.<number>}dcomplexVal
+             * @member {Array.<number>} dcomplexVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9852,7 +9905,7 @@
     
             /**
              * TensorProto resourceHandleVal.
-             * @member {Array.<tensorflow.IResourceHandleProto>}resourceHandleVal
+             * @member {Array.<tensorflow.IResourceHandleProto>} resourceHandleVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9860,7 +9913,7 @@
     
             /**
              * TensorProto variantVal.
-             * @member {Array.<tensorflow.IVariantTensorDataProto>}variantVal
+             * @member {Array.<tensorflow.IVariantTensorDataProto>} variantVal
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9868,7 +9921,7 @@
     
             /**
              * TensorProto uint32Val.
-             * @member {Array.<number>}uint32Val
+             * @member {Array.<number>} uint32Val
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -9876,7 +9929,7 @@
     
             /**
              * TensorProto uint64Val.
-             * @member {Array.<number|Long>}uint64Val
+             * @member {Array.<number|Long>} uint64Val
              * @memberof tensorflow.TensorProto
              * @instance
              */
@@ -10310,7 +10363,7 @@
                     if (!Array.isArray(message.resourceHandleVal))
                         return "resourceHandleVal: array expected";
                     for (var i = 0; i < message.resourceHandleVal.length; ++i) {
-                        error = $root.tensorflow.ResourceHandleProto.verify(message.resourceHandleVal[i]);
+                        var error = $root.tensorflow.ResourceHandleProto.verify(message.resourceHandleVal[i]);
                         if (error)
                             return "resourceHandleVal." + error;
                     }
@@ -10319,7 +10372,7 @@
                     if (!Array.isArray(message.variantVal))
                         return "variantVal: array expected";
                     for (var i = 0; i < message.variantVal.length; ++i) {
-                        error = $root.tensorflow.VariantTensorDataProto.verify(message.variantVal[i]);
+                        var error = $root.tensorflow.VariantTensorDataProto.verify(message.variantVal[i]);
                         if (error)
                             return "variantVal." + error;
                     }
@@ -10808,15 +10861,16 @@
              * Properties of a VariantTensorDataProto.
              * @memberof tensorflow
              * @interface IVariantTensorDataProto
-             * @property {string} [typeName] VariantTensorDataProto typeName
-             * @property {Uint8Array} [metadata] VariantTensorDataProto metadata
-             * @property {Array.<tensorflow.ITensorProto>} [tensors] VariantTensorDataProto tensors
+             * @property {string|null} [typeName] VariantTensorDataProto typeName
+             * @property {Uint8Array|null} [metadata] VariantTensorDataProto metadata
+             * @property {Array.<tensorflow.ITensorProto>|null} [tensors] VariantTensorDataProto tensors
              */
     
             /**
              * Constructs a new VariantTensorDataProto.
              * @memberof tensorflow
              * @classdesc Represents a VariantTensorDataProto.
+             * @implements IVariantTensorDataProto
              * @constructor
              * @param {tensorflow.IVariantTensorDataProto=} [properties] Properties to set
              */
@@ -10830,7 +10884,7 @@
     
             /**
              * VariantTensorDataProto typeName.
-             * @member {string}typeName
+             * @member {string} typeName
              * @memberof tensorflow.VariantTensorDataProto
              * @instance
              */
@@ -10838,7 +10892,7 @@
     
             /**
              * VariantTensorDataProto metadata.
-             * @member {Uint8Array}metadata
+             * @member {Uint8Array} metadata
              * @memberof tensorflow.VariantTensorDataProto
              * @instance
              */
@@ -10846,7 +10900,7 @@
     
             /**
              * VariantTensorDataProto tensors.
-             * @member {Array.<tensorflow.ITensorProto>}tensors
+             * @member {Array.<tensorflow.ITensorProto>} tensors
              * @memberof tensorflow.VariantTensorDataProto
              * @instance
              */
@@ -11064,17 +11118,18 @@
              * Properties of a ResourceHandleProto.
              * @memberof tensorflow
              * @interface IResourceHandleProto
-             * @property {string} [device] ResourceHandleProto device
-             * @property {string} [container] ResourceHandleProto container
-             * @property {string} [name] ResourceHandleProto name
-             * @property {number|Long} [hashCode] ResourceHandleProto hashCode
-             * @property {string} [maybeTypeName] ResourceHandleProto maybeTypeName
+             * @property {string|null} [device] ResourceHandleProto device
+             * @property {string|null} [container] ResourceHandleProto container
+             * @property {string|null} [name] ResourceHandleProto name
+             * @property {number|Long|null} [hashCode] ResourceHandleProto hashCode
+             * @property {string|null} [maybeTypeName] ResourceHandleProto maybeTypeName
              */
     
             /**
              * Constructs a new ResourceHandleProto.
              * @memberof tensorflow
              * @classdesc Represents a ResourceHandleProto.
+             * @implements IResourceHandleProto
              * @constructor
              * @param {tensorflow.IResourceHandleProto=} [properties] Properties to set
              */
@@ -11087,7 +11142,7 @@
     
             /**
              * ResourceHandleProto device.
-             * @member {string}device
+             * @member {string} device
              * @memberof tensorflow.ResourceHandleProto
              * @instance
              */
@@ -11095,7 +11150,7 @@
     
             /**
              * ResourceHandleProto container.
-             * @member {string}container
+             * @member {string} container
              * @memberof tensorflow.ResourceHandleProto
              * @instance
              */
@@ -11103,7 +11158,7 @@
     
             /**
              * ResourceHandleProto name.
-             * @member {string}name
+             * @member {string} name
              * @memberof tensorflow.ResourceHandleProto
              * @instance
              */
@@ -11111,7 +11166,7 @@
     
             /**
              * ResourceHandleProto hashCode.
-             * @member {number|Long}hashCode
+             * @member {number|Long} hashCode
              * @memberof tensorflow.ResourceHandleProto
              * @instance
              */
@@ -11119,7 +11174,7 @@
     
             /**
              * ResourceHandleProto maybeTypeName.
-             * @member {string}maybeTypeName
+             * @member {string} maybeTypeName
              * @memberof tensorflow.ResourceHandleProto
              * @instance
              */
@@ -11374,14 +11429,15 @@
                  * Properties of an Any.
                  * @memberof google.protobuf
                  * @interface IAny
-                 * @property {string} [type_url] Any type_url
-                 * @property {Uint8Array} [value] Any value
+                 * @property {string|null} [type_url] Any type_url
+                 * @property {Uint8Array|null} [value] Any value
                  */
     
                 /**
                  * Constructs a new Any.
                  * @memberof google.protobuf
                  * @classdesc Represents an Any.
+                 * @implements IAny
                  * @constructor
                  * @param {google.protobuf.IAny=} [properties] Properties to set
                  */
@@ -11394,7 +11450,7 @@
     
                 /**
                  * Any type_url.
-                 * @member {string}type_url
+                 * @member {string} type_url
                  * @memberof google.protobuf.Any
                  * @instance
                  */
@@ -11402,7 +11458,7 @@
     
                 /**
                  * Any value.
-                 * @member {Uint8Array}value
+                 * @member {Uint8Array} value
                  * @memberof google.protobuf.Any
                  * @instance
                  */

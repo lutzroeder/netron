@@ -19,6 +19,7 @@
     
         /**
          * Version enum.
+         * @name onnx.Version
          * @enum {string}
          * @property {number} _START_VERSION=0 _START_VERSION value
          * @property {number} IR_VERSION_2017_10_10=1 IR_VERSION_2017_10_10 value
@@ -40,25 +41,26 @@
              * Properties of an AttributeProto.
              * @memberof onnx
              * @interface IAttributeProto
-             * @property {string} [name] AttributeProto name
-             * @property {string} [docString] AttributeProto docString
-             * @property {onnx.AttributeProto.AttributeType} [type] AttributeProto type
-             * @property {number} [f] AttributeProto f
-             * @property {number|Long} [i] AttributeProto i
-             * @property {Uint8Array} [s] AttributeProto s
-             * @property {onnx.ITensorProto} [t] AttributeProto t
-             * @property {onnx.IGraphProto} [g] AttributeProto g
-             * @property {Array.<number>} [floats] AttributeProto floats
-             * @property {Array.<number|Long>} [ints] AttributeProto ints
-             * @property {Array.<Uint8Array>} [strings] AttributeProto strings
-             * @property {Array.<onnx.ITensorProto>} [tensors] AttributeProto tensors
-             * @property {Array.<onnx.IGraphProto>} [graphs] AttributeProto graphs
+             * @property {string|null} [name] AttributeProto name
+             * @property {string|null} [docString] AttributeProto docString
+             * @property {onnx.AttributeProto.AttributeType|null} [type] AttributeProto type
+             * @property {number|null} [f] AttributeProto f
+             * @property {number|Long|null} [i] AttributeProto i
+             * @property {Uint8Array|null} [s] AttributeProto s
+             * @property {onnx.ITensorProto|null} [t] AttributeProto t
+             * @property {onnx.IGraphProto|null} [g] AttributeProto g
+             * @property {Array.<number>|null} [floats] AttributeProto floats
+             * @property {Array.<number|Long>|null} [ints] AttributeProto ints
+             * @property {Array.<Uint8Array>|null} [strings] AttributeProto strings
+             * @property {Array.<onnx.ITensorProto>|null} [tensors] AttributeProto tensors
+             * @property {Array.<onnx.IGraphProto>|null} [graphs] AttributeProto graphs
              */
     
             /**
              * Constructs a new AttributeProto.
              * @memberof onnx
              * @classdesc Represents an AttributeProto.
+             * @implements IAttributeProto
              * @constructor
              * @param {onnx.IAttributeProto=} [properties] Properties to set
              */
@@ -76,7 +78,7 @@
     
             /**
              * AttributeProto name.
-             * @member {string}name
+             * @member {string} name
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -84,7 +86,7 @@
     
             /**
              * AttributeProto docString.
-             * @member {string}docString
+             * @member {string} docString
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -92,7 +94,7 @@
     
             /**
              * AttributeProto type.
-             * @member {onnx.AttributeProto.AttributeType}type
+             * @member {onnx.AttributeProto.AttributeType} type
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -100,7 +102,7 @@
     
             /**
              * AttributeProto f.
-             * @member {number}f
+             * @member {number} f
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -108,7 +110,7 @@
     
             /**
              * AttributeProto i.
-             * @member {number|Long}i
+             * @member {number|Long} i
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -116,7 +118,7 @@
     
             /**
              * AttributeProto s.
-             * @member {Uint8Array}s
+             * @member {Uint8Array} s
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -124,7 +126,7 @@
     
             /**
              * AttributeProto t.
-             * @member {(onnx.ITensorProto|null|undefined)}t
+             * @member {onnx.ITensorProto|null|undefined} t
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -132,7 +134,7 @@
     
             /**
              * AttributeProto g.
-             * @member {(onnx.IGraphProto|null|undefined)}g
+             * @member {onnx.IGraphProto|null|undefined} g
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -140,7 +142,7 @@
     
             /**
              * AttributeProto floats.
-             * @member {Array.<number>}floats
+             * @member {Array.<number>} floats
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -148,7 +150,7 @@
     
             /**
              * AttributeProto ints.
-             * @member {Array.<number|Long>}ints
+             * @member {Array.<number|Long>} ints
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -156,7 +158,7 @@
     
             /**
              * AttributeProto strings.
-             * @member {Array.<Uint8Array>}strings
+             * @member {Array.<Uint8Array>} strings
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -164,7 +166,7 @@
     
             /**
              * AttributeProto tensors.
-             * @member {Array.<onnx.ITensorProto>}tensors
+             * @member {Array.<onnx.ITensorProto>} tensors
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -172,7 +174,7 @@
     
             /**
              * AttributeProto graphs.
-             * @member {Array.<onnx.IGraphProto>}graphs
+             * @member {Array.<onnx.IGraphProto>} graphs
              * @memberof onnx.AttributeProto
              * @instance
              */
@@ -399,7 +401,7 @@
                         return "t." + error;
                 }
                 if (message.g != null && message.hasOwnProperty("g")) {
-                    error = $root.onnx.GraphProto.verify(message.g);
+                    var error = $root.onnx.GraphProto.verify(message.g);
                     if (error)
                         return "g." + error;
                 }
@@ -428,7 +430,7 @@
                     if (!Array.isArray(message.tensors))
                         return "tensors: array expected";
                     for (var i = 0; i < message.tensors.length; ++i) {
-                        error = $root.onnx.TensorProto.verify(message.tensors[i]);
+                        var error = $root.onnx.TensorProto.verify(message.tensors[i]);
                         if (error)
                             return "tensors." + error;
                     }
@@ -437,7 +439,7 @@
                     if (!Array.isArray(message.graphs))
                         return "graphs: array expected";
                     for (var i = 0; i < message.graphs.length; ++i) {
-                        error = $root.onnx.GraphProto.verify(message.graphs[i]);
+                        var error = $root.onnx.GraphProto.verify(message.graphs[i]);
                         if (error)
                             return "graphs." + error;
                     }
@@ -684,6 +686,7 @@
     
             /**
              * AttributeType enum.
+             * @name onnx.AttributeProto.AttributeType
              * @enum {string}
              * @property {number} UNDEFINED=0 UNDEFINED value
              * @property {number} FLOAT=1 FLOAT value
@@ -722,15 +725,16 @@
              * Properties of a ValueInfoProto.
              * @memberof onnx
              * @interface IValueInfoProto
-             * @property {string} [name] ValueInfoProto name
-             * @property {onnx.ITypeProto} [type] ValueInfoProto type
-             * @property {string} [docString] ValueInfoProto docString
+             * @property {string|null} [name] ValueInfoProto name
+             * @property {onnx.ITypeProto|null} [type] ValueInfoProto type
+             * @property {string|null} [docString] ValueInfoProto docString
              */
     
             /**
              * Constructs a new ValueInfoProto.
              * @memberof onnx
              * @classdesc Represents a ValueInfoProto.
+             * @implements IValueInfoProto
              * @constructor
              * @param {onnx.IValueInfoProto=} [properties] Properties to set
              */
@@ -743,7 +747,7 @@
     
             /**
              * ValueInfoProto name.
-             * @member {string}name
+             * @member {string} name
              * @memberof onnx.ValueInfoProto
              * @instance
              */
@@ -751,7 +755,7 @@
     
             /**
              * ValueInfoProto type.
-             * @member {(onnx.ITypeProto|null|undefined)}type
+             * @member {onnx.ITypeProto|null|undefined} type
              * @memberof onnx.ValueInfoProto
              * @instance
              */
@@ -759,7 +763,7 @@
     
             /**
              * ValueInfoProto docString.
-             * @member {string}docString
+             * @member {string} docString
              * @memberof onnx.ValueInfoProto
              * @instance
              */
@@ -958,19 +962,20 @@
              * Properties of a NodeProto.
              * @memberof onnx
              * @interface INodeProto
-             * @property {Array.<string>} [input] NodeProto input
-             * @property {Array.<string>} [output] NodeProto output
-             * @property {string} [name] NodeProto name
-             * @property {string} [opType] NodeProto opType
-             * @property {string} [domain] NodeProto domain
-             * @property {Array.<onnx.IAttributeProto>} [attribute] NodeProto attribute
-             * @property {string} [docString] NodeProto docString
+             * @property {Array.<string>|null} [input] NodeProto input
+             * @property {Array.<string>|null} [output] NodeProto output
+             * @property {string|null} [name] NodeProto name
+             * @property {string|null} [opType] NodeProto opType
+             * @property {string|null} [domain] NodeProto domain
+             * @property {Array.<onnx.IAttributeProto>|null} [attribute] NodeProto attribute
+             * @property {string|null} [docString] NodeProto docString
              */
     
             /**
              * Constructs a new NodeProto.
              * @memberof onnx
              * @classdesc Represents a NodeProto.
+             * @implements INodeProto
              * @constructor
              * @param {onnx.INodeProto=} [properties] Properties to set
              */
@@ -986,7 +991,7 @@
     
             /**
              * NodeProto input.
-             * @member {Array.<string>}input
+             * @member {Array.<string>} input
              * @memberof onnx.NodeProto
              * @instance
              */
@@ -994,7 +999,7 @@
     
             /**
              * NodeProto output.
-             * @member {Array.<string>}output
+             * @member {Array.<string>} output
              * @memberof onnx.NodeProto
              * @instance
              */
@@ -1002,7 +1007,7 @@
     
             /**
              * NodeProto name.
-             * @member {string}name
+             * @member {string} name
              * @memberof onnx.NodeProto
              * @instance
              */
@@ -1010,7 +1015,7 @@
     
             /**
              * NodeProto opType.
-             * @member {string}opType
+             * @member {string} opType
              * @memberof onnx.NodeProto
              * @instance
              */
@@ -1018,7 +1023,7 @@
     
             /**
              * NodeProto domain.
-             * @member {string}domain
+             * @member {string} domain
              * @memberof onnx.NodeProto
              * @instance
              */
@@ -1026,7 +1031,7 @@
     
             /**
              * NodeProto attribute.
-             * @member {Array.<onnx.IAttributeProto>}attribute
+             * @member {Array.<onnx.IAttributeProto>} attribute
              * @memberof onnx.NodeProto
              * @instance
              */
@@ -1034,7 +1039,7 @@
     
             /**
              * NodeProto docString.
-             * @member {string}docString
+             * @member {string} docString
              * @memberof onnx.NodeProto
              * @instance
              */
@@ -1332,21 +1337,22 @@
              * Properties of a ModelProto.
              * @memberof onnx
              * @interface IModelProto
-             * @property {number|Long} [irVersion] ModelProto irVersion
-             * @property {Array.<onnx.IOperatorSetIdProto>} [opsetImport] ModelProto opsetImport
-             * @property {string} [producerName] ModelProto producerName
-             * @property {string} [producerVersion] ModelProto producerVersion
-             * @property {string} [domain] ModelProto domain
-             * @property {number|Long} [modelVersion] ModelProto modelVersion
-             * @property {string} [docString] ModelProto docString
-             * @property {onnx.IGraphProto} [graph] ModelProto graph
-             * @property {Array.<onnx.IStringStringEntryProto>} [metadataProps] ModelProto metadataProps
+             * @property {number|Long|null} [irVersion] ModelProto irVersion
+             * @property {Array.<onnx.IOperatorSetIdProto>|null} [opsetImport] ModelProto opsetImport
+             * @property {string|null} [producerName] ModelProto producerName
+             * @property {string|null} [producerVersion] ModelProto producerVersion
+             * @property {string|null} [domain] ModelProto domain
+             * @property {number|Long|null} [modelVersion] ModelProto modelVersion
+             * @property {string|null} [docString] ModelProto docString
+             * @property {onnx.IGraphProto|null} [graph] ModelProto graph
+             * @property {Array.<onnx.IStringStringEntryProto>|null} [metadataProps] ModelProto metadataProps
              */
     
             /**
              * Constructs a new ModelProto.
              * @memberof onnx
              * @classdesc Represents a ModelProto.
+             * @implements IModelProto
              * @constructor
              * @param {onnx.IModelProto=} [properties] Properties to set
              */
@@ -1361,7 +1367,7 @@
     
             /**
              * ModelProto irVersion.
-             * @member {number|Long}irVersion
+             * @member {number|Long} irVersion
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1369,7 +1375,7 @@
     
             /**
              * ModelProto opsetImport.
-             * @member {Array.<onnx.IOperatorSetIdProto>}opsetImport
+             * @member {Array.<onnx.IOperatorSetIdProto>} opsetImport
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1377,7 +1383,7 @@
     
             /**
              * ModelProto producerName.
-             * @member {string}producerName
+             * @member {string} producerName
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1385,7 +1391,7 @@
     
             /**
              * ModelProto producerVersion.
-             * @member {string}producerVersion
+             * @member {string} producerVersion
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1393,7 +1399,7 @@
     
             /**
              * ModelProto domain.
-             * @member {string}domain
+             * @member {string} domain
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1401,7 +1407,7 @@
     
             /**
              * ModelProto modelVersion.
-             * @member {number|Long}modelVersion
+             * @member {number|Long} modelVersion
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1409,7 +1415,7 @@
     
             /**
              * ModelProto docString.
-             * @member {string}docString
+             * @member {string} docString
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1417,7 +1423,7 @@
     
             /**
              * ModelProto graph.
-             * @member {(onnx.IGraphProto|null|undefined)}graph
+             * @member {onnx.IGraphProto|null|undefined} graph
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1425,7 +1431,7 @@
     
             /**
              * ModelProto metadataProps.
-             * @member {Array.<onnx.IStringStringEntryProto>}metadataProps
+             * @member {Array.<onnx.IStringStringEntryProto>} metadataProps
              * @memberof onnx.ModelProto
              * @instance
              */
@@ -1603,7 +1609,7 @@
                     if (!$util.isString(message.docString))
                         return "docString: string expected";
                 if (message.graph != null && message.hasOwnProperty("graph")) {
-                    error = $root.onnx.GraphProto.verify(message.graph);
+                    var error = $root.onnx.GraphProto.verify(message.graph);
                     if (error)
                         return "graph." + error;
                 }
@@ -1611,7 +1617,7 @@
                     if (!Array.isArray(message.metadataProps))
                         return "metadataProps: array expected";
                     for (var i = 0; i < message.metadataProps.length; ++i) {
-                        error = $root.onnx.StringStringEntryProto.verify(message.metadataProps[i]);
+                        var error = $root.onnx.StringStringEntryProto.verify(message.metadataProps[i]);
                         if (error)
                             return "metadataProps." + error;
                     }
@@ -1772,14 +1778,15 @@
              * Properties of a StringStringEntryProto.
              * @memberof onnx
              * @interface IStringStringEntryProto
-             * @property {string} [key] StringStringEntryProto key
-             * @property {string} [value] StringStringEntryProto value
+             * @property {string|null} [key] StringStringEntryProto key
+             * @property {string|null} [value] StringStringEntryProto value
              */
     
             /**
              * Constructs a new StringStringEntryProto.
              * @memberof onnx
              * @classdesc Represents a StringStringEntryProto.
+             * @implements IStringStringEntryProto
              * @constructor
              * @param {onnx.IStringStringEntryProto=} [properties] Properties to set
              */
@@ -1792,7 +1799,7 @@
     
             /**
              * StringStringEntryProto key.
-             * @member {string}key
+             * @member {string} key
              * @memberof onnx.StringStringEntryProto
              * @instance
              */
@@ -1800,7 +1807,7 @@
     
             /**
              * StringStringEntryProto value.
-             * @member {string}value
+             * @member {string} value
              * @memberof onnx.StringStringEntryProto
              * @instance
              */
@@ -1981,19 +1988,20 @@
              * Properties of a GraphProto.
              * @memberof onnx
              * @interface IGraphProto
-             * @property {Array.<onnx.INodeProto>} [node] GraphProto node
-             * @property {string} [name] GraphProto name
-             * @property {Array.<onnx.ITensorProto>} [initializer] GraphProto initializer
-             * @property {string} [docString] GraphProto docString
-             * @property {Array.<onnx.IValueInfoProto>} [input] GraphProto input
-             * @property {Array.<onnx.IValueInfoProto>} [output] GraphProto output
-             * @property {Array.<onnx.IValueInfoProto>} [valueInfo] GraphProto valueInfo
+             * @property {Array.<onnx.INodeProto>|null} [node] GraphProto node
+             * @property {string|null} [name] GraphProto name
+             * @property {Array.<onnx.ITensorProto>|null} [initializer] GraphProto initializer
+             * @property {string|null} [docString] GraphProto docString
+             * @property {Array.<onnx.IValueInfoProto>|null} [input] GraphProto input
+             * @property {Array.<onnx.IValueInfoProto>|null} [output] GraphProto output
+             * @property {Array.<onnx.IValueInfoProto>|null} [valueInfo] GraphProto valueInfo
              */
     
             /**
              * Constructs a new GraphProto.
              * @memberof onnx
              * @classdesc Represents a GraphProto.
+             * @implements IGraphProto
              * @constructor
              * @param {onnx.IGraphProto=} [properties] Properties to set
              */
@@ -2011,7 +2019,7 @@
     
             /**
              * GraphProto node.
-             * @member {Array.<onnx.INodeProto>}node
+             * @member {Array.<onnx.INodeProto>} node
              * @memberof onnx.GraphProto
              * @instance
              */
@@ -2019,7 +2027,7 @@
     
             /**
              * GraphProto name.
-             * @member {string}name
+             * @member {string} name
              * @memberof onnx.GraphProto
              * @instance
              */
@@ -2027,7 +2035,7 @@
     
             /**
              * GraphProto initializer.
-             * @member {Array.<onnx.ITensorProto>}initializer
+             * @member {Array.<onnx.ITensorProto>} initializer
              * @memberof onnx.GraphProto
              * @instance
              */
@@ -2035,7 +2043,7 @@
     
             /**
              * GraphProto docString.
-             * @member {string}docString
+             * @member {string} docString
              * @memberof onnx.GraphProto
              * @instance
              */
@@ -2043,7 +2051,7 @@
     
             /**
              * GraphProto input.
-             * @member {Array.<onnx.IValueInfoProto>}input
+             * @member {Array.<onnx.IValueInfoProto>} input
              * @memberof onnx.GraphProto
              * @instance
              */
@@ -2051,7 +2059,7 @@
     
             /**
              * GraphProto output.
-             * @member {Array.<onnx.IValueInfoProto>}output
+             * @member {Array.<onnx.IValueInfoProto>} output
              * @memberof onnx.GraphProto
              * @instance
              */
@@ -2059,7 +2067,7 @@
     
             /**
              * GraphProto valueInfo.
-             * @member {Array.<onnx.IValueInfoProto>}valueInfo
+             * @member {Array.<onnx.IValueInfoProto>} valueInfo
              * @memberof onnx.GraphProto
              * @instance
              */
@@ -2224,7 +2232,7 @@
                     if (!Array.isArray(message.initializer))
                         return "initializer: array expected";
                     for (var i = 0; i < message.initializer.length; ++i) {
-                        error = $root.onnx.TensorProto.verify(message.initializer[i]);
+                        var error = $root.onnx.TensorProto.verify(message.initializer[i]);
                         if (error)
                             return "initializer." + error;
                     }
@@ -2236,7 +2244,7 @@
                     if (!Array.isArray(message.input))
                         return "input: array expected";
                     for (var i = 0; i < message.input.length; ++i) {
-                        error = $root.onnx.ValueInfoProto.verify(message.input[i]);
+                        var error = $root.onnx.ValueInfoProto.verify(message.input[i]);
                         if (error)
                             return "input." + error;
                     }
@@ -2245,7 +2253,7 @@
                     if (!Array.isArray(message.output))
                         return "output: array expected";
                     for (var i = 0; i < message.output.length; ++i) {
-                        error = $root.onnx.ValueInfoProto.verify(message.output[i]);
+                        var error = $root.onnx.ValueInfoProto.verify(message.output[i]);
                         if (error)
                             return "output." + error;
                     }
@@ -2254,7 +2262,7 @@
                     if (!Array.isArray(message.valueInfo))
                         return "valueInfo: array expected";
                     for (var i = 0; i < message.valueInfo.length; ++i) {
-                        error = $root.onnx.ValueInfoProto.verify(message.valueInfo[i]);
+                        var error = $root.onnx.ValueInfoProto.verify(message.valueInfo[i]);
                         if (error)
                             return "valueInfo." + error;
                     }
@@ -2407,24 +2415,25 @@
              * Properties of a TensorProto.
              * @memberof onnx
              * @interface ITensorProto
-             * @property {Array.<number|Long>} [dims] TensorProto dims
-             * @property {onnx.TensorProto.DataType} [dataType] TensorProto dataType
-             * @property {onnx.TensorProto.ISegment} [segment] TensorProto segment
-             * @property {Array.<number>} [floatData] TensorProto floatData
-             * @property {Array.<number>} [int32Data] TensorProto int32Data
-             * @property {Array.<Uint8Array>} [stringData] TensorProto stringData
-             * @property {Array.<number|Long>} [int64Data] TensorProto int64Data
-             * @property {string} [name] TensorProto name
-             * @property {string} [docString] TensorProto docString
-             * @property {Uint8Array} [rawData] TensorProto rawData
-             * @property {Array.<number>} [doubleData] TensorProto doubleData
-             * @property {Array.<number|Long>} [uint64Data] TensorProto uint64Data
+             * @property {Array.<number|Long>|null} [dims] TensorProto dims
+             * @property {onnx.TensorProto.DataType|null} [dataType] TensorProto dataType
+             * @property {onnx.TensorProto.ISegment|null} [segment] TensorProto segment
+             * @property {Array.<number>|null} [floatData] TensorProto floatData
+             * @property {Array.<number>|null} [int32Data] TensorProto int32Data
+             * @property {Array.<Uint8Array>|null} [stringData] TensorProto stringData
+             * @property {Array.<number|Long>|null} [int64Data] TensorProto int64Data
+             * @property {string|null} [name] TensorProto name
+             * @property {string|null} [docString] TensorProto docString
+             * @property {Uint8Array|null} [rawData] TensorProto rawData
+             * @property {Array.<number>|null} [doubleData] TensorProto doubleData
+             * @property {Array.<number|Long>|null} [uint64Data] TensorProto uint64Data
              */
     
             /**
              * Constructs a new TensorProto.
              * @memberof onnx
              * @classdesc Represents a TensorProto.
+             * @implements ITensorProto
              * @constructor
              * @param {onnx.ITensorProto=} [properties] Properties to set
              */
@@ -2444,7 +2453,7 @@
     
             /**
              * TensorProto dims.
-             * @member {Array.<number|Long>}dims
+             * @member {Array.<number|Long>} dims
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2452,7 +2461,7 @@
     
             /**
              * TensorProto dataType.
-             * @member {onnx.TensorProto.DataType}dataType
+             * @member {onnx.TensorProto.DataType} dataType
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2460,7 +2469,7 @@
     
             /**
              * TensorProto segment.
-             * @member {(onnx.TensorProto.ISegment|null|undefined)}segment
+             * @member {onnx.TensorProto.ISegment|null|undefined} segment
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2468,7 +2477,7 @@
     
             /**
              * TensorProto floatData.
-             * @member {Array.<number>}floatData
+             * @member {Array.<number>} floatData
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2476,7 +2485,7 @@
     
             /**
              * TensorProto int32Data.
-             * @member {Array.<number>}int32Data
+             * @member {Array.<number>} int32Data
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2484,7 +2493,7 @@
     
             /**
              * TensorProto stringData.
-             * @member {Array.<Uint8Array>}stringData
+             * @member {Array.<Uint8Array>} stringData
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2492,7 +2501,7 @@
     
             /**
              * TensorProto int64Data.
-             * @member {Array.<number|Long>}int64Data
+             * @member {Array.<number|Long>} int64Data
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2500,7 +2509,7 @@
     
             /**
              * TensorProto name.
-             * @member {string}name
+             * @member {string} name
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2508,7 +2517,7 @@
     
             /**
              * TensorProto docString.
-             * @member {string}docString
+             * @member {string} docString
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2516,7 +2525,7 @@
     
             /**
              * TensorProto rawData.
-             * @member {Uint8Array}rawData
+             * @member {Uint8Array} rawData
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2524,7 +2533,7 @@
     
             /**
              * TensorProto doubleData.
-             * @member {Array.<number>}doubleData
+             * @member {Array.<number>} doubleData
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -2532,7 +2541,7 @@
     
             /**
              * TensorProto uint64Data.
-             * @member {Array.<number|Long>}uint64Data
+             * @member {Array.<number|Long>} uint64Data
              * @memberof onnx.TensorProto
              * @instance
              */
@@ -3112,6 +3121,7 @@
     
             /**
              * DataType enum.
+             * @name onnx.TensorProto.DataType
              * @enum {string}
              * @property {number} UNDEFINED=0 UNDEFINED value
              * @property {number} FLOAT=1 FLOAT value
@@ -3157,14 +3167,15 @@
                  * Properties of a Segment.
                  * @memberof onnx.TensorProto
                  * @interface ISegment
-                 * @property {number|Long} [begin] Segment begin
-                 * @property {number|Long} [end] Segment end
+                 * @property {number|Long|null} [begin] Segment begin
+                 * @property {number|Long|null} [end] Segment end
                  */
     
                 /**
                  * Constructs a new Segment.
                  * @memberof onnx.TensorProto
                  * @classdesc Represents a Segment.
+                 * @implements ISegment
                  * @constructor
                  * @param {onnx.TensorProto.ISegment=} [properties] Properties to set
                  */
@@ -3177,7 +3188,7 @@
     
                 /**
                  * Segment begin.
-                 * @member {number|Long}begin
+                 * @member {number|Long} begin
                  * @memberof onnx.TensorProto.Segment
                  * @instance
                  */
@@ -3185,7 +3196,7 @@
     
                 /**
                  * Segment end.
-                 * @member {number|Long}end
+                 * @member {number|Long} end
                  * @memberof onnx.TensorProto.Segment
                  * @instance
                  */
@@ -3397,13 +3408,14 @@
              * Properties of a TensorShapeProto.
              * @memberof onnx
              * @interface ITensorShapeProto
-             * @property {Array.<onnx.TensorShapeProto.IDimension>} [dim] TensorShapeProto dim
+             * @property {Array.<onnx.TensorShapeProto.IDimension>|null} [dim] TensorShapeProto dim
              */
     
             /**
              * Constructs a new TensorShapeProto.
              * @memberof onnx
              * @classdesc Represents a TensorShapeProto.
+             * @implements ITensorShapeProto
              * @constructor
              * @param {onnx.ITensorShapeProto=} [properties] Properties to set
              */
@@ -3417,7 +3429,7 @@
     
             /**
              * TensorShapeProto dim.
-             * @member {Array.<onnx.TensorShapeProto.IDimension>}dim
+             * @member {Array.<onnx.TensorShapeProto.IDimension>} dim
              * @memberof onnx.TensorShapeProto
              * @instance
              */
@@ -3601,14 +3613,15 @@
                  * Properties of a Dimension.
                  * @memberof onnx.TensorShapeProto
                  * @interface IDimension
-                 * @property {number|Long} [dimValue] Dimension dimValue
-                 * @property {string} [dimParam] Dimension dimParam
+                 * @property {number|Long|null} [dimValue] Dimension dimValue
+                 * @property {string|null} [dimParam] Dimension dimParam
                  */
     
                 /**
                  * Constructs a new Dimension.
                  * @memberof onnx.TensorShapeProto
                  * @classdesc Represents a Dimension.
+                 * @implements IDimension
                  * @constructor
                  * @param {onnx.TensorShapeProto.IDimension=} [properties] Properties to set
                  */
@@ -3621,7 +3634,7 @@
     
                 /**
                  * Dimension dimValue.
-                 * @member {number|Long}dimValue
+                 * @member {number|Long} dimValue
                  * @memberof onnx.TensorShapeProto.Dimension
                  * @instance
                  */
@@ -3629,7 +3642,7 @@
     
                 /**
                  * Dimension dimParam.
-                 * @member {string}dimParam
+                 * @member {string} dimParam
                  * @memberof onnx.TensorShapeProto.Dimension
                  * @instance
                  */
@@ -3640,7 +3653,7 @@
     
                 /**
                  * Dimension value.
-                 * @member {string|undefined} value
+                 * @member {"dimValue"|"dimParam"|undefined} value
                  * @memberof onnx.TensorShapeProto.Dimension
                  * @instance
                  */
@@ -3846,15 +3859,16 @@
              * Properties of a TypeProto.
              * @memberof onnx
              * @interface ITypeProto
-             * @property {onnx.TypeProto.ITensor} [tensorType] TypeProto tensorType
-             * @property {onnx.TypeProto.ISequence} [sequenceType] TypeProto sequenceType
-             * @property {onnx.TypeProto.IMap} [mapType] TypeProto mapType
+             * @property {onnx.TypeProto.ITensor|null} [tensorType] TypeProto tensorType
+             * @property {onnx.TypeProto.ISequence|null} [sequenceType] TypeProto sequenceType
+             * @property {onnx.TypeProto.IMap|null} [mapType] TypeProto mapType
              */
     
             /**
              * Constructs a new TypeProto.
              * @memberof onnx
              * @classdesc Represents a TypeProto.
+             * @implements ITypeProto
              * @constructor
              * @param {onnx.ITypeProto=} [properties] Properties to set
              */
@@ -3867,7 +3881,7 @@
     
             /**
              * TypeProto tensorType.
-             * @member {(onnx.TypeProto.ITensor|null|undefined)}tensorType
+             * @member {onnx.TypeProto.ITensor|null|undefined} tensorType
              * @memberof onnx.TypeProto
              * @instance
              */
@@ -3875,7 +3889,7 @@
     
             /**
              * TypeProto sequenceType.
-             * @member {(onnx.TypeProto.ISequence|null|undefined)}sequenceType
+             * @member {onnx.TypeProto.ISequence|null|undefined} sequenceType
              * @memberof onnx.TypeProto
              * @instance
              */
@@ -3883,7 +3897,7 @@
     
             /**
              * TypeProto mapType.
-             * @member {(onnx.TypeProto.IMap|null|undefined)}mapType
+             * @member {onnx.TypeProto.IMap|null|undefined} mapType
              * @memberof onnx.TypeProto
              * @instance
              */
@@ -3894,7 +3908,7 @@
     
             /**
              * TypeProto value.
-             * @member {string|undefined} value
+             * @member {"tensorType"|"sequenceType"|"mapType"|undefined} value
              * @memberof onnx.TypeProto
              * @instance
              */
@@ -4014,25 +4028,31 @@
                 var properties = {};
                 if (message.tensorType != null && message.hasOwnProperty("tensorType")) {
                     properties.value = 1;
-                    var error = $root.onnx.TypeProto.Tensor.verify(message.tensorType);
-                    if (error)
-                        return "tensorType." + error;
+                    {
+                        var error = $root.onnx.TypeProto.Tensor.verify(message.tensorType);
+                        if (error)
+                            return "tensorType." + error;
+                    }
                 }
                 if (message.sequenceType != null && message.hasOwnProperty("sequenceType")) {
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
-                    error = $root.onnx.TypeProto.Sequence.verify(message.sequenceType);
-                    if (error)
-                        return "sequenceType." + error;
+                    {
+                        var error = $root.onnx.TypeProto.Sequence.verify(message.sequenceType);
+                        if (error)
+                            return "sequenceType." + error;
+                    }
                 }
                 if (message.mapType != null && message.hasOwnProperty("mapType")) {
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
-                    error = $root.onnx.TypeProto.Map.verify(message.mapType);
-                    if (error)
-                        return "mapType." + error;
+                    {
+                        var error = $root.onnx.TypeProto.Map.verify(message.mapType);
+                        if (error)
+                            return "mapType." + error;
+                    }
                 }
                 return null;
             };
@@ -4115,14 +4135,15 @@
                  * Properties of a Tensor.
                  * @memberof onnx.TypeProto
                  * @interface ITensor
-                 * @property {onnx.TensorProto.DataType} [elemType] Tensor elemType
-                 * @property {onnx.ITensorShapeProto} [shape] Tensor shape
+                 * @property {onnx.TensorProto.DataType|null} [elemType] Tensor elemType
+                 * @property {onnx.ITensorShapeProto|null} [shape] Tensor shape
                  */
     
                 /**
                  * Constructs a new Tensor.
                  * @memberof onnx.TypeProto
                  * @classdesc Represents a Tensor.
+                 * @implements ITensor
                  * @constructor
                  * @param {onnx.TypeProto.ITensor=} [properties] Properties to set
                  */
@@ -4135,7 +4156,7 @@
     
                 /**
                  * Tensor elemType.
-                 * @member {onnx.TensorProto.DataType}elemType
+                 * @member {onnx.TensorProto.DataType} elemType
                  * @memberof onnx.TypeProto.Tensor
                  * @instance
                  */
@@ -4143,7 +4164,7 @@
     
                 /**
                  * Tensor shape.
-                 * @member {(onnx.ITensorShapeProto|null|undefined)}shape
+                 * @member {onnx.ITensorShapeProto|null|undefined} shape
                  * @memberof onnx.TypeProto.Tensor
                  * @instance
                  */
@@ -4412,13 +4433,14 @@
                  * Properties of a Sequence.
                  * @memberof onnx.TypeProto
                  * @interface ISequence
-                 * @property {onnx.ITypeProto} [elemType] Sequence elemType
+                 * @property {onnx.ITypeProto|null} [elemType] Sequence elemType
                  */
     
                 /**
                  * Constructs a new Sequence.
                  * @memberof onnx.TypeProto
                  * @classdesc Represents a Sequence.
+                 * @implements ISequence
                  * @constructor
                  * @param {onnx.TypeProto.ISequence=} [properties] Properties to set
                  */
@@ -4431,7 +4453,7 @@
     
                 /**
                  * Sequence elemType.
-                 * @member {(onnx.ITypeProto|null|undefined)}elemType
+                 * @member {onnx.ITypeProto|null|undefined} elemType
                  * @memberof onnx.TypeProto.Sequence
                  * @instance
                  */
@@ -4603,14 +4625,15 @@
                  * Properties of a Map.
                  * @memberof onnx.TypeProto
                  * @interface IMap
-                 * @property {onnx.TensorProto.DataType} [keyType] Map keyType
-                 * @property {onnx.ITypeProto} [valueType] Map valueType
+                 * @property {onnx.TensorProto.DataType|null} [keyType] Map keyType
+                 * @property {onnx.ITypeProto|null} [valueType] Map valueType
                  */
     
                 /**
                  * Constructs a new Map.
                  * @memberof onnx.TypeProto
                  * @classdesc Represents a Map.
+                 * @implements IMap
                  * @constructor
                  * @param {onnx.TypeProto.IMap=} [properties] Properties to set
                  */
@@ -4623,7 +4646,7 @@
     
                 /**
                  * Map keyType.
-                 * @member {onnx.TensorProto.DataType}keyType
+                 * @member {onnx.TensorProto.DataType} keyType
                  * @memberof onnx.TypeProto.Map
                  * @instance
                  */
@@ -4631,7 +4654,7 @@
     
                 /**
                  * Map valueType.
-                 * @member {(onnx.ITypeProto|null|undefined)}valueType
+                 * @member {onnx.ITypeProto|null|undefined} valueType
                  * @memberof onnx.TypeProto.Map
                  * @instance
                  */
@@ -4903,14 +4926,15 @@
              * Properties of an OperatorSetIdProto.
              * @memberof onnx
              * @interface IOperatorSetIdProto
-             * @property {string} [domain] OperatorSetIdProto domain
-             * @property {number|Long} [version] OperatorSetIdProto version
+             * @property {string|null} [domain] OperatorSetIdProto domain
+             * @property {number|Long|null} [version] OperatorSetIdProto version
              */
     
             /**
              * Constructs a new OperatorSetIdProto.
              * @memberof onnx
              * @classdesc Represents an OperatorSetIdProto.
+             * @implements IOperatorSetIdProto
              * @constructor
              * @param {onnx.IOperatorSetIdProto=} [properties] Properties to set
              */
@@ -4923,7 +4947,7 @@
     
             /**
              * OperatorSetIdProto domain.
-             * @member {string}domain
+             * @member {string} domain
              * @memberof onnx.OperatorSetIdProto
              * @instance
              */
@@ -4931,7 +4955,7 @@
     
             /**
              * OperatorSetIdProto version.
-             * @member {number|Long}version
+             * @member {number|Long} version
              * @memberof onnx.OperatorSetIdProto
              * @instance
              */

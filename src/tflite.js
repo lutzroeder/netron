@@ -52,7 +52,8 @@ tflite.BuiltinOperator = {
   SKIP_GRAM: 30,
   CALL: 31,
   CUSTOM: 32,
-  EMBEDDING_LOOKUP_SPARSE: 33
+  EMBEDDING_LOOKUP_SPARSE: 33,
+  PAD: 34
 };
 
 /**
@@ -80,7 +81,8 @@ tflite.BuiltinOptions = {
   SkipGramOptions: 18,
   SpaceToDepthOptions: 19,
   EmbeddingLookupSparseOptions: 20,
-  MulOptions: 21
+  MulOptions: 21,
+  PadOptions: 22
 };
 
 /**
@@ -2121,6 +2123,165 @@ tflite.CallOptions.addSubgraph = function(builder, subgraph) {
  * @returns {flatbuffers.Offset}
  */
 tflite.CallOptions.endCallOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.PadOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.PadOptions}
+ */
+tflite.PadOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.PadOptions=} obj
+ * @returns {tflite.PadOptions}
+ */
+tflite.PadOptions.getRootAsPadOptions = function(bb, obj) {
+  return (obj || new tflite.PadOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite.PadOptions.prototype.beforePadding = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.PadOptions.prototype.beforePaddingLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+tflite.PadOptions.prototype.beforePaddingArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite.PadOptions.prototype.afterPadding = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.PadOptions.prototype.afterPaddingLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+tflite.PadOptions.prototype.afterPaddingArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.PadOptions.startPadOptions = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} beforePaddingOffset
+ */
+tflite.PadOptions.addBeforePadding = function(builder, beforePaddingOffset) {
+  builder.addFieldOffset(0, beforePaddingOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite.PadOptions.createBeforePaddingVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite.PadOptions.startBeforePaddingVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} afterPaddingOffset
+ */
+tflite.PadOptions.addAfterPadding = function(builder, afterPaddingOffset) {
+  builder.addFieldOffset(1, afterPaddingOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite.PadOptions.createAfterPaddingVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite.PadOptions.startAfterPaddingVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.PadOptions.endPadOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };

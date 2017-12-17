@@ -4794,7 +4794,7 @@
           "type": "type"
         },
         {
-          "description": "1-D tensor of length 4.  The stride of the sliding window for each\ndimension of `input`. The dimension order is determined by the value of\n  `data_format`, see below for details.",
+          "description": "1-D tensor of length 4.  The stride of the sliding window for each\ndimension of `input`. The dimension order is determined by the value of\n`data_format`, see below for details.",
           "name": "strides",
           "type": "list(int)"
         },
@@ -4812,6 +4812,11 @@
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "description": "Given an input tensor of shape `[batch, in_height, in_width, in_channels]`\nand a filter / kernel tensor of shape\n`[filter_height, filter_width, in_channels, out_channels]`, this op\nperforms the following:\n\n1. Flattens the filter to a 2-D matrix with shape\n   `[filter_height * filter_width * in_channels, output_channels]`.\n2. Extracts image patches from the input tensor to form a *virtual*\n   tensor of shape `[batch, out_height, out_width,\n   filter_height * filter_width * in_channels]`.\n3. For each patch, right-multiplies the filter matrix and the image patch\n   vector.\n\nIn detail, with the default NHWC format,\n\n    output[b, i, j, k] =\n        sum_{di, dj, q} input[b, strides[1] * i + di, strides[2] * j + dj, q] *\n                        filter[di, dj, q, k]\n\nMust have `strides[0] = strides[3] = 1`.  For the most common case of the same\nhorizontal and vertices strides, `strides = [1, stride, stride, 1]`.",
@@ -4865,6 +4870,11 @@
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each filter\nelement on that dimension. The dimension order is determined by the value of\n`data_format`, see above for details. Dilations in the batch and depth\ndimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -4922,6 +4932,11 @@
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each filter\nelement on that dimension. The dimension order is determined by the value of\n`data_format`, see above for details. Dilations in the batch and depth\ndimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -4974,6 +4989,11 @@
           "description": "The data format of the input and output data. With the\ndefault format \"NDHWC\", the data is stored in the order of:\n    [batch, in_depth, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCDHW\", the data storage order is:\n    [batch, in_channels, in_depth, in_height, in_width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "description": "In signal processing, cross-correlation is a measure of similarity of\ntwo waveforms as a function of a time-lag applied to one of them. This\nis also known as a sliding dot product or sliding inner-product.\n\nOur Conv3D implements a form of cross-correlation.",
@@ -5069,6 +5089,11 @@
           "description": "The data format of the input and output data. With the\ndefault format \"NDHWC\", the data is stored in the order of:\n    [batch, in_depth, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCDHW\", the data storage order is:\n    [batch, in_channels, in_depth, in_height, in_width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -5168,6 +5193,11 @@
           "description": "The data format of the input and output data. With the\ndefault format \"NDHWC\", the data is stored in the order of:\n    [batch, in_depth, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCDHW\", the data storage order is:\n    [batch, in_channels, in_depth, in_height, in_width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 5.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -5633,6 +5663,82 @@
         }
       ],
       "summary": "Compute the cumulative sum of the tensor `x` along `axis`."
+    }
+  },
+  {
+    "name": "DataFormatDimMap",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "source data format.",
+          "name": "src_format",
+          "type": "string"
+        },
+        {
+          "description": "destination data format.",
+          "name": "dst_format",
+          "type": "string"
+        }
+      ],
+      "description": "the source data format.",
+      "inputs": [
+        {
+          "description": "Scalar. Dimension index in source data format. Must be in the range [-4, 4).",
+          "name": "x",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Scalar. Dimension index in destination data format.",
+          "name": "y",
+          "type": 0
+        }
+      ],
+      "summary": "Returns the dimension index in the destination data format given the one in"
+    }
+  },
+  {
+    "name": "DataFormatVecPermute",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "source data format.",
+          "name": "src_format",
+          "type": "string"
+        },
+        {
+          "description": "destination data format.",
+          "name": "dst_format",
+          "type": "string"
+        }
+      ],
+      "description": "the source data format.",
+      "inputs": [
+        {
+          "description": "Vector in source data format. Must be of size 4.",
+          "name": "x",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Vector in destination data format. Must be of size 4.",
+          "name": "y",
+          "type": 0
+        }
+      ],
+      "summary": "Returns the permuted vector in the destination data format given the one in"
     }
   },
   {
@@ -6398,7 +6504,7 @@
           "type": "string"
         }
       ],
-      "description": "Rearranges data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically,\nthis op outputs a copy of the input tensor where values from the `depth`\ndimension are moved in spatial blocks to the `height` and `width` dimensions.\nThe attr `block_size` indicates the input block size and how the data is moved.\n\n  * Chunks of data of size `block_size * block_size` from depth are rearranged\n    into non-overlapping blocks of size `block_size x block_size`\n  * The width the output tensor is `input_depth * block_size`, whereas the\n    height is `input_height * block_size`.\n  * The Y, X coordinates within each block of the output image are determined\n    by the high order component of the input channel index.\n  * The depth of the input tensor must be divisible by\n    `block_size * block_size`.\n\nThe `data_format` attr specifies the layout of the input and output tensors\nwith the following options:\n  \"NHWC\": `[ batch, height, width, channels ]`\n  \"NCHW\": `[ batch, channels, height, width ]`\n  \"NCHW_VECT_C\":\n      `qint8 [ batch, channels / 4, height, width, channels % 4 ]`\n\nIt is useful to consider the operation as transforming a 6-D Tensor.\ne.g. for data_format = NHWC,\n     Each element in the input tensor can be specified via 6 coordinates,\n     ordered by decreasing memory layout significance as:\n     n,iY,iX,bY,bX,oC  (where n=batch index, iX, iY means X or Y coordinates\n                        within the input image, bX, bY means coordinates\n                        within the output block, oC means output channels).\n     The output would be the input transposed to the following layout:\n     n,iY,bY,iX,bX,oC\n\nThis operation is useful for resizing the activations between convolutions\n(but keeping all data), e.g. instead of pooling. It is also useful for training\npurely convolutional models.\n\nFor example, given an input of shape `[1, 1, 1, 4]`, data_format = \"NHWC\" and\nblock_size = 2:\n\n```\nx = [[[[1, 2, 3, 4]]]]\n\n```\n\nThis operation will output a tensor of shape `[1, 2, 2, 1]`:\n\n```\n   [[[[1], [2]],\n     [[3], [4]]]]\n```\n\nHere, the input has a batch of 1 and each batch element has shape `[1, 1, 4]`,\nthe corresponding output will have 2x2 elements and will have a depth of\n1 channel (1 = `4 / (block_size * block_size)`).\nThe output element shape is `[2, 2, 1]`.\n\nFor an input tensor with larger depth, here of shape `[1, 1, 1, 12]`, e.g.\n\n```\nx = [[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]]]\n```\n\nThis operation, for block size of 2, will return the following tensor of shape\n`[1, 2, 2, 3]`\n\n```\n   [[[[1, 2, 3], [4, 5, 6]],\n     [[7, 8, 9], [10, 11, 12]]]]\n\n```\n\nSimilarly, for the following input of shape `[1 2 2 4]`, and a block size of 2:\n\n```\nx =  [[[[1, 2, 3, 4],\n       [5, 6, 7, 8]],\n      [[9, 10, 11, 12],\n       [13, 14, 15, 16]]]]\n```\n\nthe operator will return the following tensor of shape `[1 4 4 1]`:\n\n```\nx = [[[ [1],   [2],  [5],  [6]],\n      [ [3],   [4],  [7],  [8]],\n      [ [9],  [10], [13],  [14]],\n      [ [11], [12], [15],  [16]]]]\n\n```",
+      "description": "Rearranges data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically,\nthis op outputs a copy of the input tensor where values from the `depth`\ndimension are moved in spatial blocks to the `height` and `width` dimensions.\nThe attr `block_size` indicates the input block size and how the data is moved.\n\n  * Chunks of data of size `block_size * block_size` from depth are rearranged\n    into non-overlapping blocks of size `block_size x block_size`\n  * The width the output tensor is `input_depth * block_size`, whereas the\n    height is `input_height * block_size`.\n  * The Y, X coordinates within each block of the output image are determined\n    by the high order component of the input channel index.\n  * The depth of the input tensor must be divisible by\n    `block_size * block_size`.\n\nThe `data_format` attr specifies the layout of the input and output tensors\nwith the following options:\n  \"NHWC\": `[ batch, height, width, channels ]`\n  \"NCHW\": `[ batch, channels, height, width ]`\n  \"NCHW_VECT_C\":\n      `qint8 [ batch, channels / 4, height, width, 4 ]`\n\nIt is useful to consider the operation as transforming a 6-D Tensor.\ne.g. for data_format = NHWC,\n     Each element in the input tensor can be specified via 6 coordinates,\n     ordered by decreasing memory layout significance as:\n     n,iY,iX,bY,bX,oC  (where n=batch index, iX, iY means X or Y coordinates\n                        within the input image, bX, bY means coordinates\n                        within the output block, oC means output channels).\n     The output would be the input transposed to the following layout:\n     n,iY,bY,iX,bX,oC\n\nThis operation is useful for resizing the activations between convolutions\n(but keeping all data), e.g. instead of pooling. It is also useful for training\npurely convolutional models.\n\nFor example, given an input of shape `[1, 1, 1, 4]`, data_format = \"NHWC\" and\nblock_size = 2:\n\n```\nx = [[[[1, 2, 3, 4]]]]\n\n```\n\nThis operation will output a tensor of shape `[1, 2, 2, 1]`:\n\n```\n   [[[[1], [2]],\n     [[3], [4]]]]\n```\n\nHere, the input has a batch of 1 and each batch element has shape `[1, 1, 4]`,\nthe corresponding output will have 2x2 elements and will have a depth of\n1 channel (1 = `4 / (block_size * block_size)`).\nThe output element shape is `[2, 2, 1]`.\n\nFor an input tensor with larger depth, here of shape `[1, 1, 1, 12]`, e.g.\n\n```\nx = [[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]]]\n```\n\nThis operation, for block size of 2, will return the following tensor of shape\n`[1, 2, 2, 3]`\n\n```\n   [[[[1, 2, 3], [4, 5, 6]],\n     [[7, 8, 9], [10, 11, 12]]]]\n\n```\n\nSimilarly, for the following input of shape `[1 2 2 4]`, and a block size of 2:\n\n```\nx =  [[[[1, 2, 3, 4],\n       [5, 6, 7, 8]],\n      [[9, 10, 11, 12],\n       [13, 14, 15, 16]]]]\n```\n\nthe operator will return the following tensor of shape `[1 4 4 1]`:\n\n```\nx = [[[ [1],   [2],  [5],  [6]],\n      [ [3],   [4],  [7],  [8]],\n      [ [9],  [10], [13],  [14]],\n      [ [11], [12], [15],  [16]]]]\n\n```",
       "inputs": [
         {
           "description": "",
@@ -6439,6 +6545,11 @@
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each filter\nelement on that dimension. The dimension order is determined by the value of\n`data_format`, see above for details. Dilations in the batch and depth\ndimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "description": "Given an input tensor of shape `[batch, in_height, in_width, in_channels]`\nand a filter / kernel tensor of shape\n`[filter_height, filter_width, in_channels, channel_multiplier]`, containing\n`in_channels` convolutional filters of depth 1, `depthwise_conv2d` applies\na different filter to each input channel (expanding from 1 channel to\n`channel_multiplier` channels for each), then concatenates the results\ntogether. Thus, the output has `in_channels * channel_multiplier` channels.\n\n```\nfor k in 0..in_channels-1\n  for q in 0..channel_multiplier-1\n    output[b, i, j, k * channel_multiplier + q] =\n      sum_{di, dj} input[b, strides[1] * i + di, strides[2] * j + dj, k] *\n                        filter[di, dj, k, q]\n```\n\nMust have `strides[0] = strides[3] = 1`.  For the most common case of the same\nhorizontal and vertices strides, `strides = [1, stride, stride, 1]`.",
@@ -6487,6 +6598,11 @@
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each filter\nelement on that dimension. The dimension order is determined by the value of\n`data_format`, see above for details. Dilations in the batch and depth\ndimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -6539,6 +6655,11 @@
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
           "name": "data_format",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each filter\nelement on that dimension. The dimension order is determined by the value of\n`data_format`, see above for details. Dilations in the batch and depth\ndimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "inputs": [
@@ -6675,13 +6796,19 @@
           "description": "The `dtype` of the serialized `SparseTensor` objects.",
           "name": "dtype",
           "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tserialized",
+          "type": "type"
         }
       ],
+      "description": "The input `serialized_sparse` must have the shape `[?, ?, ..., ?, 3]` where\nthe last dimension stores serialized `SparseTensor` objects and the other N\ndimensions (N >= 0) correspond to a batch. The ranks of the original\n`SparseTensor` objects must all match. When the final `SparseTensor` is\ncreated, its rank is the rank of the incoming `SparseTensor` objects plus N;\nthe sparse tensors have been concatenated along new dimensions, one for each\nbatch.\n\nThe output `SparseTensor` object's shape values for the original dimensions\nare the max across the input `SparseTensor` objects' shape values for the\ncorresponding dimensions. The new dimensions match the size of the batch.\n\nThe input `SparseTensor` objects' indices are assumed ordered in\nstandard lexicographic order.  If this is not the case, after this\nstep run `SparseReorder` to restore index ordering.\n\nFor example, if the serialized input is a `[2 x 3]` matrix representing two\noriginal `SparseTensor` objects:\n\n    index = [ 0]\n            [10]\n            [20]\n    values = [1, 2, 3]\n    shape = [50]\n\nand\n\n    index = [ 2]\n            [10]\n    values = [4, 5]\n    shape = [30]\n\nthen the final deserialized `SparseTensor` will be:\n\n    index = [0  0]\n            [0 10]\n            [0 20]\n            [1  2]\n            [1 10]\n    values = [1, 2, 3, 4, 5]\n    shape = [2 50]",
       "inputs": [
         {
           "description": "The serialized `SparseTensor` objects. The last dimension\nmust have 3 columns.",
           "name": "serialized_sparse",
-          "type": 7
+          "type": 0
         }
       ],
       "outputs": [
@@ -7134,6 +7261,44 @@
         }
       ],
       "summary": "Interleave the values from the `data` tensors into a single tensor."
+    }
+  },
+  {
+    "name": "EagerPyFunc",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "token",
+          "type": "string"
+        },
+        {
+          "description": "",
+          "name": "Tin",
+          "type": "list(type)"
+        },
+        {
+          "description": "",
+          "name": "Tout",
+          "type": "list(type)"
+        }
+      ],
+      "description": "semantics of the input, output, and attributes are the same as those for\nPyFunc.",
+      "inputs": [
+        {
+          "description": "",
+          "name": "input",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "",
+          "name": "output",
+          "type": 0
+        }
+      ],
+      "summary": "Eagerly executes a python function to compute func(input)->output. The"
     }
   },
   {
@@ -9793,6 +9958,34 @@
         }
       ],
       "summary": "Creates a dataset that computes a windowed group-by on `input_dataset`."
+    }
+  },
+  {
+    "name": "GuaranteeConst",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "The runtime is then free to make optimizations based on this.\n\nOnly accepts value typed tensors as inputs and rejects resource variable handles\nas input.\n\nReturns the input tensor without modification.",
+      "inputs": [
+        {
+          "description": "",
+          "name": "input",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "",
+          "name": "output",
+          "type": 0
+        }
+      ],
+      "summary": "Gives a guarantee to the TF runtime that the input tensor is a constant."
     }
   },
   {
@@ -14246,6 +14439,11 @@
           "description": "",
           "name": "T",
           "type": "type"
+        },
+        {
+          "description": "",
+          "name": "output_dtype",
+          "type": "type"
         }
       ],
       "inputs": [
@@ -14264,7 +14462,7 @@
         {
           "description": "2-D Tensor with shape `[batch_size, num_samples]`.  Each slice `[i, :]`\ncontains the drawn class labels with range `[0, num_classes)`.",
           "name": "output",
-          "type": 9
+          "type": 0
         }
       ],
       "summary": "Draws samples from a multinomial distribution."
@@ -17252,6 +17450,11 @@
           "description": "The type of padding algorithm to use.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
+          "name": "dilations",
+          "type": "list(int)"
         }
       ],
       "description": "The inputs are quantized tensors where the lowest value represents the real\nnumber of the associated minimum, and the highest represents the maximum.\nThis means that you can only interpret the quantized output in the same way, by\ntaking the returned minimum and maximum values into account.",
@@ -18491,6 +18694,43 @@
         }
       ],
       "summary": "Randomly crop `image`."
+    }
+  },
+  {
+    "name": "RandomDataset",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "description": "",
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A scalar seed for the random number generator. If either seed or\nseed2 is set to be non-zero, the random number generator is seeded\nby the given seed.  Otherwise, a random seed is used.",
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "description": "A second scalar seed to avoid seed collision.",
+          "name": "seed2",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "",
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a Dataset that returns pseudorandom numbers."
     }
   },
   {
@@ -21389,6 +21629,47 @@
     }
   },
   {
+    "name": "ResourceScatterNdUpdate",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "bool"
+        }
+      ],
+      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tfe.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_update(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 11, 3, 10, 9, 6, 7, 12]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
+      "inputs": [
+        {
+          "description": "A resource handle. Must be from a VarHandleOp.",
+          "name": "ref",
+          "type": 20
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "type": 0
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of updated\nvalues to add to ref.",
+          "name": "updates",
+          "type": 0
+        }
+      ],
+      "summary": "Applies sparse `updates` to individual values or slices within a given"
+    }
+  },
+  {
     "name": "ResourceScatterUpdate",
     "schema": {
       "attributes": [
@@ -23915,6 +24196,11 @@
           "description": "",
           "name": "T",
           "type": "type"
+        },
+        {
+          "description": "The `dtype` to use for serialization; the supported types are `string`\n(default) and `variant`.",
+          "name": "out_type",
+          "type": "type"
         }
       ],
       "description": "The `SparseTensor` must have rank `R` greater than 1, and the first dimension\nis treated as the minibatch dimension.  Elements of the `SparseTensor`\nmust be sorted in increasing order of this first dimension.  The serialized\n`SparseTensor` objects going into each row of `serialized_sparse` will have\nrank `R-1`.\n\nThe minibatch size `N` is extracted from `sparse_shape[0]`.",
@@ -23939,10 +24225,10 @@
         {
           "description": "",
           "name": "serialized_sparse",
-          "type": 7
+          "type": 0
         }
       ],
-      "summary": "Serialize an `N`-minibatch `SparseTensor` into an `[N, 3]` string `Tensor`."
+      "summary": "Serialize an `N`-minibatch `SparseTensor` into an `[N, 3]` `Tensor` object."
     }
   },
   {
@@ -23952,6 +24238,11 @@
         {
           "description": "",
           "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "The `dtype` to use for serialization; the supported types are `string`\n(default) and `variant`.",
+          "name": "out_type",
           "type": "type"
         }
       ],
@@ -23976,10 +24267,10 @@
         {
           "description": "",
           "name": "serialized_sparse",
-          "type": 7
+          "type": 0
         }
       ],
-      "summary": "Serialize a `SparseTensor` into a string 3-vector (1-D `Tensor`) object."
+      "summary": "Serialize a `SparseTensor` into a `[3]` `Tensor` object."
     }
   },
   {
@@ -24558,6 +24849,33 @@
     }
   },
   {
+    "name": "Snapshot",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "",
+          "name": "input",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "",
+          "name": "output",
+          "type": 0
+        }
+      ],
+      "summary": "Returns a copy of the input tensor."
+    }
+  },
+  {
     "name": "Softmax",
     "schema": {
       "attributes": [
@@ -24852,7 +25170,7 @@
           "type": "string"
         }
       ],
-      "description": "Rearranges blocks of spatial data, into depth. More specifically,\nthis op outputs a copy of the input tensor where values from the `height`\nand `width` dimensions are moved to the `depth` dimension.\nThe attr `block_size` indicates the input block size.\n\n  * Non-overlapping blocks of size `block_size x block size` are rearranged\n    into depth at each location.\n  * The depth of the output tensor is `block_size * block_size * input_depth`.\n  * The Y, X coordinates within each block of the input become the high order\n    component of the output channel index.\n  * The input tensor's height and width must be divisible by block_size.\n\nThe `data_format` attr specifies the layout of the input and output tensors\nwith the following options:\n  \"NHWC\": `[ batch, height, width, channels ]`\n  \"NCHW\": `[ batch, channels, height, width ]`\n  \"NCHW_VECT_C\":\n      `qint8 [ batch, channels / 4, height, width, channels % 4 ]`\n\nIt is useful to consider the operation as transforming a 6-D Tensor.\ne.g. for data_format = NHWC,\n     Each element in the input tensor can be specified via 6 coordinates,\n     ordered by decreasing memory layout significance as:\n     n,oY,bY,oX,bX,iC  (where n=batch index, oX, oY means X or Y coordinates\n                        within the output image, bX, bY means coordinates\n                        within the input block, iC means input channels).\n     The output would be a transpose to the following layout:\n     n,oY,oX,bY,bX,iC\n\nThis operation is useful for resizing the activations between convolutions\n(but keeping all data), e.g. instead of pooling. It is also useful for training\npurely convolutional models.\n\nFor example, given an input of shape `[1, 2, 2, 1]`, data_format = \"NHWC\" and\nblock_size = 2:\n\n```\nx = [[[[1], [2]],\n      [[3], [4]]]]\n```\n\nThis operation will output a tensor of shape `[1, 1, 1, 4]`:\n\n```\n[[[[1, 2, 3, 4]]]]\n```\n\nHere, the input has a batch of 1 and each batch element has shape `[2, 2, 1]`,\nthe corresponding output will have a single element (i.e. width and height are\nboth 1) and will have a depth of 4 channels (1 * block_size * block_size).\nThe output element shape is `[1, 1, 4]`.\n\nFor an input tensor with larger depth, here of shape `[1, 2, 2, 3]`, e.g.\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThis operation, for block_size of 2, will return the following tensor of shape\n`[1, 1, 1, 12]`\n\n```\n[[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]]]\n```\n\nSimilarly, for the following input of shape `[1 4 4 1]`, and a block size of 2:\n\n```\nx = [[[[1],   [2],  [5],  [6]],\n      [[3],   [4],  [7],  [8]],\n      [[9],  [10], [13],  [14]],\n      [[11], [12], [15],  [16]]]]\n```\n\nthe operator will return the following tensor of shape `[1 2 2 4]`:\n\n```\nx = [[[[1, 2, 3, 4],\n       [5, 6, 7, 8]],\n      [[9, 10, 11, 12],\n       [13, 14, 15, 16]]]]\n```",
+      "description": "Rearranges blocks of spatial data, into depth. More specifically,\nthis op outputs a copy of the input tensor where values from the `height`\nand `width` dimensions are moved to the `depth` dimension.\nThe attr `block_size` indicates the input block size.\n\n  * Non-overlapping blocks of size `block_size x block size` are rearranged\n    into depth at each location.\n  * The depth of the output tensor is `block_size * block_size * input_depth`.\n  * The Y, X coordinates within each block of the input become the high order\n    component of the output channel index.\n  * The input tensor's height and width must be divisible by block_size.\n\nThe `data_format` attr specifies the layout of the input and output tensors\nwith the following options:\n  \"NHWC\": `[ batch, height, width, channels ]`\n  \"NCHW\": `[ batch, channels, height, width ]`\n  \"NCHW_VECT_C\":\n      `qint8 [ batch, channels / 4, height, width, 4 ]`\n\nIt is useful to consider the operation as transforming a 6-D Tensor.\ne.g. for data_format = NHWC,\n     Each element in the input tensor can be specified via 6 coordinates,\n     ordered by decreasing memory layout significance as:\n     n,oY,bY,oX,bX,iC  (where n=batch index, oX, oY means X or Y coordinates\n                        within the output image, bX, bY means coordinates\n                        within the input block, iC means input channels).\n     The output would be a transpose to the following layout:\n     n,oY,oX,bY,bX,iC\n\nThis operation is useful for resizing the activations between convolutions\n(but keeping all data), e.g. instead of pooling. It is also useful for training\npurely convolutional models.\n\nFor example, given an input of shape `[1, 2, 2, 1]`, data_format = \"NHWC\" and\nblock_size = 2:\n\n```\nx = [[[[1], [2]],\n      [[3], [4]]]]\n```\n\nThis operation will output a tensor of shape `[1, 1, 1, 4]`:\n\n```\n[[[[1, 2, 3, 4]]]]\n```\n\nHere, the input has a batch of 1 and each batch element has shape `[2, 2, 1]`,\nthe corresponding output will have a single element (i.e. width and height are\nboth 1) and will have a depth of 4 channels (1 * block_size * block_size).\nThe output element shape is `[1, 1, 4]`.\n\nFor an input tensor with larger depth, here of shape `[1, 2, 2, 3]`, e.g.\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThis operation, for block_size of 2, will return the following tensor of shape\n`[1, 1, 1, 12]`\n\n```\n[[[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]]]]\n```\n\nSimilarly, for the following input of shape `[1 4 4 1]`, and a block size of 2:\n\n```\nx = [[[[1],   [2],  [5],  [6]],\n      [[3],   [4],  [7],  [8]],\n      [[9],  [10], [13],  [14]],\n      [[11], [12], [15],  [16]]]]\n```\n\nthe operator will return the following tensor of shape `[1 2 2 4]`:\n\n```\nx = [[[[1, 2, 3, 4],\n       [5, 6, 7, 8]],\n      [[9, 10, 11, 12],\n       [13, 14, 15, 16]]]]\n```",
       "inputs": [
         {
           "description": "",
@@ -26656,6 +26974,59 @@
     }
   },
   {
+    "name": "SparseSegmentMeanWithNumSegments",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tidx",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tnumsegments",
+          "type": "type"
+        }
+      ],
+      "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.",
+      "inputs": [
+        {
+          "description": "",
+          "name": "data",
+          "type": 0
+        },
+        {
+          "description": "A 1-D tensor. Has same rank as `segment_ids`.",
+          "name": "indices",
+          "type": 0
+        },
+        {
+          "description": "A 1-D tensor. Values should be sorted and can be repeated.",
+          "name": "segment_ids",
+          "type": 3
+        },
+        {
+          "description": "Should equal the number of distinct segment IDs.",
+          "name": "num_segments",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Has same shape as data, except for dimension 0 which has size\n`num_segments`.",
+          "name": "output",
+          "type": 0
+        }
+      ],
+      "summary": "Computes the mean along sparse segments of a tensor."
+    }
+  },
+  {
     "name": "SparseSegmentSqrtN",
     "schema": {
       "attributes": [
@@ -26747,6 +27118,59 @@
     }
   },
   {
+    "name": "SparseSegmentSqrtNWithNumSegments",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tidx",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tnumsegments",
+          "type": "type"
+        }
+      ],
+      "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.",
+      "inputs": [
+        {
+          "description": "",
+          "name": "data",
+          "type": 0
+        },
+        {
+          "description": "A 1-D tensor. Has same rank as `segment_ids`.",
+          "name": "indices",
+          "type": 0
+        },
+        {
+          "description": "A 1-D tensor. Values should be sorted and can be repeated.",
+          "name": "segment_ids",
+          "type": 3
+        },
+        {
+          "description": "Should equal the number of distinct segment IDs.",
+          "name": "num_segments",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Has same shape as data, except for dimension 0 which\nhas size `k`, the number of segments.",
+          "name": "output",
+          "type": 0
+        }
+      ],
+      "summary": "Computes the sum along sparse segments of a tensor divided by the sqrt of N."
+    }
+  },
+  {
     "name": "SparseSegmentSum",
     "schema": {
       "attributes": [
@@ -26782,6 +27206,59 @@
       "outputs": [
         {
           "description": "Has same shape as data, except for dimension 0 which\nhas size `k`, the number of segments.",
+          "name": "output",
+          "type": 0
+        }
+      ],
+      "summary": "Computes the sum along sparse segments of a tensor."
+    }
+  },
+  {
+    "name": "SparseSegmentSumWithNumSegments",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tidx",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tnumsegments",
+          "type": "type"
+        }
+      ],
+      "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
+      "inputs": [
+        {
+          "description": "",
+          "name": "data",
+          "type": 0
+        },
+        {
+          "description": "A 1-D tensor. Has same rank as `segment_ids`.",
+          "name": "indices",
+          "type": 0
+        },
+        {
+          "description": "A 1-D tensor. Values should be sorted and can be repeated.",
+          "name": "segment_ids",
+          "type": 3
+        },
+        {
+          "description": "Should equal the number of distinct segment IDs.",
+          "name": "num_segments",
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Has same shape as data, except for dimension 0 which\nhas size `num_segments`.",
           "name": "output",
           "type": 0
         }
@@ -28038,6 +28515,11 @@
           "description": "",
           "name": "T",
           "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tseed",
+          "type": "type"
         }
       ],
       "description": "The generated values will have mean 0 and standard deviation 1.\n\nThe outputs are a deterministic function of `shape` and `seed`.",
@@ -28050,7 +28532,7 @@
         {
           "description": "2 seeds (shape [2]).",
           "name": "seed",
-          "type": 9
+          "type": 0
         }
       ],
       "outputs": [
@@ -28076,6 +28558,11 @@
           "description": "",
           "name": "T",
           "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tseed",
+          "type": "type"
         }
       ],
       "description": "The generated values follow a uniform distribution in the range `[0, 1)`. The\nlower bound 0 is included in the range, while the upper bound 1 is excluded.\n\nThe outputs are a deterministic function of `shape` and `seed`.",
@@ -28088,7 +28575,7 @@
         {
           "description": "2 seeds (shape [2]).",
           "name": "seed",
-          "type": 9
+          "type": 0
         }
       ],
       "outputs": [
@@ -28114,6 +28601,11 @@
           "description": "",
           "name": "T",
           "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tseed",
+          "type": "type"
         }
       ],
       "description": "The generated values follow a normal distribution with mean 0 and standard\ndeviation 1, except that values whose magnitude is more than 2 standard\ndeviations from the mean are dropped and re-picked.\n\nThe outputs are a deterministic function of `shape` and `seed`.",
@@ -28126,7 +28618,7 @@
         {
           "description": "2 seeds (shape [2]).",
           "name": "seed",
-          "type": 9
+          "type": 0
         }
       ],
       "outputs": [
@@ -31043,6 +31535,49 @@
     }
   },
   {
+    "name": "UniqueV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "",
+          "name": "out_idx",
+          "type": "type"
+        }
+      ],
+      "description": "This operation returns a tensor `y` containing all of the unique elements of `x`\nsorted in the same order that they occur in `x`. This operation also returns a\ntensor `idx` the same size as `x` that contains the index of each value of `x`\nin the unique output `y`. In other words:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nFor example:\n\n```\n# tensor 'x' is [1, 1, 2, 4, 4, 4, 7, 8, 8]\ny, idx = unique(x)\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\n```",
+      "inputs": [
+        {
+          "description": "A `Tensor`.",
+          "name": "x",
+          "type": 0
+        },
+        {
+          "description": "A `Tensor` of type `int64` (default: 0). The axis of the Tensor to\nfind the unique elements.",
+          "name": "axis",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A `Tensor`. Unique elements along the `axis` of `Tensor` x.",
+          "name": "y",
+          "type": 0
+        },
+        {
+          "description": "A 1-D Tensor. Has the same type as x that contains the index of each\nvalue of x in the output y.",
+          "name": "idx",
+          "type": 0
+        }
+      ],
+      "summary": "Finds unique elements in a 1-D tensor."
+    }
+  },
+  {
     "name": "UniqueWithCounts",
     "schema": {
       "attributes": [
@@ -31136,6 +31671,11 @@
           "description": "",
           "name": "Tindices",
           "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tnumsegments",
+          "type": "type"
         }
       ],
       "description": "Read @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nThis operator is similar to the [unsorted segment sum operator](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum\nsuch that:\n\n\\\\(output_i = \\max_j data_j\\\\) where max is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest possible value for specific numeric type,\n `output[i] = numeric_limits<T>::min()`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>",
@@ -31153,7 +31693,7 @@
         {
           "description": "",
           "name": "num_segments",
-          "type": 3
+          "type": 0
         }
       ],
       "outputs": [
@@ -31179,9 +31719,14 @@
           "description": "",
           "name": "Tindices",
           "type": "type"
+        },
+        {
+          "description": "",
+          "name": "Tnumsegments",
+          "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n`(output[i] = sum_{j...} data[j...]` where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n`(output[i] = sum_{j...} data[j...]` where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
       "inputs": [
         {
           "description": "",
@@ -31196,7 +31741,7 @@
         {
           "description": "",
           "name": "num_segments",
-          "type": 3
+          "type": 0
         }
       ],
       "outputs": [
