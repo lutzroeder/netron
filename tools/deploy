@@ -4,6 +4,7 @@ sudo rm -rf dist
 
 ./setup.py build bdist_wheel upload
 
+export GH_TOKEN=${GITHUB_TOKEN} 
 npm run release
 
 PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
