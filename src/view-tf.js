@@ -41,7 +41,7 @@ class TensorFlowModel {
 
                 this._model = new tensorflow.SavedModel();
                 this._model.metaGraphs.push(metaGraphDef);
-                this._graphs = [ new TensorFlowGraph(this._model, metaGraphDef) ];
+                this._graphs = [ new TensorFlowGraph(this._model, metaGraphDef, 0) ];
             }
 
             this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
@@ -229,7 +229,7 @@ class TensorFlowGraph {
         var results = [];
         this._graph.graphDef.node.forEach((node) => {
             var id = node.name + ':0';
-            if (!this._initializerMap[id] && !this._inputMap[id]) {
+            if (!this._initializerMap[id] && !this._inputMap[id] && node.op != 'NoOp') {
                 results.push(new TensorFlowNode(this, node));
             }
         });
@@ -370,6 +370,9 @@ class TensorFlowAttribute {
     }
 
     get type() {
+        if (this._value.hasOwnProperty('tensor')) {
+            return TensorFlowTensor.formatTensorType(this._value.tensor);
+        }
         return '';
     }
 
@@ -394,6 +397,9 @@ class TensorFlowAttribute {
                 return '"' + String.fromCharCode.apply(null, this._value.s) + '"';
             }
             return this._value.s.map(v => v.toString()).join(', ');           
+        }
+        else if (this._value.hasOwnProperty('tensor')) {
+            return new TensorFlowTensor(this._value.tensor).value;
         }
         else if (this._value.hasOwnProperty('list')) {
             var list = this._value.list;
@@ -504,6 +510,17 @@ class TensorFlowTensor {
                     return 'Tensor data is empty.';
                 }
                 break;
+            case tensorflow.DataType.DT_STRING:
+                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
+                    return 'Tensor data type is not implemented.';
+                }
+                else if (this._tensor.stringVal && this._tensor.stringVal.length > 0) {
+                    this._data = this._tensor.stringVal;
+                }
+                else {
+                    return 'Tensor data is empty.';
+                }
+                break;
             default:
                 debugger;
                 return 'Tensor data type is not implemented.';
@@ -511,11 +528,13 @@ class TensorFlowTensor {
 
         this._index = 0;
         this._count = 0;
+        this._utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
         var result = this.read(0);
         delete this._index;
         delete this._count;
         delete this._data;
         delete this._rawData;
+        delete this._utf8Decoder;
 
         return JSON.stringify(result, null, 4);
     }
@@ -524,7 +543,7 @@ class TensorFlowTensor {
         var results = [];
         var dimensions = this._tensor.tensorShape.dim;
         if (dimensions.length == 0 && this._data.length == 1) {
-            return this._data[0];
+            return this.readDataValue();
         }
         var dim = dimensions[dimension];
         var size = dim.size;
@@ -535,7 +554,7 @@ class TensorFlowTensor {
                     return results;
                 }
                 if (this._data) {
-                    results.push(this._data[this._index++]);
+                    results.push(this.readDataValue());
                 }
                 else {
                     if (this._rawData) {
@@ -566,6 +585,19 @@ class TensorFlowTensor {
             }
         }
         return results;
+    }
+
+    readDataValue() {
+        var value = this._data[this._index++];
+        if (this._tensor.dtype == tensorflow.DataType.DT_STRING) {
+            if (this._utf8Decoder) {
+                value = this._utf8Decoder.decode(value);
+            }
+            else {
+                value = String.fromCharCode.apply(null, textArray);
+            }
+        }
+        return value;
     }
 
     static formatTensorType(tensor) {
@@ -602,6 +634,9 @@ class TensorFlowTensor {
         if (shape.dim) {
             if (shape.dim.length == 0) {
                 return '';
+            }
+            if (shape.dim.length == 1 && !shape.dim[0].size) {
+                return '[0]';
             }
             return '[' + shape.dim.map((dim) => dim.size ? dim.size.toString() : '?').join(',') + ']';
         }

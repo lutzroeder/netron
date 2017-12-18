@@ -54,7 +54,7 @@ var operatorTemplate = `
 <h2>Attributes</h2>
 <dl>
 {{#attributes}}
-<dt><tt>{{{name}}}</tt> : {{{type}}}</dt>
+<dt>{{{name}}}: <tt>{{{type}}}</tt></dt>
 <dd>{{{description}}}</dd>
 {{/attributes}}
 </dl>
@@ -65,7 +65,7 @@ var operatorTemplate = `
 <dl>
 {{/if}}
 {{#inputs}}
-<dt><tt>{{{name}}}</tt> {{#if option}}({{{option}}}){{/if}}: {{{typeStr}}}</dt>
+<dt>{{{name}}}: <tt>{{{type}}}</tt> {{#if option}}({{{option}}}){{/if}}</dt>
 <dd>{{{description}}}</dd>
 {{/inputs}}
 </dl>
@@ -75,7 +75,7 @@ var operatorTemplate = `
 <dl>
 {{/if}}
 {{#outputs}}
-<dt><tt>{{{name}}}</tt> {{#if option}}({{{option}}}){{/if}}: {{{typeStr}}}</dt>
+<dt>{{{name}}}: <tt>{{{type}}}</tt> {{#if option}}({{{option}}}){{/if}}</dt>
 <dd>{{{description}}}</dd>
 {{/outputs}}
 </dl>
@@ -84,7 +84,7 @@ var operatorTemplate = `
 <h2>Type Constraints</h2>
 <dl>
 {{#type_constraints}}
-<dt><tt>{{{type_param_str}}}</tt>: {{{allowed_type_strs_display}}}</dt>
+<dt>{{{type_param_str}}}: {{#allowed_type_strs}}<tt>{{this}}</tt>{{#unless @last}}, {{/unless}}{{/allowed_type_strs}}</dt>
 <dd>{{{description}}}</dd>
 {{/type_constraints}}
 </dl>

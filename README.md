@@ -21,7 +21,7 @@ Netron is a viewer for [ONNX](http://onnx.ai) neural network models.
 
 ## Download Models
 
-Below are a few model files you can download and open in Netron:
+Below are a few model files you can download and open:
 
 **ONNX Models**
 

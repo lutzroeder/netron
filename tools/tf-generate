@@ -1,9 +1,22 @@
 #!/bin/bash
 
-pushd "../third_party" > /dev/null
-sudo rm -rf tensorflow
-git clone --recursive git@github.com:tensorflow/tensorflow.git
-popd > /dev/null
+mkdir -p ../third_party
+
+repository=git@github.com:tensorflow/tensorflow.git
+
+if [ -d "../third_party/tensorflow" ]; then
+    pushd "../third_party/tensorflow" > /dev/null
+    echo "Fetch ${repository}..."
+    git fetch -p
+    echo "Reset ${repository}..."
+    git reset --hard origin/master
+    popd > /dev/null
+else
+    pushd "../third_party" > /dev/null
+    echo "Clone ${repository}..."
+    git clone --recursive ${repository}
+    popd > /dev/null
+fi
 
 echo "Generate '../src/tf.js'"
 ../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ../src/tf.js \

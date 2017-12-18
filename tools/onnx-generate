@@ -2,10 +2,21 @@
 
 mkdir -p ../third_party
 
-pushd "../third_party" > /dev/null
-sudo rm -rf onnx
-git clone --recursive git@github.com:onnx/onnx.git
-popd > /dev/null
+repository=git@github.com:onnx/onnx.git
+
+if [ -d "../third_party/onnx" ]; then
+    pushd "../third_party/onnx" > /dev/null
+    echo "Fetch ${repository}..."
+    git fetch -p
+    echo "Reset ${repository}..."
+    git reset --hard origin/master
+    popd > /dev/null
+else
+    echo "Clone ${repository}..."
+    pushd "../third_party" > /dev/null
+    git clone --recursive ${repository}
+    popd > /dev/null
+fi
 
 export ONNX_ML=1
 

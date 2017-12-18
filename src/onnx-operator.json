@@ -9,15 +9,7 @@
           "description": "Arbitrary input",
           "name": "input",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)",
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2147483647,
@@ -29,15 +21,7 @@
           "description": "Arbitrary output",
           "name": "output",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)",
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -68,12 +52,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -85,12 +64,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -138,23 +112,13 @@
           "description": "First operand, should share the type with the second operand.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -166,12 +130,7 @@
           "description": "Result, has same dimensions and type as A",
           "name": "C",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -223,12 +182,7 @@
           "description": "1D input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -240,12 +194,7 @@
           "description": "1D output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -287,19 +236,13 @@
           "description": "Left input tensor for the logical operator.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         },
         {
           "description": "Right input tensor for the logical operator.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -311,10 +254,7 @@
           "description": "Result tensor.",
           "name": "C",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T1"
         }
       ],
       "since_version": 1,
@@ -361,12 +301,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -378,10 +313,7 @@
           "description": "Reduced output tensor with integer data type.",
           "name": "reduced",
           "option": "",
-          "typeStr": "tensor(int32)",
-          "types": [
-            "tensor(int32)"
-          ]
+          "type": "tensor(int32)"
         }
       ],
       "since_version": 1,
@@ -423,12 +355,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -440,10 +367,7 @@
           "description": "Reduced output tensor with integer data type.",
           "name": "reduced",
           "option": "",
-          "typeStr": "tensor(int32)",
-          "types": [
-            "tensor(int32)"
-          ]
+          "type": "tensor(int32)"
         }
       ],
       "since_version": 1,
@@ -471,23 +395,13 @@
           "description": "Data to be selected",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T1"
         },
         {
           "description": "The index values to select as a tensor of int64s",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(int64)"
-          ]
+          "type": "T2"
         }
       ],
       "max_input": 2,
@@ -499,14 +413,7 @@
           "description": "Selected output data as an array",
           "name": "Z",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T1"
         }
       ],
       "since_version": 1,
@@ -569,12 +476,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -586,12 +488,7 @@
           "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -645,56 +542,31 @@
           "description": "The input 4-dimensional tensor of shape NCHW.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The scale as a 1-dimensional tensor of size C to be applied to the output.",
           "name": "scale",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The bias as a 1-dimensional tensor of size C to be applied to the output.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The running mean (training) or the estimated mean (testing) as a 1-dimensional tensor of size C.",
           "name": "mean",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The running variance (training) or the estimated variance (testing) as a 1-dimensional tensor of size C.",
           "name": "var",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 5,
@@ -706,56 +578,31 @@
           "description": "The output 4-dimensional tensor of the same shape as X.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The running mean after the BatchNormalization operator. Must be in-place with the input mean. Should not be used for testing.",
           "name": "mean",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The running variance after the BatchNormalization operator. Must be in-place with the input var. Should not be used for testing.",
           "name": "var",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Saved mean used during training to speed up gradient computation. Should not be used for testing.",
           "name": "saved_mean",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Saved variance used during training to speed up gradient computation. Should not be used for testing.",
           "name": "saved_var",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -791,13 +638,7 @@
           "description": "Data to be binarized",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -809,13 +650,7 @@
           "description": "Binarized output data",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -852,12 +687,7 @@
           "description": "Input tensor to be cast.",
           "name": "input",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -869,12 +699,7 @@
           "description": "Output tensor with the same shape as input with type specified by the 'to' argument",
           "name": "output",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -931,11 +756,7 @@
           "description": "Data to be encoded",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "map(int64,float)",
-            "map(int64,string)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -947,12 +768,7 @@
           "description": "encoded output data",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(float)",
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -1014,11 +830,7 @@
           "description": "Input data",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -1030,11 +842,7 @@
           "description": "Output data, if strings are input, then output is int64s, and vice versa.",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -1069,12 +877,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -1086,12 +889,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1133,12 +931,7 @@
           "description": "Input tensor whose elements to be clipped",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -1150,12 +943,7 @@
           "description": "Output tensor with clipped input elements",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1191,12 +979,7 @@
           "description": "List of tensors for concatenation",
           "name": "inputs",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2147483647,
@@ -1208,12 +991,7 @@
           "description": "Concatenated tensor",
           "name": "concat_result",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1253,12 +1031,7 @@
           "description": "Output tensor containing the same value of the provided tensor.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1324,13 +1097,7 @@
           "description": "Input tensor (optional) to provide shape information.",
           "name": "input",
           "option": "optional",
-          "typeStr": "T1",
-          "types": [
-            "tensor(bool)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -1342,13 +1109,7 @@
           "description": "Output tensor of constant values specified by 'value'argument and its type is specified by the 'dtype' argument",
           "name": "output",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(bool)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -1425,34 +1186,19 @@
           "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image.Otherwise the size is (N x D1 x D2 ... x Dn)",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The weight tensor that will be used in the convolutions; has size (M x C x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the kernel shape will be (M x C x k1 x k2 x ... x kn), where is the dimension of the kernel",
           "name": "W",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Optional 1D bias to be added to the convolution, has size of M.",
           "name": "B",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 3,
@@ -1464,12 +1210,7 @@
           "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1541,34 +1282,19 @@
           "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image.Otherwise the size is (N x D1 x D2 ... x Dn)",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The weight tensor that will be used in the convolutions; has size (C x M x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the kernel shape will be (C x M x k1 x k2 x ... x kn), where is the dimension of the kernel",
           "name": "W",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Optional 1D bias to be added to the convolution, has size of C.",
           "name": "B",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 3,
@@ -1580,12 +1306,7 @@
           "description": "Output data tensor that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1627,12 +1348,7 @@
           "description": "Input tensor of shape [N,C,H,W]",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -1644,12 +1360,7 @@
           "description": "Result, has same type as input, with H and W dimensions reduced.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1685,12 +1396,7 @@
           "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -1702,12 +1408,7 @@
           "description": "Output tensor of [N, C/(blocksize * blocksize), H * blocksize, W * blocksize].",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1749,15 +1450,7 @@
           "description": "The input dictionary",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "map(int64,double)",
-            "map(int64,float)",
-            "map(int64,string)",
-            "map(string,double)",
-            "map(string,float)",
-            "map(string,int64)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -1769,13 +1462,7 @@
           "description": "The tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -1830,23 +1517,13 @@
           "description": "First operand, should share the type with the second operand.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -1858,12 +1535,7 @@
           "description": "Result, has same dimensions and type as A",
           "name": "C",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1905,12 +1577,7 @@
           "description": "The input data as Tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -1922,23 +1589,13 @@
           "description": "The output.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The output mask. If is_test is nonzero, this output is not filled.",
           "name": "mask",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -1974,12 +1631,7 @@
           "description": "1D input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -1991,12 +1643,7 @@
           "description": "1D input tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2044,10 +1691,7 @@
           "description": "1-D tensor of integers representing indices in the embedding dictionary with length [N] and values [0, input_dim -1]",
           "name": "input",
           "option": "",
-          "typeStr": "tensor(int64)",
-          "types": [
-            "tensor(int64)"
-          ]
+          "type": "tensor(int64)"
         }
       ],
       "max_input": 1,
@@ -2059,12 +1703,7 @@
           "description": "Output tensor of computed features [N, O].",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2106,23 +1745,13 @@
           "description": "Left input tensor for the logical operator.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Right input tensor for the logical operator.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -2134,10 +1763,7 @@
           "description": "Result tensor.",
           "name": "C",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T1"
         }
       ],
       "since_version": 1,
@@ -2172,12 +1798,7 @@
           "description": "Input tensor",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -2189,12 +1810,7 @@
           "description": "The exponential of the input tensor computed element-wise",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2236,34 +1852,19 @@
           "description": "input tensor that's coerced into a 2D matrix of size (MxK) as described above",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "2D blob of size (KxN) containing fully connected weight matrix",
           "name": "W",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "1D blob containing bias vector",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 3,
@@ -2275,12 +1876,7 @@
           "description": "2D output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2316,10 +1912,7 @@
           "description": "ordered input tensors",
           "name": "X",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2147483647,
@@ -2331,10 +1924,7 @@
           "description": "Full output array, in order assigned in the inputlist, as floats",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2368,12 +1958,7 @@
           "description": "A tensor of rank >= axis.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -2385,12 +1970,7 @@
           "description": "A 2D tensor with the contents of the input tensor, with input dimensions up to axis flattened to the outer dimension of the output and remaining input dimensions flattened into the inner dimension of the output.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2418,12 +1998,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -2435,12 +2010,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2512,65 +2082,37 @@
           "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The weight tensor for the gates. Concatenation of `W[zrh]` and `WB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, input_size]`.",
           "name": "W",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The recurrence weight tensor. Concatenation of `R[zrh]` and `RB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, hidden_size]`.",
           "name": "R",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The bias tensor for the gates. Concatenation of `[Wb[zrh], Rb[zrh]]` and `[WBb[zrh], RBb[zrh]]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 6*hidden_size]`. Optional: If not specified - assumed to be 0",
           "name": "B",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
           "name": "sequence_lens",
           "option": "optional",
-          "typeStr": "T1",
-          "types": [
-            "tensor(int32)"
-          ]
+          "type": "T1"
         },
         {
           "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "initial_h",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 6,
@@ -2582,23 +2124,13 @@
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2641,45 +2173,25 @@
           "description": "The previous GRU hidden state.",
           "name": "hidden_prev",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Unactivated gate outputs from forget, update, and output gates, pre-activation.",
           "name": "gates",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Array of sequence lengths.  len(seq_lengths) should equal batch size N.",
           "name": "seq_lengths",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The timestep for this operation.",
           "name": "t",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 4,
@@ -2691,12 +2203,7 @@
           "description": "The new GRU hidden state calculated by this op.",
           "name": "hidden",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2732,22 +2239,13 @@
           "description": "Tensor of rank r >= 1.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Tensor of int32/int64 indices, of any rank q.",
           "name": "indices",
           "option": "",
-          "typeStr": "Tind",
-          "types": [
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "Tind"
         }
       ],
       "max_input": 2,
@@ -2759,12 +2257,7 @@
           "description": "Tensor of rank q + (r - 1).",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2832,34 +2325,19 @@
           "description": "Input tensor A",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Input tensor B",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Input tensor C, can be inplace.",
           "name": "C",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 3,
@@ -2871,12 +2349,7 @@
           "description": "Output tensor.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2929,12 +2402,7 @@
           "description": "The shape of filled tensor",
           "name": "shape",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -2946,12 +2414,7 @@
           "description": "The filled tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -2979,12 +2442,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -2996,12 +2454,7 @@
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3037,12 +2490,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3054,12 +2502,7 @@
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3095,12 +2538,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3112,12 +2550,7 @@
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 2,
@@ -3145,12 +2578,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3162,12 +2590,7 @@
           "description": "Output data tensor from pooling across the input tensor. Dimensions will be N x C x 1 x 1",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3209,23 +2632,13 @@
           "description": "Left input tensor for the logical operator.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Right input tensor for the logical operator.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -3237,10 +2650,7 @@
           "description": "Result tensor.",
           "name": "C",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T1"
         }
       ],
       "since_version": 1,
@@ -3289,12 +2699,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3306,12 +2711,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3347,12 +2747,7 @@
           "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3364,12 +2759,7 @@
           "description": "The softmax normalized output values with the same shape as input tensor.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3397,12 +2787,7 @@
           "description": "Input tensor",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3414,12 +2799,7 @@
           "description": "Tensor to copy input into.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3461,12 +2841,7 @@
           "description": "Input tensor of shape [N,C,H,W]",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3478,12 +2853,7 @@
           "description": "Result, has same shape and type as input",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3537,13 +2907,7 @@
           "description": "Data to be imputed",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3555,13 +2919,7 @@
           "description": "Imputed output data",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3598,34 +2956,19 @@
           "description": "The input 4-dimensional tensor of shape NCHW.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The input 1-dimensional scale tensor of size C.",
           "name": "scale",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The input 1-dimensional bias tensor of size C.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 3,
@@ -3637,12 +2980,7 @@
           "description": "The output 4-dimensional tensor of the same shape as input.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3696,12 +3034,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -3713,12 +3046,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3796,87 +3124,49 @@
           "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The weight tensor for the gates. Concatenation of `W[iofc]` and `WB[iofc]` (if bidirectional) along dimension 0. The tensor has shape `[num_directions, 4*hidden_size, input_size]`.",
           "name": "W",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The recurrence weight tensor. Concatenation of `R[iofc]` and `RB[iofc]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 4*hidden_size, hidden_size]`.",
           "name": "R",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The bias tensor for input gate. Concatenation of `[Wb[iofc], Rb[iofc]]`, and `[WBb[iofc], RBb[iofc]]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 8*hidden_size]`. Optional: If not specified - assumed to be 0.",
           "name": "B",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
           "name": "sequence_lens",
           "option": "optional",
-          "typeStr": "T1",
-          "types": [
-            "tensor(int32)"
-          ]
+          "type": "T1"
         },
         {
           "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "initial_h",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Optional initial value of the cell. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "initial_c",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The weight tensor for peepholes. Concatenation of `P[iof]` and `PB[iof]` (if bidirectional) along dimension 0. It has shape `[num_directions, 3*hidde_size]`. Optional: If not specified - assumed to be 0.",
           "name": "P",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 8,
@@ -3888,23 +3178,13 @@
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -3959,11 +3239,7 @@
           "description": "Data to be encoded",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -3975,11 +3251,7 @@
           "description": "Encoded output data",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -4022,12 +3294,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4039,12 +3306,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4086,23 +3348,13 @@
           "description": "Left input tensor for the logical operator.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Right input tensor for the logical operator.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -4114,10 +3366,7 @@
           "description": "Result tensor.",
           "name": "C",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T1"
         }
       ],
       "since_version": 1,
@@ -4190,13 +3439,7 @@
           "description": "Data to be classified",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -4208,20 +3451,13 @@
           "description": "Classification outputs (one class per example",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T2"
         },
         {
           "description": "Classification scores (N,E - one score for each class, for each example",
           "name": "Z",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -4284,13 +3520,7 @@
           "description": "Data to be regressed",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4302,10 +3532,7 @@
           "description": "Regression outputs (one per target, per example",
           "name": "Y",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -4334,12 +3561,7 @@
           "description": "Input tensor",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4351,12 +3573,7 @@
           "description": "The natural log of the input tensor computed element-wise",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4392,12 +3609,7 @@
           "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4409,12 +3621,7 @@
           "description": "The softmax normalized output values with the same shape as input tensor.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4456,12 +3663,7 @@
           "description": "Input matrix",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4473,12 +3675,7 @@
           "description": "Matrix after normalization",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4538,12 +3735,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4555,12 +3747,7 @@
           "description": "Output data tensor from Lp pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4620,12 +3807,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4637,12 +3819,7 @@
           "description": "Output data tensor from Lp pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 2,
@@ -4670,23 +3847,13 @@
           "description": "N-dimensional matrix A",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "N-dimensional matrix B",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -4698,12 +3865,7 @@
           "description": "Matrix multiply results from A * B",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4737,12 +3899,7 @@
           "description": "List of tensors for Max.",
           "name": "data_0",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2147483647,
@@ -4754,12 +3911,7 @@
           "description": "Output tensor. Same dimension as inputs.",
           "name": "max",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4813,12 +3965,7 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -4830,12 +3977,7 @@
           "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4877,23 +4019,13 @@
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "RoIs (Regions of Interest) to pool over. Should be a 2-D tensor of shape (num_rois, 5) given as [[batch_id, x1, y1, x2, y2], ...].",
           "name": "rois",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -4905,12 +4037,7 @@
           "description": "RoI pooled output 4-D tensor of shape (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -4938,12 +4065,7 @@
           "description": "List of tensors for Mean.",
           "name": "data_0",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2147483647,
@@ -4955,12 +4077,7 @@
           "description": "Output tensor. Same dimension as inputs.",
           "name": "mean",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5002,12 +4119,7 @@
           "description": "Input tensor of shape [N,C,H,W]",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5019,12 +4131,7 @@
           "description": "Result, has same shape and type as input",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5052,12 +4159,7 @@
           "description": "List of tensors for Min",
           "name": "data_0",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2147483647,
@@ -5069,12 +4171,7 @@
           "description": "Output tensor. Same dimension as inputs.",
           "name": "min",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5116,23 +4213,13 @@
           "description": "First operand, should share the type with the second operand.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -5144,12 +4231,7 @@
           "description": "Result, has same dimensions and type as A",
           "name": "C",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5177,12 +4259,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5194,12 +4271,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5235,13 +4307,7 @@
           "description": "Data to be encoded",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5253,10 +4319,7 @@
           "description": "encoded output data",
           "name": "Y",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -5285,10 +4348,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5300,10 +4360,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5349,11 +4406,7 @@
           "description": "Data to be encoded",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5365,10 +4418,7 @@
           "description": "encoded output data",
           "name": "Y",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -5409,19 +4459,13 @@
           "description": "Left input tensor for the logical operator.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         },
         {
           "description": "Right input tensor for the logical operator.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -5433,10 +4477,7 @@
           "description": "Result tensor.",
           "name": "C",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T1"
         }
       ],
       "since_version": 1,
@@ -5469,23 +4510,13 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Slope tensor. If `Slope` is of size 1, the value is sharedacross different channels",
           "name": "slope",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -5497,12 +4528,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5550,12 +4576,7 @@
           "description": "Input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5567,12 +4588,7 @@
           "description": "Tensor after padding.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5630,12 +4646,7 @@
           "description": "Input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5647,12 +4658,7 @@
           "description": "Tensor after padding.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 2,
@@ -5704,12 +4710,7 @@
           "description": "1D input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -5721,12 +4722,7 @@
           "description": "1D input tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5754,23 +4750,13 @@
           "description": "Input tensor of any shape, base of the exponent.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Input tensor of any shape broadcastable to X shape, the exponent component.",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -5782,12 +4768,7 @@
           "description": "Output tensor (same size as X)",
           "name": "Z",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -5859,65 +4840,37 @@
           "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The weight tensor for input gate. Concatenation of `Wi` and `WBi` (if bidirectional). The tensor has shape `[num_directions, hidden_size, input_size]`.",
           "name": "W",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The recurrence weight tensor. Concatenation of `Ri` and `RBi` (if bidirectional). The tensor has shape `[num_directions, hidden_size, hidden_size]`.",
           "name": "R",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The bias tensor for input gate. Concatenation of `[Wbi, Rbi]` and `[WBbi, RBbi]` (if bidirectional). The tensor has shape `[num_directions, 2*hidden_size]`. Optional: If not specified - assumed to be 0.",
           "name": "B",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
           "name": "sequence_lens",
           "option": "optional",
-          "typeStr": "T1",
-          "types": [
-            "tensor(int32)"
-          ]
+          "type": "T1"
         },
         {
           "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "initial_h",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 6,
@@ -5929,23 +4882,13 @@
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6016,12 +4959,7 @@
           "description": "Output tensor of random values drawn from normal distribution",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6075,12 +5013,7 @@
           "description": "Input tensor to provide shape information.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6092,12 +5025,7 @@
           "description": "Output tensor of random values drawn from normal distribution",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6161,12 +5089,7 @@
           "description": "Output tensor of random values drawn from uniform distribution",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6220,12 +5143,7 @@
           "description": "Input tensor to provide shape information.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6237,12 +5155,7 @@
           "description": "Output tensor of random values drawn from uniform distribution",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6270,12 +5183,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6287,12 +5195,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6334,12 +5237,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6351,12 +5249,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6398,12 +5291,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6415,12 +5303,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6462,12 +5345,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6479,12 +5357,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6526,12 +5399,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6543,12 +5411,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6590,12 +5453,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6607,12 +5465,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6654,12 +5507,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6671,12 +5519,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6718,12 +5561,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6735,12 +5573,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6782,12 +5615,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6799,12 +5627,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6846,12 +5669,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6863,12 +5681,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6910,12 +5723,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6927,12 +5735,7 @@
           "description": "Reduced output tensor.",
           "name": "reduced",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -6960,12 +5763,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -6977,12 +5775,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7024,12 +5817,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7041,12 +5829,7 @@
           "description": "Reshaped data.",
           "name": "reshaped",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7142,13 +5925,7 @@
           "description": "Data to be classified",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -7160,20 +5937,13 @@
           "description": "Classification outputs (one class per example)",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T2"
         },
         {
           "description": "Class scores (one per class per example), if prob_a and prob_b are provided they are probabilities for each class otherwise they are raw scores.",
           "name": "Z",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -7260,13 +6030,7 @@
           "description": "Data to be regressed",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7278,10 +6042,7 @@
           "description": "Regression outputs (one score per target per example)",
           "name": "Y",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -7318,12 +6079,7 @@
           "description": "Input data to be scaled",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7335,12 +6091,7 @@
           "description": "Output data after scaling",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7382,12 +6133,7 @@
           "description": "1-D input tensor",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7399,12 +6145,7 @@
           "description": "The scaled hyperbolic tangent values of the input tensor computed element-wise",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7446,13 +6187,7 @@
           "description": "Data to be scaled",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7464,10 +6199,7 @@
           "description": "Scaled output data",
           "name": "Y",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -7510,12 +6242,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7527,12 +6254,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7560,12 +6282,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7577,12 +6294,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7630,12 +6342,7 @@
           "description": "Tensor of data to extract slices from.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7647,12 +6354,7 @@
           "description": "Sliced data tensor.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7702,12 +6404,7 @@
           "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7719,12 +6416,7 @@
           "description": "The softmax normalized output values with the same shape as input tensor.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7752,12 +6444,7 @@
           "description": "1D input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7769,12 +6456,7 @@
           "description": "1D input tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7802,12 +6484,7 @@
           "description": "1-D input tensor",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7819,12 +6496,7 @@
           "description": "The softsign (x/1+|x|) values of the input tensor computed element-wise",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7860,12 +6532,7 @@
           "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -7877,12 +6544,7 @@
           "description": "Output tensor of [N, C * blocksize * blocksize, H/blocksize, W/blocksize].",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7924,23 +6586,13 @@
           "description": "The tensor to split",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Optional list of output lengths (see also arg 'split')",
           "name": "split",
           "option": "optional",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -7952,12 +6604,7 @@
           "description": "One or more outputs forming list of tensors after splitting",
           "name": "outputs...",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -7999,12 +6646,7 @@
           "description": "The tensor to split",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8016,12 +6658,7 @@
           "description": "One or more outputs forming list of tensors after splitting",
           "name": "outputs",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 2,
@@ -8049,12 +6686,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8066,12 +6698,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8107,12 +6734,7 @@
           "description": "Tensors with at least max(dims) dimensions.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8124,12 +6746,7 @@
           "description": "Reshaped tensor with same data as input.",
           "name": "squeezed",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8171,23 +6788,13 @@
           "description": "First operand, should share the type with the second operand.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -8199,12 +6806,7 @@
           "description": "Result, has same dimensions and type as A",
           "name": "C",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8232,12 +6834,7 @@
           "description": "List of tensors for Sum.",
           "name": "data_0",
           "option": "variadic",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2147483647,
@@ -8249,12 +6846,7 @@
           "description": "Output tensor. Same dimension as inputs.",
           "name": "sum",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8282,12 +6874,7 @@
           "description": "1-D input tensor",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8299,12 +6886,7 @@
           "description": "The hyperbolic tangent values of the input tensor computed element-wise",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8340,12 +6922,7 @@
           "description": "Input tensor",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8357,12 +6934,7 @@
           "description": "Output tensor",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8390,34 +6962,19 @@
           "description": "Input tensor of any shape.",
           "name": "input",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Number of repeated copies to make of the input tensor.",
           "name": "tiles",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         },
         {
           "description": "Axis along which to repeat.",
           "name": "axis",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 3,
@@ -8429,12 +6986,7 @@
           "description": "Output tensor of same shape and type as input.",
           "name": "output",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8470,12 +7022,7 @@
           "description": "An input tensor.",
           "name": "data",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8487,12 +7034,7 @@
           "description": "Transposed output.",
           "name": "transposed",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8624,13 +7166,7 @@
           "description": "Input N,F",
           "name": "X",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -8642,20 +7178,13 @@
           "description": "N, Top class for each point",
           "name": "Y",
           "option": "",
-          "typeStr": "T2",
-          "types": [
-            "tensor(int64)",
-            "tensor(string)"
-          ]
+          "type": "T2"
         },
         {
           "description": "N,E the class score for each class, for each point",
           "name": "Z",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -8796,13 +7325,7 @@
           "description": "Input N,F",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8814,10 +7337,7 @@
           "description": "N classes",
           "name": "Y",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -8866,15 +7386,7 @@
           "description": "4-D tensor, [N,C,H,W]",
           "name": "X",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)",
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 1,
@@ -8886,15 +7398,7 @@
           "description": "4-D tensor after resizing, [N,C,H,W]",
           "name": "Y",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)",
-            "tensor(double)",
-            "tensor(float)",
-            "tensor(float16)",
-            "tensor(int32)",
-            "tensor(int64)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -8939,19 +7443,13 @@
           "description": "Left input tensor for the logical operator.",
           "name": "A",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         },
         {
           "description": "Right input tensor for the logical operator.",
           "name": "B",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T"
         }
       ],
       "max_input": 2,
@@ -8963,10 +7461,7 @@
           "description": "Result tensor.",
           "name": "C",
           "option": "",
-          "typeStr": "T1",
-          "types": [
-            "tensor(bool)"
-          ]
+          "type": "T1"
         }
       ],
       "since_version": 1,
@@ -9013,10 +7508,7 @@
           "description": "The input values",
           "name": "X",
           "option": "",
-          "typeStr": "tensor(float)",
-          "types": [
-            "tensor(float)"
-          ]
+          "type": "tensor(float)"
         }
       ],
       "max_input": 1,
@@ -9028,11 +7520,7 @@
           "description": "The output map",
           "name": "Z",
           "option": "",
-          "typeStr": "T",
-          "types": [
-            "map(int64,float)",
-            "map(string,float)"
-          ]
+          "type": "T"
         }
       ],
       "since_version": 1,

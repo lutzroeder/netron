@@ -56,8 +56,9 @@ def generate_json(schemas, json_file):
                     'name': input.name, 
                     'description': input.description,
                     'option': option,
-                    'typeStr': input.typeStr,
-                    'types': generate_json_types(input.types) })
+                    'type': input.typeStr
+                    #'types': generate_json_types(input.types) 
+                })
         json_schema['min_input'] = schema.min_input;
         json_schema['max_input'] = schema.max_input;
         if schema.outputs:
@@ -72,8 +73,9 @@ def generate_json(schemas, json_file):
                     'name': output.name, 
                     'description': output.description,
                     'option': option,
-                    'typeStr': output.typeStr,
-                    'types': generate_json_types(output.types) })
+                    'type': output.typeStr
+                    #'types': generate_json_types(output.types) 
+                })
         json_schema['min_output'] = schema.min_output;
         json_schema['max_output'] = schema.max_output;
         if schema.attributes:

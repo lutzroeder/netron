@@ -13,10 +13,12 @@ class OnnxModel {
 
             this._model = onnx.ModelProto.decode(buffer);
 
-            if (this._model.graph) {
-                this._graph = new OnnxGraph(this, this._model.graph, 0);
-                this._activeGraph = this._graph;
+            if (!this._model.graph) {
+                throw 'Model does not contain a graph.';
             }
+
+            this._graph = new OnnxGraph(this, this._model.graph, 0);
+            this._activeGraph = this._graph;
 
             if (!OnnxModel.operatorMetadata) {
                 OnnxModel.operatorMetadata = new OnnxOperatorMetadata(this.hostService);
@@ -664,8 +666,7 @@ class OnnxOperatorMetadata {
                             }
                             else {
                                 var text = lines.join('');
-                                text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
-                                text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
+                                text = this.markdown(text);
                                 output.push('<p>' + text + '</p>');
                             }
                         }
@@ -678,6 +679,27 @@ class OnnxOperatorMetadata {
             var formatRange = (value) => {
                 return (value == 2147483647) ? '&#8734;' : value.toString();
             };
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = this.markdown(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = this.markdown(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = this.markdown(output.description);
+                    }
+                });
+            }
             if (schema.min_input != schema.max_input) {
                 schema.inputs_range = formatRange(schema.min_input) + ' - ' + formatRange(schema.max_input);
             }
@@ -695,5 +717,11 @@ class OnnxOperatorMetadata {
             return template(schema);
         }
         return "";
+    }
+
+    markdown(text) {
+        text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
+        text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
+        return text;
     }
 }

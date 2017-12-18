@@ -33,7 +33,8 @@ for schema in ops_list.op:
             json_schema['inputs'].append({
                 'name': input_arg.name,
                 'type': input_arg.type,
-                'description': input_arg.description
+                'description': input_arg.description,
+                'type_attr': input_arg.type_attr
             })
     if schema.output_arg:
         json_schema['outputs'] = []
@@ -41,7 +42,8 @@ for schema in ops_list.op:
             json_schema['outputs'].append({
                 'name': output_arg.name,
                 'type': output_arg.type,
-                'description': output_arg.description
+                'description': output_arg.description,
+                'type_attr': output_arg.type_attr
             })
     if schema.attr:
         json_schema['attributes'] = []
