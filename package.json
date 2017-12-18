@@ -61,7 +61,7 @@
                 "ext": [
                     "pb"
                 ],
-                "name": "TensorFlow Graph Definition"
+                "name": "TensorFlow Graph"
             },
             {
                 "ext": [

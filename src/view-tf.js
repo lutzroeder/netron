@@ -23,14 +23,25 @@ class TensorFlowModel {
                 }
             }
             else {
-                var graphDef = tensorflow.GraphDef.decode(buffer);
-                var metaGraph = new tensorflow.MetaGraphDef();
-                metaGraph.graphDef = graphDef;
-                metaGraph.anyInfo = identifier;
+                var metaGraphDef = null;
+                try {
+                    var graphDef = tensorflow.GraphDef.decode(buffer);
+                    metaGraphDef = new tensorflow.MetaGraphDef();
+                    metaGraphDef.graphDef = graphDef;
+                    metaGraphDef.anyInfo = identifier;
+                    this._format = 'TensorFlow Graph';
+                }
+                catch (err) {
+                }
+
+                if (!metaGraphDef) {
+                    metaGraphDef = tensorflow.MetaGraphDef.decode(buffer);
+                    this._format = 'TensorFlow MetaGraph';
+                }
+
                 this._model = new tensorflow.SavedModel();
-                this._model.metaGraphs.push(metaGraph);
-                this._graphs = [ new TensorFlowGraph(this._model, metaGraph) ];
-                this._format = 'TensorFlow Graph Defintion';
+                this._model.metaGraphs.push(metaGraphDef);
+                this._graphs = [ new TensorFlowGraph(this._model, metaGraphDef) ];
             }
 
             this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
