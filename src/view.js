@@ -104,7 +104,7 @@ function updateGraph(model) {
     var svg = dagreD3.d3.select(svgElement);
 
     var g = new dagreD3.graphlib.Graph();
-    g.setGraph({});
+     g.setGraph({ });
     // g.setGraph({ ranker: 'network-simplex' });
     // g.setGraph({ ranker: 'tight-tree' });
     // g.setGraph({ ranker: 'longest-path' });
@@ -251,7 +251,7 @@ function updateGraph(model) {
                     text = to.name;
                 }
 
-                g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee' });
+                g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', lineInterpolate: "basis" } );
             });
         }
         else {
