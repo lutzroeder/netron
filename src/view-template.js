@@ -16,8 +16,8 @@ var itemsTemplate = `
 {{#if quantization}}
 <pre>{{{quantization}}}</pre>
 {{/if}}
-{{#if doc}}
-{{{doc}}}
+{{#if description}}
+{{{description}}}
 {{/if}}
 <pre>{{{value}}}</pre>
 </div>
@@ -54,7 +54,7 @@ var operatorTemplate = `
 <h2>Attributes</h2>
 <dl>
 {{#attributes}}
-<dt>{{{name}}}: <tt>{{{type}}}</tt></dt>
+<dt>{{{name}}}{{#if type}}: <tt>{{{type}}}</tt>{{/if}}</dt>
 <dd>{{{description}}}</dd>
 {{/attributes}}
 </dl>
@@ -65,7 +65,7 @@ var operatorTemplate = `
 <dl>
 {{/if}}
 {{#inputs}}
-<dt>{{{name}}}: <tt>{{{type}}}</tt> {{#if option}}({{{option}}}){{/if}}</dt>
+<dt>{{{name}}}{{#if type}}: <tt>{{{type}}}</tt>{{/if}} {{#if option}}({{{option}}}){{/if}}</dt>
 <dd>{{{description}}}</dd>
 {{/inputs}}
 </dl>
@@ -75,7 +75,7 @@ var operatorTemplate = `
 <dl>
 {{/if}}
 {{#outputs}}
-<dt>{{{name}}}: <tt>{{{type}}}</tt> {{#if option}}({{{option}}}){{/if}}</dt>
+<dt>{{{name}}}{{#if type}}: <tt>{{{type}}}</tt>{{/if}} {{#if option}}({{{option}}}){{/if}}</dt>
 <dd>{{{description}}}</dd>
 {{/outputs}}
 </dl>
@@ -174,6 +174,8 @@ var summaryTemplate = `
 var nodeTemplate = `
 <style type='text/css'>
 .details h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.details h2 { font-weight: 600; font-size: 12px; line-height: 1.25; margin-bottom: 16px; border-bottom: 1px solid #eaecef; }
+.details h3 { font-weight: 600; font-size: 12px; line-height: 1.25; }
 .details .items { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
 .details .item { margin-bottom: 20px; }
 .details .item b { font-weight: 600; }
@@ -182,6 +184,9 @@ var nodeTemplate = `
 </style>
 <div class='details'>
 <div class='items'>
+{{#if operator}}
+<h1>{{{operator}}}</h1>
+{{/if}}
 {{#if name}}
 <div class='item'><b>name</b><br><pre>{{{name}}}</pre></div>
 {{/if}}
@@ -192,8 +197,9 @@ var nodeTemplate = `
 <div class='item'><b>domain</b><br><pre>{{{domain}}}</pre></div>
 {{/if}}
 </div>
+
 {{#if attributes}}
-<h1>Attributes</h1>
+<h2>Attributes</h2>
 {{/if}}
 <div class='items'>
 {{#attributes}}
@@ -206,5 +212,6 @@ var nodeTemplate = `
 </div>
 {{/attributes}}
 </div>
+
 </div>
 `;

@@ -270,6 +270,10 @@ class TensorFlowNode {
         this._node = node;
     }
 
+    get graph() {
+        return this._graph;
+    }
+
     get operator() {
         return this._node.op;
     }
@@ -347,9 +351,9 @@ class TensorFlowNode {
         var result = [];
         if (node.attr) {
             Object.keys(node.attr).forEach((name) => {
-                var hidden = (name == '_output_shapes' || name == 'T');
+                var hidden = (name == '_output_shapes'); //   || name == 'T');
                 var value = node.attr[name];
-                result.push(new TensorFlowAttribute(name, value, hidden));
+                result.push(new TensorFlowAttribute(this, name, value, hidden));
             });
         }
         return result;
@@ -357,7 +361,8 @@ class TensorFlowNode {
 }
 
 class TensorFlowAttribute { 
-    constructor(name, value, hidden) {
+    constructor(node, name, value, hidden) {
+        this._node = node;
         this._name = name;
         this._value = value;
         if (hidden) {
@@ -373,36 +378,48 @@ class TensorFlowAttribute {
         if (this._value.hasOwnProperty('tensor')) {
             return TensorFlowTensor.formatTensorType(this._value.tensor);
         }
+        var graphMetadata = this._node.graph.metadata;
+        if (graphMetadata) {
+            return graphMetadata.getAttributeType(this._node.operator, this._name);
+        }
         return '';
     }
 
     get value() {
-        if (this._value.hasOwnProperty('type')) {
-            return TensorFlowTensor.formatDataType(this._value.type);
+        var item = TensorFlowAttribute.formatAttributeValue(this._value);
+        if (Array.isArray(item)) {
+            return item.join(', ');
         }
-        else if (this._value.hasOwnProperty('i')) {
-            return this._value.i.toString();
+        return item;
+    }
+
+    static formatAttributeValue(value) {
+        if (value.hasOwnProperty('type')) {
+            return TensorFlowTensor.formatDataType(value.type);
         }
-        else if (this._value.hasOwnProperty('f')) {
-            return this._value.f.toString();
+        else if (value.hasOwnProperty('i')) {
+            return value.i.toString();
         }
-        else if (this._value.hasOwnProperty('b')) {
-            return this._value.b.toString();
+        else if (value.hasOwnProperty('f')) {
+            return value.f.toString();
         }
-        else if (this._value.hasOwnProperty('shape')) {
-            return TensorFlowTensor.formatTensorShape(this._value.shape);;
+        else if (value.hasOwnProperty('b')) {
+            return value.b.toString();
         }
-        else if (this._value.hasOwnProperty('s')) {
-            if (this._value.s.filter(c => c <= 32 && c >= 128).length == 0) {
-                return '"' + String.fromCharCode.apply(null, this._value.s) + '"';
+        else if (value.hasOwnProperty('shape')) {
+            return TensorFlowTensor.formatTensorShape(value.shape);;
+        }
+        else if (value.hasOwnProperty('s')) {
+            if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
+                return '"' + String.fromCharCode.apply(null, value.s) + '"';
             }
-            return this._value.s.map(v => v.toString()).join(', ');           
+            return value.s.map(v => v.toString()).join(', ');           
         }
-        else if (this._value.hasOwnProperty('tensor')) {
-            return new TensorFlowTensor(this._value.tensor).value;
+        else if (value.hasOwnProperty('tensor')) {
+            return new TensorFlowTensor(value.tensor).value;
         }
-        else if (this._value.hasOwnProperty('list')) {
-            var list = this._value.list;
+        else if (value.hasOwnProperty('list')) {
+            var list = value.list;
             if (list.s && list.s.length > 0) {
                 if (list.s.length > 65536) {
                     return "Too large to render.";
@@ -412,31 +429,31 @@ class TensorFlowAttribute {
                         return '"' + String.fromCharCode.apply(null, s) + '"';
                     }
                     return s.map(v => v.toString()).join(', ');    
-                }).join(', ');
+                });
             }
             else if (list.i && list.i.length > 0) {
                 if (list.i.length > 65536) {
                     return "Too large to render.";
                 }
-                return list.i.map((v) => v.toString()).join(', ');
+                return list.i.map((v) => v.toString());
             }
             else if (list.f && list.f.length > 0) {
                 if (list.f.length > 65536) {
                     return "Too large to render.";
                 }
-                return list.f.map((v) => v.toString()).join(', ');
+                return list.f.map((v) => v.toString());
             }
             else if (list.type && list.type.length > 0) {
                 if (list.type.length > 65536) {
                     return "Too large to render.";
                 }
-                return list.type.map((type) => TensorFlowTensor.formatDataType(type)).join(', ');
+                return list.type.map((type) => TensorFlowTensor.formatDataType(type));
             }
             else if (list.shape && list.shape.length > 0) {
                 if (list.shape.length > 65536) {
                     return "Too large to render.";
                 }
-                return list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape)).join(', ');
+                return list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape));
             }
         }
         debugger;
@@ -483,16 +500,21 @@ class TensorFlowTensor {
         if (!this._tensor.dtype) {
             return 'Tensor has no data type.';
         }
-        if (!this._tensor.tensorShape) {
+        if (!this._tensor.tensorShape || !this._tensor.tensorShape.dim) {
             return 'Tensor has no dimensions.';
         }
+
+        this._size = 1;
+        this._tensor.tensorShape.dim.forEach((dim) => {
+            this._size = this._size * (dim.size ? dim.size : 0);
+        });
 
         switch (this._tensor.dtype) {
             case tensorflow.DataType.DT_FLOAT:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
                     this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength)
                 }
-                else if (this._tensor.floatVal && this._tensor.floatVal.length > 0) {
+                else if (this._tensor.floatVal && this._tensor.floatVal.length == this._size) {
                     this._data = this._tensor.floatVal;
                 }
                 else {
@@ -503,7 +525,7 @@ class TensorFlowTensor {
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
                     this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength)
                 }
-                else if (this._tensor.intVal && this._tensor.intVal.length > 0) {
+                else if (this._tensor.intVal && this._tensor.intVal.length == this._size) {
                     this._data = this._tensor.intVal;
                 }
                 else {
@@ -514,7 +536,7 @@ class TensorFlowTensor {
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
                     return 'Tensor data type is not implemented.';
                 }
-                else if (this._tensor.stringVal && this._tensor.stringVal.length > 0) {
+                else if (this._tensor.stringVal && this._tensor.stringVal.length == this._size) {
                     this._data = this._tensor.stringVal;
                 }
                 else {
@@ -530,6 +552,7 @@ class TensorFlowTensor {
         this._count = 0;
         this._utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
         var result = this.read(0);
+        delete this._size;
         delete this._index;
         delete this._count;
         delete this._data;
@@ -649,27 +672,21 @@ class TensorFlowOperatorMetadata {
 
     constructor(hostService) {
         this._map = {};
-        hostService.request('/tf-operator.json', (err, data) => {
+        hostService.request('/tf-operator.pb', (err, data) => {
             if (err != null) {
-                // TODO error
             }
             else {
-                var items = JSON.parse(data);
-                if (items) {
-                    items.forEach((item) => {
-                        if (item.name && item.schema)
-                        {
-                            var name = item.name;
-                            var schema = item.schema;
-                            this._map[name] = schema;
-                        }
+                var operators = tensorflow.OpList.decode(data);
+                if (operators.op) {
+                    operators.op.forEach((opDef) => {
+                        this._map[opDef.name] = opDef;
                     });
                 }
             }
         });
     }
 
-    getSchema(operator) {
+    getOpDef(operator) {
         return this._map[operator];
     }
 }
@@ -680,23 +697,13 @@ class TensorFlowGraphOperatorMetadata {
         this._map = {};
         if (metaInfoDef && metaInfoDef.strippedOpList && metaInfoDef.strippedOpList.op) {
             metaInfoDef.strippedOpList.op.forEach((opDef) => {
-                var schema = { inputs: [], outputs: [], attributes: [] };
-                opDef.inputArg.forEach(function (inputArg) {
-                    schema.inputs.push({ name: inputArg.name, typeStr: inputArg.typeAttr });
-                });
-                opDef.outputArg.forEach(function (outputArg) {
-                    schema.outputs.push({ name: outputArg.name, typeStr: outputArg.typeAttr });
-                });
-                opDef.attr.forEach(function (attr) {
-                    schema.attributes.push({ name: attr.name, type: attr.type });
-                });
                 this._map[opDef.name] = schema;
             });
         }
     }
 
-    getSchema(operator) {
-        var schema = TensorFlowModel.operatorMetadata.getSchema(operator);
+    getOpDef(operator) {
+        var schema = TensorFlowModel.operatorMetadata.getOpDef(operator);
         if (!schema) {
             schema = this._map[operator];
         }
@@ -704,9 +711,9 @@ class TensorFlowGraphOperatorMetadata {
     }
 
     getInputName(operator, index) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var inputs = schema.inputs;
+        var opDef = this.getOpDef(operator);
+        if (opDef) {
+            var inputs = opDef.inputArg;
             if (inputs && index < inputs.length) {
                 var input = inputs[index];
                 if (input) {
@@ -721,9 +728,9 @@ class TensorFlowGraphOperatorMetadata {
     }
 
     getOutputName(operator, index) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            var outputs = schema.outputs;
+        var opDef = this.getOpDef(operator);
+        if (opDef) {
+            var outputs = opDef.outputArg;
             if (outputs && index < outputs.length) {
                 var output = outputs[index];
                 if (output) {
@@ -737,30 +744,105 @@ class TensorFlowGraphOperatorMetadata {
         return '(' + index.toString() + ')';
     }
 
+    getAttributeType(operator, name) {
+        var opDef = this.getOpDef(operator);
+        if (opDef) {
+            var attributeMap = opDef.attributeMap;
+            if (!attributeMap) {
+                attributeMap = {};
+                if (opDef.attr) {
+                    opDef.attr.forEach((attr) => {
+                        attributeMap[attr.name] = attr;
+                    });
+                }
+                opDef.attributeMap = attributeMap;
+            }
+            var attributeEntry = attributeMap[name];
+            if (attributeEntry) { 
+                return attributeEntry.type;
+            }
+        }        
+        return '';
+    }
+
     getOperatorDocumentation(operator) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            schema = Object.assign({}, schema);
+        var schema = {};
+        var opDef = this.getOpDef(operator);
+        if (opDef) {
             schema.name = operator;
-            if (schema.summary) {
-                schema.summary = marked(schema.summary);
+            if (opDef.summary) {
+                schema.summary = marked(opDef.summary);
             }
-            if (schema.description) {
-                schema.description = marked(schema.description);
+            if (opDef.description) {
+                schema.description = marked(opDef.description);
             }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    input.description = marked(input.description);
+            if (opDef.inputArg) {
+                schema.inputs = [];
+                opDef.inputArg.forEach((inputArg) => {
+                    var input = {};
+                    input.name = inputArg.name;
+                    if (inputArg.type) {
+                        input.type = inputArg.type;
+                    }
+                    else if (inputArg.typeAttr) {
+                        input.type = inputArg.typeAttr;
+                    }
+                    else if (inputArg.typeListAttr) {
+                        input.type = inputArg.typeListAttr;
+                    }
+                    if (inputArg.description) {
+                        input.description = marked(inputArg.description);
+                    }
+                    schema.inputs.push(input);
                 });
             }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    output.description = marked(output.description);
+            if (opDef.outputArg) {
+                schema.outputs = [];
+                opDef.outputArg.forEach((outputArg) => {
+                    var output = {};
+                    output.name = outputArg.name;
+                    if (outputArg.type) {
+                        output.type = outputArg.type;
+                    }
+                    else if (outputArg.typeAttr) {
+                        output.type = outputArg.typeAttr;
+                    }
+                    else if (outputArg.typeListAttr) {
+                        output.type = outputArg.typeListAttr;
+                    }
+                    if (outputArg.description) {
+                        output.description = marked(outputArg.description);
+                    }
+                    schema.outputs.push(output);
                 });
             }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    attribute.description = marked(attribute.description);
+            if (opDef.attr) {
+                schema.attributes = [];
+                opDef.attr.forEach((attr) => {
+                    var attribute = {};
+                    attribute.name = attr.name;
+                    if (attr.type) {
+                        attribute.type = attr.type;
+                    }
+                    var description = attr.description;
+                    if (attr.allowedValues) {
+                        var allowedValues = TensorFlowAttribute.formatAttributeValue(attr.allowedValues);
+                        allowedValues = Array.isArray(allowedValues) ? allowedValues : [ allowedValues ];
+                        allowedValues = allowedValues.map((item) => '`' + item + '`').join(', ');
+                        allowedValues = 'Must be one of the following: ' + allowedValues + '.';
+                        description = description ? (allowedValues + ' ' + description) : allowedValues;
+                    }
+                    if (attr.defaultValue) {
+                        var defaultValue = TensorFlowAttribute.formatAttributeValue(attr.defaultValue);
+                        defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
+                        defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
+                        defaultValue = 'Defaults to ' + defaultValue + '.';
+                        description = description ? (defaultValue + ' ' + description) : defaultValue;
+                    }
+                    if (description) {
+                        attribute.description = marked(description);
+                    }
+                    schema.attributes.push(attribute);
                 });
             }
             var template = Handlebars.compile(operatorTemplate, 'utf-8');

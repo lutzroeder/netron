@@ -104,7 +104,8 @@ function updateGraph(model) {
     var svg = dagreD3.d3.select(svgElement);
 
     var g = new dagreD3.graphlib.Graph();
-     g.setGraph({ });
+    g.setGraph({ });
+    // g.setGraph({ align: 'DR' });
     // g.setGraph({ ranker: 'network-simplex' });
     // g.setGraph({ ranker: 'tight-tree' });
     // g.setGraph({ ranker: 'longest-path' });

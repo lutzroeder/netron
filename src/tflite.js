@@ -53,7 +53,10 @@ tflite.BuiltinOperator = {
   CALL: 31,
   CUSTOM: 32,
   EMBEDDING_LOOKUP_SPARSE: 33,
-  PAD: 34
+  PAD: 34,
+  UNIDIRECTIONAL_SEQUENCE_RNN: 35,
+  GATHER: 36,
+  BATCH_TO_SPACE_ND: 37
 };
 
 /**
@@ -82,7 +85,9 @@ tflite.BuiltinOptions = {
   SpaceToDepthOptions: 19,
   EmbeddingLookupSparseOptions: 20,
   MulOptions: 21,
-  PadOptions: 22
+  PadOptions: 22,
+  GatherOptions: 23,
+  BatchToSpaceNDOptions: 24
 };
 
 /**
@@ -2394,6 +2399,219 @@ tflite.ReshapeOptions.endReshapeOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.BatchToSpaceNDOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.BatchToSpaceNDOptions}
+ */
+tflite.BatchToSpaceNDOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.BatchToSpaceNDOptions=} obj
+ * @returns {tflite.BatchToSpaceNDOptions}
+ */
+tflite.BatchToSpaceNDOptions.getRootAsBatchToSpaceNDOptions = function(bb, obj) {
+  return (obj || new tflite.BatchToSpaceNDOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite.BatchToSpaceNDOptions.prototype.blockShape = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.BatchToSpaceNDOptions.prototype.blockShapeLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+tflite.BatchToSpaceNDOptions.prototype.blockShapeArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite.BatchToSpaceNDOptions.prototype.beforeCrops = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.BatchToSpaceNDOptions.prototype.beforeCropsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+tflite.BatchToSpaceNDOptions.prototype.beforeCropsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite.BatchToSpaceNDOptions.prototype.afterCrops = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.BatchToSpaceNDOptions.prototype.afterCropsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+tflite.BatchToSpaceNDOptions.prototype.afterCropsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.BatchToSpaceNDOptions.startBatchToSpaceNDOptions = function(builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} blockShapeOffset
+ */
+tflite.BatchToSpaceNDOptions.addBlockShape = function(builder, blockShapeOffset) {
+  builder.addFieldOffset(0, blockShapeOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite.BatchToSpaceNDOptions.createBlockShapeVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite.BatchToSpaceNDOptions.startBlockShapeVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} beforeCropsOffset
+ */
+tflite.BatchToSpaceNDOptions.addBeforeCrops = function(builder, beforeCropsOffset) {
+  builder.addFieldOffset(1, beforeCropsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite.BatchToSpaceNDOptions.createBeforeCropsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite.BatchToSpaceNDOptions.startBeforeCropsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} afterCropsOffset
+ */
+tflite.BatchToSpaceNDOptions.addAfterCrops = function(builder, afterCropsOffset) {
+  builder.addFieldOffset(2, afterCropsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite.BatchToSpaceNDOptions.createAfterCropsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite.BatchToSpaceNDOptions.startAfterCropsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.BatchToSpaceNDOptions.endBatchToSpaceNDOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.SkipGramOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -2620,6 +2838,73 @@ tflite.EmbeddingLookupSparseOptions.addCombiner = function(builder, combiner) {
  * @returns {flatbuffers.Offset}
  */
 tflite.EmbeddingLookupSparseOptions.endEmbeddingLookupSparseOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.GatherOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.GatherOptions}
+ */
+tflite.GatherOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.GatherOptions=} obj
+ * @returns {tflite.GatherOptions}
+ */
+tflite.GatherOptions.getRootAsGatherOptions = function(bb, obj) {
+  return (obj || new tflite.GatherOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite.GatherOptions.prototype.axis = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.GatherOptions.startGatherOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ */
+tflite.GatherOptions.addAxis = function(builder, axis) {
+  builder.addFieldInt32(0, axis, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.GatherOptions.endGatherOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };

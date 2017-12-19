@@ -20,8 +20,8 @@ class OnnxModel {
             this._graph = new OnnxGraph(this, this._model.graph, 0);
             this._activeGraph = this._graph;
 
-            if (!OnnxModel.operatorMetadata) {
-                OnnxModel.operatorMetadata = new OnnxOperatorMetadata(this.hostService);
+            if (!OnnxOperatorMetadata.operatorMetadata) {
+                OnnxOperatorMetadata.operatorMetadata = new OnnxOperatorMetadata(this.hostService);
             }
         }
         catch (err) {
@@ -216,7 +216,7 @@ class OnnxNode {
     }
 
     get documentation() {
-        return OnnxModel.operatorMetadata.getOperatorDocumentation(this.operator);
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
     }
 
     get domain() {
@@ -228,7 +228,7 @@ class OnnxNode {
         this._node.input.forEach((input, index) => {
             results.push({
                 'id': input,
-                'name': OnnxModel.operatorMetadata.getInputName(this.operator, index),
+                'name': OnnxOperatorMetadata.operatorMetadata.getInputName(this.operator, index),
                 'type': ''
             });
         });
@@ -240,7 +240,7 @@ class OnnxNode {
         this._node.output.forEach((output, index) => {
             results.push({
                 id: output,
-                name: OnnxModel.operatorMetadata.getOutputName(this.operator, index),
+                name: OnnxOperatorMetadata.operatorMetadata.getOutputName(this.operator, index),
                 type: ''
             });
         });
@@ -253,7 +253,7 @@ class OnnxNode {
         if (node.attribute && node.attribute.length > 0) {
             result = [];
             node.attribute.forEach((attribute) => { 
-                result.push(new OnnxAttribute(attribute));
+                result.push(new OnnxAttribute(this, attribute));
             });
         }
         return result;
@@ -261,7 +261,8 @@ class OnnxNode {
 }
 
 class OnnxAttribute {
-    constructor(attribute) {
+    constructor(node, attribute) {
+        this._node = node;
         this._attribute = attribute;
     }
 
@@ -281,7 +282,7 @@ class OnnxAttribute {
         else if (this._attribute.hasOwnProperty('t')) {
             return OnnxTensor.formatTensorType(this._attribute.t);
         }
-        return '';
+        return OnnxOperatorMetadata.operatorMetadata.getAttributeType(this._node.operator, this._attribute.name);
     }
 
     get value() {
@@ -619,7 +620,7 @@ class OnnxOperatorMetadata {
                 } 
             }
         }
-        return "(" + index.toString() + ")";
+        return '(' + index.toString() + ')';
     }
 
     getOutputName(operator, index) {
@@ -638,7 +639,28 @@ class OnnxOperatorMetadata {
                 } 
             }
         }
-        return "(" + index.toString() + ")";
+        return '(' + index.toString() + ')';
+    }
+
+    getAttributeType(operator, name) {
+        var schema = this.map[operator];
+        if (schema) {
+            var attributeMap = schema.attributeMap;
+            if (!attributeMap) {
+                attributeMap = {};
+                if (schema.attributes) {
+                    schema.attributes.forEach((attribute) => {
+                        attributeMap[attribute.name] = attribute;
+                    });
+                }
+                schema.attributeMap = attributeMap;
+            }
+            var attributeEntry = attributeMap[name];
+            if (attributeEntry) { 
+                return attributeEntry.type;
+            }
+        }
+        return '';
     }
 
     getOperatorDocumentation(operator) {

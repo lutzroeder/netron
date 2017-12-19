@@ -469,7 +469,7 @@
           "type": "list of ints"
         }
       ],
-      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2075,7 +2075,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh)\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh)\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2949,7 +2949,7 @@
           "type": "float"
         }
       ],
-      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022. \n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B, \nwhere mean and B are computed per instance per channel. \n\n",
+      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022.\n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B,\nwhere mean and B are computed per instance per channel.\n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3117,7 +3117,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh, h=tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*Ri + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*Rf + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*Rc + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*Ro + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\n",
+      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh, h=Tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*Ri + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*Rf + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*Rc + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*Ro + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3800,7 +3800,7 @@
           "type": "list of ints"
         }
       ],
-      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3958,7 +3958,7 @@
           "type": "list of ints"
         }
       ],
-      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4012,7 +4012,7 @@
           "type": "float"
         }
       ],
-      "description": "ROI max pool consumes an input tensor X and region of interests (RoIs) to \n apply max pooling across each RoI, to produce output 4-D tensor of shape \n (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
+      "description": "ROI max pool consumes an input tensor X and region of interests (RoIs) to\n apply max pooling across each RoI, to produce output 4-D tensor of shape\n (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4803,7 +4803,7 @@
           "type": "list of floats"
         },
         {
-          "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `tanh` if not specified.",
+          "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `Tanh` if not specified.",
           "name": "activations",
           "required": false,
           "type": "list of strings"
@@ -4833,7 +4833,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*Ri + Wbi + Rbi)\n",
+      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*Ri + Wbi + Rbi)\n",
       "domain": "ai.onnx",
       "inputs": [
         {
