@@ -213,5 +213,27 @@ var nodeTemplate = `
 {{/attributes}}
 </div>
 
+{{#if inputs}}
+<h2>Inputs</h2>
+{{/if}}
+<div class='items'>
+{{#inputs}}
+<div class='item'>    
+<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
+</div>
+{{/inputs}}
+</div>
+
+{{#if outputs}}
+<h2>Outputs</h2>
+{{/if}}
+<div class='items'>
+{{#outputs}}
+<div class='item'>    
+<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
+</div>
+{{/outputs}}
+</div>
+
 </div>
 `;
