@@ -349,11 +349,13 @@ class TensorFlowNode {
     }
 
     get attributes() {
+        var graphMetadata = this._graph.metadata;
         var node = this._node;
         var result = [];
         if (node.attr) {
+            var hiddenAttributeMap = graphMetadata.getHiddenAttributeMap(node.op);
             Object.keys(node.attr).forEach((name) => {
-                var hidden = (name == '_output_shapes'); //   || name == 'T');
+                var hidden = hiddenAttributeMap[name] == true;
                 var value = node.attr[name];
                 result.push(new TensorFlowAttribute(this, name, value, hidden));
             });
@@ -744,6 +746,43 @@ class TensorFlowGraphOperatorMetadata {
             }
         }
         return '(' + index.toString() + ')';
+    }
+
+    getHiddenAttributeMap(operator) {
+        var result = {
+            '_output_shapes': true,
+            '_class': true
+        };
+        var opDef = this.getOpDef(operator);
+        if (opDef) {
+            if (opDef.inputArg) {
+                opDef.inputArg.forEach((inputArg) => {
+                    if (inputArg.typeAttr) {
+                        result[inputArg.typeAttr] = true;
+                    }
+                    else if (inputArg.typeListAttr) {
+                        result[inputArg.typeListAttr] = true;
+                    }
+                    if (inputArg.numberAttr) {
+                        result[inputArg.numberAttr] = true;
+                    }
+                });
+            }
+            if (opDef.outputArg) {
+                opDef.outputArg.forEach((outputArg) => {
+                    if (outputArg.typeAttr) {
+                        result[outputArg.typeAttr] = true;
+                    }
+                    else if (outputArg.typeListAttr) {
+                        result[outputArg.typeListAttr] = true;
+                    }
+                    if (outputArg.numberAttr) {
+                        result[outputArg.numberAttr] = true;
+                    }
+                });
+            }
+        }   
+        return result;
     }
 
     getAttributeType(operator, name) {
