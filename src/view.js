@@ -137,8 +137,7 @@ function updateGraph(model) {
         });
 
         node.inputs.forEach((input) => {
-            var inputId = input.id;
-            var initializer = initializerMap[inputId];
+            var initializer = !Array.isArray(input.id) && initializerMap[input.id];
             if (initializer) {
                 if (!primitive || hasInitializerInputs) {
                     formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
@@ -151,30 +150,36 @@ function updateGraph(model) {
                 if (!primitive || hasInitializerInputs) {
                     formatter.addItem(input.name, null, input.type, null);
                 }
-                var tuple = edgeMap[inputId];
-                if (!tuple) {
-                    tuple = { from: null, to: [] };
-                    edgeMap[inputId] = tuple;
-                }
-                tuple.to.push({ 
-                    node: nodeId, 
-                    name: input.name
+                var inputIds = Array.isArray(input.id) ? input.id : [ input.id ];
+                inputIds.forEach((inputId) => {
+                    var tuple = edgeMap[inputId];
+                    if (!tuple) {
+                        tuple = { from: null, to: [] };
+                        edgeMap[inputId] = tuple;
+                    }
+                    tuple.to.push({ 
+                        node: nodeId, 
+                        name: input.name,
+                        control: input.control
+                    });
                 });
             }
         });
 
         node.outputs.forEach((output) =>
         {
-            var outputId = output.id;
-            var tuple = edgeMap[outputId];
-            if (!tuple) {
-                tuple = { from: null, to: [] };
-                edgeMap[outputId] = tuple;
-            }
-            tuple.from = { 
-                node: nodeId,
-                name: output.name
-            };
+            var outputIds = Array.isArray(output.id) ? output.id : [ output.id ];
+            outputIds.forEach((outputId) => {
+                var tuple = edgeMap[outputId];
+                if (!tuple) {
+                    tuple = { from: null, to: [] };
+                    edgeMap[outputId] = tuple;
+                }
+                tuple.from = { 
+                    node: nodeId,
+                    name: output.name
+                };    
+            });
         });
 
         if (node.attributes && !primitive) {
@@ -252,7 +257,12 @@ function updateGraph(model) {
                     text = to.name;
                 }
 
-                g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', lineInterpolate: "basis" } );
+                if (to.control) { 
+                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', lineInterpolate: "basis", style: 'stroke-dasharray: 5, 5;' } );
+                }
+                else {
+                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', lineInterpolate: "basis" } );
+                }
             });
         }
         else {

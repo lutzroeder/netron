@@ -47,35 +47,29 @@ def generate_json(schemas, json_file):
         if schema.inputs:
             json_schema['inputs'] = []
             for input in schema.inputs:
-                option = ''
+                json_input = {}
+                json_input['name'] = input.name
+                json_input['description'] = input.description
+                json_input['type'] = input.typeStr
                 if input.option == OpSchema.FormalParameterOption.Optional:
-                    option = 'optional'
+                    json_input['option'] = 'optional'
                 elif input.option == OpSchema.FormalParameterOption.Variadic:
-                    option = 'variadic' 
-                json_schema['inputs'].append({ 
-                    'name': input.name, 
-                    'description': input.description,
-                    'option': option,
-                    'type': input.typeStr
-                    #'types': generate_json_types(input.types) 
-                })
+                    json_input['option'] = 'variadic'
+                json_schema['inputs'].append(json_input)
         json_schema['min_input'] = schema.min_input;
         json_schema['max_input'] = schema.max_input;
         if schema.outputs:
             json_schema['outputs'] = []
             for output in schema.outputs:
-                option = ''
+                json_output = {}
+                json_output['name'] = output.name
+                json_output['description'] = output.description
+                json_output['type'] = output.typeStr
                 if output.option == OpSchema.FormalParameterOption.Optional:
-                    option = 'optional'
+                    json_output['option'] = 'optional'
                 elif output.option == OpSchema.FormalParameterOption.Variadic:
-                    option = 'variadic' 
-                json_schema['outputs'].append({ 
-                    'name': output.name, 
-                    'description': output.description,
-                    'option': option,
-                    'type': output.typeStr
-                    #'types': generate_json_types(output.types) 
-                })
+                    json_output['option'] = 'variadic'
+                json_schema['outputs'].append(json_output)
         json_schema['min_output'] = schema.min_output;
         json_schema['max_output'] = schema.max_output;
         if schema.attributes:

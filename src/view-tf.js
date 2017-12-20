@@ -110,17 +110,11 @@ class TensorFlowGraph {
             for (var i = 0; i < node.input.length; i++)
             {
                 var split = node.input[i].split(':', 1);
-                if (split.length == 1) {
-                    split.push('0');
-                }
-                // TODO
-                if (split[0].startsWith('^')) {
-                    split[0] = split[0].substring(1);
-                }
-                var outputName = split[0];
-                var outputIndex = parseInt(split[1]);
+                var inputName = split[0];
+                var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
+                var outputName = inputName.startsWith('^') ? inputName.substring(1) : inputName;
                 var outputNode = this._nodeMap[outputName];
-                node.input[i] = outputName + ':' + outputIndex.toString();
+                node.input[i] = inputName + ':' + outputIndex.toString();
                 if (outputNode) {
                     for (var j = outputNode.output.length; j <= outputIndex; j++) {
                         outputNode.output.push('');
@@ -229,7 +223,7 @@ class TensorFlowGraph {
         var results = [];
         this._graph.graphDef.node.forEach((node) => {
             var id = node.name + ':0';
-            if (!this._initializerMap[id] && !this._inputMap[id] && node.op != 'NoOp') {
+            if (!this._initializerMap[id] && !this._inputMap[id] /* && node.op != 'NoOp' */) {
                 results.push(new TensorFlowNode(this, node));
             }
         });
@@ -320,11 +314,15 @@ class TensorFlowNode {
         var results = [];
         if (node.input) {
             node.input.forEach((input, index) => {
-                results.push({
-                    'id': input, 
-                    'name': graphMetadata ? graphMetadata.getInputName(node.op, index) : ('(' + index.toString() + ')'),
-                    'type': ''
-                });
+                var result = {};
+                if (input.startsWith('^')) {
+                    input = input.substring(1);                    
+                    result.control = true;
+                }
+                result.id = input;
+                result.name = graphMetadata.getInputName(node.op, index);
+                result.type = '';
+                results.push(result);
             });
         }
         return results;
@@ -336,11 +334,15 @@ class TensorFlowNode {
         var results = [];
         if (node.output) {
             node.output.forEach((output, index) => {
-                results.push({
-                    'id': output, 
-                    'name': graphMetadata ? graphMetadata.getOutputName(node.op, index) : ('(' + index.toString() + ')'),
-                    'type': ''
-                });
+                var result = {};
+                if (output.startsWith('^')) {
+                    output = output.substring(1);                    
+                    result.control = true;
+                }
+                result.id = output;
+                result.name = graphMetadata.getInputName(node.op, index);
+                result.type = '';
+                results.push(result);
             });
         }
         return results;
@@ -782,7 +784,7 @@ class TensorFlowGraphOperatorMetadata {
                     var input = {};
                     input.name = inputArg.name;
                     if (inputArg.type) {
-                        input.type = inputArg.type;
+                        input.type = TensorFlowTensor.formatDataType(inputArg.type);
                     }
                     else if (inputArg.typeAttr) {
                         input.type = inputArg.typeAttr;
@@ -802,7 +804,7 @@ class TensorFlowGraphOperatorMetadata {
                     var output = {};
                     output.name = outputArg.name;
                     if (outputArg.type) {
-                        output.type = outputArg.type;
+                        output.type = TensorFlowTensor.formatDataType(outputArg.type);
                     }
                     else if (outputArg.typeAttr) {
                         output.type = outputArg.typeAttr;

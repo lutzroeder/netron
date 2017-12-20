@@ -225,25 +225,39 @@ class OnnxNode {
 
     get inputs() {
         var results = [];
-        this._node.input.forEach((input, index) => {
-            results.push({
-                'id': input,
-                'name': OnnxOperatorMetadata.operatorMetadata.getInputName(this.operator, index),
-                'type': ''
-            });
-        });
+        for (var i = 0; i < this._node.input.length; i++) {
+            var result = {};
+            var inputMetadata = OnnxOperatorMetadata.operatorMetadata.getInput(this.operator, i);
+            result.name = inputMetadata.name;
+            result.type = inputMetadata.type;
+            if (inputMetadata.variadic) {
+                result.id = this._node.input.slice(i);
+                i = this._node.input.length;
+            }
+            else {
+                result.id = this._node.input[i];
+            }
+            results.push(result);
+        }
         return results;
     }
 
     get outputs() {
         var results = [];
-        this._node.output.forEach((output, index) => {
-            results.push({
-                id: output,
-                name: OnnxOperatorMetadata.operatorMetadata.getOutputName(this.operator, index),
-                type: ''
-            });
-        });
+        for (var i = 0; i < this._node.output.length; i++) {
+            var result = {};
+            var outputMetadata = OnnxOperatorMetadata.operatorMetadata.getOutput(this.operator, i);
+            result.name = outputMetadata.name;
+            result.type = outputMetadata.type;
+            if (outputMetadata.variadic) {
+                result.id = this._node.output.slice(i);
+                i = this._node.output.length;
+            }
+            else {
+                result.id = this._node.output[i];
+            }
+            results.push(result);
+        }
         return results;
     }
 
@@ -604,42 +618,40 @@ class OnnxOperatorMetadata {
         });
     }
 
-    getInputName(operator, index) {
+    getInput(operator, index) {
         var schema = this.map[operator];
         if (schema) {
             var inputs = schema.inputs;
             if (inputs && index < inputs.length) {
                 var input = inputs[index];
                 if (input) {
-                    if (!input.option || input.option != 'variadic') {
-                        var name = input.name;
-                        if (name) {
-                            return name;
-                        }
+                    var name = input.name;
+                    var variadic = input.option && input.option == 'variadic';
+                    if (name) {
+                        return { name: name, variadic: variadic, type: input.type };
                     }
                 } 
             }
         }
-        return '(' + index.toString() + ')';
+        return { name: '(' + index.toString() + ')' };
     }
 
-    getOutputName(operator, index) {
+    getOutput(operator, index) {
         var schema = this.map[operator];
         if (schema) {
             var outputs = schema.outputs;
             if (outputs && index < outputs.length) {
                 var output = outputs[index];
                 if (output) {
-                    if (!output.option || output.option != 'variadic') {
-                        var name = output.name;
-                        if (name) {
-                            return name;
-                        }
+                    var name = output.name;
+                    var variadic = output.option && output.option == 'variadic';
+                    if (name) {
+                        return { name: name, variadic: variadic, type: output.type };
                     }
                 } 
             }
         }
-        return '(' + index.toString() + ')';
+        return { name: '(' + index.toString() + ')' };
     }
 
     getAttributeType(operator, name) {
