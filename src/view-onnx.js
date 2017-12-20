@@ -104,6 +104,21 @@ class OnnxGraph {
                 this._outputMap[output] = count + 1;
             });
         });
+
+        this._initializerMap = [];
+        this._graph.initializer.forEach((tensor) => {
+            this._initializerMap[tensor.name] = new OnnxTensor(tensor, tensor.name, 'Initializer');
+        });
+        this._graph.node.forEach((node) => {
+            if (node.opType == 'Constant' && node.output && node.output.length == 1 && this._outputMap[node.output[0]] == 1) {
+                node.attribute.forEach((attribute) => {
+                    if (attribute.name == 'value' && attribute.t) {
+                        var name = node.output[0];
+                        this._initializerMap[name] = new OnnxTensor(attribute.t, name, 'Constant');
+                    }
+                });
+            }
+        });
     }
 
     get model() {
@@ -151,40 +166,19 @@ class OnnxGraph {
         return this._outputs;
     }
 
-    get initializers() {
-        if (!this._initializers) {
-            this._initializers = [];
-            this._graph.initializer.forEach((tensor) => {
-                this._initializers.push(new OnnxTensor(tensor, tensor.name, 'Initializer'));
-            });
-            this._graph.node.forEach((node) => {
-                if (node.opType == 'Constant' && node.output && node.output.length == 1 && this._outputMap[node.output[0]] == 1) {
-                    node.attribute.forEach((attribute) => {
-                        if (attribute.name == 'value' && attribute.t) {
-                            this._initializers.push(new OnnxTensor(attribute.t, node.output[0], 'Constant'));
-                        }
-                    });
-                }
-            });
-        }
-        return this._initializers;
-    }
-
     get nodes() {
         var results = [];
-        var initializerMap = {};
-        this.initializers.forEach((initializer) => {
-            initializerMap[initializer.id] = true;
-        });
         this._graph.node.forEach((node) => {
-            if (initializerMap[node.output[0]]) {
-
-            }
-            else {
+            if (!this._initializerMap[node.output[0]]) {
                 results.push(new OnnxNode(this, node));
             }
         });
         return results;
+    }
+
+    getInitializer(input) {
+        var initializer = this._initializerMap[input];
+        return initializer ? initializer : null;
     }
 }
 
@@ -236,6 +230,10 @@ class OnnxNode {
             }
             else {
                 result.id = this._node.input[i];
+                var initializer = this._graph.getInitializer(result.id);
+                if (initializer) {
+                    result.initializer = initializer;
+                }
             }
             results.push(result);
         }

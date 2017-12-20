@@ -115,12 +115,6 @@ function updateGraph(model) {
     var nodeId = 0;
     var edgeMap = {};
 
-    var initializerMap = {};
-    graph.initializers.forEach((initializer) => {
-        var id = initializer.id;
-        initializerMap[id] = initializer;
-    });
-
     graph.nodes.forEach((node) => {
         var formatter = new NodeFormatter();
         var style = node.constant ? 'node-item-constant' : 'node-item-operator';
@@ -129,28 +123,34 @@ function updateGraph(model) {
             showNodeOperatorDocumentation(node);
         });
 
-        var hasInitializerInputs = false;
         node.inputs.forEach((input) => {
-            if (initializerMap[input.id]) {
-                hasInitializerInputs = true;
-            }
-        });
-
-        node.inputs.forEach((input) => {
-            var initializer = !Array.isArray(input.id) && initializerMap[input.id];
-            if (initializer) {
-                if (!primitive || hasInitializerInputs) {
-                    formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
-                        showTensor(model, initializer);
-                    });
-                }
+            var inputIds = Array.isArray(input.id) ? input.id : [ input.id ];
+            if (input.initializer) {
+                var initializers = Array.isArray(input.initializer) ? input.initializer : [ input.initializer ];
+                initializers.forEach((initializer, index) => {
+                    if (initializer) {
+                        formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
+                            showTensor(model, initializer);
+                        });
+                    }
+                    else {
+                        formatter.addItem(input.name, null, input.type, null);
+                        var inputId = inputIds[index];
+                        var tuple = edgeMap[inputId];
+                        if (!tuple) {
+                            tuple = { from: null, to: [] };
+                            edgeMap[inputId] = tuple;
+                        }
+                        tuple.to.push({ 
+                            node: nodeId, 
+                            name: input.name,
+                            control: input.control
+                        });
+                    }
+                });
             }
             else {
-                // TODO is there a way to infer the type of the6 input?
-                if (!primitive || hasInitializerInputs) {
-                    formatter.addItem(input.name, null, input.type, null);
-                }
-                var inputIds = Array.isArray(input.id) ? input.id : [ input.id ];
+                formatter.addItem(input.name, null, input.type, null);
                 inputIds.forEach((inputId) => {
                     var tuple = edgeMap[inputId];
                     if (!tuple) {

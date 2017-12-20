@@ -86,7 +86,16 @@ class TensorFlowLiteGraph {
     constructor(model, graph, index) {
         this._model = model;
         this._graph = graph;
-        this._name = this._graph.name() ? this._graph.name() : ('(' + index.toString() + ')');            
+        this._name = this._graph.name() ? this._graph.name() : ('(' + index.toString() + ')'); 
+        
+        this._initializerMap = {};
+        for (var i = 0; i < graph.tensorsLength(); i++) {
+            var tensor = graph.tensors(i);
+            var buffer = model._model.buffers(tensor.buffer());
+            if (buffer.dataLength() > 0) {
+                this._initializerMap[i] = new TensorFlowLiteTensor(tensor, buffer, i);
+            }
+        }
     }
 
     get model() {
@@ -131,23 +140,6 @@ class TensorFlowLiteGraph {
         return this._outputs;
     }
 
-    get initializers() {
-        if (!this._initializers)
-        {
-            this._initializers = [];
-            var graph = this._graph;
-            var model = this._model._model;
-            for (var i = 0; i < graph.tensorsLength(); i++) {
-                var tensor = graph.tensors(i);
-                var buffer = model.buffers(tensor.buffer());
-                if (buffer.dataLength() > 0) {
-                    this._initializers.push(new TensorFlowLiteTensor(tensor, buffer, i));
-                }
-            }    
-        }
-        return this._initializers;
-    }
-
     get nodes() {
         /* for (var i = 0; i < graph.operatorsLength(); i++) {
             var node = graph.operators(i);
@@ -167,6 +159,11 @@ class TensorFlowLiteGraph {
             results.push(new TensorFlowLiteNode(this, node));
         } 
         return results;
+    }
+
+    getInitializer(tensorIndex) {
+        var initializer = this._initializerMap[tensorIndex];
+        return initializer ? initializer : null;
     }
 }
 
@@ -217,11 +214,16 @@ class TensorFlowLiteNode {
             for (var i = 0; i < node.inputsLength(); i++) {
                 var tensorIndex = node.inputs(i);
                 var tensor = graph.tensors(tensorIndex);
-                this._inputs.push({
+                var input = {
                     id: tensorIndex.toString(),
                     name: operatorMetadata.getInputName(this.operator, i),
                     type: TensorFlowLiteTensor.formatTensorType(tensor)
-                });
+                };
+                var initializer = this._graph.getInitializer(tensorIndex);
+                if (initializer) {
+                    input.initializer = initializer;
+                }
+                this._inputs.push(input);
             }
         }
         return this._inputs;
