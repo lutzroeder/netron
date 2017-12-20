@@ -57,6 +57,7 @@ function updateView(page) {
 }
 
 function openBuffer(err, buffer, identifier) {
+    sidebar.close();
     if (err) {
         hostService.showError(err.toString());
         updateView('welcome');

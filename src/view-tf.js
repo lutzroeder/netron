@@ -648,6 +648,7 @@ class TensorFlowTensor {
                 }
                 if (this._data) {
                     results.push(this.readDataValue());
+                    this._count++;
                 }
                 else {
                     if (this._rawData) {

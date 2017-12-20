@@ -233,6 +233,7 @@ class OnnxNode {
                 var initializer = this._graph.getInitializer(result.id);
                 if (initializer) {
                     result.initializer = initializer;
+                    result.type = initializer.type;
                 }
             }
             results.push(result);
@@ -481,6 +482,7 @@ class OnnxTensor {
                 }
                 if (this._data) {
                     results.push(this._data[this._index++]);
+                    this._count++;
                 }
                 else if (this._rawData) {
                     switch (this._tensor.dataType)

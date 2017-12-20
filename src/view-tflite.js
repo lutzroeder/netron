@@ -107,37 +107,33 @@ class TensorFlowLiteGraph {
     }
 
     get inputs() {
-        if (!this._inputs) {
-            this._inputs = [];
-            var graph = this._graph;
-            for (var i = 0; i < graph.inputsLength(); i++) {
-                var tensorIndex = graph.inputs(i);
-                var tensor = graph.tensors(tensorIndex);
-                this._inputs.push({ 
-                    id: tensorIndex.toString(),
-                    name: tensor.name(),
-                    type: TensorFlowLiteTensor.formatTensorType(tensor) 
-                });
-            }
+        var results = [];
+        var graph = this._graph;
+        for (var i = 0; i < graph.inputsLength(); i++) {
+            var tensorIndex = graph.inputs(i);
+            var tensor = graph.tensors(tensorIndex);
+            results.push({ 
+                id: tensorIndex.toString(),
+                name: tensor.name(),
+                type: TensorFlowLiteTensor.formatTensorType(tensor) 
+            });
         }
-        return this._inputs;
+        return results;
     }
 
     get outputs() {
-        if (!this._outputs) {
-            this._outputs = [];
-            var graph = this._graph;
-            for (var i = 0; i < graph.outputsLength(); i++) {
-                var tensorIndex = graph.outputs(i);
-                var tensor = graph.tensors(tensorIndex);
-                this._outputs.push({ 
-                    id: tensorIndex.toString(),
-                    name: tensor.name(),
-                    type: TensorFlowLiteTensor.formatTensorType(tensor) 
-                });
-            }
+        var results = [];
+        var graph = this._graph;
+        for (var i = 0; i < graph.outputsLength(); i++) {
+            var tensorIndex = graph.outputs(i);
+            var tensor = graph.tensors(tensorIndex);
+            results.push({ 
+                id: tensorIndex.toString(),
+                name: tensor.name(),
+                type: TensorFlowLiteTensor.formatTensorType(tensor) 
+            });
         }
-        return this._outputs;
+        return results;
     }
 
     get nodes() {
@@ -206,47 +202,43 @@ class TensorFlowLiteNode {
     }
 
     get inputs() {
-        if (!this._inputs) {
-            this._inputs = [];
-            var operatorMetadata = this._graph.model._operatorMetadata;
-            var graph = this._graph._graph;
-            var node = this._node;
-            for (var i = 0; i < node.inputsLength(); i++) {
-                var tensorIndex = node.inputs(i);
-                var tensor = graph.tensors(tensorIndex);
-                var input = {
-                    id: tensorIndex.toString(),
-                    name: operatorMetadata.getInputName(this.operator, i),
-                    type: TensorFlowLiteTensor.formatTensorType(tensor)
-                };
-                var initializer = this._graph.getInitializer(tensorIndex);
-                if (initializer) {
-                    input.initializer = initializer;
-                }
-                this._inputs.push(input);
+        var results = [];
+        var operatorMetadata = this._graph.model._operatorMetadata;
+        var graph = this._graph._graph;
+        var node = this._node;
+        for (var i = 0; i < node.inputsLength(); i++) {
+            var tensorIndex = node.inputs(i);
+            var tensor = graph.tensors(tensorIndex);
+            var input = {
+                id: tensorIndex.toString(),
+                name: operatorMetadata.getInputName(this.operator, i),
+                type: TensorFlowLiteTensor.formatTensorType(tensor)
+            };
+            var initializer = this._graph.getInitializer(tensorIndex);
+            if (initializer) {
+                input.initializer = initializer;
             }
+            results.push(input);
         }
-        return this._inputs;
+        return results;
     }
 
     get outputs() {
-        if (!this._outputs) {
-            this._outputs = [];
-            var operatorMetadata = this._graph.model._operatorMetadata;
-            var graph = this._graph._graph;
-            var node = this._node;
-            var result = [];
-            for (var i = 0; i < node.outputsLength(); i++) {
-                var tensorIndex = node.outputs(i);
-                var tensor = graph.tensors(tensorIndex);
-                this._outputs.push({
-                    id: tensorIndex.toString(),
-                    name: operatorMetadata.getOutputName(this.operator, i),
-                    type: TensorFlowLiteTensor.formatTensorType(tensor)
-                });
-            }
+        var results = [];
+        var operatorMetadata = this._graph.model._operatorMetadata;
+        var graph = this._graph._graph;
+        var node = this._node;
+        var result = [];
+        for (var i = 0; i < node.outputsLength(); i++) {
+            var tensorIndex = node.outputs(i);
+            var tensor = graph.tensors(tensorIndex);
+            results.push({
+                id: tensorIndex.toString(),
+                name: operatorMetadata.getOutputName(this.operator, i),
+                type: TensorFlowLiteTensor.formatTensorType(tensor)
+            });
         }
-        return this._outputs;
+        return results;
     }
 
     get attributes() {
