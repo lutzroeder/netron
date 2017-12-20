@@ -1,7 +1,7 @@
 
 <p align='center'><img width='400' src='media/logo.png'/></p>
 
-Netron is a viewer for [ONNX](http://onnx.ai) neural network models.
+Netron is a viewer for neural network models. Netron loads [ONNX](http://onnx.ai) models and TensorFlow Lite models and has experimental support for TensorFlow Graph and Saved Model files.
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 
@@ -40,11 +40,9 @@ Below are a few model files you can download and open:
 * [Inception v3 2015](https://storage.googleapis.com/download.tensorflow.org/models/tflite/inception_v3_2015_2017_11_10.zip)
 * [Inception v3 2016 Slim](https://storage.googleapis.com/download.tensorflow.org/models/tflite/inception_v3_slim_2016_android_2017_11_10.zip)
 
-<!--
-[**TensorFlow models**](https://github.com/tensorflow/models)
+**TensorFlow models**
 
 * [Inception v3 2016](https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz)
--->
 
 ## Install Python Model Server 
 
