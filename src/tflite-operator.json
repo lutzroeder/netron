@@ -3,12 +3,18 @@
     "name": "Conv2D",
     "schema": {
       "inputs": [
-        { "name": "X", "typeStr": "T" },
-        { "name": "weights", "typeStr": "T" },
-        { "name": "bias", "typeStr": "T" }
+        { "name": "X", "type": "T" },
+        { "name": "weights", "type": "T" },
+        { "name": "bias", "type": "T" }
       ],
       "outputs": [
-        { "name": "Y", "typeStr": "T" }
+        { "name": "Y", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "Padding" },
+        { "name": "stride_w", "type": "int" },
+        { "name": "stride_h", "type": "int" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
       ]
     }
   },
@@ -16,12 +22,19 @@
     "name": "DepthwiseConv2D",
     "schema": {
       "inputs": [
-        { "name": "X", "typeStr": "T" },
-        { "name": "weights", "typeStr": "T" },
-        { "name": "bias", "typeStr": "T" }
+        { "name": "X", "type": "T" },
+        { "name": "weights", "type": "T" },
+        { "name": "bias", "type": "T" }
       ],
       "outputs": [
-        { "name": "Y", "typeStr": "T" }
+        { "name": "Y", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "Padding" },
+        { "name": "stride_w", "type": "int" },
+        { "name": "stride_h", "type": "int" },
+        { "name": "depth_multiplier", "type": "int" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
       ]
     }
   },
@@ -29,10 +42,10 @@
     "name": "AveragePool2D",
     "schema": {
       "inputs": [
-        { "name": "X", "typeStr": "T" }
+        { "name": "X", "type": "T" }
       ],
       "outputs": [
-        { "name": "Y", "typeStr": "T" }
+        { "name": "Y", "type": "T" }
       ]
     }
   },
@@ -40,10 +53,10 @@
     "name": "Softmax",
     "schema": {
       "inputs": [
-        { "name": "input", "typeStr": "T" }
+        { "name": "input", "type": "T" }
       ],
       "outputs": [
-        { "name": "output", "typeStr": "T" }
+        { "name": "output", "type": "T" }
       ]
     }
   },
@@ -51,11 +64,11 @@
     "name": "Reshape",
     "schema": {
       "inputs": [
-        { "name": "data", "typeStr": "T" },
-        { "name": "shape", "typeStr": "T" }
+        { "name": "data", "type": "T" },
+        { "name": "shape", "type": "T" }
       ],
       "outputs": [
-        { "name": "reshaped", "typeStr": "T" }
+        { "name": "reshaped", "type": "T" }
       ]
     }
   },
@@ -63,7 +76,7 @@
     "name": "MaxPool2D",
     "schema": {
       "inputs": [
-        { "name": "X", "typeStr": "T" }
+        { "name": "X", "type": "T" }
       ]
     }
   },
@@ -140,6 +153,15 @@
       ],
       "outputs": [
         { "name": "ngrams" }
+      ]
+    }
+  },
+  {
+    "name": "Concatenation",
+    "schema": {
+      "attributes": [
+        { "name": "axis", "type": "int" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
       ]
     }
   }

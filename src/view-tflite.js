@@ -250,9 +250,10 @@ class TensorFlowLiteNode {
     get attributes() {
         if (!this._attributes) {
             this._attributes = [];
+            var operatorMetadata = this._graph.model._operatorMetadata;
             var node = this._node;
-            var operatorName = this._operator;
-            var optionsTypeName = 'tflite.' + operatorName + 'Options';
+            var operator = this._operator;
+            var optionsTypeName = 'tflite.' + operator + 'Options';
             var optionsType = eval(optionsTypeName);
             if (typeof optionsType === 'function') {
                 var options = eval('new ' + optionsTypeName + '()');
@@ -268,9 +269,10 @@ class TensorFlowLiteNode {
                         var attributeValue = options[attributeName]();
                         attributeValue = this.formatAttributeValue(attributeValue, attributeName, optionsTypeName);
                         if (attributeValue != null) {
+                            attributeName = this.formatAttributeName(attributeName);
                             this._attributes.push({
-                                name: this.formatAttributeName(attributeName),
-                                type: '',
+                                name: attributeName,
+                                type: operatorMetadata.getAttributeType(operator, attributeName),
                                 value: attributeValue
                             });
                         }
@@ -279,10 +281,6 @@ class TensorFlowLiteNode {
             }
         }
         return this._attributes;
-    }
-
-    get documentation() {
-        return null;
     }
 
     formatAttributeName(name) {
@@ -605,5 +603,26 @@ class TensorFlowLiteOperatorMetadata {
             }
         }
         return "(" + index.toString() + ")";
+    }
+
+    getAttributeType(operator, name) {
+        var schema = this.map[operator];
+        if (schema) {
+            var attributeMap = schema.attributeMap;
+            if (!attributeMap) {
+                attributeMap = {};
+                if (schema.attributes) {
+                    schema.attributes.forEach((attribute) => {
+                        attributeMap[attribute.name] = attribute;
+                    });
+                }
+                schema.attributeMap = attributeMap;
+            }
+            var attributeEntry = attributeMap[name];
+            if (attributeEntry) { 
+                return attributeEntry.type;
+            }
+        }
+        return '';
     }
 }
