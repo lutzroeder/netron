@@ -20,5 +20,5 @@
 .node-attribute:hover path { fill: #f6f6f6; }
 
 .edgeLabel text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
-.edgePath path { stroke: #000; stroke-width: 1px; fill: none; }
+.edgePath { stroke: #000; stroke-width: 1px; fill: none; }
 .node rect { stroke: none; fill: none; stroke-width: 0; }

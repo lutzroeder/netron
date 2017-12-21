@@ -47,12 +47,12 @@ scripts = [ 'src/netron' ]
 
 custom_files = [ 
     ( 'netron', [
-        'node_modules/protobufjs/dist/protobuf.js',
-        'node_modules/flatbuffers/js/flatbuffers.js',
-        'node_modules/handlebars/dist/handlebars.js',
+        'node_modules/d3/build/d3.min.js',
+        'node_modules/dagre/dist/dagre.min.js',
+        'node_modules/handlebars/dist/handlebars.min.js',
         'node_modules/marked/marked.min.js',
-        'node_modules/dagre-d3-renderer/dist/dagre-d3.core.js',
-        'node_modules/dagre-d3-renderer/dist/dagre-d3.js',
+        'node_modules/protobufjs/dist/protobuf.min.js',
+        'node_modules/flatbuffers/js/flatbuffers.js',
         'node_modules/npm-font-open-sans/open-sans.css' ]),
     ( 'netron/fonts/Regular', [
         'node_modules/npm-font-open-sans/fonts/Regular/OpenSans-Regular.eot',

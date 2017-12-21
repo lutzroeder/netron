@@ -17,7 +17,8 @@
         "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
-        "dagre-d3-renderer": "x.x.x",
+        "dagre": "x.x.x",
+        "d3": "x.x.x",
         "electron-updater": "^2.17.6",
         "flatbuffers": "^1.8.0",
         "handlebars": "x.x.x",

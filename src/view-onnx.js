@@ -319,14 +319,14 @@ class OnnxAttribute {
                 if (s.filter(c => c <= 32 && c >= 128).length == 0) {
                     return '"' + String.fromCharCode.apply(null, s) + '"';
                 }
-                return s.map(v => v.toString()).join(', ');    
+                return s.map(v => v.toString()).join(', ');
             }).join(', ');
         }
         else if (this._attribute.s && this._attribute.s.length > 0) {
             if (this._attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
                 return '"' + String.fromCharCode.apply(null, this._attribute.s) + '"';
             }
-            return this._attribute.s.map(v => v.toString()).join(', ');           
+            return this._attribute.s.map(v => v.toString()).join(', ');
         }
         else if (this._attribute.hasOwnProperty('f')) {
             return this._attribute.f.toString();

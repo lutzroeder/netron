@@ -1,5 +1,115 @@
 /*jshint esversion: 6 */
 
+class GraphRenderer {
+
+    constructor(svg) {
+        this._svg = svg;
+    }
+
+    render(graph) {
+
+        var svgEdgePaths = this._svg.append('g').classed('edgePaths', true);
+        var svtEdgeLabels = this._svg.append('g').classed('edgeLabels', true);
+        var svgNodes = this._svg.append('g').classed('nodes', true);
+
+        graph.nodes().forEach((nodeId) => {
+            var node = graph.node(nodeId);
+            var svgNode = svgNodes.append('g').classed('node', true).style('opacity', 0);
+            svgNode.node().appendChild(node.label);
+            if (node.hasOwnProperty('class')) {
+                svgNode.classed(node.class, true);
+            }
+            var bbox = node.label.getBBox();
+            var x = - bbox.width / 2;
+            var y = - bbox.height / 2;
+            d3.select(node.label).attr('transform', 'translate(' + x + ',' + y + ')');
+            node.width = bbox.width;
+            node.height = bbox.height;
+            node.element = svgNode;
+        });
+
+        graph.edges().forEach((edgeId) => {
+            var edge = graph.edge(edgeId);
+            var svgEdgeLabel = svtEdgeLabels.append('g').classed('edgeLabel', true).style('opacity', 0);
+            var edgeLabel = svgEdgeLabel.append('text');
+            edgeLabel.append('tspan').attr('xml:space', 'preserve').attr('dy', '1em').attr('x', '1').text(edge.label);
+            var bbox = edgeLabel.node().getBBox();
+            var x = - bbox.width / 2;
+            var y = - bbox.height / 2;
+            edgeLabel.attr('transform', 'translate(' + x + ',' + y + ')');
+            edge.width = bbox.width;
+            edge.height = bbox.height;
+            edge.element = svgEdgeLabel;
+        });
+
+        dagre.layout(graph);
+
+        graph.nodes().forEach((nodeId) => {
+            var node = graph.node(nodeId);
+            node.element.attr('transform', 'translate(' + node.x + ',' + node.y + ')').style('opacity', 1);
+        });
+
+        graph.edges().forEach((edgeId) => {
+            var edge = graph.edge(edgeId);
+            edge.element.attr('transform', 'translate(' + edge.x + ',' + edge.y + ')').style('opacity', 1);
+        });
+
+        svgEdgePaths.append('defs')
+            .append('marker')
+                .attr('id', 'arrowhead-vee')
+                .attr('viewBox', '0 0 10 10').attr('refX', 9).attr('refY', 5)
+                .attr('markerUnits', 'strokeWidth').attr('markerWidth', 8).attr('markerHeight', 6).attr('orient', 'auto')
+            .append('path')
+                .attr('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z')
+                .style('stroke-width', 1).style('stroke-dasharray', '1,0');   
+        graph.edges().forEach((edgeId) => {
+            var points = GraphRenderer.calcPoints(graph, edgeId);
+            var svgEdge = svgEdgePaths.append('path').classed('edgePath', true).attr('d', points);
+            svgEdge.attr('marker-end', 'url(#arrowhead-vee)');
+        });
+    }
+
+    static calcPoints(g, e) {
+        const edge = g.edge(e);
+        const tail = g.node(e.v);
+        const head = g.node(e.w);
+        const points = edge.points.slice(1, edge.points.length - 1);
+        points.unshift(GraphRenderer.intersectRect(tail, points[0]));
+        points.push(GraphRenderer.intersectRect(head, points[points.length - 1]));
+        var line = d3.line().x(d => d.x).y(d => d.y);
+        if (edge.hasOwnProperty('curve')) {
+            line.curve(edge.curve);
+        }
+        return line(points);
+      }
+      
+    static intersectRect(node, point) {
+        var x = node.x;
+        var y = node.y;
+        var dx = point.x - x;
+        var dy = point.y - y;
+        var w = node.width / 2;
+        var h = node.height / 2;
+        var sx;
+        var sy;
+        if (Math.abs(dy) * w > Math.abs(dx) * h) {
+        if (dy < 0) {
+            h = -h;
+        }
+        sx = dy === 0 ? 0 : h * dx / dy;
+        sy = h;
+        }
+        else {
+            if (dx < 0) {
+                w = -w;
+            }
+            sx = w;
+            sy = dx === 0 ? 0 : w * dy / dx;
+        }      
+        return {x: x + sx, y: y + sy};
+      }    
+}
+
 class NodeFormatter {
 
     constructor(context) {

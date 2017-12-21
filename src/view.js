@@ -99,9 +99,9 @@ function updateGraph(model) {
     while (svgElement.lastChild) {
         svgElement.removeChild(svgElement.lastChild);
     }
-    var svg = dagreD3.d3.select(svgElement);
+    var svg = d3.select(svgElement);
 
-    var g = new dagreD3.graphlib.Graph();
+    var g = new dagre.graphlib.Graph();
     g.setGraph({ });
     // g.setGraph({ align: 'DR' });
     // g.setGraph({ ranker: 'network-simplex' });
@@ -203,7 +203,7 @@ function updateGraph(model) {
             });
         }
 
-        g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 });
+        g.setNode(nodeId++, { label: formatter.format(svg).node() });
     });
 
     graph.inputs.forEach((input) => {
@@ -219,7 +219,7 @@ function updateGraph(model) {
 
         var formatter = new NodeFormatter();
         formatter.addItem(input.name, null, input.type, null);
-        g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input', labelType: 'svg', padding: 0 } ); 
+        g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input' } ); 
     });
 
     graph.outputs.forEach((output) => {
@@ -256,10 +256,10 @@ function updateGraph(model) {
                 }
 
                 if (to.control) { 
-                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', lineInterpolate: "basis", style: 'stroke-dasharray: 5, 5;' } );
+                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, style: 'stroke-dasharray: 5, 5;' } );
                 }
                 else {
-                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', lineInterpolate: "basis" } );
+                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis } );
                 }
             });
         }
@@ -272,19 +272,23 @@ function updateGraph(model) {
         }
     });
 
-    var inner = svg.append('g');
+    var output = svg.append('g');
 
     // Set up zoom support
-    var zoom = dagreD3.d3.behavior.zoom().scaleExtent([0.1, 2]).on('zoom', function() {
-        inner.attr('transform', 'translate(' + dagreD3.d3.event.translate + ')' + 'scale(' + dagreD3.d3.event.scale + ')');
+    var zoom = d3.zoom();
+    zoom.scaleExtent([0.1, 2]);
+    zoom.on('zoom', function() {
+        output.attr('transform', d3.event.transform);
     });
     svg.call(zoom);
 
     setTimeout(function () {
 
-        var render = new dagreD3.render();
-        render(dagreD3.d3.select('svg g'), g);
-    
+        var svgOutput = output;
+
+        var graphRenderer = new GraphRenderer(svgOutput);
+        graphRenderer.render(g);
+
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
         svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
@@ -297,15 +301,16 @@ function updateGraph(model) {
             var x = 0;
             var y = 0;
             for (var i = 0; i < inputElements.length; i++) {
-                var inputTransform = dagreD3.d3.transform(dagreD3.d3.select(inputElements[i]).attr('transform'));
-                x += inputTransform.translate[0];
-                y += inputTransform.translate[1];
+                var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                x += inputTransform.e;
+                y += inputTransform.f;
             }
             x = x / inputElements.length;
             y = y / inputElements.length;
-            zoom.translate([ 
-                (svgSize.width / 2) - x,
-                (svgSize.height / 4) - y ]).event(svg);
+
+            zoom.translateBy(svg, (svgSize.width / 2) - x, (svgSize.height / 4) - y);
+
+            output.append('rect').attr('width', 2).attr('height', 2).style('fill', '#f00');
         }
         else {
         //    zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
