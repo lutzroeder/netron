@@ -1,8 +1,5 @@
 /*jshint esversion: 6 */
 
-debugger;
-// electron.remote.getCurrentWindow().webContents.openDevTools();
-
 hostService.initialize(openBuffer);
 
 document.documentElement.style.overflow = 'hidden';

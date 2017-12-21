@@ -44,7 +44,13 @@ class ElectronHostService {
                 this.openFile(files[i].path, i == 0);
             }
             return false;
-        });      
+        });  
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.which == 123) {
+                electron.remote.getCurrentWindow().toggleDevTools();
+            }
+        });
     }
 
     openFile(file, drop) {
