@@ -1,49 +1,22 @@
 #!/usr/bin/env python
 
+import argparse
 import sys
 import netron
 import os
 
 if __name__ == '__main__':
-    args = sys.argv[1:]
-    show_help = False
-    verbose = False
-    port = 8080
-    host = 'localhost'
-    browse = False
-    tensor = False
-    file = ''
-    while len(args) > 0:
-        arg = args.pop(0)
-        if (arg == '--help' or arg == '-h'):
-            show_help = True
-        if (arg == '--verbose' or arg == '-v'):
-            verbose = True
-        elif (arg == '--port' or arg == '-p') and len(args) > 0 and args[0].isdigit(): 
-            port = int(args.pop(0))
-        elif (arg == '--host') and len(args) > 0 and args[0].isdigit(): 
-            host = int(args.pop(0))
-        elif arg == '--browse' or arg == '-b':
-            browse = True
-        elif arg == '--tensor' or arg == '-t':
-            tensor = True
-        elif not arg.startswith('-'):
-            file = arg
-    if show_help or len(file) == 0:
-        print('')
-        print('Usage: netron [--help]')
-        print('              [--browse] [--port PORT] [--initializer] MODEL_FILE')
-        print('')
-        print('Options:')
-        print('  -h, --help          Show this help message.')
-        print('  -v, --verbose       Log details to console.')
-        print('  -p, --port PORT     Port to serve (default: 8080).')
-        print('  -b, --browse        Launch web browser.')
-        print('  -t, --tensor        Keep all tensor data.')
-        print('')
-        sys.exit(1)
-    if not os.path.exists(file):
-        print("Model file '" + file + "' does not exist.")
+    parser = argparse.ArgumentParser(description='Viewer for neural network models.')
+    parser.add_argument('file', metavar='MODEL_FILE', help='model file to serve')
+    parser.add_argument('-v', '--verbose', help='log details to console', action='store_true')
+    parser.add_argument('--port', help='port to serve (default: 8080)', type=int, default=8080)
+    parser.add_argument('--host', help='host to serve (default: localhost)', default='localhost')
+    parser.add_argument('--browse', help='launch web browser', action='store_true')
+    parser.add_argument('-t', '--tensor', help='skip removing tensor data', action='store_true')
+    args = parser.parse_args()
+    print(args.file)
+    if not os.path.exists(args.file):
+        print("Model file '" + args.file + "' does not exist.")
         sys.exit(2)
-    netron.serve_file(file, verbose=verbose, browse=browse, port=port, host=host, tensor=tensor)
+    netron.serve_file(args.file, verbose=args.verbose, browse=args.browse, port=args.port, host=args.host, tensor=args.tensor)
     sys.exit(0)
