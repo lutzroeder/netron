@@ -1,13 +1,38 @@
 
-sudo rm -rf build
-sudo rm -rf dist
+clean() {
+    sudo rm -rf build
+    sudo rm -rf dist
+}
 
-./setup.py build bdist_wheel upload
+pip() {
+    ./setup.py build bdist_wheel upload
+}
 
-export GH_TOKEN=${GITHUB_TOKEN} 
-npm run release
+github() {
+    export GH_TOKEN=${GITHUB_TOKEN} 
+    npm run release
+}
 
-PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
-curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/caskroom/homebrew-cask/forks -d ''
-cask-repair --cask-version ${PACKAGE_VERSION} --blind-submit netron
-curl -H "Authorization: token ${GITHUB_TOKEN}" -X "DELETE" https://api.github.com/repos/lutzroeder/homebrew-cask
+cask() {
+    PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
+    curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/caskroom/homebrew-cask/forks -d ''
+    cask-repair --cask-version ${PACKAGE_VERSION} --blind-submit netron
+    curl -H "Authorization: token ${GITHUB_TOKEN}" -X "DELETE" https://api.github.com/repos/lutzroeder/homebrew-cask
+}
+
+all() {
+    clean
+    pip
+    github
+    sleep 1m
+    cask
+}
+
+target="$1"
+
+case "${target}" in
+    "pip") pip;;
+    "github") github;;
+    "cask") cask;;
+    *) all;
+esac
