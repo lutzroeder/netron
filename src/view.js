@@ -99,7 +99,6 @@ function updateGraph(model) {
     while (svgElement.lastChild) {
         svgElement.removeChild(svgElement.lastChild);
     }
-    var svg = d3.select(svgElement);
 
     var g = new dagre.graphlib.Graph();
     g.setGraph({ });
@@ -203,7 +202,7 @@ function updateGraph(model) {
             });
         }
 
-        g.setNode(nodeId++, { label: formatter.format(svg).node() });
+        g.setNode(nodeId++, { label: formatter.format(svgElement) });
     });
 
     graph.inputs.forEach((input) => {
@@ -219,7 +218,7 @@ function updateGraph(model) {
 
         var formatter = new NodeFormatter();
         formatter.addItem(input.name, null, input.type, null);
-        g.setNode(nodeId++, { label: formatter.format(svg).node(), class: 'graph-input' } ); 
+        g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
     });
 
     graph.outputs.forEach((output) => {
@@ -237,7 +236,7 @@ function updateGraph(model) {
 
         var formatter = new NodeFormatter();
         formatter.addItem(output.name, null, output.type, null);
-        g.setNode(nodeId++, { label: formatter.format(svg).node(), labelType: 'svg', padding: 0 } ); 
+        g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
     });
 
     Object.keys(edgeMap).forEach((edge) => {
@@ -256,7 +255,7 @@ function updateGraph(model) {
                 }
 
                 if (to.control) { 
-                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, style: 'stroke-dasharray: 5, 5;' } );
+                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
                 }
                 else {
                     g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis } );
@@ -272,27 +271,33 @@ function updateGraph(model) {
         }
     });
 
-    var output = svg.append('g');
+    // Workaround for Safari background drag/zoom issue:
+    // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+    var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('width', '100%');
+    rect.setAttribute('height', '100%');
+    rect.setAttribute('fill', 'none');
+    rect.setAttribute('pointer-events', 'all');
+    svgElement.appendChild(rect);
+
+    var outputGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    svgElement.appendChild(outputGroup);
 
     // Set up zoom support
     var zoom = d3.zoom();
     zoom.scaleExtent([0.1, 2]);
-    zoom.on('zoom', function() {
-        output.attr('transform', d3.event.transform);
+    zoom.on('zoom', function(e) {
+        outputGroup.setAttribute('transform', d3.event.transform.toString());
     });
-    svg.call(zoom);
+    var svg = d3.select(svgElement);
+    // zoom.transform(svg, d3.zoomIdentity);
+    zoom(svg);
 
     setTimeout(function () {
 
-        var svgOutput = output;
-
-        var graphRenderer = new GraphRenderer(svgOutput);
+        var graphRenderer = new GraphRenderer(outputGroup);
         graphRenderer.render(g);
 
-        // Workaround for Safari background drag/zoom issue:
-        // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-        svg.insert('rect', ':first-child').attr('width', '100%').attr('height', '100%').attr('fill', 'none').attr('pointer-events', 'all');
-    
         var svgSize = svgElement.getBoundingClientRect();
 
         var inputElements = svgElement.getElementsByClassName('graph-input');
@@ -311,7 +316,7 @@ function updateGraph(model) {
             zoom.translateBy(svg, (svgSize.width / 2) - x, (svgSize.height / 4) - y);
         }
         else {
-        //    zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
+            zoom.translateBy(svg, (svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2);
         }    
     
         updateView('graph');

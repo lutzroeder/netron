@@ -2,20 +2,19 @@
 
 class GraphRenderer {
 
-    constructor(svg) {
-        this._svg = svg;
-        this._svgElement = svg.node();
+    constructor(svgElement) {
+        this._svgElement = svgElement;
         this._svgNamespace = 'http://www.w3.org/2000/svg';
     }
 
     render(graph) {
 
         var svgEdgePathGroup = document.createElementNS(this._svgNamespace, 'g');
-        svgEdgePathGroup.setAttribute('class', 'edgePaths');
+        svgEdgePathGroup.setAttribute('class', 'edge-paths');
         this._svgElement.appendChild(svgEdgePathGroup);
 
         var svgEdgeLabelGroup = document.createElementNS(this._svgNamespace, 'g');
-        svgEdgeLabelGroup.setAttribute('class', 'edgeLabes');
+        svgEdgeLabelGroup.setAttribute('class', 'edge-labels');
         this._svgElement.appendChild(svgEdgeLabelGroup);
 
         var svgNodeGroup = document.createElementNS(this._svgNamespace, 'g');
@@ -42,13 +41,20 @@ class GraphRenderer {
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
+            var tspan = document.createElementNS(this._svgNamespace, 'tspan');
+            tspan.setAttribute('xml:space', 'preserve');
+            tspan.setAttribute('dy', '1em');
+            tspan.setAttribute('x', '1');
+            tspan.appendChild(document.createTextNode(edge.label));
+            var text = document.createElementNS(this._svgNamespace, 'text');
+            text.appendChild(tspan);
+            var container = document.createElementNS(this._svgNamespace, 'g');
+            container.appendChild(text);
             var element = document.createElementNS(this._svgNamespace, 'g');
             element.style.setProperty('opacity', 0);
-            element.setAttribute('class', 'edgeLabel');
-            svgEdgeLabelGroup.appendChild(element);
-            var container = document.createElementNS(this._svgNamespace, 'g');
-            d3.select(container).append('text').append('tspan').attr('xml:space', 'preserve').attr('dy', '1em').attr('x', '1').text(edge.label);
+            element.setAttribute('class', 'edge-label');
             element.appendChild(container);
+            svgEdgeLabelGroup.appendChild(element);
             var bbox = container.getBBox();
             var x = - bbox.width / 2;
             var y = - bbox.height / 2;
@@ -86,22 +92,16 @@ class GraphRenderer {
                 .style('stroke-width', 1).style('stroke-dasharray', '1,0');   
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            var points = GraphRenderer.calcPoints(graph, edgeId);
+            var points = GraphRenderer.calcPoints(edge, graph.node(edgeId.v), graph.node(edgeId.w));
             var element = document.createElementNS(this._svgNamespace, 'path');
-            element.setAttribute('class', 'edgePath');
+            element.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
             element.setAttribute('d', points);
             element.setAttribute('marker-end', 'url(#arrowhead-vee)');
-            if (edge.hasOwnProperty('style')) {
-                element.setAttribute('style', edge.style);
-            }
             svgEdgePathGroup.appendChild(element);
         });
     }
 
-    static calcPoints(g, e) {
-        const edge = g.edge(e);
-        const tail = g.node(e.v);
-        const head = g.node(e.w);
+    static calcPoints(edge, tail, head) {
         const points = edge.points.slice(1, edge.points.length - 1);
         points.unshift(GraphRenderer.intersectRect(tail, points[0]));
         points.push(GraphRenderer.intersectRect(head, points[points.length - 1]));
@@ -141,7 +141,7 @@ class GraphRenderer {
 
 class NodeFormatter {
 
-    constructor(context) {
+    constructor() {
         this.items = [];
         this.attributes = [];
     }
@@ -172,7 +172,7 @@ class NodeFormatter {
     }
 
     format(context) {
-        var root = context.append('g');
+        var root = d3.select(context).append('g');
         var hasAttributes = this.attributes && this.attributes.length > 0;
         var x = 0;
         var y = 0;
@@ -289,8 +289,8 @@ class NodeFormatter {
         }
         root.append('path').classed('node', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
 
-        context.html("");
-        return root;
+        context.innerHTML = '';
+        return root.node();
     }
 
     roundedRect(x, y, width, height, r1, r2, r3, r4) {

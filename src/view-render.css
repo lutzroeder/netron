@@ -19,6 +19,6 @@
 .node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }
 .node-attribute:hover path { fill: #f6f6f6; }
 
-.edgeLabel text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
-.edgePath { stroke: #000; stroke-width: 1px; fill: none; }
-.node rect { stroke: none; fill: none; stroke-width: 0; }
+.edge-label text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
+.edge-path { stroke: #000; stroke-width: 1px; fill: none; }
+.edge-path-control { stroke-dasharray: 5, 5; }
