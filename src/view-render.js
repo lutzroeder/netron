@@ -4,57 +4,79 @@ class GraphRenderer {
 
     constructor(svg) {
         this._svg = svg;
+        this._svgElement = svg.node();
+        this._svgNamespace = 'http://www.w3.org/2000/svg';
     }
 
     render(graph) {
 
-        var svgEdgePaths = this._svg.append('g').classed('edgePaths', true);
-        var svtEdgeLabels = this._svg.append('g').classed('edgeLabels', true);
-        var svgNodes = this._svg.append('g').classed('nodes', true);
+        var svgEdgePathGroup = document.createElementNS(this._svgNamespace, 'g');
+        svgEdgePathGroup.setAttribute('class', 'edgePaths');
+        this._svgElement.appendChild(svgEdgePathGroup);
+
+        var svgEdgeLabelGroup = document.createElementNS(this._svgNamespace, 'g');
+        svgEdgeLabelGroup.setAttribute('class', 'edgeLabes');
+        this._svgElement.appendChild(svgEdgeLabelGroup);
+
+        var svgNodeGroup = document.createElementNS(this._svgNamespace, 'g');
+        svgNodeGroup.setAttribute('class', 'nodes');
+        this._svgElement.appendChild(svgNodeGroup);
 
         graph.nodes().forEach((nodeId) => {
             var node = graph.node(nodeId);
-            var svgNode = svgNodes.append('g').classed('node', true).style('opacity', 0);
-            svgNode.node().appendChild(node.label);
-            if (node.hasOwnProperty('class')) {
-                svgNode.classed(node.class, true);
-            }
+            var element = document.createElementNS(this._svgNamespace, 'g');
+            element.setAttribute('class', node.hasOwnProperty('class') ? ('node ' + node.class) : 'node');
+            element.style.setProperty('opacity', 0);
+            var container = document.createElementNS(this._svgNamespace, 'g');
+            container.appendChild(node.label);
+            element.appendChild(container);
+            svgNodeGroup.appendChild(element);
             var bbox = node.label.getBBox();
             var x = - bbox.width / 2;
             var y = - bbox.height / 2;
-            d3.select(node.label).attr('transform', 'translate(' + x + ',' + y + ')');
+            container.setAttribute('transform', 'translate(' + x + ',' + y + ')');
             node.width = bbox.width;
             node.height = bbox.height;
-            node.element = svgNode;
+            node.element = element;
         });
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            var svgEdgeLabel = svtEdgeLabels.append('g').classed('edgeLabel', true).style('opacity', 0);
-            var edgeLabel = svgEdgeLabel.append('text');
-            edgeLabel.append('tspan').attr('xml:space', 'preserve').attr('dy', '1em').attr('x', '1').text(edge.label);
-            var bbox = edgeLabel.node().getBBox();
+            var element = document.createElementNS(this._svgNamespace, 'g');
+            element.style.setProperty('opacity', 0);
+            element.setAttribute('class', 'edgeLabel');
+            svgEdgeLabelGroup.appendChild(element);
+            var container = document.createElementNS(this._svgNamespace, 'g');
+            d3.select(container).append('text').append('tspan').attr('xml:space', 'preserve').attr('dy', '1em').attr('x', '1').text(edge.label);
+            element.appendChild(container);
+            var bbox = container.getBBox();
             var x = - bbox.width / 2;
             var y = - bbox.height / 2;
-            edgeLabel.attr('transform', 'translate(' + x + ',' + y + ')');
+            container.setAttribute('transform', 'translate(' + x + ',' + y + ')');
             edge.width = bbox.width;
             edge.height = bbox.height;
-            edge.element = svgEdgeLabel;
+            edge.element = element;
         });
 
         dagre.layout(graph);
 
         graph.nodes().forEach((nodeId) => {
             var node = graph.node(nodeId);
-            node.element.attr('transform', 'translate(' + node.x + ',' + node.y + ')').style('opacity', 1);
+            var element = node.element;
+            element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+            element.style.setProperty('opacity', 1);
+            delete node.element;
         });
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            edge.element.attr('transform', 'translate(' + edge.x + ',' + edge.y + ')').style('opacity', 1);
+            var element = edge.element;
+            element.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
+            element.style.setProperty('opacity', 1);
+            delete edge.element;
         });
 
-        svgEdgePaths.append('defs')
+        d3.select(svgEdgePathGroup).append('defs')
             .append('marker')
                 .attr('id', 'arrowhead-vee')
                 .attr('viewBox', '0 0 10 10').attr('refX', 9).attr('refY', 5)
@@ -63,9 +85,16 @@ class GraphRenderer {
                 .attr('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z')
                 .style('stroke-width', 1).style('stroke-dasharray', '1,0');   
         graph.edges().forEach((edgeId) => {
+            var edge = graph.edge(edgeId);
             var points = GraphRenderer.calcPoints(graph, edgeId);
-            var svgEdge = svgEdgePaths.append('path').classed('edgePath', true).attr('d', points);
-            svgEdge.attr('marker-end', 'url(#arrowhead-vee)');
+            var element = document.createElementNS(this._svgNamespace, 'path');
+            element.setAttribute('class', 'edgePath');
+            element.setAttribute('d', points);
+            element.setAttribute('marker-end', 'url(#arrowhead-vee)');
+            if (edge.hasOwnProperty('style')) {
+                element.setAttribute('style', edge.style);
+            }
+            svgEdgePathGroup.appendChild(element);
         });
     }
 

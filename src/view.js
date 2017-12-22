@@ -309,8 +309,6 @@ function updateGraph(model) {
             y = y / inputElements.length;
 
             zoom.translateBy(svg, (svgSize.width / 2) - x, (svgSize.height / 4) - y);
-
-            output.append('rect').attr('width', 2).attr('height', 2).style('fill', '#f00');
         }
         else {
         //    zoom.translate([ (svgSize.width - g.graph().width) / 2, 40 ]).event(svg);
