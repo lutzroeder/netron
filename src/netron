@@ -14,7 +14,6 @@ if __name__ == '__main__':
     parser.add_argument('--browse', help='launch web browser', action='store_true')
     parser.add_argument('-t', '--tensor', help='skip removing tensor data', action='store_true')
     args = parser.parse_args()
-    print(args.file)
     if not os.path.exists(args.file):
         print("Model file '" + args.file + "' does not exist.")
         sys.exit(2)

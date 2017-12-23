@@ -24,7 +24,7 @@ package_data={
         'onnx.js',
         'onnx-operator.json',
         'tf.js',
-        'tf-operator.json',
+        'tf-operator.pb',
         'tflite.js',
         'tflite-operator.json',
         'favicon.ico',
