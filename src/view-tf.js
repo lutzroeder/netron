@@ -219,10 +219,12 @@ class TensorFlowGraph {
         // });
         var results = [];
         this._graph.graphDef.node.forEach((node) => {
-            var id = node.name + ':0';
-            if (!this._initializerMap[id] && !this._inputMap[id] /* && node.op != 'NoOp' */) {
-                results.push(new TensorFlowNode(this, node));
-            }    
+             if (node.op != 'NoOp') {
+                var id = node.name + ':0';
+                if (!this._initializerMap[id] && !this._inputMap[id] /* && node.op != 'NoOp' */) {
+                    results.push(new TensorFlowNode(this, node));
+                }    
+             }
         });
         return results;
     }

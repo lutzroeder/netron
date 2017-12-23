@@ -100,7 +100,7 @@ function updateGraph(model) {
         svgElement.removeChild(svgElement.lastChild);
     }
 
-    var compound = false;
+    var compound = true;
 
     var g = new dagre.graphlib.Graph({ compound: compound });
     g.setGraph({});
@@ -115,6 +115,23 @@ function updateGraph(model) {
     var edgeMap = {};
 
     var clusterMap = {};
+    var clusterParentMap = {};
+
+    if (compound) {
+        graph.nodes.forEach((node) => {
+            if (node.name) {
+                var path = node.name.split('/');
+                if (path.length > 1) {
+                    path.pop();
+                }
+                while (path.length > 0) {
+                    var name = path.join('/');
+                    path.pop();
+                    clusterParentMap[name] = path.join('/');
+                }
+            }
+        });
+    }
 
     graph.nodes.forEach((node) => {
         var formatter = new NodeFormatter();
@@ -221,21 +238,35 @@ function updateGraph(model) {
 
         g.setNode(nodeId, { label: formatter.format(svgElement) });
 
-        function addCluster(clusterMap, name, nodeId) {
-            var lastIndex = name.lastIndexOf('/');
-            if (lastIndex != -1) {
-                var clusterName = name.substring(0, lastIndex);
-                var cluster = clusterMap[clusterName];
-                if (!cluster) {
-                    g.setNode(clusterName, { rx: 5, ry: 5 });
-                    clusterMap[clusterName] = clusterName;
+        function createCluster(name) {
+            if (!clusterMap[name]) {
+                g.setNode(name, { rx: 5, ry: 5});
+                clusterMap[name] = true;
+                var parent = clusterParentMap[name];
+                if (parent) {
+                    createCluster(parent);
+                    g.setParent(name, parent);
                 }
-                g.setParent(nodeId, clusterName);
-                addCluster(clusterMap, clusterName, clusterName);
             }
         }
         if (compound && node.name) {
-            addCluster(clusterMap, node.name, nodeId);
+            var name = node.name;
+            if (!clusterParentMap.hasOwnProperty(name)) {
+                var lastIndex = name.lastIndexOf('/');
+                if (lastIndex != -1) {
+                    name = name.substring(0, lastIndex);
+                    if (!clusterParentMap.hasOwnProperty(name)) {
+                        name = null;
+                    }
+                }
+                else {
+                    name = null;
+                }
+            }
+            if (name) {
+                createCluster(name);
+                g.setParent(nodeId, name);
+            }
         }
 
         nodeId++;
