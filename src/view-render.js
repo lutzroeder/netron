@@ -9,6 +9,10 @@ class GraphRenderer {
 
     render(graph) {
 
+        var svgClusterGroup = document.createElementNS(this._svgNamespace, 'g');
+        svgClusterGroup.setAttribute('class', 'clusters');
+        this._svgElement.appendChild(svgClusterGroup);
+
         var svgEdgePathGroup = document.createElementNS(this._svgNamespace, 'g');
         svgEdgePathGroup.setAttribute('class', 'edge-paths');
         this._svgElement.appendChild(svgEdgePathGroup);
@@ -22,21 +26,23 @@ class GraphRenderer {
         this._svgElement.appendChild(svgNodeGroup);
 
         graph.nodes().forEach((nodeId) => {
-            var node = graph.node(nodeId);
-            var element = document.createElementNS(this._svgNamespace, 'g');
-            element.setAttribute('class', node.hasOwnProperty('class') ? ('node ' + node.class) : 'node');
-            element.style.setProperty('opacity', 0);
-            var container = document.createElementNS(this._svgNamespace, 'g');
-            container.appendChild(node.label);
-            element.appendChild(container);
-            svgNodeGroup.appendChild(element);
-            var bbox = node.label.getBBox();
-            var x = - bbox.width / 2;
-            var y = - bbox.height / 2;
-            container.setAttribute('transform', 'translate(' + x + ',' + y + ')');
-            node.width = bbox.width;
-            node.height = bbox.height;
-            node.element = element;
+            if (graph.children(nodeId).length == 0) {
+                var node = graph.node(nodeId);
+                var element = document.createElementNS(this._svgNamespace, 'g');
+                element.setAttribute('class', node.hasOwnProperty('class') ? ('node ' + node.class) : 'node');
+                element.style.setProperty('opacity', 0);
+                var container = document.createElementNS(this._svgNamespace, 'g');
+                container.appendChild(node.label);
+                element.appendChild(container);
+                svgNodeGroup.appendChild(element);
+                var bbox = node.label.getBBox();
+                var x = - bbox.width / 2;
+                var y = - bbox.height / 2;
+                container.setAttribute('transform', 'translate(' + x + ',' + y + ')');
+                node.width = bbox.width;
+                node.height = bbox.height;
+                node.element = element;
+            }
         });
 
         graph.edges().forEach((edgeId) => {
@@ -67,11 +73,13 @@ class GraphRenderer {
         dagre.layout(graph);
 
         graph.nodes().forEach((nodeId) => {
-            var node = graph.node(nodeId);
-            var element = node.element;
-            element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-            element.style.setProperty('opacity', 1);
-            delete node.element;
+            if (graph.children(nodeId).length == 0) {
+                var node = graph.node(nodeId);
+                var element = node.element;
+                element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+                element.style.setProperty('opacity', 1);
+                delete node.element;
+            }
         });
 
         graph.edges().forEach((edgeId) => {
@@ -98,6 +106,28 @@ class GraphRenderer {
             element.setAttribute('d', points);
             element.setAttribute('marker-end', 'url(#arrowhead-vee)');
             svgEdgePathGroup.appendChild(element);
+        });
+
+        graph.nodes().forEach((nodeId) => {
+            if (graph.children(nodeId).length > 0) {
+                var node = graph.node(nodeId);
+                var element = document.createElementNS(this._svgNamespace, 'g');
+                element.setAttribute('class', 'cluster');
+                element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+                var rect = document.createElementNS(this._svgNamespace, 'rect');
+                rect.setAttribute('x', - node.width / 2);
+                rect.setAttribute('y', - node.height / 2 );
+                rect.setAttribute('width', node.width);
+                rect.setAttribute('height', node.height);
+                if (node.rx) { 
+                    rect.setAttribute('rx', node.rx);
+                }
+                if (node.ry) { 
+                    rect.setAttribute('ry', node.ry);
+                }
+                element.appendChild(rect);
+                svgClusterGroup.appendChild(element);
+            }
         });
     }
 

@@ -100,8 +100,10 @@ function updateGraph(model) {
         svgElement.removeChild(svgElement.lastChild);
     }
 
-    var g = new dagre.graphlib.Graph();
-    g.setGraph({ });
+    var compound = false;
+
+    var g = new dagre.graphlib.Graph({ compound: compound });
+    g.setGraph({});
     // g.setGraph({ align: 'DR' });
     // g.setGraph({ ranker: 'network-simplex' });
     // g.setGraph({ ranker: 'tight-tree' });
@@ -111,6 +113,8 @@ function updateGraph(model) {
 
     var nodeId = 0;
     var edgeMap = {};
+
+    var clusterMap = {};
 
     graph.nodes.forEach((node) => {
         var formatter = new NodeFormatter();
@@ -215,7 +219,26 @@ function updateGraph(model) {
             });
         }
 
-        g.setNode(nodeId++, { label: formatter.format(svgElement) });
+        g.setNode(nodeId, { label: formatter.format(svgElement) });
+
+        function addCluster(clusterMap, name, nodeId) {
+            var lastIndex = name.lastIndexOf('/');
+            if (lastIndex != -1) {
+                var clusterName = name.substring(0, lastIndex);
+                var cluster = clusterMap[clusterName];
+                if (!cluster) {
+                    g.setNode(clusterName, { rx: 5, ry: 5 });
+                    clusterMap[clusterName] = clusterName;
+                }
+                g.setParent(nodeId, clusterName);
+                addCluster(clusterMap, clusterName, clusterName);
+            }
+        }
+        if (compound && node.name) {
+            addCluster(clusterMap, node.name, nodeId);
+        }
+
+        nodeId++;
     });
 
     graph.inputs.forEach((input) => {

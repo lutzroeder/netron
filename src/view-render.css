@@ -22,3 +22,5 @@
 .edge-label text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; }
 .edge-path-control { stroke-dasharray: 5, 5; }
+
+.cluster rect { stroke: #000; fill: #000; fill-opacity: 0.08; stroke-width: 0; }
