@@ -33,9 +33,18 @@ class BrowserHostService {
     
     request(file, callback) {
         var request = new XMLHttpRequest();
+        if (file.endsWith('.pb')) {
+            request.responseType = 'arraybuffer';
+
+        }
         request.onload = () => {
             if (request.status == 200) {
-                callback(null, request.responseText);
+                if (request.responseType == 'arraybuffer') {
+                    callback(null, new Uint8Array(request.response));
+                }
+                else {
+                    callback(null, request.responseText);
+                }
             }
             else {
                 callback(request.status, null);

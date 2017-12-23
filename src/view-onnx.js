@@ -4,30 +4,29 @@ var onnx = protobuf.roots.onnx.onnx;
 
 class OnnxModel {
 
-    constructor(hostService) {
-        this.hostService = hostService;
-    }
-
-    openBuffer(buffer, identifier) { 
+    static open(buffer, identifier, host, callback) { 
         try {
 
-            this._model = onnx.ModelProto.decode(buffer);
-
-            if (!this._model.graph) {
+            var model = onnx.ModelProto.decode(buffer);
+            if (!model.graph) {
                 throw 'Model does not contain a graph.';
             }
 
-            this._graph = new OnnxGraph(this, this._model.graph, 0);
-            this._activeGraph = this._graph;
+            model = new OnnxModel(model);
 
-            if (!OnnxOperatorMetadata.operatorMetadata) {
-                OnnxOperatorMetadata.operatorMetadata = new OnnxOperatorMetadata(this.hostService);
-            }
+            OnnxOperatorMetadata.open(host, (err, metadata) => {
+                callback(null, model);
+            });
         }
         catch (err) {
-            return err;
+            callback(err, null);
         }
-        return null;
+    }
+
+    constructor(model) {
+        this._model = model;
+        this._graphs = [ new OnnxGraph(this, this._model.graph, 0) ];
+        this._activeGraph = this._graphs[0];
     }
 
     format() {
@@ -75,7 +74,7 @@ class OnnxModel {
     }
 
     get graphs() {
-        return [ this._graph ];
+        return this._graphs;
     }
 
     get activeGraph() {
@@ -218,27 +217,24 @@ class OnnxNode {
     }
 
     get inputs() {
-        var results = [];
-        for (var i = 0; i < this._node.input.length; i++) {
-            var result = {};
-            var inputMetadata = OnnxOperatorMetadata.operatorMetadata.getInput(this.operator, i);
-            result.name = inputMetadata.name;
-            result.type = inputMetadata.type;
-            if (inputMetadata.variadic) {
-                result.id = this._node.input.slice(i);
-                i = this._node.input.length;
-            }
-            else {
-                result.id = this._node.input[i];
-                var initializer = this._graph.getInitializer(result.id);
-                if (initializer) {
-                    result.initializer = initializer;
-                    result.type = initializer.type;
-                }
-            }
-            results.push(result);
+        if (this._node.input) {
+            var inputs = OnnxOperatorMetadata.operatorMetadata.getInputs(this._node);
+            inputs.forEach((input) => {
+                input.connections.forEach((connection) => {
+                    var initializer = this._graph.getInitializer(connection.id);
+                    if (initializer) {
+                        connection.initializer = initializer;
+                        connection.type = initializer.type;
+                    }
+                });
+            });          
+            return inputs;
         }
-        return results;
+        return [];
+    }
+
+    get dependencies() {
+        return [];
     }
 
     get outputs() {
@@ -596,44 +592,62 @@ class OnnxTensor {
 
 class OnnxOperatorMetadata {
 
-    constructor(hostService) {
-        this.map = {};
-        hostService.request('/onnx-operator.json', (err, data) => {
-            if (err != null) {
-                // TODO error
-            }
-            else {
-                var items = JSON.parse(data);
-                if (items) {
-                    items.forEach((item) => {
-                        if (item.name && item.schema)
-                        {
-                            var name = item.name;
-                            var schema = item.schema;
-                            this.map[name] = schema;
-                        }
-                    });
+    static open(host, callback) {
+        if (OnnxOperatorMetadata.operatorMetadata) {
+            callback(null, OnnxOperatorMetadata.operatorMetadata);
+        }
+        else {
+            host.request('/onnx-operator.json', (err, data) => {
+                if (err == null) {
+                    OnnxOperatorMetadata.operatorMetadata = new OnnxOperatorMetadata(data);
                 }
-            }
-        });
+                callback(null, OnnxOperatorMetadata.operatorMetadata);
+            });
+        }    
     }
 
-    getInput(operator, index) {
-        var schema = this.map[operator];
-        if (schema) {
-            var inputs = schema.inputs;
-            if (inputs && index < inputs.length) {
-                var input = inputs[index];
-                if (input) {
-                    var name = input.name;
-                    var variadic = input.option && input.option == 'variadic';
-                    if (name) {
-                        return { name: name, variadic: variadic, type: input.type };
-                    }
-                } 
-            }
+    constructor(data) {
+        this.map = {};
+        var items = JSON.parse(data);
+        if (items) {
+            items.forEach((item) => {
+                if (item.name && item.schema)
+                {
+                    var name = item.name;
+                    var schema = item.schema;
+                    this.map[name] = schema;
+                }
+            });
         }
-        return { name: '(' + index.toString() + ')' };
+    }
+
+    getInputs(node) {
+        var inputs = [];
+        var index = 0;
+        var schema = this.map[node.opType];
+        if (schema && schema.inputs) {
+            schema.inputs.forEach((inputDef) => {
+                var input = {};
+                input.name = inputDef.name;
+                var count = (inputDef.option && inputDef.option == 'variadic') ? (node.input.length - index) : 1;
+                input.connections = node.input.slice(index, index + count).map((id) => {
+                    return { id: id };
+                });
+                index += count;
+                inputs.push(input);
+            });
+        }
+        else {
+            node.input.slice(index).forEach((input) => {
+                inputs.push({
+                    name: '(' + index.toString() + ')',
+                    connections: [ { id: input } ]
+                });
+                index++;
+            });
+
+        }
+        return inputs;
     }
 
     getOutput(operator, index) {

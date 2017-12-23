@@ -2,43 +2,45 @@
 
 class TensorFlowLiteModel {
     
-    constructor(hostService) {
-        this._hostService = hostService;
-    }
-
-    openBuffer(buffer, identifier) { 
+    static open(buffer, identifier, host, callback) { 
         try {
             var byteBuffer = new flatbuffers.ByteBuffer(buffer);
             if (!tflite.Model.bufferHasIdentifier(byteBuffer))
             {
                 throw 'Invalid identifier';
             }
-            this._model = tflite.Model.getRootAsModel(byteBuffer);
-            this._graphs = [];
-            for (var subgraph = 0; subgraph < this._model.subgraphsLength(); subgraph++) {
-                this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), subgraph));
-            }
-            this._activeGraph = this._graphs.length > 0 ? this._graphs[0] : null;
-            this._operatorMetadata = new TensorFlowLiteOperatorMetadata(this._hostService);
-            this._operatorCodeList = [];
-            var builtinOperatorMap = {};
-            Object.keys(tflite.BuiltinOperator).forEach(function (key) {
-                var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
-                var builtinOperatorIndex = tflite.BuiltinOperator[key]; 
-                builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
-                    return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
-                }).join('');
+            var model = tflite.Model.getRootAsModel(byteBuffer);
+            model = new TensorFlowLiteModel(model);
+            TensorFlowLiteOperatorMetadata.open(host, (err, metadata) => {
+                callback(null, model);
             });
-            for (var operatorIndex = 0; operatorIndex < this._model.operatorCodesLength(); operatorIndex++) {
-                var operatorCode = this._model.operatorCodes(operatorIndex);
-                var builtinCode = operatorCode.builtinCode();
-                this._operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
-            }
         }
         catch (err) {
-            return err;
+            callback(err, null);
         }
-        return null;
+    }
+
+    constructor(model) {
+        this._model = model;
+        this._graphs = [];
+        for (var subgraph = 0; subgraph < this._model.subgraphsLength(); subgraph++) {
+            this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), subgraph));
+        }
+        this._activeGraph = this._graphs.length > 0 ? this._graphs[0] : null;
+        this._operatorCodeList = [];
+        var builtinOperatorMap = {};
+        Object.keys(tflite.BuiltinOperator).forEach(function (key) {
+            var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
+            var builtinOperatorIndex = tflite.BuiltinOperator[key]; 
+            builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
+                return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
+            }).join('');
+        });
+        for (var operatorIndex = 0; operatorIndex < this._model.operatorCodesLength(); operatorIndex++) {
+            var operatorCode = this._model.operatorCodes(operatorIndex);
+            var builtinCode = operatorCode.builtinCode();
+            this._operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
+        }
     }
 
     format() {
@@ -203,29 +205,36 @@ class TensorFlowLiteNode {
 
     get inputs() {
         var results = [];
-        var operatorMetadata = this._graph.model._operatorMetadata;
+        var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
         var graph = this._graph._graph;
         var node = this._node;
         for (var i = 0; i < node.inputsLength(); i++) {
             var tensorIndex = node.inputs(i);
             var tensor = graph.tensors(tensorIndex);
             var input = {
-                id: tensorIndex.toString(),
-                name: operatorMetadata.getInputName(this.operator, i),
-                type: TensorFlowLiteTensor.formatTensorType(tensor)
+                name: metadata.getInputName(this.operator, i),
+                connections: []
             };
+            var connection = {};
+            connection.id = tensorIndex.toString();
+            connection.type = TensorFlowLiteTensor.formatTensorType(tensor);
             var initializer = this._graph.getInitializer(tensorIndex);
             if (initializer) {
-                input.initializer = initializer;
+                connection.initializer = initializer;
             }
+            input.connections.push(connection);
             results.push(input);
         }
         return results;
     }
 
+    get dependencies() {
+        return [];
+    }
+
     get outputs() {
         var results = [];
-        var operatorMetadata = this._graph.model._operatorMetadata;
+        var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
         var graph = this._graph._graph;
         var node = this._node;
         var result = [];
@@ -234,7 +243,7 @@ class TensorFlowLiteNode {
             var tensor = graph.tensors(tensorIndex);
             results.push({
                 id: tensorIndex.toString(),
-                name: operatorMetadata.getOutputName(this.operator, i),
+                name: metadata.getOutputName(this.operator, i),
                 type: TensorFlowLiteTensor.formatTensorType(tensor)
             });
         }
@@ -244,7 +253,7 @@ class TensorFlowLiteNode {
     get attributes() {
         if (!this._attributes) {
             this._attributes = [];
-            var operatorMetadata = this._graph.model._operatorMetadata;
+            var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
             var node = this._node;
             var operator = this._operator;
             var optionsTypeName = 'tflite.' + operator + 'Options';
@@ -266,7 +275,7 @@ class TensorFlowLiteNode {
                             attributeName = this.formatAttributeName(attributeName);
                             this._attributes.push({
                                 name: attributeName,
-                                type: operatorMetadata.getAttributeType(operator, attributeName),
+                                type: metadata.getAttributeType(operator, attributeName),
                                 value: attributeValue
                             });
                         }
@@ -539,26 +548,34 @@ class TensorFlowLiteTensor {
 }
 
 class TensorFlowLiteOperatorMetadata {
-    constructor() {
-        this.map = {};
-        hostService.request('/tflite-operator.json', (err, data) => {
-            if (err != null) {
-                // TODO error
-            }
-            else {
-                var items = JSON.parse(data);
-                if (items) {
-                    items.forEach((item) => {
-                        if (item.name && item.schema)
-                        {
-                            var name = item.name;
-                            var schema = item.schema;
-                            this.map[name] = schema;
-                        }
-                    });
+
+    static open(host, callback) {
+        if (TensorFlowLiteOperatorMetadata.operatorMetadata) {
+            callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
+        }
+        else {
+            host.request('/tflite-operator.json', (err, data) => {
+                if (err == null) {
+                    TensorFlowLiteOperatorMetadata.operatorMetadata = new TensorFlowLiteOperatorMetadata(data);
                 }
-            }
-        });
+                callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
+            });    
+        }
+    }
+
+    constructor(data) {
+        this.map = {};
+        var items = JSON.parse(data);
+        if (items) {
+            items.forEach((item) => {
+                if (item.name && item.schema)
+                {
+                    var name = item.name;
+                    var schema = item.schema;
+                    this.map[name] = schema;
+                }
+            });
+        }
     }
 
     getInputName(operator, index) {

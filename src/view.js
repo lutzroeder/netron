@@ -121,50 +121,51 @@ function updateGraph(model) {
         });
 
         node.inputs.forEach((input) => {
-            var inputIds = Array.isArray(input.id) ? input.id : [ input.id ];
-            if (input.initializer) {
-                var initializers = Array.isArray(input.initializer) ? input.initializer : [ input.initializer ];
-                initializers.forEach((initializer, index) => {
-                    if (initializer) {
-                        formatter.addItem(input.name, 'node-item-constant', initializer.type, function() { 
-                            showTensor(model, initializer);
+            var hasInitializers = false;
+            input.connections.forEach((connection) => {
+                if (connection.initializer) {
+                    hasInitializers = true;
+                }
+            });
+            if (hasInitializers) {
+                input.connections.forEach((connection) => {
+                    if (connection.initializer) {
+                        formatter.addItem(input.name, 'node-item-constant', connection.type, function() { 
+                            showTensor(model, connection.initializer);
                         });
                     }
                     else {
                         formatter.addItem(input.name, null, input.type, null);
-                        var inputId = inputIds[index];
-                        var tuple = edgeMap[inputId];
+                        var tuple = edgeMap[connection.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[inputId] = tuple;
+                            edgeMap[connection.id] = tuple;
                         }
                         tuple.to.push({ 
                             node: nodeId, 
                             name: input.name,
-                            control: input.control
+                            control: connection.control
                         });
                     }
                 });
             }
             else {
                 formatter.addItem(input.name, null, input.type, null);
-                inputIds.forEach((inputId) => {
-                    var tuple = edgeMap[inputId];
+                input.connections.forEach((connection) => {
+                    var tuple = edgeMap[connection.id];
                     if (!tuple) {
                         tuple = { from: null, to: [] };
-                        edgeMap[inputId] = tuple;
+                        edgeMap[connection.id] = tuple;
                     }
                     tuple.to.push({ 
                         node: nodeId, 
-                        name: input.name,
-                        control: input.control
+                        name: input.name
                     });
                 });
             }
         });
 
-        node.outputs.forEach((output) =>
-        {
+        node.outputs.forEach((output) => {
             var outputIds = Array.isArray(output.id) ? output.id : [ output.id ];
             outputIds.forEach((outputId) => {
                 var tuple = edgeMap[outputId];
@@ -176,6 +177,18 @@ function updateGraph(model) {
                     node: nodeId,
                     name: output.name
                 };    
+            });
+        });
+
+        node.dependencies.forEach((dependency) => {
+            var tuple = edgeMap[dependency];
+            if (!tuple) {
+                tuple = { from: null, to: [] };
+                edgeMap[dependency] = tuple;
+            }
+            tuple.to.push({ 
+                node: nodeId, 
+                dependency: true
             });
         });
 
@@ -254,7 +267,7 @@ function updateGraph(model) {
                     text = to.name;
                 }
 
-                if (to.control) { 
+                if (to.dependency) { 
                     g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
                 }
                 else {
@@ -444,34 +457,37 @@ class ModelService {
     
         var extension = identifier.split('.').pop();
     
-        if (identifier != null && extension == 'tflite')
-        {
-            model = new TensorFlowLiteModel(hostService); 
-            err = model.openBuffer(buffer, identifier);
+        if (extension == 'tflite') {
+            TensorFlowLiteModel.open(buffer, identifier, hostService, (err, model) => {
+                this._activeModel = model;
+                callback(err, model);
+           });
         }
-        else if (identifier != null && identifier == 'saved_model.pb') {
-            model = new TensorFlowModel(hostService);
-            err = model.openBuffer(buffer, identifier);
+        else if (identifier == 'saved_model.pb') {
+            TensorFlowModel.open(buffer, identifier, hostService, (err, model) => {
+                this._activeModel = model;
+                callback(err, model);
+            });
         }
         else if (extension == 'onnx') {
-            model = new OnnxModel(hostService);
-            err = model.openBuffer(buffer, identifier);
+            OnnxModel.open(buffer, identifier, hostService, (err, model) => {
+                this._activeModel = model;
+                callback(err, model);
+            });
         }
         else if (extension == 'pb') {
-            model = new OnnxModel(hostService);
-            err = model.openBuffer(buffer, identifier);
-            if (err) {
-                model = new TensorFlowModel(hostService);
-                err = model.openBuffer(buffer, identifier);
-            }
-        }
-    
-        if (err) {
-            callback(err, null);
-        }
-        else {
-            this._activeModel = model;
-            callback(null, model);
+            OnnxModel.open(buffer, identifier, hostService, (err, model) => {
+                if (!err) {
+                    this._activeModel = model;
+                    callback(err, model);    
+                }
+                else {
+                    TensorFlowModel.open(buffer, identifier, hostService, (err, model) => {
+                        this._activeModel = model;
+                        callback(err, model);
+                    });
+                }
+            });
         }
     }
 
