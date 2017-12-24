@@ -1,19 +1,27 @@
 
+bold() {
+    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
+}
+
 clean() {
+    bold "clean"
     sudo rm -rf build
     sudo rm -rf dist
 }
 
 pip() {
+    bold "publish to pip" 
     ./setup.py build bdist_wheel upload
 }
 
 github() {
+    bold "publish to github"
     export GH_TOKEN=${GITHUB_TOKEN} 
     npm run release
 }
 
 cask() {
+    bold "update brew cask"
     PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
     curl -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/caskroom/homebrew-cask/forks -d ''
     cask-repair --cask-version ${PACKAGE_VERSION} --blind-submit netron
@@ -34,5 +42,5 @@ case "${target}" in
     "pip") pip;;
     "github") github;;
     "cask") cask;;
-    *) all;
+    *) all;;
 esac
