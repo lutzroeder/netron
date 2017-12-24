@@ -238,22 +238,7 @@ class OnnxNode {
     }
 
     get outputs() {
-        var results = [];
-        for (var i = 0; i < this._node.output.length; i++) {
-            var result = {};
-            var outputMetadata = OnnxOperatorMetadata.operatorMetadata.getOutput(this.operator, i);
-            result.name = outputMetadata.name;
-            result.type = outputMetadata.type;
-            if (outputMetadata.variadic) {
-                result.id = this._node.output.slice(i);
-                i = this._node.output.length;
-            }
-            else {
-                result.id = this._node.output[i];
-            }
-            results.push(result);
-        }
-        return results;
+        return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node);
     }
 
     get attributes() {
@@ -627,14 +612,16 @@ class OnnxOperatorMetadata {
         var schema = this.map[node.opType];
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputDef) => {
-                var input = {};
-                input.name = inputDef.name;
-                var count = (inputDef.option && inputDef.option == 'variadic') ? (node.input.length - index) : 1;
-                input.connections = node.input.slice(index, index + count).map((id) => {
-                    return { id: id };
-                });
-                index += count;
-                inputs.push(input);
+                if (index < node.input.length || inputDef.option != 'optional') {
+                    var input = {};
+                    input.name = inputDef.name;
+                    var count = (inputDef.option == 'variadic') ? (node.input.length - index) : 1;
+                    input.connections = node.input.slice(index, index + count).map((id) => {
+                        return { id: id };
+                    });
+                    index += count;
+                    inputs.push(input);
+                }
             });
         }
         else {
@@ -650,22 +637,35 @@ class OnnxOperatorMetadata {
         return inputs;
     }
 
-    getOutput(operator, index) {
-        var schema = this.map[operator];
-        if (schema) {
-            var outputs = schema.outputs;
-            if (outputs && index < outputs.length) {
-                var output = outputs[index];
-                if (output) {
-                    var name = output.name;
-                    var variadic = output.option && output.option == 'variadic';
-                    if (name) {
-                        return { name: name, variadic: variadic, type: output.type };
-                    }
-                } 
-            }
+    getOutputs(node) {
+        var outputs = [];
+        var index = 0;
+        var schema = this.map[node.opType];
+        if (schema && schema.inputs) {
+            schema.outputs.forEach((outputDef) => {
+                if (index < node.output.length || outputDef.option != 'optional') {
+                    var output = {};
+                    output.name = outputDef.name;
+                    var count = (outputDef.option == 'variadic') ? (node.output.length - index) : 1;
+                    output.connections = node.output.slice(index, index + count).map((id) => {
+                        return { id: id };
+                    });
+                    index += count;
+                    outputs.push(output);
+                }
+            });
         }
-        return { name: '(' + index.toString() + ')' };
+        else {
+            node.output.slice(index).forEach((output) => {
+                outputs.push({
+                    name: '(' + index.toString() + ')',
+                    connections: [ { id: output } ]
+                });
+                index++;
+            });
+
+        }
+        return outputs;
     }
 
     getAttributeType(operator, name) {

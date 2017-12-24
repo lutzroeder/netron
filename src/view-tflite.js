@@ -205,14 +205,13 @@ class TensorFlowLiteNode {
 
     get inputs() {
         var results = [];
-        var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
         var graph = this._graph._graph;
         var node = this._node;
         for (var i = 0; i < node.inputsLength(); i++) {
             var tensorIndex = node.inputs(i);
             var tensor = graph.tensors(tensorIndex);
             var input = {
-                name: metadata.getInputName(this.operator, i),
+                name: TensorFlowLiteOperatorMetadata.operatorMetadata.getInputName(this.operator, i),
                 connections: []
             };
             var connection = {};
@@ -234,18 +233,24 @@ class TensorFlowLiteNode {
 
     get outputs() {
         var results = [];
-        var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
         var graph = this._graph._graph;
         var node = this._node;
-        var result = [];
         for (var i = 0; i < node.outputsLength(); i++) {
             var tensorIndex = node.outputs(i);
             var tensor = graph.tensors(tensorIndex);
-            results.push({
-                id: tensorIndex.toString(),
-                name: metadata.getOutputName(this.operator, i),
-                type: TensorFlowLiteTensor.formatTensorType(tensor)
-            });
+            var output = {
+                name: TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i),
+                connections: []
+            };
+            var connection = {};
+            connection.id = tensorIndex.toString();
+            connection.type = TensorFlowLiteTensor.formatTensorType(tensor);
+            var initializer = this._graph.getInitializer(tensorIndex);
+            if (initializer) {
+                connection.initializer = initializer;
+            }
+            output.connections.push(connection);
+            results.push(output);
         }
         return results;
     }

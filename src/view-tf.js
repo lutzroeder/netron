@@ -329,23 +329,7 @@ class TensorFlowNode {
     }
 
     get outputs() {
-        var graphMetadata = this._graph.metadata;
-        var node = this._node;
-        var results = [];
-        if (node.output) {
-            node.output.forEach((output, index) => {
-                var result = {};
-                if (output.startsWith('^')) {
-                    output = output.substring(1);                    
-                    result.control = true;
-                }
-                result.id = output;
-                result.name = graphMetadata.getOutputName(node.op, index);
-                result.type = '';
-                results.push(result);
-            });
-        }
-        return results;
+        return this._graph.metadata.getOutputs(this._node);
     }
 
     get attributes() {
@@ -756,7 +740,7 @@ class TensorFlowGraphOperatorMetadata {
     }
 
     getInputs(node) {
-        var inputs = [];
+        var results = [];
         var index = 0;
         var opDef = this.getOpDef(node.op);
         if (opDef && opDef.inputArg) {
@@ -776,14 +760,14 @@ class TensorFlowGraphOperatorMetadata {
                     }
                     return { id: id };
                 });
-                inputs.push(result);
+                results.push(result);
                 index += count;
             });
         }
         else {
             node.input.slice(index).forEach((input) => {
                 if (!input.startsWith('^')) {
-                    inputs.push({
+                    results.push({
                         name: '(' + index.toString() + ')',
                         connections: [ { id: input } ]
                     });
@@ -791,24 +775,46 @@ class TensorFlowGraphOperatorMetadata {
                 index++;
             });
         }
-        return inputs;
+        return results;
     }
 
-    getOutputName(operator, index) {
-        var opDef = this.getOpDef(operator);
-        if (opDef) {
-            var outputs = opDef.outputArg;
-            if (outputs && index < outputs.length) {
-                var output = outputs[index];
-                if (output) {
-                    var name = output.name;
-                    if (name) {
-                        return name;
+    getOutputs(node) {
+        var results = [];
+        var index = 0;
+        var opDef = this.getOpDef(node.op);
+        if (opDef && opDef.outputArg) {
+            opDef.outputArg.forEach((outputArg) => {
+                var count = 1;
+                if (outputArg.numberAttr) {
+                    var number = node.attr[outputArg.numberAttr];
+                    if (number && number.i) {
+                        count = number.i;
                     }
                 }
-            }
+                var result = {};
+                result.name = outputArg.name;
+                result.connections = node.output.slice(index, index + count).map((id) => {
+                    if (id.startsWith('^')) {
+                        id = id.substring(1);
+                    }
+                    return { id: id };
+                });
+                results.push(result);
+                index += count;
+            });
         }
-        return '(' + index.toString() + ')';
+        else {
+            node.output.slice(index).forEach((output) => {
+                if (!output.startsWith('^')) {
+                    results.push({
+                        name: '(' + index.toString() + ')',
+                        connections: [ { id: output } ]
+                    });
+                }
+                index++;
+            });
+        }
+        return results;
     }
 
     getHiddenAttributeMap(operator) {

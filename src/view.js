@@ -187,12 +187,11 @@ function updateGraph(model) {
         });
 
         node.outputs.forEach((output) => {
-            var outputIds = Array.isArray(output.id) ? output.id : [ output.id ];
-            outputIds.forEach((outputId) => {
-                var tuple = edgeMap[outputId];
+            output.connections.forEach((connection) => {
+                var tuple = edgeMap[connection.id];
                 if (!tuple) {
                     tuple = { from: null, to: [] };
-                    edgeMap[outputId] = tuple;
+                    edgeMap[connection.id] = tuple;
                 }
                 tuple.from = { 
                     node: nodeId,
