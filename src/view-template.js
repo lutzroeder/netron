@@ -124,7 +124,7 @@ var summaryTemplate = `
 <div class='border section'>
 <table>
 {{#properties}}
-<tr><td>{{{name}}}</td><td>{{{value}}}</td></tr>
+<tr><td>{{name}}</td><td>{{value}}</td></tr>
 {{/properties}}
 </table>
 </div>
@@ -133,20 +133,20 @@ var summaryTemplate = `
 <div class='border section'>
 <table>
 {{#if name}}
-<tr><td>Name</td><td>{{{name}}}</td></tr>
+<tr><td>Name</td><td>{{name}}</td></tr>
 {{/if}}
 {{#if version}}
-<tr><td>Version</td><td>{{{version}}}</td></tr>
+<tr><td>Version</td><td>{{version}}</td></tr>
 {{/if}}
 {{#if tags}}
-<tr><td>Tags</td><td>{{{tags}}}</td></tr>
+<tr><td>Tags</td><td>{{tags}}</td></tr>
 {{/if}}
 <tr>
 {{#if inputs}}
 <td>Inputs</td>
 <td>
 {{#inputs}}
-<code>{{{type}}}</code> : {{{name}}}<br>
+<code>{{type}}</code> : {{name}}<br>
 {{/inputs}}
 </td>
 </tr>
@@ -156,13 +156,16 @@ var summaryTemplate = `
 <td>Outputs</td>
 <td>
 {{#outputs}}
-<code>{{{type}}}</code> : {{{name}}}<br>
+<code>{{type}}</code> : {{name}}<br>
 {{/outputs}}
 </td>
 </tr>
 {{/if}}
 {{#if description}}
-<tr><td>{{{Description}}}</td><td>{{{description}}}</td></tr>
+<tr>
+<td>Description</td>
+<td>{{description}}</td>
+</tr>
 {{/if}}
 </table>
 <button style='float: right; width: 80px;' onclick='javascript:updateActiveGraph("{{{name}}}");'>View</button>

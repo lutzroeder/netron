@@ -82,7 +82,7 @@ class OnnxModel {
     }
 
     updateActiveGraph(name) {
-        this._activeGraph = (name == this._graph._graph.name) ? this._graph : null;
+        this._activeGraph = (name == this._graphs[0]._graph.name) ? this._graph : null;
     }
 }
 
@@ -565,7 +565,7 @@ class OnnxTensor {
         }
         else if (type.value == 'mapType') {
             var mapType = type.mapType;
-            return '<' + OnnxTensor.formatElementType(mapType.keyType) + ', ' + OnnxTensor.formatType(mapType.valueType) + '>';
+            return '<' + OnnxTensor.formatElementType(mapType.keyType) + ',' + OnnxTensor.formatType(mapType.valueType) + '>';
         }
         else if (!type.value) {
             return '?';
