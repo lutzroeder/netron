@@ -101,82 +101,6 @@ class TensorFlowGraph {
         this._graph = graph;
         this._metadata = new TensorFlowGraphOperatorMetadata(graph.metaInfoDef);
         this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
-
-        this._nodeMap = {};
-        var nodes = this._graph.graphDef.node;
-        nodes.forEach((node) => {
-            this._nodeMap[node.name] = node;   
-            node.output = [];         
-        });
-        nodes.forEach((node) => {
-            for (var i = 0; i < node.input.length; i++)
-            {
-                var split = node.input[i].split(':', 1);
-                var inputName = split[0];
-                var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
-                var outputName = inputName.startsWith('^') ? inputName.substring(1) : inputName;
-                var outputNode = this._nodeMap[outputName];
-                node.input[i] = inputName + ':' + outputIndex.toString();
-                if (outputNode) {
-                    for (var j = outputNode.output.length; j <= outputIndex; j++) {
-                        outputNode.output.push('');
-                    }
-                    outputNode.output[outputIndex] = node.input[i];
-                }
-            }
-        });
-        this._nodeOutputCountMap = {};
-        nodes.forEach((node) => {
-//            this._metadata.getInput(node);
-
-            node.input.forEach((input) => {
-                input = input.startsWith('^') ? input.substring(1) : input;
-                var count = this._nodeOutputCountMap[input];
-                if (!count) {
-                    count = 0;
-                }
-                this._nodeOutputCountMap[input] = count + 1;
-            });
-        });
-
-        this._initializerMap = {};
-        this._graph.graphDef.node.forEach((node) => {
-            if (node.op == 'Const' && node.input.length == 0 && this.checkSingleOutput(node)) {
-                var value = node.attr['value'];
-                if (value && value.hasOwnProperty('tensor')) {
-                    var output = node.output[0];
-                    if (output) {
-                        this._initializerMap[output] = new TensorFlowTensor(value.tensor, output, node.name, 'Constant');
-                    }
-                }
-            }
-        });
-        this._graph.graphDef.node.forEach((node) => {
-            if (node.op == 'Identity' && node.input.length == 1 && this.checkSingleOutput(node)) {
-                var input = node.input[0];
-                var tensor = this._initializerMap[input];
-                if (tensor) {
-                    var output = node.output[0];
-                    this._initializerMap[input] = "-";
-                    this._initializerMap[output] = new TensorFlowIdentityTensor(tensor, output, node.name, 'Identity Constant');
-                }
-            }
-        });
-
-        this._inputMap = {};
-        this._graph.graphDef.node.forEach((node) => {
-            if (node.op == 'Placeholder' && node.input.length == 0 && node.output.length == 1) {
-                var dtype = node.attr['dtype'];
-                var shape = node.attr['shape'];
-                if (dtype && dtype.type && shape && shape.shape) {
-                    this._inputMap[node.output[0]] = {
-                        id: node.output[0],
-                        name: node.name,
-                        type: TensorFlowTensor.formatDataType(dtype.type) + TensorFlowTensor.formatTensorShape(shape.shape)
-                    };
-                }
-            }
-        });
     }
 
     get model() {
@@ -202,6 +126,7 @@ class TensorFlowGraph {
     }
 
     get inputs() {
+        this.update();
         var results = [];
         Object.keys(this._inputMap).forEach((key) => {
             results.push(this._inputMap[key]);
@@ -210,10 +135,12 @@ class TensorFlowGraph {
     }
 
     get outputs() {
+        this.update();
         return [];
     }
 
     get nodes() {
+        this.update();
         // graph.graphDef.node.forEach(function (node) {
         //     console.log(node.name + ' [' + (!node.input ? "" : node.input.map(s => s).join(',')) + ']');
         // });
@@ -231,6 +158,101 @@ class TensorFlowGraph {
 
     get metadata() {
         return this._metadata;
+    }
+
+    update() {
+        if (!this._nodeMap) {
+            this._nodeMap = {};
+            var nodes = this._graph.graphDef.node;
+            nodes.forEach((node) => {
+                this._nodeMap[node.name] = node;   
+                node.output = [];         
+            });
+            nodes.forEach((node) => {
+                for (var i = 0; i < node.input.length; i++)
+                {
+                    var split = node.input[i].split(':', 1);
+                    var inputName = split[0];
+                    var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
+                    var outputName = inputName.startsWith('^') ? inputName.substring(1) : inputName;
+                    var outputNode = this._nodeMap[outputName];
+                    node.input[i] = inputName + ':' + outputIndex.toString();
+                    if (outputNode) {
+                        for (var j = outputNode.output.length; j <= outputIndex; j++) {
+                            outputNode.output.push('');
+                        }
+                        outputNode.output[outputIndex] = node.input[i];
+                    }
+                }
+            });
+            this._nodeOutputCountMap = {};
+            nodes.forEach((node) => {
+                this._metadata.getInputs(node).forEach((input) => {
+                    var multiple = input.connections.length > 1; 
+                    input.connections.forEach((connection) => {
+                        if (multiple) {
+                            this._nodeOutputCountMap[connection.id] = 'N';
+                        }
+                        else {
+                            var id = connection.id.startsWith('^') ? connection.id.substring(1) : connection.id;
+                            var count = this._nodeOutputCountMap[id];
+                            if (count != 'N') {
+                                count = count ? count : 0;
+                                this._nodeOutputCountMap[input] = count + 1;
+                            }
+                        }
+                    });
+                });
+
+                node.input.forEach((input) => {
+                    input = input.startsWith('^') ? input.substring(1) : input;
+                    var count = this._nodeOutputCountMap[input];
+                    if (!count) {
+                        count = 0;
+                    }
+                    this._nodeOutputCountMap[input] = count + 1;
+                });
+            });
+
+            this._initializerMap = {};
+            this._graph.graphDef.node.forEach((node) => {
+                if (node.op == 'Const' && node.input.length == 0 && this.checkSingleOutput(node)) {
+                    var value = node.attr['value'];
+                    if (value && value.hasOwnProperty('tensor')) {
+                        var output = node.output[0];
+                        if (output) {
+                            this._initializerMap[output] = new TensorFlowTensor(value.tensor, output, node.name, 'Constant');
+                        }
+                    }
+                }
+            });
+            this._graph.graphDef.node.forEach((node) => {
+                if (node.op == 'Identity' && node.input.length == 1 && this.checkSingleOutput(node)) {
+                    var input = node.input[0];
+                    var tensor = this._initializerMap[input];
+                    if (tensor) {
+                        var output = node.output[0];
+                        this._initializerMap[input] = "-";
+                        this._initializerMap[output] = new TensorFlowIdentityTensor(tensor, output, node.name, 'Identity Constant');
+                    }
+                }
+            });
+
+            this._inputMap = {};
+            this._graph.graphDef.node.forEach((node) => {
+                if (node.op == 'Placeholder' && node.input.length == 0 && node.output.length == 1) {
+                    var dtype = node.attr['dtype'];
+                    var shape = node.attr['shape'];
+                    if (dtype && dtype.type && shape && shape.shape) {
+                        this._inputMap[node.output[0]] = {
+                            id: node.output[0],
+                            name: node.name,
+                            type: TensorFlowTensor.formatDataType(dtype.type) + TensorFlowTensor.formatTensorShape(shape.shape)
+                        };
+                    }
+                }
+            });
+        }
     }
 
     getInitializer(input) {
