@@ -100,7 +100,7 @@ function updateGraph(model) {
         svgElement.removeChild(svgElement.lastChild);
     }
 
-    var compound = true;
+    var compound = false;
 
     var g = new dagre.graphlib.Graph({ compound: compound });
     g.setGraph({});
