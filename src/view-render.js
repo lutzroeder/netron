@@ -172,8 +172,8 @@ class GraphRenderer {
 class NodeFormatter {
 
     constructor() {
-        this.items = [];
-        this.attributes = [];
+        this._items = [];
+        this._attributes = [];
     }
 
     addItem(content, className, title, handler) {
@@ -190,26 +190,30 @@ class NodeFormatter {
         if (handler) {
             item.handler = handler;
         }
-        this.items.push(item);
+        this._items.push(item);
     }
 
     addAttribute(name, value, title) {
-        this.attributes.push({ name: name, value: value, title: title });
+        this._attributes.push({ name: name, value: value, title: title });
     }
 
     setAttributeHandler(handler) {
-        this.attributeHandler = handler;
+        this._attributeHandler = handler;
+    }
+
+    setControlDependencies() {
+        this._controlDependencies = true;
     }
 
     format(context) {
         var root = d3.select(context).append('g');
-        var hasAttributes = this.attributes && this.attributes.length > 0;
+        var hasAttributes = this._attributes && this._attributes.length > 0;
         var x = 0;
         var y = 0;
         var maxWidth = 0;
         var itemHeight = 0;
         var itemBoxes = [];
-        this.items.forEach((item, index) => {
+        this._items.forEach((item, index) => {
             var yPadding = 4;
             var xPadding = 7;
             var itemGroup = root.append('g').classed('node-item', true);
@@ -259,13 +263,13 @@ class NodeFormatter {
         if (hasAttributes)
         {
             var attributeGroup = root.append('g').classed('node-attribute', true);
-            if (this.attributeHandler) {
-                attributeGroup.on('click', this.attributeHandler);
+            if (this._attributeHandler) {
+                attributeGroup.on('click', this._attributeHandler);
             }
             attributesPath = attributeGroup.append('path');
             attributeGroup.attr('transform', 'translate(' + x + ',' + y + ')');
             attributesHeight += 4;
-            this.attributes.forEach((attribute) => {
+            this._attributes.forEach((attribute) => {
                 var yPadding = 1;
                 var xPadding = 4;
                 var text = attributeGroup.append('text').attr('xml:space', 'preserve');
@@ -287,7 +291,7 @@ class NodeFormatter {
         }
 
         if (maxWidth > itemWidth) {
-            var d = (maxWidth - itemWidth) / this.items.length;
+            var d = (maxWidth - itemWidth) / this._items.length;
             itemBoxes.forEach((itemBox, index) => {
                 itemBox.x = itemBox.x + (index * d);
                 itemBox.width = itemBox.width + d;
@@ -317,7 +321,11 @@ class NodeFormatter {
         if (hasAttributes) {
             root.append('line').classed('node', true).attr('x1', 0).attr('y1', itemHeight).attr('x2', maxWidth).attr('y2', itemHeight);
         }
-        root.append('path').classed('node', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
+        var border = root.append('path').classed('node', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
+
+        if (this._controlDependencies) {
+            border.classed('node-control-dependency', true);
+        }
 
         context.innerHTML = '';
         return root.node();

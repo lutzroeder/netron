@@ -188,27 +188,20 @@ function updateGraph(model) {
 
         node.outputs.forEach((output) => {
             output.connections.forEach((connection) => {
-                var tuple = edgeMap[connection.id];
-                if (!tuple) {
-                    tuple = { from: null, to: [] };
-                    edgeMap[connection.id] = tuple;
+                if (connection.id.startsWith('^')) {
+                    formatter.setControlDependencies();
                 }
-                tuple.from = { 
-                    node: nodeId,
-                    name: output.name
-                };    
-            });
-        });
-
-        node.dependencies.forEach((dependency) => {
-            var tuple = edgeMap[dependency];
-            if (!tuple) {
-                tuple = { from: null, to: [] };
-                edgeMap[dependency] = tuple;
-            }
-            tuple.to.push({ 
-                node: nodeId, 
-                dependency: true
+                else {
+                    var tuple = edgeMap[connection.id];
+                    if (!tuple) {
+                        tuple = { from: null, to: [] };
+                        edgeMap[connection.id] = tuple;
+                    }
+                    tuple.from = { 
+                        node: nodeId,
+                        name: output.name
+                    };    
+                }
             });
         });
 

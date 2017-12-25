@@ -1,6 +1,9 @@
 
-.node path { stroke: #000; fill: none; stroke-width: 1px; }
-.node line { stroke: #000; fill: none; stroke-width: 1px; }
+.node path { stroke: #333; fill: none; stroke-width: 1px; }
+.node line { stroke: #333; fill: none; stroke-width: 1px; }
+
+.node-control-dependency { stroke-dasharray: 4, 1; } 
+
 .node-item path { stroke-width: 0; stroke: #000; fill: #fff; }
 .node-item text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; font-weight: 600;  text-rendering: geometricPrecision; }
 
@@ -21,6 +24,5 @@
 
 .edge-label text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; }
-.edge-path-control { stroke-dasharray: 5, 5; }
 
-.cluster rect { stroke: #000; fill: #000; fill-opacity: 0.04; stroke-width: 0; }
+.cluster rect { stroke: #000; fill: #000; fill-opacity: 0.04; stroke-opacity: 0.06; stroke-width: 1px; }

@@ -233,10 +233,6 @@ class OnnxNode {
         return [];
     }
 
-    get dependencies() {
-        return [];
-    }
-
     get outputs() {
         return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node);
     }

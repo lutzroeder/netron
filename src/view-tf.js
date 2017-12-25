@@ -141,17 +141,15 @@ class TensorFlowGraph {
 
     get nodes() {
         this.update();
-        // graph.graphDef.node.forEach(function (node) {
-        //     console.log(node.name + ' [' + (!node.input ? "" : node.input.map(s => s).join(',')) + ']');
-        // });
         var results = [];
         this._graph.graphDef.node.forEach((node) => {
-             if (node.op != 'NoOp') {
+            if (node.output.filter(output => !output.startsWith('^')) != 0 ||
+                node.input.filter(input => !input.startsWith('^')).length > 0) {
                 var id = node.name + ':0';
                 if (!this._initializerMap[id] && !this._inputMap[id] /* && node.op != 'NoOp' */) {
                     results.push(new TensorFlowNode(this, node));
-                }    
-             }
+                }
+            }
         });
         return results;
     }
@@ -340,16 +338,6 @@ class TensorFlowNode {
         return [];
     }
 
-    get dependencies() {
-        var results = [];
-        this._node.input.forEach((input) => {
-            if (input.startsWith('^')) {
-                results.push(input.substring(1));
-            }
-        });
-        return results;
-    }
-
     get outputs() {
         return this._graph.metadata.getOutputs(this._node);
     }
@@ -475,7 +463,15 @@ class TensorFlowAttribute {
     }
 
     get tensor() {
-        return this._value.hasOwnProperty('tensor');
+        if (this._value.hasOwnProperty('tensor')) {
+            if (this._value.tensor.tensorShape && this._value.tensor.tensorShape.dim) {
+                if (this._value.tensor.tensorShape.dim.length == 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
 
@@ -698,13 +694,16 @@ class TensorFlowTensor {
 
     static formatTensorShape(shape) {
         if (shape.dim) {
+            if (shape.unknownRank) {
+                return '[-]';
+            }
             if (shape.dim.length == 0) {
                 return '';
             }
             if (shape.dim.length == 1 && !shape.dim[0].size) {
                 return '[0]';
             }
-            return '[' + shape.dim.map((dim) => dim.size ? dim.size.toString() : '?').join(',') + ']';
+            return '[' + shape.dim.map((dim) => (dim.size && dim.size != -1) ? dim.size.toString() : '?').join(',') + ']';
         }
         debugger;
         return '?';
@@ -776,6 +775,15 @@ class TensorFlowGraphOperatorMetadata {
                 }
                 var result = {};
                 result.name = inputArg.name;
+                if (inputArg.type) {
+                    result.type = TensorFlowTensor.formatDataType(inputArg.type);
+                }
+                else if (inputArg.typeAttr) {
+                    result.type = inputArg.typeAttr;
+                }
+                else if (inputArg.typeListAttr) {
+                    result.type = inputArg.typeListAttr;
+                }
                 result.connections = node.input.slice(index, index + count).map((id) => {
                     if (id.startsWith('^')) {
                         debugger;
@@ -815,10 +823,16 @@ class TensorFlowGraphOperatorMetadata {
                 }
                 var result = {};
                 result.name = outputArg.name;
+                if (outputArg.type) {
+                    result.type = TensorFlowTensor.formatDataType(outputArg.type);
+                }
+                else if (outputArg.typeAttr) {
+                    result.type = outputArg.typeAttr;
+                }
+                else if (outputArg.typeListAttr) {
+                    result.type = outputArg.typeListAttr;
+                }
                 result.connections = node.output.slice(index, index + count).map((id) => {
-                    if (id.startsWith('^')) {
-                        id = id.substring(1);
-                    }
                     return { id: id };
                 });
                 results.push(result);
@@ -827,12 +841,10 @@ class TensorFlowGraphOperatorMetadata {
         }
         else {
             node.output.slice(index).forEach((output) => {
-                if (!output.startsWith('^')) {
-                    results.push({
-                        name: '(' + index.toString() + ')',
-                        connections: [ { id: output } ]
-                    });
-                }
+                results.push({
+                    name: '(' + index.toString() + ')',
+                    connections: [ { id: output } ]
+                });
                 index++;
             });
         }

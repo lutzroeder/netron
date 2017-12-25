@@ -227,10 +227,6 @@ class TensorFlowLiteNode {
         return results;
     }
 
-    get dependencies() {
-        return [];
-    }
-
     get outputs() {
         var results = [];
         var graph = this._graph._graph;
