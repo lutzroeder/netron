@@ -611,9 +611,13 @@ class OnnxOperatorMetadata {
                 if (index < node.input.length || inputDef.option != 'optional') {
                     var input = {};
                     input.name = inputDef.name;
+                    input.type = inputDef.type;
                     var count = (inputDef.option == 'variadic') ? (node.input.length - index) : 1;
-                    input.connections = node.input.slice(index, index + count).map((id) => {
-                        return { id: id };
+                    input.connections = [];
+                    node.input.slice(index, index + count).forEach((id) => {
+                        if (id != '' || inputDef.option != 'optional') {
+                            input.connections.push({ id: id});
+                        }
                     });
                     index += count;
                     inputs.push(input);

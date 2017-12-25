@@ -13,9 +13,17 @@
 .node-item-operator:hover path { fill: #fff; }
 .node-item-operator:hover text { fill: #000; }
 
+.node-item-input path { fill: #fff; }
+.node-item-input:hover { cursor: hand; }
+.node-item-input:hover path { fill: #fff; }
+
 .node-item-constant path { fill: #eee; }
 .node-item-constant:hover { cursor: hand; }
 .node-item-constant:hover path { fill: #fff; }
+
+.node-item-undefined path { fill: #f00; }
+.node-item-undefined:hover { cursor: hand; }
+.node-item-undefined:hover path { fill: #fff; }
 
 .node-attribute:hover { cursor: hand; }
 .node-attribute text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 7px; font-weight: normal; text-rendering: geometricPrecision; }

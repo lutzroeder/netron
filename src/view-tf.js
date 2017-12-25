@@ -329,6 +329,7 @@ class TensorFlowNode {
                 input.connections.forEach((connection) => {
                     var initializer = this._graph.getInitializer(connection.id);
                     if (initializer) {
+                        connection.type = initializer.type;
                         connection.initializer = initializer;
                     }
                 });

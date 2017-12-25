@@ -142,21 +142,17 @@ function updateGraph(model) {
         });
 
         node.inputs.forEach((input) => {
-            var hasInitializers = false;
-            input.connections.forEach((connection) => {
-                if (connection.initializer) {
-                    hasInitializers = true;
-                }
-            });
-            if (hasInitializers) {
+            // TODO what about mixed input & initializer
+            if (input.connections.length > 0) {
+                var initializers = input.connections.filter(connection => connection.initializer);
+                var inputClass = initializers.length == 0 ? 'node-item-input' :
+                    (initializers.length == input.connections.length ? 'node-item-constant' : 'node-item-undefined');
+                var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
+                formatter.addItem(input.name, inputClass, types, () => {
+                    showNodeInput(input);
+                });
                 input.connections.forEach((connection) => {
-                    if (connection.initializer) {
-                        formatter.addItem(input.name, 'node-item-constant', connection.type, function() { 
-                            showTensor(model, connection.initializer);
-                        });
-                    }
-                    else {
-                        formatter.addItem(input.name, null, input.type, null);
+                    if (!connection.initializer) {
                         var tuple = edgeMap[connection.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
@@ -164,25 +160,10 @@ function updateGraph(model) {
                         }
                         tuple.to.push({ 
                             node: nodeId, 
-                            name: input.name,
-                            control: connection.control
+                            name: input.name
                         });
                     }
-                });
-            }
-            else {
-                formatter.addItem(input.name, null, input.type, null);
-                input.connections.forEach((connection) => {
-                    var tuple = edgeMap[connection.id];
-                    if (!tuple) {
-                        tuple = { from: null, to: [] };
-                        edgeMap[connection.id] = tuple;
-                    }
-                    tuple.to.push({ 
-                        node: nodeId, 
-                        name: input.name
-                    });
-                });
+                });    
             }
         });
 
@@ -207,7 +188,7 @@ function updateGraph(model) {
 
         if (node.attributes && !primitive) {
             formatter.setAttributeHandler(() => { 
-                showNodeDetails(node);
+                showNode(node);
             });
             node.attributes.forEach((attribute) => {
                 if (attribute.hidden) {
@@ -391,12 +372,11 @@ function showModelSummary(model) {
     }
 }
 
-function showTensor(model, tensor) {
-    if (tensor) {
-        var view = { 'items': [ tensor ] };
-        var template = Handlebars.compile(itemsTemplate, 'utf-8');
-        var data = template(view);
-        sidebar.open(data, tensor.title ? tensor.title : 'Tensor');
+function showNodeInput(input) {
+    if (input) {
+        var template = Handlebars.compile(inputTemplate, 'utf-8');
+        var data = template(input);
+        sidebar.open(data, 'Node Input');
     }
 }
 
@@ -407,27 +387,11 @@ function showNodeOperatorDocumentation(node) {
     }
 }
 
-function showNodeDetails(node) {
+function showNode(node) {
     if (node) {
         var template = Handlebars.compile(nodeTemplate, 'utf-8');
         var data = template(node);
-        sidebar.open(data, 'Node Details');
-    }
-}
-
-function showNodeProperties(node) {
-    if (node.properties) {
-        var template = Handlebars.compile(itemsTemplate, 'utf-8');
-        var data = template({ 'items': node.properties });
-        sidebar.open(data, 'Node Properties');
-    }
-}
-
-function showNodeAttributes(node) {
-    if (node.attributes) {
-        var template = Handlebars.compile(itemsTemplate, 'utf-8');
-        var data = template({ 'items': node.attributes });
-        sidebar.open(data, 'Node Attributes');
+        sidebar.open(data, 'Node');
     }
 }
 

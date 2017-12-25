@@ -1,27 +1,57 @@
 /*jshint esversion: 6 */
 
-var itemsTemplate = `
+var inputTemplate = `
 <style type='text/css'>
-.items { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
-.item { margin-bottom: 20px; }
-.item b { font-weight: 600; }
-.item h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
-.item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px }
-.item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 11px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; white-space: pre-wrap; word-wrap: break-word; }
+.inputs { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
+.input { margin-bottom: 20px; }
+.input b { font-weight: 600; }
+.input h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.input code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 2px 0 2px 0; border-radius: 3px; }
+.input pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 11px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; margin: 2px 0 2px 0; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; white-space: pre-wrap; word-wrap: break-word; }
+.connection { margin-top: 8px; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.05); }
+.connection-field { font-size: 10px; padding: 4px 8px 4px 8px; }
+.connection-border { border-top: 1px solid rgba(27, 31, 35, 0.05); }
+.connection code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); padding: 0; margin: 0; border: 0; }
+.connection pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); margin: 0; padding: 4px 8px 4px 8px; border: 0; }
 </style>
-<div class='items'>
-{{#items}}
-<div class='item'>
-<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
-{{#if quantization}}
-<pre>{{{quantization}}}</pre>
+<div class='inputs'>
+<div class='input'>
+<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code><b>{{{type}}}</b></code>{{/if}}<br>
+{{#connections}}
+<div class='connection'>
+<div class='connection-field'>
+connection: <b>{{{id}}}</b>
+{{#if initializer}}
+{{#if initializer.title}}
+<div style='float: right;'>{{initializer.title}}</div>
 {{/if}}
-{{#if description}}
-{{{description}}}
 {{/if}}
-<pre>{{{value}}}</pre>
 </div>
-{{/items}}
+{{#if initializer.description}}
+<div class='connection-border' />
+<div class='connection-field' />
+{{{initializer.description}}}
+</div>
+{{/if}}
+{{#if type}}
+<div class='connection-border' />
+<div class='connection-field'>
+type: <code><b>{{{type}}}</b></code>
+</div>
+{{/if}}
+{{#if initializer.quantization}}
+<div class='connection-border' />
+<div class='connection-field'>
+quantization: <code>{{{initializer.quantization}}}</code>
+</div>
+{{/if}}
+{{#if initializer.value}}
+<div class='connection-border' />
+<pre>{{{initializer.value}}}</pre>
+{{/if}}
+</div>
+{{/connections}}
+</div>
 </div>
 `;
 
@@ -182,8 +212,8 @@ var nodeTemplate = `
 .details .items { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
 .details .item { margin-bottom: 20px; }
 .details .item b { font-weight: 600; }
-.details .item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px }
-.details .item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 11px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; white-space: pre-wrap; word-wrap: break-word; }
+.details .item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
+.details .item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.05); white-space: pre-wrap; word-wrap: break-word; padding: 4px 8px 4px 8px; }
 </style>
 <div class='details'>
 <div class='items'>
