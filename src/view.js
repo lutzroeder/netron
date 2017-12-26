@@ -63,7 +63,7 @@ function openBuffer(err, buffer, identifier) {
         setTimeout(function () {
             modelService.openBuffer(buffer, identifier, function(err, model) {
                 if (err) {
-                    hostService.showError(err);
+                    hostService.showError(err.toString());
                     updateView('welcome');
                     return;
                 }

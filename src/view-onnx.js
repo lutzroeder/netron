@@ -9,7 +9,7 @@ class OnnxModel {
 
             var model = onnx.ModelProto.decode(buffer);
             if (!model.graph) {
-                throw 'Model does not contain a graph.';
+                throw new Error('Model does not contain a graph.');
             }
 
             model = new OnnxModel(model);

@@ -7,7 +7,7 @@ class TensorFlowLiteModel {
             var byteBuffer = new flatbuffers.ByteBuffer(buffer);
             if (!tflite.Model.bufferHasIdentifier(byteBuffer))
             {
-                throw 'Invalid identifier';
+                throw new Error('Invalid FlatBuffers identifier.');
             }
             var model = tflite.Model.getRootAsModel(byteBuffer);
             model = new TensorFlowLiteModel(model);
