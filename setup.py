@@ -92,7 +92,7 @@ class build_py(setuptools.command.build_py.build_py):
 setuptools.setup(
     name="netron",
     version=package_version,
-    description="Viewer for ONNX neural network models",
+    description="Viewer for neural network models",
     license="MIT",
     cmdclass={ 'build_py': build_py },
     package_dir={ 'netron': 'src' },
