@@ -20,7 +20,7 @@
         "dagre": "x.x.x",
         "d3": "x.x.x",
         "electron-updater": "^2.17.6",
-        "flatbuffers": "^1.8.0",
+        "flatbuffers": "x.x.x",
         "handlebars": "x.x.x",
         "marked": "x.x.x",
         "npm-font-open-sans": "x.x.x",
