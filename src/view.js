@@ -327,11 +327,11 @@ function updateGraph(model) {
     var zoom = d3.zoom();
     zoom.scaleExtent([0.1, 2]);
     zoom.on('zoom', function(e) {
-        outputGroup.setAttribute('transform', d3.event.transform.toString());
+        d3.select(outputGroup).attr('transform', d3.event.transform);
     });
     var svg = d3.select(svgElement);
-    // zoom.transform(svg, d3.zoomIdentity);
-    zoom(svg);
+    svg.call(zoom);
+    svg.call(zoom.transform, d3.zoomIdentity);
 
     setTimeout(function () {
 
@@ -353,10 +353,10 @@ function updateGraph(model) {
             x = x / inputElements.length;
             y = y / inputElements.length;
 
-            zoom.translateBy(svg, (svgSize.width / 2) - x, (svgSize.height / 4) - y);
+            svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
         }
         else {
-            zoom.translateBy(svg, (svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2);
+            svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
         }    
     
         updateView('graph');
