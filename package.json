@@ -5,7 +5,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "1.1.9",
+    "version": "1.2.0",
     "description": "Viewer neural network models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
