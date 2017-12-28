@@ -101,7 +101,8 @@ def optimize_onnx(model):
         del tensor.int32_data[:]
         del tensor.int64_data[:]
         del tensor.float_data[:]
-        tensor.raw_data = b''
+        if tensor.HasField('raw_data'):
+            tensor.raw_data = b''
     # Remove raw initializer data
     onnx_model = ModelProto()
     try:
