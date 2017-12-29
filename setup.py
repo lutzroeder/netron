@@ -38,6 +38,8 @@ package_data={
         'view-template.js',
         'view.css',
         'view.js',
+        'view-operator-colors.js',
+        'view-operator-colors.css',
     ]
 }
 
