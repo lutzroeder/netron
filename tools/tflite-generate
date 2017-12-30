@@ -1,0 +1,28 @@
+#!/bin/bash
+
+mkdir -p ../third_party
+
+repository=git@github.com:google/flatbuffers.git
+
+if [ -d "../third_party/flatbuffers" ]; then
+    pushd "../third_party/flatbuffers" > /dev/null
+    echo "Fetch ${repository}..."
+    git fetch -p
+    echo "Reset ${repository}..."
+    git reset --hard origin/master
+    popd > /dev/null
+else
+    pushd "../third_party" > /dev/null
+    echo "Clone ${repository}..."
+    git clone --recursive ${repository}
+    popd > /dev/null
+fi
+
+pushd "../third_party/flatbuffers" > /dev/null
+cmake -G "Unix Makefiles"
+make
+popd > /dev/null
+
+echo "Generate '../src/tflite.js'"
+../third_party/flatbuffers/flatc --js ../third_party/tensorflow/tensorflow/contrib/lite/schema/schema.fbs 
+mv ./schema_generated.js ../src/tflite.js

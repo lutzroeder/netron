@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 mkdir -p ../third_party
@@ -33,10 +34,6 @@ echo "Generate '../src/tf.js'"
     ../third_party/tensorflow/tensorflow/core/framework/attr_value.proto \
     ../third_party/tensorflow/tensorflow/core/framework/tensor.proto \
     ../third_party/tensorflow/tensorflow/core/framework/resource_handle.proto \
-
-echo "Generate '../src/tflite.js'"
-flatc --js ../third_party/tensorflow/tensorflow/contrib/lite/schema/schema.fbs 
-mv ./schema_generated.js ../src/tflite.js
 
 echo "Generate '../src/tf-operator.json'"
 python tf-operator-json.py
