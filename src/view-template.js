@@ -210,10 +210,15 @@ var nodeTemplate = `
 .details h2 { font-weight: 600; font-size: 12px; line-height: 1.25; margin-bottom: 16px; border-bottom: 1px solid #eaecef; }
 .details h3 { font-weight: 600; font-size: 12px; line-height: 1.25; }
 .details .items { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
-.details .item { margin-bottom: 20px; }
-.details .item b { font-weight: 600; }
-.details .item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
-.details .item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.05); white-space: pre-wrap; word-wrap: break-word; padding: 4px 8px 4px 8px; }
+.details .items .item { margin-bottom: 20px; }
+.details .items .item b { font-weight: 600; }
+.details .items .item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
+.details .items .item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.05); white-space: pre-wrap; word-wrap: break-word; padding: 4px 8px 4px 8px; }
+.details .items .item .group { margin-top: 8px; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.04); }
+.details .items .item .group-property { font-size: 10px; padding: 4px 8px 4px 8px; }
+.details .items .item .group-border { border-top: 1px solid rgba(27, 31, 35, 0.04); }
+.details .items .item .group code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); padding: 0; margin: 0; border: 0; }
+.details .items .item .group pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); margin: 0; padding: 4px 8px 4px 8px; border: 0; }
 </style>
 <div class='details'>
 <div class='items'>
@@ -248,25 +253,56 @@ var nodeTemplate = `
 
 {{#if inputs}}
 <h2>Inputs</h2>
-{{/if}}
 <div class='items'>
 {{#inputs}}
-<div class='item'>    
-<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
+<div class='item'>
+<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}
+{{#connections}}
+<div class='group'>
+<div class='group-property'>
+connection: <b>{{{id}}}</b>
+{{#if initializer}}
+{{#if initializer.title}}
+<div style='float: right;'>{{initializer.title}}</div>
+{{/if}}
+{{/if}}
+</div>
+{{#if type}}
+<div class='group-border'></div>
+<div class='group-property'>
+type: <code><b>{{{type}}}</b></code>
+</div>
+{{/if}}
+</div>
+{{/connections}}
 </div>
 {{/inputs}}
 </div>
+{{/if}}
 
 {{#if outputs}}
 <h2>Outputs</h2>
-{{/if}}
 <div class='items'>
 {{#outputs}}
-<div class='item'>    
-<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
+<div class='item'>
+<b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code><b>{{{type}}}</b></code>{{/if}}
+{{#connections}}
+<div class='group'>
+<div class='group-property'>
+connection: <b>{{{id}}}</b>
+</div>
+{{#if type}}
+<div class='group-border'></div>
+<div class='group-property'>
+type: <code><b>{{{type}}}</b></code>
+</div>
+{{/if}}
+</div>
+{{/connections}}
 </div>
 {{/outputs}}
 </div>
+{{/if}}
 
 </div>
 `;
