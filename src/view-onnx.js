@@ -237,6 +237,10 @@ class OnnxNode {
         return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node);
     }
 
+    get dependencies() {
+        return [];
+    }
+
     get attributes() {
         var result = null;
         var node = this._node;

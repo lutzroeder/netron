@@ -251,6 +251,10 @@ class TensorFlowLiteNode {
         return results;
     }
 
+    get dependencies() {
+        return [];
+    }
+
     get attributes() {
         if (!this._attributes) {
             this._attributes = [];

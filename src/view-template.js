@@ -304,5 +304,32 @@ type: <code><b>{{{type}}}</b></code>
 </div>
 {{/if}}
 
+{{#if dependencies}}
+<h2>Control Dependencies</h2>
+<div class='items'>
+<div class='item'>
+{{#dependencies}}
+<div class='group'>
+<div class='group-property'>
+connection: <b>{{{id}}}</b>
+</div>
+{{#if name}}
+<div class='group-border'></div>
+<div class='group-property'>
+name: <b>{{{name}}}</b>
+</div>
+{{/if}}
+{{#if operator}}
+<div class='group-border'></div>
+<div class='group-property'>
+operator: <b>{{{operator}}}</b>
+</div>
+{{/if}}
+</div>
+{{/dependencies}}
+</div>
+</div>
+{{/if}}
+
 </div>
 `;

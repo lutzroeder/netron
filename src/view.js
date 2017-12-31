@@ -169,22 +169,21 @@ function updateGraph(model) {
 
         node.outputs.forEach((output) => {
             output.connections.forEach((connection) => {
-                if (connection.id.startsWith('^')) {
-                    formatter.setControlDependencies();
+                var tuple = edgeMap[connection.id];
+                if (!tuple) {
+                    tuple = { from: null, to: [] };
+                    edgeMap[connection.id] = tuple;
                 }
-                else {
-                    var tuple = edgeMap[connection.id];
-                    if (!tuple) {
-                        tuple = { from: null, to: [] };
-                        edgeMap[connection.id] = tuple;
-                    }
-                    tuple.from = { 
-                        node: nodeId,
-                        name: output.name
-                    };    
-                }
+                tuple.from = { 
+                    node: nodeId,
+                    name: output.name
+                };    
             });
         });
+
+        if (node.dependencies.length > 0) {
+            formatter.setControlDependencies();
+        }
 
         if (node.attributes && !primitive) {
             formatter.setAttributeHandler(() => { 

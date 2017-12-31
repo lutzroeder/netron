@@ -171,15 +171,31 @@ class TensorFlowGraph {
                 {
                     var split = node.input[i].split(':', 1);
                     var inputName = split[0];
-                    var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
-                    var outputName = inputName.startsWith('^') ? inputName.substring(1) : inputName;
-                    var outputNode = this._nodeMap[outputName];
-                    node.input[i] = inputName + ':' + outputIndex.toString();
-                    if (outputNode) {
-                        for (var j = outputNode.output.length; j <= outputIndex; j++) {
-                            outputNode.output.push('');
+                    if (!inputName.startsWith('^')) {
+                        var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
+                        var outputName = inputName;
+                        var outputNode = this._nodeMap[outputName];
+                        node.input[i] = inputName + ':' + outputIndex.toString();
+                        if (outputNode) {
+                            for (var j = outputNode.output.length; j <= outputIndex; j++) {
+                                outputNode.output.push('');
+                            }
+                            outputNode.output[outputIndex] = node.input[i];
+                        }    
+                    }
+                    else {
+                        var sourceName = inputName.substring(1);
+                        var sourceNode = this._nodeMap[sourceName];
+                        if (sourceNode) {
+                            if (!sourceNode.dependency) {
+                                sourceNode.dependency = [];
+                            }
+                            sourceNode.dependency.push({ 
+                                id: inputName, 
+                                name: node.name, 
+                                operator: node.op
+                            });
                         }
-                        outputNode.output[outputIndex] = node.input[i];
                     }
                 }
             });
@@ -341,6 +357,16 @@ class TensorFlowNode {
 
     get outputs() {
         return this._graph.metadata.getOutputs(this._node);
+    }
+
+    get dependencies() {
+        var results = [];
+        if (this._node.dependency) {
+            this._node.dependency.forEach((dependency) => {
+                results.push(dependency);
+            });
+        }
+        return results;
     }
 
     get attributes() {
@@ -764,6 +790,7 @@ class TensorFlowGraphOperatorMetadata {
     getInputs(node) {
         var results = [];
         var index = 0;
+        var inputs = node.input.filter(input => !input.startsWith('^'));
         var opDef = this.getOpDef(node.op);
         if (opDef && opDef.inputArg) {
             opDef.inputArg.forEach((inputArg) => {
@@ -785,24 +812,21 @@ class TensorFlowGraphOperatorMetadata {
                 else if (inputArg.typeListAttr) {
                     result.type = inputArg.typeListAttr;
                 }
-                result.connections = node.input.slice(index, index + count).map((id) => {
-                    if (id.startsWith('^')) {
-                        debugger;
-                    }
-                    return { id: id };
+                result.connections = inputs.slice(index, index + count).map((id) => {
+                    return { 
+                        id: id
+                    };
                 });
                 results.push(result);
                 index += count;
             });
         }
         else {
-            node.input.slice(index).forEach((input) => {
-                if (!input.startsWith('^')) {
-                    results.push({
-                        name: '(' + index.toString() + ')',
-                        connections: [ { id: input } ]
-                    });
-                }
+            inputs.slice(index).forEach((input) => {
+                results.push({
+                    name: '(' + index.toString() + ')',
+                    connections: [ { id: input } ]
+                });
                 index++;
             });
         }
@@ -812,6 +836,7 @@ class TensorFlowGraphOperatorMetadata {
     getOutputs(node) {
         var results = [];
         var index = 0;
+        var outputs = node.output;
         var opDef = this.getOpDef(node.op);
         if (opDef && opDef.outputArg) {
             opDef.outputArg.forEach((outputArg) => {
@@ -833,7 +858,7 @@ class TensorFlowGraphOperatorMetadata {
                 else if (outputArg.typeListAttr) {
                     result.type = outputArg.typeListAttr;
                 }
-                result.connections = node.output.slice(index, index + count).map((id) => {
+                result.connections = outputs.slice(index, index + count).map((id) => {
                     return { id: id };
                 });
                 results.push(result);
@@ -841,7 +866,7 @@ class TensorFlowGraphOperatorMetadata {
             });
         }
         else {
-            node.output.slice(index).forEach((output) => {
+            outputs.slice(index).forEach((output) => {
                 results.push({
                     name: '(' + index.toString() + ')',
                     connections: [ { id: output } ]
