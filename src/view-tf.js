@@ -322,20 +322,16 @@ class TensorFlowNode {
         return null;
     }
 
-    get constant() {
-        return this._node.op == 'Const';
+    get domain() {
+        return null;
     }
 
     get documentation() {
-        var graphMetadata = this._graph.metadata;
-        if (graphMetadata) {
-            return graphMetadata.getOperatorDocumentation(this.operator);       
-        }
-        return null;
+        return this._graph.metadata.getOperatorDocumentation(this.operator);       
     }
 
-    get domain() {
-        return null;
+    get category() {
+        return this._graph.metadata.getOperatorCategory(this.operator);       
     }
 
     get inputs() {
@@ -740,6 +736,18 @@ class TensorFlowTensor {
 class TensorFlowOperatorMetadata {
 
     static open(host, callback) {
+        if (!TensorFlowOperatorMetadata.categoryMap) {
+            TensorFlowOperatorMetadata.categoryMap = {
+                'Const': 'Constant',
+                'Conv2D': 'Layer',
+                'Relu': 'Activation',
+                // 'Identity':
+                // 'VariableV2':
+                // 'Assign':
+                // 'BiasAdd':
+            };
+        }
+
         if (TensorFlowOperatorMetadata.operatorMetadata) {
             callback(null, TensorFlowOperatorMetadata.operatorMetadata);
         }
@@ -933,6 +941,14 @@ class TensorFlowGraphOperatorMetadata {
             }
         }        
         return '';
+    }
+
+    getOperatorCategory(operator) {
+        var category = TensorFlowOperatorMetadata.categoryMap[operator];
+        if (category) {
+            return category;
+        }
+        return null;
     }
 
     getOperatorDocumentation(operator) {

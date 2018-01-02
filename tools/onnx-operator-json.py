@@ -10,7 +10,106 @@ from onnx import defs
 from onnx.defs import OpSchema
 from onnx.backend.test.case.node import collect_snippets
 
-SNIPPETS = collect_snippets()
+snippets = collect_snippets()
+
+categories = {
+    'Constant': 'Constant',
+
+    'Conv': 'Layer',
+    'ConvTranspose': 'layer',
+    'FC': 'Layer',
+    'RNN': 'Layer',
+    'LSTM': 'Layer',
+    'GRU': 'layer',
+
+    'Dropout': 'Dropout',
+
+    'Elu': 'Activation',
+    'HardSigmoid': 'Activation',
+    'LeakyRelu': 'Activation',
+    'PRelu': 'Activation',
+    'Relu': 'Activation',
+    'Selu': 'Activation',
+    'Sigmoid': 'Activation',
+    'Tanh': 'Activation',
+    'LogSoftmax': 'Activation',
+    'Softmax': 'Activation',
+    'Softplus': 'Activation',
+    'Softsign': 'Activation',
+
+    'BatchNormalization': 'Normalization',
+    'InstanceNormalization': 'Normalization',
+    'LpNormalization': 'Normalization',
+    'LRN': 'Normalization',
+
+    'Flatten': 'Shape',
+    'Reshape': 'Shape',
+    'Transpose': 'Shape',
+
+    'Xor': 'Logic',
+    'Not': 'Logic',
+    'Or': 'Logic',
+    'Less': 'Logic',
+    'And': 'Logic',
+    'Greater': 'Logic',
+    'Equal': 'Logic',
+
+    # 'Dropout':
+    # 'AveragePool':
+    # 'GlobalAveragePool':
+    # 'GlobalLpPool':
+    # 'GlobalMaxPool':
+    # 'LpPool':
+    # 'MaxPool':
+    # 'MaxRoiPool':
+    # 'Hardmax':
+    # 'Log':
+    # 'Max':
+    # 'Div': 'Basic',
+    # 'Ceil': 'Basic',
+    # 'Exp': 'Basic',
+    # 'Floor': 'Basic',
+    # 'Sqrt': 'Basic',
+    # 'Sub': 'Basic',
+    # 'Sum': 'Basic',
+    # 'Min': 'Basic',
+    # 'Mul': 'Basic',
+    # 'Neg': 'Basic',
+    # 'Abs': 'Basic',
+    # 'Add': 'Basic',
+    # 'Pow': 'Basic',
+    # 'Gemm': '',
+    # 'MatMul': '',
+    # 'Concat': 
+    # 'ArgMax':
+    # 'ArgMin':
+    # 'Cast':
+    # 'Clip':
+    # 'DepthToSpace':
+    # 'Mean': 
+    # 'Pad':
+    # 'RandomNormal':
+    # 'RandomNormalLike':
+    # 'RandomUniform':
+    # 'RandomUniformLike':
+    # 'Reciprocal':
+    # 'ReduceL1':
+    # 'ReduceL2':
+    # 'ReduceLogSum':
+    # 'ReduceLogSumExp':
+    # 'ReduceMax':
+    # 'ReduceMean':
+    # 'ReduceMin':
+    # 'ReduceProd':
+    # 'ReduceSum':
+    # 'ReduceSumSquare':
+    # 'Slice':
+    # 'SpaceToDepth':
+    # 'Split':
+    # 'Squeeze':
+    # 'Tile':
+    # 'Gather':
+}
 
 def generate_json_attr_type(type):
     assert isinstance(type, OpSchema.AttrType)
@@ -81,23 +180,25 @@ def generate_json(schemas, json_file):
                     'type': generate_json_attr_type(attribute.type),
                     'required': attribute.required })
         if schema.type_constraints:
-            json_schema["type_constraints"] = []
+            json_schema['type_constraints'] = []
             for type_constraint in schema.type_constraints:
                 json_schema['type_constraints'].append({
                     'description': type_constraint.description,
                     'type_param_str': type_constraint.type_param_str,
                     'allowed_type_strs': type_constraint.allowed_type_strs
                 })
-        if schema.name in SNIPPETS:
+        if schema.name in snippets:
             json_schema['snippets'] = []
-            for summary, code in sorted(SNIPPETS[schema.name]):
+            for summary, code in sorted(snippets[schema.name]):
                 json_schema['snippets'].append({
                     'summary': summary,
                     'code': code
                 })
+        if schema.name in categories:
+            json_schema['category'] = categories[schema.name]
         json_root.append({
-            "name": schema.name,
-            "schema": json_schema 
+            'name': schema.name,
+            'schema': json_schema 
         })
     with io.open(json_file, 'w', newline='') as fout:
         json_root = json.dumps(json_root, sort_keys=True, indent=2)
@@ -109,11 +210,5 @@ def generate_json(schemas, json_file):
             fout.write('\n')
 
 if __name__ == '__main__':
-
     schemas = sorted(defs.get_all_schemas_with_history(), key=lambda schema: schema.name)
     generate_json(schemas, '../src/onnx-operator.json')
-
-#        print(schema.name + "|" + schema.domain + "|" + str(schema.since_version))
-#    sorted_ops = sorted(
-#        (int(schema.support_level), op_type, schema)
-#        for (op_type, schema) in defs.get_all_schemas().items())

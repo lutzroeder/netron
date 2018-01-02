@@ -13,6 +13,14 @@
 .node-item-operator:hover path { fill: #fff; }
 .node-item-operator:hover text { fill: #000; }
 
+.node-item-operator-constant path { fill: #eee; }
+.node-item-operator-constant text { fill: #000; }
+.node-item-operator-constant:hover path { fill: #fff; }
+.node-item-operator-layer path { fill: #358; }
+.node-item-operator-activation path { fill: #354; }
+.node-item-operator-normalization path { fill: #534; }
+.node-item-operator-shape path { fill: #503; }
+
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }
 .node-item-input:hover path { fill: #fff; }

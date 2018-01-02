@@ -204,16 +204,16 @@ class OnnxNode {
         return null;
     }
 
-    get constant() {
-        return this._node.opType == 'Constant';
-    }
-
     get documentation() {
         return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
     }
 
     get domain() {
         return this._node.domain ? this._node.domain : null;
+    }
+
+    get category() {
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
     }
 
     get inputs() {
@@ -691,6 +691,14 @@ class OnnxOperatorMetadata {
             }
         }
         return '';
+    }
+
+    getOperatorCategory(operator) {
+        var schema = this.map[operator];
+        if (schema && schema.category) {
+            return schema.category;
+        }
+        return null;
     }
 
     getOperatorDocumentation(operator) {

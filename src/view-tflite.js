@@ -191,16 +191,16 @@ class TensorFlowLiteNode {
         return null;
     }
 
-    get constant() {
-        return null;
-    }
-
     get documentation() {
         return null;
     }
 
     get domain() {
         return null;
+    }
+
+    get category() {
+        return TensorFlowLiteOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
     }
 
     get inputs() {
@@ -555,6 +555,24 @@ class TensorFlowLiteTensor {
 class TensorFlowLiteOperatorMetadata {
 
     static open(host, callback) {
+        if (!TensorFlowLiteOperatorMetadata.categoryMap) {
+            TensorFlowLiteOperatorMetadata.categoryMap = {
+                'Conv2D': 'Layer',
+                'DepthwiseConv2D': 'Layer',
+                'Softmax': 'Activation',
+                'Reshape': 'Shape',
+                'Normalize': 'Normalization',
+                // 'AveragePool2D': '',
+                // 'MaxPool2D':
+                // 'LSHProjection': 
+                // 'Predict': 
+                // 'HashtableLookup':
+                // 'ExtractFeatures': 
+                // 'SkipGram':
+                // 'Concatenation':            
+            };
+        }
+
         if (TensorFlowLiteOperatorMetadata.operatorMetadata) {
             callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
         }
@@ -640,5 +658,13 @@ class TensorFlowLiteOperatorMetadata {
             }
         }
         return '';
+    }
+
+    getOperatorCategory(operator) {
+        var category = TensorFlowLiteOperatorMetadata.categoryMap[operator];
+        if (category) {
+            return category;
+        }
+        return null;
     }
 }

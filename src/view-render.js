@@ -176,13 +176,13 @@ class NodeFormatter {
         this._attributes = [];
     }
 
-    addItem(content, className, title, handler) {
+    addItem(content, classes, title, handler) {
         var item = {};
         if (content) {
             item.content = content;
         }
-        if (className) {
-            item.class = className;
+        if (classes) {
+            item.classes = classes;
         }
         if (title) {
             item.title = title;
@@ -220,11 +220,12 @@ class NodeFormatter {
             var path = itemGroup.append('path');
             var text = itemGroup.append('text');
             var content = item.content;
-            var className = item.class; 
             var handler = item.handler;
             var title = item.title;
-            if (className) {
-                itemGroup.classed(className, true);
+            if (item.classes) {
+                item.classes.forEach((className) => {
+                    itemGroup.classed(className, true);
+                });
             }
             if (handler) {
                 itemGroup.on('click', handler);

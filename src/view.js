@@ -135,9 +135,13 @@ function updateGraph(model) {
 
     graph.nodes.forEach((node) => {
         var formatter = new NodeFormatter();
-        var style = node.constant ? 'node-item-constant' : 'node-item-operator';
+        var styles = [ 'node-item-operator' ];
+        var category = node.category;
+        if (category) {
+            styles.push('node-item-operator-' + category.toLowerCase());
+        }
         var primitive = node.primitive;
-        formatter.addItem(primitive ? primitive : node.operator, style, node.name, function() { 
+        formatter.addItem(primitive ? primitive : node.operator, styles, node.name, function() { 
             showNodeOperatorDocumentation(node);
         });
 
@@ -148,7 +152,7 @@ function updateGraph(model) {
                 var inputClass = initializers.length == 0 ? 'node-item-input' :
                     (initializers.length == input.connections.length ? 'node-item-constant' : 'node-item-undefined');
                 var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
-                formatter.addItem(input.name, inputClass, types, () => {
+                formatter.addItem(input.name, [ inputClass ], types, () => {
                     showNodeInput(input);
                 });
                 input.connections.forEach((connection) => {
