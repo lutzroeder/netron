@@ -17,18 +17,18 @@
         "postinstall": "electron-builder install-app-deps"
     },
     "dependencies": {
-        "d3": "x.x.x",
-        "dagre": "x.x.x",
+        "d3": "latest",
+        "dagre": "latest",
         "electron-updater": "^2.17.6",
-        "flatbuffers": "x.x.x",
-        "handlebars": "x.x.x",
-        "marked": "x.x.x",
-        "npm-font-open-sans": "x.x.x",
-        "protobufjs": "x.x.x"
+        "flatbuffers": "latest",
+        "handlebars": "latest",
+        "marked": "latest",
+        "npm-font-open-sans": "latest",
+        "protobufjs": "latest"
     },
     "devDependencies": {
-        "electron": "x.x.x",
-        "electron-builder": "x.x.x"
+        "electron": "latest",
+        "electron-builder": "latest"
     },
     "build": {
         "publish": [
