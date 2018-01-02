@@ -1,0 +1,28 @@
+/*
+TODO: improve this as soon as we have a better idea how include ONNX operator hierachy
+new color classes for operator types
+issue reference: https://github.com/lutzroeder/Netron/issues/36
+colors taken from: http://hclwizard.org/hclwizard/
+>> base options: Qualitative > Set2
+>> color options: 0 > 288 > 60 > 70 > 12
+*/
+.operator-color-convolution path { fill: #ED90A4; }
+.operator-color-normalization path { fill: #E49881; }
+.operator-color-pooling path { fill: #D2A362; }
+.operator-color-activation path { fill: #B8AD50; }
+.operator-color-dropout path { fill: #96B659; }
+.operator-color-softmax path { fill: #6ABD74; }
+
+.operator-color-logical path { fill: #29C196 ; }
+.operator-color-math-basic path { fill: #00C1B6 ; }
+.operator-color-math-matrix path { fill: #00BDD1 ; }
+
+.operator-color-recurrent path { fill: #65B3E5; }
+
+/* available colors
+.operator-color-_________ path { fill: #9DA7EC; }
+.operator-color-_________ path { fill: #C699E7; }
+*/
+
+.operator-color-other path { fill: #F5F5F5; }
+.operator-color-other text { fill: #000; }/

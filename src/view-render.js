@@ -234,6 +234,12 @@ class NodeFormatter {
                 itemGroup.append('title').text(title);
             }
             if (content) {
+                // TODO: improve this as soon as we have a better idea how include ONNX operator hierachy
+                // simply appending a new operator-color class for now
+                // issue reference: https://github.com/lutzroeder/Netron/issues/36
+                if (content in operator_colors) {
+                    itemGroup.classed('operator-color-'.concat(operator_colors[content]), true)
+                }
                 text.text(content);
             }
             var boundingBox = text.node().getBBox();
