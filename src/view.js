@@ -389,14 +389,31 @@ function showNode(node) {
         var data = template(node);
         sidebar.open(data, 'Node');
 
-        var documentationButton = document.getElementById('operator-documentation');
+        var documentationButton = document.getElementById('documentation-button');
         if (documentationButton) {
             documentationButton.addEventListener('click', () => { 
-                var documentation = node.documentation;
-                if (documentation) {
-                    sidebar.open(documentation, 'Documentation');
+                showDocumentation(node);
+            });
+        }
+    }
+}
+
+function showDocumentation(node) {
+    var documentation = node.documentation;
+    if (documentation) {
+        sidebar.open(documentation, 'Documentation');
+
+        var documentationElement = document.getElementById('documentation');
+        if (documentationElement) {
+            documentationElement.addEventListener('click', (e) => {
+                if (e.target && e.target.href) {
+                    var link = e.target.href;
+                    if (link.startsWith('http://') || link.startsWith('https://')) {
+                        hostService.openURL(link);
+                        e.preventDefault();
+                    }
                 }
-            });    
+            });
         }
     }
 }

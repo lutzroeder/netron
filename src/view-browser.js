@@ -56,6 +56,10 @@ class BrowserHostService {
         request.open('GET', file, true);
         request.send();
     }
+
+    openURL(url) {
+        window.open(url, '_target');
+    }
 }
 
 var hostService = new BrowserHostService();

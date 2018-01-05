@@ -84,6 +84,10 @@ class ElectronHostService {
         });
     }
 
+    openURL(url) {
+        electron.shell.openExternal(url);
+    }
+
     openBuffer(file) {
         fs.exists(file, (exists) => {
             if (!exists) {

@@ -70,7 +70,7 @@ var operatorTemplate = `
 .documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
 </style>
 
-<div class='documentation'>
+<div id='documentation' class='documentation'>
 
 <h1>{{{name}}}</h1>
 {{#if summary}}
@@ -226,7 +226,7 @@ var nodeTemplate = `
 <div class='node-summary'>
 <div class='node-group'>
 {{#if operator}}
-<h1>{{{operator}}}{{#if documentation}} <a id='operator-documentation' class='documentation-button'>?</a>{{/if}}</h1>
+<h1>{{{operator}}}{{#if documentation}} <a id='documentation-button' class='documentation-button'>?</a>{{/if}}</h1>
 {{/if}}
 {{#if name}}
 <div class='node-item'><b>name</b><br><pre>{{{name}}}</pre></div>
