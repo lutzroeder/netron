@@ -206,42 +206,45 @@ var summaryTemplate = `
 
 var nodeTemplate = `
 <style type='text/css'>
-.details h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
-.details h2 { font-weight: 600; font-size: 12px; line-height: 1.25; margin-bottom: 16px; border-bottom: 1px solid #eaecef; }
-.details h3 { font-weight: 600; font-size: 12px; line-height: 1.25; }
-.details .items { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
-.details .items .item { margin-bottom: 20px; }
-.details .items .item b { font-weight: 600; }
-.details .items .item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
-.details .items .item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.05); white-space: pre-wrap; word-wrap: break-word; padding: 4px 8px 4px 8px; }
-.details .items .item .group { margin-top: 8px; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.04); }
-.details .items .item .group-property { font-size: 10px; padding: 4px 8px 4px 8px; }
-.details .items .item .group-border { border-top: 1px solid rgba(27, 31, 35, 0.04); }
-.details .items .item .group code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); padding: 0; margin: 0; border: 0; }
-.details .items .item .group pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); margin: 0; padding: 4px 8px 4px 8px; border: 0; }
+.node-summary h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.node-summary h2 { font-weight: 600; font-size: 12px; line-height: 1.25; margin-bottom: 16px; border-bottom: 1px solid #eaecef; }
+.node-summary h3 { font-weight: 600; font-size: 12px; line-height: 1.25; }
+.node-summary .documentation-button { display: inline-block; text-align: center; vertical-align: middle; font-weight: 600; width: 1.8ex; height: 1.8ex; font-size: 1.4ex; line-height: 1.8ex; border-radius: 1.2ex; margin-right: 4px; transform: translateY(-0.3ex); padding: 1px; color: #888; background: transparent; border: 1px solid #aaa; text-decoration: none; }
+.node-summary .documentation-button:hover { color: #f6f6f6; background: #aaa; border-color: #aaa; text-decoration: none; }
+.node-summary .node-group { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
+.node-summary .node-group .node-item { margin-bottom: 20px; }
+.node-summary .node-group .node-item b { font-weight: 600; }
+.node-summary .node-group .node-item code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
+.node-summary .node-group .node-item pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; padding: 8px 12px 8px 12px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.05); white-space: pre-wrap; word-wrap: break-word; padding: 4px 8px 4px 8px; }
+.node-summary .node-group .node-item .group { margin-top: 8px; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.04); }
+.node-summary .node-group .node-item .group-property { font-size: 10px; padding: 4px 8px 4px 8px; }
+.node-summary .node-group .node-item .group-border { border-top: 1px solid rgba(27, 31, 35, 0.04); }
+.node-summary .node-group .node-item .group code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); padding: 0; margin: 0; border: 0; }
+.node-summary .node-group .node-item .group pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(0, 0, 0, 0); margin: 0; padding: 4px 8px 4px 8px; border: 0; }
+
 </style>
-<div class='details'>
-<div class='items'>
+<div class='node-summary'>
+<div class='node-group'>
 {{#if operator}}
-<h1>{{{operator}}}</h1>
+<h1>{{{operator}}}{{#if documentation}} <a id='operator-documentation' class='documentation-button'>?</a>{{/if}}</h1>
 {{/if}}
 {{#if name}}
-<div class='item'><b>name</b><br><pre>{{{name}}}</pre></div>
+<div class='node-item'><b>name</b><br><pre>{{{name}}}</pre></div>
 {{/if}}
 {{#if description}}
-<div class='item'><b>description</b><br><pre>{{{description}}}</pre></div>
+<div class='node-item'><b>description</b><br><pre>{{{description}}}</pre></div>
 {{/if}}
 {{#if domain}}
-<div class='item'><b>domain</b><br><pre>{{{domain}}}</pre></div>
+<div class='node-item'><b>domain</b><br><pre>{{{domain}}}</pre></div>
 {{/if}}
 </div>
 
 {{#if attributes}}
 <h2>Attributes</h2>
 {{/if}}
-<div class='items'>
+<div class='node-group'>
 {{#attributes}}
-<div class='item'>    
+<div class='node-item'>    
 <b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}<br>
 {{#if description}}
 {{{description}}}
@@ -253,9 +256,9 @@ var nodeTemplate = `
 
 {{#if inputs}}
 <h2>Inputs</h2>
-<div class='items'>
+<div class='node-group'>
 {{#inputs}}
-<div class='item'>
+<div class='node-item'>
 <b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code>{{{type}}}</code>{{/if}}
 {{#connections}}
 <div class='group'>
@@ -282,9 +285,9 @@ type: <code><b>{{{type}}}</b></code>
 
 {{#if outputs}}
 <h2>Outputs</h2>
-<div class='items'>
+<div class='node-group'>
 {{#outputs}}
-<div class='item'>
+<div class='node-item'>
 <b>{{{name}}}{{#if type}}: {{/if}}</b>{{#if type}}<code><b>{{{type}}}</b></code>{{/if}}
 {{#connections}}
 <div class='group'>
@@ -306,8 +309,8 @@ type: <code><b>{{{type}}}</b></code>
 
 {{#if dependencies}}
 <h2>Control Dependencies</h2>
-<div class='items'>
-<div class='item'>
+<div class='node-group'>
+<div class='node-item'>
 {{#dependencies}}
 <div class='group'>
 <div class='group-property'>

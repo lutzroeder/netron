@@ -142,7 +142,7 @@ function updateGraph(model) {
         }
         var primitive = node.primitive;
         formatter.addItem(primitive ? primitive : node.operator, styles, node.name, function() { 
-            showNodeOperatorDocumentation(node);
+            showNode(node);
         });
 
         node.inputs.forEach((input) => {
@@ -383,18 +383,21 @@ function showNodeInput(input) {
     }
 }
 
-function showNodeOperatorDocumentation(node) {
-    var documentation = node.documentation;
-    if (documentation) {
-        sidebar.open(documentation, 'Documentation');
-    }
-}
-
 function showNode(node) {
     if (node) {
         var template = Handlebars.compile(nodeTemplate, 'utf-8');
         var data = template(node);
         sidebar.open(data, 'Node');
+
+        var documentationButton = document.getElementById('operator-documentation');
+        if (documentationButton) {
+            documentationButton.addEventListener('click', () => { 
+                var documentation = node.documentation;
+                if (documentation) {
+                    sidebar.open(documentation, 'Documentation');
+                }
+            });    
+        }
     }
 }
 
