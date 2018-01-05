@@ -741,7 +741,9 @@ class TensorFlowOperatorMetadata {
                 'Const': 'Constant',
                 'Conv2D': 'Layer',
                 'Relu': 'Activation',
-                // 'Identity':
+                'LRN': 'Normalization',
+                'MaxPool': 'Pool',
+                'Identity': 'Control',
                 // 'VariableV2':
                 // 'Assign':
                 // 'BiasAdd':

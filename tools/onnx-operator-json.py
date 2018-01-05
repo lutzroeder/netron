@@ -54,14 +54,20 @@ categories = {
     'Greater': 'Logic',
     'Equal': 'Logic',
 
-    # 'Dropout':
-    # 'AveragePool':
-    # 'GlobalAveragePool':
-    # 'GlobalLpPool':
-    # 'GlobalMaxPool':
-    # 'LpPool':
-    # 'MaxPool':
-    # 'MaxRoiPool':
+    'AveragePool': 'Pool',
+    'GlobalAveragePool': 'Pool',
+    'GlobalLpPool': 'Pool',
+    'GlobalMaxPool': 'Pool',
+    'LpPool': 'Pool',
+    'MaxPool': 'Pool',
+    'MaxRoiPool': 'Pool',
+
+    'Concat': 'tensor',
+    'Slice': 'tensor',
+    'Split': 'tensor',
+
+    # 'Gemm': '',
+    # 'MatMul': '',
     # 'Hardmax':
     # 'Log':
     # 'Max':
@@ -78,9 +84,6 @@ categories = {
     # 'Abs': 'Basic',
     # 'Add': 'Basic',
     # 'Pow': 'Basic',
-    # 'Gemm': '',
-    # 'MatMul': '',
-    # 'Concat': 
     # 'ArgMax':
     # 'ArgMin':
     # 'Cast':
@@ -103,9 +106,7 @@ categories = {
     # 'ReduceProd':
     # 'ReduceSum':
     # 'ReduceSumSquare':
-    # 'Slice':
     # 'SpaceToDepth':
-    # 'Split':
     # 'Squeeze':
     # 'Tile':
     # 'Gather':

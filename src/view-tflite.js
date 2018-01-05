@@ -562,14 +562,14 @@ class TensorFlowLiteOperatorMetadata {
                 'Softmax': 'Activation',
                 'Reshape': 'Shape',
                 'Normalize': 'Normalization',
-                // 'AveragePool2D': '',
-                // 'MaxPool2D':
+                'AveragePool2D': 'Pool',
+                'MaxPool2D': 'Pool',
+                'Concatenation': 'Tensor',            
                 // 'LSHProjection': 
                 // 'Predict': 
                 // 'HashtableLookup':
                 // 'ExtractFeatures': 
                 // 'SkipGram':
-                // 'Concatenation':            
             };
         }
 

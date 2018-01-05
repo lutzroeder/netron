@@ -453,6 +453,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "Pool",
       "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
@@ -2354,6 +2355,7 @@
   {
     "name": "GlobalAveragePool",
     "schema": {
+      "category": "Pool",
       "description": "GlobalAveragePool consumes an input tensor X and applies average pooling across the\n the values in the same channel. This is equivalent to AveragePool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
@@ -2400,6 +2402,7 @@
           "type": "float"
         }
       ],
+      "category": "Pool",
       "description": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
@@ -2446,6 +2449,7 @@
           "type": "int"
         }
       ],
+      "category": "Pool",
       "description": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
@@ -2484,6 +2488,7 @@
   {
     "name": "GlobalMaxPool",
     "schema": {
+      "category": "Pool",
       "description": "GlobalMaxPool consumes an input tensor X and applies max pooling across the\n the values in the same channel. This is equivalent to MaxPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
@@ -3607,6 +3612,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "Pool",
       "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
@@ -3677,6 +3683,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "Pool",
       "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
@@ -3829,6 +3836,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "Pool",
       "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
@@ -3881,6 +3889,7 @@
           "type": "float"
         }
       ],
+      "category": "Pool",
       "description": "ROI max pool consumes an input tensor X and region of interests (RoIs) to\n apply max pooling across each RoI, to produce output 4-D tensor of shape\n (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
       "domain": "ai.onnx",
       "inputs": [
