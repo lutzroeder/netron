@@ -592,7 +592,7 @@ class OnnxOperatorMetadata {
     }
 
     constructor(data) {
-        this.map = {};
+        this._map = {};
         var items = JSON.parse(data);
         if (items) {
             items.forEach((item) => {
@@ -600,7 +600,7 @@ class OnnxOperatorMetadata {
                 {
                     var name = item.name;
                     var schema = item.schema;
-                    this.map[name] = schema;
+                    this._map[name] = schema;
                 }
             });
         }
@@ -609,7 +609,7 @@ class OnnxOperatorMetadata {
     getInputs(node) {
         var inputs = [];
         var index = 0;
-        var schema = this.map[node.opType];
+        var schema = this._map[node.opType];
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputDef) => {
                 if (index < node.input.length || inputDef.option != 'optional') {
@@ -644,7 +644,7 @@ class OnnxOperatorMetadata {
     getOutputs(node) {
         var outputs = [];
         var index = 0;
-        var schema = this.map[node.opType];
+        var schema = this._map[node.opType];
         if (schema && schema.inputs) {
             schema.outputs.forEach((outputDef) => {
                 if (index < node.output.length || outputDef.option != 'optional') {
@@ -673,7 +673,7 @@ class OnnxOperatorMetadata {
     }
 
     getAttributeType(operator, name) {
-        var schema = this.map[operator];
+        var schema = this._map[operator];
         if (schema) {
             var attributeMap = schema.attributeMap;
             if (!attributeMap) {
@@ -694,7 +694,7 @@ class OnnxOperatorMetadata {
     }
 
     getOperatorCategory(operator) {
-        var schema = this.map[operator];
+        var schema = this._map[operator];
         if (schema && schema.category) {
             return schema.category;
         }
@@ -702,7 +702,7 @@ class OnnxOperatorMetadata {
     }
 
     getOperatorDocumentation(operator) {
-        var schema = this.map[operator];
+        var schema = this._map[operator];
         if (schema) {
             schema = Object.assign({}, schema);
             schema.name = operator;

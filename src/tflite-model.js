@@ -555,24 +555,6 @@ class TensorFlowLiteTensor {
 class TensorFlowLiteOperatorMetadata {
 
     static open(host, callback) {
-        if (!TensorFlowLiteOperatorMetadata.categoryMap) {
-            TensorFlowLiteOperatorMetadata.categoryMap = {
-                'Conv2D': 'Layer',
-                'DepthwiseConv2D': 'Layer',
-                'Softmax': 'Activation',
-                'Reshape': 'Shape',
-                'Normalize': 'Normalization',
-                'AveragePool2D': 'Pool',
-                'MaxPool2D': 'Pool',
-                'Concatenation': 'Tensor',            
-                // 'LSHProjection': 
-                // 'Predict': 
-                // 'HashtableLookup':
-                // 'ExtractFeatures': 
-                // 'SkipGram':
-            };
-        }
-
         if (TensorFlowLiteOperatorMetadata.operatorMetadata) {
             callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
         }
@@ -587,22 +569,36 @@ class TensorFlowLiteOperatorMetadata {
     }
 
     constructor(data) {
-        this.map = {};
+        this._map = {};
         var items = JSON.parse(data);
         if (items) {
             items.forEach((item) => {
                 if (item.name && item.schema)
                 {
-                    var name = item.name;
-                    var schema = item.schema;
-                    this.map[name] = schema;
+                    this._map[item.name] = item.schema;
                 }
             });
         }
+
+        this._categoryMap = {
+            'Conv2D': 'Layer',
+            'DepthwiseConv2D': 'Layer',
+            'Softmax': 'Activation',
+            'Reshape': 'Shape',
+            'Normalize': 'Normalization',
+            'AveragePool2D': 'Pool',
+            'MaxPool2D': 'Pool',
+            'Concatenation': 'Tensor',            
+            // 'LSHProjection': 
+            // 'Predict': 
+            // 'HashtableLookup':
+            // 'ExtractFeatures': 
+            // 'SkipGram':
+        };
     }
 
     getInputName(operator, index) {
-        var schema = this.map[operator];
+        var schema = this._map[operator];
         if (schema) {
             var inputs = schema.inputs;
             if (inputs && index < inputs.length) {
@@ -621,7 +617,7 @@ class TensorFlowLiteOperatorMetadata {
     }
 
     getOutputName(operator, index) {
-        var schema = this.map[operator];
+        var schema = this._map[operator];
         if (schema) {
             var outputs = schema.outputs;
             if (outputs && index < outputs.length) {
@@ -640,7 +636,7 @@ class TensorFlowLiteOperatorMetadata {
     }
 
     getAttributeType(operator, name) {
-        var schema = this.map[operator];
+        var schema = this._map[operator];
         if (schema) {
             var attributeMap = schema.attributeMap;
             if (!attributeMap) {
@@ -661,7 +657,7 @@ class TensorFlowLiteOperatorMetadata {
     }
 
     getOperatorCategory(operator) {
-        var category = TensorFlowLiteOperatorMetadata.categoryMap[operator];
+        var category = this._categoryMap[operator];
         if (category) {
             return category;
         }

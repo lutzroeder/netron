@@ -1,0 +1,85 @@
+[
+  {
+    "name": "Bidirectional",
+    "schema": {
+      "attributes": [
+        { "name": "merge_mode", "default": "concat" }
+      ]
+    }
+  },
+  {
+    "name": "Activation",
+    "schema": {
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "MaxPooling2D",
+    "schema": {
+      "attributes": [
+        { "name": "data_format", "default": "channels_last" },
+        { "name": "padding", "default": "valid" },
+        { "name": "pool_size", "default": [2, 2] },
+        { "name": "strides", "default": [2, 2] }
+      ]
+    }
+  },
+  {
+    "name": "BatchNormalization",
+    "schema": {
+      "attributes": [
+        { "name": "axis", "default": -1 },
+        { "name": "epsilon", "default": 1e-3 },
+        { "name": "momentum", "default": 0.99 },
+        { "name": "scale", "default": true },
+        { "name": "center", "default": true },
+        { "name": "gamma_initializer", "default": { "class_name": "Ones", "config": {} } },
+        { "name": "moving_mean_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "moving_variance_initializer", "default": { "class_name": "Ones", "config": {} } },
+        { "name": "beta_initializer", "default": { "class_name": "Zeros", "config": {} } }
+      ]
+    }
+  },
+  {
+    "name": "Dense",
+    "schema": {
+      "attributes": [
+        { "name": "activation", "default": "linear" },
+        { "name": "use_bias", "default": true },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
+      ]
+    }
+  },
+  {
+    "name": "Conv2D",
+    "schema": {
+      "attributes": [
+        { "name": "activation", "default": "linear" },
+        { "name": "padding", "default": "valid" },
+        { "name": "use_bias", "default": true },
+        { "name": "data_format", "default": "channels_last" },
+        { "name": "strides", "default": [1, 1] },
+        { "name": "dilation_rate", "default": [1, 1] },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
+      ]
+    }
+  },
+  {
+    "name": "DepthwiseConv2D",
+    "schema": {
+      "attributes": [
+        { "name": "activation", "default": "linear" },
+        { "name": "padding", "default": "valid" },
+        { "name": "use_bias", "default": true },
+        { "name": "data_format", "default": "channels_last" },
+        { "name": "strides", "default": [1, 1] },
+        { "name": "dilation_rate", "default": [1, 1] },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "depthwise_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
+      ]
+    }
+  }
+]

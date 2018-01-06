@@ -185,7 +185,8 @@ function updateGraph(model) {
             });
         });
 
-        if (node.dependencies.length > 0) {
+        var dependencies = node.dependencies;
+        if (dependencies && dependencies.length > 0) {
             formatter.setControlDependencies();
         }
 
@@ -504,6 +505,12 @@ class ModelService {
         }
         else if (extension == 'onnx') {
             OnnxModel.open(buffer, identifier, hostService, (err, model) => {
+                this._activeModel = model;
+                callback(err, model);
+            });
+        }
+        else if (extension == 'json' || extension == 'keras' || extension == 'h5') {
+            KerasModel.open(buffer, identifier, hostService, (err, model) => {
                 this._activeModel = model;
                 callback(err, model);
             });

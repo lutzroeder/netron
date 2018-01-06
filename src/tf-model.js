@@ -736,20 +736,6 @@ class TensorFlowTensor {
 class TensorFlowOperatorMetadata {
 
     static open(host, callback) {
-        if (!TensorFlowOperatorMetadata.categoryMap) {
-            TensorFlowOperatorMetadata.categoryMap = {
-                'Const': 'Constant',
-                'Conv2D': 'Layer',
-                'Relu': 'Activation',
-                'LRN': 'Normalization',
-                'MaxPool': 'Pool',
-                'Identity': 'Control',
-                // 'VariableV2':
-                // 'Assign':
-                // 'BiasAdd':
-            };
-        }
-
         if (TensorFlowOperatorMetadata.operatorMetadata) {
             callback(null, TensorFlowOperatorMetadata.operatorMetadata);
         }
@@ -787,6 +773,18 @@ class TensorFlowGraphOperatorMetadata {
                 this._map[opDef.name] = opDef;
             });
         }
+
+        this._categoryMap = {
+            'Const': 'Constant',
+            'Conv2D': 'Layer',
+            'Relu': 'Activation',
+            'LRN': 'Normalization',
+            'MaxPool': 'Pool',
+            'Identity': 'Control',
+            // 'VariableV2':
+            // 'Assign':
+            // 'BiasAdd':
+        };
     }
 
     getOpDef(operator) {
@@ -946,7 +944,7 @@ class TensorFlowGraphOperatorMetadata {
     }
 
     getOperatorCategory(operator) {
-        var category = TensorFlowOperatorMetadata.categoryMap[operator];
+        var category = this._categoryMap[operator];
         if (category) {
             return category;
         }
