@@ -69,6 +69,14 @@
                     "tflite"
                 ],
                 "name": "TensorFlow Lite Model"
+            },
+            {
+                "ext": [
+                    "keras",
+                    "h5",
+                    "json"
+                ],
+                "name": "Keras Model"
             }
         ],
         "mac": {

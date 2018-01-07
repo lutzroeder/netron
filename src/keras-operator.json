@@ -26,6 +26,22 @@
     }
   },
   {
+    "name": "MaxPooling2D",
+    "schema": {
+      "attributes": [
+        { "name": "data_format", "default": "channels_last" }
+      ]
+    }
+  },
+  {
+    "name": "GlobalMaxPooling2D",
+    "schema": {
+      "attributes": [
+        { "name": "data_format", "default": "channels_last" }
+      ]
+    }
+  },
+  {
     "name": "BatchNormalization",
     "schema": {
       "attributes": [

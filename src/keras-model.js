@@ -6,24 +6,31 @@ class KerasModel {
 
     static open(buffer, identifier, host, callback) { 
         try {
-            var json = null;
+            var version = null;
+            var backend = null;
+            var model_config = null;
 
             var extension = identifier.split('.').pop();
             if (extension == 'keras' || extension == 'h5') {
-                throw new Error('Keras H5 format not supported yet.');
+                var h5 = new H5(buffer);
+                version = h5.rootGroup.attributes.keras_version;
+                backend = h5.rootGroup.attributes.backend;
+                model_config = h5.rootGroup.attributes.model_config;
+                if (!model_config) {
+                    throw new Error('H5 file has no \'model_config\' data.');
+                }
             }
-
-            if (extension == 'json') {
+            else if (extension == 'json') {
                 if (!window.TextDecoder) {
                     throw new Error('TextDecoder not avaialble.');
                 }
 
                 var decoder = new TextDecoder('utf-8');
-                json = decoder.decode(buffer);
+                model_config = decoder.decode(buffer);
             }
 
-            var root = JSON.parse(json);
-            var model = new KerasModel(root);
+            var root = JSON.parse(model_config);
+            var model = new KerasModel(root, version, backend);
 
             KerasOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
@@ -34,13 +41,15 @@ class KerasModel {
         }
     }
 
-    constructor(root) {
+    constructor(root, keras_version, backend) {
         if (!root.class_name) {
             throw new Error('class_name is not present.');
         }
         if (root.class_name != 'Model' && root.class_name != 'Sequential') {
             throw new Error('\'' + root.class_name + '\' is not supported.');
         }
+        this._version = keras_version;
+        this._backend = backend;
         var graph = new KerasGraph(root);
         this._graphs = [ graph ];
         this._activeGraph = graph; 
@@ -59,8 +68,14 @@ class KerasModel {
 
         summary.properties.push({ 
             name: 'Format', 
-            value: 'Keras'
+            value: 'Keras' + (this._version ? (' ' + this._version) : '')
         });
+        if (this._backend) {
+            summary.properties.push({ 
+                name: 'Backend', 
+                value: this._backend
+            });
+        }
 
         return summary;
     }
@@ -347,6 +362,7 @@ class KerasOperatorMetadata {
             'GlobalAveragePooling2D': 'Pool',
             'AveragePooling2D': 'Pool',
             'MaxPooling2D': 'Layer',
+            'GlobalMaxPooling2D': 'Layer',
             'Flatten': 'Shape',
             'Reshape': 'Shape',
             'Dropout': 'Dropout'
