@@ -257,7 +257,6 @@ function updateGraph(model) {
         }
         tuple.from = { 
             node: nodeId,
-            // name: valueInfo.name
         };
 
         var formatter = new NodeFormatter();

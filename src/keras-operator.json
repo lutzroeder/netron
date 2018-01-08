@@ -2,14 +2,24 @@
   {
     "name": "Bidirectional",
     "schema": {
+      "category": "Wrapper",
       "attributes": [
         { "name": "merge_mode", "default": "concat" }
       ]
     }
   },
   {
+    "name": "TimeDistributed",
+    "schema": {
+      "category": "Wrapper",
+      "attributes": [
+      ]
+    }
+  },
+  {
     "name": "Activation",
     "schema": {
+      "category": "Activation",
       "attributes": [
       ]
     }
@@ -17,6 +27,7 @@
   {
     "name": "MaxPooling2D",
     "schema": {
+      "category": "Pool",
       "attributes": [
         { "name": "data_format", "default": "channels_last" },
         { "name": "padding", "default": "valid" },
@@ -26,8 +37,9 @@
     }
   },
   {
-    "name": "MaxPooling2D",
+    "name": "UpSampling2D",
     "schema": {
+      "category": "Layer",
       "attributes": [
         { "name": "data_format", "default": "channels_last" }
       ]
@@ -36,6 +48,25 @@
   {
     "name": "GlobalMaxPooling2D",
     "schema": {
+      "category": "Pool",
+      "attributes": [
+        { "name": "data_format", "default": "channels_last" }
+      ]
+    }
+  },
+  {
+    "name": "GlobalAveragePooling2D",
+    "schema": {
+      "category": "Pool",
+      "attributes": [
+        { "name": "data_format", "default": "channels_last" }
+      ]
+    }
+  },
+  {
+    "name": "AveragePooling2D",
+    "schema": {
+      "category": "Pool",
       "attributes": [
         { "name": "data_format", "default": "channels_last" }
       ]
@@ -44,6 +75,7 @@
   {
     "name": "BatchNormalization",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "axis", "default": -1 },
         { "name": "epsilon", "default": 1e-3 },
@@ -60,6 +92,7 @@
   {
     "name": "Dense",
     "schema": {
+      "category": "Layer",
       "attributes": [
         { "name": "activation", "default": "linear" },
         { "name": "use_bias", "default": true },
@@ -69,8 +102,82 @@
     }
   },
   {
+    "name": "LSTM",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "activation", "default": "tanh" },
+        { "name": "recurrent_activation", "default": "hard_sigmoid" },
+        { "name": "use_bias", "default": true },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "unit_forget_bias", "default": true },
+        { "name": "dropout", "default": 0.0 },
+        { "name": "recurrent_dropout", "default": 0.0 },
+        { "name": "implementation", "default": 1 },
+        { "name": "unroll", "default": false },
+        { "name": "stateful", "default": false },
+        { "name": "go_backwards", "default": false },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": { "distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
+        { "name": "recurrent_initializer", "default": { "class_name": "Orthogonal", "config": { "seed": null, "gain": 1 } } }
+      ]
+    }
+  },
+  {
+    "name": "GRU",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "activation", "default": "tanh" },
+        { "name": "recurrent_activation", "default": "hard_sigmoid" },
+        { "name": "use_bias", "default": true },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": { "distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
+        { "name": "recurrent_initializer", "default": { "class_name": "Orthogonal", "config": { "seed": null, "gain": 1 } } },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "dropout", "default": 0.0 },
+        { "name": "implementation", "default": 1 },
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "go_backwards", "default": false },
+        { "name": "stateful", "default": false },
+        { "name": "unroll", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "RNN",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "go_backwards", "default": false },
+        { "name": "stateful", "default": false },
+        { "name": "unroll", "default": false }
+      ]
+    }
+  },
+  {
     "name": "Conv2D",
     "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "activation", "default": "linear" },
+        { "name": "padding", "default": "valid" },
+        { "name": "use_bias", "default": true },
+        { "name": "data_format", "default": "channels_last" },
+        { "name": "strides", "default": [1, 1] },
+        { "name": "dilation_rate", "default": [1, 1] },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
+      ]
+    }
+  },
+  {
+    "name": "Convolution2D",
+    "schema": {
+      "category": "Layer",
       "attributes": [
         { "name": "activation", "default": "linear" },
         { "name": "padding", "default": "valid" },
@@ -86,6 +193,7 @@
   {
     "name": "DepthwiseConv2D",
     "schema": {
+      "category": "Layer",
       "attributes": [
         { "name": "activation", "default": "linear" },
         { "name": "padding", "default": "valid" },
@@ -96,6 +204,30 @@
         { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
         { "name": "depthwise_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
       ]
+    }
+  },
+  {
+    "name": "Concatenate",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "Flatten",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout"
     }
   }
 ]

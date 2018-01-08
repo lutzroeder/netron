@@ -16,15 +16,19 @@
 .node-item-operator-constant path { fill: #eee; }
 .node-item-operator-constant text { fill: #000; }
 .node-item-operator-constant:hover path { fill: #fff; }
+
+.node-item-operator-control path { fill: #eee; }
+.node-item-operator-control text { fill: #000; }
+.node-item-operator-control:hover path { fill: #fff; }
+
 .node-item-operator-layer path { fill: #358; }
+.node-item-operator-wrapper path { fill: #457; }
 .node-item-operator-activation path { fill: #4B1B16; }
 .node-item-operator-pool path { fill: #353; }
 .node-item-operator-normalization path { fill: #354; }
 .node-item-operator-dropout path { fill: #454770; }
 .node-item-operator-shape path { fill: #6C4F47; }
 .node-item-operator-tensor path { fill: #59423B; }
-.node-item-operator-control path { fill: #eee; }
-.node-item-operator-control text { fill: #000; }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }
