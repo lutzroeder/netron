@@ -96,7 +96,12 @@ class KerasModel {
 class KerasGraph {
 
     constructor(root) {
-        this._name = root.name;
+        if (root.name) {
+            this._name = root.name;            
+        }
+        else if (root.config && root.config.name) {
+            this._name = root.config.name;
+        }
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
