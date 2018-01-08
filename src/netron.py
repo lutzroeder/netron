@@ -119,20 +119,23 @@ def optimize_onnx(model):
     return True
 
 def optimize_tf(model):
-    return True;
+    return True
 
 def optimize_tflite(model):
-    return True;
+    return True
+
+def optimize_keras(model):
+    return True
 
 class Model:
     def __init__(self, data, file):
         self.data = data
         self.file = file
 
-def serve_data(data, file, verbose=False, browse=False, port=8080, host='localhost', tensor=False):
+def serve_data(data, file, verbose=False, browse=False, port=8080, host='localhost', optimize=False):
     server = MyHTTPServer((host, port), MyHTTPRequestHandler)
     model = Model(data, file)
-    if not tensor:
+    if optimize:
         print("Processing '" + file + "'...")
         ok = False
         if not ok and file.endswith('.tflite'):
@@ -141,6 +144,8 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
             ok = optimize_tf(model)
         if not ok and file.endswith('.onnx') or file.endswith('.pb'):
             ok = optimize_onnx(model)
+        if not ok and file.endswith('.json') or file.endswith('.h5') or file.endswith('.keras'):
+            ok = optimize_keras(model)
         if not ok and file.endswith('.pb'):
             ok = optimize_tf(model)
     url = 'http://' + host + ':' + str(port)
@@ -155,9 +160,9 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
         print("\nStopping...")
         server.server_close()
 
-def serve_file(file, verbose=False, browse=False, port=8080, host='localhost', tensor=False):
+def serve_file(file, verbose=False, browse=False, port=8080, host='localhost', optimize=False):
     print("Reading '" + file + "'...")
     data = None
     with open(file, 'rb') as binary:
         data = binary.read()
-    serve_data(data, file, verbose=verbose, browse=browse, port=port, host=host, tensor=tensor)
+    serve_data(data, file, verbose=verbose, browse=browse, port=port, host=host, optimize=optimize)

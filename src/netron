@@ -12,10 +12,10 @@ if __name__ == '__main__':
     parser.add_argument('--port', help='port to serve (default: 8080)', type=int, default=8080)
     parser.add_argument('--host', help='host to serve (default: localhost)', default='localhost')
     parser.add_argument('--browse', help='launch web browser', action='store_true')
-    parser.add_argument('-t', '--tensor', help='skip removing tensor data', action='store_true')
+    parser.add_argument('-o', '--optimize', help='remove tensor data', action='store_true')
     args = parser.parse_args()
     if not os.path.exists(args.file):
         print("Model file '" + args.file + "' does not exist.")
         sys.exit(2)
-    netron.serve_file(args.file, verbose=args.verbose, browse=args.browse, port=args.port, host=args.host, tensor=args.tensor)
+    netron.serve_file(args.file, verbose=args.verbose, browse=args.browse, port=args.port, host=args.host, optimize=args.optimize)
     sys.exit(0)
