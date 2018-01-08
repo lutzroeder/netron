@@ -209,7 +209,7 @@ var nodeTemplate = `
 .node-summary h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
 .node-summary h2 { font-weight: 600; font-size: 12px; line-height: 1.25; margin-bottom: 16px; border-bottom: 1px solid #eaecef; }
 .node-summary h3 { font-weight: 600; font-size: 12px; line-height: 1.25; }
-.node-summary .documentation-button { display: inline-block; text-align: center; vertical-align: middle; font-weight: 600; width: 1.8ex; height: 1.8ex; font-size: 1.4ex; line-height: 1.8ex; border-radius: 1.2ex; margin-right: 4px; transform: translateY(-0.3ex); padding: 1px; color: #888; background: transparent; border: 1px solid #aaa; text-decoration: none; }
+.node-summary .documentation-button { display: inline-block; text-align: center; vertical-align: middle; font-weight: 600; width: 12px; height: 12px; font-size: 10px; line-height: 12px; border-radius: 50%; transform: translateY(-1px); padding: 1px; color: #888; background: transparent; border: 1px solid #aaa; text-decoration: none; }
 .node-summary .documentation-button:hover { color: #f6f6f6; background: #aaa; border-color: #aaa; text-decoration: none; }
 .node-summary .node-group { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
 .node-summary .node-group .node-item { margin-bottom: 20px; }
