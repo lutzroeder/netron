@@ -229,5 +229,15 @@
     "schema": {
       "category": "Dropout"
     }
+  },
+  {
+    "name": "Embedding",
+    "schema": {
+      "category": "Transform",
+      "attributes": [
+        { "name": "mask_zero", "default": false },
+        { "name": "embeddings_initializer", "default": { "class_name": "RandomUniform", "config": { "maxval": 0.05, "seed": null, "minval": -0.05 } } }
+      ]
+    }
   }
 ]
