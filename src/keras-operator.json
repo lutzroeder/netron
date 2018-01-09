@@ -25,6 +25,18 @@
     }
   },
   {
+    "name": "MaxPooling1D",
+    "schema": {
+      "category": "Pool",
+      "attributes": [
+        { "name": "data_format", "default": "channels_last" },
+        { "name": "padding", "default": "valid" },
+        { "name": "pool_size", "default": [2, 2] },
+        { "name": "strides", "default": [2, 2] }
+      ]
+    }
+  },
+  {
     "name": "MaxPooling2D",
     "schema": {
       "category": "Pool",
@@ -51,6 +63,14 @@
       "category": "Pool",
       "attributes": [
         { "name": "data_format", "default": "channels_last" }
+      ]
+    }
+  },
+  {
+    "name": "GlobalAveragePooling1D",
+    "schema": {
+      "category": "Pool",
+      "attributes": [
       ]
     }
   },
@@ -155,6 +175,22 @@
         { "name": "go_backwards", "default": false },
         { "name": "stateful", "default": false },
         { "name": "unroll", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "Conv1D",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "activation", "default": "linear" },
+        { "name": "padding", "default": "valid" },
+        { "name": "use_bias", "default": true },
+        { "name": "data_format", "default": "channels_last" },
+        { "name": "strides", "default": [1] },
+        { "name": "dilation_rate", "default": [1] },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
       ]
     }
   },
