@@ -1,7 +1,9 @@
 
 <p align='center'><img width='400' src='media/logo.png'/></p>
 
-Netron is a viewer for neural network models. Netron loads [ONNX](http://onnx.ai) models and TensorFlow Lite models and has experimental support for TensorFlow Graph and Saved Model files.
+Netron is a viewer for neural network models.
+
+Netron loads **[ONNX](http://onnx.ai)** models (`.onnx` or `.pb`) and **TensorFlow Lite** models (`.tflite`) and has experimental support for **TensorFlow** models (`.pb`) and **Keras** models (`.keras`, `.h5` or `.json`).
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 
