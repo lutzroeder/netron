@@ -285,7 +285,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -337,7 +337,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -429,7 +429,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -441,7 +441,7 @@
           "type": "list of ints"
         },
         {
-          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "list of ints"
@@ -938,6 +938,7 @@
           "type": "int"
         }
       ],
+      "category": "tensor",
       "description": "Concatenate a list of tensors into a single tensor",
       "domain": "ai.onnx",
       "inputs": [
@@ -1107,7 +1108,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -1131,7 +1132,7 @@
           "type": "list of ints"
         },
         {
-          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "list of ints"
@@ -1195,7 +1196,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -1225,7 +1226,7 @@
           "type": "list of ints"
         },
         {
-          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "list of ints"
@@ -1399,7 +1400,7 @@
           "type": "list of strings"
         }
       ],
-      "description": "Uses an index mapping to convert a dictionary to an array.\n    The output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the ouput array.\n    The position of the insertion is determined by the position of the item's key\n    in the index mapping. Any keys not present in the input dictionary, will be\n    zero in the output array.  Use either string_vocabulary or int64_vocabulary, not both.\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
+      "description": "Uses an index mapping to convert a dictionary to an array.\n    The output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the output array.\n    The position of the insertion is determined by the position of the item's key\n    in the index mapping. Any keys not present in the input dictionary, will be\n    zero in the output array.  Use either string_vocabulary or int64_vocabulary, not both.\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -1845,7 +1846,7 @@
           "type": "int"
         }
       ],
-      "description": "Concatenates input features into one continuous output.  \n    Inputlist is a list of input feature names, inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    All inputs are tensors of float.  Any feature that is not a tensor of float should\n    be converted using either Cast or CastMap.\n",
+      "description": "Concatenates input features into one continuous output.\n    Inputlist is a list of input feature names, inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    All inputs are tensors of float.  Any feature that is not a tensor of float should\n    be converted using either Cast or CastMap.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -2243,7 +2244,7 @@
           "type": "int"
         }
       ],
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N). \nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3582,7 +3583,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -3600,7 +3601,7 @@
           "type": "float"
         },
         {
-          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "list of ints"
@@ -3613,7 +3614,7 @@
         }
       ],
       "category": "Pool",
-      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3653,7 +3654,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -3671,7 +3672,7 @@
           "type": "int"
         },
         {
-          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "list of ints"
@@ -3812,7 +3813,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -3824,7 +3825,7 @@
           "type": "list of ints"
         },
         {
-          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "list of ints"
@@ -4247,7 +4248,7 @@
           "description": "list of cateogries, ints",
           "name": "cats_int64s",
           "required": false,
-          "type": "int"
+          "type": "list of ints"
         },
         {
           "description": "list of cateogries, strings",
@@ -4262,7 +4263,7 @@
           "type": "int"
         }
       ],
-      "description": "Replace the inputs with an array of ones and zeros, where the only\n    one is the zero-based category that was passed in.  The total category count \n    will determine the length of the vector. For example if we pass a \n    tensor with a single value of 4, and a category count of 8, the \n    output will be a tensor with 0,0,0,0,1,0,0,0 .\n\n    This operator assumes every input in X is of the same category set \n    (meaning there is only one category count).\n",
+      "description": "Replace the inputs with an array of ones and zeros, where the only\n    one is the zero-based category that was passed in.  The total category count\n    will determine the length of the vector. For example if we pass a\n    tensor with a single value of 4, and a category count of 8, the\n    output will be a tensor with 0,0,0,0,1,0,0,0 .\n\n    This operator assumes every input in X is of the same category set\n    (meaning there is only one category count).\n\t\n\tIf the input is a tensor of float, int32, or double, the data will be cast\n    to int64s and the cats_int64s category list will be used for the lookups.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -4288,7 +4289,10 @@
         {
           "allowed_type_strs": [
             "tensor(string)",
-            "tensor(int64)"
+            "tensor(int64)",
+            "tensor(int32)",
+            "tensor(float)",
+            "tensor(double)"
           ],
           "description": " allowed types.",
           "type_param_str": "T"
@@ -4414,7 +4418,7 @@
           "type": "string"
         },
         {
-          "description": "List of integers indicate the padding element count at the begining and end of each axis, for 2D it is the number of pixel. `paddings` rank should be double of the input's rank. `paddings` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
+          "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `paddings` rank should be double of the input's rank. `paddings` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "paddings",
           "required": true,
           "type": "list of ints"
@@ -4482,7 +4486,7 @@
           "type": "string"
         },
         {
-          "description": "List of integers indicate the padding element count at the begining and end of each axis, for 2D it is the number of pixel. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
+          "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "pads",
           "required": true,
           "type": "list of ints"
@@ -5067,7 +5071,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5119,7 +5123,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5171,7 +5175,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5223,7 +5227,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5275,7 +5279,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5327,7 +5331,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5379,7 +5383,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5431,7 +5435,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5483,7 +5487,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5535,7 +5539,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5733,7 +5737,7 @@
           "type": "list of ints"
         }
       ],
-      "description": "SVM classifier prediction \n",
+      "description": "SVM classifier prediction\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -6137,6 +6141,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "tensor",
       "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\n\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension.\n\nExample 1:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n\n  result = [\n      [5, 6, 7],\n  ]\n\n\nExample 2:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0]\n  ends = [-1]\n\n  result = [\n      [1, 2, 3, 4],\n  ]\n\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -6374,6 +6379,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "tensor",
       "description": "Split a tensor into a list of tensors, along the specified\n'axis'. The lengths of the split can be specified using argument 'axis' or\noptional second input blob to the operator. Otherwise, the tensor is split\nto equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -6433,6 +6439,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "tensor",
       "description": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -6936,7 +6943,7 @@
           "type": "string"
         }
       ],
-      "description": "Tree Ensemble classifier.  Returns the top class for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and \n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once \n    for each tree id.\n    All fields prefixed with class_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.  \n    It is expected that either classlabels_strings or classlabels_int64s\n    will be passed and the class_ids are an index into this list.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+      "description": "Tree Ensemble classifier.  Returns the top class for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.\n    All fields prefixed with class_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.\n    It is expected that either classlabels_strings or classlabels_int64s\n    will be passed and the class_ids are an index into this list.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -7092,7 +7099,7 @@
           "type": "list of floats"
         }
       ],
-      "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and \n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once \n    for each tree id.\n    All fields prefixed with target_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.  \n    All trees must have their node ids start at 0 and increment by 1.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+      "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.\n    All fields prefixed with target_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.\n    All trees must have their node ids start at 0 and increment by 1.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -7269,7 +7276,7 @@
           "type": "list of strings"
         }
       ],
-      "description": "Makes a map from the input and the attributes.  \n    Assumes input 0 are the values, and the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).\n    Input 0 may have a batch size larger than 1, \n    but each input in the batch must be the size of the keys specified by the attributes.\n    The order of the input and attributes determines the key-value mapping.\n",
+      "description": "Makes a map from the input and the attributes.\n    Assumes input 0 are the values, and the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).\n    Input 0 may have a batch size larger than 1,\n    but each input in the batch must be the size of the keys specified by the attributes.\n    The order of the input and attributes determines the key-value mapping.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
