@@ -30,7 +30,7 @@ package_data={
         'tflite.js',
         'tflite-operator.json',
         'tflite-model.js',
-        'h5.js',
+        'hdf5.js',
         'keras-operator.json',
         'keras-model.js',
         'favicon.ico',

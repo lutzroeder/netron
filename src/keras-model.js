@@ -12,10 +12,10 @@ class KerasModel {
 
             var extension = identifier.split('.').pop();
             if (extension == 'keras' || extension == 'h5') {
-                var h5 = new H5(buffer);
-                version = h5.rootGroup.attributes.keras_version;
-                backend = h5.rootGroup.attributes.backend;
-                model_config = h5.rootGroup.attributes.model_config;
+                var file = new hdf5.File(buffer);
+                version = file.rootGroup.attributes.keras_version;
+                backend = file.rootGroup.attributes.backend;
+                model_config = file.rootGroup.attributes.model_config;
                 if (!model_config) {
                     throw new Error('H5 file has no \'model_config\' data.');
                 }
