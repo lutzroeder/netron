@@ -663,6 +663,7 @@
                  * @property {Array.<string>|null} [tags] MetaInfoDef tags
                  * @property {string|null} [tensorflowVersion] MetaInfoDef tensorflowVersion
                  * @property {string|null} [tensorflowGitVersion] MetaInfoDef tensorflowGitVersion
+                 * @property {boolean|null} [strippedDefaultAttrs] MetaInfoDef strippedDefaultAttrs
                  */
     
                 /**
@@ -730,6 +731,14 @@
                 MetaInfoDef.prototype.tensorflowGitVersion = "";
     
                 /**
+                 * MetaInfoDef strippedDefaultAttrs.
+                 * @member {boolean} strippedDefaultAttrs
+                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
+                 * @instance
+                 */
+                MetaInfoDef.prototype.strippedDefaultAttrs = false;
+    
+                /**
                  * Creates a new MetaInfoDef instance using the specified properties.
                  * @function create
                  * @memberof tensorflow.MetaGraphDef.MetaInfoDef
@@ -766,6 +775,8 @@
                         writer.uint32(/* id 5, wireType 2 =*/42).string(message.tensorflowVersion);
                     if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
                         writer.uint32(/* id 6, wireType 2 =*/50).string(message.tensorflowGitVersion);
+                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
+                        writer.uint32(/* id 7, wireType 0 =*/56).bool(message.strippedDefaultAttrs);
                     return writer;
                 };
     
@@ -819,6 +830,9 @@
                             break;
                         case 6:
                             message.tensorflowGitVersion = reader.string();
+                            break;
+                        case 7:
+                            message.strippedDefaultAttrs = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -881,6 +895,9 @@
                     if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
                         if (!$util.isString(message.tensorflowGitVersion))
                             return "tensorflowGitVersion: string expected";
+                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
+                        if (typeof message.strippedDefaultAttrs !== "boolean")
+                            return "strippedDefaultAttrs: boolean expected";
                     return null;
                 };
     
@@ -919,6 +936,8 @@
                         message.tensorflowVersion = String(object.tensorflowVersion);
                     if (object.tensorflowGitVersion != null)
                         message.tensorflowGitVersion = String(object.tensorflowGitVersion);
+                    if (object.strippedDefaultAttrs != null)
+                        message.strippedDefaultAttrs = Boolean(object.strippedDefaultAttrs);
                     return message;
                 };
     
@@ -943,6 +962,7 @@
                         object.anyInfo = null;
                         object.tensorflowVersion = "";
                         object.tensorflowGitVersion = "";
+                        object.strippedDefaultAttrs = false;
                     }
                     if (message.metaGraphVersion != null && message.hasOwnProperty("metaGraphVersion"))
                         object.metaGraphVersion = message.metaGraphVersion;
@@ -959,6 +979,8 @@
                         object.tensorflowVersion = message.tensorflowVersion;
                     if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
                         object.tensorflowGitVersion = message.tensorflowGitVersion;
+                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
+                        object.strippedDefaultAttrs = message.strippedDefaultAttrs;
                     return object;
                 };
     
