@@ -16,11 +16,11 @@ categories = {
     'Constant': 'Constant',
 
     'Conv': 'Layer',
-    'ConvTranspose': 'layer',
+    'ConvTranspose': 'Layer',
     'FC': 'Layer',
     'RNN': 'Layer',
     'LSTM': 'Layer',
-    'GRU': 'layer',
+    'GRU': 'Layer',
 
     'Dropout': 'Dropout',
 

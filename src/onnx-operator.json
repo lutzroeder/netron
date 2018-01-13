@@ -934,7 +934,7 @@
         {
           "description": "Which axis to concat on",
           "name": "axis",
-          "required": false,
+          "required": true,
           "type": "int"
         }
       ],
@@ -1220,7 +1220,13 @@
           "type": "list of ints"
         },
         {
-          "description": "The shape of the output.",
+          "description": "The zero-padding added to one side of the output. This is also called adjs/adjustment in some frameworks. If output_shape is set, this attribute will be ignored.",
+          "name": "output_padding",
+          "required": false,
+          "type": "list of ints"
+        },
+        {
+          "description": "The shape of the output. output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - pads[start_i] - pads[end_i]",
           "name": "output_shape",
           "required": false,
           "type": "list of ints"
@@ -1238,7 +1244,7 @@
           "type": "list of ints"
         }
       ],
-      "category": "layer",
+      "category": "Layer",
       "description": "The convolution transpose operator consumes an input tensor and a filter,\nand computes the output.",
       "domain": "ai.onnx",
       "inputs": [
@@ -2006,14 +2012,20 @@
           "type": "int"
         },
         {
+          "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
+          "name": "linear_before_reset",
+          "required": false,
+          "type": "int"
+        },
+        {
           "description": "The sequence output for the hidden is optional if 0. Default 0.",
           "name": "output_sequence",
           "required": false,
           "type": "int"
         }
       ],
-      "category": "layer",
-      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh)\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
+      "category": "Layer",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*Rh + Rbh) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2068,6 +2080,136 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)"
+          ],
+          "description": "Constrain seq_lens to integer tensor.",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "GRU",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "name": "activation_alpha",
+          "required": false,
+          "type": "list of floats"
+        },
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "name": "activation_beta",
+          "required": false,
+          "type": "list of floats"
+        },
+        {
+          "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
+          "name": "activations",
+          "required": false,
+          "type": "list of strings"
+        },
+        {
+          "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
+          "name": "clip",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
+          "name": "direction",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Number of neurons in the hidden layer",
+          "name": "hidden_size",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
+          "name": "linear_before_reset",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "The sequence output for the hidden is optional if 0. Default 0.",
+          "name": "output_sequence",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "category": "Layer",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*Rh + Rbh) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The weight tensor for the gates. Concatenation of `W[zrh]` and `WB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, input_size]`.",
+          "name": "W",
+          "type": "T"
+        },
+        {
+          "description": "The recurrence weight tensor. Concatenation of `R[zrh]` and `RB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, hidden_size]`.",
+          "name": "R",
+          "type": "T"
+        },
+        {
+          "description": "The bias tensor for the gates. Concatenation of `[Wb[zrh], Rb[zrh]]` and `[WBb[zrh], RBb[zrh]]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 6*hidden_size]`. Optional: If not specified - assumed to be 0",
+          "name": "B",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
+          "name": "sequence_lens",
+          "option": "optional",
+          "type": "T1"
+        },
+        {
+          "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "initial_h",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "max_input": 6,
+      "max_output": 2,
+      "min_input": 3,
+      "min_output": 2,
+      "outputs": [
+        {
+          "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
+          "name": "Y",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "Y_h",
+          "type": "T"
+        }
+      ],
+      "since_version": 3,
       "support_level": "common",
       "type_constraints": [
         {
@@ -2856,7 +2998,7 @@
         }
       ],
       "category": "Normalization",
-      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022.\n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B,\nwhere mean and B are computed per instance per channel.\n\n",
+      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022.\n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B,\nwhere mean and variance are computed per instance per channel.\n\n",
       "domain": "ai.onnx",
       "inputs": [
         {

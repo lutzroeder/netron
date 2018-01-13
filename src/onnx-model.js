@@ -9,7 +9,7 @@ class OnnxModel {
 
             var model = onnx.ModelProto.decode(buffer);
             if (!model.graph) {
-                throw new Error('Model does not contain a graph.');
+                throw new OnnxError('Model does not contain a graph.');
             }
 
             model = new OnnxModel(model);
@@ -583,9 +583,7 @@ class OnnxOperatorMetadata {
         }
         else {
             host.request('/onnx-operator.json', (err, data) => {
-                if (err == null) {
-                    OnnxOperatorMetadata.operatorMetadata = new OnnxOperatorMetadata(data);
-                }
+                OnnxOperatorMetadata.operatorMetadata = new OnnxOperatorMetadata(data);
                 callback(null, OnnxOperatorMetadata.operatorMetadata);
             });
         }    
@@ -593,16 +591,18 @@ class OnnxOperatorMetadata {
 
     constructor(data) {
         this._map = {};
-        var items = JSON.parse(data);
-        if (items) {
-            items.forEach((item) => {
-                if (item.name && item.schema)
-                {
-                    var name = item.name;
-                    var schema = item.schema;
-                    this._map[name] = schema;
-                }
-            });
+        if (data) {
+            var items = JSON.parse(data);
+            if (items) {
+                items.forEach((item) => {
+                    if (item.name && item.schema)
+                    {
+                        var name = item.name;
+                        var schema = item.schema;
+                        this._map[name] = schema;
+                    }
+                });
+            }
         }
     }
 
@@ -783,5 +783,12 @@ class OnnxOperatorMetadata {
         text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
         text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
         return text;
+    }
+}
+
+class OnnxError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'ONNX Error';
     }
 }
