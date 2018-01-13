@@ -6,11 +6,7 @@ class OnnxModel {
 
     static open(buffer, identifier, host, callback) { 
         try {
-
             var model = onnx.ModelProto.decode(buffer);
-            if (!model.graph) {
-                throw new OnnxError('Model does not contain a graph.');
-            }
 
             model = new OnnxModel(model);
 
@@ -25,8 +21,14 @@ class OnnxModel {
 
     constructor(model) {
         this._model = model;
-        this._graphs = [ new OnnxGraph(this, this._model.graph, 0) ];
-        this._activeGraph = this._graphs[0];
+        if (this._model.graph) {
+            this._graphs = [ new OnnxGraph(this, this._model.graph, 0) ];
+            this._activeGraph = this._graphs[0];
+        }
+        else {
+            this._graphs = [];
+            this._activeGraph = null;
+        }
     }
 
     format() {
@@ -91,33 +93,36 @@ class OnnxGraph {
     constructor(model, graph, index) {
         this._model = model;
         this._graph = graph;
-        this._name = this._graph.name ? this._graph.name : ('(' + index.toString() + ')');
-            
-        this._outputMap = {};
-        this._graph.node.forEach((node) => {
-            node.output.forEach((output) => {
-                var count = this._outputMap[output];
-                if (!count) {
-                    count = 0;
-                }
-                this._outputMap[output] = count + 1;
-            });
-        });
 
-        this._initializerMap = [];
-        this._graph.initializer.forEach((tensor) => {
-            this._initializerMap[tensor.name] = new OnnxTensor(tensor, tensor.name, 'Initializer');
-        });
-        this._graph.node.forEach((node) => {
-            if (node.opType == 'Constant' && node.output && node.output.length == 1 && this._outputMap[node.output[0]] == 1) {
-                node.attribute.forEach((attribute) => {
-                    if (attribute.name == 'value' && attribute.t) {
-                        var name = node.output[0];
-                        this._initializerMap[name] = new OnnxTensor(attribute.t, name, 'Constant');
+        if (this._graph) {
+            this._name = this._graph.name ? this._graph.name : ('(' + index.toString() + ')');
+            
+            this._outputMap = {};
+            this._graph.node.forEach((node) => {
+                node.output.forEach((output) => {
+                    var count = this._outputMap[output];
+                    if (!count) {
+                        count = 0;
                     }
+                    this._outputMap[output] = count + 1;
                 });
-            }
-        });
+            });
+    
+            this._initializerMap = [];
+            this._graph.initializer.forEach((tensor) => {
+                this._initializerMap[tensor.name] = new OnnxTensor(tensor, tensor.name, 'Initializer');
+            });
+            this._graph.node.forEach((node) => {
+                if (node.opType == 'Constant' && node.output && node.output.length == 1 && this._outputMap[node.output[0]] == 1) {
+                    node.attribute.forEach((attribute) => {
+                        if (attribute.name == 'value' && attribute.t) {
+                            var name = node.output[0];
+                            this._initializerMap[name] = new OnnxTensor(attribute.t, name, 'Constant');
+                        }
+                    });
+                }
+            });
+        }
     }
 
     get model() {
@@ -129,49 +134,59 @@ class OnnxGraph {
     }
 
     get description() {
-        return this._graph.docString ? this._graph.docString : '';
+        if (this._graph && this._graph.docString) {
+            return this._graph.docString;
+        }
+        return '';
     }
 
     get inputs() {
         if (!this._inputs) {
             this._inputs = [];
-            var initializerMap = {};
-            this._graph.initializer.forEach((tensor) => {
-                initializerMap[tensor.name] = true;
-            });
-            this._graph.input.forEach((valueInfo, index) => {
-                if (!initializerMap[valueInfo.name]) {
-                    this._inputs.push({
-                        id: valueInfo.name,
-                        name: valueInfo.name,
-                        type: OnnxTensor.formatType(valueInfo.type)
-                    });
-                }
-            });
+            if (this._graph) {
+                var initializerMap = {};
+                this._graph.initializer.forEach((tensor) => {
+                    initializerMap[tensor.name] = true;
+                });
+                this._graph.input.forEach((valueInfo, index) => {
+                    if (!initializerMap[valueInfo.name]) {
+                        this._inputs.push({
+                            id: valueInfo.name,
+                            name: valueInfo.name,
+                            type: OnnxTensor.formatType(valueInfo.type)
+                        });
+                    }
+                });
+            }
         }
         return this._inputs;
     }
 
     get outputs() {
         if (!this._outputs) {
-            this._outputs = this._graph.output.map((valueInfo) => {
-                return {
-                    id: valueInfo.name,
-                    name: valueInfo.name,
-                    type: OnnxTensor.formatType(valueInfo.type)
-                };
-            });
+            this._outputs = [];
+            if (this._graph) {
+                this._outputs = this._graph.output.map((valueInfo) => {
+                    return {
+                        id: valueInfo.name,
+                        name: valueInfo.name,
+                        type: OnnxTensor.formatType(valueInfo.type)
+                    };
+                });
+            }
         }
         return this._outputs;
     }
 
     get nodes() {
         var results = [];
-        this._graph.node.forEach((node) => {
-            if (!this._initializerMap[node.output[0]]) {
-                results.push(new OnnxNode(this, node));
-            }
-        });
+        if (this._graph) {
+            this._graph.node.forEach((node) => {
+                if (!this._initializerMap[node.output[0]]) {
+                    results.push(new OnnxNode(this, node));
+                }
+            });
+        }
         return results;
     }
 

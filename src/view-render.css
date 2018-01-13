@@ -30,6 +30,7 @@
 .node-item-operator-shape path { fill: #6C4F47; }
 .node-item-operator-tensor path { fill: #59423B; }
 .node-item-operator-transform path { fill: #354; }
+.node-item-operator-data path { fill: #555; }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }

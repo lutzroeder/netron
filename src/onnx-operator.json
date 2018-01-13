@@ -938,7 +938,7 @@
           "type": "int"
         }
       ],
-      "category": "tensor",
+      "category": "Tensor",
       "description": "Concatenate a list of tensors into a single tensor",
       "domain": "ai.onnx",
       "inputs": [
@@ -1308,6 +1308,7 @@
           "type": "list of ints"
         }
       ],
+      "category": "Data",
       "description": "Crop and image to the specified spatial dimensions. If scale is given,\nthen optionally start the crop offset by the left/top border amounts.\nIf scale is not provided, crop the borders as provided.",
       "domain": "ai.onnx",
       "inputs": [
@@ -2195,7 +2196,7 @@
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
-      "min_output": 2,
+      "min_output": 0,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -2206,6 +2207,7 @@
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
+          "option": "optional",
           "type": "T"
         }
       ],
@@ -2886,6 +2888,7 @@
           "type": "float"
         }
       ],
+      "category": "Data",
       "description": "Scale and bias the input image. Bias values are stored in\nthe same ordering as the image pixel format.",
       "domain": "ai.onnx",
       "inputs": [
@@ -3212,9 +3215,9 @@
         }
       ],
       "max_input": 8,
-      "max_output": 2,
+      "max_output": 3,
       "min_input": 3,
-      "min_output": 2,
+      "min_output": 0,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -3225,6 +3228,13 @@
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The last output value of the cell. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "Y_c",
+          "option": "optional",
           "type": "T"
         }
       ],
@@ -4572,6 +4582,7 @@
           "type": "float"
         }
       ],
+      "category": "Tensor",
       "description": "Given `data` tensor, paddings, mode, and value.\n\nExample:\n  Insert 0 paddings to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  paddings = [0, 0, 2, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -4640,6 +4651,7 @@
           "type": "float"
         }
       ],
+      "category": "Tensor",
       "description": "Given `data` tensor, pads, mode, and value.\n\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 2, 0, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -4868,7 +4880,7 @@
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
-      "min_output": 2,
+      "min_output": 0,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
@@ -4879,6 +4891,7 @@
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
+          "option": "optional",
           "type": "T"
         }
       ],
@@ -6283,7 +6296,7 @@
           "type": "list of ints"
         }
       ],
-      "category": "tensor",
+      "category": "Tensor",
       "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\n\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension.\n\nExample 1:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n\n  result = [\n      [5, 6, 7],\n  ]\n\n\nExample 2:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0]\n  ends = [-1]\n\n  result = [\n      [1, 2, 3, 4],\n  ]\n\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -6521,7 +6534,7 @@
           "type": "list of ints"
         }
       ],
-      "category": "tensor",
+      "category": "Tensor",
       "description": "Split a tensor into a list of tensors, along the specified\n'axis'. The lengths of the split can be specified using argument 'axis' or\noptional second input blob to the operator. Otherwise, the tensor is split\nto equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -6581,7 +6594,7 @@
           "type": "list of ints"
         }
       ],
-      "category": "tensor",
+      "category": "Tensor",
       "description": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [

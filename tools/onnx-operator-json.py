@@ -62,9 +62,13 @@ categories = {
     'MaxPool': 'Pool',
     'MaxRoiPool': 'Pool',
 
-    'Concat': 'tensor',
-    'Slice': 'tensor',
-    'Split': 'tensor',
+    'Concat': 'Tensor',
+    'Slice': 'Tensor',
+    'Split': 'Tensor',
+    'Pad': 'Tensor',
+
+    'ImageScaler': 'Data',
+    'Crop': 'Data',
 
     # 'Gemm': '',
     # 'MatMul': '',
