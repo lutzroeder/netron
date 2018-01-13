@@ -232,6 +232,9 @@
     "name": "Concatenation",
     "schema": {
       "category": "Tensor",
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "axis", "type": "int" },
         { "name": "fused_activation_function", "type": "ActivationFunctionType" }

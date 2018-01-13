@@ -5,13 +5,10 @@
       "category": "Wrapper",
       "inputs": [
         { "name": "input" },
-        { "name": "layer" },
-        { "name": "W" },
-        { "name": "R" },
-        { "name": "b" },
-        { "name": "WB" },
-        { "name": "RB" },
-        { "name": "bB" }
+        { "name": "layer" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "merge_mode", "default": "concat" }
@@ -36,6 +33,9 @@
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
       ]
     }
@@ -46,6 +46,9 @@
       "category": "Pool",
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "data_format", "default": "channels_last" },
@@ -62,6 +65,9 @@
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "data_format", "default": "channels_last" },
         { "name": "padding", "default": "valid" },
@@ -77,6 +83,9 @@
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "data_format", "default": "channels_last" }
       ]
@@ -88,6 +97,9 @@
       "category": "Pool",
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "data_format", "default": "channels_last" }
@@ -101,6 +113,9 @@
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
       ]
     }
@@ -111,6 +126,9 @@
       "category": "Pool",
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "data_format", "default": "channels_last" }
@@ -123,6 +141,9 @@
       "category": "Pool",
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "data_format", "default": "channels_last" }
@@ -139,6 +160,9 @@
         { "name": "beta" },
         { "name": "mean" },
         { "name": "variance" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "axis", "default": -1 },
@@ -162,6 +186,9 @@
         { "name": "kernel" },
         { "name": "bias" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "activation", "default": "linear" },
         { "name": "use_bias", "default": true },
@@ -179,6 +206,9 @@
         { "name": "kernel" },
         { "name": "recurrent_kernel" },
         { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "return_sequences", "default": false },
@@ -209,6 +239,9 @@
         { "name": "recurrent_kernel" },
         { "name": "bias" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "activation", "default": "tanh" },
         { "name": "recurrent_activation", "default": "hard_sigmoid" },
@@ -230,6 +263,9 @@
     "name": "RNN",
     "schema": {
       "category": "Layer",
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "return_sequences", "default": false },
         { "name": "return_state", "default": false },
@@ -247,6 +283,9 @@
         { "name": "input" },
         { "name": "kernel" },
         { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "activation", "default": "linear" },
@@ -269,6 +308,9 @@
         { "name": "kernel" },
         { "name": "bias" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "activation", "default": "linear" },
         { "name": "padding", "default": "valid" },
@@ -289,6 +331,9 @@
         { "name": "input" },
         { "name": "kernel" },
         { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "activation", "default": "linear" },
@@ -311,6 +356,9 @@
         { "name": "kernel" },
         { "name": "bias" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "activation", "default": "linear" },
         { "name": "padding", "default": "valid" },
@@ -326,7 +374,10 @@
   {
     "name": "Concatenate",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -335,6 +386,9 @@
       "category": "Shape",
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -344,6 +398,9 @@
       "category": "Shape",
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -352,6 +409,9 @@
     "schema": {
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -361,6 +421,9 @@
       "category": "Dropout",
       "inputs": [
         { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -371,6 +434,9 @@
       "inputs": [
         { "name": "input" },
         { "name": "embeddings" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ],
       "attributes": [
         { "name": "mask_zero", "default": false },
@@ -384,6 +450,9 @@
       "inputs": [
         { "name": "x" },
         { "name": "y" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -393,6 +462,9 @@
       "inputs": [
         { "name": "x" },
         { "name": "y" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   }

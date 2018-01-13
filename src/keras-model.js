@@ -155,13 +155,20 @@ class KerasGraph {
                         inbound_node.forEach((inbound_connection) => {
                             var input = { connections: [] };
                             var inputName = inbound_connection[0];
-                            input.connections.push({ id: inputName });
                             var inputNode = nodeMap[inputName];
                             if (inputNode) {
-                                inputNode._outputs.push({
-                                    connections: [ { id: inputNode.name } ]
+                                var inputIndex = inbound_connection[2];
+                                if (inputIndex != 0) {
+                                    inputName += ':' + inputIndex.toString();
+                                }
+                                while (inputIndex >= inputNode._outputs.length) {
+                                    inputNode._outputs.push({ connections: [ ] });        
+                                }     
+                                inputNode._outputs[inputIndex].connections.push({ 
+                                    id: inputName
                                 });
                             }
+                            input.connections.push({ id: inputName });
                             layer._inputs.push(input);
                         });       
                     });
@@ -172,7 +179,7 @@ class KerasGraph {
             config.input_layers.forEach((input_layer) => {
                 var name = input_layer[0];
                 var input = {
-                    id: name,
+                    id: name + ':0',
                     name: name
                 };
                 var node = nodeMap[name];
@@ -351,8 +358,8 @@ class KerasNode {
     get outputs() {
         var results = [];
         this._outputs.forEach((output, index) => {
-            results.push({ 
-                name: output.name ? output.name : '(' + index.toString() + ')', 
+            results.push({
+                name: output.name ? output.name : KerasOperatorMetadata.operatorMetadata.getOutputName(this.operator, index), 
                 connections: output.connections
             });
         });
@@ -457,6 +464,23 @@ class KerasOperatorMetadata {
                 var input = inputs[index];
                 if (input) {
                     var name = input.name;
+                    if (name) {
+                        return name;
+                    }
+                } 
+            }
+        }
+        return "(" + index.toString() + ")";
+    }
+
+    getOutputName(operator, index) {
+        var schema = this._map[operator];
+        if (schema) {
+            var outputs = schema.outputs;
+            if (outputs && index < outputs.length) {
+                var output = outputs[index];
+                if (output) {
+                    var name = output.name;
                     if (name) {
                         return name;
                     }
