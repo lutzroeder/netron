@@ -44,7 +44,9 @@ Below are a few model files you can download and open:
 
 **TensorFlow models**
 
-* [Inception v3 2016](https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz)
+* [Inception v3](https://storage.googleapis.com/download.tensorflow.org/models/inception_v3_2016_08_28_frozen.pb.tar.gz)
+* [Inception v4](https://storage.googleapis.com/download.tensorflow.org/models/inception_v4_2016_09_09_frozen.pb.tar.gz)
+* [Inception 5h](https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip)
 
 ## Install Python Model Server 
 
