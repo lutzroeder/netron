@@ -8,29 +8,28 @@ class KerasModel {
         try {
             var version = null;
             var backend = null;
-            var model_config = null;
+            var json = null;
+            var rootGroup = null;
 
             var extension = identifier.split('.').pop();
             if (extension == 'keras' || extension == 'h5') {
                 var file = new hdf5.File(buffer);
-                version = file.rootGroup.attributes.keras_version;
-                backend = file.rootGroup.attributes.backend;
-                model_config = file.rootGroup.attributes.model_config;
-                if (!model_config) {
-                    throw new Error('H5 file has no \'model_config\' data.');
+                rootGroup = file.rootGroup;
+                json = rootGroup.attributes.model_config;
+                if (!json) {
+                    throw new KerasError('HDF5 file has no \'model_config\' data.');
                 }
             }
             else if (extension == 'json') {
                 if (!window.TextDecoder) {
-                    throw new Error('TextDecoder not avaialble.');
+                    throw new KerasError('TextDecoder not avaialble.');
                 }
 
                 var decoder = new TextDecoder('utf-8');
-                model_config = decoder.decode(buffer);
+                json = decoder.decode(buffer);
             }
 
-            var root = JSON.parse(model_config);
-            var model = new KerasModel(root, version, backend);
+            var model = new KerasModel(json, rootGroup);
 
             KerasOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
@@ -41,17 +40,21 @@ class KerasModel {
         }
     }
 
-    constructor(root, keras_version, backend) {
-        if (!root.class_name) {
-            throw new Error('class_name is not present.');
+    constructor(json, rootGroup) {
+        var model = JSON.parse(json);
+        if (!model.class_name) {
+            throw new KerasError('class_name is not present.');
         }
-        if (root.class_name != 'Model' && root.class_name != 'Sequential') {
-            throw new Error('\'' + root.class_name + '\' is not supported.');
+        if (rootGroup && rootGroup.attributes.keras_version) {
+            this._version = rootGroup.attributes.keras_version;
         }
-        this._version = keras_version;
-        this._backend = backend;
-        var graph = new KerasGraph(root);
+        if (rootGroup && rootGroup.attributes.backend) {
+            this._backend = rootGroup.attributes.backend;
+        }
+
+        var graph = new KerasGraph(model, rootGroup);
         this._graphs = [ graph ];
+
         this._activeGraph = graph; 
     }
 
@@ -95,24 +98,26 @@ class KerasModel {
 
 class KerasGraph {
 
-    constructor(root) {
-        if (root.name) {
-            this._name = root.name;            
+    constructor(model, rootGroup) {
+        if (model.name) {
+            this._name = model.name;            
         }
-        else if (root.config && root.config.name) {
-            this._name = root.config.name;
+        else if (model.config && model.config.name) {
+            this._name = model.config.name;
         }
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
 
-        switch (root.class_name) {
+        switch (model.class_name) {
             case 'Sequential':
-                this.loadSequential(root.config);
+                this.loadSequential(model.config, rootGroup);
                 break;
             case 'Model':
-                this.loadModel(root.config);
+                this.loadModel(model.config, rootGroup);
                 break;
+            default:
+                throw new KerasError('\'' + model.class_name + '\' is not supported.');
         }
     }
 
@@ -132,10 +137,10 @@ class KerasGraph {
         return this._nodes;
     }
 
-    loadModel(root) {
-        if (root.layers) {
+    loadModel(config, rootGroup) {
+        if (config.layers) {
             var nodeMap = {};
-            root.layers.forEach((layer) => {
+            config.layers.forEach((layer) => {
                 if (layer.name) {
                     if (!nodeMap[layer.name]) {
                         nodeMap[layer.name] = layer;
@@ -144,7 +149,7 @@ class KerasGraph {
                     }
                 }
             });
-            root.layers.forEach((layer) => {
+            config.layers.forEach((layer) => {
                 if (layer.inbound_nodes) {
                     layer.inbound_nodes.forEach((inbound_node) => {
                         inbound_node.forEach((inbound_connection) => {
@@ -163,8 +168,8 @@ class KerasGraph {
                 }
             });
         }
-        if (root.input_layers) {
-            root.input_layers.forEach((input_layer) => {
+        if (config.input_layers) {
+            config.input_layers.forEach((input_layer) => {
                 var name = input_layer[0];
                 var input = {
                     id: name,
@@ -178,8 +183,8 @@ class KerasGraph {
                 this._inputs.push(input); 
             });
         }
-        if (root.output_layers) {
-            root.output_layers.forEach((output_layer) => {
+        if (config.output_layers) {
+            config.output_layers.forEach((output_layer) => {
                 var inputName = output_layer[0];
                 var inputNode = nodeMap[inputName];
                 if (inputNode) {
@@ -195,10 +200,10 @@ class KerasGraph {
                 this._outputs.push(output);
             });
         }
-        if (root.layers) {
-            root.layers.forEach((layer) => {
+        if (config.layers) {
+            config.layers.forEach((layer) => {
                 if (nodeMap[layer.name]) {
-                    this.translateNode(layer.name, layer, layer._inputs, layer._outputs).forEach((node) => {
+                    this.translateNode(layer.name, layer, layer._inputs, layer._outputs, rootGroup).forEach((node) => {
                         this._nodes.push(node);
                     });
                 }
@@ -206,7 +211,7 @@ class KerasGraph {
         }
     }
 
-    loadSequential(root) {
+    loadSequential(config, rootGroup) {
         var connection = 'input';
         var input = {
             id: connection,
@@ -214,7 +219,7 @@ class KerasGraph {
         };
         this._inputs.push(input);
         var id = 0;
-        root.forEach((layer) => {
+        config.forEach((layer) => {
             var inputs = [ {
                 connections: [ { id: connection } ]
             } ];
@@ -230,7 +235,7 @@ class KerasGraph {
             var outputs = [ {
                 connections: [ { id: connection } ]
             } ];
-            this.translateNode(name, layer, inputs, outputs).forEach((node) => {
+            this.translateNode(name, layer, inputs, outputs, rootGroup).forEach((node) => {
                 this._nodes.push(node);
             });
         });
@@ -241,12 +246,12 @@ class KerasGraph {
         });
     }
 
-    translateNode(name, layer, inputs, outputs) {
+    translateNode(name, layer, inputs, outputs, rootGroup) {
         var results = [];
         if (layer.class_name == 'Bidirectional' || layer.class_name == 'TimeDistributed') {
             if (layer.config.layer) {
                 var subLayer = layer.config.layer;
-                var subConnection = name + '|' + layer;
+                var subConnection = name + '|layer';
                 inputs.push({
                     name: 'layer',
                     connections: [ { id: subConnection} ]
@@ -254,11 +259,11 @@ class KerasGraph {
                 var subOutputs = [ {
                     connections: [ { id: subConnection } ]
                 } ];
-                results.push(new KerasNode(subLayer.class_name, subLayer.config.name, subLayer.config, [], subOutputs));
+                results.push(new KerasNode(subLayer.class_name, subLayer.config.name, subLayer.config, [], subOutputs, rootGroup));
                 delete layer.config.layer;
             }
-        }        
-        var node = new KerasNode(layer.class_name, name, layer.config, inputs, outputs);
+        }
+        var node = new KerasNode(layer.class_name, name, layer.config, inputs, outputs, rootGroup);
         results.push(node);
         return results;
     }
@@ -285,12 +290,39 @@ class KerasGraph {
 
 class KerasNode {
 
-    constructor(operator, name, config, inputs, outputs) {
+    constructor(operator, name, config, inputs, outputs, rootGroup) {
         this._operator = operator;
         this._name = name;
         this._config = config;
         this._inputs = inputs;
         this._outputs = outputs;
+
+        if (rootGroup) {
+            var model_weights = rootGroup.group('model_weights');
+            if (model_weights) {
+                var group = model_weights.group(this._name);
+                if (group) {
+                    var weight_names = group.attributes.weight_names;
+                    if (weight_names) {
+                        weight_names.forEach((weight_name) => {
+                            var weight_variable = group.group(weight_name);
+                            if (weight_variable) {
+                                var variable = weight_variable.value;
+                                if (variable) {
+                                    this._inputs.push({
+                                        connections: [ {
+                                            id: weight_name,
+                                            type: variable.type + JSON.stringify(variable.shape),
+                                            initializer: variable
+                                        } ]
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
     }
 
     get operator() {
@@ -309,7 +341,7 @@ class KerasNode {
         var results = [];
         this._inputs.forEach((input, index) => {
             results.push({
-                name: input.name ? input.name : '(' + index.toString() + ')', 
+                name: input.name ? input.name : KerasOperatorMetadata.operatorMetadata.getInputName(this.operator, index), 
                 connections: input.connections
             });
         });
@@ -368,6 +400,9 @@ class KerasAttribute {
         if (this._value === null) {
             return 'null';
         }
+        if (this._value == 0) {
+            return 0;
+        }
         if (typeof this._value == 'object' && this._value.class_name && this._value.config) {
             return this._value.class_name + '(' + Object.keys(this._value.config).map(key => {
                 var value = this._value.config[key];
@@ -393,9 +428,7 @@ class KerasOperatorMetadata {
         }
         else {
             host.request('/keras-operator.json', (err, data) => {
-                if (err == null) {
-                    KerasOperatorMetadata.operatorMetadata = new KerasOperatorMetadata(data);
-                }
+                KerasOperatorMetadata.operatorMetadata = new KerasOperatorMetadata(data);
                 callback(null, KerasOperatorMetadata.operatorMetadata);
             });    
         }
@@ -403,15 +436,34 @@ class KerasOperatorMetadata {
 
     constructor(data) {
         this._map = {};
-        var items = JSON.parse(data);
-        if (items) {
-            items.forEach((item) => {
-                if (item.name && item.schema)
-                {
-                    this._map[item.name] = item.schema;
-                }
-            });
+        if (data) {
+            var items = JSON.parse(data);
+            if (items) {
+                items.forEach((item) => {
+                    if (item.name && item.schema)
+                    {
+                        this._map[item.name] = item.schema;
+                    }
+                });
+            }
         }
+    }
+
+    getInputName(operator, index) {
+        var schema = this._map[operator];
+        if (schema) {
+            var inputs = schema.inputs;
+            if (inputs && index < inputs.length) {
+                var input = inputs[index];
+                if (input) {
+                    var name = input.name;
+                    if (name) {
+                        return name;
+                    }
+                } 
+            }
+        }
+        return "(" + index.toString() + ")";
     }
 
     showAttribute(operator, attributeName, attributeValue) {
@@ -507,5 +559,12 @@ class KerasOperatorMetadata {
             }
         }
         return true;
+    }
+}
+
+class KerasError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'Keras Error';
     }
 }
