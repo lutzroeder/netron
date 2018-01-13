@@ -179,7 +179,7 @@ class KerasGraph {
             config.input_layers.forEach((input_layer) => {
                 var name = input_layer[0];
                 var input = {
-                    id: name + ':0',
+                    id: name,
                     name: name
                 };
                 var node = nodeMap[name];
