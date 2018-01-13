@@ -34,7 +34,7 @@ function openFileDialog() {
         filters: [
             { name: 'ONNX Model', extensions: [ 'onnx', 'pb' ] },
             { name: 'TensorFlow Saved Model', extensions: [ 'saved_model.pb' ] },
-            { name: 'TensorFlow Graph', extensions: [ 'pb' ] },
+            { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta' ] },
             { name: 'TensorFlow Lite Model', extensions: [ 'tflite' ] },
             { name: 'Keras Model', extension: [ 'json', 'keras', 'h5' ] }
         ]

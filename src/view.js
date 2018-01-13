@@ -496,7 +496,7 @@ class ModelService {
                 callback(err, model);
            });
         }
-        else if (identifier == 'saved_model.pb') {
+        else if (identifier == 'saved_model.pb' || extension == 'meta') {
             TensorFlowModel.open(buffer, identifier, hostService, (err, model) => {
                 this._activeModel = model;
                 callback(err, model);

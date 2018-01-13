@@ -17,14 +17,17 @@ class TensorFlowModel {
             }
             else {
                 var metaGraphDef = null;
-                try {
-                    var graphDef = tensorflow.GraphDef.decode(buffer);
-                    metaGraphDef = new tensorflow.MetaGraphDef();
-                    metaGraphDef.graphDef = graphDef;
-                    metaGraphDef.anyInfo = identifier;
-                    format = 'TensorFlow Graph';
-                }
-                catch (err) {
+                var extension = identifier.split('.').pop();
+                if (extension != '.meta') {
+                    try {
+                        var graphDef = tensorflow.GraphDef.decode(buffer);
+                        metaGraphDef = new tensorflow.MetaGraphDef();
+                        metaGraphDef.graphDef = graphDef;
+                        metaGraphDef.anyInfo = identifier;
+                        format = 'TensorFlow Graph';
+                    }
+                    catch (err) {
+                    }
                 }
 
                 if (!metaGraphDef) {
