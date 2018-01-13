@@ -24,7 +24,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
-        { "name": "X", "type": "T", "description": "Input tensor." },
+        { "name": "input", "type": "T", "description": "Input tensor." },
         { "name": "II", "type": "T", "option": "optional", "description": "Input to input weights tensor." },
         { "name": "IF", "type": "T", "description": "Input to forget weights tensor." },
         { "name": "IC", "type": "T", "description": "Input to cell weights tensor." },

@@ -88,8 +88,10 @@ class TensorFlowLiteGraph {
     constructor(model, graph, index) {
         this._model = model;
         this._graph = graph;
-        this._name = this._graph.name() ? this._graph.name() : ('(' + index.toString() + ')'); 
-        
+        this._name = this._graph.name();
+        if (!this._name) {
+            this._name = ('(' + index.toString() + ')');
+        }
         this._initializerMap = {};
         for (var i = 0; i < graph.tensorsLength(); i++) {
             var tensor = graph.tensors(i);
@@ -208,20 +210,22 @@ class TensorFlowLiteNode {
         var graph = this._graph._graph;
         var node = this._node;
         for (var i = 0; i < node.inputsLength(); i++) {
-            var tensorIndex = node.inputs(i);
-            var tensor = graph.tensors(tensorIndex);
             var input = {
                 name: TensorFlowLiteOperatorMetadata.operatorMetadata.getInputName(this.operator, i),
                 connections: []
             };
-            var connection = {};
-            connection.id = tensorIndex.toString();
-            connection.type = TensorFlowLiteTensor.formatTensorType(tensor);
-            var initializer = this._graph.getInitializer(tensorIndex);
-            if (initializer) {
-                connection.initializer = initializer;
+            var tensorIndex = node.inputs(i);
+            if (tensorIndex != -1) {
+                var tensor = graph.tensors(tensorIndex);
+                var connection = {};
+                connection.id = tensorIndex.toString();
+                connection.type = TensorFlowLiteTensor.formatTensorType(tensor);
+                var initializer = this._graph.getInitializer(tensorIndex);
+                if (initializer) {
+                    connection.initializer = initializer;
+                }
+                input.connections.push(connection);
             }
-            input.connections.push(connection);
             results.push(input);
         }
         return results;
