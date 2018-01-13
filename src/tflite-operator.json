@@ -232,6 +232,9 @@
     "name": "Concatenation",
     "schema": {
       "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ],
       "outputs": [
         { "name": "output" }
       ],

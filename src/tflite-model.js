@@ -206,29 +206,20 @@ class TensorFlowLiteNode {
     }
 
     get inputs() {
-        var results = [];
-        var graph = this._graph._graph;
-        var node = this._node;
-        for (var i = 0; i < node.inputsLength(); i++) {
-            var input = {
-                name: TensorFlowLiteOperatorMetadata.operatorMetadata.getInputName(this.operator, i),
-                connections: []
-            };
-            var tensorIndex = node.inputs(i);
-            if (tensorIndex != -1) {
-                var tensor = graph.tensors(tensorIndex);
-                var connection = {};
-                connection.id = tensorIndex.toString();
+        var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(this._node, this.operator);
+        inputs.forEach((input) => {
+            input.connections.forEach((connection) => {
+                var tensorIndex = connection.id;
+                var tensor = this._graph._graph.tensors(tensorIndex);
                 connection.type = TensorFlowLiteTensor.formatTensorType(tensor);
                 var initializer = this._graph.getInitializer(tensorIndex);
                 if (initializer) {
                     connection.initializer = initializer;
                 }
-                input.connections.push(connection);
-            }
-            results.push(input);
-        }
-        return results;
+                connection.id = connection.id.toString();
+            });
+        });
+        return inputs;
     }
 
     get outputs() {
@@ -585,23 +576,35 @@ class TensorFlowLiteOperatorMetadata {
         }
     }
 
-    getInputName(operator, index) {
-        var schema = this._map[operator];
-        if (schema) {
-            var inputs = schema.inputs;
-            if (inputs && index < inputs.length) {
-                var input = inputs[index];
-                if (input) {
-                    if (!input.option || input.option != 'variadic') {
-                        var name = input.name;
-                        if (name) {
-                            return name;
-                        }
-                    }
-                } 
-            }
+    getInputs(node, operator) {
+        var results = [];
+        var connections = [];
+        for (var i = 0; i < node.inputsLength(); i++) {
+            connections.push(node.inputs(i));
         }
-        return "(" + index.toString() + ")";
+        var schema = this._map[operator];
+        var index = 0;
+        while (index < connections.length) {
+            var result = { connections: [] };
+            var count = 1;
+            var name = null;
+            if (schema && schema.inputs && index < schema.inputs.length) {
+                name = schema.inputs[index].name;
+                if (schema.inputs[index].option == 'variadic') {
+                    count = connections.length - index;
+                }
+            }
+            result.name = name ? name : '(' + index.toString() + ')';
+            var array = connections.slice(index, index + count);
+            for (var j = 0; j < array.length; j++) {
+                if (array[j] != -1) {
+                    result.connections.push({ id: array[j] });
+                }
+            }
+            index += count;
+            results.push(result);
+        }
+        return results;
     }
 
     getOutputName(operator, index) {
