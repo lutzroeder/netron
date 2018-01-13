@@ -7,7 +7,7 @@ class TensorFlowLiteModel {
             var byteBuffer = new flatbuffers.ByteBuffer(buffer);
             if (!tflite.Model.bufferHasIdentifier(byteBuffer))
             {
-                throw new Error('Invalid FlatBuffers identifier.');
+                throw new TensorFlowLiteError('Invalid FlatBuffers identifier.');
             }
             var model = tflite.Model.getRootAsModel(byteBuffer);
             model = new TensorFlowLiteModel(model);
@@ -560,9 +560,7 @@ class TensorFlowLiteOperatorMetadata {
         }
         else {
             host.request('/tflite-operator.json', (err, data) => {
-                if (err == null) {
-                    TensorFlowLiteOperatorMetadata.operatorMetadata = new TensorFlowLiteOperatorMetadata(data);
-                }
+                TensorFlowLiteOperatorMetadata.operatorMetadata = new TensorFlowLiteOperatorMetadata(data);
                 callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
             });    
         }
@@ -570,31 +568,17 @@ class TensorFlowLiteOperatorMetadata {
 
     constructor(data) {
         this._map = {};
-        var items = JSON.parse(data);
-        if (items) {
-            items.forEach((item) => {
-                if (item.name && item.schema)
-                {
-                    this._map[item.name] = item.schema;
-                }
-            });
+        if (data) {
+            var items = JSON.parse(data);
+            if (items) {
+                items.forEach((item) => {
+                    if (item.name && item.schema)
+                    {
+                        this._map[item.name] = item.schema;
+                    }
+                });
+            }
         }
-
-        this._categoryMap = {
-            'Conv2D': 'Layer',
-            'DepthwiseConv2D': 'Layer',
-            'Softmax': 'Activation',
-            'Reshape': 'Shape',
-            'Normalize': 'Normalization',
-            'AveragePool2D': 'Pool',
-            'MaxPool2D': 'Pool',
-            'Concatenation': 'Tensor',            
-            // 'LSHProjection': 
-            // 'Predict': 
-            // 'HashtableLookup':
-            // 'ExtractFeatures': 
-            // 'SkipGram':
-        };
     }
 
     getInputName(operator, index) {
@@ -657,10 +641,17 @@ class TensorFlowLiteOperatorMetadata {
     }
 
     getOperatorCategory(operator) {
-        var category = this._categoryMap[operator];
-        if (category) {
-            return category;
+        var schema = this._map[operator];
+        if (schema && schema.category) {
+            return schema.category;
         }
         return null;
+    }
+}
+
+class TensorFlowLiteError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'TensorFlow Lite Error';
     }
 }

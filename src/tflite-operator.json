@@ -2,13 +2,14 @@
   {
     "name": "Conv2D",
     "schema": {
+      "category": "Layer",
       "inputs": [
-        { "name": "X", "type": "T" },
+        { "name": "input", "type": "T" },
         { "name": "weights", "type": "T" },
         { "name": "bias", "type": "T" }
       ],
       "outputs": [
-        { "name": "Y", "type": "T" }
+        { "name": "output", "type": "T" }
       ],
       "attributes": [
         { "name": "padding", "type": "Padding" },
@@ -19,15 +20,78 @@
     }
   },
   {
-    "name": "DepthwiseConv2D",
+    "name": "LSTM",
     "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "X", "type": "T", "description": "Input tensor." },
+        { "name": "II", "type": "T", "option": "optional", "description": "Input to input weights tensor." },
+        { "name": "IF", "type": "T", "description": "Input to forget weights tensor." },
+        { "name": "IC", "type": "T", "description": "Input to cell weights tensor." },
+        { "name": "IO", "type": "T", "description": "Input to output weights tensor." },
+        { "name": "RI", "type": "T", "option": "optional", "description": "Recurrent to input weights tensor." },
+        { "name": "RF", "type": "T", "description": "Recurrent to forget weights tensor." },
+        { "name": "RC", "type": "T", "description": "Recurrent to cell weights tensor." },
+        { "name": "RO", "type": "T", "description": "Recurrent to output weights tensor." },
+        { "name": "CI", "type": "T", "option": "optional", "description": "Cell to input weights tensor." },
+        { "name": "CF", "type": "T", "option": "optional", "description": "Cell to forget weights tensor." },
+        { "name": "CO", "type": "T", "option": "optional", "description": "Cell to output weights tensor." },
+        { "name": "IGb", "type": "T", "option": "optional", "description": "Input gate bias tensor." },
+        { "name": "FGb", "type": "T", "description": "Forget gate bias tensor." },
+        { "name": "CGb", "type": "T", "description": "Cell gate bias tensor." },
+        { "name": "OGb", "type": "T", "description": "Output gate bias tensor." },
+        { "name": "P", "type": "T", "option": "optional", "description": "Projection weights tensor." },
+        { "name": "Pb", "type": "T", "option": "optional", "description": "Projection bias tensor." }
+      ],
+      "outputs": [
+        { "name": "scratch", "type": "T" },
+        { "name": "output_state", "type": "T" },
+        { "name": "cell_state", "type": "T" },
+        { "name": "output", "type": "T" }
+      ]
+    }
+  },
+  {
+    "name": "RNN",
+    "schema": {
+      "category": "Layer",
       "inputs": [
         { "name": "X", "type": "T" },
+        { "name": "W", "type": "T" },
+        { "name": "R", "type": "T" },
+        { "name": "b", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "hidden", "type": "T" },
+        { "name": "output", "type": "T" }
+      ]
+    }
+  },
+  {
+    "name": "FullyConnected",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "T" },
         { "name": "weights", "type": "T" },
         { "name": "bias", "type": "T" }
       ],
       "outputs": [
-        { "name": "Y", "type": "T" }
+        { "name": "output", "type": "T" }
+      ]
+    }
+  },
+  {
+    "name": "DepthwiseConv2D",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "T" },
+        { "name": "weights", "type": "T" },
+        { "name": "bias", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
       ],
       "attributes": [
         { "name": "padding", "type": "Padding" },
@@ -41,17 +105,19 @@
   {
     "name": "AveragePool2D",
     "schema": {
+      "category": "Pool",
       "inputs": [
-        { "name": "X", "type": "T" }
+        { "name": "input", "type": "T" }
       ],
       "outputs": [
-        { "name": "Y", "type": "T" }
+        { "name": "output", "type": "T" }
       ]
     }
   },
   {
     "name": "Softmax",
     "schema": {
+      "category": "Activation",
       "inputs": [
         { "name": "input", "type": "T" }
       ],
@@ -63,6 +129,7 @@
   {
     "name": "Reshape",
     "schema": {
+      "category": "Shape",
       "inputs": [
         { "name": "data", "type": "T" },
         { "name": "shape", "type": "T" }
@@ -75,8 +142,12 @@
   {
     "name": "MaxPool2D",
     "schema": {
+      "category": "Pool",
       "inputs": [
-        { "name": "X", "type": "T" }
+        { "name": "input", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
       ]
     }
   },
@@ -96,6 +167,7 @@
   {
     "name": "Normalize",
     "schema": {
+      "category": "Normalization",
       "inputs": [
         { "name": "input" }
       ],
@@ -159,9 +231,26 @@
   {
     "name": "Concatenation",
     "schema": {
+      "category": "Tensor",
       "attributes": [
         { "name": "axis", "type": "int" },
         { "name": "fused_activation_function", "type": "ActivationFunctionType" }
+      ]
+    }
+  },
+  {
+    "name": "SVDF",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "T" },
+        { "name": "feature", "type": "T" },
+        { "name": "time", "type": "T" },
+        { "name": "bias", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "state", "type": "T" },
+        { "name": "output", "type": "T" }
       ]
     }
   }

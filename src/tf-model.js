@@ -604,6 +604,9 @@ class TensorFlowTensor {
                     return 'Tensor data is empty.';
                 }
                 break;
+            case tensorflow.DataType.DT_BOOL:
+                debugger;
+                return 'Tensor data type is not implemented.';
             default:
                 debugger;
                 return 'Tensor data type is not implemented.';
@@ -741,9 +744,7 @@ class TensorFlowOperatorMetadata {
         }
         else {
             host.request('/tf-operator.pb', (err, data) => {
-                if (err == null) {
-                    TensorFlowOperatorMetadata.operatorMetadata = new TensorFlowOperatorMetadata(data);
-                }
+                TensorFlowOperatorMetadata.operatorMetadata = new TensorFlowOperatorMetadata(data);
                 callback(null, TensorFlowOperatorMetadata.operatorMetadata);
             });
         }
@@ -751,11 +752,13 @@ class TensorFlowOperatorMetadata {
 
     constructor(data) {
         this._map = {};
-        var operators = tensorflow.OpList.decode(data);
-        if (operators.op) {
-            operators.op.forEach((opDef) => {
-                this._map[opDef.name] = opDef;
-            });
+        if (data) {
+            var operators = tensorflow.OpList.decode(data);
+            if (operators.op) {
+                operators.op.forEach((opDef) => {
+                    this._map[opDef.name] = opDef;
+                });
+            }
         }
     }
 
@@ -777,10 +780,20 @@ class TensorFlowGraphOperatorMetadata {
         this._categoryMap = {
             'Const': 'Constant',
             'Conv2D': 'Layer',
+            'BiasAdd': 'Layer',
+            'DepthwiseConv2dNative': 'Layer',
             'Relu': 'Activation',
+            'Relu6': 'Activation',
+            'Softmax': 'Activation',
             'LRN': 'Normalization',
             'MaxPool': 'Pool',
+            'AvgPool': 'Pool',
+            'Reshape': 'Shape',
+            'Squeeze': 'Shape',
+            'ConcatV2': 'Tensor',
+            'Dequantize': 'Tensor',
             'Identity': 'Control',
+            'BatchNormWithGlobalNormalization': 'Normalization',
             // 'VariableV2':
             // 'Assign':
             // 'BiasAdd':
@@ -1035,5 +1048,12 @@ class TensorFlowGraphOperatorMetadata {
             return template(schema);
         }
         return null;
+    }
+}
+
+class TensorFlowError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'TensorFlow Error';
     }
 }

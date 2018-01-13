@@ -528,6 +528,9 @@ class ModelService {
                 }
             });
         }
+        else {
+            callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
+        }
     }
 
     get activeModel() {
