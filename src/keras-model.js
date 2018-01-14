@@ -153,7 +153,6 @@ class KerasGraph {
                 if (layer.inbound_nodes) {
                     layer.inbound_nodes.forEach((inbound_node) => {
                         inbound_node.forEach((inbound_connection) => {
-                            var input = { connections: [] };
                             var inputName = inbound_connection[0];
                             var inputNode = nodeMap[inputName];
                             if (inputNode) {
@@ -162,14 +161,11 @@ class KerasGraph {
                                     inputName += ':' + inputIndex.toString();
                                 }
                                 while (inputIndex >= inputNode._outputs.length) {
-                                    inputNode._outputs.push({ connections: [ ] });        
+                                    inputNode._outputs.push('');        
                                 }     
-                                inputNode._outputs[inputIndex].connections.push({ 
-                                    id: inputName
-                                });
+                                inputNode._outputs[inputIndex] = inputName;
                             }
-                            input.connections.push({ id: inputName });
-                            layer._inputs.push(input);
+                            layer._inputs.push(inputName);
                         });       
                     });
                 }
@@ -195,16 +191,12 @@ class KerasGraph {
                 var inputName = output_layer[0];
                 var inputNode = nodeMap[inputName];
                 if (inputNode) {
-                    inputNode._outputs.push({
-                        connections: [ { id: inputName } ]                        
-                    });
+                    inputNode._outputs.push(inputName);
                 }
-                var output = {
+                this._outputs.push({
                     id: inputName,
-                    name: inputName,
-                    type: '?'
-                };
-                this._outputs.push(output);
+                    name: inputName
+                });
             });
         }
         if (config.layers) {
@@ -227,9 +219,7 @@ class KerasGraph {
         this._inputs.push(input);
         var id = 0;
         config.forEach((layer) => {
-            var inputs = [ {
-                connections: [ { id: connection } ]
-            } ];
+            var inputs = [ connection ];
             var name = id.toString();
             if (id == 0) {
                 this.translateInput(layer, input);
@@ -239,33 +229,25 @@ class KerasGraph {
                 name = layer.config.name;
             }
             connection = name;
-            var outputs = [ {
-                connections: [ { id: connection } ]
-            } ];
+            var outputs = [ connection ];
             this.translateNode(name, layer, inputs, outputs, rootGroup).forEach((node) => {
                 this._nodes.push(node);
             });
         });
-        this._outputs.push({
-            name: 'output',
+        this._outputs.push({ 
             id: connection,
-            type: '?'
+            name: connection
         });
     }
 
     translateNode(name, layer, inputs, outputs, rootGroup) {
         var results = [];
         if (layer.class_name == 'Bidirectional' || layer.class_name == 'TimeDistributed') {
+            var subConnection = name + '_layer';
+            inputs.splice(1, 0, subConnection);
             if (layer.config.layer) {
                 var subLayer = layer.config.layer;
-                var subConnection = name + '|layer';
-                inputs.push({
-                    name: 'layer',
-                    connections: [ { id: subConnection} ]
-                });
-                var subOutputs = [ {
-                    connections: [ { id: subConnection } ]
-                } ];
+                var subOutputs = [ subConnection ];
                 results.push(new KerasNode(subLayer.class_name, subLayer.config.name, subLayer.config, [], subOutputs, rootGroup));
                 delete layer.config.layer;
             }
@@ -304,6 +286,7 @@ class KerasNode {
         this._inputs = inputs;
         this._outputs = outputs;
 
+        this._initializers = {};
         if (rootGroup) {
             var model_weights = rootGroup.group('model_weights');
             if (model_weights) {
@@ -316,13 +299,8 @@ class KerasNode {
                             if (weight_variable) {
                                 var variable = weight_variable.value;
                                 if (variable) {
-                                    this._inputs.push({
-                                        connections: [ {
-                                            id: weight_name,
-                                            type: variable.type + JSON.stringify(variable.shape),
-                                            initializer: variable
-                                        } ]
-                                    });
+                                    this._inputs.push(weight_name);
+                                    this._initializers[weight_name] = variable;
                                 }
                             }
                         });
@@ -345,23 +323,26 @@ class KerasNode {
     }
 
     get inputs() {
-        var results = [];
-        this._inputs.forEach((input, index) => {
-            results.push({
-                name: input.name ? input.name : KerasOperatorMetadata.operatorMetadata.getInputName(this.operator, index), 
-                connections: input.connections
+        var inputs = KerasOperatorMetadata.operatorMetadata.getInputs(this.operator, this._inputs);
+        inputs.forEach((input) => {
+            input.connections.forEach((connection) => {
+                var variable = this._initializers[connection.id];
+                if (variable) {
+                    connection.type = variable.type + JSON.stringify(variable.shape);
+                    connection.initializer = variable;
+                }
             });
         });
-        return results;
+        return inputs;
     }
 
     get outputs() {
         var results = [];
         this._outputs.forEach((output, index) => {
-            results.push({
-                name: output.name ? output.name : KerasOperatorMetadata.operatorMetadata.getOutputName(this.operator, index), 
-                connections: output.connections
-            });
+            var result = { connections: [] };
+            result.name = KerasOperatorMetadata.operatorMetadata.getOutputName(this.operator, index);
+            result.connections.push({ id: output });
+            results.push(result);
         });
         return results;
     }
@@ -456,21 +437,29 @@ class KerasOperatorMetadata {
         }
     }
 
-    getInputName(operator, index) {
+    getInputs(operator, connections) {
+        var results = [];
         var schema = this._map[operator];
-        if (schema) {
-            var inputs = schema.inputs;
-            if (inputs && index < inputs.length) {
-                var input = inputs[index];
-                if (input) {
-                    var name = input.name;
-                    if (name) {
-                        return name;
-                    }
-                } 
+        var index = 0;
+        while (index < connections.length) {
+            var result = { connections: [] };
+            var count = 1;
+            var name = null;
+            if (schema && schema.inputs && index < schema.inputs.length) {
+                name = schema.inputs[index].name;
+                if (schema.inputs[index].option == 'variadic') {
+                    count = connections.length - index;
+                }
             }
+            result.name = name ? name : '(' + index.toString() + ')';
+            var array = connections.slice(index, index + count);
+            for (var j = 0; j < array.length; j++) {
+                result.connections.push({ id: array[j] });
+            }
+            index += count;
+            results.push(result);
         }
-        return "(" + index.toString() + ")";
+        return results;
     }
 
     getOutputName(operator, index) {

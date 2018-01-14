@@ -141,18 +141,6 @@ class TensorFlowLiteGraph {
     }
 
     get nodes() {
-        /* for (var i = 0; i < graph.operatorsLength(); i++) {
-            var node = graph.operators(i);
-            var inputs = [];
-            for (var j = 0; j < node.inputsLength(); j++) {
-                inputs.push(node.inputs(j));
-            }
-            var outputs = [];
-            for (var j = 0; j < node.outputsLength(); j++) {
-                outputs.push(node.outputs(j));
-            }
-            console.log(this.getNodeOperator(node) + ' [' + inputs.join(',') + '] -> [' + outputs.join(',') + ']');
-        } */
         var results = [];
         for (var i = 0; i < this._graph.operatorsLength(); i++) {
             var node = this._graph.operators(i);
