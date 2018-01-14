@@ -1,0 +1,22 @@
+#!/bin/bash
+
+mkdir -p ../third_party
+
+repository=git@github.com:apple/coremltools.git
+
+if [ -d "../third_party/coremltools" ]; then
+    pushd "../third_party/coremltools" > /dev/null
+    echo "Fetch ${repository}..."
+    git fetch -p
+    echo "Reset ${repository}..."
+    git reset --hard origin/master
+    popd > /dev/null
+else
+    echo "Clone ${repository}..."
+    pushd "../third_party" > /dev/null
+    git clone --recursive ${repository}
+    popd > /dev/null
+fi
+
+echo "Generate '../src/coreml.js'"
+../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ../src/coreml.js ../third_party/coremltools/mlmodel/format/Model.proto
