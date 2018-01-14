@@ -19,7 +19,7 @@
     "dependencies": {
         "d3": "latest",
         "dagre": "latest",
-        "electron-updater": "^2.17.6",
+        "electron-updater": "^2.18.2",
         "flatbuffers": "latest",
         "handlebars": "latest",
         "marked": "latest",
