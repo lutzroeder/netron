@@ -18,7 +18,7 @@ class TensorFlowModel {
             else {
                 var metaGraphDef = null;
                 var extension = identifier.split('.').pop();
-                if (extension != '.meta') {
+                if (extension != 'meta') {
                     try {
                         var graphDef = tensorflow.GraphDef.decode(buffer);
                         metaGraphDef = new tensorflow.MetaGraphDef();
