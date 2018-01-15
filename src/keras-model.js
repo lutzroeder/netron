@@ -419,12 +419,25 @@ class KerasTensor {
     }
 
     get type() {
-        return this._variable.type + JSON.stringify(this._variable.shape)
+        return this._variable.type + JSON.stringify(this._variable.shape);
     }
 
     get value() {
         var rawData = this._variable.rawData;
         if (rawData) {
+            switch (this._variable.type) {
+                case 'float16':
+                    this._precision = 16;
+                    break;
+                case 'float32':
+                    this._precision = 32;
+                    break;
+                case 'float64':
+                    this._precision = 64;
+                    break;
+                default:
+                    return 'Tensor data type is not supported.';
+            }
             this._shape = this._variable.shape;
             this._rawData = new DataView(rawData.buffer, rawData.byteOffset, rawData.byteLength);
             this._index = 0;
@@ -433,10 +446,11 @@ class KerasTensor {
             delete this._index;
             delete this._count;
             delete this._rawData;
-            delete this._shape;   
+            delete this._shape;
+            delete this._precision;
             return JSON.stringify(result, null, 4);
         }
-        return null;
+        return 'Tensor data is empty.';
     }
 
     read(dimension) {
@@ -449,8 +463,20 @@ class KerasTensor {
                     return results;
                 }
                 if (this._rawData) {
-                    results.push(this._rawData.getFloat32(this._index, true));
-                    this._index += 4;
+                    switch (this._precision) {
+                        case 16:
+                            results.push(KerasTensor.decodeNumberFromFloat16(this._rawData.getUint16(this._index, true)));
+                            this._index += 2;
+                            break;
+                        case 32:
+                            results.push(this._rawData.getFloat32(this._index, true));
+                            this._index += 4;
+                            break;
+                        case 64:
+                            results.push(this._rawData.getFloat64(this._index, true));
+                            this._index += 8;
+                            break;
+                    }
                     this._count++;
                 }
             }
@@ -465,6 +491,19 @@ class KerasTensor {
             }
         }
         return results;
+    }
+
+    static decodeNumberFromFloat16(value) {
+        var s = (value & 0x8000) >> 15;
+        var e = (value & 0x7C00) >> 10;
+        var f = value & 0x03FF;
+        if(e == 0) {
+            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+        }
+        else if (e == 0x1F) {
+            return f ? NaN : ((s ? -1 : 1) * Infinity);
+        }
+        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
 }
 

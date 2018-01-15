@@ -226,9 +226,31 @@ hdf5.Reader = class {
         return lo;
     }
 
-    readFloat() {
+    readFloat16() {
+        var value = this._dataView.getUint16(this._position, true);
+        this._position += 2;
+        // decode float16 value
+        var s = (value & 0x8000) >> 15;
+        var e = (value & 0x7C00) >> 10;
+        var f = value & 0x03FF;
+        if(e == 0) {
+            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+        }
+        else if (e == 0x1F) {
+            return f ? NaN : ((s ? -1 : 1) * Infinity);
+        }
+        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+    }
+
+    readFloat32() {
         var value = this._dataView.getFloat32(this._position, true);
         this._position += 4;
+        return value;
+    }
+
+    readFloat64() {
+        var value = this._dataView.getFloat64(this._position, true);
+        this._position += 8;
         return value;
     }
 
@@ -458,9 +480,15 @@ hdf5.Datatype = class {
     get type() {
         switch (this._class) {
             case 1: // floating-point
-                if (this._size == 4 && this._flags == 0x1f20) {
-                    return 'float';
-                }    
+                if (this._size == 2 && this._flags == 0x0f20) {
+                    return 'float16';
+                }
+                else if (this._size == 4 && this._flags == 0x1f20) {
+                    return 'float32';
+                }
+                else if (this._size == 8 && this._flags == 0x3f20) {
+                    return 'float64';
+                }
                 break;
             case 3: // string
                 return 'string';
@@ -476,8 +504,14 @@ hdf5.Datatype = class {
     readData(reader) {
         switch (this._class) {
             case 1: // floating-point
-                if (this._size == 4 && this._flags == 0x1f20) {
-                    return reader.readFloat();
+                if (this._size == 2 && this._flags == 0x0f20) {
+                    return reader.readFloat16();
+                }
+                else if (this._size == 4 && this._flags == 0x1f20) {
+                    return reader.readFloat32();
+                }
+                else if (this._size == 8 && this._flags == 0x3f20) {
+                    return reader.readFloat64();
                 }
                 throw new hdf5.Error('Unsupported floating-point datatype.');
             case 3: // string
