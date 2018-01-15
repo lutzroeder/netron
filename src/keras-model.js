@@ -300,7 +300,7 @@ class KerasNode {
                                 var variable = weight_variable.value;
                                 if (variable) {
                                     this._inputs.push(weight_name);
-                                    this._initializers[weight_name] = variable;
+                                    this._initializers[weight_name] = new KerasTensor(variable);
                                 }
                             }
                         });
@@ -326,10 +326,10 @@ class KerasNode {
         var inputs = KerasOperatorMetadata.operatorMetadata.getInputs(this.operator, this._inputs);
         inputs.forEach((input) => {
             input.connections.forEach((connection) => {
-                var variable = this._initializers[connection.id];
-                if (variable) {
-                    connection.type = variable.type + JSON.stringify(variable.shape);
-                    connection.initializer = variable;
+                var initializer = this._initializers[connection.id];
+                if (initializer) {
+                    connection.type = initializer.type;
+                    connection.initializer = initializer;
                 }
             });
         });
@@ -405,6 +405,66 @@ class KerasAttribute {
 
     get hidden() {
         return this._hidden;
+    }
+}
+
+class KerasTensor {
+
+    constructor(variable) {
+        this._variable = variable;
+    }
+
+    get title() {
+        return 'Initializer';
+    }
+
+    get type() {
+        return this._variable.type + JSON.stringify(this._variable.shape)
+    }
+
+    get value() {
+        var rawData = this._variable.rawData;
+        if (rawData) {
+            this._shape = this._variable.shape;
+            this._rawData = new DataView(rawData.buffer, rawData.byteOffset, rawData.byteLength);
+            this._index = 0;
+            this._count = 0;
+            var result = this.read(0);
+            delete this._index;
+            delete this._count;
+            delete this._rawData;
+            delete this._shape;   
+            return JSON.stringify(result, null, 4);
+        }
+        return null;
+    }
+
+    read(dimension) {
+        var results = [];
+        var size = this._shape[dimension];
+        if (dimension == this._shape.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (this._count > 10000) {
+                    results.push('...');
+                    return results;
+                }
+                if (this._rawData) {
+                    results.push(this._rawData.getFloat32(this._index, true));
+                    this._index += 4;
+                    this._count++;
+                }
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (this._count > 10000) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this.read(dimension + 1));
+            }
+        }
+        return results;
     }
 }
 
