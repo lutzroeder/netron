@@ -41,6 +41,20 @@
     }
   },
   {
+    "name": "ThresholdedReLU",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+      ]
+    }
+  },
+  {
     "name": "MaxPooling1D",
     "schema": {
       "category": "Pool",
@@ -260,6 +274,35 @@
     }
   },
   {
+    "name": "SimpleRNN",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "kernel" },
+        { "name": "recurrent_kernel" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "go_backwards", "default": false },
+        { "name": "stateful", "default": false },
+        { "name": "unroll", "default": false },
+        { "name": "activation", "default": "tanh" },
+        { "name": "use_bias", "default": true },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": { "distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
+        { "name": "recurrent_initializer", "default": { "class_name": "Orthogonal", "config": { "seed": null, "gain": 1 } } },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "dropout", "default": 0.0 },
+        { "name": "recurrent_dropout", "default": 0.0 }
+      ]
+    }
+  },
+  {
     "name": "RNN",
     "schema": {
       "category": "Layer",
@@ -422,6 +465,7 @@
   {
     "name": "RepeatVector",
     "schema": {
+      "category": "Shape",
       "inputs": [
         { "name": "input" }
       ],
