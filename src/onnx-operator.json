@@ -438,19 +438,19 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Pool",
@@ -774,13 +774,13 @@
           "description": "ints part of the input map, must be same size and the strings",
           "name": "cats_int64s",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "strings part of the input map, must be same size and the ints",
           "name": "cats_strings",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "int value to use if the string is not in the map",
@@ -1035,7 +1035,7 @@
           "description": "The additional dimensions appended at the end of the shape indicatedby the input blob.Cannot set the extra_shape argument when there is no input blob.",
           "name": "extra_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "1D tensor containing the desired output shape.  First input must be in CPU context.",
@@ -1047,7 +1047,7 @@
           "description": "The shape of the output tensor.Cannot set the shape argument and pass in an input at the same time.",
           "name": "shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "The value for the elements of the output tensor.",
@@ -1117,7 +1117,7 @@
           "description": "dilation value along each axis of the filter.",
           "name": "dilations",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "number of groups input channels and output channels are divided into",
@@ -1129,19 +1129,19 @@
           "description": "The shape of the convolution kernel.",
           "name": "kernel_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Layer",
@@ -1205,7 +1205,7 @@
           "description": "dilation value along each axis of the filter.",
           "name": "dilations",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "number of groups input channels and output channels are divided into",
@@ -1217,31 +1217,31 @@
           "description": "The shape of the convolution kernel.",
           "name": "kernel_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "The zero-padding added to one side of the output. This is also called adjs/adjustment in some frameworks. If output_shape is set, this attribute will be ignored.",
           "name": "output_padding",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "The shape of the output. output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - pads[start_i] - pads[end_i]",
           "name": "output_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Layer",
@@ -1299,13 +1299,13 @@
           "description": "A 1-D values of (leftBorder, topBorder, rightBorder, bottomBorder).",
           "name": "border",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "A 1-D values of (height, width).",
           "name": "scale",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Data",
@@ -1398,13 +1398,13 @@
           "description": "The vocabulary vector",
           "name": "int64_vocabulary",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "The vocabulary vector",
           "name": "string_vocabulary",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         }
       ],
       "description": "Uses an index mapping to convert a dictionary to an array.\n    The output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the output array.\n    The position of the insertion is determined by the position of the item's key\n    in the index mapping. Any keys not present in the input dictionary, will be\n    zero in the output array.  Use either string_vocabulary or int64_vocabulary, not both.\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
@@ -1980,19 +1980,19 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_alpha",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_beta",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
           "name": "activations",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
@@ -2110,19 +2110,19 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_alpha",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_beta",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
           "name": "activations",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
@@ -2441,7 +2441,7 @@
           "description": "",
           "name": "extra_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "",
@@ -2453,13 +2453,13 @@
           "description": "",
           "name": "shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "",
           "name": "values",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         }
       ],
       "domain": "ai.onnx",
@@ -2879,7 +2879,7 @@
           "description": "Bias applied to each channel, same size as C.",
           "name": "bias",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "(float, default 1.0) the scale to apply.",
@@ -2932,13 +2932,13 @@
           "description": "value to change to",
           "name": "imputed_value_floats",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "value to change to",
           "name": "imputed_value_int64s",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "value that needs replacing",
@@ -3119,19 +3119,19 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_alpha",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_beta",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "A list of 3 (or 6 if bidirectional) activation functions for input, output, forget, cell, and hidden. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
           "name": "activations",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
@@ -3268,7 +3268,7 @@
           "description": "List of class label strings to be encoded as int64s",
           "name": "classes_strings",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "Default value if not in class list as int64",
@@ -3445,25 +3445,25 @@
           "description": "class labels if using int labels",
           "name": "classlabels_ints",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "class labels if using string labels",
           "name": "classlabels_strings",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "weights of the model(s)",
           "name": "coefficients",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "weights of the intercepts (if used)",
           "name": "intercepts",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "whether to do OvR or multinomial (0=OvR and is default)",
@@ -3535,13 +3535,13 @@
           "description": "weights of the model(s)",
           "name": "coefficients",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "weights of the intercepts (if used)",
           "name": "intercepts",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
@@ -3744,7 +3744,7 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "p value of the Lp norm used to pool over the input data, default is 2.0.",
@@ -3756,13 +3756,13 @@
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Pool",
@@ -3815,7 +3815,7 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "p value of the Lp norm used to pool over the input data, default is 2.",
@@ -3827,13 +3827,13 @@
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Pool",
@@ -3974,19 +3974,19 @@
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Pool",
@@ -4033,7 +4033,7 @@
           "description": "ROI pool output shape (height, width).",
           "name": "pooled_shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling.",
@@ -4400,13 +4400,13 @@
           "description": "list of cateogries, ints",
           "name": "cats_int64s",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "list of cateogries, strings",
           "name": "cats_strings",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "if true and category is not present, will return all zeros, if false and missing category, operator will return false",
@@ -4573,7 +4573,7 @@
           "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `paddings` rank should be double of the input's rank. `paddings` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "paddings",
           "required": true,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "One float, indicates the value to be filled, default is 0",
@@ -4642,7 +4642,7 @@
           "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "pads",
           "required": true,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "One float, indicates the value to be filled, default is 0",
@@ -4800,19 +4800,19 @@
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_alpha",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
           "name": "activation_beta",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `Tanh` if not specified.",
           "name": "activations",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
@@ -4949,7 +4949,7 @@
           "description": "The shape of the output tensor.",
           "name": "shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "description": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is specified by the `shape` argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
@@ -5076,7 +5076,7 @@
           "description": "The shape of the output tensor.",
           "name": "shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "description": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is specified by the `shape` argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
@@ -5217,7 +5217,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5269,7 +5269,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5321,7 +5321,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5373,7 +5373,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5425,7 +5425,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5477,7 +5477,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5529,7 +5529,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5581,7 +5581,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5633,7 +5633,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5685,7 +5685,7 @@
           "description": "A list of integers, along which to reduce.",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
@@ -5782,7 +5782,7 @@
           "description": "New shape",
           "name": "shape",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Shape",
@@ -5829,25 +5829,25 @@
           "description": "class labels if using int labels",
           "name": "classlabels_ints",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "class labels if using string labels",
           "name": "classlabels_strings",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "",
           "name": "coefficients",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "Tensor of 3 elements containing gamma, coef0, degree in that order.  Zero if unused for the kernel.",
           "name": "kernel_params",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
@@ -5865,31 +5865,31 @@
           "description": "First set of probability coefficients",
           "name": "prob_a",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "Second set of probability coefficients, must be same size as prob_a, if these are provided then output Z are probability estimates.",
           "name": "prob_b",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "",
           "name": "rho",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "",
           "name": "support_vectors",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "",
           "name": "vectors_per_class",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "description": "SVM classifier prediction\n",
@@ -5949,13 +5949,13 @@
           "description": "support vector coefficients",
           "name": "coefficients",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "Tensor of 3 elements containing gamma, coef0, degree in that order.  Zero if unused for the kernel.",
           "name": "kernel_params",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
@@ -5985,13 +5985,13 @@
           "description": "",
           "name": "rho",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "chosen support vectors",
           "name": "support_vectors",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         }
       ],
       "description": "SVM regression prediction and one-class svm anomaly detection\n",
@@ -6136,13 +6136,13 @@
           "description": "first, offset by this, must be same length as scale",
           "name": "offset",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "second, multiply by this, can be length of features or length 1",
           "name": "scale",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         }
       ],
       "description": "Rescale input data, for example to standardize features by removing the mean and scaling to unit variance.\n",
@@ -6281,19 +6281,19 @@
           "description": "Axes that `starts` and `ends` apply to. It's optional. If not present, will be treated as [0, 1, ..., len(`starts`) - 1].",
           "name": "axes",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Ending indices (exclusive) of corresponding axis in axes`",
           "name": "ends",
           "required": true,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "Starting indices of corresponding axis in `axes`",
           "name": "starts",
           "required": true,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Tensor",
@@ -6531,7 +6531,7 @@
           "description": "length of each output",
           "name": "split",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Tensor",
@@ -6591,7 +6591,7 @@
           "description": "length of each output",
           "name": "split",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Tensor",
@@ -6677,7 +6677,7 @@
           "description": "List of positive integers, indicate the dimensions to squeeze.",
           "name": "axes",
           "required": true,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "description": "Remove single-dimensional entries from the shape of a tensor.\nTakes a  parameter `axes` with a list of axes to squeeze.\n",
@@ -6952,7 +6952,7 @@
           "description": "A list of integers. By default, reverse the dimensions, otherwise permute the axes according to the values given.",
           "name": "perm",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         }
       ],
       "category": "Shape",
@@ -6999,97 +6999,97 @@
           "description": "base values for classification, added to final class score, size must be the same as classes or can be left unassigned (assumed 0)",
           "name": "base_values",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "index of the class list that this weight is for",
           "name": "class_ids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "node id that this weight is for",
           "name": "class_nodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "tree that this node is in",
           "name": "class_treeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "the weight for the class in class_id",
           "name": "class_weights",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "class labels if using int labels",
           "name": "classlabels_int64s",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "class labels if using string labels",
           "name": "classlabels_strings",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "child node if expression is false",
           "name": "nodes_falsenodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "feature id for this node",
           "name": "nodes_featureids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "",
           "name": "nodes_hitrates",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "for each node, decide if the value is missing (nan) then use true branch, this field can be left unset and will assume false for all nodes",
           "name": "nodes_missing_value_tracks_true",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "enum of behavior for this node 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'",
           "name": "nodes_modes",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "node id for this node, node ids may restart at zero for each tree (but not required).",
           "name": "nodes_nodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "tree id for this node",
           "name": "nodes_treeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "child node if expression is true",
           "name": "nodes_truenodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "thresholds to do the splitting on for this node.",
           "name": "nodes_values",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
@@ -7161,7 +7161,7 @@
           "description": "base values for regression, added to final score, size must be the same as n_outputs or can be left unassigned (assumed 0)",
           "name": "base_values",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "total number of targets",
@@ -7173,55 +7173,55 @@
           "description": "child node if expression is false",
           "name": "nodes_falsenodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "feature id for this node",
           "name": "nodes_featureids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "popularity of the node, used for performance and may be omitted",
           "name": "nodes_hitrates",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "for each node, decide if the value is missing (nan) then use true branch, this field can be left unset and will assume false for all nodes",
           "name": "nodes_missing_value_tracks_true",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "enum of behavior for this node as enum of BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF",
           "name": "nodes_modes",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         },
         {
           "description": "node id for this node, node ids must restart at zero for each tree and increase sequentially.",
           "name": "nodes_nodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "tree id for this node",
           "name": "nodes_treeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "child node if expression is true",
           "name": "nodes_truenodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "thresholds to do the splitting on for this node.",
           "name": "nodes_values",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         },
         {
           "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
@@ -7233,25 +7233,25 @@
           "description": "index of the class list that this weight is for",
           "name": "target_ids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "node id that this weight is for",
           "name": "target_nodeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "tree that this node is in",
           "name": "target_treeids",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "the weight for the class in target_id",
           "name": "target_weights",
           "required": false,
-          "type": "list of floats"
+          "type": "float[]"
         }
       ],
       "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.\n    All fields prefixed with target_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.\n    All trees must have their node ids start at 0 and increment by 1.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
@@ -7422,13 +7422,13 @@
           "description": "keys if using int keys",
           "name": "classlabels_int64s",
           "required": false,
-          "type": "list of ints"
+          "type": "int[]"
         },
         {
           "description": "keys if using string keys",
           "name": "classlabels_strings",
           "required": false,
-          "type": "list of strings"
+          "type": "string[]"
         }
       ],
       "description": "Makes a map from the input and the attributes.\n    Assumes input 0 are the values, and the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).\n    Input 0 may have a batch size larger than 1,\n    but each input in the batch must be the size of the keys specified by the attributes.\n    The order of the input and attributes determines the key-value mapping.\n",

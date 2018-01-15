@@ -121,7 +121,7 @@ def generate_json_attr_type(type):
     s = str(type)
     s = s[s.rfind('.')+1:].lower()
     if s[-1] == 's':
-        s = 'list of ' + s
+        s = s[0:-1] + '[]'
     return s
 
 def generate_json_support_level_name(support_level):
