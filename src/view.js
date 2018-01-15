@@ -328,7 +328,7 @@ function updateGraph(model) {
 
     // Set up zoom support
     var zoom = d3.zoom();
-    zoom.scaleExtent([0.1, 2]);
+    zoom.scaleExtent([0.1, 1]);
     zoom.on('zoom', function(e) {
         d3.select(outputGroup).attr('transform', d3.event.transform);
     });
