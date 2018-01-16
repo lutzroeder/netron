@@ -439,6 +439,18 @@
     }
   },
   {
+    "name": "Average",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Flatten",
     "schema": {
       "category": "Shape",
