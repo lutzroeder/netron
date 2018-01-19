@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 
-// Experimental H5/HDF5 JavaScript reader. Currently only supports reading string attributes and group hierarchy names.
+// Experimental H5/HDF5 JavaScript reader
 
 var hdf5 = hdf5 || {};
 
@@ -177,46 +177,51 @@ hdf5.Variable = class {
 };
 
 hdf5.Reader = class {
-    constructor(buffer, position) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = position;
+    constructor(buffer) {
+        if (buffer) {
+            this._buffer = buffer;
+            this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+            this._position = 0;
+            this._offset = 0;
+        }
     }
 
     peekByte() {
-        return this._dataView.getUint8(this._position);
+        return this._dataView.getUint8(this._position + this._offset);
     }
 
     readByte() {
-        return this._dataView.getUint8(this._position++);
+        var value = this._dataView.getUint8(this._position + this._offset);
+        this._offset++;
+        return value;
     }
 
     skipBytes(length) {
-        this._position += length;
+        this._offset += length;
     }
 
     readBytes(length) {
-        var data = this._buffer.subarray(this._position, this._position + length);
-        this._position += length;
+        var data = this._buffer.subarray(this._position + this._offset, this._position + this._offset + length);
+        this._offset += length;
         return data;
     }
 
     readUint16() {
-        var value = this._dataView.getUint16(this._position, true);
-        this._position += 2;
+        var value = this._dataView.getUint16(this._position + this._offset, true);
+        this._offset += 2;
         return value;
     }
 
     readUint32() {
-        var value = this._dataView.getUint32(this._position, true);
-        this._position += 4;
+        var value = this._dataView.getUint32(this._position + this._offset, true);
+        this._offset += 4;
         return value;
     }
 
     readUint64() {
-        var lo = this._dataView.getUint32(this._position, true);
-        var hi = this._dataView.getUint32(this._position + 4, true);
-        this._position += 8;
+        var lo = this._dataView.getUint32(this._position + this._offset, true);
+        var hi = this._dataView.getUint32(this._position + this._offset + 4, true);
+        this._offset += 8;
         if (lo == 4294967295 && hi == lo) { // Undefined
             return -1;
         } 
@@ -227,8 +232,8 @@ hdf5.Reader = class {
     }
 
     readFloat16() {
-        var value = this._dataView.getUint16(this._position, true);
-        this._position += 2;
+        var value = this._dataView.getUint16(this._position + this._offset, true);
+        this._offset += 2;
         // decode float16 value
         var s = (value & 0x8000) >> 15;
         var e = (value & 0x7C00) >> 10;
@@ -243,24 +248,24 @@ hdf5.Reader = class {
     }
 
     readFloat32() {
-        var value = this._dataView.getFloat32(this._position, true);
-        this._position += 4;
+        var value = this._dataView.getFloat32(this._position + this._offset, true);
+        this._offset += 4;
         return value;
     }
 
     readFloat64() {
-        var value = this._dataView.getFloat64(this._position, true);
-        this._position += 8;
+        var value = this._dataView.getFloat64(this._position + this._offset, true);
+        this._offset += 8;
         return value;
     }
 
     readString(size, encoding) {
         if (!size || size == -1) {
-            var position = this._position;
+            var position = this._position + this._offset;
             while (this._buffer[position] != 0) {
                 position++;
             }
-            size = position - this._position + 1;
+            size = position - this._position + this._offset + 1;
         }
         var data = this.readBytes(size);
         return hdf5.Reader.decodeString(data, encoding);
@@ -320,22 +325,30 @@ hdf5.Reader = class {
     }
 
     move(position) {
-        var reader = new hdf5.Reader(this._buffer, position);
-        reader.setOffsetSize(this._offsetSize);
-        reader.setLengthSize(this._lengthSize);
+        var reader = new hdf5.Reader(null);        
+        reader._buffer = this._buffer;
+        reader._dataView = this._dataView;
+        reader._position = position;
+        reader._offset = 0;
+        reader._offsetSize = this._offsetSize;
+        reader._lengthSize = this._lengthSize;
         return reader;
     }
 
     clone() {
         var reader =  new hdf5.Reader(this._buffer, this._position);
-        reader.setOffsetSize(this._offsetSize);
-        reader.setLengthSize(this._lengthSize);
+        reader._buffer = this._buffer;
+        reader._dataView = this._dataView;
+        reader._position = this._position;
+        reader._offset = this._offset;
+        reader._offsetSize = this._offsetSize;
+        reader._lengthSize = this._lengthSize;
         return reader;
     }
 
     align(mod) {
-        if (this._position % mod != 0) {
-            this._position = (Math.floor(this._position / mod) + 1) * mod;
+        if (this._offset % mod != 0) {
+            this._offset = (Math.floor(this._offset / mod) + 1) * mod;
         }
     }
 
@@ -349,7 +362,7 @@ hdf5.Reader = class {
     }
 
     get position() {
-        return this._position;
+        return this._position + this._offset;
     }
 };
 
@@ -424,7 +437,7 @@ hdf5.DataObjectHeader = class {
                     case 0x0000: // NIL
                         break;
                     case 0x0001: // Dataspace
-                        this.dataspace = new hdf5.Dataspace(reader.clone());
+                        this.dataspace = (dataSize != 4 || flags != 1) ? new hdf5.Dataspace(reader.clone()) : null;
                         break;
                     case 0x0003: // Datatype
                         this.datatype = new hdf5.Datatype(reader.clone());
