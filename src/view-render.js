@@ -4,34 +4,33 @@ class GraphRenderer {
 
     constructor(svgElement) {
         this._svgElement = svgElement;
-        this._svgNamespace = 'http://www.w3.org/2000/svg';
     }
 
     render(graph) {
 
-        var svgClusterGroup = document.createElementNS(this._svgNamespace, 'g');
+        var svgClusterGroup = this.createElement('g');
         svgClusterGroup.setAttribute('class', 'clusters');
         this._svgElement.appendChild(svgClusterGroup);
 
-        var svgEdgePathGroup = document.createElementNS(this._svgNamespace, 'g');
+        var svgEdgePathGroup = this.createElement('g');
         svgEdgePathGroup.setAttribute('class', 'edge-paths');
         this._svgElement.appendChild(svgEdgePathGroup);
 
-        var svgEdgeLabelGroup = document.createElementNS(this._svgNamespace, 'g');
+        var svgEdgeLabelGroup = this.createElement('g');
         svgEdgeLabelGroup.setAttribute('class', 'edge-labels');
         this._svgElement.appendChild(svgEdgeLabelGroup);
 
-        var svgNodeGroup = document.createElementNS(this._svgNamespace, 'g');
+        var svgNodeGroup = this.createElement('g');
         svgNodeGroup.setAttribute('class', 'nodes');
         this._svgElement.appendChild(svgNodeGroup);
 
         graph.nodes().forEach((nodeId) => {
             if (graph.children(nodeId).length == 0) {
                 var node = graph.node(nodeId);
-                var element = document.createElementNS(this._svgNamespace, 'g');
+                var element = this.createElement('g');
                 element.setAttribute('class', node.hasOwnProperty('class') ? ('node ' + node.class) : 'node');
                 element.style.setProperty('opacity', 0);
-                var container = document.createElementNS(this._svgNamespace, 'g');
+                var container = this.createElement('g');
                 container.appendChild(node.label);
                 element.appendChild(container);
                 svgNodeGroup.appendChild(element);
@@ -47,16 +46,16 @@ class GraphRenderer {
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            var tspan = document.createElementNS(this._svgNamespace, 'tspan');
+            var tspan = this.createElement('tspan');
             tspan.setAttribute('xml:space', 'preserve');
             tspan.setAttribute('dy', '1em');
             tspan.setAttribute('x', '1');
             tspan.appendChild(document.createTextNode(edge.label));
-            var text = document.createElementNS(this._svgNamespace, 'text');
+            var text = this.createElement('text');
             text.appendChild(tspan);
-            var container = document.createElementNS(this._svgNamespace, 'g');
+            var container = this.createElement('g');
             container.appendChild(text);
-            var element = document.createElementNS(this._svgNamespace, 'g');
+            var element = this.createElement('g');
             element.style.setProperty('opacity', 0);
             element.setAttribute('class', 'edge-label');
             element.appendChild(container);
@@ -90,18 +89,28 @@ class GraphRenderer {
             delete edge.element;
         });
 
-        d3.select(svgEdgePathGroup).append('defs')
-            .append('marker')
-                .attr('id', 'arrowhead-vee')
-                .attr('viewBox', '0 0 10 10').attr('refX', 9).attr('refY', 5)
-                .attr('markerUnits', 'strokeWidth').attr('markerWidth', 8).attr('markerHeight', 6).attr('orient', 'auto')
-            .append('path')
-                .attr('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z')
-                .style('stroke-width', 1).style('stroke-dasharray', '1,0');   
+        var edgePathGroupDefs = this.createElement('defs');
+        svgEdgePathGroup.appendChild(edgePathGroupDefs);
+        var marker = this.createElement('marker');
+        marker.setAttribute('id', 'arrowhead-vee');
+        marker.setAttribute('viewBox', '0 0 10 10');
+        marker.setAttribute('refX', 9);
+        marker.setAttribute('refY', 5);
+        marker.setAttribute('markerUnits', 'strokeWidth');
+        marker.setAttribute('markerWidth', 8);
+        marker.setAttribute('markerHeight', 6);
+        marker.setAttribute('orient', 'auto');
+        edgePathGroupDefs.appendChild(marker);
+        var markerPath = this.createElement('path');
+        markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z');
+        markerPath.style.setProperty('stroke-width', 1);
+        markerPath.style.setProperty('stroke-dasharray', '1,0');
+        marker.appendChild(markerPath);
+
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
             var points = GraphRenderer.calcPoints(edge, graph.node(edgeId.v), graph.node(edgeId.w));
-            var element = document.createElementNS(this._svgNamespace, 'path');
+            var element = this.createElement('path');
             element.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
             element.setAttribute('d', points);
             element.setAttribute('marker-end', 'url(#arrowhead-vee)');
@@ -111,10 +120,10 @@ class GraphRenderer {
         graph.nodes().forEach((nodeId) => {
             if (graph.children(nodeId).length > 0) {
                 var node = graph.node(nodeId);
-                var element = document.createElementNS(this._svgNamespace, 'g');
+                var element = this.createElement('g');
                 element.setAttribute('class', 'cluster');
                 element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-                var rect = document.createElementNS(this._svgNamespace, 'rect');
+                var rect = this.createElement('rect');
                 rect.setAttribute('x', - node.width / 2);
                 rect.setAttribute('y', - node.height / 2 );
                 rect.setAttribute('width', node.width);
@@ -129,6 +138,10 @@ class GraphRenderer {
                 svgClusterGroup.appendChild(element);
             }
         });
+    }
+
+    createElement(name) {
+        return document.createElementNS('http://www.w3.org/2000/svg', name);
     }
 
     static calcPoints(edge, tail, head) {
