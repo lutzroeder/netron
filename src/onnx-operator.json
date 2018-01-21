@@ -4,42 +4,12 @@
     "schema": {
       "description": "Experimental allowing ATen operations to be accessed directly from Caffe2\nto allow for quick prototyping when ONNX is missing standard versions of\nand op",
       "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "Arbitrary input",
-          "name": "input",
-          "option": "variadic",
-          "type": "T"
-        }
-      ],
       "max_input": 2147483647,
       "max_output": 2147483647,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Arbitrary output",
-          "name": "output",
-          "option": "variadic",
-          "type": "T"
-        }
-      ],
+      "min_input": 0,
+      "min_output": 0,
       "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(bool)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain output types to bool, int32, int64, float16, float, double tensors.",
-          "type_param_str": "T"
-        }
-      ]
+      "support_level": "experimental"
     }
   },
   {
@@ -285,7 +255,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -337,7 +307,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
+      "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1. \nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -373,63 +343,11 @@
     }
   },
   {
-    "name": "ArrayFeatureExtractor",
-    "schema": {
-      "description": "Select a subset of the data based on the indices passed.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be selected",
-          "name": "X",
-          "type": "T1"
-        },
-        {
-          "description": "The index values to select as a tensor of int64s",
-          "name": "Y",
-          "type": "T2"
-        }
-      ],
-      "max_input": 2,
-      "max_output": 1,
-      "min_input": 2,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Selected output data as an array",
-          "name": "Z",
-          "type": "T1"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)",
-            "tensor(string)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(int64)"
-          ],
-          "description": " Index value types .",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
     "name": "AveragePool",
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -441,7 +359,7 @@
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "int[]"
@@ -454,7 +372,7 @@
         }
       ],
       "category": "Pool",
-      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -523,7 +441,7 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "The input 4-dimensional tensor of shape NCHW.",
+          "description": "The input 4-dimensional tensor of shape NCHW or NHWC depending on the order parameter.",
           "name": "X",
           "type": "T"
         },
@@ -549,9 +467,9 @@
         }
       ],
       "max_input": 5,
-      "max_output": 5,
+      "max_output": 2147483647,
       "min_input": 5,
-      "min_output": 1,
+      "min_output": 0,
       "outputs": [
         {
           "description": "The output 4-dimensional tensor of the same shape as X.",
@@ -561,25 +479,21 @@
         {
           "description": "The running mean after the BatchNormalization operator. Must be in-place with the input mean. Should not be used for testing.",
           "name": "mean",
-          "option": "optional",
           "type": "T"
         },
         {
           "description": "The running variance after the BatchNormalization operator. Must be in-place with the input var. Should not be used for testing.",
           "name": "var",
-          "option": "optional",
           "type": "T"
         },
         {
           "description": "Saved mean used during training to speed up gradient computation. Should not be used for testing.",
           "name": "saved_mean",
-          "option": "optional",
           "type": "T"
         },
         {
           "description": "Saved variance used during training to speed up gradient computation. Should not be used for testing.",
           "name": "saved_var",
-          "option": "optional",
           "type": "T"
         }
       ],
@@ -593,53 +507,6 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
-    "name": "Binarizer",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Values greater than this are set to 1, else set to 0",
-          "name": "threshold",
-          "required": false,
-          "type": "float"
-        }
-      ],
-      "description": "Makes values 1 or 0 based on a single threshold.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be binarized",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Binarized output data",
-          "name": "Y",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
           "type_param_str": "T"
         }
       ]
@@ -695,143 +562,6 @@
             "tensor(double)"
           ],
           "description": "Constrain output types to float tensors.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
-    "name": "CastMap",
-    "schema": {
-      "attributes": [
-        {
-          "description": "what to cast output to, enum 'TO_FLOAT', 'TO_STRING', 'TO_INT64', default is 'TO_FLOAT'",
-          "name": "cast_to",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "whether to only output as many values as are in the input, or position the input based on using the key of the map as the index of the output (sparse), enum 'DENSE', 'SPARSE', default is 'DENSE'",
-          "name": "map_form",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "if map_form packing is SPARSE, what is the total length of each output in N (max index value)",
-          "name": "max_map",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "description": "Converts a map to a tensor.  Map key must be int64 and the values will be ordered\n    in ascending order based on this key.  Supports dense packing or sparse packing.\n    If using sparse packing, the key cannot exceed the max_map-1 value.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be encoded",
-          "name": "X",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "encoded output data",
-          "name": "Y",
-          "type": "T2"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "map(int64, string)",
-            "map(int64, float)"
-          ],
-          "description": " allowed input types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(float)",
-            "tensor(int64)"
-          ],
-          "description": " allowed output types.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
-    "name": "CategoryMapper",
-    "schema": {
-      "attributes": [
-        {
-          "description": "ints part of the input map, must be same size and the strings",
-          "name": "cats_int64s",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "strings part of the input map, must be same size and the ints",
-          "name": "cats_strings",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "int value to use if the string is not in the map",
-          "name": "default_int64",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "string value to use if the int is not in the map",
-          "name": "default_string",
-          "required": false,
-          "type": "string"
-        }
-      ],
-      "description": "Convert strings to int64s and vice versa.\n    Takes in a map to use for the conversion.\n    The index position in the strings and ints repeated inputs\n     is used to do the mapping.\n    Each instantiated operator converts either ints to strings or strings to ints.\n    This behavior is triggered based on which default value is set.\n    If the string default value is set, it will convert ints to strings.\n    If the int default value is set, it will convert strings to ints.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Input data",
-          "name": "X",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Output data, if strings are input, then output is int64s, and vice versa.",
-          "name": "Y",
-          "type": "T2"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)"
-          ],
-          "description": " allowed types.",
           "type_param_str": "T2"
         }
       ]
@@ -934,7 +664,7 @@
         {
           "description": "Which axis to concat on",
           "name": "axis",
-          "required": true,
+          "required": false,
           "type": "int"
         }
       ],
@@ -1108,7 +838,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -1132,7 +862,7 @@
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "int[]"
@@ -1196,7 +926,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -1220,19 +950,13 @@
           "type": "int[]"
         },
         {
-          "description": "The zero-padding added to one side of the output. This is also called adjs/adjustment in some frameworks. If output_shape is set, this attribute will be ignored.",
-          "name": "output_padding",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "The shape of the output. output_shape[i] = stride[i] * (input_size[i] - 1) + output_padding[i] + kernel_shape[i] - pads[start_i] - pads[end_i]",
+          "description": "The shape of the output.",
           "name": "output_shape",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "int[]"
@@ -1391,71 +1115,6 @@
     }
   },
   {
-    "name": "DictVectorizer",
-    "schema": {
-      "attributes": [
-        {
-          "description": "The vocabulary vector",
-          "name": "int64_vocabulary",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "The vocabulary vector",
-          "name": "string_vocabulary",
-          "required": false,
-          "type": "string[]"
-        }
-      ],
-      "description": "Uses an index mapping to convert a dictionary to an array.\n    The output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the output array.\n    The position of the insertion is determined by the position of the item's key\n    in the index mapping. Any keys not present in the input dictionary, will be\n    zero in the output array.  Use either string_vocabulary or int64_vocabulary, not both.\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "The input dictionary",
-          "name": "X",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "The tensor",
-          "name": "Y",
-          "type": "T2"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "map(string, int64)",
-            "map(int64, string)",
-            "map(int64, float)",
-            "map(int64, double)",
-            "map(string, float)",
-            "map(string, double)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(int64)",
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(string)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
     "name": "Div",
     "schema": {
       "attributes": [
@@ -1552,7 +1211,6 @@
         {
           "description": "The output mask. If is_test is nonzero, this output is not filled.",
           "name": "mask",
-          "option": "optional",
           "type": "T"
         }
       ],
@@ -1843,51 +1501,6 @@
     }
   },
   {
-    "name": "FeatureVectorizer",
-    "schema": {
-      "attributes": [
-        {
-          "description": "the size of each input in the input list",
-          "name": "inputdimensions",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "description": "Concatenates input features into one continuous output.\n    Inputlist is a list of input feature names, inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    All inputs are tensors of float.  Any feature that is not a tensor of float should\n    be converted using either Cast or CastMap.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "ordered input tensors",
-          "name": "X",
-          "option": "variadic",
-          "type": "T"
-        }
-      ],
-      "max_input": 2147483647,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Full output array, in order assigned in the inputlist, as floats",
-          "name": "Y",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Flatten",
     "schema": {
       "attributes": [
@@ -2013,12 +1626,6 @@
           "type": "int"
         },
         {
-          "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
-          "name": "linear_before_reset",
-          "required": false,
-          "type": "int"
-        },
-        {
           "description": "The sequence output for the hidden is optional if 0. Default 0.",
           "name": "output_sequence",
           "required": false,
@@ -2026,7 +1633,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*Rh + Rbh) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh)\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2066,12 +1673,11 @@
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
-      "min_output": 2,
+      "min_output": 1,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
-          "option": "optional",
           "type": "T"
         },
         {
@@ -2081,137 +1687,6 @@
         }
       ],
       "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(int32)"
-          ],
-          "description": "Constrain seq_lens to integer tensor.",
-          "type_param_str": "T1"
-        }
-      ]
-    }
-  },
-  {
-    "name": "GRU",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
-          "name": "activation_alpha",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
-          "name": "activation_beta",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
-          "name": "activations",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
-          "name": "clip",
-          "required": false,
-          "type": "float"
-        },
-        {
-          "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
-          "name": "direction",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "Number of neurons in the hidden layer",
-          "name": "hidden_size",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
-          "name": "linear_before_reset",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "The sequence output for the hidden is optional if 0. Default 0.",
-          "name": "output_sequence",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "category": "Layer",
-      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*Rz + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*Rr + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*Rh + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*Rh + Rbh) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\n",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
-          "name": "X",
-          "type": "T"
-        },
-        {
-          "description": "The weight tensor for the gates. Concatenation of `W[zrh]` and `WB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, input_size]`.",
-          "name": "W",
-          "type": "T"
-        },
-        {
-          "description": "The recurrence weight tensor. Concatenation of `R[zrh]` and `RB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, hidden_size]`.",
-          "name": "R",
-          "type": "T"
-        },
-        {
-          "description": "The bias tensor for the gates. Concatenation of `[Wb[zrh], Rb[zrh]]` and `[WBb[zrh], RBb[zrh]]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 6*hidden_size]`. Optional: If not specified - assumed to be 0",
-          "name": "B",
-          "option": "optional",
-          "type": "T"
-        },
-        {
-          "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
-          "name": "sequence_lens",
-          "option": "optional",
-          "type": "T1"
-        },
-        {
-          "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
-          "name": "initial_h",
-          "option": "optional",
-          "type": "T"
-        }
-      ],
-      "max_input": 6,
-      "max_output": 2,
-      "min_input": 3,
-      "min_output": 0,
-      "outputs": [
-        {
-          "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
-          "name": "Y",
-          "option": "optional",
-          "type": "T"
-        },
-        {
-          "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
-          "name": "Y_h",
-          "option": "optional",
-          "type": "T"
-        }
-      ],
-      "since_version": 3,
       "support_level": "common",
       "type_constraints": [
         {
@@ -2388,7 +1863,7 @@
           "type": "int"
         }
       ],
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N). \nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2925,71 +2400,6 @@
     }
   },
   {
-    "name": "Imputer",
-    "schema": {
-      "attributes": [
-        {
-          "description": "value to change to",
-          "name": "imputed_value_floats",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "value to change to",
-          "name": "imputed_value_int64s",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "value that needs replacing",
-          "name": "replaced_value_float",
-          "required": false,
-          "type": "float"
-        },
-        {
-          "description": "value that needs replacing",
-          "name": "replaced_value_int64",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "description": "Replace imputs that equal replaceValue/s  with  imputeValue/s.\n    All other inputs are copied to the output unchanged.\n    This op is used to replace missing values where we know what a missing value looks like.\n    Only one of imputed_value_floats or imputed_value_int64s should be used.\n    The size can be 1 element, which will be reused, or the size of the feature set F in input N,F\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be imputed",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Imputed output data",
-          "name": "Y",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "InstanceNormalization",
     "schema": {
       "attributes": [
@@ -3001,7 +2411,7 @@
         }
       ],
       "category": "Normalization",
-      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022.\n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B,\nwhere mean and variance are computed per instance per channel.\n\n",
+      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022. \n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B, \nwhere mean and B are computed per instance per channel. \n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3165,7 +2575,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh, h=Tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*Ri + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*Rf + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*Rc + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*Ro + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\n",
+      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=sigmoid, g=tanh, h=tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*Ri + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*Rf + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*Rc + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*Ro + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3215,26 +2625,18 @@
         }
       ],
       "max_input": 8,
-      "max_output": 3,
+      "max_output": 2,
       "min_input": 3,
-      "min_output": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
-          "option": "optional",
           "type": "T"
         },
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
-          "option": "optional",
-          "type": "T"
-        },
-        {
-          "description": "The last output value of the cell. It has shape `[num_directions, batch_size, hidden_size]`.",
-          "name": "Y_c",
-          "option": "optional",
           "type": "T"
         }
       ],
@@ -3256,71 +2658,6 @@
           ],
           "description": "Constrain seq_lens to integer tensor.",
           "type_param_str": "T1"
-        }
-      ]
-    }
-  },
-  {
-    "name": "LabelEncoder",
-    "schema": {
-      "attributes": [
-        {
-          "description": "List of class label strings to be encoded as int64s",
-          "name": "classes_strings",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "Default value if not in class list as int64",
-          "name": "default_int64",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "Default value if not in class list as string",
-          "name": "default_string",
-          "required": false,
-          "type": "string"
-        }
-      ],
-      "description": "Convert class label to their integral type and vice versa.\n    In both cases the operator is instantiated with the list of class strings.\n    The integral value of the string is the index position in the list.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be encoded",
-          "name": "X",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Encoded output data",
-          "name": "Y",
-          "type": "T2"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T2"
         }
       ]
     }
@@ -3433,161 +2770,6 @@
           ],
           "description": "Constrains output to boolean tensor.",
           "type_param_str": "T1"
-        }
-      ]
-    }
-  },
-  {
-    "name": "LinearClassifier",
-    "schema": {
-      "attributes": [
-        {
-          "description": "class labels if using int labels",
-          "name": "classlabels_ints",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "class labels if using string labels",
-          "name": "classlabels_strings",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "weights of the model(s)",
-          "name": "coefficients",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "weights of the intercepts (if used)",
-          "name": "intercepts",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "whether to do OvR or multinomial (0=OvR and is default)",
-          "name": "multi_class",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
-          "name": "post_transform",
-          "required": false,
-          "type": "string"
-        }
-      ],
-      "description": "Linear classifier prediction (choose class)\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be classified",
-          "name": "X",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 2,
-      "min_input": 1,
-      "min_output": 2,
-      "outputs": [
-        {
-          "description": "Classification outputs (one class per example",
-          "name": "Y",
-          "type": "T2"
-        },
-        {
-          "description": "Classification scores (N,E - one score for each class, for each example",
-          "name": "Z",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
-    "name": "LinearRegressor",
-    "schema": {
-      "attributes": [
-        {
-          "description": "weights of the model(s)",
-          "name": "coefficients",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "weights of the intercepts (if used)",
-          "name": "intercepts",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
-          "name": "post_transform",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "total number of regression targets (default is 1)",
-          "name": "targets",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "description": "Generalized linear regression evaluation.\n    If targets is set to 1 (default) then univariate regression is performed.\n    If targets is set to M then M sets of coefficients must be passed in as a sequence\n    and M results will be output for each input n in N.\n    Coefficients are of the same length as an n, and coefficents for each target are contiguous.\n    Intercepts are optional but if provided must match the number of targets.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be regressed",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Regression outputs (one per target, per example",
-          "name": "Y",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T"
         }
       ]
     }
@@ -3735,7 +2917,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -3753,7 +2935,7 @@
           "type": "float"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "int[]"
@@ -3766,7 +2948,7 @@
         }
       ],
       "category": "Pool",
-      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3806,7 +2988,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -3824,7 +3006,7 @@
           "type": "int"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "int[]"
@@ -3837,7 +3019,7 @@
         }
       ],
       "category": "Pool",
-      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset \n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3965,7 +3147,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the ouput size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the begining for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
           "type": "string"
@@ -3977,7 +3159,7 @@
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the begining and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the begining and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
           "name": "pads",
           "required": false,
           "type": "int[]"
@@ -3990,7 +3172,7 @@
         }
       ],
       "category": "Pool",
-      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a \n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4043,7 +3225,7 @@
         }
       ],
       "category": "Pool",
-      "description": "ROI max pool consumes an input tensor X and region of interests (RoIs) to\n apply max pooling across each RoI, to produce output 4-D tensor of shape\n (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
+      "description": "ROI max pool consumes an input tensor X and region of interests (RoIs) to \n apply max pooling across each RoI, to produce output 4-D tensor of shape \n (num_rois, channels, pooled_shape[0], pooled_shape[1]).",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4309,53 +3491,6 @@
     }
   },
   {
-    "name": "Normalizer",
-    "schema": {
-      "attributes": [
-        {
-          "description": "0=Lmax, 1=L1, 2=L2",
-          "name": "norm",
-          "required": false,
-          "type": "string"
-        }
-      ],
-      "description": "Normalize the input.  There are three normalization modes,\n    which have the corresponding formulas:\n    Max .. math::     max(x_i)\n    L1  .. math::  z = ||x||_1 = \\sum_{i=1}^{n} |x_i|\n    L2  .. math::  z = ||x||_2 = \\sqrt{\\sum_{i=1}^{n} x_i^2}\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be encoded",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "encoded output data",
-          "name": "Y",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Not",
     "schema": {
       "category": "Logic",
@@ -4387,66 +3522,6 @@
             "tensor(bool)"
           ],
           "description": "Constrains input/output to boolean tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
-    "name": "OneHotEncoder",
-    "schema": {
-      "attributes": [
-        {
-          "description": "list of cateogries, ints",
-          "name": "cats_int64s",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "list of cateogries, strings",
-          "name": "cats_strings",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "if true and category is not present, will return all zeros, if false and missing category, operator will return false",
-          "name": "zeros",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "description": "Replace the inputs with an array of ones and zeros, where the only\n    one is the zero-based category that was passed in.  The total category count\n    will determine the length of the vector. For example if we pass a\n    tensor with a single value of 4, and a category count of 8, the\n    output will be a tensor with 0,0,0,0,1,0,0,0 .\n\n    This operator assumes every input in X is of the same category set\n    (meaning there is only one category count).\n\t\n\tIf the input is a tensor of float, int32, or double, the data will be cast\n    to int64s and the cats_int64s category list will be used for the lookups.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be encoded",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "encoded output data",
-          "name": "Y",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)",
-            "tensor(int32)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": " allowed types.",
           "type_param_str": "T"
         }
       ]
@@ -4570,7 +3645,7 @@
           "type": "string"
         },
         {
-          "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `paddings` rank should be double of the input's rank. `paddings` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
+          "description": "List of integers indicate the padding element count at the begining and end of each axis, for 2D it is the number of pixel. `paddings` rank should be double of the input's rank. `paddings` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "paddings",
           "required": true,
           "type": "int[]"
@@ -4639,7 +3714,7 @@
           "type": "string"
         },
         {
-          "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
+          "description": "List of integers indicate the padding element count at the begining and end of each axis, for 2D it is the number of pixel. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the begining of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "pads",
           "required": true,
           "type": "int[]"
@@ -4809,7 +3884,7 @@
           "type": "float[]"
         },
         {
-          "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `Tanh` if not specified.",
+          "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `tanh` if not specified.",
           "name": "activations",
           "required": false,
           "type": "string[]"
@@ -4840,7 +3915,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*Ri + Wbi + Rbi)\n",
+      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  relu(x)                - max(0, x)\n\n  tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  linear(x)              - alpha*x + beta\n\n  leakyRelu(x)           - x if x >= 0 else alpha * x\n\n  thresholdedRelu(x)     - x if x >= alpha else 0\n\n  pRelu(xi)              - xi if xi >= 0 else alpha[i]* xi over dim 0\n\n  scaledTanh(x)          - alpha*tanh(beta*x)\n\n  sigmoidHard(x)         - min(max(alpha*x + beta, 0), 1)\n\n  elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  softsign(x)            - x/(1 + |x|)\n\n  softplus(x)            - log(1 + e^x)\n\n  parametricSoftplus(xi) - alpha[i]*log(1 + e^{beta[i]* xi}) over dim 0\n\nEquations (Default: f=tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*Ri + Wbi + Rbi)\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4880,18 +3955,16 @@
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
-      "min_output": 0,
+      "min_output": 1,
       "outputs": [
         {
           "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. It is optional if `output_sequence` is 0.",
           "name": "Y",
-          "option": "optional",
           "type": "T"
         },
         {
           "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
           "name": "Y_h",
-          "option": "optional",
           "type": "T"
         }
       ],
@@ -5226,7 +4299,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5278,7 +4351,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5330,7 +4403,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5382,7 +4455,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5434,7 +4507,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5486,7 +4559,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5538,7 +4611,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5590,7 +4663,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5642,7 +4715,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5694,7 +4767,7 @@
           "type": "int"
         }
       ],
-      "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
+      "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then \nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5822,215 +4895,6 @@
     }
   },
   {
-    "name": "SVMClassifier",
-    "schema": {
-      "attributes": [
-        {
-          "description": "class labels if using int labels",
-          "name": "classlabels_ints",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "class labels if using string labels",
-          "name": "classlabels_strings",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "",
-          "name": "coefficients",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "Tensor of 3 elements containing gamma, coef0, degree in that order.  Zero if unused for the kernel.",
-          "name": "kernel_params",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
-          "name": "kernel_type",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
-          "name": "post_transform",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "First set of probability coefficients",
-          "name": "prob_a",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "Second set of probability coefficients, must be same size as prob_a, if these are provided then output Z are probability estimates.",
-          "name": "prob_b",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "",
-          "name": "rho",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "",
-          "name": "support_vectors",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "",
-          "name": "vectors_per_class",
-          "required": false,
-          "type": "int[]"
-        }
-      ],
-      "description": "SVM classifier prediction\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be classified",
-          "name": "X",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 2,
-      "min_input": 1,
-      "min_output": 2,
-      "outputs": [
-        {
-          "description": "Classification outputs (one class per example)",
-          "name": "Y",
-          "type": "T2"
-        },
-        {
-          "description": "Class scores (one per class per example), if prob_a and prob_b are provided they are probabilities for each class otherwise they are raw scores.",
-          "name": "Z",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
-    "name": "SVMRegressor",
-    "schema": {
-      "attributes": [
-        {
-          "description": "support vector coefficients",
-          "name": "coefficients",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "Tensor of 3 elements containing gamma, coef0, degree in that order.  Zero if unused for the kernel.",
-          "name": "kernel_params",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
-          "name": "kernel_type",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "number of support vectors",
-          "name": "n_supports",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "bool whether the regression is a one class svm or not, defaults to false",
-          "name": "one_class",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
-          "name": "post_transform",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "",
-          "name": "rho",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "chosen support vectors",
-          "name": "support_vectors",
-          "required": false,
-          "type": "float[]"
-        }
-      ],
-      "description": "SVM regression prediction and one-class svm anomaly detection\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be regressed",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Regression outputs (one score per target per example)",
-          "name": "Y",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Scale",
     "schema": {
       "attributes": [
@@ -6123,59 +4987,6 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
-    "name": "Scaler",
-    "schema": {
-      "attributes": [
-        {
-          "description": "first, offset by this, must be same length as scale",
-          "name": "offset",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "second, multiply by this, can be length of features or length 1",
-          "name": "scale",
-          "required": false,
-          "type": "float[]"
-        }
-      ],
-      "description": "Rescale input data, for example to standardize features by removing the mean and scaling to unit variance.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Data to be scaled",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Scaled output data",
-          "name": "Y",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
           "type_param_str": "T"
         }
       ]
@@ -6558,7 +5369,6 @@
         {
           "description": "One or more outputs forming list of tensors after splitting",
           "name": "outputs...",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -6595,7 +5405,7 @@
         }
       ],
       "category": "Tensor",
-      "description": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
+      "description": "Split a tensor into a list of tensors, along the specified\n'axis'. The lengths of the split can be specified using argument 'axis' or\noptional second input blob to the operator. Otherwise, the tensor is split\nto equal sized parts.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6612,7 +5422,6 @@
         {
           "description": "One or more outputs forming list of tensors after splitting",
           "name": "outputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -6992,305 +5801,6 @@
     }
   },
   {
-    "name": "TreeEnsembleClassifier",
-    "schema": {
-      "attributes": [
-        {
-          "description": "base values for classification, added to final class score, size must be the same as classes or can be left unassigned (assumed 0)",
-          "name": "base_values",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "index of the class list that this weight is for",
-          "name": "class_ids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "node id that this weight is for",
-          "name": "class_nodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "tree that this node is in",
-          "name": "class_treeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "the weight for the class in class_id",
-          "name": "class_weights",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "class labels if using int labels",
-          "name": "classlabels_int64s",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "class labels if using string labels",
-          "name": "classlabels_strings",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "child node if expression is false",
-          "name": "nodes_falsenodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "feature id for this node",
-          "name": "nodes_featureids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "",
-          "name": "nodes_hitrates",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "for each node, decide if the value is missing (nan) then use true branch, this field can be left unset and will assume false for all nodes",
-          "name": "nodes_missing_value_tracks_true",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "enum of behavior for this node 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'",
-          "name": "nodes_modes",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "node id for this node, node ids may restart at zero for each tree (but not required).",
-          "name": "nodes_nodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "tree id for this node",
-          "name": "nodes_treeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "child node if expression is true",
-          "name": "nodes_truenodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "thresholds to do the splitting on for this node.",
-          "name": "nodes_values",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
-          "name": "post_transform",
-          "required": false,
-          "type": "string"
-        }
-      ],
-      "description": "Tree Ensemble classifier.  Returns the top class for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.\n    All fields prefixed with class_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.\n    It is expected that either classlabels_strings or classlabels_int64s\n    will be passed and the class_ids are an index into this list.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Input N,F",
-          "name": "X",
-          "type": "T1"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 2,
-      "min_input": 1,
-      "min_output": 2,
-      "outputs": [
-        {
-          "description": "N, Top class for each point",
-          "name": "Y",
-          "type": "T2"
-        },
-        {
-          "description": "N,E the class score for each class, for each point",
-          "name": "Z",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(string)",
-            "tensor(int64)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T2"
-        }
-      ]
-    }
-  },
-  {
-    "name": "TreeEnsembleRegressor",
-    "schema": {
-      "attributes": [
-        {
-          "description": " enum, how to aggregate leaf values within a target, AVERAGE,SUM,MIN,MAX",
-          "name": "aggregate_function",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "base values for regression, added to final score, size must be the same as n_outputs or can be left unassigned (assumed 0)",
-          "name": "base_values",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "total number of targets",
-          "name": "n_targets",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "child node if expression is false",
-          "name": "nodes_falsenodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "feature id for this node",
-          "name": "nodes_featureids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "popularity of the node, used for performance and may be omitted",
-          "name": "nodes_hitrates",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "for each node, decide if the value is missing (nan) then use true branch, this field can be left unset and will assume false for all nodes",
-          "name": "nodes_missing_value_tracks_true",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "enum of behavior for this node as enum of BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF",
-          "name": "nodes_modes",
-          "required": false,
-          "type": "string[]"
-        },
-        {
-          "description": "node id for this node, node ids must restart at zero for each tree and increase sequentially.",
-          "name": "nodes_nodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "tree id for this node",
-          "name": "nodes_treeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "child node if expression is true",
-          "name": "nodes_truenodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "thresholds to do the splitting on for this node.",
-          "name": "nodes_values",
-          "required": false,
-          "type": "float[]"
-        },
-        {
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
-          "name": "post_transform",
-          "required": false,
-          "type": "string"
-        },
-        {
-          "description": "index of the class list that this weight is for",
-          "name": "target_ids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "node id that this weight is for",
-          "name": "target_nodeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "tree that this node is in",
-          "name": "target_treeids",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "the weight for the class in target_id",
-          "name": "target_weights",
-          "required": false,
-          "type": "float[]"
-        }
-      ],
-      "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.\n    All fields prefixed with target_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.\n    All trees must have their node ids start at 0 and increment by 1.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "Input N,F",
-          "name": "X",
-          "type": "T"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "N classes",
-          "name": "Y",
-          "type": "tensor(float)"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(int64)",
-            "tensor(int32)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Upsample",
     "schema": {
       "attributes": [
@@ -7410,57 +5920,6 @@
           ],
           "description": "Constrains output to boolean tensor.",
           "type_param_str": "T1"
-        }
-      ]
-    }
-  },
-  {
-    "name": "ZipMap",
-    "schema": {
-      "attributes": [
-        {
-          "description": "keys if using int keys",
-          "name": "classlabels_int64s",
-          "required": false,
-          "type": "int[]"
-        },
-        {
-          "description": "keys if using string keys",
-          "name": "classlabels_strings",
-          "required": false,
-          "type": "string[]"
-        }
-      ],
-      "description": "Makes a map from the input and the attributes.\n    Assumes input 0 are the values, and the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).\n    Input 0 may have a batch size larger than 1,\n    but each input in the batch must be the size of the keys specified by the attributes.\n    The order of the input and attributes determines the key-value mapping.\n",
-      "domain": "ai.onnx.ml",
-      "inputs": [
-        {
-          "description": "The input values",
-          "name": "X",
-          "type": "tensor(float)"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "The output map",
-          "name": "Z",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "map(string, float)",
-            "map(int64, float)"
-          ],
-          "description": " allowed types.",
-          "type_param_str": "T"
         }
       ]
     }
