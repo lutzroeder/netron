@@ -28,6 +28,7 @@ categories = {
     'HardSigmoid': 'Activation',
     'LeakyRelu': 'Activation',
     'PRelu': 'Activation',
+    'ThresholdedRelu': 'Activation',
     'Relu': 'Activation',
     'Selu': 'Activation',
     'Sigmoid': 'Activation',

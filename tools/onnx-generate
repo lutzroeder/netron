@@ -21,14 +21,14 @@ fi
 export ONNX_ML=1
 
 pushd "../third_party/onnx" > /dev/null
-sudo -E python setup.py build install
+python ./setup.py build --build-lib ./build/lib
 popd > /dev/null
+
+echo "Generate '../src/onnx-operator.json'"
+PYTHONPATH=../third_party/onnx/build/lib python onnx-operator-json.py
 
 echo "Generate '../src/onnx.js'"
 ../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ../src/onnx.js ../third_party/onnx/onnx/onnx-ml.proto
-
-echo "Generate '../src/onnx-operator.json'"
-python onnx-operator-json.py
 
 echo "Generate '../src/onnx.py'"
 protoc --python_out=../src --proto_path ../third_party/onnx/onnx onnx-ml.proto
