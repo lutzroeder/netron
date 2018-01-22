@@ -10,12 +10,6 @@
     "license": "MIT",
     "repository": "lutzroeder/Netron",
     "main": "src/app.js",
-    "scripts": {
-        "start": "electron .",
-        "dist": "electron-builder --mac --linux --win",
-        "release": "electron-builder --mac --linux --win --publish always --draft false --prerelease false",
-        "postinstall": "electron-builder install-app-deps"
-    },
     "dependencies": {
         "d3": "latest",
         "dagre": "latest",
