@@ -30,7 +30,7 @@ class ElectronHostService {
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
         }
-    
+
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
         });
@@ -41,11 +41,11 @@ class ElectronHostService {
             e.preventDefault();
             var files = e.dataTransfer.files;
             for (var i = 0; i < files.length; i++) {
-                this.openFile(files[i].path, i == 0);
+                this.dropFile(files[i].path, i == 0);
             }
             return false;
-        });  
-        
+        });
+
         document.addEventListener('keydown', function(e) {
             if (e.which == 123) {
                 electron.remote.getCurrentWindow().toggleDevTools();
@@ -53,12 +53,12 @@ class ElectronHostService {
         });
     }
 
-    openFile(file, drop) {
+    dropFile(file, drop) {
         var data = { file: file };
         if (drop) {
-            data.window = electron.remote.getCurrentWindow().id;
-        } 
-        electron.ipcRenderer.send('open-file', data);
+            data.windowId = electron.remote.getCurrentWindow().id;
+        }
+        electron.ipcRenderer.send('drop-file', data);
     }
 
     showError(message) {
