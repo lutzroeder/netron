@@ -4,16 +4,16 @@ build: build_python build_electron
 publish: clean publish_pip publish_github publish_cask
 
 install:
-	rm -rf node_modules
+	rm -rf ./node_modules
 	npm install
 
 clean:
-	rm -rf dist
-	rm -rf build
+	rm -rf ./dist
+	rm -rf ./build
 
 build_python:
 	npm install
-	python setup.py build
+	python ./setup.py build
 
 build_electron:
 	npm install
@@ -23,11 +23,8 @@ build_electron:
 start:
 	npx electron .
 
-start_python:
-	PYTHONPATH=./build/lib python ./build/scripts-2.7/netron $@
-
 publish_pip:
-	python setup.py build bdist_wheel upload
+	python ./setup.py build bdist_wheel upload
 
 publish_github:
 	npx electron-builder install-app-deps
