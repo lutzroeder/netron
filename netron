@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Build and start Netron as a Python web server from local directory
+
+if [ ! -d "./node_modules" ]; then
+    npm install
+fi
+
+python ./setup.py --quiet build
+
+PYTHONPATH=./build/lib python ./build/scripts-2.7/netron $@
