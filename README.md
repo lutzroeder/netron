@@ -50,9 +50,7 @@ Below are a few model files you can download and open:
 
 ## Build
 
-Netron is an Electron app.     To build it first install the latest NodeJS and then you can use the makefile to perform developer commands.
-
-Example commands:
+Netron is an Electron app.     To build it first install the latest NodeJS and then you can use the makefile to perform developer commands:
 
 To install NodeJS and all the dependant files
 ```
