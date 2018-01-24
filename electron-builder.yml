@@ -1,0 +1,52 @@
+appId: com.lutzroeder.netron
+productName: Netron
+files:
+  - 'src/**/*'
+directories:
+  buildResources: setup
+fileAssociations:
+  - name: "ONNX Model"
+    ext: 
+    - onnx
+    - pb
+  - name: "TensorFlow Saved Model"
+    ext:
+    - saved_model.pb
+  - name: "TensorFlow Graph"
+    ext:
+    - pb
+    - meta
+  - name: "TensorFlow Lite Model"
+    ext: 
+    - tflite
+  - name: "Keras Model"
+    ext:
+    - keras
+    - h5
+    - json
+publish:
+  - provider: github
+    releaseType: release
+mac:
+  category: public.app-category.developer-tools
+  target: 
+  - dmg
+  - zip
+linux:
+  target:
+  - AppImage
+  - deb
+win:
+  target:
+  - nsis
+dmg:
+  iconSize: 160
+  contents:
+  - x: 180
+    y: 170
+  - x: 480
+    y: 170
+    type: link
+    path: /Applications
+nsis:
+  perMachine: true
