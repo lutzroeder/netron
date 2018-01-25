@@ -8,4 +8,4 @@ fi
 
 python ./setup.py --quiet build
 
-PYTHONPATH=./build/lib python ./build/scripts-2.7/netron $@
+PYTHONPATH=./build/python/lib python ./build/python/scripts-2.7/netron $@
