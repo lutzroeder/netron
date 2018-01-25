@@ -5,7 +5,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "1.3.7",
+    "version": "1.3.8",
     "description": "Viewer neural network models",
     "license": "MIT",
     "repository": "lutzroeder/Netron",
@@ -23,92 +23,5 @@
     "devDependencies": {
         "electron": "latest",
         "electron-builder": "latest"
-    },
-    "build": {
-        "publish": [
-            {
-                "provider": "github",
-                "releaseType": "release"
-            }
-        ],
-        "files": [
-            "src/**/*"
-        ],
-        "appId": "com.lutzroeder.netron",
-        "directories": {
-            "buildResources": "setup"
-        },
-        "fileAssociations": [
-            {
-                "ext": [
-                    "onnx",
-                    "pb"
-                ],
-                "name": "ONNX Model"
-            },
-            {
-                "ext": [
-                    "saved_model.pb"
-                ],
-                "name": "TensorFlow Saved Model"
-            },
-            {
-                "ext": [
-                    "pb",
-                    "meta"
-                ],
-                "name": "TensorFlow Graph"
-            },
-            {
-                "ext": [
-                    "tflite"
-                ],
-                "name": "TensorFlow Lite Model"
-            },
-            {
-                "ext": [
-                    "keras",
-                    "h5",
-                    "json"
-                ],
-                "name": "Keras Model"
-            }
-        ],
-        "mac": {
-            "category": "public.app-category.developer-tools",
-            "target": [
-                "dmg",
-                "zip"
-            ]
-        },
-        "dmg": {
-            "iconSize": 160,
-            "contents": [
-                {
-                    "x": 180,
-                    "y": 170
-                },
-                {
-                    "x": 480,
-                    "y": 170,
-                    "type": "link",
-                    "path": "/Applications"
-                }
-            ]
-        },
-        "linux": {
-            "target": [
-                "AppImage",
-                "deb"
-            ]
-        },
-        "win": {
-            "target": [
-                "nsis"
-            ]
-        },
-        "nsis": {
-            "perMachine": true
-        }
     }
 }

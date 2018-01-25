@@ -28,7 +28,6 @@ publish_pip:
 
 publish_github:
 	npx electron-builder install-app-deps
-	@export GH_TOKEN=$(GITHUB_TOKEN); \
 	npx electron-builder --mac --linux --win --publish always --draft false --prerelease false
 
 publish_cask:

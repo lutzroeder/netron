@@ -20,10 +20,10 @@ package_data={
         'netron',
         'netron.py',
         'logo.svg',
-        'onnx_ml_pb2.py',
+        'favicon.ico',
         'onnx.js',
         'onnx-operator.json',
-        'view-browser.js',
+        'onnx-model.js',
         'tf.js',
         'tf-operator.pb',
         'tf-model.js',
@@ -33,9 +33,8 @@ package_data={
         'hdf5.js',
         'keras-operator.json',
         'keras-model.js',
-        'favicon.ico',
         'view-browser.html',
-        'onnx-model.js',
+        'view-browser.js',
         'view-render.css',
         'view-render.js',
         'view-template.js',
@@ -44,7 +43,7 @@ package_data={
     ]
 }
 
-install_requires = [ 'protobuf' ]
+install_requires = [ ]
 
 scripts = [ 'src/netron' ]
 
