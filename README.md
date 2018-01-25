@@ -48,6 +48,21 @@ Below are a few model files you can download and open:
 * [Inception v4](https://storage.googleapis.com/download.tensorflow.org/models/inception_v4_2016_09_09_frozen.pb.tar.gz)
 * [Inception 5h](https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip)
 
+## Build
+
+Netron is an Electron app.     To build it first install the latest NodeJS and then you can use the makefile to perform developer commands:
+
+To install NodeJS and all the dependant files
+```
+nmake install
+```
+	
+To launch the Netron app from the current cloned sources directory
+```
+nmake start
+```
+
+
 ## Install Python Model Server 
 
 To run Netron in a web browser, install the Python web server using pip: 
