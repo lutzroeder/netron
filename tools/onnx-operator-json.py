@@ -8,7 +8,7 @@ import sys
 
 from onnx import defs
 from onnx.defs import OpSchema
-from onnx.backend.test.case.node import collect_snippets
+from onnx.backend.test.case import collect_snippets
 
 snippets = collect_snippets()
 

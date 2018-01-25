@@ -447,17 +447,17 @@
         {
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
-          "required": false,
+          "required": true,
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis.",
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -504,25 +504,25 @@
     "schema": {
       "attributes": [
         {
-          "description": "The epsilon value to use to avoid division by zero.",
+          "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
           "type": "float"
         },
         {
-          "description": "If set to nonzero, run spatial batch normalization in test mode.",
+          "description": "If set to nonzero, run spatial batch normalization in test mode, default is 0.",
           "name": "is_test",
           "required": false,
           "type": "int"
         },
         {
-          "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)",
+          "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
           "name": "momentum",
           "required": false,
           "type": "float"
         },
         {
-          "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.",
+          "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
           "name": "spatial",
           "required": false,
           "type": "int"
@@ -662,11 +662,11 @@
         {
           "description": "The data type to which the elements of the input tensor are cast.Strictly must be one of the types from DataType enum in TensorProto",
           "name": "to",
-          "required": false,
+          "required": true,
           "type": "string"
         }
       ],
-      "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message. If the 'to' argument\nis not provided or is not one of the enumerated types in DataType, Caffe2\nthrows an Enforce error.\n\nNOTE: Casting to and from strings is not supported yet.\n",
+      "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message.\n\nNOTE: Casting to and from strings is not supported yet.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -1124,31 +1124,31 @@
           "type": "string"
         },
         {
-          "description": "dilation value along each axis of the filter.",
+          "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
           "name": "dilations",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "number of groups input channels and output channels are divided into",
+          "description": "number of groups input channels and output channels are divided into, default is 1.",
           "name": "group",
           "required": false,
           "type": "int"
         },
         {
-          "description": "The shape of the convolution kernel.",
+          "description": "The shape of the convolution kernel. If not present, should be inferred from input W.",
           "name": "kernel_shape",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "stride along each axis.",
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -1212,19 +1212,19 @@
           "type": "string"
         },
         {
-          "description": "dilation value along each axis of the filter.",
+          "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
           "name": "dilations",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "number of groups input channels and output channels are divided into",
+          "description": "number of groups input channels and output channels are divided into, default is 1.",
           "name": "group",
           "required": false,
           "type": "int"
         },
         {
-          "description": "The shape of the convolution kernel.",
+          "description": "The shape of the convolution kernel. If not present, should be inferred from input W.",
           "name": "kernel_shape",
           "required": false,
           "type": "int[]"
@@ -1242,13 +1242,13 @@
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "stride along each axis.",
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -1629,64 +1629,6 @@
     }
   },
   {
-    "name": "Embedding",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Size of the input vocabulary.",
-          "name": "input_dim",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "Dimension of the embedding output vectors.",
-          "name": "output_dim",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "2-D tensor of weights [O,I].",
-          "name": "weights",
-          "required": false,
-          "type": "tensor"
-        }
-      ],
-      "description": "Turns positive integers (indexes) into dense vectors of fixed size.",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "1-D tensor of integers representing indices in the embedding dictionary with length [N] and values [0, input_dim -1]",
-          "name": "input",
-          "type": "tensor(int64)"
-        }
-      ],
-      "max_input": 1,
-      "max_output": 1,
-      "min_input": 1,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Output tensor of computed features [N, O].",
-          "name": "output",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "Equal",
     "schema": {
       "attributes": [
@@ -1730,15 +1672,25 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Equal',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = (np.random.randn(3, 4, 5) * 10).astype(np.int32)\ny = (np.random.randn(3, 4, 5) * 10).astype(np.int32)\nz = np.equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_equal')",
+          "summary": "equal"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Equal',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = (np.random.randn(3, 4, 5) * 10).astype(np.int32)\ny = (np.random.randn(5) * 10).astype(np.int32)\nz = np.equal(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_equal_bcast')",
+          "summary": "equal_broadcast"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
+            "tensor(bool)",
+            "tensor(int32)",
+            "tensor(int64)"
           ],
-          "description": "Constrains input to float tensors.",
+          "description": "Constrains input to integral tensors.",
           "type_param_str": "T"
         },
         {
@@ -1902,7 +1854,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "(Default to 1) Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output",
+          "description": "(Default to 1) Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output. The value for axis must be in the range [0, R], where R is the rank of the input tensor. When axis = 0, the shape of the output tensor is (1, (d_0 X d_1 ... d_n), where the shape of the input tensor is (d_0, d_1, ... d_n). ",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -1930,6 +1882,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "shape = (2, 3, 4, 5)\na = np.random.random_sample(shape).astype(np.float32)\n\nfor i in range(len(shape)):\n    node = onnx.helper.make_node(\n        'Flatten',\n        inputs=['a'],\n        outputs=['b'],\n        axis=i,\n    )\n\n    new_shape = (1, -1) if i == 0 else (np.prod(shape[0:i]).astype(int), -1)\n    b= np.reshape(a, new_shape)\n    expect(node, inputs=[a], outputs=[b],\n       name='test_flatten_axis' + str(i))",
+          "summary": "flatten"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Flatten',\n    inputs=['a'],\n    outputs=['b'],\n)\n\nshape = (5, 4, 3, 2)\naxis_default_value = 1\na = np.random.random_sample(shape).astype(np.float32)\nnew_shape = (5, 24)\nb= np.reshape(a, new_shape)\nexpect(node, inputs=[a], outputs=[b],\n       name='test_flatten_default_axis')",
+          "summary": "flatten_with_default_axis"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -2723,6 +2685,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Greater',\n    inputs=['x', 'y'],\n    outputs=['greater'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.greater(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_greater')",
+          "summary": "greater"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Greater',\n    inputs=['x', 'y'],\n    outputs=['greater'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.greater(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_greater_bcast')",
+          "summary": "greater_broadcast"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -3004,7 +2976,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The epsilon value to use to avoid division by zero.",
+          "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
           "type": "float"
@@ -3073,7 +3045,7 @@
           "type": "float"
         },
         {
-          "description": "Default to 1",
+          "description": "Default to 1.f",
           "name": "bias",
           "required": false,
           "type": "float"
@@ -3426,6 +3398,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Less',\n    inputs=['x', 'y'],\n    outputs=['less'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.less(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_less')",
+          "summary": "less"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Less',\n    inputs=['x', 'y'],\n    outputs=['less'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = np.less(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_less_bcast')",
+          "summary": "less_broadcast"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -3824,7 +3806,7 @@
         {
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
-          "required": false,
+          "required": true,
           "type": "int[]"
         },
         {
@@ -3834,13 +3816,13 @@
           "type": "int"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis.",
+          "description": "Stride along each axis. If not present, the stride defaults to 0 along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -3983,17 +3965,17 @@
         {
           "description": "The size of the kernel along each axis.",
           "name": "kernel_shape",
-          "required": false,
+          "required": true,
           "type": "int[]"
         },
         {
-          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute.",
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
           "name": "pads",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis.",
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -4042,11 +4024,11 @@
         {
           "description": "ROI pool output shape (height, width).",
           "name": "pooled_shape",
-          "required": false,
+          "required": true,
           "type": "int[]"
         },
         {
-          "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling.",
+          "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling, default is 1.0f.",
           "name": "spatial_scale",
           "required": false,
           "type": "float"
@@ -4948,19 +4930,19 @@
     "schema": {
       "attributes": [
         {
-          "description": "The data type for the elements of the output tensor.",
+          "description": "The data type for the elements of the output tensor. Default is TensorProto::FLOAT.",
           "name": "dtype",
           "required": false,
           "type": "int"
         },
         {
-          "description": "The mean of the normal distribution.",
+          "description": "The mean of the normal distribution. If not specified, default is 0.",
           "name": "mean",
           "required": false,
           "type": "float"
         },
         {
-          "description": "The standard deviation of the normal distribution.",
+          "description": "The standard deviation of the normal distribution. If not specified, default is 1.",
           "name": "scale",
           "required": false,
           "type": "float"
@@ -5000,7 +4982,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain output types to float tensors.",
           "type_param_str": "T"
         }
       ]
@@ -5017,13 +4999,13 @@
           "type": "int"
         },
         {
-          "description": "The mean of the normal distribution.",
+          "description": "The mean of the normal distribution. If not specified, default is 0.",
           "name": "mean",
           "required": false,
           "type": "float"
         },
         {
-          "description": "The standard deviation of the normal distribution.",
+          "description": "The standard deviation of the normal distribution. If not specified, default is 1.",
           "name": "scale",
           "required": false,
           "type": "float"
@@ -5064,7 +5046,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain output types to float tensors.",
           "type_param_str": "T"
         }
       ]
@@ -5075,19 +5057,19 @@
     "schema": {
       "attributes": [
         {
-          "description": "The data type for the elements of the output tensor.",
+          "description": "The data type for the elements of the output tensor. If not specified, default is TensorProto::FLOAT.",
           "name": "dtype",
           "required": false,
           "type": "int"
         },
         {
-          "description": "Upper boundary of the output values.",
+          "description": "Upper boundary of the output values. If not specified, default is 1.",
           "name": "high",
           "required": false,
           "type": "float"
         },
         {
-          "description": "Lower boundary of the output values.",
+          "description": "Lower boundary of the output values. If not specified, default is 0.",
           "name": "low",
           "required": false,
           "type": "float"
@@ -5127,7 +5109,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain output types to float tensors.",
           "type_param_str": "T"
         }
       ]
@@ -5144,13 +5126,13 @@
           "type": "int"
         },
         {
-          "description": "Upper boundary of the output values.",
+          "description": "Upper boundary of the output values. If not specified, default is 1.",
           "name": "high",
           "required": false,
           "type": "float"
         },
         {
-          "description": "Lower boundary of the output values.",
+          "description": "Lower boundary of the output values. If not specified, default is 0.",
           "name": "low",
           "required": false,
           "type": "float"
@@ -5191,7 +5173,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain output types to float tensors.",
           "type_param_str": "T"
         }
       ]
