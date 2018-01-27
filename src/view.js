@@ -135,15 +135,24 @@ function updateGraph(model) {
 
     graph.nodes.forEach((node) => {
         var formatter = new NodeFormatter();
-        var styles = [ 'node-item-operator' ];
-        var category = node.category;
-        if (category) {
-            styles.push('node-item-operator-' + category.toLowerCase());
+
+        function addOperator(formatter, node) {
+            if (node) {
+                var styles = [ 'node-item-operator' ];
+                var category = node.category;
+                if (category) {
+                    styles.push('node-item-operator-' + category.toLowerCase());
+                }
+                formatter.addItem(node.primitive ? node.primitive : node.operator, styles, node.name, function() { 
+                    showNode(node);
+                });
+            }
         }
+
+        addOperator(formatter, node);
+        addOperator(formatter, node.inner);
+
         var primitive = node.primitive;
-        formatter.addItem(primitive ? primitive : node.operator, styles, node.name, function() { 
-            showNode(node);
-        });
 
         var hiddenInputs = false;
         var hiddenInitializers = false;

@@ -4,8 +4,7 @@
     "schema": {
       "category": "Wrapper",
       "inputs": [
-        { "name": "input" },
-        { "name": "layer" }
+        { "name": "input" }
       ],
       "outputs": [
         { "name": "output" }
@@ -22,12 +21,29 @@
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
       ]
     }
   },
   {
     "name": "Activation",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "LeakyReLU",
     "schema": {
       "category": "Activation",
       "inputs": [
@@ -435,6 +451,12 @@
       ],
       "outputs": [
         { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "concat_axis", "default": -1 },
+        { "name": "dot_axes", "default": -1 },
+        { "name": "arguments", "default": {} },
+        { "name": "mode", "sum": {} }
       ]
     }
   },

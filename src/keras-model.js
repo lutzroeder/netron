@@ -202,9 +202,7 @@ class KerasGraph {
         if (config.layers) {
             config.layers.forEach((layer) => {
                 if (nodeMap[layer.name]) {
-                    this.translateNode(layer.name, layer, layer._inputs, layer._outputs, rootGroup).forEach((node) => {
-                        this._nodes.push(node);
-                    });
+                    this._nodes.push(new KerasNode(layer.class_name, layer.config, layer._inputs, layer._outputs, rootGroup));
                 }
             });
         }
@@ -230,31 +228,12 @@ class KerasGraph {
             }
             connection = name;
             var outputs = [ connection ];
-            this.translateNode(name, layer, inputs, outputs, rootGroup).forEach((node) => {
-                this._nodes.push(node);
-            });
+            this._nodes.push(new KerasNode(layer.class_name, layer.config, inputs, outputs, rootGroup));
         });
         this._outputs.push({ 
             id: connection,
             name: connection
         });
-    }
-
-    translateNode(name, layer, inputs, outputs, rootGroup) {
-        var results = [];
-        if (layer.class_name == 'Bidirectional' || layer.class_name == 'TimeDistributed') {
-            var subConnection = name + '_layer';
-            inputs.splice(1, 0, subConnection);
-            if (layer.config.layer) {
-                var subLayer = layer.config.layer;
-                var subOutputs = [ subConnection ];
-                results.push(new KerasNode(subLayer.class_name, subLayer.config.name, subLayer.config, [], subOutputs, rootGroup));
-                delete layer.config.layer;
-            }
-        }
-        var node = new KerasNode(layer.class_name, name, layer.config, inputs, outputs, rootGroup);
-        results.push(node);
-        return results;
     }
 
     translateInput(layer, input) {
@@ -279,18 +258,25 @@ class KerasGraph {
 
 class KerasNode {
 
-    constructor(operator, name, config, inputs, outputs, rootGroup) {
+    constructor(operator, config, inputs, outputs, rootGroup) {
         this._operator = operator;
-        this._name = name;
         this._config = config;
         this._inputs = inputs;
         this._outputs = outputs;
 
+        if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
+            if (this._config && this._config.layer) {
+                var inner = this._config.layer;
+                this._inner = new KerasNode(inner.class_name, inner.config, [], [], null);
+            }
+        }
+
+        var name = this.name;
         this._initializers = {};
         if (rootGroup) {
             var model_weights = rootGroup.group('model_weights');
             if (model_weights) {
-                var group = model_weights.group(this._name);
+                var group = model_weights.group(name);
                 if (group) {
                     var weight_names = group.attributes.weight_names;
                     if (weight_names) {
@@ -319,11 +305,15 @@ class KerasNode {
     }
 
     get name() {
-        return this._name;
+        if (this._config && this._config.name) {
+            return this._config.name;
+        }
+        debugger;
+        return '';
     }
 
     get inputs() {
-        var inputs = KerasOperatorMetadata.operatorMetadata.getInputs(this.operator, this._inputs);
+        var inputs = KerasOperatorMetadata.operatorMetadata.getInputs(this, this._inputs);
         inputs.forEach((input) => {
             input.connections.forEach((connection) => {
                 var initializer = this._initializers[connection.id];
@@ -363,6 +353,10 @@ class KerasNode {
 
     get dependencies() {
         return [];
+    }
+
+    get inner() {
+        return this._inner;
     }
 }
 
@@ -536,18 +530,50 @@ class KerasOperatorMetadata {
         }
     }
 
-    getInputs(operator, connections) {
+    getInputs(node, connections) {
         var results = [];
+        var operator = node.operator;
         var schema = this._map[operator];
+        var inner = node.inner;
+        var innerOperator = inner ? inner.operator : null;
+        var innerSchema = innerOperator ? this._map[innerOperator] : null;
         var index = 0;
         while (index < connections.length) {
             var result = { connections: [] };
             var count = 1;
             var name = null;
-            if (schema && schema.inputs && index < schema.inputs.length) {
-                name = schema.inputs[index].name;
-                if (schema.inputs[index].option == 'variadic') {
-                    count = connections.length - index;
+            if (!innerSchema || index == 0)
+            {
+                if (schema && schema.inputs && index < schema.inputs.length) {
+                    var input = schema.inputs[index];
+                    name = input.name;
+                    if (schema.inputs[index].option == 'variadic') {
+                        count = connections.length - index;
+                    }
+                }
+            }
+            else {
+                switch (operator) {
+                    case 'Bidirectional':
+                        var innerIndex = index;
+                        if (innerSchema && innerSchema.inputs) {
+                            if (innerIndex < innerSchema.inputs.length) {
+                                name = 'forward_' + innerSchema.inputs[innerIndex].name;
+                            }
+                            else {
+                                innerIndex = innerIndex - innerSchema.inputs.length + 1;
+                                if (innerIndex < innerSchema.inputs.length) {
+                                    name = 'backward_' + innerSchema.inputs[innerIndex].name;
+                                }
+                            }
+                        }
+                        result.hidden = true;
+                        break;
+                    case 'TimeDistributed':
+                        if (innerSchema && innerSchema.inputs && index < innerSchema.inputs.length) {
+                            name = innerSchema.inputs[index].name;
+                        }
+                        break;
                 }
             }
             result.name = name ? name : '(' + index.toString() + ')';
@@ -581,6 +607,11 @@ class KerasOperatorMetadata {
     showAttribute(operator, attributeName, attributeValue) {
         if (attributeName == 'trainable') {
             return false;
+        }
+        if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
+            if (attributeName == 'layer') {
+                return false;
+            }
         }
         return !this.defaultAttribute(operator, attributeName, attributeValue);
     }
