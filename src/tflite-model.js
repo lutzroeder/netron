@@ -577,9 +577,13 @@ class TensorFlowLiteOperatorMetadata {
             var count = 1;
             var name = null;
             if (schema && schema.inputs && index < schema.inputs.length) {
-                name = schema.inputs[index].name;
-                if (schema.inputs[index].option == 'variadic') {
+                var input = schema.inputs[index];
+                name = input.name;
+                if (input.option == 'variadic') {
                     count = connections.length - index;
+                }
+                if (input.hidden) {
+                    result.hidden = true;
                 }
             }
             result.name = name ? name : '(' + index.toString() + ')';

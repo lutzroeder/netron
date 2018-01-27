@@ -145,16 +145,42 @@ function updateGraph(model) {
             showNode(node);
         });
 
+        var hiddenInputs = false;
+        var hiddenInitializers = false;
+
         node.inputs.forEach((input) => {
             // TODO what about mixed input & initializer
             if (input.connections.length > 0) {
                 var initializers = input.connections.filter(connection => connection.initializer);
-                var inputClass = initializers.length == 0 ? 'node-item-input' :
-                    (initializers.length == input.connections.length ? 'node-item-constant' : 'node-item-undefined');
-                var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
-                formatter.addItem(input.name, [ inputClass ], types, () => {
-                    showNodeInput(input);
-                });
+                var inputClass = 'node-item-input';
+                if (initializers.length == 0) {
+                    inputClass = 'node-item-input';
+                    if (input.hidden) {
+                        hiddenInputs = true;
+                    }
+                }
+                else {
+                    if (initializers.length == input.connections.length) {
+                        inputClass = 'node-item-constant';
+                        if (input.hidden) {
+                            hiddenInitializers = true;
+                        }
+                    }
+                    else {
+                        inputClass = 'node-item-constant';
+                        if (input.hidden) {
+                            hiddenInputs = true;
+                        }
+                    }
+                }
+
+                if (!input.hidden) {
+                    var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
+                    formatter.addItem(input.name, [ inputClass ], types, () => {
+                        showNodeInput(input);
+                    });    
+                }
+
                 input.connections.forEach((connection) => {
                     if (!connection.initializer) {
                         var tuple = edgeMap[connection.id];
@@ -170,6 +196,17 @@ function updateGraph(model) {
                 });    
             }
         });
+
+        if (hiddenInputs) {
+            formatter.addItem('...', [ 'node-item-input' ], '', () => {
+                showNode(node);
+            });    
+        }
+        if (hiddenInitializers) {
+            formatter.addItem('...', [ 'node-item-constant' ], '', () => {
+                showNode(node);
+            });    
+        }
 
         node.outputs.forEach((output) => {
             output.connections.forEach((connection) => {
