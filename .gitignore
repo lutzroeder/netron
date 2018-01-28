@@ -1,8 +1,6 @@
 .DS_Store
 .DS_Store?
-/package-lock.json
 /build/
-/dist/
 /node_modules/
 /third_party/
-/netron.egg-info
+/package-lock.json

@@ -8,25 +8,27 @@ install:
 	npm install
 
 clean:
-	rm -rf ./dist
 	rm -rf ./build
 
 build_python:
-	npm install
+	@[ -d node_modules ] || npm install
 	python ./setup.py build
 
 build_electron:
-	npm install
+	@[ -d node_modules ] || npm install
 	npx electron-builder install-app-deps
 	npx electron-builder --mac --linux --win
 
 start:
+	@[ -d node_modules ] || npm install
 	npx electron .
 
 publish_pip:
+	@[ -d node_modules ] || npm install
 	python ./setup.py build bdist_wheel upload
 
 publish_github:
+	@[ -d node_modules ] || npm install
 	npx electron-builder install-app-deps
 	npx electron-builder --mac --linux --win --publish always --draft false --prerelease false
 
