@@ -251,11 +251,15 @@
       "since_version": 1,
       "snippets": [
         {
-          "code": "node = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n)\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and')",
+          "code": "node = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n)\n\n# 2d\nx = (np.random.randn(3, 4) > 0).astype(np.bool)\ny = (np.random.randn(3, 4) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and2d')\n\n# 3d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and3d')\n\n# 4d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and4d')",
           "summary": "and"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n)\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and_bcast1d')\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and_bcast2d')",
+          "code": "x = (np.random.randn(5, 5, 5, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\n\nnode = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n    axis=0,\n)\n\nz = np.logical_and(x, y[:, np.newaxis, np.newaxis, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and_axis0')\n\nnode = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n    axis=1,\n)\n\nz = np.logical_and(x, y[:, np.newaxis, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and_axis1')\n\nnode = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n    axis=2,\n)\n\nz = np.logical_and(x, y[:, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and_axis2')\n\nnode = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n    axis=3,\n)\n\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_and_axis3')",
+          "summary": "and_axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n)\n\n#3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v1d')\n\n#3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v2d')\n\n#4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v2d')\n\n#4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v3d')",
           "summary": "and_broadcast"
         }
       ],
@@ -871,6 +875,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Ceil',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2]).astype(np.float32)\ny = np.ceil(x) #expected output [-1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.ceil(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil')",
+          "summary": "ceil"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -1727,6 +1737,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Exp',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.exp(x) #expected output [0.36787945, 1., 2.71828175]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.exp(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp')",
+          "summary": "exp"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -1930,6 +1946,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Floor',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2, 2]).astype(np.float32)\ny = np.floor(x) #expected output [-2., 1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.floor(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor')",
+          "summary": "floor"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -3608,6 +3630,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Log',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 10]).astype(np.float32)\ny = np.log(x) #expected output [0., 2.30258512]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log_example')\n\nx = np.exp(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.log(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log')",
+          "summary": "log"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -4286,6 +4314,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Neg',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.negative(x) #expected output [4., -2.],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.negative(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg')",
+          "summary": "neg"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -4496,11 +4530,15 @@
       "since_version": 1,
       "snippets": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n)\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or')",
+          "code": "node = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n)\n\n# 2d\nx = (np.random.randn(3, 4) > 0).astype(np.bool)\ny = (np.random.randn(3, 4) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or2d')\n\n# 3d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or3d')\n\n# 4d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or4d')",
           "summary": "or"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n)\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast1d')\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast2d')",
+          "code": "x = (np.random.randn(5, 5, 5, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\n\nnode = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n    axis=0,\n)\n\nz = np.logical_or(x, y[:, np.newaxis, np.newaxis, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_axis0')\n\nnode = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n    axis=1,\n)\n\nz = np.logical_or(x, y[:, np.newaxis, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_axis1')\n\nnode = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n    axis=2,\n)\n\nz = np.logical_or(x, y[:, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_axis2')\n\nnode = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n    axis=3,\n)\n\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_axis3')",
+          "summary": "or_axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n)\n\n#3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v1d')\n\n#3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v2d')\n\n#4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v2d')\n\n#4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v3d')",
           "summary": "or_broadcast"
         }
       ],
@@ -5203,6 +5241,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Reciprocal',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.reciprocal(x) #expected output [-0.25, 0.5],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal_example')\n\nx = np.random.rand(3, 4, 5).astype(np.float32) + 0.5\ny = np.reciprocal(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal')",
+          "summary": "reciprocal"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6267,6 +6311,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sigmoid',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x))) #expected output [0.26894143, 0.5, 0.7310586]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x)))\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid')",
+          "summary": "sigmoid"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6663,6 +6713,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sqrt',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 4, 9]).astype(np.float32)\ny = np.sqrt(x) #expected output [1., 2., 3.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt_example')\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.sqrt(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt')",
+          "summary": "sqrt"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6844,6 +6900,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Tanh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.tanh(x) #expected output [-0.76159418, 0., 0.76159418]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.tanh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh')",
+          "summary": "tanh"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6908,6 +6970,7 @@
   {
     "name": "Tile",
     "schema": {
+      "category": "Shape",
       "description": "Repeat the elements of a tensor along an axis.",
       "domain": "ai.onnx",
       "inputs": [
@@ -7406,11 +7469,15 @@
       "since_version": 1,
       "snippets": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n)\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor')",
+          "code": "node = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n)\n\n# 2d\nx = (np.random.randn(3, 4) > 0).astype(np.bool)\ny = (np.random.randn(3, 4) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor2d')\n\n# 3d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor3d')\n\n# 4d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor4d')",
           "summary": "xor"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n)\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast1d')\n\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast2d')",
+          "code": "x = (np.random.randn(5, 5, 5, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=0,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis, np.newaxis, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis0')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=1,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis, np.newaxis,])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis1')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=2,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis,])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis2')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=3,\n)\n\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis3')",
+          "summary": "xor_axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n)\n\n#3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast3v1d')\n\n#3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast3v2d')\n\n#4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast4v2d')\n\n#4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast4v3d')",
           "summary": "xor_broadcast"
         }
       ],
