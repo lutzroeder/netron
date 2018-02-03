@@ -50,6 +50,14 @@ class Application {
             application.saveConfiguration();
         });
 
+        if (process.platform == 'win32' && process.argv.length > 1) {
+            process.argv.slice(1).forEach((arg) => {
+                if (!arg.startsWith('-') && arg.split('.').pop() != 'js') {
+                    application.openFile(arg);
+                }
+            });
+        }
+
         this.update();
     }
 
