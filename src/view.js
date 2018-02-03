@@ -413,12 +413,9 @@ function updateGraph(model) {
 }
 
 function showModelSummary(model) {
-    var view = model.format();
-    if (view) {
-        var template = Handlebars.compile(summaryTemplate, 'utf-8');
-        var data = template(view);
-        sidebar.open(data, 'Summary', '100%');
-    }
+    var template = Handlebars.compile(summaryTemplate, 'utf-8');
+    var data = template(model);
+    sidebar.open(data, 'Summary', '100%');
 }
 
 function showNodeInput(input) {

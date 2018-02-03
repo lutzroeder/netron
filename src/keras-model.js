@@ -58,29 +58,20 @@ class KerasModel {
         this._activeGraph = graph; 
     }
 
-    format() {
-        var summary = { properties: [], graphs: [] };
+    get properties() {
+        var results = [];
 
-        this.graphs.forEach((graph) => {
-            summary.graphs.push({
-                name: graph.name,
-                inputs: graph.inputs,
-                outputs: graph.outputs
-            });
-        });
+        var format = 'Keras';
+        if (this._version) {
+            format = format + ' v' + this._version;
+        }
+        results.push({ name: 'Format', value: format });
 
-        summary.properties.push({ 
-            name: 'Format', 
-            value: 'Keras' + (this._version ? (' ' + this._version) : '')
-        });
         if (this._backend) {
-            summary.properties.push({ 
-                name: 'Backend', 
-                value: this._backend
-            });
+            results.push({ name: 'Backend', value: this._backend });
         }
 
-        return summary;
+        return results;
     }
 
     get graphs() {

@@ -43,26 +43,18 @@ class TensorFlowLiteModel {
         }
     }
 
-    format() {
-        var summary = { properties: [], graphs: [] };
-
-        this.graphs.forEach((graph) => {
-            summary.graphs.push({
-                name: graph.name,
-                inputs: graph.inputs,
-                outputs: graph.outputs
-            });
-        });
+    get properties() {
+        var results = [];
 
         var format = 'TensorFlow Lite v' + this._model.version().toString();
-        summary.properties.push({ name: 'Format', value: format });
+        results.push({ name: 'Format', value: format });
 
         var description = this._model.description();
         if (description && description.length > 0) {
-            summary.properties.push({ name: 'Description', value: description });
+            results.push({ name: 'Description', value: description });
         }
 
-        return summary;
+        return results;
     }
 
     get graphs() {
