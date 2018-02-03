@@ -933,6 +933,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1) #expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')",
+          "summary": "clip"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')",
+          "summary": "clip_default"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -1197,6 +1207,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "\nx = np.array([[[[  0.,   1.,   2.,   3.,   4.], # (1, 1, 5, 5) input tensor\n                [  5.,   6.,   7.,   8.,   9.],\n                [ 10.,  11.,  12.,  13.,  14.],\n                [ 15.,  16.,  17.,  18.,  19.],\n                [ 20.,  21.,  22.,  23.,  24.]]]]).astype(np.float32)\nW = np.array([[[[ 1.,  1.,  1.], # (1, 1, 3, 3) tensor for convolution weights\n                [ 1.,  1.,  1.],\n                [ 1.,  1.,  1.]]]]).astype(np.float32)\n\n# Convolution with padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 1, 1, 1], # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n)\ny_with_padding = np.array([[[[  12.,   21.,   27.,   33.,   24.], # (1, 1, 5, 5) output tensor\n                             [  33.,   54.,   63.,   72.,   51.],\n                             [  63.,   99.,  108.,  117.,   81.],\n                             [  93.,  144.,  153.,  162.,  111.],\n                             [  72.,  111.,  117.,  123.,   84.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n   name='test_basic_conv_with_padding')\n\n# Convolution without padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[0, 0, 0, 0], # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n)\ny_without_padding = np.array([[[[  54.,   63.,   72.], # (1, 1, 3, 3) output tensor\n                                [  99.,  108.,  117.],\n                                [ 144.,  153.,  162.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n   name='test_basic_conv_without_padding')",
+          "summary": "conv"
+        },
+        {
+          "code": "\nx = np.array([[[[  0.,   1.,   2.,   3.,   4.],  # (1, 1, 7, 5) input tensor\n                [  5.,   6.,   7.,   8.,   9.],\n                [ 10.,  11.,  12.,  13.,  14.],\n                [ 15.,  16.,  17.,  18.,  19.],\n                [ 20.,  21.,  22.,  23.,  24.],\n                [ 25.,  26.,  27.,  28.,  29.],\n                [ 30.,  31.,  32.,  33.,  34.]]]]).astype(np.float32)\nW = np.array([[[[ 1.,  1.,  1.],  # (1, 1, 3, 3) tensor for convolution weights\n                [ 1.,  1.,  1.],\n                [ 1.,  1.,  1.]]]]).astype(np.float32)\n\n# Convolution with strides=2 and padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 1, 1, 1],\n    strides=[2, 2], # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_padding = np.array([[[[  12.,   27.,   24.], # (1, 1, 4, 3) output tensor\n                             [  63.,  108.,   81.],\n                             [ 123.,  198.,  141.],\n                             [ 112.,  177.,  124.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n   name='test_conv_with_strides_padding')\n\n# Convolution with strides=2 and no padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[0, 0, 0, 0],\n    strides=[2, 2], # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_without_padding = np.array([[[[  54.,   72.], # (1, 1, 3, 2) output tensor\n                                [ 144., 162.],\n                                [ 234.,  252.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n   name='test_conv_with_strides_no_padding')\n\n# Convolution with strides=2 and padding only along one dimension (the H dimension in NxCxHxW tensor)\nnode_with_asymmetric_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 0, 1, 0],\n    strides=[2, 2], # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_asymmetric_padding = np.array([[[[  21.,   33.], # (1, 1, 4, 2) output tensor\n                                        [  99.,  117.],\n                                        [ 189.,  207.],\n                                        [ 171.,  183.]]]]).astype(np.float32)\nexpect(node_with_asymmetric_padding, inputs=[x, W], outputs=[y_with_asymmetric_padding],\n   name='test_conv_with_strides_and_asymmetric_padding')",
+          "summary": "conv_with_strides"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -1518,6 +1538,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y #expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')",
+          "summary": "div"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_bcast')",
+          "summary": "div_broadcast"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -1624,6 +1654,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Elu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n#expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu')",
+          "summary": "elu"
+        },
+        {
+          "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    'Elu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu_default')",
+          "summary": "elu_default"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -1904,7 +1944,7 @@
           "summary": "flatten"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Flatten',\n    inputs=['a'],\n    outputs=['b'],\n)\n\nshape = (5, 4, 3, 2)\naxis_default_value = 1\na = np.random.random_sample(shape).astype(np.float32)\nnew_shape = (5, 24)\nb= np.reshape(a, new_shape)\nexpect(node, inputs=[a], outputs=[b],\n       name='test_flatten_default_axis')",
+          "code": "node = onnx.helper.make_node(\n    'Flatten',\n    inputs=['a'],\n    outputs=['b'], # Default value for axis: axis=1\n)\n\nshape = (5, 4, 3, 2)\na = np.random.random_sample(shape).astype(np.float32)\nnew_shape = (5, 24)\nb= np.reshape(a, new_shape)\nexpect(node, inputs=[a], outputs=[b],\n       name='test_flatten_default_axis')",
           "summary": "flatten_with_default_axis"
         }
       ],
@@ -2743,13 +2783,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "Value of alpha",
+          "description": "Value of alpha default to 0.2",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
-          "description": "Value of beta",
+          "description": "Value of beta default to 0.5",
           "name": "beta",
           "required": false,
           "type": "float"
@@ -2777,6 +2817,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'HardSigmoid',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.6\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1) #expected output [0.1, 0.6, 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid')",
+          "summary": "hardsigmoid"
+        },
+        {
+          "code": "default_alpha = 0.2\ndefault_beta = 0.5\nnode = onnx.helper.make_node(\n    'HardSigmoid',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x * default_alpha + default_beta, 0, 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid_default')",
+          "summary": "hardsigmoid_default"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -2871,6 +2921,74 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "If",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Graph to run if condition is false. Has N outputs: values you wish to be live-out to the enclosing scope. The number of outputs must match the number of outputs in the then_branch.",
+          "name": "else_branch",
+          "required": true,
+          "type": "graph"
+        },
+        {
+          "description": "Graph to run if condition is true. Has N outputs: values you wish to be live-out to the enclosing scope. The number of outputs must match the number of outputs in the else_branch.",
+          "name": "then_branch",
+          "required": true,
+          "type": "graph"
+        }
+      ],
+      "description": "If conditional",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Condition for the if",
+          "name": "cond",
+          "type": "B"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 2147483647,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Values that are live-out to the enclosing scope.",
+          "name": "outputs",
+          "option": "variadic",
+          "type": "V"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "experimental",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(int32)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(uint8)",
+            "tensor(int8)",
+            "tensor(uint16)",
+            "tensor(int16)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(double)"
+          ],
+          "description": "All Tensor types",
+          "type_param_str": "V"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Only bool",
+          "type_param_str": "B"
         }
       ]
     }
@@ -3334,7 +3452,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Coefficient of leakage",
+          "description": "Coefficient of leakage default to 0.01.",
           "name": "alpha",
           "required": false,
           "type": "float"
@@ -3362,6 +3480,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'LeakyRelu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.1\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n#expected output [-0.1, 0., 1.]\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu')",
+          "summary": "leakyrelu"
+        },
+        {
+          "code": "default_alpha = 0.01\nnode = onnx.helper.make_node(\n    'LeakyRelu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * default_alpha\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu_default')",
+          "summary": "leakyrelu_default"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -3698,6 +3826,152 @@
     }
   },
   {
+    "name": "Loop",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The graph run each iteration. It has 2+N inputs: (iteration_num, condition, loop carried dependencies...). It has 1+N+K outputs: (condition, loop carried dependencies..., scan_outputs...). Each scan_output is created by concatenating the value of the specified output value at the end of each iteration of the loop. It is an error if the dimensions of these values change across loop iterations.",
+          "name": "body",
+          "required": true,
+          "type": "graph"
+        }
+      ],
+      "description": "Generic Looping construct. This loop has multiple termination conditions:\n\n1) Trip count. Iteration count specified at runtime. Set by\n   specifying the input M. Optional. Set to empty string to omit.\n   Note that a static trip count (specified at graph construction time) can be\n   specified by passing in a constant node for input M.\n2) Loop termination condition. This is an input to the op that determines\n   whether to run the first interation and also a loop-carried dependency for\n   the body graph. The body graph must yield a value for the condition variable,\n   whether this input is provided or not.\n\nThis table summarizes the operating modes of this operator with equivalent\nC-style code:\n\n    Operator inputs defined as (max_trip_count, condition_var).\n\n    input (\"\", \"\"):\n        for (int i=0; ; ++i) {\n          cond = ... // Note this value is ignored, but is required in the body\n        }\n\n    input (\"\", cond) // Note this is analogous to a while loop\n        bool cond = ...;\n        for (int i=0; cond; ++i) {\n          cond = ...;\n        }\n\n    input (\"\", 1) // Note this is analogous to a do-while loop\n        bool cond = true\n        for (int i=0; cond; ++i) {\n          cond = ...;\n        }\n\n    input (trip_count, \"\") // Note this is analogous to a for loop\n        int trip_count = ...\n        for (int i=0; i < trip_count; ++i) {\n          cond = ...; // ignored\n        }\n\n    input (trip_count, cond)\n        int trip_count = ...;\n        bool cond = ...;\n        for (int i=0; i < trip_count && cond; ++i) {\n          cond = ...;\n        }\n\n\n*Sample usage - cond as well as trip count*\n\n    graph predict-net {\n      %a = Constant[value = <Scalar Tensor [3]>]()\n      %b = Constant[value = <Scalar Tensor [6]>]()\n      %keepgoing = Constant[value = <Scalar Tensor [1]>]()\n      %max_trip_count = Constant[value = <Scalar Tensor [10]>]()\n      %keepgoing_out, %b_out, %user_defined_vals = Loop[body = <graph body-net>](%max_trip_count, %keepgoing, %b)\n      return\n    }\n\n    graph body-net (\n      %i[INT32, scalar]\n      %keepgoing[BOOL, scalar]\n      %b[INT32, scalar]\n    ) {\n      %my_local = Add(%a, %b)\n      %b_out = Sub(%a, %b)\n      %keepgoing_out = Greater(%my_local, %b_out)\n      %user_defined_vals = Add(%b, %b)\n      return %keepgoing_out, %b_out, %user_defined_vals\n    }\n\n*Sample equivalent C code*\n\n    {\n      /* User-defined code (enclosing scope) */\n      int a = 3, b = 6;\n      bool keepgoing = true; // Analogous to input cond\n      /* End user-defined code */\n\n      /* Implicitly-defined code */\n      const int max_trip_count = 10; // Analogous to input M\n      int user_defined_vals[]; // Imagine this is resizable\n      /* End implicitly-defined code */\n      for (int i=0; i < max_trip_count && keepgoing; ++i) {\n        /* User-defined code (loop body) */\n        int my_local = a + b; // Reading values in the enclosing scope is fine\n        b = a - b; // writes fine if we specify b as a loop-carried dependency\n        keepgoing = my_local > b; // keepgoing is a loop-carried dependency\n        user_defined_vals[i] = b + b;\n        /* End user-defined code */\n      }\n      // my_local = 123; // Can't do this. my_local was defined in the the body\n\n      // These below values are live-out from the loop and therefore accessible\n      b_out; user_defined_vals; keepgoing_out;\n    }\n\nThere are several things of note in this code snippet:\n\n1) Values from the enclosing scope (i.e. variable a here) are in scope and can\n   be referenced in the inputs of the loop.\n2) Any variables which you wish to make available in the enclosing scope (i.e.\n   the variables b and keepgoing) must be declared as either loop-carried\n   dependencies (both at the op inputs and output and at the body net input and\n   output) or scan_outputs.\n3) Values created in the body cannot be accessed in the enclosing scope.\n\nNote that the semantics of this op support \"diagonal\" or \"wavefront\" execution.\n(See Step 3 here for an example:\nhttps://devblogs.nvidia.com/optimizing-recurrent-neural-networks-cudnn-5/).\nFrontends should emit multi-layer RNNs as a series of While operators (with\ntime being the inner looping dimension), with each successive layer consuming\nthe scan_outputs from the previous layer, possibly going through several\npoint-wise operators (e.g. dropout, residual connections, linear layer).\nConcretely, the (possibly transformed) scan_outputs are referenced by the\nsubsequent layer as a LoopIndexTensor operating on a value in scope, not\nnecessarily a loop-carried dependency. Backends can recognize this pattern and\nare permitted to schedule the execution of the multi-layer network in a\npipelined/\"wavefront\" fashion.\n\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "A maximum trip-count for the loop specified at runtime. Optional. pass empty string to skip.",
+          "name": "M",
+          "type": "I"
+        },
+        {
+          "description": "A boolean termination condition. Pass empty string to skip.",
+          "name": "cond",
+          "type": "B"
+        },
+        {
+          "description": "The initial values of any loop-carried dependencies (values that change across loop iterations)",
+          "name": "v_initial",
+          "option": "variadic",
+          "type": "V"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 2147483647,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Final N loop carried dependency values then K scan_outputs",
+          "name": "v_final_and_scan_outputs",
+          "option": "variadic",
+          "type": "V"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "experimental",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(int32)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(uint8)",
+            "tensor(int8)",
+            "tensor(uint16)",
+            "tensor(int16)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(double)"
+          ],
+          "description": "All Tensor types",
+          "type_param_str": "V"
+        },
+        {
+          "allowed_type_strs": [
+            "int64"
+          ],
+          "description": "Only int64",
+          "type_param_str": "I"
+        },
+        {
+          "allowed_type_strs": [
+            "bool"
+          ],
+          "description": "Only bool",
+          "type_param_str": "B"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LoopIndexTensor",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Axis on which to index",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "This is a special operator only valid inside the loop that supports the common case behavior of accessing the correct element of the input sequence in an RNN. This operator MUST be directly given the passed-in iteration number to the body of a Loop graph. This signals to back-ends that this is a direct indexing operation, with no transforms applied to the index.",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Tensor to be indexed (has N dimensions)",
+          "name": "T",
+          "type": "T"
+        },
+        {
+          "description": "Loop index provided as input to the body graph",
+          "name": "loop_idx",
+          "type": "I"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of N - 1 dims that is a sub tensor of T",
+          "name": "O",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "experimental",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(int32)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(uint8)",
+            "tensor(int8)",
+            "tensor(uint16)",
+            "tensor(int16)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(double)"
+          ],
+          "description": "All Tensor types",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "int32"
+          ],
+          "description": "Indices",
+          "type_param_str": "I"
+        }
+      ]
+    }
+  },
+  {
     "name": "LpNormalization",
     "schema": {
       "attributes": [
@@ -3966,6 +4240,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 3]).astype(np.float32)\nresult = np.array([3, 5, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_max_example')\n\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_max_one_input')\n\nresult = np.maximum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_max_two_inputs')",
+          "summary": "max"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -4128,6 +4408,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "data_0 = np.array([3, 0, 2]).astype(np.float32)\ndata_1 = np.array([1, 3, 4]).astype(np.float32)\ndata_2 = np.array([2, 6, 6]).astype(np.float32)\nresult = np.array([2, 3, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_mean_example')\n\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_mean_one_input')\n\nresult = np.divide(np.add(data_0, data_1), 2.)\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_mean_two_inputs')",
+          "summary": "mean"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -4219,6 +4505,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 0]).astype(np.float32)\nresult = np.array([1, 2, 0]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_min_example')\n\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_min_one_input')\n\nresult = np.minimum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_min_two_inputs')",
+          "summary": "min"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -4276,6 +4568,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y #expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')",
+          "summary": "mul"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_bcast')",
+          "summary": "mul_broadcast"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -4824,6 +5126,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = np.power(x, y) #expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.power(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
+          "summary": "pow"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6272,6 +6580,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0,\n    gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n#expected output [-3.79272318, 0., 3.]\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu')",
+          "summary": "selu"
+        },
+        {
+          "code": "default_alpha = 1.6732\ndefault_gamma = 1.0507\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
+          "summary": "selu_default"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6765,6 +7083,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.squeeze(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_squeeze')",
+          "summary": "squeeze"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6822,6 +7146,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y #expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')",
+          "summary": "sub"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_bcast')",
+          "summary": "sub_broadcast"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6861,6 +7195,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "data_0 = np.array([3, 0, 2]).astype(np.float32)\ndata_1 = np.array([1, 3, 4]).astype(np.float32)\ndata_2 = np.array([2, 6, 6]).astype(np.float32)\nresult = np.array([6, 9, 12]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_sum_example')\n\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_sum_one_input')\n\nresult = np.add(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_sum_two_inputs')",
+          "summary": "sum"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -7357,6 +7697,58 @@
             "tensor(int32)"
           ],
           "description": " allowed types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Unsqueeze",
+    "schema": {
+      "attributes": [
+        {
+          "description": "List of positive integers, indicate the dimensions to be inserted",
+          "name": "axes",
+          "required": true,
+          "type": "int[]"
+        }
+      ],
+      "description": "Insert single-dimensional entries to the shape of a tensor.\nTakes one required argument `axes`, a list of dimensions that will be inserted.\nDimension indices in `axes` are as seen in the output tensor. For example:\n\n  Given a tensor such that tensor with shape [3, 4, 5], then\n  Unsqueeze(tensor, axes=[0, 4]) has shape [1, 3, 4, 5, 1]\n\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Original tensor",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Reshaped tensor with same data as input.",
+          "name": "expanded",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.expand_dims(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze')",
+          "summary": "squeeze"
+        }
+      ],
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
         }
       ]
