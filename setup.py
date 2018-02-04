@@ -56,6 +56,7 @@ setuptools.setup(
     name="netron",
     version=package_version,
     description="Viewer for neural network models",
+    keywords='onnx keras tensorflow artificial intelligence machine learning deep learning neural network visualizer viewer',
     license="MIT",
     cmdclass={
         'build_py': build_py
@@ -87,8 +88,19 @@ setuptools.setup(
     ],
     classifiers=[
         'Intended Audience :: Developers',
+        'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Scientific/Engineering :: Artificial Intelligence'
     ]
+
 )
