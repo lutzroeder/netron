@@ -11,9 +11,9 @@ npm install
 npx electron .
 ```
 
-To debug the Electron app use [Visual Studio Code](https://code.visualstudio.com) and install the [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) extension. Open the `./Netron` root folder in Visual Studio Code and press `F5`. To attach the debugger to the actual rendering window select the `Debug` tab and `Debug Renderer Process` before launching.
+To debug the Electron app use [Visual Studio Code](https://code.visualstudio.com) and install the [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) extension, open the `./Netron` root folder and press `F5`. To attach the debugger to a rendering window select the `Debug` tab and `Debug Renderer Process` before launching.
 
-To build full Electron app binaries to the `./build/electron` folder run `electron-builder`:
+To build full Electron app binaries to the `./build/electron` folder run:
 
 ```bash
 npx electron-builder --mac --linux --win
@@ -21,11 +21,11 @@ npx electron-builder --mac --linux --win
 
 ## Develop the Python server
 
-To build and launch the python server run:
+To build and launch the Python server run:
 
 ```bash
 npm install
-python ./setup.py --quiet build
+python ./setup.py build
 PYTHONPATH=./build/python/lib python ./build/python/scripts-2.7/netron [...]
 ```
 
