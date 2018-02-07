@@ -1,7 +1,7 @@
 
 build: build_python build_electron
 
-publish: clean publish_pip publish_github publish_cask
+publish: clean publish_pip publish_github_pages publish_github_electron publish_cask
 
 install:
 	rm -rf ./node_modules
@@ -27,10 +27,25 @@ publish_pip:
 	@[ -d node_modules ] || npm install
 	python ./setup.py build bdist_wheel upload
 
-publish_github:
+publish_github_electron:
 	@[ -d node_modules ] || npm install
 	npx electron-builder install-app-deps
 	npx electron-builder --mac --linux --win --publish always --draft false --prerelease false
+
+publish_github_pages:
+	@[ -d node_modules ] || npm install
+	python ./setup.py build
+	rm -rf ./build/gh-pages
+	git clone git@github.com:lutzroeder/Netron.git ./build/gh-pages --branch gh-pages
+	rm -rf ./build/gh-pages/*
+	cp -R ./build/python/lib/netron/* ./build/gh-pages/
+	rm ./build/gh-pages/*.py
+	rm ./build/gh-pages/*.pyc
+	rm ./build/gh-pages/netron
+	mv ./build/gh-pages/view-browser.html ./build/gh-pages/index.html
+	git -C ./build/gh-pages add --all
+	git -C ./build/gh-pages commit --amend --no-edit
+	git -C ./build/gh-pages push --force origin gh-pages
 
 publish_cask:
 	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/caskroom/homebrew-cask/forks -d ''
