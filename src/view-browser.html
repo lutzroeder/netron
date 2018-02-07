@@ -1,7 +1,8 @@
 <html>
 <head>
 <meta charset='utf-8'>
-<title>{{{title}}}</title>
+<title>Netron</title>
+<!-- meta -->
 <link rel='stylesheet' type='text/css' href='open-sans.css'>
 <link rel='stylesheet' type='text/css' href='view-render.css'>
 <link rel='stylesheet' type='text/css' href='view.css'>
@@ -9,7 +10,8 @@
 <body>
 <div id='welcome' class='background' style='display: block'>
     <img id='logo' class='center' src='logo.svg' width='128' height='128'>
-    <button id='open-file-button' class='center' style='top: 200px; width: 150px; display: none;'>Open ONNX Model...</button>
+    <button id='open-file-button' class='center' style='top: 200px; width: 125px; opacity: 0;'>Open Model...</button>
+    <input type="file" id="open-file-dialog" style="display:none" multiple="false" accept=".onnx, .pb, .meta, .tflite, .keras, .h5, .json">
     <div id='spinner' class='spinner' style='display: none'></div>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style='font-weight: normal; color: #e6e6e6; user-select: none;'>.</div>

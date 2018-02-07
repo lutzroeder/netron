@@ -47,13 +47,14 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             if pathname == '/':
                 with codecs.open(location + 'view-browser.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
-                buffer = buffer.replace('{{{title}}}', self.data.file)
+                if self.file:
+                    buffer = buffer.replace('<!-- meta -->', '<meta name=\'file\' content=\'' + self.file + '\'>')
                 buffer = buffer.encode('utf-8');
                 headers['Content-Type'] = 'text/html'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
-            elif pathname == '/data':
-                buffer = self.data.data
+            elif pathname == '/data' and self.data:
+                buffer = self.data
                 headers['Content-Type'] = 'application/octet-stream'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
@@ -90,21 +91,19 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         return
 
 class MyHTTPServer(HTTPServer):
-    def initialize_data(self, data,verbose):
+    def initialize_data(self, data, file, verbose):
+        self.RequestHandlerClass.file = file
         self.RequestHandlerClass.data = data
         self.RequestHandlerClass.verbose = verbose
 
-class Model:
-    def __init__(self, data, file):
-        self.data = data
-        self.file = file
-
 def serve_data(data, file, verbose=False, browse=False, port=8080, host='localhost'):
     server = MyHTTPServer((host, port), MyHTTPRequestHandler)
-    model = Model(data, file)
     url = 'http://' + host + ':' + str(port)
-    print("Serving '" + file + "' at " + url + "...")
-    server.initialize_data(model, verbose)
+    if file:
+        print("Serving '" + file + "' at " + url + "...")
+    else:
+        print("Serving at " + url + "...")
+    server.initialize_data(data, file, verbose)
     sys.stdout.flush()
     if browse:
         threading.Timer(1, webbrowser.open, args=(url,)).start()
@@ -115,8 +114,11 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
         server.server_close()
 
 def serve_file(file, verbose=False, browse=False, port=8080, host='localhost'):
-    print("Reading '" + file + "'...")
     data = None
-    with open(file, 'rb') as binary:
-        data = binary.read()
+    if file and os.path.exists(file):
+        print("Reading '" + file + "'...")
+        with open(file, 'rb') as binary:
+            data = binary.read()
+    else:
+        file = None
     serve_data(data, file, verbose=verbose, browse=browse, port=port, host=host)
