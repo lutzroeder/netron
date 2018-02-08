@@ -31,22 +31,13 @@ class OnnxModel {
         }
     }
 
-    format() {
-        var summary = { properties: [], graphs: [] };
-
-        this.graphs.forEach((graph) => {
-            summary.graphs.push({
-                name: graph.name,
-                inputs: graph.inputs,
-                outputs: graph.outputs,
-                description: graph.description
-            });
-        });
-
-        summary.properties.push({ 
-            name: 'Format', 
-            value: 'ONNX' + (this._model.irVersion ? (' v' + this._model.irVersion) : '') 
-        });
+    get properties() {
+        var results = [];
+        var format = 'ONNX';
+        if (this._model.irVersion) {
+            format = format + ' v' + this._model.irVersion.toString();
+        }
+        results.push({ name: 'Format', value: format });
         var producer = [];
         if (this._model.producerName) {
             producer.push(this._model.producerName);
@@ -55,24 +46,45 @@ class OnnxModel {
             producer.push(this._model.producerVersion);
         }
         if (producer.length > 0) {
-            summary.properties.push({ 'name': 'Producer', 'value': producer.join(' ') });
+            results.push({ 'name': 'Producer', 'value': producer.join(' ') });
         }
         if (this._model.domain) {
-            summary.properties.push({ name: 'Domain', value: this._model.domain });
+            results.push({ name: 'Domain', value: this._model.domain });
         }
         if (this._model.modelVersion) {
-            summary.properties.push({ name: 'Version', value: this._model.modelVersion });
+            results.push({ name: 'Version', value: this._model.modelVersion });
         }
         if (this._model.docString) {
-            summary.properties.push({ name: 'Documentation', value: this._model.docString });
+            results.push({ name: 'Documentation', value: this._model.docString });
         }
-
-        if (this._model.metadataProps && this._model.metadataProps.length > 0)
+        var metadata = {};
+        if (this._model.metadataProps)
         {
-            debugger;
+            this._model.metadataProps.forEach((metadataProp) => {
+                metadata[metadataProp.key] = metadataProp.value;
+            });
+        }
+        if (metadata.author) {
+            results.push({ name: 'Author', value: metadata.author });
+        }
+        if (metadata.company) {
+            results.push({ name: 'Company', value: metadata.company });
+        }
+        if (metadata.converted_from) {
+            results.push({ name: 'Source', value: metadata.converted_from });
+        }
+        var license = [];
+        if (metadata.license && metadata.license.length > 0) {
+            license.push(metadata.license);
+        }
+        if (metadata.license_url && metadata.license_url.length > 0) {
+            license.push('<a href=\'' + metadata.license_url + '\'>' + metadata.license_url + '</a>');
+        }
+        if (license.length > 0) {
+            results.push({ name: 'License', value: license.join(' ') });
         }
 
-        return summary;
+        return results;
     }
 
     get graphs() {

@@ -8,46 +8,11 @@ import setuptools.command.build_py
 import json
 
 TOP_DIR = os.path.realpath(os.path.dirname(__file__))
-
 with open(os.path.join(TOP_DIR, 'package.json')) as package_file:
     package_manifest = json.load(package_file)
     package_version = package_manifest['version']
 
-packages = [ 'netron' ]
-
-package_data={
-    'netron': [ 
-        'netron',
-        'netron.py',
-        'logo.svg',
-        'favicon.ico',
-        'onnx.js',
-        'onnx-operator.json',
-        'onnx-model.js',
-        'tf.js',
-        'tf-operator.pb',
-        'tf-model.js',
-        'tflite.js',
-        'tflite-operator.json',
-        'tflite-model.js',
-        'hdf5.js',
-        'keras-operator.json',
-        'keras-model.js',
-        'view-browser.html',
-        'view-browser.js',
-        'view-render.css',
-        'view-render.js',
-        'view-template.js',
-        'view.css',
-        'view.js',
-    ]
-}
-
-install_requires = [ ]
-
-scripts = [ 'src/netron' ]
-
-custom_files = [ 
+node_dependencies = [ 
     ( 'netron', [
         'node_modules/d3/build/d3.min.js',
         'node_modules/dagre/dist/dagre.min.js',
@@ -79,36 +44,63 @@ custom_files = [
 class build_py(setuptools.command.build_py.build_py):
     def run(self):
         result = setuptools.command.build_py.build_py.run(self)
-        for target, files in custom_files:
+        for target, files in node_dependencies:
             target = os.path.join(self.build_lib, target)
             if not os.path.exists(target):
                 os.makedirs(target)
             for file in files:
                 self.copy_file(file, target)
         return result
-    def get_outputs(self, include_bytecode=1):
-        result = setuptools.command.build_py.build_py.get_outputs(self, include_bytecode)
-        print("## get_outputs ##")
-        return result
 
 setuptools.setup(
     name="netron",
     version=package_version,
     description="Viewer for neural network models",
+    keywords='onnx keras tensorflow artificial intelligence machine learning deep learning neural network visualizer viewer',
     license="MIT",
-    cmdclass={ 'build_py': build_py },
-    package_dir={ 'netron': 'src' },
-    packages=packages,
-    package_data=package_data,
-    install_requires=install_requires,
+    cmdclass={
+        'build_py': build_py
+    },
+    package_dir={
+        'netron': 'src'
+    },
+    packages=[
+        'netron'
+    ],
+    package_data={
+        'netron': [ 
+            'netron', 'netron.py',
+            'logo.svg', 'favicon.ico',
+            'onnx-model.js', 'onnx.js', 'onnx-operator.json',
+            'tf-model.js', 'tf.js', 'tf-operator.pb',
+            'tflite-model.js', 'tflite.js', 'tflite-operator.json',
+            'keras-model.js', 'keras-operator.json', 'hdf5.js',
+            'view-browser.html', 'view-browser.js',
+            'view.js', 'view.css', 'view-render.css', 'view-render.js', 'view-template.js'
+        ]
+    },
+    install_requires=[],
     author='Lutz Roeder',
     author_email='lutzroeder@users.noreply.github.com',
     url='https://github.com/lutzroeder/Netron',
-    scripts=scripts,
+    scripts=[
+        'src/netron'
+    ],
     classifiers=[
         'Intended Audience :: Developers',
+        'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Scientific/Engineering :: Artificial Intelligence'
     ]
+
 )

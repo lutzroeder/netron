@@ -4,8 +4,7 @@
     "schema": {
       "category": "Wrapper",
       "inputs": [
-        { "name": "input" },
-        { "name": "layer" }
+        { "name": "input" }
       ],
       "outputs": [
         { "name": "output" }
@@ -22,12 +21,29 @@
       "inputs": [
         { "name": "input" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
       ]
     }
   },
   {
     "name": "Activation",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "LeakyReLU",
     "schema": {
       "category": "Activation",
       "inputs": [
@@ -367,6 +383,33 @@
     }
   },
   {
+    "name": "SeparableConv2D",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "kernel" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "activation", "default": "linear" },
+        { "name": "padding", "default": "valid" },
+        { "name": "use_bias", "default": true },
+        { "name": "data_format", "default": "channels_last" },
+        { "name": "strides", "default": [1, 1] },
+        { "name": "dilation_rate", "default": [1, 1] },
+        { "name": "depth_multiplier", "default": 1 },
+        { "name": "pointwise_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
+        { "name": "depthwise_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
+        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
+      ]
+    }
+  },
+  {
     "name": "Convolution2D",
     "schema": {
       "category": "Layer",
@@ -385,6 +428,7 @@
         { "name": "data_format", "default": "channels_last" },
         { "name": "strides", "default": [1, 1] },
         { "name": "dilation_rate", "default": [1, 1] },
+        { "name": "depth_multiplier", "default": 1 },
         { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
         { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
       ]
@@ -435,6 +479,12 @@
       ],
       "outputs": [
         { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "concat_axis", "default": -1 },
+        { "name": "dot_axes", "default": -1 },
+        { "name": "arguments", "default": {} },
+        { "name": "mode", "sum": {} }
       ]
     }
   },

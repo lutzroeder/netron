@@ -50,17 +50,28 @@ class Application {
             application.saveConfiguration();
         });
 
+        if (process.platform == 'win32' && process.argv.length > 1) {
+            process.argv.slice(1).forEach((arg) => {
+                if (!arg.startsWith('-') && arg.split('.').pop() != 'js') {
+                    application.openFile(arg);
+                }
+            });
+        }
+
         this.update();
     }
 
     ready() {
         this.loadConfiguration();
         this.updateMenu();
-        while (this._openFileQueue.length > 0) {
-            var file = this._openFileQueue.shift();
-            this.openFile(file);
+        if (this._openFileQueue) {
+            var openFileQueue = this._openFileQueue;
+            this._openFileQueue = null;
+            while (openFileQueue.length > 0) {
+                var file = openFileQueue.shift();
+                this.openFile(file);
+            }
         }
-        this._openFileQueue = null;
         if (this._views.length == 0) {
             this.openView();
         }
@@ -88,7 +99,7 @@ class Application {
 
     openFile(file) {
         if (this._openFileQueue) {
-            this._openFileQueue.push(path);
+            this._openFileQueue.push(file);
             return;
         }
         if (file && file.length > 0 && fs.existsSync(file))

@@ -46,6 +46,7 @@ categories = {
     'Flatten': 'Shape',
     'Reshape': 'Shape',
     'Transpose': 'Shape',
+    'Tile': 'Shape',
 
     'Xor': 'Logic',
     'Not': 'Logic',

@@ -43,26 +43,18 @@ class TensorFlowLiteModel {
         }
     }
 
-    format() {
-        var summary = { properties: [], graphs: [] };
-
-        this.graphs.forEach((graph) => {
-            summary.graphs.push({
-                name: graph.name,
-                inputs: graph.inputs,
-                outputs: graph.outputs
-            });
-        });
+    get properties() {
+        var results = [];
 
         var format = 'TensorFlow Lite v' + this._model.version().toString();
-        summary.properties.push({ name: 'Format', value: format });
+        results.push({ name: 'Format', value: format });
 
         var description = this._model.description();
         if (description && description.length > 0) {
-            summary.properties.push({ name: 'Description', value: description });
+            results.push({ name: 'Description', value: description });
         }
 
-        return summary;
+        return results;
     }
 
     get graphs() {
@@ -577,9 +569,13 @@ class TensorFlowLiteOperatorMetadata {
             var count = 1;
             var name = null;
             if (schema && schema.inputs && index < schema.inputs.length) {
-                name = schema.inputs[index].name;
-                if (schema.inputs[index].option == 'variadic') {
+                var input = schema.inputs[index];
+                name = input.name;
+                if (input.option == 'variadic') {
                     count = connections.length - index;
+                }
+                if (input.hidden) {
+                    result.hidden = true;
                 }
             }
             result.name = name ? name : '(' + index.toString() + ')';

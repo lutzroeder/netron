@@ -17,6 +17,7 @@
     right: 0;
     user-select: none;
     -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 body {
@@ -39,9 +40,9 @@ button {
     margin: 0;
     border-radius: 6px;
     transition: 0.2s;
+    user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
-    user-select: none;
 }
 
 button:hover {
@@ -133,9 +134,9 @@ button:hover {
     height: 20px;
     margin: 0;
     padding: 20px;
+    user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
-    user-select: none;
 }
 
 .sidebar-closebutton {
@@ -146,13 +147,13 @@ button:hover {
     opacity: 1.0;
     display: block;
     transition: 0.2s;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
     position: absolute;
     top: 0;
     right: 15px;
     margin-left: 50px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 .sidebar-closebutton:hover {
@@ -181,5 +182,8 @@ button:hover {
     display: block;
     position: absolute;
     background-color: #fff;
-    text-rendering: geometricPrecision
+    text-rendering: geometricPrecision;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }

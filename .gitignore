@@ -1,9 +1,11 @@
 .DS_Store
 .DS_Store?
-/package-lock.json
 /build/
-/dist/
 /node_modules/
 /third_party/
+<<<<<<< HEAD
 /netron.egg-info
 /tmp/
+=======
+/package-lock.json
+>>>>>>> upstream/master

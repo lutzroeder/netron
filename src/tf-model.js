@@ -12,8 +12,10 @@ class TensorFlowModel {
             var format = null;
             if (identifier == 'saved_model.pb') {
                 model = tensorflow.SavedModel.decode(buffer);
-                var version = model.savedModelSchemaVersion;
-                format = 'TensorFlow Saved Model' + (version ? (' v' + version.toString()) : '');
+                format = 'TensorFlow Saved Model';
+                if (model.savedModelSchemaVersion) {
+                    format = format + ' v' + model.savedModelSchemaVersion.toString();
+                }
             }
             else {
                 var metaGraphDef = null;
@@ -60,23 +62,10 @@ class TensorFlowModel {
         this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
     }
 
-    format() {
-        var summary = { properties: [], graphs: [] };
-        summary.properties.push({ name: 'Format', value: this._format });
-
-        this.graphs.forEach((graph) => {
-            summary.graphs.push({
-                name: graph.name,
-                version: graph.version,
-                tags: graph.tags,
-                inputs: graph.inputs,
-                outputs: graph.outputs
-            });
-            // metaInfoDef.tensorflowGitVersion
-            // TODO signature
-        });
-    
-        return summary;
+    get properties() {
+        var results = [];
+        results.push({ name: 'Format', value: this._format });
+        return results;
     }
 
     get graphs() {
@@ -104,6 +93,9 @@ class TensorFlowGraph {
         this._graph = graph;
         this._metadata = new TensorFlowGraphOperatorMetadata(graph.metaInfoDef);
         this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
+
+        // metaInfoDef.tensorflowGitVersion
+        // TODO signature
     }
 
     get model() {
@@ -116,7 +108,7 @@ class TensorFlowGraph {
 
     get version() {
         if (this._graph.metaInfoDef && this._graph.metaInfoDef.tensorflowVersion) {
-            return 'TensorFlow ' + this._graph.metaInfoDef.tensorflowVersion;
+            return this._graph.metaInfoDef.tensorflowVersion;
         }
         return null;
     }
