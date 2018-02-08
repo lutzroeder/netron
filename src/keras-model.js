@@ -17,7 +17,7 @@ class KerasModel {
                 rootGroup = file.rootGroup;
                 json = rootGroup.attributes.model_config;
                 if (!json) {
-                    throw new KerasError('HDF5 file has no \'model_config\' data.');
+                    throw new KerasError('HDF5 file does not contain a \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.');
                 }
             }
             else if (extension == 'json') {
