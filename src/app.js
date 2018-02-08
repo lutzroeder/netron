@@ -52,7 +52,9 @@ class Application {
 
         if (process.platform == 'win32' && process.argv.length > 1) {
             process.argv.slice(1).forEach((arg) => {
-                if (!arg.startsWith('-') && arg.split('.').pop() != 'js') {
+                var hasExtension = (arg.split('.').length > 1);
+                var extension = arg.split('.').pop();
+                if (!arg.startsWith('-') && hasExtension && extension != 'js' && extension != '.' && extension != '') {
                     application.openFile(arg);
                 }
             });
