@@ -4,20 +4,19 @@ var electron = require('electron');
 var fs = require('fs');
 var path = require('path');
 
-class ElectronHostService {
+class ElectronHost {
 
     constructor() {
     }
 
-    initialize(callback) {
-        this.callback = callback;
-        
-        updateView('welcome');
+    initialize(view) {
+        this._view = view;
+        this._view.show('welcome');
         
         electron.ipcRenderer.on('open-file', (event, data) => {
             var file = data.file;
             if (file) {
-                updateView('spinner');
+                this._view.show('spinner');
                 this.openBuffer(file);
             }
         });
@@ -91,32 +90,32 @@ class ElectronHostService {
     openBuffer(file) {
         fs.exists(file, (exists) => {
             if (!exists) {
-                this.callback('File not found.', null, null);
+                this._view.openBuffer('File not found.', null, null);
             }
             else {
                 fs.stat(file, (err, stats) => {
                     if (err) {
-                        this.callback(err, null, null);
+                        this._view.openBuffer(err, null, null);
                     }
                     else {
                         var size = stats.size;
                         var buffer = new Uint8Array(size);
                         fs.open(file, 'r', (err, fd) => {
                             if (err) {
-                                this.callback(err, null, null);
+                                this._view.openBuffer(err, null, null);
                             }
                             else {
                                 fs.read(fd, buffer, 0, size, 0, (err, bytesRead, buffer) => {
                                     if (err) {
-                                        this.callback(err, null, null);
+                                        this._view.openBuffer(err, null, null);
                                     }
                                     else {
                                         fs.close(fd, (err) => {
                                             if (err) {
-                                                this.callback(err, null);
+                                                this._view.openBuffer(err, null);
                                             }
                                             else {
-                                                this.callback(null, buffer, path.basename(file));
+                                                this._view.openBuffer(null, buffer, path.basename(file));
                                             }
                                         });
                                     }
@@ -130,4 +129,4 @@ class ElectronHostService {
     }
 }
 
-var hostService = new ElectronHostService();
+window.host = new ElectronHost();

@@ -1,468 +1,536 @@
 /*jshint esversion: 6 */
 
-hostService.initialize(openBuffer);
+class View {
 
-document.documentElement.style.overflow = 'hidden';
-document.body.scroll = 'no';
+    constructor(host) {
+        this._host = host;
+        this._model = null;
 
-var navigationButton = document.getElementById('navigation-button');
-if (navigationButton) {
-    navigationButton.addEventListener('click', (e) => {
-        showModelSummary(modelService.activeModel);
-    });
-}
+        this._sidebar = new Sidebar();
 
-function updateView(page) {
+        this._host.initialize(this);
 
-    var welcomeElement = document.getElementById('welcome');
-    var openFileButton = document.getElementById('open-file-button');
-    var spinnerElement = document.getElementById('spinner');
-    var graphElement = document.getElementById('graph');
-    var navigationElement = document.getElementById('navigation-button');
+        document.documentElement.style.overflow = 'hidden';
+        document.body.scroll = 'no';        
 
-    if (page == 'welcome') {
-        document.body.style.cursor = 'default';
-        welcomeElement.style.display = 'block';
-        welcomeElement.offsetHeight;
-        openFileButton.style.display = 'block';
-        spinnerElement.style.display = 'none';
-        graphElement.style.display = 'none';
-        graphElement.style.opacity = 0;
-        navigationElement.style.display = 'none';
-    }
-
-    if (page == 'spinner') {
-        document.body.style.cursor = 'wait';
-        welcomeElement.style.display = 'block';
-        openFileButton.style.display = 'none';
-        spinnerElement.style.display = 'block';
-        spinnerElement.offsetHeight;
-        graphElement.style.display = 'block';
-        graphElement.style.opacity = 0;
-        navigationElement.style.display = 'none';
-    }
-
-    if (page == 'graph') {
-        welcomeElement.style.display = 'none';
-        openFileButton.style.display = 'none';
-        spinnerElement.style.display = 'none';
-        graphElement.style.display = 'block';
-        graphElement.style.opacity = 1;
-        navigationElement.style.display = 'block';
-        document.body.style.cursor = 'default';
-    }
-}
-
-function openBuffer(err, buffer, identifier) {
-    sidebar.close();
-    if (err) {
-        hostService.showError(err.toString());
-        updateView('welcome');
-    }
-    else {
-        setTimeout(function () {
-            modelService.openBuffer(buffer, identifier, function(err, model) {
-                if (err) {
-                    hostService.showError(err.toString());
-                    updateView('welcome');
-                    return;
-                }
-                setTimeout(function () {
-                    updateGraph(model);
-                }, 20);   
-            });    
-        }, 20);
-    }
-}
-
-function updateActiveGraph(name) {
-    sidebar.close();
-    var model = modelService.activeModel;
-    if (model) {
-        model.updateActiveGraph(name);
-        updateView('spinner');
-        setTimeout(function () {
-            updateGraph(model);
-        }, 250);
-    }
-}
-
-function updateGraph(model) {
-
-    var graph = model.activeGraph;
-    if (!graph) {
-        this.updateView('graph');
-        return;
-    }
-
-    var svgElement = document.getElementById('graph');
-    while (svgElement.lastChild) {
-        svgElement.removeChild(svgElement.lastChild);
-    }
-
-    var compound = false;
-
-    var g = new dagre.graphlib.Graph({ compound: compound });
-    g.setGraph({});
-    // g.setGraph({ align: 'DR' });
-    // g.setGraph({ ranker: 'network-simplex' });
-    // g.setGraph({ ranker: 'tight-tree' });
-    // g.setGraph({ ranker: 'longest-path' });
-    // g.setGraph({ acyclicer: 'greedy' });
-    g.setDefaultEdgeLabel(function() { return {}; });
-
-    var nodeId = 0;
-    var edgeMap = {};
-
-    var clusterMap = {};
-    var clusterParentMap = {};
-
-    if (compound) {
-        graph.nodes.forEach((node) => {
-            if (node.name) {
-                var path = node.name.split('/');
-                if (path.length > 1) {
-                    path.pop();
-                }
-                while (path.length > 0) {
-                    var name = path.join('/');
-                    path.pop();
-                    clusterParentMap[name] = path.join('/');
-                }
-            }
-        });
-    }
-
-    graph.nodes.forEach((node) => {
-        var formatter = new NodeFormatter();
-
-        function addOperator(formatter, node) {
-            if (node) {
-                var styles = [ 'node-item-operator' ];
-                var category = node.category;
-                if (category) {
-                    styles.push('node-item-operator-' + category.toLowerCase());
-                }
-                formatter.addItem(node.primitive ? node.primitive : node.operator, styles, node.name, function() { 
-                    showNode(node);
-                });
-            }
+        var navigationButton = document.getElementById('navigation-button');
+        if (navigationButton) {
+            navigationButton.addEventListener('click', (e) => {
+                this.showSummary();
+            });
         }
+    }
+    
+    show(page) {
 
-        addOperator(formatter, node);
-        addOperator(formatter, node.inner);
+        var welcomeElement = document.getElementById('welcome');
+        var openFileButton = document.getElementById('open-file-button');
+        var spinnerElement = document.getElementById('spinner');
+        var graphElement = document.getElementById('graph');
+        var navigationElement = document.getElementById('navigation-button');
+    
+        if (page == 'welcome') {
+            document.body.style.cursor = 'default';
+            welcomeElement.style.display = 'block';
+            var offsetHeight1 = welcomeElement.offsetHeight; 
+            openFileButton.style.display = 'block';
+            spinnerElement.style.display = 'none';
+            graphElement.style.display = 'none';
+            graphElement.style.opacity = 0;
+            navigationElement.style.display = 'none';
+        }
+    
+        if (page == 'spinner') {
+            document.body.style.cursor = 'wait';
+            welcomeElement.style.display = 'block';
+            openFileButton.style.display = 'none';
+            spinnerElement.style.display = 'block';
+            var offsetHeight2 = spinnerElement.offsetHeight;
+            graphElement.style.display = 'block';
+            graphElement.style.opacity = 0;
+            navigationElement.style.display = 'none';
+        }
+    
+        if (page == 'graph') {
+            welcomeElement.style.display = 'none';
+            openFileButton.style.display = 'none';
+            spinnerElement.style.display = 'none';
+            graphElement.style.display = 'block';
+            graphElement.style.opacity = 1;
+            navigationElement.style.display = 'block';
+            document.body.style.cursor = 'default';
+        }
+    }
 
-        var primitive = node.primitive;
+    loadBuffer(buffer, identifier, callback) {
+        var model = null;
+        var err = null;
+    
+        var extension = identifier.split('.').pop();
 
-        var hiddenInputs = false;
-        var hiddenInitializers = false;
-
-        node.inputs.forEach((input) => {
-            // TODO what about mixed input & initializer
-            if (input.connections.length > 0) {
-                var initializers = input.connections.filter(connection => connection.initializer);
-                var inputClass = 'node-item-input';
-                if (initializers.length == 0) {
-                    inputClass = 'node-item-input';
-                    if (input.hidden) {
-                        hiddenInputs = true;
-                    }
+        if (extension == 'tflite') {
+            TensorFlowLiteModel.open(buffer, identifier, this._host, (err, model) => {
+                this._model = model;
+                callback(err, model);
+           });
+        }
+        else if (identifier == 'saved_model.pb' || extension == 'meta') {
+            TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
+                this._model = model;
+                callback(err, model);
+            });
+        }
+        else if (extension == 'onnx') {
+            OnnxModel.open(buffer, identifier, this._host, (err, model) => {
+                this._model = model;
+                callback(err, model);
+            });
+        }
+        else if (extension == 'json' || extension == 'keras' || extension == 'h5') {
+            KerasModel.open(buffer, identifier, this._host, (err, model) => {
+                this._model = model;
+                callback(err, model);
+            });
+        }
+        else if (extension == 'pb') {
+            OnnxModel.open(buffer, identifier, this._host, (err, model) => {
+                if (!err) {
+                    this._model = model;
+                    callback(err, model);    
                 }
                 else {
-                    if (initializers.length == input.connections.length) {
-                        inputClass = 'node-item-constant';
-                        if (input.hidden) {
-                            hiddenInitializers = true;
-                        }
+                    TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
+                        this._model = model;
+                        callback(err, model);
+                    });
+                }
+            });
+        }
+        else {
+            this._model = null;
+            callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
+        }
+    }
+
+    openBuffer(err, buffer, identifier) {
+        this._sidebar.close();
+        if (err) {
+            this._host.showError(err.toString());
+            this.show('welcome');
+        }
+        else {
+            setTimeout(() => {
+                this.loadBuffer(buffer, identifier, (err, model) => {
+                    if (err) {
+                        this._host.showError(err.toString());
+                        this.show('welcome');
+                        return;
                     }
-                    else {
-                        inputClass = 'node-item-constant';
+                    setTimeout(() => {
+                        try {
+                            this.updateGraph();
+                        }
+                        catch (err) {
+                            this._host.showError(err.toString());
+                            this.show('welcome');
+                            return;
+                        }
+                    }, 20);   
+                });    
+            }, 20);
+        }
+    }
+    
+    updateActiveGraph(name) {
+        this._sidebar.close();
+        if (this._model) {
+            this._model.updateActiveGraph(name);
+            this.show('spinner');
+            setTimeout(() => {
+                this.updateGraph(this._model);
+            }, 250);
+        }
+    }
+    
+    updateGraph() {
+    
+        var graph = this._model.activeGraph;
+        if (!graph) {
+            this.show('graph');
+            return;
+        }
+    
+        var svgElement = document.getElementById('graph');
+        while (svgElement.lastChild) {
+            svgElement.removeChild(svgElement.lastChild);
+        }
+    
+        var compound = false;
+    
+        var g = new dagre.graphlib.Graph({ compound: compound });
+        g.setGraph({});
+        // g.setGraph({ align: 'DR' });
+        // g.setGraph({ ranker: 'network-simplex' });
+        // g.setGraph({ ranker: 'tight-tree' });
+        // g.setGraph({ ranker: 'longest-path' });
+        // g.setGraph({ acyclicer: 'greedy' });
+        g.setDefaultEdgeLabel(() => { return {}; });
+    
+        var nodeId = 0;
+        var edgeMap = {};
+    
+        var clusterMap = {};
+        var clusterParentMap = {};
+    
+        if (compound) {
+            graph.nodes.forEach((node) => {
+                if (node.name) {
+                    var path = node.name.split('/');
+                    if (path.length > 1) {
+                        path.pop();
+                    }
+                    while (path.length > 0) {
+                        var name = path.join('/');
+                        path.pop();
+                        clusterParentMap[name] = path.join('/');
+                    }
+                }
+            });
+        }
+    
+        graph.nodes.forEach((node) => {
+            var formatter = new NodeFormatter();
+    
+            function addOperator(viewService, formatter, node) {
+                if (node) {
+                    var styles = [ 'node-item-operator' ];
+                    var category = node.category;
+                    if (category) {
+                        styles.push('node-item-operator-' + category.toLowerCase());
+                    }
+                    formatter.addItem(node.primitive ? node.primitive : node.operator, styles, node.name, () => { 
+                        viewService.showNode(node);
+                    });
+                }
+            }
+    
+            addOperator(this, formatter, node);
+            addOperator(this, formatter, node.inner);
+    
+            var primitive = node.primitive;
+    
+            var hiddenInputs = false;
+            var hiddenInitializers = false;
+    
+            node.inputs.forEach((input) => {
+                // TODO what about mixed input & initializer
+                if (input.connections.length > 0) {
+                    var initializers = input.connections.filter(connection => connection.initializer);
+                    var inputClass = 'node-item-input';
+                    if (initializers.length == 0) {
+                        inputClass = 'node-item-input';
                         if (input.hidden) {
                             hiddenInputs = true;
                         }
                     }
-                }
-
-                if (!input.hidden) {
-                    var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
-                    formatter.addItem(input.name, [ inputClass ], types, () => {
-                        showNodeInput(input);
+                    else {
+                        if (initializers.length == input.connections.length) {
+                            inputClass = 'node-item-constant';
+                            if (input.hidden) {
+                                hiddenInitializers = true;
+                            }
+                        }
+                        else {
+                            inputClass = 'node-item-constant';
+                            if (input.hidden) {
+                                hiddenInputs = true;
+                            }
+                        }
+                    }
+    
+                    if (!input.hidden) {
+                        var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
+                        formatter.addItem(input.name, [ inputClass ], types, () => {
+                            this.showNodeInput(input);
+                        });    
+                    }
+    
+                    input.connections.forEach((connection) => {
+                        if (!connection.initializer) {
+                            var tuple = edgeMap[connection.id];
+                            if (!tuple) {
+                                tuple = { from: null, to: [] };
+                                edgeMap[connection.id] = tuple;
+                            }
+                            tuple.to.push({ 
+                                node: nodeId, 
+                                name: input.name
+                            });
+                        }
                     });    
                 }
-
-                input.connections.forEach((connection) => {
-                    if (!connection.initializer) {
-                        var tuple = edgeMap[connection.id];
-                        if (!tuple) {
-                            tuple = { from: null, to: [] };
-                            edgeMap[connection.id] = tuple;
-                        }
-                        tuple.to.push({ 
-                            node: nodeId, 
-                            name: input.name
-                        });
-                    }
+            });
+    
+            if (hiddenInputs) {
+                formatter.addItem('...', [ 'node-item-input' ], '', () => {
+                    this.showNode(node);
                 });    
             }
-        });
-
-        if (hiddenInputs) {
-            formatter.addItem('...', [ 'node-item-input' ], '', () => {
-                showNode(node);
-            });    
-        }
-        if (hiddenInitializers) {
-            formatter.addItem('...', [ 'node-item-constant' ], '', () => {
-                showNode(node);
-            });    
-        }
-
-        node.outputs.forEach((output) => {
-            output.connections.forEach((connection) => {
-                var tuple = edgeMap[connection.id];
-                if (!tuple) {
-                    tuple = { from: null, to: [] };
-                    edgeMap[connection.id] = tuple;
-                }
-                tuple.from = { 
-                    node: nodeId,
-                    name: output.name
-                };    
+            if (hiddenInitializers) {
+                formatter.addItem('...', [ 'node-item-constant' ], '', () => {
+                    this.showNode(node);
+                });    
+            }
+    
+            node.outputs.forEach((output) => {
+                output.connections.forEach((connection) => {
+                    var tuple = edgeMap[connection.id];
+                    if (!tuple) {
+                        tuple = { from: null, to: [] };
+                        edgeMap[connection.id] = tuple;
+                    }
+                    tuple.from = { 
+                        node: nodeId,
+                        name: output.name
+                    };    
+                });
             });
-        });
-
-        var dependencies = node.dependencies;
-        if (dependencies && dependencies.length > 0) {
-            formatter.setControlDependencies();
-        }
-
-        if (node.attributes && !primitive) {
-            formatter.setAttributeHandler(() => { 
-                showNode(node);
-            });
-            node.attributes.forEach((attribute) => {
-                if (attribute.hidden) {
-                }
-                else {
-                    var attributeValue = '';
-                    if (attribute.tensor) {
-                        attributeValue = '[...]';
+    
+            var dependencies = node.dependencies;
+            if (dependencies && dependencies.length > 0) {
+                formatter.setControlDependencies();
+            }
+    
+            if (node.attributes && !primitive) {
+                formatter.setAttributeHandler(() => { 
+                    this.showNode(node);
+                });
+                node.attributes.forEach((attribute) => {
+                    if (attribute.hidden) {
                     }
                     else {
-                        attributeValue = attribute.value;
-                        if (attributeValue.length > 25) {
-                            attributeValue = attributeValue.substring(0, 25) + '...';
+                        var attributeValue = '';
+                        if (attribute.tensor) {
+                            attributeValue = '[...]';
                         }
+                        else {
+                            attributeValue = attribute.value;
+                            if (attributeValue.length > 25) {
+                                attributeValue = attributeValue.substring(0, 25) + '...';
+                            }
+                        }
+                        formatter.addAttribute(attribute.name, attributeValue, attribute.type);
                     }
-                    formatter.addAttribute(attribute.name, attributeValue, attribute.type);
-                }
-            });
-        }
-
-        g.setNode(nodeId, { label: formatter.format(svgElement) });
-
-        function createCluster(name) {
-            if (!clusterMap[name]) {
-                g.setNode(name, { rx: 5, ry: 5});
-                clusterMap[name] = true;
-                var parent = clusterParentMap[name];
-                if (parent) {
-                    createCluster(parent);
-                    g.setParent(name, parent);
+                });
+            }
+    
+            g.setNode(nodeId, { label: formatter.format(svgElement) });
+    
+            function createCluster(name) {
+                if (!clusterMap[name]) {
+                    g.setNode(name, { rx: 5, ry: 5});
+                    clusterMap[name] = true;
+                    var parent = clusterParentMap[name];
+                    if (parent) {
+                        createCluster(parent);
+                        g.setParent(name, parent);
+                    }
                 }
             }
-        }
-        if (compound && node.name) {
-            var name = node.name;
-            if (!clusterParentMap.hasOwnProperty(name)) {
-                var lastIndex = name.lastIndexOf('/');
-                if (lastIndex != -1) {
-                    name = name.substring(0, lastIndex);
-                    if (!clusterParentMap.hasOwnProperty(name)) {
+            if (compound && node.name) {
+                var name = node.name;
+                if (!clusterParentMap.hasOwnProperty(name)) {
+                    var lastIndex = name.lastIndexOf('/');
+                    if (lastIndex != -1) {
+                        name = name.substring(0, lastIndex);
+                        if (!clusterParentMap.hasOwnProperty(name)) {
+                            name = null;
+                        }
+                    }
+                    else {
                         name = null;
                     }
                 }
-                else {
-                    name = null;
+                if (name) {
+                    createCluster(name);
+                    g.setParent(nodeId, name);
                 }
             }
-            if (name) {
-                createCluster(name);
-                g.setParent(nodeId, name);
-            }
-        }
-
-        nodeId++;
-    });
-
-    graph.inputs.forEach((input) => {
-        var tuple = edgeMap[input.id];
-        if (!tuple) {
-            tuple = { from: null, to: [] };
-            edgeMap[input.id] = tuple;
-        }
-        tuple.from = { 
-            node: nodeId,
-        };
-
-        var formatter = new NodeFormatter();
-        formatter.addItem(input.name, null, input.type, null);
-        g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
-    });
-
-    graph.outputs.forEach((output) => {
-        var outputId = output.id;
-        var outputName = output.name;
-        var tuple = edgeMap[outputId];
-        if (!tuple) {
-            tuple = { from: null, to: [] };
-            edgeMap[outputId] = tuple;
-        }
-        tuple.to.push({ 
-            node: nodeId,
-            // name: valueInfo.name
-        });
-
-        var formatter = new NodeFormatter();
-        formatter.addItem(output.name, null, output.type, null);
-        g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
-    });
-
-    Object.keys(edgeMap).forEach((edge) => {
-        var tuple = edgeMap[edge];
-        if (tuple.from != null) {
-            tuple.to.forEach(function (to) {
-                var text = '';
-                if (tuple.from.name && to.name) {
-                    text = tuple.from.name + ' => ' + to.name;
-                }
-                else if (tuple.from.name) {
-                    text = tuple.from.name;
-                }
-                else {
-                    text = to.name;
-                }
-
-                if (to.dependency) { 
-                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
-                }
-                else {
-                    g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis } );
-                }
-            });
-        }
-        else {
-            console.log('?');
-        }
-
-        if (tuple.from == null || tuple.to.length == 0) {
-            console.log(edge);
-        }
-    });
-
-    // Workaround for Safari background drag/zoom issue:
-    // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-    var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('width', '100%');
-    rect.setAttribute('height', '100%');
-    rect.setAttribute('fill', 'none');
-    rect.setAttribute('pointer-events', 'all');
-    svgElement.appendChild(rect);
-
-    var outputGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    svgElement.appendChild(outputGroup);
-
-    // Set up zoom support
-    var zoom = d3.zoom();
-    zoom.scaleExtent([0.1, 1]);
-    zoom.on('zoom', function(e) {
-        d3.select(outputGroup).attr('transform', d3.event.transform);
-    });
-    var svg = d3.select(svgElement);
-    svg.call(zoom);
-    svg.call(zoom.transform, d3.zoomIdentity);
-
-    setTimeout(function () {
-
-        var graphRenderer = new GraphRenderer(outputGroup);
-        graphRenderer.render(g);
-
-        var svgSize = svgElement.getBoundingClientRect();
-
-        var inputElements = svgElement.getElementsByClassName('graph-input');
-        if (inputElements && inputElements.length > 0) {
-            // Center view based on input elements
-            var x = 0;
-            var y = 0;
-            for (var i = 0; i < inputElements.length; i++) {
-                var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
-                x += inputTransform.e;
-                y += inputTransform.f;
-            }
-            x = x / inputElements.length;
-            y = y / inputElements.length;
-
-            svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
-        }
-        else {
-            svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
-        }    
     
-        updateView('graph');
-    }, 20);
-}
-
-function showModelSummary(model) {
-    var template = Handlebars.compile(summaryTemplate, 'utf-8');
-    var data = template(model);
-    sidebar.open(data, 'Summary', '100%');
-}
-
-function showNodeInput(input) {
-    if (input) {
-        var template = Handlebars.compile(inputTemplate, 'utf-8');
-        var data = template(input);
-        sidebar.open(data, 'Node Input');
-    }
-}
-
-function showNode(node) {
-    if (node) {
-        var template = Handlebars.compile(nodeTemplate, 'utf-8');
-        var data = template(node);
-        sidebar.open(data, 'Node');
-
-        var documentationButton = document.getElementById('documentation-button');
-        if (documentationButton) {
-            documentationButton.addEventListener('click', () => { 
-                showDocumentation(node);
+            nodeId++;
+        });
+    
+        graph.inputs.forEach((input) => {
+            var tuple = edgeMap[input.id];
+            if (!tuple) {
+                tuple = { from: null, to: [] };
+                edgeMap[input.id] = tuple;
+            }
+            tuple.from = { 
+                node: nodeId,
+            };
+    
+            var formatter = new NodeFormatter();
+            formatter.addItem(input.name, null, input.type, null);
+            g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
+        });
+    
+        graph.outputs.forEach((output) => {
+            var outputId = output.id;
+            var outputName = output.name;
+            var tuple = edgeMap[outputId];
+            if (!tuple) {
+                tuple = { from: null, to: [] };
+                edgeMap[outputId] = tuple;
+            }
+            tuple.to.push({ 
+                node: nodeId,
+                // name: valueInfo.name
             });
+    
+            var formatter = new NodeFormatter();
+            formatter.addItem(output.name, null, output.type, null);
+            g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
+        });
+    
+        Object.keys(edgeMap).forEach((edge) => {
+            var tuple = edgeMap[edge];
+            if (tuple.from != null) {
+                tuple.to.forEach((to) => {
+                    var text = '';
+                    if (tuple.from.name && to.name) {
+                        text = tuple.from.name + ' => ' + to.name;
+                    }
+                    else if (tuple.from.name) {
+                        text = tuple.from.name;
+                    }
+                    else {
+                        text = to.name;
+                    }
+    
+                    if (to.dependency) { 
+                        g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
+                    }
+                    else {
+                        g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis } );
+                    }
+                });
+            }
+            else {
+                console.log('?');
+            }
+    
+            if (tuple.from == null || tuple.to.length == 0) {
+                console.log(edge);
+            }
+        });
+    
+        // Workaround for Safari background drag/zoom issue:
+        // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+        var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('width', '100%');
+        rect.setAttribute('height', '100%');
+        rect.setAttribute('fill', 'none');
+        rect.setAttribute('pointer-events', 'all');
+        svgElement.appendChild(rect);
+    
+        var outputGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        svgElement.appendChild(outputGroup);
+    
+        // Set up zoom support
+        var zoom = d3.zoom();
+        zoom.scaleExtent([0.1, 1]);
+        zoom.on('zoom', (e) => {
+            d3.select(outputGroup).attr('transform', d3.event.transform);
+        });
+        var svg = d3.select(svgElement);
+        svg.call(zoom);
+        svg.call(zoom.transform, d3.zoomIdentity);
+    
+        setTimeout(() => {
+    
+            var graphRenderer = new GraphRenderer(outputGroup);
+            graphRenderer.render(g);
+    
+            var svgSize = svgElement.getBoundingClientRect();
+    
+            var inputElements = svgElement.getElementsByClassName('graph-input');
+            if (inputElements && inputElements.length > 0) {
+                // Center view based on input elements
+                var x = 0;
+                var y = 0;
+                for (var i = 0; i < inputElements.length; i++) {
+                    var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                    x += inputTransform.e;
+                    y += inputTransform.f;
+                }
+                x = x / inputElements.length;
+                y = y / inputElements.length;
+    
+                svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+            }
+            else {
+                svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+            }    
+        
+            this.show('graph');
+        }, 20);
+    }
+
+    showSummary() {
+        if (this._model) {
+            var template = Handlebars.compile(summaryTemplate, 'utf-8');
+            var data = template(this._model);
+            this._sidebar.open(data, 'Summary', '100%');
         }
     }
-}
-
-function showDocumentation(node) {
-    var documentation = node.documentation;
-    if (documentation) {
-        sidebar.open(documentation, 'Documentation');
-
-        var documentationElement = document.getElementById('documentation');
-        if (documentationElement) {
-            documentationElement.addEventListener('click', (e) => {
-                if (e.target && e.target.href) {
-                    var link = e.target.href;
-                    if (link.startsWith('http://') || link.startsWith('https://')) {
-                        hostService.openURL(link);
-                        e.preventDefault();
+    
+    showNode(node) {
+        if (node) {
+            var template = Handlebars.compile(nodeTemplate, 'utf-8');
+            var data = template(node);
+            this._sidebar.open(data, 'Node');
+    
+            var documentationButton = document.getElementById('documentation-button');
+            if (documentationButton) {
+                documentationButton.addEventListener('click', () => { 
+                    this.showDocumentation(node);
+                });
+            }
+        }
+    }
+    
+    showDocumentation(node) {
+        var documentation = node.documentation;
+        if (documentation) {
+            this._sidebar.open(documentation, 'Documentation');
+    
+            var documentationElement = document.getElementById('documentation');
+            if (documentationElement) {
+                documentationElement.addEventListener('click', (e) => {
+                    if (e.target && e.target.href) {
+                        var link = e.target.href;
+                        if (link.startsWith('http://') || link.startsWith('https://')) {
+                            this._host.openURL(link);
+                            e.preventDefault();
+                        }
                     }
-                }
-            });
+                });
+            }
+        }
+    }
+
+    showNodeInput(input) {
+        if (input) {
+            var template = Handlebars.compile(inputTemplate, 'utf-8');
+            var data = template(input);
+            this._sidebar.open(data, 'Node Input');
         }
     }
 }
 
 class Sidebar {
-
+    
     constructor() {
         this._closeSidebarHandler = (e) => {
             this.close();
@@ -519,69 +587,11 @@ class Sidebar {
     }
 }
 
-var sidebar = new Sidebar();
+window.view = new View(window.host);
 
-class ModelService {
-
-    constructor(hostService) {
-        this.hostService = hostService;
-    }
-
-    openBuffer(buffer, identifier, callback) {
-        var model = null;
-        var err = null;
-    
-        var extension = identifier.split('.').pop();
-    
-        if (extension == 'tflite') {
-            TensorFlowLiteModel.open(buffer, identifier, hostService, (err, model) => {
-                this._activeModel = model;
-                callback(err, model);
-           });
-        }
-        else if (identifier == 'saved_model.pb' || extension == 'meta') {
-            TensorFlowModel.open(buffer, identifier, hostService, (err, model) => {
-                this._activeModel = model;
-                callback(err, model);
-            });
-        }
-        else if (extension == 'onnx') {
-            OnnxModel.open(buffer, identifier, hostService, (err, model) => {
-                this._activeModel = model;
-                callback(err, model);
-            });
-        }
-        else if (extension == 'json' || extension == 'keras' || extension == 'h5') {
-            KerasModel.open(buffer, identifier, hostService, (err, model) => {
-                this._activeModel = model;
-                callback(err, model);
-            });
-        }
-        else if (extension == 'pb') {
-            OnnxModel.open(buffer, identifier, hostService, (err, model) => {
-                if (!err) {
-                    this._activeModel = model;
-                    callback(err, model);    
-                }
-                else {
-                    TensorFlowModel.open(buffer, identifier, hostService, (err, model) => {
-                        this._activeModel = model;
-                        callback(err, model);
-                    });
-                }
-            });
-        }
-        else {
-            callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
-        }
-    }
-
-    get activeModel() {
-        return this._activeModel;
-    }
+function updateActiveGraph(name) {
+    window.view.updateActiveGraph(name);
 }
-
-var modelService = new ModelService(hostService);
 
 class Int64 {
 

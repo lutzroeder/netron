@@ -345,7 +345,7 @@ class OnnxAttribute {
         else if (this._attribute.hasOwnProperty('t')) {
             return new OnnxTensor(this._attribute.t).value;
         }
-        debugger;
+        // debugger;
         return '?';
     }
 
@@ -464,7 +464,7 @@ class OnnxTensor {
                 }
                 break;
             default:
-                debugger;
+                // debugger;
                 return 'Tensor data type is not implemented.';
         }
 
@@ -577,7 +577,7 @@ class OnnxTensor {
         if (name) {
             return name;
         }
-        debugger;
+        // debugger;
         return OnnxTensor._elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
     }
 
@@ -595,11 +595,11 @@ class OnnxTensor {
                     var mapType = type.mapType;
                     return '<' + OnnxTensor.formatElementType(mapType.keyType) + ',' + OnnxTensor.formatType(mapType.valueType) + '>';                    
                 default:
-                    debugger;
+                    // debugger;
                     return '?';
             }
         }
-        debugger;
+        // debugger;
         return '?';
     }
 }

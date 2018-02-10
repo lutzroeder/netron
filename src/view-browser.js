@@ -1,37 +1,37 @@
 /*jshint esversion: 6 */
 
-class BrowserHostService {
+class BrowserHost {
 
     constructor() {
     }
 
-    initialize(callback) {
-        this.callback = callback;
+    initialize(view) {
+        this._view = view;
 
         var fileElement = Array.from(document.getElementsByTagName('meta')).filter(e => e.name == 'file').shift();
         if (fileElement) {
-            updateView('spinner');
+            this._view.show('spinner');
             var file = fileElement.content;
             var request = new XMLHttpRequest();
             request.responseType = 'arraybuffer';
             request.onload = () => {
                 if (request.status == 200) {
                     document.title = file;
-                    this.callback(null, new Uint8Array(request.response), file);
+                    this._view.openBuffer(null, new Uint8Array(request.response), file);
                 }
                 else {
-                    this.callback(request.status, null);
+                    this._view.openBuffer(request.status, null);
                 }
             };
             request.onerror = () => {
-                this.callback(request.status, null);
+                this._view.openBuffer(request.status, null);
             };
             request.open('GET', '/data', true);
             request.send();
             return;
         }
 
-        updateView('welcome');
+        this._view.show('welcome');
 
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
@@ -105,16 +105,16 @@ class BrowserHostService {
     }
 
     openFile(file, callback) {
-        updateView('spinner');
+        this._view.show('spinner');
         var size = file.size;
         var reader = new FileReader();
         reader.onloadend = () => {
             if (reader.error) {
-                this.callback(reader.error, null, null);
+                this._view.openBuffer(reader.error, null, null);
             }
             else {
                 var buffer = new Uint8Array(reader.result);
-                this.callback(null, buffer, file.name);
+                this._view.openBuffer(null, buffer, file.name);
                 document.title = file.name;
             }
         };
@@ -122,4 +122,4 @@ class BrowserHostService {
     }
 }
 
-var hostService = new BrowserHostService();
+window.host = new BrowserHost();
