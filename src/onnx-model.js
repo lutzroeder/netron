@@ -582,23 +582,25 @@ class OnnxTensor {
     }
 
     static formatType(type) {
-        if (type.value == 'tensorType') {
-            var tensorType = type.tensorType;
-            var text = OnnxTensor.formatElementType(tensorType.elemType); 
-            if (tensorType.shape && tensorType.shape.dim) {
-                text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
+        if (type) {
+            switch (type.value) {
+                case 'tensorType':
+                    var tensorType = type.tensorType;
+                    var text = OnnxTensor.formatElementType(tensorType.elemType); 
+                    if (tensorType.shape && tensorType.shape.dim) {
+                        text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
+                    }
+                    return text;
+                case 'mapType':
+                    var mapType = type.mapType;
+                    return '<' + OnnxTensor.formatElementType(mapType.keyType) + ',' + OnnxTensor.formatType(mapType.valueType) + '>';                    
+                default:
+                    debugger;
+                    return '?';
             }
-            return text;
-        }
-        else if (type.value == 'mapType') {
-            var mapType = type.mapType;
-            return '<' + OnnxTensor.formatElementType(mapType.keyType) + ',' + OnnxTensor.formatType(mapType.valueType) + '>';
-        }
-        else if (!type.value) {
-            return '?';
         }
         debugger;
-        return '[UNKNOWN]';
+        return '?';
     }
 }
 
