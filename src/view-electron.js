@@ -9,6 +9,10 @@ class ElectronHost {
     constructor() {
     }
 
+    get name() {
+        return electron.remote.app.getName();
+    }
+
     initialize(view) {
         this._view = view;
         this._view.show('welcome');
@@ -17,7 +21,15 @@ class ElectronHost {
             var file = data.file;
             if (file) {
                 this._view.show('spinner');
-                this.openBuffer(file);
+                this.openFile(file, (err) => {
+                    if (err) {
+                        this.showError(err.toString());
+                        this._view.show(null);
+                        return;
+                    }
+                    data.windowId = electron.remote.getCurrentWindow().id;
+                    electron.ipcRenderer.send('update-window', data);
+                });
             }
         });
     
@@ -25,7 +37,6 @@ class ElectronHost {
         if (openFileButton) {
             openFileButton.style.opacity = 1;
             openFileButton.addEventListener('click', (e) => {
-                openFileButton.style.opacity = 0;
                 electron.ipcRenderer.send('open-file-dialog', {});
             });
         }
@@ -87,35 +98,37 @@ class ElectronHost {
         electron.shell.openExternal(url);
     }
 
-    openBuffer(file) {
+    openFile(file, callback) {
         fs.exists(file, (exists) => {
             if (!exists) {
-                this._view.openBuffer('File not found.', null, null);
+                this._view.showError('File not found.');
             }
             else {
                 fs.stat(file, (err, stats) => {
                     if (err) {
-                        this._view.openBuffer(err, null, null);
+                        this._view.showError(err);
                     }
                     else {
                         var size = stats.size;
                         var buffer = new Uint8Array(size);
                         fs.open(file, 'r', (err, fd) => {
                             if (err) {
-                                this._view.openBuffer(err, null, null);
+                                this._view.showError(err);
                             }
                             else {
                                 fs.read(fd, buffer, 0, size, 0, (err, bytesRead, buffer) => {
                                     if (err) {
-                                        this._view.openBuffer(err, null, null);
+                                        this._view.showError(err);
                                     }
                                     else {
                                         fs.close(fd, (err) => {
                                             if (err) {
-                                                this._view.openBuffer(err, null);
+                                                this._view.showError(err);
                                             }
                                             else {
-                                                this._view.openBuffer(null, buffer, path.basename(file));
+                                                this._view.openBuffer(buffer, path.basename(file), (err) => {
+                                                    callback(err);
+                                                });
                                             }
                                         });
                                     }

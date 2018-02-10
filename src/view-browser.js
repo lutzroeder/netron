@@ -5,6 +5,10 @@ class BrowserHost {
     constructor() {
     }
 
+    get name() {
+        return 'Netron';
+    }
+
     initialize(view) {
         this._view = view;
 
@@ -16,50 +20,56 @@ class BrowserHost {
             request.responseType = 'arraybuffer';
             request.onload = () => {
                 if (request.status == 200) {
-                    document.title = file;
-                    this._view.openBuffer(null, new Uint8Array(request.response), file);
+                    var buffer = new Uint8Array(request.response);
+                    this._view.openBuffer(buffer, file, (err) => {
+                        if (err) {
+                            this.showError(err.toString());
+                            this._view.show(null);
+                        }
+                        else {
+                            document.title = file;
+                        }
+                    });
                 }
                 else {
-                    this._view.openBuffer(request.status, null);
+                    this._view.showError(request.status);
                 }
             };
             request.onerror = () => {
-                this._view.openBuffer(request.status, null);
+                this._view.showError(request.status);
             };
             request.open('GET', '/data', true);
             request.send();
-            return;
         }
-
-        this._view.show('welcome');
-
-        var openFileButton = document.getElementById('open-file-button');
-        var openFileDialog = document.getElementById('open-file-dialog');
-        if (openFileButton && openFileDialog) {
-            openFileButton.style.opacity = 1;
-            openFileDialog.addEventListener('change', (e) => {
-                if (e.target && e.target.files && e.target.files.length == 1) {
-                    openFileButton.style.opacity = 0;
-                    this.openFile(e.target.files[0]);
-                }
-            });
-            openFileButton.addEventListener('click', (e) => {
-                openFileDialog.click();
-            });
-        }
-        document.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-        document.addEventListener('drop', (e) => {
-            e.preventDefault();
-        });
-        document.body.addEventListener('drop', (e) => { 
-            e.preventDefault();
-            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
-                this.openFile(e.dataTransfer.files[0]);
+        else {
+            this._view.show('welcome');
+            var openFileButton = document.getElementById('open-file-button');
+            var openFileDialog = document.getElementById('open-file-dialog');
+            if (openFileButton && openFileDialog) {
+                openFileButton.addEventListener('click', (e) => {
+                    openFileDialog.value = '';
+                    openFileDialog.click();
+                });
+                openFileDialog.addEventListener('change', (e) => {
+                    if (e.target && e.target.files && e.target.files.length == 1) {
+                        this.openFile(e.target.files[0]);
+                    }
+                });
             }
-            return false;
-        });
+            document.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+            document.addEventListener('drop', (e) => {
+                e.preventDefault();
+            });
+            document.body.addEventListener('drop', (e) => { 
+                e.preventDefault();
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
+                    this.openFile(e.dataTransfer.files[0]);
+                }
+                return false;
+            });
+        }
     }
     
     showError(message) {
@@ -104,19 +114,30 @@ class BrowserHost {
         window.open(url, '_target');
     }
 
-    openFile(file, callback) {
+    openFile(file) {
         this._view.show('spinner');
+        this.openBuffer(file, (err) => {
+            if (err) {
+                this.showError(err.toString());
+                this._view.show(null);
+                return;
+            }
+            document.title = file.name;
+        });
+    }
+
+    openBuffer(file, callback) {
         var size = file.size;
         var reader = new FileReader();
         reader.onloadend = () => {
             if (reader.error) {
-                this._view.openBuffer(reader.error, null, null);
+                callback(reader.error);
+                return;
             }
-            else {
-                var buffer = new Uint8Array(reader.result);
-                this._view.openBuffer(null, buffer, file.name);
-                document.title = file.name;
-            }
+            var buffer = new Uint8Array(reader.result);
+            this._view.openBuffer(buffer, file.name, (err) => {
+                callback(err);
+            });
         };
         reader.readAsArrayBuffer(file);
     }

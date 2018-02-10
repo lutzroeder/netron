@@ -30,6 +30,10 @@ class Application {
             application.dropFile(data.file, data.windowId);
         });
 
+        electron.ipcMain.on('update-window', (e, data) => {
+            application.updateWindow(data.file, data.windowId);
+        });
+
         electron.app.on('will-finish-launching', () => {
             electron.app.on('open-file', (e, path) => {
                 application.openFile(path);
@@ -120,13 +124,7 @@ class Application {
 
     loadFile(file, view) {
         this._configuration.recents = this._configuration.recents.filter(recent => file != recent.path);
-        var title = Application.minimizePath(file);
-        if (process.platform !== 'darwin') {
-            title = file + ' - ' + electron.app.getName();
-        }
         var window = view.window;
-        window.setTitle(title);
-        view.path = file;
         if (view.ready) {
             window.webContents.send("open-file", { file: file });
         }
@@ -163,6 +161,19 @@ class Application {
             else {
                 this.openFile(file);
             }
+        }
+    }
+
+    updateWindow(file, windowId) {
+        var window = electron.BrowserWindow.fromId(windowId);
+        var view = this._views.find(view => view.window == window);
+        if (view) {
+            view.path = file;
+            var title = Application.minimizePath(file);
+            if (process.platform !== 'darwin') {
+                title = file + ' - ' + electron.app.getName();
+            }
+            window.setTitle(title);
         }
     }
 

@@ -23,6 +23,10 @@ class View {
     
     show(page) {
 
+        if (!page) {
+            page = (!this._model && !this._graph) ? 'welcome' : 'graph';
+        }
+
         var welcomeElement = document.getElementById('welcome');
         var openFileButton = document.getElementById('open-file-button');
         var spinnerElement = document.getElementById('spinner');
@@ -34,16 +38,20 @@ class View {
             welcomeElement.style.display = 'block';
             var offsetHeight1 = welcomeElement.offsetHeight; 
             openFileButton.style.display = 'block';
+            openFileButton.style.opacity = 1;
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'none';
             graphElement.style.opacity = 0;
             navigationElement.style.display = 'none';
+
+            this._model = null;
+            this._graph = false;
         }
     
         if (page == 'spinner') {
             document.body.style.cursor = 'wait';
             welcomeElement.style.display = 'block';
-            openFileButton.style.display = 'none';
+            openFileButton.style.opacity = 0;
             spinnerElement.style.display = 'block';
             var offsetHeight2 = spinnerElement.offsetHeight;
             graphElement.style.display = 'block';
@@ -70,77 +78,76 @@ class View {
 
         if (extension == 'tflite') {
             TensorFlowLiteModel.open(buffer, identifier, this._host, (err, model) => {
-                this._model = model;
                 callback(err, model);
            });
         }
         else if (identifier == 'saved_model.pb' || extension == 'meta') {
             TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
-                this._model = model;
                 callback(err, model);
             });
         }
         else if (extension == 'onnx') {
             OnnxModel.open(buffer, identifier, this._host, (err, model) => {
-                this._model = model;
                 callback(err, model);
             });
         }
         else if (extension == 'json' || extension == 'keras' || extension == 'h5') {
             KerasModel.open(buffer, identifier, this._host, (err, model) => {
-                this._model = model;
                 callback(err, model);
             });
         }
         else if (extension == 'pb') {
             OnnxModel.open(buffer, identifier, this._host, (err, model) => {
                 if (!err) {
-                    this._model = model;
                     callback(err, model);    
                 }
                 else {
                     TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
-                        this._model = model;
                         callback(err, model);
                     });
                 }
             });
         }
         else {
-            this._model = null;
             callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
         }
     }
 
-    openBuffer(err, buffer, identifier) {
-        this._sidebar.close();
-        if (err) {
-            this._host.showError(err.toString());
-            this.show('welcome');
-        }
-        else {
-            setTimeout(() => {
-                this.loadBuffer(buffer, identifier, (err, model) => {
-                    if (err) {
-                        this._host.showError(err.toString());
-                        this.show('welcome');
-                        return;
-                    }
+    openBuffer(buffer, identifier, callback) {
+        setTimeout(() => {
+            this.loadBuffer(buffer, identifier, (err, model) => {
+                if (err) {
+                    callback(err);
+                }
+                else {
                     setTimeout(() => {
+                        this._graph = false;
                         try {
-                            this.updateGraph();
+                            this.updateGraph(model);
+                            this._model = model;
+                            callback(null);
                         }
                         catch (err) {
-                            this._host.showError(err.toString());
-                            this.show('welcome');
-                            return;
+                            try {
+                                this.updateGraph(this._model);
+                            }
+                            catch (obj) {
+                                this._model = null;
+                            }
+                            callback(err);
                         }
                     }, 20);   
-                });    
-            }, 20);
-        }
+                }
+            });    
+        }, 20);
     }
     
+    showError(err) {
+        this._sidebar.close();
+        this._host.showError(err.toString());
+        this.show('welcome');
+    }
+
     updateActiveGraph(name) {
         this._sidebar.close();
         if (this._model) {
@@ -152,9 +159,9 @@ class View {
         }
     }
     
-    updateGraph() {
+    updateGraph(model) {
     
-        var graph = this._model.activeGraph;
+        var graph = model.activeGraph;
         if (!graph) {
             this.show('graph');
             return;

@@ -39,7 +39,7 @@ button {
     height: 30px;
     margin: 0;
     border-radius: 6px;
-    transition: 0.2s;
+    transition: 0.1s;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
