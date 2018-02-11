@@ -79,6 +79,16 @@ class Application {
         if (this._views.length == 0) {
             this.openView();
         }
+
+        electron.globalShortcut.register('F5', () => {
+            this.reload();
+        });
+        electron.globalShortcut.register('Cmd+R', () => {
+            this.reload();
+        });
+        electron.globalShortcut.register('F12', () => {
+            this.toggleDevTools();
+        });
     }
 
     openFileDialog() {
@@ -177,6 +187,23 @@ class Application {
         }
     }
 
+    reload() {
+        var window = electron.BrowserWindow.getFocusedWindow();
+        var view = this._views.find(view => view.window == window);
+        if (view && view.path) {
+            this.loadFile(view.path, view);
+        }
+    }
+
+    toggleDevTools() {
+        if (this.isDev()) {
+            var window = electron.BrowserWindow.getFocusedWindow();
+            if (window) {
+                window.toggleDevTools();
+            }
+        }
+    }
+
     openView() {
         const title = electron.app.getName();
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
@@ -233,12 +260,15 @@ class Application {
     }
 
     update() {
-        var isDev = ('ELECTRON_IS_DEV' in process.env) ?
-            (parseInt(process.env.ELECTRON_IS_DEV, 10) === 1) :
-            (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
-        if (!isDev) {
+        if (!this.isDev()) {
             updater.autoUpdater.checkForUpdatesAndNotify();
         }
+    }
+
+    isDev() {
+        return ('ELECTRON_IS_DEV' in process.env) ?
+            (parseInt(process.env.ELECTRON_IS_DEV, 10) === 1) :
+            (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
     }
 
     loadConfiguration() {

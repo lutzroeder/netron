@@ -16,7 +16,7 @@ class ElectronHost {
     initialize(view) {
         this._view = view;
         this._view.show('welcome');
-        
+
         electron.ipcRenderer.on('open-file', (event, data) => {
             var file = data.file;
             if (file) {
@@ -54,12 +54,6 @@ class ElectronHost {
                 this.dropFile(files[i].path, i == 0);
             }
             return false;
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.which == 123) {
-                electron.remote.getCurrentWindow().toggleDevTools();
-            }
         });
     }
 
