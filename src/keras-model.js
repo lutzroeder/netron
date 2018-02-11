@@ -1,7 +1,5 @@
 /*jshint esversion: 6 */
 
-// Experimental
-
 class KerasModel {
 
     static open(buffer, identifier, host, callback) { 
@@ -182,7 +180,14 @@ class KerasGraph {
                 var inputName = output_layer[0];
                 var inputNode = nodeMap[inputName];
                 if (inputNode) {
-                    inputNode._outputs.push(inputName);
+                    var inputIndex = output_layer[2];
+                    if (inputIndex != 0) {
+                        inputName += ':' + inputIndex.toString();
+                    }
+                    while (inputIndex >= inputNode._outputs.length) {
+                        inputNode._outputs.push('');
+                    }
+                    inputNode._outputs[inputIndex] = inputName;
                 }
                 this._outputs.push({
                     id: inputName,
