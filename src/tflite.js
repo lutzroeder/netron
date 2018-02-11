@@ -2201,10 +2201,26 @@ tflite.ResizeBilinearOptions.getRootAsResizeBilinearOptions = function(bb, obj) 
 };
 
 /**
+ * @returns {boolean}
+ */
+tflite.ResizeBilinearOptions.prototype.alignCorners = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.ResizeBilinearOptions.startResizeBilinearOptions = function(builder) {
-  builder.startObject(0);
+  builder.startObject(3);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} alignCorners
+ */
+tflite.ResizeBilinearOptions.addAlignCorners = function(builder, alignCorners) {
+  builder.addFieldInt8(2, +alignCorners, +false);
 };
 
 /**
