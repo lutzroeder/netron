@@ -19,6 +19,7 @@ else
 fi
 
 export ONNX_ML=1
+export ONNX_NAMESPACE=onnx
 
 pushd "../third_party/onnx" > /dev/null
 python ./setup.py build --build-lib ./build/lib
@@ -28,4 +29,6 @@ echo "Generate '../src/onnx-operator.json'"
 PYTHONPATH=../third_party/onnx/build/lib python onnx-operator-json.py
 
 echo "Generate '../src/onnx.js'"
-../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ../src/onnx.js ../third_party/onnx/onnx/onnx-ml.proto
+sed 's/package ONNX_NAMESPACE/package onnx/g' <../third_party/onnx/onnx/onnx-ml.proto >./onnx-ml.proto
+../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ../src/onnx.js ./onnx-ml.proto
+rm ./onnx-ml.proto
