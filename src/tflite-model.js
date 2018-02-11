@@ -3,6 +3,19 @@
 class TensorFlowLiteModel {
     
     static open(buffer, identifier, host, callback) { 
+        host.import('/tflite.js', (err) => {
+            if (err) {
+                callback(err, null);
+            }
+            else {
+                TensorFlowLiteModel.create(buffer, identifier, host, (err, model) => {
+                    callback(err, model);
+                });
+            }
+        });
+    }
+
+    static create(buffer, identifier, host, callback) { 
         try {
             var byteBuffer = new flatbuffers.ByteBuffer(buffer);
             if (!tflite.Model.bufferHasIdentifier(byteBuffer))

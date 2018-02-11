@@ -75,6 +75,20 @@ class ElectronHost {
         electron.remote.dialog.showErrorBox(electron.remote.app.getName(), message);        
     }
 
+    import(file, callback) {
+        var pathname = path.join(__dirname, file);
+        var script = document.createElement('script');
+        script.onload = () => {
+            callback(null);
+        };
+        script.onerror = (e) => {
+            callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
+        };
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', pathname);
+        document.head.appendChild(script);
+    }
+
     request(file, callback) {
         var pathname = path.join(__dirname, file);
         fs.exists(pathname, (exists) => {

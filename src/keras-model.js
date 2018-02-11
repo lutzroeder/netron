@@ -3,6 +3,19 @@
 class KerasModel {
 
     static open(buffer, identifier, host, callback) { 
+        host.import('/hdf5.js', (err) => {
+            if (err) {
+                callback(err, null);
+            }
+            else {
+                KerasModel.create(buffer, identifier, host, (err, model) => {
+                    callback(err, model);
+                });
+            }
+        });
+    }
+
+    static create(buffer, identifier, host, callback) {
         try {
             var version = null;
             var backend = null;

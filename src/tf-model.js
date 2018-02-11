@@ -2,11 +2,25 @@
 
 // Experimental
 
-var tensorflow = protobuf.roots.tf.tensorflow;
+var tensorflow = null;
 
 class TensorFlowModel {
 
     static open(buffer, identifier, host, callback) { 
+        host.import('/tf.js', (err) => {
+            if (err) {
+                callback(err, null);
+            }
+            else {
+                tensorflow = protobuf.roots.tf.tensorflow;
+                var model = TensorFlowModel.create(buffer, identifier, host, (err, model) => {
+                    callback(err, model);
+                });
+            }
+        });
+    }
+
+    static create(buffer, identifier, host, callback) {
         try {
             var model = null;
             var format = null;
@@ -49,7 +63,7 @@ class TensorFlowModel {
         }
         catch (err) {
             callback(err, null);
-        }
+        }    
     }
 
     constructor(model, format) {

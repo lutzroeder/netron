@@ -1,15 +1,27 @@
 /*jshint esversion: 6 */
 
-var onnx = protobuf.roots.onnx.onnx;
+var onnx = null;
 
 class OnnxModel {
 
     static open(buffer, identifier, host, callback) { 
+        host.import('/onnx.js', (err) => {
+            if (err) {
+                callback(err, null);
+            }
+            else {
+                onnx = protobuf.roots.onnx.onnx;
+                OnnxModel.create(buffer, host, (err, model) => {
+                    callback(err, model);
+                });
+            }
+        });
+    }
+
+    static create(buffer, host, callback) {
         try {
             var model = onnx.ModelProto.decode(buffer);
-
             model = new OnnxModel(model);
-
             OnnxOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
             });

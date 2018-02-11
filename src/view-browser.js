@@ -76,15 +76,22 @@ class BrowserHost {
         alert(message);
     }
     
+    import(file, callback) {
+        var url = this.url(file);
+        var script = document.createElement('script');
+        script.onload = () => {
+            callback(null);
+        };
+        script.onerror = (e) => {
+            callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
+        };
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', url);
+        document.head.appendChild(script);
+    }
+
     request(file, callback) {
-        var url = file;
-        if (window && window.location && window.location.href) {
-            var location = window.location.href;
-            if (location.endsWith('/')) {
-                location = location.slice(0, -1);
-            }
-            url = location + file;
-        }
+        var url = this.url(file);
         var request = new XMLHttpRequest();
         if (file.endsWith('.pb')) {
             request.responseType = 'arraybuffer';
@@ -108,6 +115,18 @@ class BrowserHost {
         };
         request.open('GET', url, true);
         request.send();
+    }
+
+    url(file) {
+        var url = file;
+        if (window && window.location && window.location.href) {
+            var location = window.location.href;
+            if (location.endsWith('/')) {
+                location = location.slice(0, -1);
+            }
+            url = location + file;
+        }
+        return url;        
     }
 
     openURL(url) {

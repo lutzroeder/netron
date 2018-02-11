@@ -12,6 +12,7 @@ clean:
 
 build_python:
 	@[ -d node_modules ] || npm install
+	rm -rf ./build/python
 	python ./setup.py build
 
 build_electron:
@@ -25,6 +26,7 @@ start:
 
 publish_pip:
 	@[ -d node_modules ] || npm install
+	rm -rf ./build/python
 	python ./setup.py build bdist_wheel upload
 
 publish_github_electron:
