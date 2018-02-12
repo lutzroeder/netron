@@ -26,7 +26,7 @@ class Application {
         });
 
         electron.ipcMain.on('drop-files', (e, data) => {
-            this.dropFiles(data.files, e.sender.id);
+            this.dropFiles(data.files, e.sender);
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -86,7 +86,7 @@ class Application {
 
     ready() {
         this.loadConfiguration();
-        this.updateMenu();
+        this.resetMenu();
         if (this._openFileQueue) {
             var openFileQueue = this._openFileQueue;
             this._openFileQueue = null;
@@ -98,12 +98,6 @@ class Application {
         if (this._views.count == 0) {
             this._views.openView();
         }
-        electron.globalShortcut.register(process.platform === 'darwin' ? 'Cmd+R' : 'F5', () => {
-            this.reload();
-        });
-        electron.globalShortcut.register('F12', () => {
-            this.toggleDevTools();
-        });
     }
 
     openFileDialog() {
@@ -154,11 +148,11 @@ class Application {
         if (this._configuration.recents.length > 10) {
             this._configuration.recents.splice(10);
         }
-        this.updateMenu();
+        this.resetMenu();
     }
 
-    dropFiles(files, id) {
-        var view = this._views.fromId(id);
+    dropFiles(files, sender) {
+        var view = this._views.from(sender);
         files.forEach((file) => {
             if (view) {
                 this.loadFile(file, view);
@@ -229,7 +223,7 @@ class Application {
         }
     }
 
-    updateMenu() {
+    resetMenu() {
 
         var menuRecentsTemplate = [];
         if (this._configuration && this._configuration.recents) {
@@ -295,6 +289,24 @@ class Application {
                 { role: 'copy' }
             ]
         });
+    
+        var viewTemplate = {
+            label: '&View',
+            submenu: [
+                {
+                    label: '&Reload',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
+                    click: () => this.reload()
+                }
+            ]
+        };
+
+        if (this.isDev()) {
+            viewTemplate.submenu.push({ type: 'separator' });
+            viewTemplate.submenu.push({ role: 'toggledevtools' });
+        }
+
+        menuTemplate.push(viewTemplate);
 
         if (process.platform === 'darwin') {
             menuTemplate.push({
@@ -482,8 +494,8 @@ class ViewCollection {
         return this._views.find(view => view.match(path));
     }
 
-    fromId(id) {
-        return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents.id == id);
+    from(contents) {
+        return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents == contents);
     }
 
     get activeView() {
