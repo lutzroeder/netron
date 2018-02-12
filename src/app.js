@@ -17,8 +17,7 @@ class Application {
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
 
-        var application = this;
-        if (electron.app.makeSingleInstance(() => { application.restoreWindow(); })) {
+        if (this.makeSingleInstance()) {
             electron.app.quit();
         }
 
@@ -50,15 +49,39 @@ class Application {
             this.saveConfiguration();
         });
 
-        if (process.platform == 'win32' && process.argv.length > 1) {
-            process.argv.slice(1).forEach((arg) => {
+        this.parseCommandLine(process.argv);
+
+        this.update();
+    }
+
+    makeSingleInstance() {
+        return electron.app.makeSingleInstance((argv, workingDirectory) => { 
+            var currentDirectory = process.cwd();
+            process.chdir(workingDirectory);
+            var open = this.parseCommandLine(argv);
+            process.chdir(currentDirectory);
+            if (!open) {
+                if (this._views.count > 0) {
+                    var view = this._views.item(0);
+                    if (view) {
+                        view.restore();
+                    }
+                }
+            }
+        });
+    }
+
+    parseCommandLine(argv) {
+        var open = false;
+        if (process.platform == 'win32' && argv.length > 1) {
+            argv.slice(1).forEach((arg) => {
                 if (!arg.startsWith('-') && arg.split('.').pop() != 'js') {
                     this.openFile(arg);
+                    open = true;
                 }
             });
         }
-
-        this.update();
+        return open;
     }
 
     ready() {
@@ -159,15 +182,6 @@ class Application {
             var window = electron.BrowserWindow.getFocusedWindow();
             if (window) {
                 window.toggleDevTools();
-            }
-        }
-    }
-
-    restoreWindow() {
-        if (this._views.count > 0) {
-            var view = this._views.item(0);
-            if (view) {
-                view.restore();
             }
         }
     }
