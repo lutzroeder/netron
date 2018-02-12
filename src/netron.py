@@ -100,9 +100,9 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
     server = MyHTTPServer((host, port), MyHTTPRequestHandler)
     url = 'http://' + host + ':' + str(port)
     if file:
-        print("Serving '" + file + "' at " + url + "...")
+        print("Serving '" + file + "' at " + url)
     else:
-        print("Serving at " + url + "...")
+        print("Serving at " + url)
     server.initialize_data(data, file, verbose)
     sys.stdout.flush()
     if browse:
@@ -110,13 +110,13 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
     try:
         server.serve_forever()
     except (KeyboardInterrupt, SystemExit):
-        print("\nStopping...")
+        print("\nStopping")
         server.server_close()
 
 def serve_file(file, verbose=False, browse=False, port=8080, host='localhost'):
     data = None
     if file and os.path.exists(file):
-        print("Reading '" + file + "'...")
+        print("Reading '" + file + "'")
         with open(file, 'rb') as binary:
             data = binary.read()
     else:
