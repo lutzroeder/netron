@@ -17,7 +17,7 @@ class ElectronHost {
         this._view = view;
         this._view.show('welcome');
 
-        electron.ipcRenderer.on('open-file', (event, data) => {
+        electron.ipcRenderer.on('open', (event, data) => {
             var file = data.file;
             if (file) {
                 this._view.show('spinner');
@@ -25,10 +25,11 @@ class ElectronHost {
                     if (err) {
                         this.showError(err.toString());
                         this._view.show(null);
+                        electron.ipcRenderer.send('update', null);
                         return;
                     }
                     data.windowId = electron.remote.getCurrentWindow().id;
-                    electron.ipcRenderer.send('update-window', data);
+                    electron.ipcRenderer.send('update', data);
                 });
             }
         });
@@ -49,20 +50,17 @@ class ElectronHost {
         });
         document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
-            var files = e.dataTransfer.files;
-            for (var i = 0; i < files.length; i++) {
-                this.dropFile(files[i].path, i == 0);
+            var files = [];
+            for (var i = 0; i < e.dataTransfer.files.length; i++) {
+                files.push(e.dataTransfer.files[i].path);
             }
+            this.dropFiles(files);
             return false;
         });
     }
 
-    dropFile(file, drop) {
-        var data = { file: file };
-        if (drop) {
-            data.windowId = electron.remote.getCurrentWindow().id;
-        }
-        electron.ipcRenderer.send('drop-file', data);
+    dropFiles(files) {
+        electron.ipcRenderer.send('drop-files', { files: files });
     }
 
     showError(message) {

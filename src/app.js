@@ -11,7 +11,7 @@ const url = require('url');
 class Application {
 
     constructor() {
-        this._views = [];
+        this._views = new ViewCollection();
         this._openFileQueue = [];
         this._configuration = null;
 
@@ -26,22 +26,18 @@ class Application {
             this.openFileDialog();
         });
 
-        electron.ipcMain.on('drop-file', (e, data) => {
-            application.dropFile(data.file, data.windowId);
-        });
-
-        electron.ipcMain.on('update-window', (e, data) => {
-            application.updateWindow(data.file, data.windowId);
+        electron.ipcMain.on('drop-files', (e, data) => {
+            this.dropFiles(data.files, e.sender.id);
         });
 
         electron.app.on('will-finish-launching', () => {
             electron.app.on('open-file', (e, path) => {
-                application.openFile(path);
+                this.openFile(path);
             });
         });
 
         electron.app.on('ready', () => {
-            application.ready();
+            this.ready();
         });
 
         electron.app.on('window-all-closed', () => {
@@ -51,13 +47,13 @@ class Application {
         });
 
         electron.app.on('will-quit', () => {
-            application.saveConfiguration();
+            this.saveConfiguration();
         });
 
         if (process.platform == 'win32' && process.argv.length > 1) {
             process.argv.slice(1).forEach((arg) => {
                 if (!arg.startsWith('-') && arg.split('.').pop() != 'js') {
-                    application.openFile(arg);
+                    this.openFile(arg);
                 }
             });
         }
@@ -76,14 +72,10 @@ class Application {
                 this.openFile(file);
             }
         }
-        if (this._views.length == 0) {
-            this.openView();
+        if (this._views.count == 0) {
+            this._views.openView();
         }
-
-        electron.globalShortcut.register('F5', () => {
-            this.reload();
-        });
-        electron.globalShortcut.register('Cmd+R', () => {
+        electron.globalShortcut.register(process.platform === 'darwin' ? 'Cmd+R' : 'F5', () => {
             this.reload();
         });
         electron.globalShortcut.register('F12', () => {
@@ -119,14 +111,14 @@ class Application {
         if (file && file.length > 0 && fs.existsSync(file))
         {
             // find existing view for this file
-            var view = this._views.find(view => view.path && view.path == file);
+            var view = this._views.find(file);
             // find empty welcome window
             if (view == null) {
-                view = this._views.find(view => !view.path || view.path.length == 0);
+                view = this._views.find(null);
             }
             // create new window
             if (view == null) {
-                view = this.openView();
+                view = this._views.openView();
             }
             this.loadFile(file, view);
         }
@@ -134,21 +126,7 @@ class Application {
 
     loadFile(file, view) {
         this._configuration.recents = this._configuration.recents.filter(recent => file != recent.path);
-        var window = view.window;
-        if (view.ready) {
-            window.webContents.send("open-file", { file: file });
-        }
-        else {
-            window.webContents.on('dom-ready', () => {
-                window.webContents.send("open-file", { file: file });
-            });
-            var location = url.format({
-                pathname: path.join(__dirname, 'view-electron.html'),
-                protocol: 'file:',
-                slashes: true
-            });
-            window.loadURL(location);
-        }
+        view.open(file);
         this._configuration.recents.unshift({ path: file });
         if (this._configuration.recents.length > 10) {
             this._configuration.recents.splice(10);
@@ -156,40 +134,21 @@ class Application {
         this.updateMenu();
     }
 
-    dropFile(file, windowId) {
-        if (file) { 
-            var view = null;
-            if (windowId) {
-                var window = electron.BrowserWindow.fromId(windowId);
-                if (window) {
-                    view = this._views.find(view => view.window == window);
-                }
-            }
+    dropFiles(files, id) {
+        var view = this._views.fromId(id);
+        files.forEach((file) => {
             if (view) {
                 this.loadFile(file, view);
+                view = null;
             }
             else {
                 this.openFile(file);
             }
-        }
-    }
-
-    updateWindow(file, windowId) {
-        var window = electron.BrowserWindow.fromId(windowId);
-        var view = this._views.find(view => view.window == window);
-        if (view) {
-            view.path = file;
-            var title = Application.minimizePath(file);
-            if (process.platform !== 'darwin') {
-                title = file + ' - ' + electron.app.getName();
-            }
-            window.setTitle(title);
-        }
+        });
     }
 
     reload() {
-        var window = electron.BrowserWindow.getFocusedWindow();
-        var view = this._views.find(view => view.window == window);
+        var view = this._views.activeView;
         if (view && view.path) {
             this.loadFile(view.path, view);
         }
@@ -204,57 +163,11 @@ class Application {
         }
     }
 
-    openView() {
-        const title = electron.app.getName();
-        const size = electron.screen.getPrimaryDisplay().workAreaSize;
-        if (size.width > 1024) {
-            size.width = 1024;
-        }
-        if (size.height > 768) {
-            size.height = 768;
-        }
-        var window = new electron.BrowserWindow({ 
-            title: title,
-            backgroundColor: '#eeeeee',
-            minWidth: 600,
-            minHeight: 400,
-            width: size.width,
-            height: size.height,
-            icon: electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'))
-        });
-        var application = this;
-        window.on('closed', function () {
-            application.closeWindow(this);
-        });
-        var view = { 
-            window: window,
-            ready: false
-        };
-        window.webContents.on('dom-ready', function() {
-            view.ready = true;
-        });
-        var location = url.format({ pathname: path.join(__dirname, 'view-electron.html'), protocol: 'file:', slashes: true });
-        window.loadURL(location);
-        this._views.push(view);
-        return view;
-    }
-
-    closeWindow(window) {
-        for (var i = this._views.length - 1; i >= 0; i--) {
-            if (this._views[i].window == window) {
-                this._views.splice(i, 1);
-            }   
-        }
-    }
-
     restoreWindow() {
-        if (this._views.length > 0) {
-            var view = this._views[0];
-            if (view && view.window) { 
-                if (view.window.isMinimized()) {
-                    view.window.restore();
-                }
-                view.window.show();
+        if (this._views.count > 0) {
+            var view = this._views.item(0);
+            if (view) {
+                view.restore();
             }
         }
     }
@@ -408,6 +321,161 @@ class Application {
         return file;
     }
 
+}
+
+class View {
+
+    constructor(owner) {
+        this._owner = owner;
+        this._ready = false;
+        this._path = null;
+
+        const size = electron.screen.getPrimaryDisplay().workAreaSize;
+        var options = {};
+        options.title = electron.app.getName(); 
+        options.backgroundColor = '#eeeeee';
+        options.icon = electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
+        options.minWidth = 600;
+        options.minHeight = 400;
+        options.width = size.width;
+        options.height = size.height;
+        if (options.width > 1024) {
+            options.width = 1024;
+        }
+        if (options.height > 768) {
+            options.height = 768;
+        }
+        if (this._owner.count > 0 && View._position && View._position.length == 2) {
+            options.x = View._position[0] + 30;
+            options.y = View._position[1] + 30;
+            if (options.x + options.width > size.width) {
+                options.x = 0;
+            }
+            if (options.y + options.height > size.height) {
+                options.y = 0;
+            }
+        }
+        this._window = new electron.BrowserWindow(options);
+        View._position = this._window.getPosition();
+        this._updateCallback = (e, data) => { this.update(e, data); };
+        electron.ipcMain.on('update', this._updateCallback);
+        this._window.on('closed', () => {
+            electron.ipcMain.removeListener('update', this._updateCallback);
+            this._owner.closeView(this);
+        });
+        this._window.webContents.on('dom-ready', () => {
+            this._ready = true;
+        });
+        var location = url.format({
+            pathname: path.join(__dirname, 'view-electron.html'),
+            protocol: 'file:',
+            slashes: true
+        });
+        this._window.loadURL(location);
+    }
+
+    open(file) {
+        this._openPath = file;
+        if (this._ready) {
+            this._window.webContents.send("open", { file: file });
+        }
+        else {
+            this._window.webContents.on('dom-ready', () => {
+                this._window.webContents.send("open", { file: file });
+            });
+            var location = url.format({
+                pathname: path.join(__dirname, 'view-electron.html'),
+                protocol: 'file:',
+                slashes: true
+            });
+            this._window.loadURL(location);
+        }
+    }
+
+    restore() {
+        if (this._window) { 
+            if (this._window.isMinimized()) {
+                this._window.restore();
+            }
+            this._window.show();
+        }
+    }
+
+    update(e, data) {
+        if (e.sender == this._window.webContents) {
+            if (data && data.file) {
+                this._path = data.file;
+                var title = Application.minimizePath(this._path);
+                if (process.platform !== 'darwin') {
+                    title = title + ' - ' + electron.app.getName();
+                }
+                this._window.setTitle(title);
+                this._window.focus();
+            }
+            this._openPath = null;
+        } 
+    }
+
+    match(path) {
+        if (this._openPath) {
+            if (path == null) {
+                return false;
+            }
+            if (path == this._openPath) {
+                return true;
+            }
+        }
+        return (this._path == path);
+    }
+
+    get path() {
+        return this._path;
+    }
+
+    get window() {
+        return this._window;
+    }
+}
+
+class ViewCollection {
+    constructor() {
+        this._views = [];
+    }
+
+    get count() {
+        return this._views.length;
+    }
+
+    item(index) {
+        return this._views[index];
+    }
+
+    openView() {
+        var view = new View(this);
+        this._views.push(view);
+        return view;
+    }
+
+    closeView(view) {
+        for (var i = this._views.length - 1; i >= 0; i--) {
+            if (this._views[i] == view) {
+                this._views.splice(i, 1);
+            }
+        }
+    }
+
+    find(path) {
+        return this._views.find(view => view.match(path));
+    }
+
+    fromId(id) {
+        return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents.id == id);
+    }
+
+    get activeView() {
+        var window = electron.BrowserWindow.getFocusedWindow();
+        return this._views.find(view => view.window == window);
+    }
 }
 
 var application = new Application();
