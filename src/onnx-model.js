@@ -686,7 +686,7 @@ class OnnxOperatorMetadata {
         var outputs = [];
         var index = 0;
         var schema = this._map[node.opType];
-        if (schema && schema.inputs) {
+        if (schema && schema.outputs) {
             schema.outputs.forEach((outputDef) => {
                 if (index < node.output.length || outputDef.option != 'optional') {
                     var output = {};
