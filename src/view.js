@@ -378,7 +378,9 @@ class View {
             };
     
             var formatter = new NodeFormatter();
-            formatter.addItem(input.name, null, input.type, null);
+            formatter.addItem(input.name, [ 'graph-item-input' ], input.type, () => {
+                this.showSummary();
+            });
             g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
         });
     
@@ -390,13 +392,15 @@ class View {
                 tuple = { from: null, to: [] };
                 edgeMap[outputId] = tuple;
             }
-            tuple.to.push({ 
+            tuple.to.push({
                 node: nodeId,
                 // name: valueInfo.name
             });
     
             var formatter = new NodeFormatter();
-            formatter.addItem(output.name, null, output.type, null);
+            formatter.addItem(output.name, [ 'graph-item-output' ], output.type, () => {
+                this.showSummary();
+            });
             g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
         });
     
@@ -488,7 +492,7 @@ class View {
         if (this._model) {
             var template = Handlebars.compile(summaryTemplate, 'utf-8');
             var data = template(this._model);
-            this._sidebar.open(data, 'Summary', '100%');
+            this._sidebar.open(data, 'Summary');
         }
     }
     

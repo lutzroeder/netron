@@ -50,6 +50,14 @@
 .node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }
 .node-attribute:hover path { fill: #f6f6f6; }
 
+.graph-item-input path { fill: #eee; }
+.graph-item-input:hover { cursor: hand; }
+.graph-item-input:hover path { fill: #fff; }
+
+.graph-item-output path { fill: #eee; }
+.graph-item-output:hover { cursor: hand; }
+.graph-item-output:hover path { fill: #fff; }
+
 .edge-label text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; }
 
