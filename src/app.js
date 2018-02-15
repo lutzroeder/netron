@@ -75,9 +75,12 @@ class Application {
         var open = false;
         if (process.platform == 'win32' && argv.length > 1) {
             argv.slice(1).forEach((arg) => {
-                if (!arg.startsWith('-') && arg.split('.').pop() != 'js') {
-                    this.openFile(arg);
-                    open = true;
+                if (!arg.startsWith('-')) {
+                    var extension = arg.split('.').pop();
+                    if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
+                        this.openFile(arg);
+                        open = true;
+                    }
                 }
             });
         }
