@@ -427,13 +427,13 @@ class View {
                     }
                 });
             }
-            else {
-                console.log('?');
-            }
+            // else {
+            //    console.log('?');
+            // }
     
-            if (tuple.from == null || tuple.to.length == 0) {
-                console.log(edge);
-            }
+            // if (tuple.from == null || tuple.to.length == 0) {
+            //     console.log(edge);
+            // }
         });
     
         // Workaround for Safari background drag/zoom issue:

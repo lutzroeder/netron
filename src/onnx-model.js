@@ -48,8 +48,20 @@ class OnnxModel {
         var format = 'ONNX';
         if (this._model.irVersion) {
             format = format + ' v' + this._model.irVersion.toString();
+            // var major = (this._model.irVersion >> 16) & 0x0f;
+            // var minor = (this._model.irVersion >> 8) & 0x0f;
+            // var revision = (this._model.irVersion) & 0x0f;
+            // format = format + ' v' + major.toString() + '.' + minor.toString() + '.' + revision.toString();
         }
         results.push({ name: 'Format', value: format });
+        if (this._model.opsetImport && this._model.opsetImport.length > 0) {
+            var opsetImports = [];
+            this._model.opsetImport.forEach((opsetImport) => {
+                var domain = opsetImport.domain ? opsetImport.domain : 'ai.onnx';
+                opsetImports.push(domain + ' v' + opsetImport.version);
+            });
+            results.push({ name: 'Imports', value: opsetImports.join('<br>') });
+        }
         var producer = [];
         if (this._model.producerName) {
             producer.push(this._model.producerName);
