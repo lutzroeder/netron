@@ -19,4 +19,4 @@ else
 fi
 
 echo "Generate '../src/coreml.js'"
-../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ../src/coreml.js ../third_party/coremltools/mlmodel/format/Model.proto
+../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r coreml -o ../src/coreml.js ../third_party/coremltools/mlmodel/format/Model.proto

@@ -27,6 +27,8 @@ class View {
             page = (!this._model && !this._graph) ? 'welcome' : 'graph';
         }
 
+        this._sidebar.close();
+
         var welcomeElement = document.getElementById('welcome');
         var openFileButton = document.getElementById('open-file-button');
         var spinnerElement = document.getElementById('spinner');
@@ -96,6 +98,11 @@ class View {
                 callback(err, model);
             });
         }
+        else if (extension == 'mlmodel') {
+            CoreMLModel.open(buffer, identifier, this._host, (err, model) => {
+                callback(err, model);
+            });
+        }
         else if (extension == 'pb') {
             OnnxModel.open(buffer, identifier, this._host, (err, model) => {
                 if (!err) {
@@ -114,6 +121,7 @@ class View {
     }
 
     openBuffer(buffer, identifier, callback) {
+        this._sidebar.close();
         setTimeout(() => {
             this.loadBuffer(buffer, identifier, (err, model) => {
                 if (err) {
@@ -141,7 +149,7 @@ class View {
             });    
         }, 20);
     }
-    
+
     showError(err) {
         this._sidebar.close();
         this._host.showError(err.toString());

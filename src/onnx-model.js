@@ -79,7 +79,7 @@ class OnnxModel {
             results.push({ name: 'Version', value: this._model.modelVersion });
         }
         if (this._model.docString) {
-            results.push({ name: 'Documentation', value: this._model.docString });
+            results.push({ name: 'Description', value: this._model.docString });
         }
         var metadata = {};
         if (this._model.metadataProps)
@@ -566,7 +566,7 @@ class OnnxTensor {
     }
 
     static formatTensorType(tensor) {
-        var result = "";
+        var result = '';
         if (tensor.hasOwnProperty('dataType')) {
             result = OnnxTensor.formatElementType(tensor.dataType);
             if (tensor.dims) { 
@@ -601,7 +601,6 @@ class OnnxTensor {
         if (name) {
             return name;
         }
-        // debugger;
         return OnnxTensor._elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
     }
 

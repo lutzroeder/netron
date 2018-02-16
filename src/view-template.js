@@ -146,7 +146,7 @@ var summaryTemplate = `
 .summary .section table code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px; background-color: #d6d6d6; }
 .summary .border { border-radius: 10px; border: 1px solid #ccc; }
 .summary .section table { color: #777; float: left; font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; border-spacing: 0; line-height: 150%; }
-.summary .section table td:first-child { font-weight: 600; width: 75px; vertical-align: top; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.summary .section table td:first-child { font-weight: 600; width: 80px; vertical-align: top; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .summary .section table td { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 </style>
 <div class='summary'>
