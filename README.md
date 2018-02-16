@@ -27,13 +27,13 @@ Below are a few model files you can download and open:
 
 **ONNX Models**
 
-* [Inception v1](https://github.com/onnx/models/blob/master/inception_v1)
-* [Inception v2](https://github.com/onnx/models/blob/master/inception_v2)
-* [ResNet-50](https://github.com/onnx/models/blob/master/resnet50)
-* [ShuffleNet](https://github.com/onnx/models/blob/master/shufflenet)
-* [SqueezeNet](https://github.com/onnx/models/blob/master/squeezenet)
-* [VGG-19](https://github.com/onnx/models/blob/master/vgg19)
-* [BVLC AlexNet](https://github.com/onnx/models/blob/master/bvlc_alexnet)
+* [Inception v1](https://s3.amazonaws.com/download.onnx/models/inception_v1.tar.gz)
+* [Inception v2](https://s3.amazonaws.com/download.onnx/models/inception_v2.tar.gz)
+* [ResNet-50](https://s3.amazonaws.com/download.onnx/models/resnet50.tar.gz)
+* [ShuffleNet](https://s3.amazonaws.com/download.onnx/models/shufflenet.tar.gz)
+* [SqueezeNet](https://s3.amazonaws.com/download.onnx/models/squeezenet.tar.gz)
+* [VGG-19](https://s3.amazonaws.com/download.onnx/models/vgg19.tar.gz)
+* [BVLC AlexNet](https://s3.amazonaws.com/download.onnx/models/bvlc_alexnet.tar.gz)
 
 **TensorFlow Lite Models**
 
