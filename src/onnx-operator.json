@@ -6693,7 +6693,7 @@
         }
       ],
       "category": "Tensor",
-      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\n\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension.\n\nExample 1:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n\n  result = [\n      [5, 6, 7],\n  ]\n\n\nExample 2:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0]\n  ends = [-1]\n\n  result = [\n      [1, 2, 3, 4],\n  ]\n\n",
+      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\n\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension. If the value passed to start or end is larger than the `n` (the\nnumber of elements in this dimension), it represents `n`. For slicing to the\nend of a dimension with unknown size, it is recommended to pass in `INT_MAX`.\nIf `axes` are omitted, they are set to `[0, ..., ndim-1]`.\n\nExample 1:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n\n  result = [\n      [5, 6, 7],\n  ]\n\n\nExample 2:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0, 1]\n  ends = [-1, 1000]\n\n  result = [\n      [2, 3, 4],\n  ]\n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -6724,8 +6724,16 @@
           "summary": "slice_default_axes"
         },
         {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1],\n    starts=[1],\n    ends=[1000],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, 1:1000]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_end_out_of_bounds')",
+          "summary": "slice_end_out_of_bounds"
+        },
+        {
           "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1],\n    starts=[0],\n    ends=[-1],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, 0:-1]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_neg')",
           "summary": "slice_neg"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1],\n    starts=[1000],\n    ends=[1000],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, 1000:1000]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_start_out_of_bounds')",
+          "summary": "slice_start_out_of_bounds"
         }
       ],
       "support_level": "common",
@@ -7447,13 +7455,13 @@
         {
           "description": "Tensor of shape [a_1, a_2, ..., a_{axis-1}, k, a_{axis+1}, ... a_n] containing the corresponding input tensor indices for the top K values.",
           "name": "Indices",
-          "type": "T"
+          "type": "I"
         }
       ],
       "since_version": 1,
       "snippets": [
         {
-          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x'],\n    outputs=['values', 'indices'],\n    k=3\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n])\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n])\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n])\n\nexpect(node, inputs=[X], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
+          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x'],\n    outputs=['values', 'indices'],\n    k=3\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n])\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int32)\n\nexpect(node, inputs=[X], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
           "summary": "top_k"
         }
       ],
@@ -7467,6 +7475,14 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)",
+            "tensor(int32)"
+          ],
+          "description": "Constrain index tensor to integral types",
+          "type_param_str": "I"
         }
       ]
     }
