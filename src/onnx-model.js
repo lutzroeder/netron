@@ -21,9 +21,9 @@ class OnnxModel {
     static create(buffer, host, callback) {
         try {
             var model = onnx.ModelProto.decode(buffer);
-            model = new OnnxModel(model);
+            var result = new OnnxModel(model);
             OnnxOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
+                callback(null, result);
             });
         }
         catch (err) {

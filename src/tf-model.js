@@ -55,10 +55,10 @@ class TensorFlowModel {
                 model.metaGraphs.push(metaGraphDef);
             }
 
-            model = new TensorFlowModel(model, format);
+            var result = new TensorFlowModel(model, format);
 
             TensorFlowOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
+                callback(null, result);
             });
         }
         catch (err) {
