@@ -25,7 +25,9 @@ class CoreMLModel {
         try {
             var decodedBuffer = coreml.Model.decode(buffer);
             var model = new CoreMLModel(decodedBuffer, identifier);
-            callback(null, model);
+            CoreMLOperatorMetadata.open(host, (err, metadata) => {
+                callback(null, model);
+            });
         }
         catch (err) {
             callback(err, null);
@@ -35,7 +37,6 @@ class CoreMLModel {
     constructor(model, identifier) {
         this._model = model;
         this._graphs = [ new CoreMLGraph(this._model, identifier) ];
-        this._activeGraph = this._graphs[0];
     }
 
     get properties() {
@@ -68,14 +69,6 @@ class CoreMLModel {
     get graphs() {
         return this._graphs;
     }
-
-    get activeGraph() {
-        return this._activeGraph;
-    }
-
-    updateActiveGraph(name) {
-        this._activeGraph = (name == this._graphs[0]._graph.name) ? this._graph : null;
-    }
 }
 
 class CoreMLGraph {
@@ -83,15 +76,8 @@ class CoreMLGraph {
     constructor(model, identifier)
     {
         this._model = model;
-        this._identifier = identifier;
-    }
 
-    get name() {
-        return this._identifier;
-    }
-
-    get inputs() {
-        return this._model.description.input.map((input) => {
+        this._inputs = this._model.description.input.map((input) => {
             return {
                 id: input.name,
                 name: input.name,
@@ -99,10 +85,8 @@ class CoreMLGraph {
                 type: CoreMLGraph.formatFeatureType(input.type) 
             };
         });
-    }
 
-    get outputs() {
-        return this._model.description.output.map((output) => {
+        this._outputs = this._model.description.output.map((output) => {
             return {
                 id: output.name,
                 name: output.name,
@@ -110,30 +94,50 @@ class CoreMLGraph {
                 type: CoreMLGraph.formatFeatureType(output.type) 
             };
         });
+
+        this._nodes = [];
+        if (this._model.neuralNetworkClassifier) {
+            this._model.neuralNetworkClassifier.layers.forEach((layer) => {
+                var node = new CoreMLNode(layer);
+                this._nodes.push(node);
+            });
+            this._name = "Neural Network Classifier";
+        }
+        else if (this._model.neuralNetwork) {
+            this._model.neuralNetwork.layers.forEach((layer) => {
+                var node = new CoreMLNode(layer);
+                this._nodes.push(node);
+            });
+            this._name = "Neural Network";
+        }
+        else if (this._model.pipelineClassifier) {
+            debugger;
+            this._name = "Pipeline Classifier";
+        }
+        else if (this._model.glmClassifier) {
+            debugger;
+            this._name = "Generalized Linear Classifier";
+        }
+        else {
+            debugger;
+            this._name = identifier;
+        }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
     }
 
     get nodes() {
-
-        if (this._model.neuralNetworkClassifier) {
-            var results = [];
-            this._model.neuralNetworkClassifier.layers.forEach((layer) => {
-                var node = new CoreMLNode(layer);
-                results.push(node);
-            });
-            return results;
-        }
-
-        if (this._model.neuralNetwork) {
-            var results = [];
-            this._model.neuralNetwork.layers.forEach((layer) => {
-                var node = new CoreMLNode(layer);
-                results.push(node);
-            });
-            return results;
-        }
-
-        debugger;
-        return [];
+        return this._nodes;
     }
 
     static formatFeatureType(type) {
@@ -213,6 +217,10 @@ class CoreMLNode {
         return this._layer.layer;
     }
 
+    get category() {
+        return CoreMLOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+    }
+    
     get name() {
         return this._layer.name;
     }
@@ -266,5 +274,46 @@ class CoreMLAttribute {
 
     get value() {
         return JSON.stringify(this._value);
+    }
+}
+
+class CoreMLOperatorMetadata 
+{
+
+    static open(host, callback) {
+        if (CoreMLOperatorMetadata.operatorMetadata) {
+            callback(null, CoreMLOperatorMetadata.operatorMetadata);
+        }
+        else {
+            host.request('/coreml-operator.json', (err, data) => {
+                CoreMLOperatorMetadata.operatorMetadata = new CoreMLOperatorMetadata(data);
+                callback(null, CoreMLOperatorMetadata.operatorMetadata);
+            });
+        }    
+    }
+
+    constructor(data) {
+        this._map = {};
+        if (data) {
+            var items = JSON.parse(data);
+            if (items) {
+                items.forEach((item) => {
+                    if (item.name && item.schema)
+                    {
+                        var name = item.name;
+                        var schema = item.schema;
+                        this._map[name] = schema;
+                    }
+                });
+            }
+        }
+    }
+
+    getOperatorCategory(operator) {
+        var schema = this._map[operator];
+        if (schema && schema.category) {
+            return schema.category;
+        }
+        return null;
     }
 }

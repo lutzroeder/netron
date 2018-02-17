@@ -1,0 +1,80 @@
+[
+  {
+    "name": "convolution",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "innerProduct",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "uniDirectionalLSTM",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "gru",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "activation",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "softmax",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "batchnorm",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "lrn",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "pooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "permute",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "flatten",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "reshape",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "concat",
+    "schema": {
+      "category": "Tensor"
+    }
+  }
+]

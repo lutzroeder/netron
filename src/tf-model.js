@@ -85,19 +85,6 @@ class TensorFlowModel {
     get graphs() {
         return this._graphs;    
     }
-
-    get activeGraph() {
-        return this._activeGraph;
-    }
-
-    updateActiveGraph(name) {
-        this.graphs.forEach((graph) => {
-            if (name == graph.name) {
-                this._activeGraph = graph;
-                return;
-            }            
-        });
-    }
 }
 
 class TensorFlowGraph {

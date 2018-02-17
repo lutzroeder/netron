@@ -131,16 +131,19 @@ class View {
                     setTimeout(() => {
                         this._graph = false;
                         try {
-                            this.updateGraph(model);
+                            var graph = model.graphs.length > 0 ? model.graphs[0] : null;
+                            this.updateGraph(model, graph);
                             this._model = model;
+                            this._activeGraph = graph;
                             callback(null);
                         }
                         catch (err) {
                             try {
-                                this.updateGraph(this._model);
+                                this.updateGraph(this._model, this._activeGraph);
                             }
                             catch (obj) {
                                 this._model = null;
+                                this._activeGraph = null;
                             }
                             callback(err);
                         }
@@ -159,17 +162,28 @@ class View {
     updateActiveGraph(name) {
         this._sidebar.close();
         if (this._model) {
-            this._model.updateActiveGraph(name);
-            this.show('spinner');
-            setTimeout(() => {
-                this.updateGraph(this._model);
-            }, 250);
+            var model = this._model;
+            var graph = model.graphs.filter(graph => graph.name).shift();
+            if (graph) {
+                this.show('spinner');
+                setTimeout(() => {
+                    try {
+                        this.updateGraph(model, graph);
+                        this._model = model;
+                        this._activeGraph = graph;
+                    }
+                    catch (obj) {
+                        this._model = null;
+                        this._activeGraph = null;
+                    }
+                }, 250);
+    
+            }
         }
     }
     
-    updateGraph(model) {
-    
-        var graph = model.activeGraph;
+    updateGraph(model, graph) {
+
         if (!graph) {
             this.show('graph');
             return;

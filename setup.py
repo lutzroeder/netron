@@ -75,6 +75,7 @@ setuptools.setup(
             'tf-model.js', 'tf.js', 'tf-operator.pb',
             'tflite-model.js', 'tflite.js', 'tflite-operator.json',
             'keras-model.js', 'keras-operator.json', 'hdf5.js',
+            'coreml-model.js', 'coreml-operator.json',
             'view-browser.html', 'view-browser.js',
             'view.js', 'view.css', 'view-render.css', 'view-render.js', 'view-template.js'
         ]

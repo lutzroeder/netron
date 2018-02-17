@@ -114,14 +114,6 @@ class OnnxModel {
     get graphs() {
         return this._graphs;
     }
-
-    get activeGraph() {
-        return this._activeGraph;
-    }
-
-    updateActiveGraph(name) {
-        this._activeGraph = (name == this._graphs[0]._graph.name) ? this._graph : null;
-    }
 }
 
 class OnnxGraph {
