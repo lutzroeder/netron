@@ -35,17 +35,18 @@ class CoreMLModel {
     }
 
     constructor(model, identifier) {
-        this._model = model;
-        this._graphs = [ new CoreMLGraph(this._model, identifier) ];
+        this._specificationVersion = model.specificationVersion;
+        this._description = model.description;
+        this._graphs = [ new CoreMLGraph(model, identifier) ];
     }
 
     get properties() {
         var results = [];
 
-        results.push({ name: 'Format', value: 'CoreML v' + this._model.specificationVersion.toString() });
+        results.push({ name: 'Format', value: 'CoreML v' + this._specificationVersion.toString() });
 
-        if (this._model.description && this._model.description.metadata) {
-            var metadata = this._model.description.metadata;
+        if (this._description && this._description.metadata) {
+            var metadata = this._description.metadata;
             if (metadata.versionString) {
                 results.push({ name: 'Version', value: metadata.versionString });
             }
@@ -75,57 +76,90 @@ class CoreMLGraph {
 
     constructor(model, identifier)
     {
-        this._model = model;
+        this._name = identifier;
+        this._description = model.description;
 
-        this._inputs = this._model.description.input.map((input) => {
+        this._inputs = this._description.input.map((input) => {
             return {
                 id: input.name,
                 name: input.name,
-                input: input.shortDescription,
+                description: input.shortDescription,
                 type: CoreMLGraph.formatFeatureType(input.type) 
             };
         });
 
-        this._outputs = this._model.description.output.map((output) => {
+        this._outputs = this._description.output.map((output) => {
             return {
                 id: output.name,
                 name: output.name,
-                input: output.shortDescription,
+                description: output.shortDescription,
                 type: CoreMLGraph.formatFeatureType(output.type) 
             };
         });
 
         this._nodes = [];
-        if (this._model.neuralNetworkClassifier) {
-            this._model.neuralNetworkClassifier.layers.forEach((layer) => {
-                var node = new CoreMLNode(layer);
-                this._nodes.push(node);
+        if (model.neuralNetworkClassifier) {
+            this._type = "Neural Network Classifier";
+            var neuralNetworkClassifier = model.neuralNetworkClassifier;
+            neuralNetworkClassifier.layers.forEach((layer) => {
+                var operator = layer.layer;
+                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
             });
-            this._name = "Neural Network Classifier";
+            var labelProbabilityLayerName = neuralNetworkClassifier.labelProbabilityLayerName;
+            if (!labelProbabilityLayerName && neuralNetworkClassifier.layers.length > 0) {
+                labelProbabilityLayerName = neuralNetworkClassifier.layers.slice(-1).pop().output[0];
+            }
+            var predictedFeatureName = this._description.predictedFeatureName;
+            var predictedProbabilitiesName = this._description.predictedProbabilitiesName;
+            if (predictedFeatureName && predictedProbabilitiesName && labelProbabilityLayerName && neuralNetworkClassifier.ClassLabels) {
+                var labelProbabilityInput = this.updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
+                var operator = neuralNetworkClassifier.ClassLabels;
+                this._nodes.push(new CoreMLNode(operator, null, neuralNetworkClassifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
+            }
+            if (neuralNetworkClassifier.preprocessing && neuralNetworkClassifier.preprocessing.length > 0) {               
+                var preprocessingInput = this._description.input[0].name;
+                var preprocessorOutput = preprocessingInput;
+                var preprocessorIndex = 0;
+                var nodes = [];
+                neuralNetworkClassifier.preprocessing.forEach((preprocessing) => {
+                    var operator = preprocessing.preprocessor;
+                    var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
+                    preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
+                    nodes.push(new CoreMLNode(operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]));
+                    preprocessorIndex++;
+                });
+                this.updateInput(preprocessingInput, preprocessorOutput);
+                nodes.forEach((node) => {
+                    this._nodes.push(node);
+                });
+            }
         }
-        else if (this._model.neuralNetwork) {
-            this._model.neuralNetwork.layers.forEach((layer) => {
-                var node = new CoreMLNode(layer);
-                this._nodes.push(node);
+        else if (model.neuralNetwork) {
+            this._type = "Neural Network";
+            model.neuralNetwork.layers.forEach((layer) => {
+                var operator = layer.layer;
+                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
             });
-            this._name = "Neural Network";
         }
-        else if (this._model.pipelineClassifier) {
+        else if (model.pipelineClassifier) {
+            this._type = "Pipeline Classifier";
             debugger;
-            this._name = "Pipeline Classifier";
         }
-        else if (this._model.glmClassifier) {
+        else if (model.glmClassifier) {
+            this._type = "Generalized Linear Classifier";
             debugger;
-            this._name = "Generalized Linear Classifier";
         }
         else {
             debugger;
-            this._name = identifier;
         }
     }
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get inputs() {
@@ -138,6 +172,20 @@ class CoreMLGraph {
 
     get nodes() {
         return this._nodes;
+    }
+
+    updateInput(name, newName) {
+        this._nodes.forEach((node) => {
+            node._inputs = node._inputs.map((input) => (input != name) ? input : newName);
+        });
+        return newName;
+    }
+
+    updateOutput(name, newName) {
+        this._nodes.forEach((node) => {
+            node._outputs = node._outputs.map((output) => (output != name) ? output : newName);
+        });
+        return newName;
     }
 
     static formatFeatureType(type) {
@@ -191,12 +239,13 @@ class CoreMLGraph {
 
 class CoreMLNode {
 
-    constructor(layer) {
-        this._layer = layer;
-
+    constructor(operator, name, data, inputs, outputs) {
+        this._operator = operator;
+        this._name = name;
+        this._inputs = inputs;
+        this._outputs = outputs;
         this._attributes = [];
         this._initializer = [];
-        var data = this._layer[layer.layer];
         if (data) {
             Object.keys(data).forEach((key) => {
                 var value = data[key];
@@ -214,7 +263,7 @@ class CoreMLNode {
     }
 
     get operator() {
-        return this._layer.layer;
+        return this._operator;
     }
 
     get category() {
@@ -222,12 +271,12 @@ class CoreMLNode {
     }
     
     get name() {
-        return this._layer.name;
+        return this._name;
     }
 
     get inputs() {
         var results = [];
-        this._layer.input.forEach((input, index) => {
+        this._inputs.forEach((input, index) => {
             results.push({
                 name: '(' + index.toString() + ')',
                 connections: [ { id: input } ]
@@ -246,7 +295,7 @@ class CoreMLNode {
 
     get outputs() {
         var results = [];
-        this._layer.output.forEach((output, index) => {
+        this._outputs.forEach((output, index) => {
             results.push({
                 name: '(' + index.toString() + ')',
                 connections: [ { id: output } ]

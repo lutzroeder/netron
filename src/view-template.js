@@ -168,6 +168,9 @@ var summaryTemplate = `
 {{#if version}}
 <tr><td>Version</td><td>{{version}}</td></tr>
 {{/if}}
+{{#if type}}
+<tr><td>Type</td><td>{{type}}</td></tr>
+{{/if}}
 {{#if tags}}
 <tr><td>Tags</td><td>{{tags}}</td></tr>
 {{/if}}
