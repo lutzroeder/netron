@@ -276,11 +276,8 @@ class CoreMLNode {
 
     get inputs() {
         var results = [];
-        this._inputs.forEach((input, index) => {
-            results.push({
-                name: '(' + index.toString() + ')',
-                connections: [ { id: input } ]
-            });
+        CoreMLOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).forEach((input) => {
+            results.push(input);
         });
         this._initializer.forEach((initializer) => {
             results.push({
@@ -297,7 +294,7 @@ class CoreMLNode {
         var results = [];
         this._outputs.forEach((output, index) => {
             results.push({
-                name: '(' + index.toString() + ')',
+                name: CoreMLOperatorMetadata.operatorMetadata.getOutputName(this._operator, index),
                 connections: [ { id: output } ]
             });
         });
@@ -364,5 +361,58 @@ class CoreMLOperatorMetadata
             return schema.category;
         }
         return null;
+    }
+
+    getInputs(operator, inputs) {
+        var results = [];
+        var schema = this._map[operator];
+        var index = 0;
+        while (index < inputs.length) {
+            var result = { connections: [] };
+            var count = 1;
+            var name = null;
+            if (schema && schema.inputs) {
+                if (index < schema.inputs.length) {
+                    var input = schema.inputs[index];
+                    name = input.name;
+                    if (schema.inputs[index].option == 'variadic') {
+                        count = inputs.length - index;
+                    }
+                }
+            }
+            else {
+                if (index == 0) {
+                    name = 'input';
+                }
+            }
+            result.name = name ? name : '(' + index.toString() + ')';
+            var array = inputs.slice(index, index + count);
+            for (var j = 0; j < array.length; j++) {
+                result.connections.push({ id: array[j] });
+            }
+            index += count;
+            results.push(result);
+        }
+        return results;
+    }
+
+    getOutputName(operator, index) {
+        var schema = this._map[operator];
+        if (schema) {
+            var outputs = schema.outputs;
+            if (outputs && index < outputs.length) {
+                var output = outputs[index];
+                if (output) {
+                    var name = output.name;
+                    if (name) {
+                        return name;
+                    }
+                } 
+            }
+        }
+        if (index == 0) {
+            return 'output';
+        }
+        return '(' + index.toString() + ')';
     }
 }

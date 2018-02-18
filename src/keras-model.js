@@ -539,7 +539,7 @@ class KerasOperatorMetadata {
         }
     }
 
-    getInputs(node, connections) {
+    getInputs(node, inputs) {
         var results = [];
         var operator = node.operator;
         var schema = this._map[operator];
@@ -547,7 +547,7 @@ class KerasOperatorMetadata {
         var innerOperator = inner ? inner.operator : null;
         var innerSchema = innerOperator ? this._map[innerOperator] : null;
         var index = 0;
-        while (index < connections.length) {
+        while (index < inputs.length) {
             var result = { connections: [] };
             var count = 1;
             var name = null;
@@ -557,7 +557,7 @@ class KerasOperatorMetadata {
                     var input = schema.inputs[index];
                     name = input.name;
                     if (schema.inputs[index].option == 'variadic') {
-                        count = connections.length - index;
+                        count = inputs.length - index;
                     }
                 }
             }
@@ -586,7 +586,7 @@ class KerasOperatorMetadata {
                 }
             }
             result.name = name ? name : '(' + index.toString() + ')';
-            var array = connections.slice(index, index + count);
+            var array = inputs.slice(index, index + count);
             for (var j = 0; j < array.length; j++) {
                 result.connections.push({ id: array[j] });
             }

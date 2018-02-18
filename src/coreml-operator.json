@@ -74,7 +74,45 @@
   {
     "name": "concat",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "add",
+    "schema": {
+      "inputs": [
+        { "name": "x" },
+        { "name": "y" }
+      ]
+    }
+  },
+  {
+    "name": "stringClassLabels",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "probabilities" },
+        { "name": "feature" }
+      ]
+    }
+  },
+  {
+    "name": "int64ClassLabels",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "probabilities" },
+        { "name": "feature" }
+      ]
+    }
+  },
+  {
+    "name": "scaler",
+    "schema": {
+      "category": "Data"
     }
   }
 ]
