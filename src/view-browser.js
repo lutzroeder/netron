@@ -13,63 +13,44 @@ class BrowserHost {
         this._view = view;
 
         var fileElement = Array.from(document.getElementsByTagName('meta')).filter(e => e.name == 'file').shift();
-        if (fileElement) {
-            this._view.show('spinner');
-            var file = fileElement.content;
-            var request = new XMLHttpRequest();
-            request.responseType = 'arraybuffer';
-            request.onload = () => {
-                if (request.status == 200) {
-                    var buffer = new Uint8Array(request.response);
-                    this._view.openBuffer(buffer, file, (err) => {
-                        if (err) {
-                            this.showError(err.toString());
-                            this._view.show(null);
-                        }
-                        else {
-                            document.title = file;
-                        }
-                    });
-                }
-                else {
-                    this._view.showError(request.status);
-                }
-            };
-            request.onerror = () => {
-                this._view.showError(request.status);
-            };
-            request.open('GET', '/data', true);
-            request.send();
+        if (fileElement && fileElement.content && fileElement.content.length > 0) {
+            this.openModel('/data', fileElement.content.split('/').pop());
+            return;
         }
-        else {
-            this._view.show('welcome');
-            var openFileButton = document.getElementById('open-file-button');
-            var openFileDialog = document.getElementById('open-file-dialog');
-            if (openFileButton && openFileDialog) {
-                openFileButton.addEventListener('click', (e) => {
-                    openFileDialog.value = '';
-                    openFileDialog.click();
-                });
-                openFileDialog.addEventListener('change', (e) => {
-                    if (e.target && e.target.files && e.target.files.length == 1) {
-                        this.openFile(e.target.files[0]);
-                    }
-                });
+
+        var modelUrl = this.getQueryParameter('url');
+        if (modelUrl && modelUrl.length > 0) {
+            this.openModel(modelUrl, modelUrl);
+            return;
+        }
+
+        this._view.show('welcome');
+        var openFileButton = document.getElementById('open-file-button');
+        var openFileDialog = document.getElementById('open-file-dialog');
+        if (openFileButton && openFileDialog) {
+            openFileButton.addEventListener('click', (e) => {
+                openFileDialog.value = '';
+                openFileDialog.click();
+            });
+            openFileDialog.addEventListener('change', (e) => {
+                if (e.target && e.target.files && e.target.files.length == 1) {
+                    this.openFile(e.target.files[0]);
+                }
+            });
+        }
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+        });
+        document.body.addEventListener('drop', (e) => { 
+            e.preventDefault();
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
+                this.openFile(e.dataTransfer.files[0]);
             }
-            document.addEventListener('dragover', (e) => {
-                e.preventDefault();
-            });
-            document.addEventListener('drop', (e) => {
-                e.preventDefault();
-            });
-            document.body.addEventListener('drop', (e) => { 
-                e.preventDefault();
-                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
-                    this.openFile(e.dataTransfer.files[0]);
-                }
-                return false;
-            });
-        }
+            return false;
+        });
     }
     
     showError(message) {
@@ -95,7 +76,6 @@ class BrowserHost {
         var request = new XMLHttpRequest();
         if (file.endsWith('.pb')) {
             request.responseType = 'arraybuffer';
-
         }
         request.onload = () => {
             if (request.status == 200) {
@@ -127,6 +107,48 @@ class BrowserHost {
             url = location + file;
         }
         return url;        
+    }
+
+    getQueryParameter(name) {
+        var url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+        var results = regex.exec(url);
+        if (!results) {
+            return null;
+        }
+        if (!results[2]) {
+            return '';
+        }
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    openModel(url, file) {
+        this._view.show('spinner');
+        var request = new XMLHttpRequest();
+        request.responseType = 'arraybuffer';
+        request.onload = () => {
+            if (request.status == 200) {
+                var buffer = new Uint8Array(request.response);
+                this._view.openBuffer(buffer, file, (err) => {
+                    if (err) {
+                        this.showError(err.toString());
+                        this._view.show(null);
+                    }
+                    else {
+                        document.title = file;
+                    }
+                });
+            }
+            else {
+                this._view.showError(request.status);
+            }
+        };
+        request.onerror = () => {
+            this._view.showError(request.status);
+        };
+        request.open('GET', url, true);
+        request.send();
     }
 
     openURL(url) {
