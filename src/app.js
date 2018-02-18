@@ -111,7 +111,8 @@ class Application {
                 { name: 'TensorFlow Saved Model', extensions: [ 'saved_model.pb' ] },
                 { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta' ] },
                 { name: 'TensorFlow Lite Model', extensions: [ 'tflite' ] },
-                { name: 'Keras Model', extension: [ 'json', 'keras', 'h5' ] }
+                { name: 'Keras Model', extension: [ 'json', 'keras', 'h5' ] },
+                { name: 'CoreML Model', extension: [ 'mlmodel' ] },
             ]
         };
         electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {

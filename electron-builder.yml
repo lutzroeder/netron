@@ -25,6 +25,9 @@ fileAssociations:
     - keras
     - h5
     - json
+  - name: "CoreML Model"
+    ext:
+    - coreml
 publish:
   - provider: github
     releaseType: release
