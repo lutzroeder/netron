@@ -105,17 +105,7 @@ class CoreMLGraph {
                 var operator = layer.layer;
                 this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
             });
-            var labelProbabilityLayerName = neuralNetworkClassifier.labelProbabilityLayerName;
-            if (!labelProbabilityLayerName && neuralNetworkClassifier.layers.length > 0) {
-                labelProbabilityLayerName = neuralNetworkClassifier.layers.slice(-1).pop().output[0];
-            }
-            var predictedFeatureName = this._description.predictedFeatureName;
-            var predictedProbabilitiesName = this._description.predictedProbabilitiesName;
-            if (predictedFeatureName && predictedProbabilitiesName && labelProbabilityLayerName && neuralNetworkClassifier.ClassLabels) {
-                var labelProbabilityInput = this.updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
-                var operator = neuralNetworkClassifier.ClassLabels;
-                this._nodes.push(new CoreMLNode(operator, null, neuralNetworkClassifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
-            }
+            this.updateClassifierOutput(neuralNetworkClassifier);
             if (neuralNetworkClassifier.preprocessing && neuralNetworkClassifier.preprocessing.length > 0) {               
                 var preprocessingInput = this._description.input[0].name;
                 var preprocessorOutput = preprocessingInput;
@@ -143,11 +133,20 @@ class CoreMLGraph {
         }
         else if (model.pipelineClassifier) {
             this._type = "Pipeline Classifier";
+            this._nodes.push(new CoreMLNode('pipeline', null, model.pipelineClassifier, 
+                this._description.input.map((input) => input.name), 
+                this._description.output.map((output) => output.name)));
             debugger;
         }
         else if (model.glmClassifier) {
             this._type = "Generalized Linear Classifier";
-            debugger;
+            this._nodes.push(new CoreMLNode('glm', null, 
+                { classEncoding: model.glmClassifier.classEncoding, 
+                  offset: model.glmClassifier.offset, 
+                  weights: model.glmClassifier.weights }, 
+                [ this._description.input[0].name ],
+                [ this._description.predictedProbabilitiesName ]));
+            this.updateClassifierOutput(model.glmClassifier);
         }
         else {
             debugger;
@@ -186,6 +185,20 @@ class CoreMLGraph {
             node._outputs = node._outputs.map((output) => (output != name) ? output : newName);
         });
         return newName;
+    }
+
+    updateClassifierOutput(classifier) {
+        var labelProbabilityLayerName = classifier.labelProbabilityLayerName;
+        if (!labelProbabilityLayerName && this._nodes.length > 0) {
+            labelProbabilityLayerName = this._nodes.slice(-1).pop()._outputs[0];
+        }
+        var predictedFeatureName = this._description.predictedFeatureName;
+        var predictedProbabilitiesName = this._description.predictedProbabilitiesName;
+        if (predictedFeatureName && predictedProbabilitiesName && labelProbabilityLayerName && classifier.ClassLabels) {
+            var labelProbabilityInput = this.updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
+            var operator = classifier.ClassLabels;
+            this._nodes.push(new CoreMLNode(operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
+        }
     }
 
     static formatFeatureType(type) {
