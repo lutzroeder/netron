@@ -70,7 +70,7 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'netron', 'netron.py',
-            'logo.svg', 'favicon.ico',
+            'logo.svg', 'favicon.ico', 'icon.png',
             'onnx-model.js', 'onnx.js', 'onnx-operator.json',
             'tf-model.js', 'tf.js', 'tf-operator.pb',
             'tflite-model.js', 'tflite.js', 'tflite-operator.json',
