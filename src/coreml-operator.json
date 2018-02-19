@@ -72,6 +72,19 @@
     }
   },
   {
+    "name": "crop",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "x1" },
+        { "name": "x2" }
+      ],
+      "outputs": [
+        { "name": "y" }
+      ]
+    }
+  },
+  {
     "name": "concat",
     "schema": {
       "category": "Tensor",
