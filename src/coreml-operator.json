@@ -2,91 +2,160 @@
   {
     "name": "convolution",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "description": "A layer that performs spatial convolution or deconvolution.",
+      "attributes": [
+        { "name": "outputShape", "hidden": true },
+        { "name": "outputChannels", "hidden": true },
+        { "name": "kernelChannels", "hidden": true },
+        { "name": "valid", "hidden": true },
+        { "name": "hasBias", "hidden": true }
+      ]
     }
   },
   {
     "name": "innerProduct",
     "schema": {
-      "category": "Layer"
-    }
-  },
-  {
-    "name": "uniDirectionalLSTM",
-    "schema": {
-      "category": "Layer"
-    }
+      "category": "Layer",
+      "description": "A layer that performs a matrix vector product. This is equivalent to a fully-connected, or dense layer.",
+      "attributes": [
+        { "name": "inputChannels", "hidden": true },
+        { "name": "outputChannels", "hidden": true },
+        { "name": "hasBias", "hidden": true }
+      ]
+   }
   },
   {
     "name": "gru",
     "schema": {
       "category": "Layer",
+      "description": "Gated-Recurrent Unit (GRU) Layer",
       "inputs": [
         { "name": "input" },
-        { "name": "updateGateWeightMatrix" },
-        { "name": "resetGateWeightMatrix" },
-        { "name": "outputGateWeightMatrix" },
-        { "name": "updateGateRecursionMatrix" },
-        { "name": "resetGateRecursionMatrix" },
-        { "name": "outputGateRecursionMatrix" },
-        { "name": "updateGateBiasVector" },
-        { "name": "resetGateBiasVector" },
-        { "name": "outputGateBiasVector" }
+        { "name": "h" },
+        { "name": "updateGateWeightMatrix", "hidden": true },
+        { "name": "resetGateWeightMatrix", "hidden": true },
+        { "name": "outputGateWeightMatrix", "hidden": true },
+        { "name": "updateGateRecursionMatrix", "hidden": true },
+        { "name": "resetGateRecursionMatrix", "hidden": true },
+        { "name": "outputGateRecursionMatrix", "hidden": true },
+        { "name": "updateGateBiasVector", "hidden": true },
+        { "name": "resetGateBiasVector", "hidden": true },
+        { "name": "outputGateBiasVector", "hidden": true }
+      ],
+      "outputs": [
+        { "name": "output" },
+        { "name": "h" }
       ]
+    }
+  },
+  {
+    "name": "uniDirectionalLSTM",
+    "schema": {
+      "category": "Layer",
+      "description": "A unidirectional long short-term memory (LSTM) layer.",
+      "inputs": [
+        { "name": "input" },
+        { "name": "h" },
+        { "name": "c" },
+        { "name": "inputGateWeightMatrix", "hidden": true },
+        { "name": "forgetGateWeightMatrix", "hidden": true },
+        { "name": "blockInputWeightMatrix", "hidden": true },
+        { "name": "outputGateWeightMatrix", "hidden": true },
+        { "name": "inputGateRecursionMatrix", "hidden": true },
+        { "name": "forgetGateRecursionMatrix", "hidden": true },
+        { "name": "blockInputRecursionMatrix", "hidden": true },
+        { "name": "outputGateRecursionMatrix", "hidden": true },
+        { "name": "inputGateBiasVector", "hidden": true },
+        { "name": "forgetGateBiasVector", "hidden": true },
+        { "name": "blockInputBiasVector", "hidden": true },
+        { "name": "outputGateBiasVector", "hidden": true }
+      ],
+      "outputs": [
+        { "name": "output" },
+        { "name": "h" },
+        { "name": "c" }
+      ]
+    }
+  },
+  {
+    "name": "biDirectionalLSTM",
+    "schema": {
+      "category": "Layer",
+      "description": "Bidirectional long short-term memory (LSTM) layer. The first LSTM operates on the input sequence in the forward direction. The second LSTM operates on the input sequence in the reverse direction."
+    }
+  },
+  {
+    "name": "bias",
+    "schema": {
+      "category": "Layer",
+      "description": "A layer that performs elementwise addition of a bias, which is broadcasted to match the input shape."
     }
   },
   {
     "name": "activation",
     "schema": {
-      "category": "Activation"
+      "category": "Activation",
+      "description": "Applies specified type of activation function to input."
     }
   },
   {
     "name": "softmax",
     "schema": {
-      "category": "Activation"
+      "category": "Activation",
+      "description": "A layer that performs softmax normalization. Normalization is done along the channel axis."
     }
   },
   {
     "name": "batchnorm",
     "schema": {
-      "category": "Normalization"
+      "category": "Normalization",
+      "description": "A layer that performs batch normalization, which is performed along the channel axis, and repeated along the other axes, if present."
     }
   },
   {
     "name": "lrn",
     "schema": {
-      "category": "Normalization"
+      "category": "Normalization",
+      "description": "A layer that performs local response normalization (LRN)."
     }
   },
   {
     "name": "pooling",
     "schema": {
-      "category": "Pool"
+      "category": "Pool",
+      "description": "Spatial Pooling layer to reduce dimensions of input using the specified kernel size and type.",
+      "attributes": [
+        { "name": "includeLastPixel", "hidden": true }
+      ]
     }
   },
   {
     "name": "permute",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "description": "A layer that rearranges the dimensions and data of an input."
     }
   },
   {
     "name": "flatten",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "description": "A layer that flattens the input."
     }
   },
   {
     "name": "reshape",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "description": "A layer that recasts the input into a new shape."
     }
   },
   {
     "name": "crop",
     "schema": {
       "category": "Shape",
+      "description": "A layer that crops the spatial dimensions of an input. If two inputs are provided, the shape of the second input is used as the reference shape.",
       "inputs": [
         { "name": "x1" },
         { "name": "x2" }
@@ -100,6 +169,7 @@
     "name": "concat",
     "schema": {
       "category": "Tensor",
+      "description": "A layer that concatenates along the channel axis (default) or sequence axis.",
       "inputs": [
         { "name": "inputs", "option": "variadic" }
       ]
@@ -108,10 +178,26 @@
   {
     "name": "add",
     "schema": {
+      "description": "A layer that performs elementwise addition.",
       "inputs": [
         { "name": "x" },
-        { "name": "y" }
+        { "name": "z" }
+      ],
+      "outputs": [
+        { "name": "z" }
       ]
+    }
+  },
+  {
+    "name": "scale",
+    "schema": {
+      "description": "A layer that performs elmentwise multiplication by a scale factor and optionally adds a bias."
+    }
+  },
+  {
+    "name": "slice",
+    "schema": {
+      "description": "A layer that slices the input data along a given axis."
     }
   },
   {

@@ -313,12 +313,16 @@ class CoreMLNode {
         return this._operator;
     }
 
+    get name() {
+        return this._name;
+    }
+
     get category() {
         return CoreMLOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
     }
-    
-    get name() {
-        return this._name;
+
+    get documentation() {
+        return CoreMLOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
     }
 
     get inputs() {
@@ -327,12 +331,16 @@ class CoreMLNode {
             results.push(input);
         });
         this._initializers.forEach((initializer) => {
-            results.push({
+            var input = {
                 name: initializer.name,
                 connections: [ { 
                     id: initializer.id, 
-                    initializer: initializer } ]
-            });
+                    initializer: initializer, } ]
+            };
+            if (CoreMLOperatorMetadata.operatorMetadata.getInputHidden(this._operator, initializer.name)) {
+                input.hidden = true;
+            }
+            results.push(input);
         });
         return results;
     }
@@ -374,18 +382,56 @@ class CoreMLNode {
                     return;
                 }
                 break;
-            // case 'uniDirectionalLSTM':
+            case 'uniDirectionalLSTM':
+                if (value instanceof coreml.LSTMWeightParams) {
+                    Object.keys(value).forEach((key) => {
+                        this._initializers.push(new CoreMLTensor(key, value));
+                    });
+                    return;
+                }
+                break;
         }
 
-        this._attributes.push(new CoreMLAttribute(name, value));
+        this._attributes.push(new CoreMLAttribute(this, name, value));
     }
 }
 
 class CoreMLAttribute {
 
+    constructor(owner, name, value, hidden) {
+        this._owner = owner;
+        this._name = name;
+        this._value = value;
+        if (hidden) {
+            this._hidden = hidden;
+        }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get value() {
+        if (Array.isArray(this._value)) {
+            return this._value.map((item) => JSON.stringify(item)).join(', ');
+        }
+        return JSON.stringify(this._value);
+    }
+
+    get hidden() {
+        return CoreMLOperatorMetadata.operatorMetadata.getAttributeHidden(this._owner.operator, this._name);
+    }
+}
+
+class CoreMLTensor {
+
     constructor(name, value) {
         this._name = name;
         this._value = value;
+    }
+
+    get id() {
+        return this._name;
     }
 
     get name() {
@@ -395,6 +441,7 @@ class CoreMLAttribute {
     get value() {
         return JSON.stringify(this._value);
     }
+
 }
 
 class CoreMLOperatorMetadata 
@@ -470,6 +517,23 @@ class CoreMLOperatorMetadata
         return results;
     }
 
+    getInputHidden(operator, name) {
+        var schema = this._map[operator];
+        if (schema && schema.inputs) {
+            if (!schema.inputsMap) {
+                schema.inputsMap = {};
+                schema.inputs.forEach((input) => {
+                    schema.inputsMap[input.name] = input;
+                });
+            }
+            var input = schema.inputsMap[name];
+            if (input) {
+                return input.hidden;
+            }
+        }
+        return false;
+    }
+
     getOutputName(operator, index) {
         var schema = this._map[operator];
         if (schema) {
@@ -489,25 +553,61 @@ class CoreMLOperatorMetadata
         }
         return '(' + index.toString() + ')';
     }
-}
 
-class CoreMLTensor {
-
-    constructor(name, value) {
-        this._name = name;
-        this._value = value;
+    getAttributeHidden(operator, name) {
+        var schema = this._map[operator];
+        if (schema && schema.attributes && schema.attributes.length > 0) {
+            if (!schema.attributesMap) {
+                schema.attributesMap = {};
+                schema.attributes.forEach((attribute) => {
+                    schema.attributesMap[attribute.name] = attribute;
+                });
+            }
+            var attribute = schema.attributesMap[name];
+            if (attribute) {
+                return attribute.hidden;
+            }
+        }
+        return false;
     }
 
-    get id() {
-        return this._name;
+    getOperatorDocumentation(operator) {
+        var schema = this._map[operator];
+        if (schema) {
+            schema = Object.assign({}, schema);
+            schema.name = operator;
+            schema.description = this.markdown(schema.description);
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = this.markdown(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = this.markdown(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = this.markdown(output.description);
+                    }
+                });
+            }
+            var template = Handlebars.compile(operatorTemplate, 'utf-8');
+            return template(schema);
+        }
+        return "";
     }
 
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        return JSON.stringify(this._value);
+    markdown(text) {
+        text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
+        text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
+        return text;
     }
 
 }

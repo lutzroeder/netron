@@ -622,10 +622,6 @@ class KerasOperatorMetadata {
                 return false;
             }
         }
-        return !this.defaultAttribute(operator, attributeName, attributeValue);
-    }
-
-    defaultAttribute(operator, attributeName, attributeValue) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributeMap) {
@@ -634,15 +630,14 @@ class KerasOperatorMetadata {
             schema.attributes.forEach(attribute => {
                 schema.attributeMap[attribute.name] = attribute;
             });
-
             var attribute = schema.attributeMap[attributeName];
             if (attribute) {
                 if (attribute && attribute.hasOwnProperty('default')) {
-                    return KerasOperatorMetadata.isEquivalent(attribute.default, attributeValue);
+                    return !KerasOperatorMetadata.isEquivalent(attribute.default, attributeValue);
                 }
             }
         }
-        return false;
+        return true;
     }
 
     getOperatorCategory(operator) {
