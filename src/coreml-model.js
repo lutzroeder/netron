@@ -301,20 +301,10 @@ class CoreMLNode {
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
-        this._initializer = [];
+        this._initializers = [];
         if (data) {
             Object.keys(data).forEach((key) => {
-                var value = data[key];
-                if (value instanceof coreml.WeightParams || 
-                    CoreMLTensor.isArray(value, coreml.GLMClassifier.DoubleArray)) {
-                    this._initializer.push({
-                        name: key,
-                        value: value
-                    });
-                }
-                else {
-                    this._attributes.push(new CoreMLAttribute(key, value));
-                }
+                this.initialize(key, data[key]);
             });
         }
     }
@@ -336,12 +326,12 @@ class CoreMLNode {
         CoreMLOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).forEach((input) => {
             results.push(input);
         });
-        this._initializer.forEach((initializer) => {
+        this._initializers.forEach((initializer) => {
             results.push({
                 name: initializer.name,
                 connections: [ { 
-                    id: initializer, 
-                    initializer: initializer.value } ]
+                    id: initializer.id, 
+                    initializer: initializer } ]
             });
         });
         return results;
@@ -360,6 +350,34 @@ class CoreMLNode {
 
     get attributes() {
         return this._attributes;
+    }
+
+    initialize(name, value) {
+        switch (this._operator) {
+            case 'glmClassifier':
+                if (name == 'weights') {
+                    this._initializers.push(new CoreMLTensor(name, value));
+                    return;
+                }
+                break;
+            case 'convolution':
+            case 'innerProduct':
+            case 'embedding':
+            case 'batchnorm':
+            case 'bias':
+            case 'scale':
+            case 'loadConstant':    
+            case 'simpleRecurrentLayer':
+            case 'gru':
+                if (value instanceof coreml.WeightParams) {
+                    this._initializers.push(new CoreMLTensor(name, value));
+                    return;
+                }
+                break;
+            // case 'uniDirectionalLSTM':
+        }
+
+        this._attributes.push(new CoreMLAttribute(name, value));
     }
 }
 
@@ -475,12 +493,21 @@ class CoreMLOperatorMetadata
 
 class CoreMLTensor {
 
-    constructor(value) {
-        
+    constructor(name, value) {
+        this._name = name;
+        this._value = value;
     }
 
-    static isArray(value, arrayType) {
-        return value && Array.isArray(value) && value.every((item) => item instanceof arrayType); 
+    get id() {
+        return this._name;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get value() {
+        return JSON.stringify(this._value);
     }
 
 }

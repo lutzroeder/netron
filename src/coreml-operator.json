@@ -20,7 +20,19 @@
   {
     "name": "gru",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "updateGateWeightMatrix" },
+        { "name": "resetGateWeightMatrix" },
+        { "name": "outputGateWeightMatrix" },
+        { "name": "updateGateRecursionMatrix" },
+        { "name": "resetGateRecursionMatrix" },
+        { "name": "outputGateRecursionMatrix" },
+        { "name": "updateGateBiasVector" },
+        { "name": "resetGateBiasVector" },
+        { "name": "outputGateBiasVector" }
+      ]
     }
   },
   {
