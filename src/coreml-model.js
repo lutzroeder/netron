@@ -133,20 +133,63 @@ class CoreMLGraph {
         }
         else if (model.pipelineClassifier) {
             this._type = "Pipeline Classifier";
-            this._nodes.push(new CoreMLNode('pipeline', null, model.pipelineClassifier, 
+            this._nodes.push(new CoreMLNode('pipelineClassifier', null, model.pipelineClassifier, 
                 this._description.input.map((input) => input.name), 
                 this._description.output.map((output) => output.name)));
+            this.updateClassifierOutput(model.pipelineClassifier);
+            /*
+            model.pipelineClassifier.pipeline.models.forEach((subModel, index) => {
+                var buffer = coreml.Model.encode(subModel).finish();
+                require('fs').writeFileSync(require('os').homedir + '/' + identifier + '_' + index.toString(), buffer);
+                console.log();
+            });
+            */
+            debugger;
+        }
+        else if (model.pipeline) {
+            this._type = "Pipeline";
+            this._nodes.push(new CoreMLNode('pipeline', null, model.pipeline, 
+                this._description.input.map((input) => input.name), 
+                this._description.output.map((output) => output.name)));
+            /*
+            model.pipeline.models.forEach((subModel, index) => {
+                var buffer = coreml.Model.encode(subModel).finish();
+                require('fs').writeFileSync(require('os').homedir + '/' + identifier + '_' + index.toString(), buffer);
+            });
+            */
             debugger;
         }
         else if (model.glmClassifier) {
             this._type = "Generalized Linear Classifier";
-            this._nodes.push(new CoreMLNode('glm', null, 
+            this._nodes.push(new CoreMLNode('glmClassifier', null, 
                 { classEncoding: model.glmClassifier.classEncoding, 
                   offset: model.glmClassifier.offset, 
                   weights: model.glmClassifier.weights }, 
                 [ this._description.input[0].name ],
                 [ this._description.predictedProbabilitiesName ]));
             this.updateClassifierOutput(model.glmClassifier);
+        }
+        else if (model.dictVectorizer) {
+            this._type = "Dictionary Vectorizer";
+            this._nodes.push(new CoreMLNode('dictVectorizer', null, model.dictVectorizer,
+                [ this._description.input[0].name ],
+                [ this._description.output[0].name ]));
+            debugger;
+        }
+        else if (model.featureVectorizer) {
+            this._type = "Feature Vectorizer";
+            this._nodes.push(new CoreMLNode('featureVectorizer', null, model.featureVectorizer, 
+                [ this._description.input[0].name ],
+                [ this._description.output[0].name ]));
+            debugger;
+        }
+        else if (model.treeEnsembleClassifier) {
+            this._type = "Tree Ensemble Classifier";
+            this._nodes.push(new CoreMLNode('treeEnsembleClassifier', null, model.treeEnsembleClassifier.treeEnsemble, 
+                [ this._description.input[0].name ],
+                [ this._description.output[0].name ]));
+            this.updateClassifierOutput(model.treeEnsembleClassifier);
+            debugger;          
         }
         else {
             debugger;
@@ -262,7 +305,8 @@ class CoreMLNode {
         if (data) {
             Object.keys(data).forEach((key) => {
                 var value = data[key];
-                if (value instanceof coreml.WeightParams) {
+                if (value instanceof coreml.WeightParams || 
+                    CoreMLTensor.isArray(value, coreml.GLMClassifier.DoubleArray)) {
                     this._initializer.push({
                         name: key,
                         value: value
@@ -317,7 +361,6 @@ class CoreMLNode {
     get attributes() {
         return this._attributes;
     }
-
 }
 
 class CoreMLAttribute {
@@ -428,4 +471,16 @@ class CoreMLOperatorMetadata
         }
         return '(' + index.toString() + ')';
     }
+}
+
+class CoreMLTensor {
+
+    constructor(value) {
+        
+    }
+
+    static isArray(value, arrayType) {
+        return value && Array.isArray(value) && value.every((item) => item instanceof arrayType); 
+    }
+
 }
