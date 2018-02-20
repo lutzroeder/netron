@@ -27,7 +27,7 @@ fileAssociations:
     - json
   - name: "CoreML Model"
     ext:
-    - coreml
+    - mlmodel
 publish:
   - provider: github
     releaseType: release
