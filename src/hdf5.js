@@ -103,17 +103,17 @@ hdf5.Group = class {
 
     decodeDataObject() {
         if (!this._attributes) {
-            this._dataObjectHeader = new hdf5.DataObjectHeader(this._reader.move(this._entry.objectHeaderAddress));
             this._attributes = {};
-            this._dataObjectHeader.attributes.forEach((attribute) => {
+            var dataObjectHeader = new hdf5.DataObjectHeader(this._reader.move(this._entry.objectHeaderAddress));
+            dataObjectHeader.attributes.forEach((attribute) => {
                 var name = attribute.name;
                 var value = attribute.decodeValue(this._globalHeap);
                 this._attributes[name] = value;
             });
             this._value = null;
-            var datatype = this._dataObjectHeader.datatype;
-            var dataspace = this._dataObjectHeader.dataspace;
-            var dataLayout = this._dataObjectHeader.dataLayout;
+            var datatype = dataObjectHeader.datatype;
+            var dataspace = dataObjectHeader.dataspace;
+            var dataLayout = dataObjectHeader.dataLayout;
             if (datatype && dataspace && dataLayout) {
                 this._value = new hdf5.Variable(this._reader, this._globalHeap, datatype, dataspace, dataLayout);
             }

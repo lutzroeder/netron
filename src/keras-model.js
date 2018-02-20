@@ -610,7 +610,7 @@ class KerasOperatorMetadata {
                 } 
             }
         }
-        return "(" + index.toString() + ")";
+        return '(' + index.toString() + ')';
     }
 
     showAttribute(operator, attributeName, attributeValue) {

@@ -607,7 +607,7 @@ class TensorFlowLiteOperatorMetadata {
                 } 
             }
         }
-        return "(" + index.toString() + ")";
+        return '(' + index.toString() + ')';
     }
 
     getAttributeType(operator, name) {
