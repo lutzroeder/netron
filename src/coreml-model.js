@@ -605,8 +605,10 @@ class CoreMLOperatorMetadata
     }
 
     markdown(text) {
-        text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
-        text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
+        if (text) {
+            text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
+            text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');                
+        }
         return text;
     }
 
