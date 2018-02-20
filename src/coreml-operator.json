@@ -201,6 +201,13 @@
     }
   },
   {
+    "name": "embedding",
+    "schema": {
+      "category": "Transform",
+      "description": "A layer that performs a matrix lookup and optionally adds a bias."
+    }
+  },
+  {
     "name": "stringClassLabels",
     "schema": {
       "category": "Data",
