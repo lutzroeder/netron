@@ -9,8 +9,7 @@ class CoreMLModel {
     static open(buffer, identifier, host, callback) { 
         host.import('/coreml.js', (err) => {
             if (err) {
-                callback(new Error('Unsupported file extension \'.mlmodel\'.'), null);
-                // callback(err, null);
+                callback(err, null);
             }
             else {
                 coreml = protobuf.roots.coreml.CoreML.Specification;
