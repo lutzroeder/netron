@@ -181,7 +181,7 @@
       "description": "A layer that performs elementwise addition.",
       "inputs": [
         { "name": "x" },
-        { "name": "z" }
+        { "name": "y" }
       ],
       "outputs": [
         { "name": "z" }
