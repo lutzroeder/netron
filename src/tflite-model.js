@@ -36,8 +36,10 @@ class TensorFlowLiteModel {
     constructor(model) {
         this._model = model;
         this._graphs = [];
-        for (var subgraph = 0; subgraph < this._model.subgraphsLength(); subgraph++) {
-            this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), subgraph));
+        var subgraphsLength = this._model.subgraphsLength();
+        for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
+            var name = (subgraphsLength > 1) ? ('(' + subgraph.toString() + ')') : '';
+            this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), name));
         }
         this._activeGraph = this._graphs.length > 0 ? this._graphs[0] : null;
         this._operatorCodeList = [];
@@ -77,12 +79,12 @@ class TensorFlowLiteModel {
 
 class TensorFlowLiteGraph {
 
-    constructor(model, graph, index) {
+    constructor(model, graph, name) {
         this._model = model;
         this._graph = graph;
         this._name = this._graph.name();
         if (!this._name) {
-            this._name = ('(' + index.toString() + ')');
+            this._name = name;
         }
         this._initializerMap = {};
         for (var i = 0; i < graph.tensorsLength(); i++) {

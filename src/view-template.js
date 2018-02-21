@@ -141,67 +141,94 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
 var summaryTemplate = `
 <style type='text/css'>
 .summary { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 12px; line-height: 1.5; overflow: hidden; margin: auto; }
-.summary h1 { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-weight: 600; font-size: 12px; margin: 0; color: #666; letter-spacing: 0.5px; padding: 10px 0px 0px 0px; margin: 20px 0px 0px 0px; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
-.summary .section { margin-top: 10px; margin-bottom: 10px; padding: 10px; overflow-y: auto; position: relative; border: 1px solid none; }
-.summary .section table code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px; background-color: #d6d6d6; }
-.summary .border { border-radius: 10px; border: 1px solid #ccc; }
+.summary h1 { font-family: inherit; font-weight: 600; font-size: 12px; margin: 0; color: #666; letter-spacing: 0.5px; padding: 10px 0px 0px 0px; margin: 20px 0px 0px 0px; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+.summary .section { color: #777; margin-top: 10px; margin-bottom: 10px; padding: 10px; overflow-y: auto; position: relative; border: 1px solid none; border-radius: 10px; border: 1px solid #ccc; }
+.summary .section .property { margin-bottom: 3px; overflow: hidden; width: 100% !important; }
+.summary .section .property .name { float: left; clear: left; width: 80px; min-width: 80px; font-weight: 600; }
+.summary .section .property .value { overflow: hidden; }
+.summary .section .property .value b { font-weight: 600; }
+.summary .section .property .value input { font-family: inherit; font-size: inherit; color: inherit; background-color: inherit; width: 100%; margin: 0; padding: 0; border: 0; outline: none; text-overflow: ellipsis; }
+.summary .section .property .value code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px; background-color: #d6d6d6; }
+
+.summary .border {  }
+.summary .section table b {  }
 .summary .section table { color: #777; float: left; font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; border-spacing: 0; line-height: 150%; }
 .summary .section table td:first-child { font-weight: 600; width: 80px; vertical-align: top; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .summary .section table td { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
+.summary .section table tr>td { padding-bottom: 3px; }
 </style>
+
 <div class='summary'>
+
 <h1>MODEL PROPERTIES</h1>
-<div class='border section'>
-<table>
+<div class='section'>
 {{#properties}}
-<tr><td>{{name}}</td><td>{{value}}</td></tr>
-{{/properties}}
-</table>
+<div class='property'>
+<div class='name'>{{name}}</div>
+<div class='value'>{{value}}</div>
 </div>
+{{/properties}}
+</div>
+
 <h1>GRAPHS</h1>
 {{#graphs}}
-<div class='border section'>
-<table>
+<div class='section'>
 {{#if name}}
-<tr><td>Name</td><td>{{name}}</td></tr>
+<div class='property'>
+<div class='name'>Name</div>
+<div class='value'><input type='text' value='{{name}}'/></div>
+</div>
 {{/if}}
 {{#if version}}
-<tr><td>Version</td><td>{{version}}</td></tr>
+<div class='property'>
+<div class='name'>Version</div>
+<div class='value'>{{version}}</div>
+</div>
 {{/if}}
 {{#if type}}
-<tr><td>Type</td><td>{{type}}</td></tr>
+<div class='property'>
+<div class='name'>Type</div>
+<div class='value'>{{type}}</div>
+</div>
 {{/if}}
 {{#if tags}}
-<tr><td>Tags</td><td>{{tags}}</td></tr>
-{{/if}}
-<tr>
-{{#if inputs}}
-<td>Inputs</td>
-<td>
-{{#inputs}}
-<code>{{type}}</code> : {{name}}<br>
-{{/inputs}}
-</td>
-</tr>
-{{/if}}
-{{#if outputs}}
-<tr>
-<td>Outputs</td>
-<td>
-{{#outputs}}
-<code>{{type}}</code> : {{name}}<br>
-{{/outputs}}
-</td>
-</tr>
+<div class='property'>
+<div class='name'>Tags</div>
+<div class='value'>{{tags}}</div>
+</div>
 {{/if}}
 {{#if description}}
-<tr>
-<td>Description</td>
-<td>{{description}}</td>
-</tr>
+<div class='property'>
+<div class='name'>Description</div>
+<div class='value'>{{description}}</div>
+</div>
 {{/if}}
-</table>
-<button style='float: right; width: 80px;' onclick='javascript:updateActiveGraph("{{{name}}}");'>View</button>
+<div class='property'>
+{{#if inputs}}
+<div class='name'>Inputs</div>
+<div class='value'>
+{{#inputs}}
+<b>{{name}}</b>{{#if type}}: <code>{{type}}</code>{{/if}}<br>
+{{#if description}}<div style='margin-left: 20px'>{{description}}</div>{{/if}}
+{{/inputs}}
+</div>
+</div>
+{{/if}}
+{{#if outputs}}
+<div class='property'>
+<div class='name'>Outputs</div>
+<div class='value'>
+{{#outputs}}
+<b>{{name}}</b>{{#if type}}: <code>{{type}}</code>{{/if}}<br>
+{{#if description}}<div style='margin-left: 20px'>{{description}}</div>{{/if}}
+{{/outputs}}
+</div>
+</div>
+{{/if}}
+<div class='property'>
+<div class='value'>
+<button style='float: right; width: 80px; margin: 2px 0 0 0;' onclick='javascript:updateActiveGraph("{{{name}}}");'>View</button>
+</div>
 </div>
 {{/graphs}}
 </div>

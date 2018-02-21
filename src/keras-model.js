@@ -102,7 +102,7 @@ class KerasGraph {
 
     constructor(model, rootGroup) {
         if (model.name) {
-            this._name = model.name;            
+            this._name = model.name;
         }
         else if (model.config && model.config.name) {
             this._name = model.config.name;

@@ -37,7 +37,7 @@ class CoreMLModel {
     constructor(model, identifier) {
         this._specificationVersion = model.specificationVersion;
         this._description = model.description;
-        this._graphs = [ new CoreMLGraph(model, identifier) ];
+        this._graphs = [ new CoreMLGraph(model) ];
     }
 
     get properties() {
@@ -74,9 +74,8 @@ class CoreMLModel {
 
 class CoreMLGraph {
 
-    constructor(model, identifier)
+    constructor(model)
     {
-        this._name = identifier;
         this._description = model.description;
 
         this._inputs = this._description.input.map((input) => {
@@ -197,7 +196,7 @@ class CoreMLGraph {
     }
 
     get name() {
-        return this._name;
+        return '';
     }
 
     get type() {
