@@ -58,9 +58,12 @@ class OnnxModel {
             var opsetImports = [];
             this._model.opsetImport.forEach((opsetImport) => {
                 var domain = opsetImport.domain ? opsetImport.domain : 'ai.onnx';
-                opsetImports.push(domain + ' v' + opsetImport.version);
+                var result = domain + ' v' + opsetImport.version;
+                if (!opsetImports.includes(result)) {
+                    opsetImports.push(result);
+                }
             });
-            results.push({ name: 'Imports', value: opsetImports.join('<br>') });
+            results.push({ name: 'Imports', value: opsetImports.join(', ') });
         }
         var producer = [];
         if (this._model.producerName) {
