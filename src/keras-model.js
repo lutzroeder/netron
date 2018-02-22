@@ -255,10 +255,8 @@ class KerasGraph {
             }
             if (config.batch_input_shape) {
                 var shape = config.batch_input_shape;
-                if (shape.length > 0 && shape[0] == null) {
-                    shape.shift();
-                }
-                input.type = input.type + '[' + shape.toString() + ']';
+                shape = shape.map(s => s == null ? '?' : s).join(',');
+                input.type = input.type + '[' + shape + ']';
                 delete config.batch_input_shape;
             }
         }
