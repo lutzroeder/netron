@@ -18,12 +18,18 @@ class BrowserHost {
             return;
         }
 
-        var modelUrl = this.getQueryParameter('url');
-        if (modelUrl && modelUrl.length > 0) {
-            this.openModel(modelUrl, modelUrl);
+        var urlParam = this.getQueryParameter('url');
+        if (urlParam && urlParam.length > 0) {
+            this.openModel(urlParam, urlParam.split('/').pop());
             return;
         }
 
+        var modelParam = this.getQueryParameter('model');
+        if (modelParam && modelParam.length > 0) {
+            this.openModel(modelParam, modelParam.split('/').pop());
+            return;
+        }
+        
         this._view.show('welcome');
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
