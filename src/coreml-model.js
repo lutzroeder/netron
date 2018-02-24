@@ -246,20 +246,27 @@ class CoreMLGraph {
                 if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
                     result += '[' + type.multiArrayType.shape.map(dimension => dimension.toString()).join(',') + ']';
                 }
-                return result;
+                break;
             case 'imageType':
-                return 'image(' + CoreMLGraph.formatColorSpace(type.imageType.colorSpace) + ',' + type.imageType.width.toString() + 'x' + type.imageType.height.toString() + ')';
+                result = 'image(' + CoreMLGraph.formatColorSpace(type.imageType.colorSpace) + ',' + type.imageType.width.toString() + 'x' + type.imageType.height.toString() + ')';
+                break;
             case 'dictionaryType':
-                return 'map<' + type.dictionaryType.KeyType.replace('KeyType', '') + ',double>';
+                result = 'map<' + type.dictionaryType.KeyType.replace('KeyType', '') + ',double>';
+                break;
             case 'stringType':
-                return 'string';
+                result = 'string';
+                break;
             case 'doubleType':
-                return 'double';
+                result = 'double';
+                break;
             case 'int64Type':
-                return 'int64';
+                result = 'int64';
+                break;
         }
-        debugger;
-        return '?';
+        if (type.isOptional) {
+            result += '?';
+        }
+        return result;
     }
 
     static formatArrayDataType(dataType) {

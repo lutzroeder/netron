@@ -5,11 +5,13 @@
       "category": "Layer",
       "description": "A layer that performs spatial convolution or deconvolution.",
       "attributes": [
-        { "name": "outputShape", "hidden": true },
-        { "name": "outputChannels", "hidden": true },
-        { "name": "kernelChannels", "hidden": true },
+        { "name": "outputShape", "type": "tuple | None", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "hidden": true },
+        { "name": "outputChannels", "type": "int", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "hidden": true },
+        { "name": "kernelChannels", "type": "int", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "hidden": true },
+        { "name": "nGroups", "type": "int", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1." },
+        { "name": "isDeconvolution", "type": "boolean", "description": "lag to specify whether it is a deconvolution layer." },
         { "name": "valid", "hidden": true },
-        { "name": "hasBias", "hidden": true }
+        { "name": "hasBias", "type": "boolean", "description": "Whether bias is ignored.", "hidden": true }
       ]
     }
   },
