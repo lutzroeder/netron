@@ -96,102 +96,7 @@ class CoreMLGraph {
         });
 
         this._nodes = [];
-        if (model.neuralNetworkClassifier) {
-            this._type = "Neural Network Classifier";
-            var neuralNetworkClassifier = model.neuralNetworkClassifier;
-            neuralNetworkClassifier.layers.forEach((layer) => {
-                var operator = layer.layer;
-                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
-            });
-            this.updateClassifierOutput(neuralNetworkClassifier);
-            if (neuralNetworkClassifier.preprocessing && neuralNetworkClassifier.preprocessing.length > 0) {               
-                var preprocessingInput = this._description.input[0].name;
-                var preprocessorOutput = preprocessingInput;
-                var preprocessorIndex = 0;
-                var nodes = [];
-                neuralNetworkClassifier.preprocessing.forEach((preprocessing) => {
-                    var operator = preprocessing.preprocessor;
-                    var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
-                    preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
-                    nodes.push(new CoreMLNode(operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]));
-                    preprocessorIndex++;
-                });
-                this.updateInput(preprocessingInput, preprocessorOutput);
-                nodes.forEach((node) => {
-                    this._nodes.push(node);
-                });
-            }
-        }
-        else if (model.neuralNetwork) {
-            this._type = "Neural Network";
-            model.neuralNetwork.layers.forEach((layer) => {
-                var operator = layer.layer;
-                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
-            });
-        }
-        else if (model.pipelineClassifier) {
-            this._type = "Pipeline Classifier";
-            this._nodes.push(new CoreMLNode('pipelineClassifier', null, model.pipelineClassifier, 
-                this._description.input.map((input) => input.name), 
-                this._description.output.map((output) => output.name)));
-            this.updateClassifierOutput(model.pipelineClassifier);
-            /*
-            model.pipelineClassifier.pipeline.models.forEach((subModel, index) => {
-                var buffer = coreml.Model.encode(subModel).finish();
-                require('fs').writeFileSync(require('os').homedir + '/' + identifier + '_' + index.toString(), buffer);
-                console.log();
-            });
-            */
-            debugger;
-        }
-        else if (model.pipeline) {
-            this._type = "Pipeline";
-            this._nodes.push(new CoreMLNode('pipeline', null, model.pipeline, 
-                this._description.input.map((input) => input.name), 
-                this._description.output.map((output) => output.name)));
-            /*
-            model.pipeline.models.forEach((subModel, index) => {
-                var buffer = coreml.Model.encode(subModel).finish();
-                require('fs').writeFileSync(require('os').homedir + '/' + identifier + '_' + index.toString(), buffer);
-            });
-            */
-            debugger;
-        }
-        else if (model.glmClassifier) {
-            this._type = "Generalized Linear Classifier";
-            this._nodes.push(new CoreMLNode('glmClassifier', null, 
-                { classEncoding: model.glmClassifier.classEncoding, 
-                  offset: model.glmClassifier.offset, 
-                  weights: model.glmClassifier.weights }, 
-                [ this._description.input[0].name ],
-                [ this._description.predictedProbabilitiesName ]));
-            this.updateClassifierOutput(model.glmClassifier);
-        }
-        else if (model.dictVectorizer) {
-            this._type = "Dictionary Vectorizer";
-            this._nodes.push(new CoreMLNode('dictVectorizer', null, model.dictVectorizer,
-                [ this._description.input[0].name ],
-                [ this._description.output[0].name ]));
-            debugger;
-        }
-        else if (model.featureVectorizer) {
-            this._type = "Feature Vectorizer";
-            this._nodes.push(new CoreMLNode('featureVectorizer', null, model.featureVectorizer, 
-                [ this._description.input[0].name ],
-                [ this._description.output[0].name ]));
-            debugger;
-        }
-        else if (model.treeEnsembleClassifier) {
-            this._type = "Tree Ensemble Classifier";
-            this._nodes.push(new CoreMLNode('treeEnsembleClassifier', null, model.treeEnsembleClassifier.treeEnsemble, 
-                [ this._description.input[0].name ],
-                [ this._description.output[0].name ]));
-            this.updateClassifierOutput(model.treeEnsembleClassifier);
-            debugger;          
-        }
-        else {
-            debugger;
-        }
+        this._type = this.loadModel(model);
     }
 
     get name() {
@@ -240,6 +145,97 @@ class CoreMLGraph {
             var operator = classifier.ClassLabels;
             this._nodes.push(new CoreMLNode(operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
+    }
+
+    loadModel(model) {
+        if (model.neuralNetworkClassifier) {
+            var neuralNetworkClassifier = model.neuralNetworkClassifier;
+            neuralNetworkClassifier.layers.forEach((layer) => {
+                var operator = layer.layer;
+                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
+            });
+            this.updateClassifierOutput(neuralNetworkClassifier);
+            if (neuralNetworkClassifier.preprocessing && neuralNetworkClassifier.preprocessing.length > 0) {               
+                var preprocessingInput = this._description.input[0].name;
+                var preprocessorOutput = preprocessingInput;
+                var preprocessorIndex = 0;
+                var nodes = [];
+                neuralNetworkClassifier.preprocessing.forEach((preprocessing) => {
+                    var operator = preprocessing.preprocessor;
+                    var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
+                    preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
+                    nodes.push(new CoreMLNode(operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]));
+                    preprocessorIndex++;
+                });
+                this.updateInput(preprocessingInput, preprocessorOutput);
+                nodes.forEach((node) => {
+                    this._nodes.push(node);
+                });
+            }
+            return 'Neural Network Classifier';
+        }
+        else if (model.neuralNetwork) {
+            model.neuralNetwork.layers.forEach((layer) => {
+                var operator = layer.layer;
+                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
+            });
+            return 'Neural Network';
+        }
+        else if (model.neuralNetworkRegressor) {
+            model.neuralNetworkRegressor.layers.forEach((layer) => {
+                var operator = layer.layer;
+                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
+            });
+            return 'Neural Network Regressor';
+        }
+        else if (model.pipeline) {
+            model.pipeline.models.forEach((subModel) => {
+                this.loadModel(subModel);
+            });
+            return 'Pipeline';
+        }
+        else if (model.pipelineClassifier) {
+            model.pipelineClassifier.pipeline.models.forEach((subModel) => {
+                this.loadModel(subModel);
+            });
+            return 'Pipeline Classifier';
+        }
+        else if (model.pipelineRegressor) {
+            model.pipelineRegressor.pipeline.models.forEach((subModel) => {
+                this.loadModel(subModel);
+            });
+            return 'Pipeline Regressor';
+        }
+        else if (model.glmClassifier) {
+            this._nodes.push(new CoreMLNode('glmClassifier', null, 
+                { classEncoding: model.glmClassifier.classEncoding, 
+                  offset: model.glmClassifier.offset, 
+                  weights: model.glmClassifier.weights }, 
+                [ model.description.input[0].name ],
+                [ model.description.predictedProbabilitiesName ]));
+            this.updateClassifierOutput(model.glmClassifier);
+            return 'Generalized Linear Classifier';
+        }
+        else if (model.dictVectorizer) {
+            this._nodes.push(new CoreMLNode('dictVectorizer', null, model.dictVectorizer,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'Dictionary Vectorizer';
+        }
+        else if (model.featureVectorizer) {
+            this._nodes.push(new CoreMLNode('featureVectorizer', null, model.featureVectorizer, 
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'Feature Vectorizer';
+        }
+        else if (model.treeEnsembleClassifier) {
+            this._nodes.push(new CoreMLNode('treeEnsembleClassifier', null, model.treeEnsembleClassifier.treeEnsemble, 
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            this.updateClassifierOutput(model.treeEnsembleClassifier);
+            return 'Tree Ensemble Classifier';
+        }
+        return 'Unknown';
     }
 
     static formatFeatureType(type) {
@@ -599,7 +595,7 @@ class CoreMLOperatorMetadata
             var template = Handlebars.compile(operatorTemplate, 'utf-8');
             return template(schema);
         }
-        return "";
+        return '';
     }
 
     markdown(text) {
