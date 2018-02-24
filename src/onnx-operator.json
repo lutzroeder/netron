@@ -962,6 +962,60 @@
     "schema": {
       "attributes": [
         {
+          "description": "Which axis to concat on.  Default value is 1.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "category": "Tensor",
+      "description": "Concatenate a list of tensors into a single tensor",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "List of tensors for concatenation",
+          "name": "inputs",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Concatenated tensor",
+          "name": "concat_result",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "snippets": [
+        {
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d':([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n    }\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values,i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n        name='test_concat_' + test_case + '_axis_' + str(i))",
+          "summary": "concat"
+        }
+      ],
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "attributes": [
+        {
           "description": "Which axis to concat on",
           "name": "axis",
           "required": true,
@@ -990,7 +1044,13 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
+      "since_version": 4,
+      "snippets": [
+        {
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d':([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n    }\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values,i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n        name='test_concat_' + test_case + '_axis_' + str(i))",
+          "summary": "concat"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -1878,7 +1938,7 @@
           "description": "ordered input tensors",
           "name": "X",
           "option": "variadic",
-          "type": "T"
+          "type": "T1"
         }
       ],
       "max_input": 2147483647,
@@ -1889,7 +1949,7 @@
         {
           "description": "Full output array, in order assigned in the inputlist, as floats",
           "name": "Y",
-          "type": "T"
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -1897,10 +1957,20 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": " Allowed input types",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
             "tensor(float)"
           ],
-          "description": " allowed types.",
-          "type_param_str": "T"
+          "description": " Output data type",
+          "type_param_str": "T2"
         }
       ]
     }
@@ -2339,7 +2409,7 @@
           "type": "int"
         }
       ],
-      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
+      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [\n      [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -2365,6 +2435,16 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.random.randn(5, 4, 3, 2).astype(np.float32)\nindices = np.array([0, 1, 3])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices], outputs=[y],\n       name='test_gather_0')",
+          "summary": "gather_0"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=1,\n)\ndata = np.random.randn(5, 4, 3, 2).astype(np.float32)\nindices = np.array([0, 1, 3])\ny = np.take(data, indices, axis=1)\n\nexpect(node, inputs=[data, indices], outputs=[y],\n       name='test_gather_1')",
+          "summary": "gather_1"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -5120,7 +5200,21 @@
   {
     "name": "Pow",
     "schema": {
-      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\n",
+      "attributes": [
+        {
+          "description": "If set, defines the broadcast dimensions. See doc for details.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Pass 1 to enable broadcasting",
+          "name": "broadcast",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -5148,8 +5242,12 @@
       "since_version": 1,
       "snippets": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = np.power(x, y) #expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.power(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = np.power(x, y) # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.power(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
           "summary": "pow"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([2]).astype(np.float32)\nz = np.power(x, y) # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n    axis=0,\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([2, 3]).astype(np.float32)\nz = np.array([[1, 4, 9], [64, 125, 216]]).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_axis0')",
+          "summary": "pow_broadcast"
         }
       ],
       "support_level": "common",
@@ -6187,6 +6285,12 @@
         }
       ],
       "since_version": 1,
+      "snippets": [
+        {
+          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_dims':[4, 2, 3],\n    'reduced_dims':[3, 8],\n    'extended_dims':[3, 2, 2, 2],\n    'one_dim':[24],\n    'negative_dim':[6, -1, 2]\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name,test_shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data'],\n        outputs=['reshaped'],\n        shape=test_shape,\n    )\n\n    reshaped = np.reshape(data, test_shape)\n    expect(node, inputs=[data], outputs=[reshaped],\n       name='test_reshape_' + test_name)",
+          "summary": "reshape"
+        }
+      ],
       "support_level": "common",
       "type_constraints": [
         {
@@ -6625,6 +6729,64 @@
     }
   },
   {
+    "name": "Shape",
+    "schema": {
+      "description": "Takes a tensor as input and outputs an 1D int64 tensor containing the shape of the input tensor.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "An input tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Shape of the input tensor",
+          "name": "shape",
+          "type": "T1"
+        }
+      ],
+      "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Shape',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n]).astype(np.float32)\ny = np.array([\n    2, 3,\n]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_shape_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.array(x.shape).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_shape')",
+          "summary": "shape"
+        }
+      ],
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(bool)"
+          ],
+          "description": "Input tensor can be of arbitrary type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrains output to int64 tensor.",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
     "name": "Sigmoid",
     "schema": {
       "category": "Activation",
@@ -6665,6 +6827,64 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Size",
+    "schema": {
+      "description": "Takes a tensor as input and outputs a int64 scalar that equals to the total number of elements of the input tensor.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "An input tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Total number of elements of the input tensor",
+          "name": "size",
+          "type": "T1"
+        }
+      ],
+      "since_version": 1,
+      "snippets": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Size',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n]).astype(np.float32)\ny = np.array(6).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_size_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.array(x.size).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_size')",
+          "summary": "size"
+        }
+      ],
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(bool)"
+          ],
+          "description": "Input tensor can be of arbitrary type.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "int64"
+          ],
+          "description": "Constrains output to int64 scalar.",
+          "type_param_str": "T1"
         }
       ]
     }
