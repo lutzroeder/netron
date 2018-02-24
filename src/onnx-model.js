@@ -184,6 +184,7 @@ class OnnxGraph {
                         this._inputs.push({
                             id: valueInfo.name,
                             name: valueInfo.name,
+                            description: valueInfo.docString,
                             type: OnnxTensor.formatType(valueInfo.type)
                         });
                     }
@@ -201,6 +202,7 @@ class OnnxGraph {
                     return {
                         id: valueInfo.name,
                         name: valueInfo.name,
+                        description: valueInfo.docString,
                         type: OnnxTensor.formatType(valueInfo.type)
                     };
                 });
