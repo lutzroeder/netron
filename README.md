@@ -46,6 +46,8 @@ Sample model files you can download and open:
 
 **Keras Models**
 
+* [resnet](https://github.com/Hyperparticle/one-pixel-attack-keras/raw/master/networks/models/resnet.h5)
+* [densenet](https://github.com/Hyperparticle/one-pixel-attack-keras/raw/master/networks/models/densenet.h5)
 * [tiny-yolo-voc](https://github.com/hollance/YOLO-CoreML-MPSNNGraph/raw/master/Convert/yad2k/model_data/tiny-yolo-voc.h5)
 
 **TensorFlow Lite Models**
