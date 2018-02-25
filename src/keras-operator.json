@@ -122,6 +122,18 @@
     }
   },
   {
+    "name": "GlobalMaxPooling1D",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "GlobalMaxPooling2D",
     "schema": {
       "category": "Pool",
@@ -209,21 +221,29 @@
   },
   {
     "name": "Dense",
+    "class": "keras.layers.Dense",
     "schema": {
       "category": "Layer",
+      "description": "Just your regular densely-connected NN layer.\n\nDense implements the operation: `output = activation(dot(input, kernel) + bias)` where activation is the element-wise activation function passed as the activation argument, kernel is a weights matrix created by the layer, and bias is a bias vector created by the layer (only applicable if use_bias is True).\n\nNote: if the input to the layer has a rank greater than 2, then it is flattened prior to the initial dot product with kernel.",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "bias" }
+        { "name": "input", "type": "T", "description": "nD tensor with shape: `(batch_size, ..., input_dim)`. The most common situation would be a 2D input with shape `(batch_size, input_dim)`." },
+        { "name": "kernel", "type": "T" },
+        { "name": "bias", "type": "T" }
       ],
       "outputs": [
-        { "name": "output" }
+        { "name": "output", "type": "T", "description": "nD tensor with shape: `(batch_size, ..., units)`. For instance, for a 2D input with shape `(batch_size, input_dim)`, the output would have shape `(batch_size, units)`." }
       ],
       "attributes": [
-        { "name": "activation", "default": "linear" },
-        { "name": "use_bias", "default": true },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
+        { "name": "units", "type": "int", "description": "Positive integer, dimensionality of the output space." },
+        { "name": "activation", "description": "Activation function to use (see activations). If you don't specify anything, no activation is applied (ie. 'linear' activation: `a(x) = x)`.", "default": "linear" },
+        { "name": "use_bias", "type": "boolean", "description": "Boolean, whether the layer uses a bias vector.", "default": true },
+        { "name": "kernel_initializer", "description": "Initializer for the kernel weights matrix (see [initializers](https://keras.io/initializers)).", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
+        { "name": "bias_initializer", "description": "Initializer for the bias vector (see [initializers](https://keras.io/initializers)).", "default": { "class_name": "Zeros", "config": {} } },
+        { "name": "kernel_regularizer", "description": "Regularizer function applied to the kernel weights matrix (see [regularizer](https://keras.io/regularizers))." },
+        { "name": "bias_regularizer", "description": "Regularizer function applied to the bias vector (see [regularizer](https://keras.io/regularizers))." },
+        { "name": "activity_regularizer", "description": "Regularizer function applied to the output of the layer (its 'activation'). (see [regularizer](https://keras.io/regularizers))." },
+        { "name": "kernel_constraint", "description": "Constraint function applied to the kernel weights matrix (see [constraints](https://keras.io/constraints))." },
+        { "name": "bias_constraint", "description": "Constraint function applied to the bias vector (see [constraints](https://keras.io/constraints))." }
       ]
     }
   },

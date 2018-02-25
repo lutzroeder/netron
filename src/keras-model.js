@@ -307,6 +307,10 @@ class KerasNode {
         return this._operator;
     }
 
+    get documentation() {
+        return KerasOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
+    }
+
     get category() {
         return KerasOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
     }
@@ -649,6 +653,41 @@ class KerasOperatorMetadata {
         return null;
     }
 
+    getOperatorDocumentation(operator) {
+        var schema = this._map[operator];
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            var template = Handlebars.compile(operatorTemplate, 'utf-8');
+            return template(schema);
+        }
+        return '';
+    }
+
     static isEquivalent(a, b) {
         if (a === b) {
             return a !== 0 || 1 / a === 1 / b;
@@ -705,6 +744,7 @@ class KerasOperatorMetadata {
         }
         return true;
     }
+
 }
 
 class KerasError extends Error {

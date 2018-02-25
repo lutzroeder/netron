@@ -575,27 +575,29 @@ class CoreMLOperatorMetadata
     getOperatorDocumentation(operator) {
         var schema = this._map[operator];
         if (schema) {
-            schema = Object.assign({}, schema);
+            schema = JSON.parse(JSON.stringify(schema));
             schema.name = operator;
-            schema.description = this.markdown(schema.description);
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
             if (schema.attributes) {
                 schema.attributes.forEach((attribute) => {
                     if (attribute.description) {
-                        attribute.description = this.markdown(attribute.description);
+                        attribute.description = marked(attribute.description);
                     }
                 });
             }
             if (schema.inputs) {
                 schema.inputs.forEach((input) => {
                     if (input.description) {
-                        input.description = this.markdown(input.description);
+                        input.description = marked(input.description);
                     }
                 });
             }
             if (schema.outputs) {
                 schema.outputs.forEach((output) => {
                     if (output.description) {
-                        output.description = this.markdown(output.description);
+                        output.description = marked(output.description);
                     }
                 });
             }
@@ -603,14 +605,6 @@ class CoreMLOperatorMetadata
             return template(schema);
         }
         return '';
-    }
-
-    markdown(text) {
-        if (text) {
-            text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
-            text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');                
-        }
-        return text;
     }
 
 }

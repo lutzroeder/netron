@@ -753,7 +753,7 @@ class OnnxOperatorMetadata {
     getOperatorDocumentation(operator) {
         var schema = this._map[operator];
         if (schema) {
-            schema = Object.assign({}, schema);
+            schema = JSON.parse(JSON.stringify(schema));
             schema.name = operator;
             if (schema.description) {
                 var input = schema.description.split('\n');
