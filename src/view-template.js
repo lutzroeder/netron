@@ -121,13 +121,13 @@ var operatorTemplate = `
 </dl>
 {{/if}}
 
-{{#if snippets}}
+{{#if examples}}
 <h2>Examples</h2>
 {{/if}}
-{{#snippets}}
+{{#examples}}
 <h3>{{{summary}}}</h3>
 <pre>{{{code}}}</pre>
-{{/snippets}}
+{{/examples}}
 
 {{#if domain}}{{#if since_version}}{{#if support_level}}
 <h2>Support</h2>

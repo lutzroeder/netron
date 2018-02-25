@@ -195,9 +195,9 @@ def generate_json(schemas, json_file):
                     'allowed_type_strs': type_constraint.allowed_type_strs
                 })
         if schema.name in snippets:
-            json_schema['snippets'] = []
+            json_schema['examples'] = []
             for summary, code in sorted(snippets[schema.name]):
-                json_schema['snippets'].append({
+                json_schema['examples'].append({
                     'summary': summary,
                     'code': code
                 })
