@@ -2,689 +2,1516 @@
   {
     "name": "Bidirectional",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "concat",
+          "name": "merge_mode"
+        }
+      ],
       "category": "Wrapper",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "merge_mode", "default": "concat" }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "TimeDistributed",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [],
       "category": "Wrapper",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "Activation",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [],
       "category": "Activation",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "LeakyReLU",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [],
       "category": "Activation",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "ThresholdedReLU",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [],
       "category": "Activation",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "MaxPooling1D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        },
+        {
+          "default": "valid",
+          "name": "padding"
+        },
+        {
+          "default": [
+            2,
+            2
+          ],
+          "name": "pool_size"
+        },
+        {
+          "default": [
+            2,
+            2
+          ],
+          "name": "strides"
+        }
+      ],
       "category": "Pool",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" },
-        { "name": "padding", "default": "valid" },
-        { "name": "pool_size", "default": [2, 2] },
-        { "name": "strides", "default": [2, 2] }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "MaxPooling2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        },
+        {
+          "default": "valid",
+          "name": "padding"
+        },
+        {
+          "default": [
+            2,
+            2
+          ],
+          "name": "pool_size"
+        },
+        {
+          "default": [
+            2,
+            2
+          ],
+          "name": "strides"
+        }
+      ],
       "category": "Pool",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" },
-        { "name": "padding", "default": "valid" },
-        { "name": "pool_size", "default": [2, 2] },
-        { "name": "strides", "default": [2, 2] }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "UpSampling1D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "UpSampling2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "UpSampling3D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "GlobalMaxPooling1D",
     "schema": {
-      "package": "keras.layers",
       "category": "Pool",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "GlobalMaxPooling2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        }
+      ],
       "category": "Pool",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "GlobalAveragePooling1D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [],
       "category": "Pool",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "GlobalAveragePooling2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        }
+      ],
       "category": "Pool",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "AveragePooling2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        }
+      ],
       "category": "Pool",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "data_format", "default": "channels_last" }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "BatchNormalization",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": -1,
+          "name": "axis"
+        },
+        {
+          "default": 0.001,
+          "name": "epsilon"
+        },
+        {
+          "default": 0.99,
+          "name": "momentum"
+        },
+        {
+          "default": true,
+          "name": "scale"
+        },
+        {
+          "default": true,
+          "name": "center"
+        },
+        {
+          "default": {
+            "class_name": "Ones",
+            "config": {}
+          },
+          "name": "gamma_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "moving_mean_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Ones",
+            "config": {}
+          },
+          "name": "moving_variance_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "beta_initializer"
+        }
+      ],
       "category": "Normalization",
       "inputs": [
-        { "name": "input" },
-        { "name": "gamma" },
-        { "name": "beta" },
-        { "name": "mean" },
-        { "name": "variance" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "gamma"
+        },
+        {
+          "name": "beta"
+        },
+        {
+          "name": "mean"
+        },
+        {
+          "name": "variance"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "axis", "default": -1 },
-        { "name": "epsilon", "default": 1e-3 },
-        { "name": "momentum", "default": 0.99 },
-        { "name": "scale", "default": true },
-        { "name": "center", "default": true },
-        { "name": "gamma_initializer", "default": { "class_name": "Ones", "config": {} } },
-        { "name": "moving_mean_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "moving_variance_initializer", "default": { "class_name": "Ones", "config": {} } },
-        { "name": "beta_initializer", "default": { "class_name": "Zeros", "config": {} } }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "Dense",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "description": "Positive integer, dimensionality of the output space.",
+          "name": "units",
+          "type": "int"
+        },
+        {
+          "default": "linear",
+          "description": "Activation function to use (see activations). If you don't specify anything, no activation is applied (ie. 'linear' activation: `a(x) = x)`.",
+          "name": "activation"
+        },
+        {
+          "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
+          "name": "use_bias",
+          "type": "boolean"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "description": "Initializer for the kernel weights matrix (see [initializers](https://keras.io/initializers)).",
+          "name": "kernel_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "description": "Initializer for the bias vector (see [initializers](https://keras.io/initializers)).",
+          "name": "bias_initializer"
+        },
+        {
+          "description": "Regularizer function applied to the kernel weights matrix (see [regularizer](https://keras.io/regularizers)).",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector (see [regularizer](https://keras.io/regularizers)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the output of the layer (its 'activation'). (see [regularizer](https://keras.io/regularizers)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to the kernel weights matrix (see [constraints](https://keras.io/constraints)).",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector (see [constraints](https://keras.io/constraints)).",
+          "name": "bias_constraint"
+        }
+      ],
       "category": "Layer",
       "description": "Just your regular densely-connected NN layer.\n\nDense implements the operation: `output = activation(dot(input, kernel) + bias)` where activation is the element-wise activation function passed as the activation argument, kernel is a weights matrix created by the layer, and bias is a bias vector created by the layer (only applicable if use_bias is True).\n\nNote: if the input to the layer has a rank greater than 2, then it is flattened prior to the initial dot product with kernel.",
       "inputs": [
-        { "name": "input", "type": "T", "description": "nD tensor with shape: `(batch_size, ..., input_dim)`. The most common situation would be a 2D input with shape `(batch_size, input_dim)`." },
-        { "name": "kernel", "type": "T" },
-        { "name": "bias", "type": "T" }
+        {
+          "description": "nD tensor with shape: `(batch_size, ..., input_dim)`. The most common situation would be a 2D input with shape `(batch_size, input_dim)`.",
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "name": "kernel",
+          "type": "T"
+        },
+        {
+          "name": "bias",
+          "type": "T"
+        }
       ],
       "outputs": [
-        { "name": "output", "type": "T", "description": "nD tensor with shape: `(batch_size, ..., units)`. For instance, for a 2D input with shape `(batch_size, input_dim)`, the output would have shape `(batch_size, units)`." }
+        {
+          "description": "nD tensor with shape: `(batch_size, ..., units)`. For instance, for a 2D input with shape `(batch_size, input_dim)`, the output would have shape `(batch_size, units)`.",
+          "name": "output",
+          "type": "T"
+        }
       ],
-      "attributes": [
-        { "name": "units", "type": "int", "description": "Positive integer, dimensionality of the output space." },
-        { "name": "activation", "description": "Activation function to use (see activations). If you don't specify anything, no activation is applied (ie. 'linear' activation: `a(x) = x)`.", "default": "linear" },
-        { "name": "use_bias", "type": "boolean", "description": "Boolean, whether the layer uses a bias vector.", "default": true },
-        { "name": "kernel_initializer", "description": "Initializer for the kernel weights matrix (see [initializers](https://keras.io/initializers)).", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
-        { "name": "bias_initializer", "description": "Initializer for the bias vector (see [initializers](https://keras.io/initializers)).", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "kernel_regularizer", "description": "Regularizer function applied to the kernel weights matrix (see [regularizer](https://keras.io/regularizers))." },
-        { "name": "bias_regularizer", "description": "Regularizer function applied to the bias vector (see [regularizer](https://keras.io/regularizers))." },
-        { "name": "activity_regularizer", "description": "Regularizer function applied to the output of the layer (its 'activation'). (see [regularizer](https://keras.io/regularizers))." },
-        { "name": "kernel_constraint", "description": "Constraint function applied to the kernel weights matrix (see [constraints](https://keras.io/constraints))." },
-        { "name": "bias_constraint", "description": "Constraint function applied to the bias vector (see [constraints](https://keras.io/constraints))." }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "LSTM",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": false,
+          "name": "return_sequences"
+        },
+        {
+          "default": false,
+          "name": "return_state"
+        },
+        {
+          "default": "tanh",
+          "name": "activation"
+        },
+        {
+          "default": "hard_sigmoid",
+          "name": "recurrent_activation"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": true,
+          "name": "unit_forget_bias"
+        },
+        {
+          "default": 0.0,
+          "name": "dropout"
+        },
+        {
+          "default": 0.0,
+          "name": "recurrent_dropout"
+        },
+        {
+          "default": 1,
+          "name": "implementation"
+        },
+        {
+          "default": false,
+          "name": "unroll"
+        },
+        {
+          "default": false,
+          "name": "stateful"
+        },
+        {
+          "default": false,
+          "name": "go_backwards"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "kernel_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Orthogonal",
+            "config": {
+              "gain": 1,
+              "seed": null
+            }
+          },
+          "name": "recurrent_initializer"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "recurrent_kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "recurrent_kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "return_sequences", "default": false },
-        { "name": "return_state", "default": false },
-        { "name": "activation", "default": "tanh" },
-        { "name": "recurrent_activation", "default": "hard_sigmoid" },
-        { "name": "use_bias", "default": true },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "unit_forget_bias", "default": true },
-        { "name": "dropout", "default": 0.0 },
-        { "name": "recurrent_dropout", "default": 0.0 },
-        { "name": "implementation", "default": 1 },
-        { "name": "unroll", "default": false },
-        { "name": "stateful", "default": false },
-        { "name": "go_backwards", "default": false },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": { "distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
-        { "name": "recurrent_initializer", "default": { "class_name": "Orthogonal", "config": { "seed": null, "gain": 1 } } }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "GRU",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "tanh",
+          "name": "activation"
+        },
+        {
+          "default": "hard_sigmoid",
+          "name": "recurrent_activation"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "kernel_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Orthogonal",
+            "config": {
+              "gain": 1,
+              "seed": null
+            }
+          },
+          "name": "recurrent_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": 0.0,
+          "name": "dropout"
+        },
+        {
+          "default": 1,
+          "name": "implementation"
+        },
+        {
+          "default": false,
+          "name": "return_sequences"
+        },
+        {
+          "default": false,
+          "name": "return_state"
+        },
+        {
+          "default": false,
+          "name": "go_backwards"
+        },
+        {
+          "default": false,
+          "name": "stateful"
+        },
+        {
+          "default": false,
+          "name": "unroll"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "recurrent_kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "recurrent_kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "activation", "default": "tanh" },
-        { "name": "recurrent_activation", "default": "hard_sigmoid" },
-        { "name": "use_bias", "default": true },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": { "distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
-        { "name": "recurrent_initializer", "default": { "class_name": "Orthogonal", "config": { "seed": null, "gain": 1 } } },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "dropout", "default": 0.0 },
-        { "name": "implementation", "default": 1 },
-        { "name": "return_sequences", "default": false },
-        { "name": "return_state", "default": false },
-        { "name": "go_backwards", "default": false },
-        { "name": "stateful", "default": false },
-        { "name": "unroll", "default": false }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "SimpleRNN",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": false,
+          "name": "return_sequences"
+        },
+        {
+          "default": false,
+          "name": "return_state"
+        },
+        {
+          "default": false,
+          "name": "go_backwards"
+        },
+        {
+          "default": false,
+          "name": "stateful"
+        },
+        {
+          "default": false,
+          "name": "unroll"
+        },
+        {
+          "default": "tanh",
+          "name": "activation"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "kernel_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Orthogonal",
+            "config": {
+              "gain": 1,
+              "seed": null
+            }
+          },
+          "name": "recurrent_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": 0.0,
+          "name": "dropout"
+        },
+        {
+          "default": 0.0,
+          "name": "recurrent_dropout"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "recurrent_kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "recurrent_kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "return_sequences", "default": false },
-        { "name": "return_state", "default": false },
-        { "name": "go_backwards", "default": false },
-        { "name": "stateful", "default": false },
-        { "name": "unroll", "default": false },
-        { "name": "activation", "default": "tanh" },
-        { "name": "use_bias", "default": true },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": { "distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
-        { "name": "recurrent_initializer", "default": { "class_name": "Orthogonal", "config": { "seed": null, "gain": 1 } } },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "dropout", "default": 0.0 },
-        { "name": "recurrent_dropout", "default": 0.0 }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "RNN",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": false,
+          "name": "return_sequences"
+        },
+        {
+          "default": false,
+          "name": "return_state"
+        },
+        {
+          "default": false,
+          "name": "go_backwards"
+        },
+        {
+          "default": false,
+          "name": "stateful"
+        },
+        {
+          "default": false,
+          "name": "unroll"
+        }
+      ],
       "category": "Layer",
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "return_sequences", "default": false },
-        { "name": "return_state", "default": false },
-        { "name": "go_backwards", "default": false },
-        { "name": "stateful", "default": false },
-        { "name": "unroll", "default": false }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "Conv1D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "linear",
+          "name": "activation"
+        },
+        {
+          "default": "valid",
+          "name": "padding"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        },
+        {
+          "default": [
+            1
+          ],
+          "name": "strides"
+        },
+        {
+          "default": [
+            1
+          ],
+          "name": "dilation_rate"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "kernel_initializer"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "activation", "default": "linear" },
-        { "name": "padding", "default": "valid" },
-        { "name": "use_bias", "default": true },
-        { "name": "data_format", "default": "channels_last" },
-        { "name": "strides", "default": [1] },
-        { "name": "dilation_rate", "default": [1] },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "Conv2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "linear",
+          "name": "activation"
+        },
+        {
+          "default": "valid",
+          "name": "padding"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "strides"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "dilation_rate"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "kernel_initializer"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "activation", "default": "linear" },
-        { "name": "padding", "default": "valid" },
-        { "name": "use_bias", "default": true },
-        { "name": "data_format", "default": "channels_last" },
-        { "name": "strides", "default": [1, 1] },
-        { "name": "dilation_rate", "default": [1, 1] },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "SeparableConv2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "linear",
+          "name": "activation"
+        },
+        {
+          "default": "valid",
+          "name": "padding"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "strides"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "dilation_rate"
+        },
+        {
+          "default": 1,
+          "name": "depth_multiplier"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "pointwise_initializer"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "depthwise_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "kernel_initializer"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "activation", "default": "linear" },
-        { "name": "padding", "default": "valid" },
-        { "name": "use_bias", "default": true },
-        { "name": "data_format", "default": "channels_last" },
-        { "name": "strides", "default": [1, 1] },
-        { "name": "dilation_rate", "default": [1, 1] },
-        { "name": "depth_multiplier", "default": 1 },
-        { "name": "pointwise_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
-        { "name": "depthwise_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "Convolution2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "linear",
+          "name": "activation"
+        },
+        {
+          "default": "valid",
+          "name": "padding"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "strides"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "dilation_rate"
+        },
+        {
+          "default": 1,
+          "name": "depth_multiplier"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "kernel_initializer"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "activation", "default": "linear" },
-        { "name": "padding", "default": "valid" },
-        { "name": "use_bias", "default": true },
-        { "name": "data_format", "default": "channels_last" },
-        { "name": "strides", "default": [1, 1] },
-        { "name": "dilation_rate", "default": [1, 1] },
-        { "name": "depth_multiplier", "default": 1 },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "kernel_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "DepthwiseConv2D",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": "linear",
+          "name": "activation"
+        },
+        {
+          "default": "valid",
+          "name": "padding"
+        },
+        {
+          "default": true,
+          "name": "use_bias"
+        },
+        {
+          "default": "channels_last",
+          "name": "data_format"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "strides"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "dilation_rate"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "bias_initializer"
+        },
+        {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
+          "name": "depthwise_initializer"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "kernel" },
-        { "name": "bias" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "bias"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ],
-      "attributes": [
-        { "name": "activation", "default": "linear" },
-        { "name": "padding", "default": "valid" },
-        { "name": "use_bias", "default": true },
-        { "name": "data_format", "default": "channels_last" },
-        { "name": "strides", "default": [1, 1] },
-        { "name": "dilation_rate", "default": [1, 1] },
-        { "name": "bias_initializer", "default": { "class_name": "Zeros", "config": {} } },
-        { "name": "depthwise_initializer", "default": { "class_name": "VarianceScaling", "config": {"distribution": "uniform", "scale": 1, "seed": null, "mode": "fan_avg" } } }
+        {
+          "name": "output"
+        }
       ]
     }
   },
   {
     "name": "Concatenate",
     "schema": {
-      "package": "keras.layers",
       "category": "Tensor",
       "inputs": [
-        { "name": "inputs", "option": "variadic" }
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "Merge",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": -1,
+          "name": "concat_axis"
+        },
+        {
+          "default": -1,
+          "name": "dot_axes"
+        },
+        {
+          "default": {},
+          "name": "arguments"
+        },
+        {
+          "name": "mode",
+          "sum": {}
+        }
+      ],
       "category": "Tensor",
       "inputs": [
-        { "name": "inputs", "option": "variadic" }
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "concat_axis", "default": -1 },
-        { "name": "dot_axes", "default": -1 },
-        { "name": "arguments", "default": {} },
-        { "name": "mode", "sum": {} }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "Average",
     "schema": {
-      "package": "keras.layers",
       "category": "Tensor",
       "inputs": [
-        { "name": "inputs", "option": "variadic" }
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
+    }
+  },
+  {
+    "name": "Maximum",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "Flatten",
     "schema": {
-      "package": "keras.layers",
       "category": "Shape",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "Reshape",
     "schema": {
-      "package": "keras.layers",
       "category": "Shape",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "Permute",
     "schema": {
-      "package": "keras.layers",
       "category": "Shape",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "RepeatVector",
     "schema": {
-      "package": "keras.layers",
       "category": "Shape",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "Dropout",
     "schema": {
-      "package": "keras.layers",
       "category": "Dropout",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
     "name": "Embedding",
     "schema": {
-      "package": "keras.layers",
+      "attributes": [
+        {
+          "default": false,
+          "name": "mask_zero"
+        },
+        {
+          "default": {
+            "class_name": "RandomUniform",
+            "config": {
+              "maxval": 0.05,
+              "minval": -0.05,
+              "seed": null
+            }
+          },
+          "name": "embeddings_initializer"
+        }
+      ],
       "category": "Transform",
       "inputs": [
-        { "name": "input" },
-        { "name": "embeddings" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "embeddings"
+        }
       ],
       "outputs": [
-        { "name": "output" }
+        {
+          "name": "output"
+        }
       ],
-      "attributes": [
-        { "name": "mask_zero", "default": false },
-        { "name": "embeddings_initializer", "default": { "class_name": "RandomUniform", "config": { "maxval": 0.05, "seed": null, "minval": -0.05 } } }
-      ]
+      "package": "keras.layers"
     }
   },
   {
     "name": "Add",
     "schema": {
-      "package": "keras.layers",
       "inputs": [
-        { "name": "x" },
-        { "name": "y" }
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
-    "name": "Sub",
+    "name": "Subtract",
     "schema": {
-      "package": "keras.layers",
       "inputs": [
-        { "name": "x" },
-        { "name": "y" }
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
       ],
       "outputs": [
-        { "name": "output" }
-      ]
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
+    }
+  },
+  {
+    "name": "Multiply",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers"
     }
   },
   {
