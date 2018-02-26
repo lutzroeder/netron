@@ -5,10 +5,21 @@
       "attributes": [
         {
           "default": "concat",
+          "description": "Mode by which outputs of the\nforward and backward RNNs will be combined.\nOne of {'sum', 'mul', 'concat', 'ave', None}.\nIf None, the outputs will not be combined,\nthey will be returned as a list.\n",
           "name": "merge_mode"
+        },
+        {
+          "description": "`Recurrent` instance.",
+          "name": "layer"
         }
       ],
       "category": "Wrapper",
+      "description": "Bidirectional wrapper for RNNs.\n",
+      "examples": [
+        {
+          "code": "model = Sequential()\nmodel.add(Bidirectional(LSTM(10, return_sequences=True),\n                        input_shape=(5, 10)))\nmodel.add(Bidirectional(LSTM(10)))\nmodel.add(Dense(5))\nmodel.add(Activation('softmax'))\nmodel.compile(loss='categorical_crossentropy', optimizer='rmsprop')"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
@@ -25,8 +36,14 @@
   {
     "name": "TimeDistributed",
     "schema": {
-      "attributes": [],
+      "attributes": [
+        {
+          "description": "a layer instance.\n",
+          "name": "layer"
+        }
+      ],
       "category": "Wrapper",
+      "description": "This wrapper applies a layer to every temporal slice of an input.\n\nThe input should be at least 3D, and the dimension of index one\nwill be considered to be the temporal dimension.\n\nConsider a batch of 32 samples,\nwhere each sample is a sequence of 10 vectors of 16 dimensions.\nThe batch input shape of the layer is then `(32, 10, 16)`,\nand the `input_shape`, not including the samples dimension, is `(10, 16)`.\n\nYou can then use `TimeDistributed` to apply a `Dense` layer\nto each of the 10 timesteps, independently:\n\n```python\n# as the first layer in a model\nmodel = Sequential()\nmodel.add(TimeDistributed(Dense(8), input_shape=(10, 16)))\n# now model.output_shape == (None, 10, 8)\n```\n\nThe output will then have shape `(32, 10, 8)`.\n\nIn subsequent layers, there is no need for the `input_shape`:\n\n```python\nmodel.add(TimeDistributed(Dense(32)))\n# now model.output_shape == (None, 10, 32)\n```\n\nThe output will then have shape `(32, 10, 32)`.\n\n`TimeDistributed` can be used with arbitrary layers, not just `Dense`,\nfor instance with a `Conv2D` layer:\n\n```python\nmodel = Sequential()\nmodel.add(TimeDistributed(Conv2D(64, (3, 3)),\n                          input_shape=(10, 299, 299, 3)))\n```\n",
       "inputs": [
         {
           "name": "input"
@@ -43,8 +60,14 @@
   {
     "name": "Activation",
     "schema": {
-      "attributes": [],
+      "attributes": [
+        {
+          "description": "name of activation function to use\n(see: [activations](../activations.md)),\nor alternatively, a Theano or TensorFlow operation.\n",
+          "name": "activation"
+        }
+      ],
       "category": "Activation",
+      "description": "Applies an activation function to an output.\n",
       "inputs": [
         {
           "name": "input"
@@ -61,8 +84,14 @@
   {
     "name": "LeakyReLU",
     "schema": {
-      "attributes": [],
+      "attributes": [
+        {
+          "description": "float >= 0. Negative slope coefficient.\n",
+          "name": "alpha"
+        }
+      ],
       "category": "Activation",
+      "description": "Leaky version of a Rectified Linear Unit.\n\nIt allows a small gradient when the unit is not active:\n`f(x) = alpha * x for x < 0`,\n`f(x) = x for x >= 0`.\n",
       "inputs": [
         {
           "name": "input"
@@ -73,14 +102,25 @@
           "name": "output"
         }
       ],
-      "package": "keras.layers"
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[Rectifier Nonlinearities Improve Neural Network Acoustic Models](https://web.stanford.edu/~awni/papers/relu_hybrid_icml2013_final.pdf)"
+        }
+      ]
     }
   },
   {
     "name": "ThresholdedReLU",
     "schema": {
-      "attributes": [],
+      "attributes": [
+        {
+          "description": "float >= 0. Threshold location of activation.\n",
+          "name": "theta"
+        }
+      ],
       "category": "Activation",
+      "description": "Thresholded Rectified Linear Unit.\n\nIt follows:\n`f(x) = x for x > theta`,\n`f(x) = 0 otherwise`.\n",
       "inputs": [
         {
           "name": "input"
@@ -91,7 +131,12 @@
           "name": "output"
         }
       ],
-      "package": "keras.layers"
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[Zero-Bias Autoencoders and the Benefits of Co-Adapting Features](http://arxiv.org/abs/1402.3337)"
+        }
+      ]
     }
   },
   {
@@ -104,6 +149,7 @@
         },
         {
           "default": "valid",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n",
           "name": "padding"
         },
         {
@@ -111,6 +157,7 @@
             2,
             2
           ],
+          "description": "Integer, size of the max pooling windows.",
           "name": "pool_size"
         },
         {
@@ -118,10 +165,12 @@
             2,
             2
           ],
+          "description": "Integer, or None. Factor by which to downscale.\nE.g. 2 will halve the input.\nIf None, it will default to `pool_size`.",
           "name": "strides"
         }
       ],
       "category": "Pool",
+      "description": "Max pooling operation for temporal data.\n",
       "inputs": [
         {
           "name": "input"
@@ -141,10 +190,12 @@
       "attributes": [
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         },
         {
           "default": "valid",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
           "name": "padding"
         },
         {
@@ -152,6 +203,7 @@
             2,
             2
           ],
+          "description": "integer or tuple of 2 integers,\nfactors by which to downscale (vertical, horizontal).\n(2, 2) will halve the input in both spatial dimension.\nIf only one integer is specified, the same window length\nwill be used for both dimensions.",
           "name": "pool_size"
         },
         {
@@ -159,10 +211,12 @@
             2,
             2
           ],
+          "description": "Integer, tuple of 2 integers, or None.\nStrides values.\nIf None, it will default to `pool_size`.",
           "name": "strides"
         }
       ],
       "category": "Pool",
+      "description": "Max pooling operation for spatial data.\n",
       "inputs": [
         {
           "name": "input"
@@ -183,9 +237,14 @@
         {
           "default": "channels_last",
           "name": "data_format"
+        },
+        {
+          "description": "integer. Upsampling factor.\n",
+          "name": "size"
         }
       ],
       "category": "Layer",
+      "description": "Upsampling layer for 1D inputs.\n\nRepeats each temporal step `size` times along the time axis.\n",
       "inputs": [
         {
           "name": "input"
@@ -205,10 +264,16 @@
       "attributes": [
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
+        },
+        {
+          "description": "int, or tuple of 2 integers.\nThe upsampling factors for rows and columns.",
+          "name": "size"
         }
       ],
       "category": "Layer",
+      "description": "Upsampling layer for 2D inputs.\n\nRepeats the rows and columns of the data\nby size[0] and size[1] respectively.\n",
       "inputs": [
         {
           "name": "input"
@@ -228,10 +293,16 @@
       "attributes": [
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `channels_first` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
+        },
+        {
+          "description": "int, or tuple of 3 integers.\nThe upsampling factors for dim1, dim2 and dim3.",
+          "name": "size"
         }
       ],
       "category": "Layer",
+      "description": "Upsampling layer for 3D inputs.\n\nRepeats the 1st, 2nd and 3rd dimensions\nof the data by size[0], size[1] and size[2] respectively.\n",
       "inputs": [
         {
           "name": "input"
@@ -249,6 +320,7 @@
     "name": "GlobalMaxPooling1D",
     "schema": {
       "category": "Pool",
+      "description": "Global max pooling operation for temporal data.\n",
       "inputs": [
         {
           "name": "input"
@@ -268,10 +340,12 @@
       "attributes": [
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
       "category": "Pool",
+      "description": "Global max pooling operation for spatial data.\n",
       "inputs": [
         {
           "name": "input"
@@ -290,6 +364,7 @@
     "schema": {
       "attributes": [],
       "category": "Pool",
+      "description": "Global average pooling operation for temporal data.\n",
       "inputs": [
         {
           "name": "input"
@@ -309,10 +384,12 @@
       "attributes": [
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
       "category": "Pool",
+      "description": "Global average pooling operation for spatial data.\n",
       "inputs": [
         {
           "name": "input"
@@ -332,10 +409,24 @@
       "attributes": [
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
+        },
+        {
+          "description": "integer or tuple of 2 integers,\nfactors by which to downscale (vertical, horizontal).\n(2, 2) will halve the input in both spatial dimension.\nIf only one integer is specified, the same window length\nwill be used for both dimensions.",
+          "name": "pool_size"
+        },
+        {
+          "description": "Integer, tuple of 2 integers, or None.\nStrides values.\nIf None, it will default to `pool_size`.",
+          "name": "strides"
+        },
+        {
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "name": "padding"
         }
       ],
       "category": "Pool",
+      "description": "Average pooling operation for spatial data.\n",
       "inputs": [
         {
           "name": "input"
@@ -355,22 +446,27 @@
       "attributes": [
         {
           "default": -1,
+          "description": "Integer, the axis that should be normalized\n(typically the features axis).\nFor instance, after a `Conv2D` layer with\n`data_format=\"channels_first\"`,\nset `axis=1` in `BatchNormalization`.",
           "name": "axis"
         },
         {
           "default": 0.001,
+          "description": "Small float added to variance to avoid dividing by zero.",
           "name": "epsilon"
         },
         {
           "default": 0.99,
+          "description": "Momentum for the moving mean and the moving variance.",
           "name": "momentum"
         },
         {
           "default": true,
+          "description": "If True, multiply by `gamma`.\nIf False, `gamma` is not used.\nWhen the next layer is linear (also e.g. `nn.relu`),\nthis can be disabled since the scaling\nwill be done by the next layer.",
           "name": "scale"
         },
         {
           "default": true,
+          "description": "If True, add offset of `beta` to normalized tensor.\nIf False, `beta` is ignored.",
           "name": "center"
         },
         {
@@ -378,6 +474,7 @@
             "class_name": "Ones",
             "config": {}
           },
+          "description": "Initializer for the gamma weight.",
           "name": "gamma_initializer"
         },
         {
@@ -385,6 +482,7 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the moving mean.",
           "name": "moving_mean_initializer"
         },
         {
@@ -392,6 +490,7 @@
             "class_name": "Ones",
             "config": {}
           },
+          "description": "Initializer for the moving variance.",
           "name": "moving_variance_initializer"
         },
         {
@@ -399,10 +498,28 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the beta weight.",
           "name": "beta_initializer"
+        },
+        {
+          "description": "Optional regularizer for the beta weight.",
+          "name": "beta_regularizer"
+        },
+        {
+          "description": "Optional regularizer for the gamma weight.",
+          "name": "gamma_regularizer"
+        },
+        {
+          "description": "Optional constraint for the beta weight.",
+          "name": "beta_constraint"
+        },
+        {
+          "description": "Optional constraint for the gamma weight.\n",
+          "name": "gamma_constraint"
         }
       ],
       "category": "Normalization",
+      "description": "Batch normalization layer (Ioffe and Szegedy, 2014).\n\nNormalize the activations of the previous layer at each batch,\ni.e. applies a transformation that maintains the mean activation\nclose to 0 and the activation standard deviation close to 1.\n",
       "inputs": [
         {
           "name": "input"
@@ -425,7 +542,12 @@
           "name": "output"
         }
       ],
-      "package": "keras.layers"
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)"
+        }
+      ]
     }
   },
   {
@@ -439,7 +561,7 @@
         },
         {
           "default": "linear",
-          "description": "Activation function to use (see activations). If you don't specify anything, no activation is applied (ie. 'linear' activation: `a(x) = x)`.",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -458,7 +580,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the kernel weights matrix (see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](../initializers.md)).",
           "name": "kernel_initializer"
         },
         {
@@ -466,32 +588,37 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
-          "description": "Regularizer function applied to the kernel weights matrix (see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
           "name": "kernel_regularizer"
         },
         {
-          "description": "Regularizer function applied to the bias vector (see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
           "name": "bias_regularizer"
         },
         {
-          "description": "Regularizer function applied to the output of the layer (its 'activation'). (see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
           "name": "activity_regularizer"
         },
         {
-          "description": "Constraint function applied to the kernel weights matrix (see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](../constraints.md)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector (see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).\n",
           "name": "bias_constraint"
         }
       ],
       "category": "Layer",
-      "description": "Just your regular densely-connected NN layer.\n\nDense implements the operation: `output = activation(dot(input, kernel) + bias)` where activation is the element-wise activation function passed as the activation argument, kernel is a weights matrix created by the layer, and bias is a bias vector created by the layer (only applicable if use_bias is True).\n\nNote: if the input to the layer has a rank greater than 2, then it is flattened prior to the initial dot product with kernel.",
+      "description": "Just your regular densely-connected NN layer.\n\n`Dense` implements the operation:\n`output = activation(dot(input, kernel) + bias)`\nwhere `activation` is the element-wise activation function\npassed as the `activation` argument, `kernel` is a weights matrix\ncreated by the layer, and `bias` is a bias vector created by the layer\n(only applicable if `use_bias` is `True`).\n\n- __Note__: if the input to the layer has a rank greater than 2, then\nit is flattened prior to the initial dot product with `kernel`.\n",
+      "examples": [
+        {
+          "code": "# as first layer in a sequential model:\nmodel = Sequential()\nmodel.add(Dense(32, input_shape=(16,)))\n# now the model will take as input arrays of shape (*, 16)\n# and output arrays of shape (*, 32)\n\n# after the first layer, you don't need to specify\n# the size of the input anymore:\nmodel.add(Dense(32))"
+        }
+      ],
       "inputs": [
         {
           "description": "nD tensor with shape: `(batch_size, ..., input_dim)`. The most common situation would be a 2D input with shape `(batch_size, input_dim)`.",
@@ -523,22 +650,27 @@
       "attributes": [
         {
           "default": false,
+          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
+          "description": "Boolean. Whether to return the last state\nin addition to the output.",
           "name": "return_state"
         },
         {
           "default": "tanh",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "hard_sigmoid",
+          "description": "Activation function to use\nfor the recurrent step\n(see [activations](../activations.md)).",
           "name": "recurrent_activation"
         },
         {
           "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
@@ -546,34 +678,42 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
           "default": true,
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
           "name": "unit_forget_bias"
         },
         {
           "default": 0.0,
+          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
           "name": "dropout"
         },
         {
           "default": 0.0,
+          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
         {
           "default": 1,
+          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.",
           "name": "implementation"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.\n",
           "name": "unroll"
         },
         {
           "default": false,
+          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
           "name": "go_backwards"
         },
         {
@@ -586,6 +726,7 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](../initializers.md)).",
           "name": "kernel_initializer"
         },
         {
@@ -596,10 +737,44 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](../initializers.md)).",
           "name": "recurrent_initializer"
+        },
+        {
+          "description": "Positive integer, dimensionality of the output space.",
+          "name": "units"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "recurrent_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](../constraints.md)).",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](../constraints.md)).",
+          "name": "recurrent_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).",
+          "name": "bias_constraint"
         }
       ],
       "category": "Layer",
+      "description": "Long-Short Term Memory layer - Hochreiter 1997.\n",
       "inputs": [
         {
           "name": "input"
@@ -619,7 +794,21 @@
           "name": "output"
         }
       ],
-      "package": "keras.layers"
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[Long short-term memory](http://www.bioinf.jku.at/publications/older/2604.pdf) (original 1997 paper)"
+        },
+        {
+          "description": "[Learning to forget: Continual prediction with LSTM](http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)"
+        },
+        {
+          "description": "[Supervised sequence labeling with recurrent neural networks](http://www.cs.toronto.edu/~graves/preprint.pdf)"
+        },
+        {
+          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
+        }
+      ]
     }
   },
   {
@@ -628,14 +817,17 @@
       "attributes": [
         {
           "default": "tanh",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "hard_sigmoid",
+          "description": "Activation function to use\nfor the recurrent step\n(see [activations](../activations.md)).",
           "name": "recurrent_activation"
         },
         {
           "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
@@ -648,6 +840,7 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](../initializers.md)).",
           "name": "kernel_initializer"
         },
         {
@@ -658,6 +851,7 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](../initializers.md)).",
           "name": "recurrent_initializer"
         },
         {
@@ -665,38 +859,83 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
           "default": 0.0,
+          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
           "name": "dropout"
         },
         {
           "default": 1,
+          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.",
           "name": "implementation"
         },
         {
           "default": false,
+          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
+          "description": "Boolean. Whether to return the last state\nin addition to the output.",
           "name": "return_state"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
           "name": "go_backwards"
         },
         {
           "default": false,
+          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.\n",
           "name": "unroll"
+        },
+        {
+          "description": "Positive integer, dimensionality of the output space.",
+          "name": "units"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "recurrent_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](../constraints.md)).",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](../constraints.md)).",
+          "name": "recurrent_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).",
+          "name": "bias_constraint"
+        },
+        {
+          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
+          "name": "recurrent_dropout"
         }
       ],
       "category": "Layer",
+      "description": "Gated Recurrent Unit - Cho et al. 2014.\n",
       "inputs": [
         {
           "name": "input"
@@ -716,7 +955,18 @@
           "name": "output"
         }
       ],
-      "package": "keras.layers"
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[On the Properties of Neural Machine Translation: Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)"
+        },
+        {
+          "description": "[Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling](http://arxiv.org/abs/1412.3555v1)"
+        },
+        {
+          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
+        }
+      ]
     }
   },
   {
@@ -725,30 +975,37 @@
       "attributes": [
         {
           "default": false,
+          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
+          "description": "Boolean. Whether to return the last state\nin addition to the output.",
           "name": "return_state"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
           "name": "go_backwards"
         },
         {
           "default": false,
+          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.\n",
           "name": "unroll"
         },
         {
           "default": "tanh",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
@@ -761,6 +1018,7 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](../initializers.md)).",
           "name": "kernel_initializer"
         },
         {
@@ -771,6 +1029,7 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](../initializers.md)).",
           "name": "recurrent_initializer"
         },
         {
@@ -778,18 +1037,54 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
           "default": 0.0,
+          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
           "name": "dropout"
         },
         {
           "default": 0.0,
+          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
+        },
+        {
+          "description": "Positive integer, dimensionality of the output space.",
+          "name": "units"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "recurrent_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](../constraints.md)).",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](../constraints.md)).",
+          "name": "recurrent_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).",
+          "name": "bias_constraint"
         }
       ],
       "category": "Layer",
+      "description": "Fully-connected RNN where the output is to be fed back to input.\n",
       "inputs": [
         {
           "name": "input"
@@ -818,26 +1113,49 @@
       "attributes": [
         {
           "default": false,
+          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
+          "description": "Boolean. Whether to return the last state\nin addition to the output.",
           "name": "return_state"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
           "name": "go_backwards"
         },
         {
           "default": false,
+          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
+          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.",
           "name": "unroll"
+        },
+        {
+          "description": "A RNN cell instance. A RNN cell is a class that has:\n- a `call(input_at_t, states_at_t)` method, returning\n`(output_at_t, states_at_t_plus_1)`. The call method of the\ncell can also take the optional argument `constants`, see\nsection \"Note on passing external constants\" below.\n- a `state_size` attribute. This can be a single integer\n(single state) in which case it is\nthe size of the recurrent state\n(which should be the same as the size of the cell output).\nThis can also be a list/tuple of integers\n(one size per state). In this case, the first entry\n(`state_size[0]`) should be the same as\nthe size of the cell output.\nIt is also possible for `cell` to be a list of RNN cell instances,\nin which cases the cells get stacked on after the other in the RNN,\nimplementing an efficient stacked RNN.",
+          "name": "cell"
+        },
+        {
+          "description": "dimensionality of the input (integer).\nThis argument (or alternatively,\nthe keyword argument `input_shape`)\nis required when using this layer as the first layer in a model.",
+          "name": "input_dim"
+        },
+        {
+          "description": "Length of input sequences, to be specified\nwhen it is constant.\nThis argument is required if you are going to connect\n`Flatten` then `Dense` layers upstream\n(without it, the shape of the dense outputs cannot be computed).\nNote that if the recurrent layer is not the first layer\nin your model, you would need to specify the input length\nat the level of the first layer\n(e.g. via the `input_shape` argument)\n",
+          "name": "input_length"
         }
       ],
       "category": "Layer",
+      "description": "Base class for recurrent layers.\n\n**Masking**\n\nThis layer supports masking for input data with a variable number\nof timesteps. To introduce masks to your data,\nuse an [Embedding](embeddings.md) layer with the `mask_zero` parameter\nset to `True`.\n\n**Note on using statefulness in RNNs**\n\nYou can set RNN layers to be 'stateful', which means that the states\ncomputed for the samples in one batch will be reused as initial states\nfor the samples in the next batch. This assumes a one-to-one mapping\nbetween samples in different successive batches.\n\nTo enable statefulness:\n- specify `stateful=True` in the layer constructor.\n- specify a fixed batch size for your model, by passing\nif sequential model:\n`batch_input_shape=(...)` to the first layer in your model.\nelse for functional model with 1 or more Input layers:\n`batch_shape=(...)` to all the first layers in your model.\nThis is the expected shape of your inputs\n*including the batch size*.\nIt should be a tuple of integers, e.g. `(32, 10, 100)`.\n- specify `shuffle=False` when calling fit().\n\nTo reset the states of your model, call `.reset_states()` on either\na specific layer, or on your entire model.\n\n**Note on specifying the initial state of RNNs**\n\nYou can specify the initial state of RNN layers symbolically by\ncalling them with the keyword argument `initial_state`. The value of\n`initial_state` should be a tensor or list of tensors representing\nthe initial state of the RNN layer.\n\nYou can specify the initial state of RNN layers numerically by\ncalling `reset_states` with the keyword argument `states`. The value of\n`states` should be a numpy array or list of numpy arrays representing\nthe initial state of the RNN layer.\n\n**Note on passing external constants to RNNs**\n\nYou can pass \"external\" constants to the cell using the `constants`\nkeyword argument of `RNN.__call__` (as well as `RNN.call`) method. This\nrequires that the `cell.call` method accepts the same keyword argument\n`constants`. Such constants can be used to condition the cell\ntransformation on additional static inputs (not changing over time),\na.k.a. an attention mechanism.\n",
+      "examples": [
+        {
+          "code": "# First, let's define a RNN Cell, as a layer subclass.\n\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = K.dot(inputs, self.kernel)\n        output = h + K.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
+        }
+      ],
       "outputs": [
         {
           "name": "output"
@@ -852,14 +1170,17 @@
       "attributes": [
         {
           "default": "linear",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "valid",
+          "description": "One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n`\"valid\"` means \"no padding\".\n`\"same\"` results in padding the input such that\nthe output has the same length as the original input.\n`\"causal\"` results in causal (dilated) convolutions, e.g. output[t]\ndoes not depend on input[t+1:]. Useful when modeling temporal data\nwhere the model should not violate the temporal order.\nSee [WaveNet: A Generative Model for Raw Audio, section 2.1](https://arxiv.org/abs/1609.03499).",
           "name": "padding"
         },
         {
           "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
@@ -870,12 +1191,14 @@
           "default": [
             1
           ],
+          "description": "An integer or tuple/list of a single integer,\nspecifying the stride length of the convolution.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
           "default": [
             1
           ],
+          "description": "an integer or tuple/list of a single integer, specifying\nthe dilation rate to use for dilated convolution.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any `strides` value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -883,6 +1206,7 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
@@ -895,10 +1219,40 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](../initializers.md)).",
           "name": "kernel_initializer"
+        },
+        {
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "name": "filters"
+        },
+        {
+          "description": "An integer or tuple/list of a single integer,\nspecifying the length of the 1D convolution window.",
+          "name": "kernel_size"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to the kernel matrix\n(see [constraints](../constraints.md)).",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).\n",
+          "name": "bias_constraint"
         }
       ],
       "category": "Layer",
+      "description": "1D convolution layer (e.g. temporal convolution).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input over a single spatial (or temporal) dimension\nto produce a tensor of outputs.\nIf `use_bias` is True, a bias vector is created and added to the outputs.\nFinally, if `activation` is not `None`,\nit is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide an `input_shape` argument\n(tuple of integers or `None`, e.g.\n`(10, 128)` for sequences of 10 vectors of 128-dimensional vectors,\nor `(None, 128)` for variable-length sequences of 128-dimensional vectors.\n",
       "inputs": [
         {
           "name": "input"
@@ -924,18 +1278,22 @@
       "attributes": [
         {
           "default": "linear",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "valid",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
           "name": "padding"
         },
         {
           "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -943,6 +1301,7 @@
             1,
             1
           ],
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -950,6 +1309,7 @@
             1,
             1
           ],
+          "description": "an integer or tuple/list of 2 integers, specifying\nthe dilation rate to use for dilated convolution.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any stride value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -957,6 +1317,7 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
@@ -969,10 +1330,40 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](../initializers.md)).",
           "name": "kernel_initializer"
+        },
+        {
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "name": "filters"
+        },
+        {
+          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "name": "kernel_size"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to the kernel matrix\n(see [constraints](../constraints.md)).",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).\n",
+          "name": "bias_constraint"
         }
       ],
       "category": "Layer",
+      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
           "name": "input"
@@ -998,18 +1389,22 @@
       "attributes": [
         {
           "default": "linear",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "valid",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
           "name": "padding"
         },
         {
           "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -1017,6 +1412,7 @@
             1,
             1
           ],
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -1028,6 +1424,7 @@
         },
         {
           "default": 1,
+          "description": "The number of depthwise convolution output channels\nfor each input channel.\nThe total number of depthwise convolution output\nchannels will be equal to `filterss_in * depth_multiplier`.",
           "name": "depth_multiplier"
         },
         {
@@ -1040,6 +1437,7 @@
               "seed": null
             }
           },
+          "description": "Initializer for the pointwise kernel matrix\n(see [initializers](../initializers.md)).",
           "name": "pointwise_initializer"
         },
         {
@@ -1052,6 +1450,7 @@
               "seed": null
             }
           },
+          "description": "Initializer for the depthwise kernel matrix\n(see [initializers](../initializers.md)).",
           "name": "depthwise_initializer"
         },
         {
@@ -1059,6 +1458,7 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
@@ -1072,9 +1472,46 @@
             }
           },
           "name": "kernel_initializer"
+        },
+        {
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "name": "filters"
+        },
+        {
+          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "name": "kernel_size"
+        },
+        {
+          "description": "Regularizer function applied to\nthe depthwise kernel matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "depthwise_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe pointwise kernel matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "pointwise_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to\nthe depthwise kernel matrix\n(see [constraints](../constraints.md)).",
+          "name": "depthwise_constraint"
+        },
+        {
+          "description": "Constraint function applied to\nthe pointwise kernel matrix\n(see [constraints](../constraints.md)).",
+          "name": "pointwise_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).\n",
+          "name": "bias_constraint"
         }
       ],
       "category": "Layer",
+      "description": "Depthwise separable 2D convolution.\n\nSeparable convolutions consist in first performing\na depthwise spatial convolution\n(which acts on each input channel separately)\nfollowed by a pointwise convolution which mixes together the resulting\noutput channels. The `depth_multiplier` argument controls how many\noutput channels are generated per input channel in the depthwise step.\n\nIntuitively, separable convolutions can be understood as\na way to factorize a convolution kernel into two smaller kernels,\nor as an extreme version of an Inception block.\n",
       "inputs": [
         {
           "name": "input"
@@ -1100,18 +1537,22 @@
       "attributes": [
         {
           "default": "linear",
+          "description": "Activation function to use\n(see [activations](../activations.md)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "valid",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
           "name": "padding"
         },
         {
           "default": true,
+          "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -1119,6 +1560,7 @@
             1,
             1
           ],
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -1126,6 +1568,7 @@
             1,
             1
           ],
+          "description": "an integer or tuple/list of 2 integers, specifying\nthe dilation rate to use for dilated convolution.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any stride value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -1137,6 +1580,7 @@
             "class_name": "Zeros",
             "config": {}
           },
+          "description": "Initializer for the bias vector\n(see [initializers](../initializers.md)).",
           "name": "bias_initializer"
         },
         {
@@ -1149,10 +1593,40 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](../initializers.md)).",
           "name": "kernel_initializer"
+        },
+        {
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "name": "filters"
+        },
+        {
+          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "name": "kernel_size"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to the bias vector\n(see [regularizer](../regularizers.md)).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](../regularizers.md)).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint function applied to the kernel matrix\n(see [constraints](../constraints.md)).",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint function applied to the bias vector\n(see [constraints](../constraints.md)).\n",
+          "name": "bias_constraint"
         }
       ],
       "category": "Layer",
+      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
           "name": "input"
@@ -1248,7 +1722,18 @@
   {
     "name": "Concatenate",
     "schema": {
+      "attributes": [
+        {
+          "description": "Axis along which to concatenate.",
+          "name": "axis"
+        },
+        {
+          "description": "standard layer keyword arguments.\n",
+          "name": "**kwargs"
+        }
+      ],
       "category": "Tensor",
+      "description": "Layer that concatenates a list of inputs.\n\nIt takes as input a list of tensors,\nall of the same shape except for the concatenation axis,\nand returns a single tensor, the concatenation of all inputs.\n",
       "inputs": [
         {
           "name": "inputs",
@@ -1269,10 +1754,12 @@
       "attributes": [
         {
           "default": -1,
+          "description": "Integer, axis to use in mode `concat`.",
           "name": "concat_axis"
         },
         {
           "default": -1,
+          "description": "Integer or tuple of integers,\naxes to use in mode `dot` or `cos`.",
           "name": "dot_axes"
         },
         {
@@ -1280,11 +1767,42 @@
           "name": "arguments"
         },
         {
+          "description": "String or lambda/function. If string, must be one",
           "name": "mode",
           "sum": {}
+        },
+        {
+          "description": "Can be a list of Keras tensors or\na list of layer instances. Must be more\nthan one layer/tensor.",
+          "name": "layers"
+        },
+        {
+          "description": "'sum', 'mul', 'concat', 'ave', 'cos', 'dot', 'max'.\nIf lambda/function, it should take as input a list of tensors\nand return a single tensor.",
+          "name": "of"
+        },
+        {
+          "description": "Either a shape tuple (tuple of integers),\nor a lambda/function\nto compute `output_shape`\n(only if merge mode is a lambda/function).\nIf the argument is a tuple,\nit should be expected output shape, *not* including the batch size\n(same convention as the `input_shape` argument in layers).\nIf the argument is callable,\nit should take as input a list of shape tuples\n(1:1 mapping to input tensors)\nand return a single shape tuple, including the\nbatch size (same convention as the\n`compute_output_shape` method of layers).",
+          "name": "output_shape"
+        },
+        {
+          "description": "Optional list of integers containing\nthe output node index for each input layer\n(in case some input layers have multiple output nodes).\nwill default to an array of 0s if not provided.",
+          "name": "node_indices"
+        },
+        {
+          "description": "Optional list of indices of output tensors\nto consider for merging\n(in case some input layer node returns multiple tensors).",
+          "name": "tensor_indices"
+        },
+        {
+          "description": "Mask or lambda/function to compute the output mask (only\nif merge mode is a lambda/function). If the latter case, it should\ntake as input a list of masks and return a single mask.\n",
+          "name": "output_mask"
         }
       ],
       "category": "Tensor",
+      "description": "A `Merge` layer can be used to merge a list of tensors\ninto a single tensor, following some merge `mode`.",
+      "examples": [
+        {
+          "code": "model1 = Sequential()\nmodel1.add(Dense(32, input_dim=32))\nmodel2 = Sequential()\nmodel2.add(Dense(32, input_dim=32))\nmerged_model = Sequential()\nmerged_model.add(Merge([model1, model2], mode='concat', concat_axis=1))"
+        }
+      ],
       "inputs": [
         {
           "name": "inputs",
@@ -1303,6 +1821,7 @@
     "name": "Average",
     "schema": {
       "category": "Tensor",
+      "description": "Layer that averages a list of inputs.\n\nIt takes as input a list of tensors,\nall of the same shape, and returns\na single tensor (also of the same shape).\n",
       "inputs": [
         {
           "name": "inputs",
@@ -1321,6 +1840,7 @@
     "name": "Maximum",
     "schema": {
       "category": "Tensor",
+      "description": "Layer that computes the maximum (element-wise) a list of inputs.\n\nIt takes as input a list of tensors,\nall of the same shape, and returns\na single tensor (also of the same shape).\n",
       "inputs": [
         {
           "name": "inputs",
@@ -1339,6 +1859,12 @@
     "name": "Flatten",
     "schema": {
       "category": "Shape",
+      "description": "Flattens the input. Does not affect the batch size.\n",
+      "examples": [
+        {
+          "code": "model = Sequential()\nmodel.add(Conv2D(64, 3, 3,\n                 border_mode='same',\n                 input_shape=(3, 32, 32)))\n# now: model.output_shape == (None, 64, 32, 32)\n\nmodel.add(Flatten())\n# now: model.output_shape == (None, 65536)"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
@@ -1355,7 +1881,19 @@
   {
     "name": "Reshape",
     "schema": {
+      "attributes": [
+        {
+          "description": "target shape. Tuple of integers.\nDoes not include the batch axis.\n",
+          "name": "target_shape"
+        }
+      ],
       "category": "Shape",
+      "description": "Reshapes an output to a certain shape.\n",
+      "examples": [
+        {
+          "code": "# as first layer in a Sequential model\nmodel = Sequential()\nmodel.add(Reshape((3, 4), input_shape=(12,)))\n# now: model.output_shape == (None, 3, 4)\n# note: `None` is the batch dimension\n\n# as intermediate layer in a Sequential model\nmodel.add(Reshape((6, 2)))\n# now: model.output_shape == (None, 6, 2)\n\n# also supports shape inference using `-1` as dimension\nmodel.add(Reshape((-1, 2, 2)))\n# now: model.output_shape == (None, 3, 2, 2)"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
@@ -1372,7 +1910,19 @@
   {
     "name": "Permute",
     "schema": {
+      "attributes": [
+        {
+          "description": "Tuple of integers. Permutation pattern, does not include the\nsamples dimension. Indexing starts at 1.\nFor instance, `(2, 1)` permutes the first and second dimension\nof the input.\n",
+          "name": "dims"
+        }
+      ],
       "category": "Shape",
+      "description": "Permutes the dimensions of the input according to a given pattern.\n\nUseful for e.g. connecting RNNs and convnets together.\n",
+      "examples": [
+        {
+          "code": "model = Sequential()\nmodel.add(Permute((2, 1), input_shape=(10, 64)))\n# now: model.output_shape == (None, 64, 10)\n# note: `None` is the batch dimension"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
@@ -1389,7 +1939,19 @@
   {
     "name": "RepeatVector",
     "schema": {
+      "attributes": [
+        {
+          "description": "integer, repetition factor.\n",
+          "name": "n"
+        }
+      ],
       "category": "Shape",
+      "description": "Repeats the input n times.\n",
+      "examples": [
+        {
+          "code": "model = Sequential()\nmodel.add(Dense(32, input_dim=32))\n# now: model.output_shape == (None, 32)\n# note: `None` is the batch dimension\n\nmodel.add(RepeatVector(3))\n# now: model.output_shape == (None, 3, 32)"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
@@ -1406,7 +1968,22 @@
   {
     "name": "Dropout",
     "schema": {
+      "attributes": [
+        {
+          "description": "float between 0 and 1. Fraction of the input units to drop.",
+          "name": "rate"
+        },
+        {
+          "description": "1D integer tensor representing the shape of the\nbinary dropout mask that will be multiplied with the input.\nFor instance, if your inputs have shape\n`(batch_size, timesteps, features)` and\nyou want the dropout mask to be the same for all timesteps,\nyou can use `noise_shape=(batch_size, 1, features)`.",
+          "name": "noise_shape"
+        },
+        {
+          "description": "A Python integer to use as random seed.\n",
+          "name": "seed"
+        }
+      ],
       "category": "Dropout",
+      "description": "Applies Dropout to the input.\n\nDropout consists in randomly setting\na fraction `rate` of input units to 0 at each update during training time,\nwhich helps prevent overfitting.\n",
       "inputs": [
         {
           "name": "input"
@@ -1417,7 +1994,12 @@
           "name": "output"
         }
       ],
-      "package": "keras.layers"
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[Dropout: A Simple Way to Prevent Neural Networks from Overfitting](http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf)"
+        }
+      ]
     }
   },
   {
@@ -1426,6 +2008,7 @@
       "attributes": [
         {
           "default": false,
+          "description": "Whether or not the input value 0 is a special \"padding\"\nvalue that should be masked out.\nThis is useful when using [recurrent layers](recurrent.md)\nwhich may take variable length input.\nIf this is `True` then all subsequent layers\nin the model need to support masking or an exception will be raised.\nIf mask_zero is set to True, as a consequence, index 0 cannot be\nused in the vocabulary (input_dim should equal size of\nvocabulary + 1).",
           "name": "mask_zero"
         },
         {
@@ -1437,10 +2020,37 @@
               "seed": null
             }
           },
+          "description": "Initializer for the `embeddings` matrix\n(see [initializers](../initializers.md)).",
           "name": "embeddings_initializer"
+        },
+        {
+          "description": "int > 0. Size of the vocabulary,\ni.e. maximum integer index + 1.",
+          "name": "input_dim"
+        },
+        {
+          "description": "int >= 0. Dimension of the dense embedding.",
+          "name": "output_dim"
+        },
+        {
+          "description": "Regularizer function applied to\nthe `embeddings` matrix\n(see [regularizer](../regularizers.md)).",
+          "name": "embeddings_regularizer"
+        },
+        {
+          "description": "Constraint function applied to\nthe `embeddings` matrix\n(see [constraints](../constraints.md)).",
+          "name": "embeddings_constraint"
+        },
+        {
+          "description": "Length of input sequences, when it is constant.\nThis argument is required if you are going to connect\n`Flatten` then `Dense` layers upstream\n(without it, the shape of the dense outputs cannot be computed).\n",
+          "name": "input_length"
         }
       ],
       "category": "Transform",
+      "description": "Turns positive integers (indexes) into dense vectors of fixed size.\neg. [[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]\n\nThis layer can only be used as the first layer in a model.\n",
+      "examples": [
+        {
+          "code": "model = Sequential()\nmodel.add(Embedding(1000, 64, input_length=10))\n# the model will take as input an integer matrix of size (batch, input_length).\n# the largest integer (i.e. word index) in the input should be no larger than 999 (vocabulary size).\n# now model.output_shape == (None, 10, 64), where None is the batch dimension.\n\ninput_array = np.random.randint(1000, size=(32, 10))\n\nmodel.compile('rmsprop', 'mse')\noutput_array = model.predict(input_array)\nassert output_array.shape == (32, 10, 64)"
+        }
+      ],
       "inputs": [
         {
           "name": "input"
@@ -1454,12 +2064,23 @@
           "name": "output"
         }
       ],
-      "package": "keras.layers"
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
+        }
+      ]
     }
   },
   {
     "name": "Add",
     "schema": {
+      "description": "Layer that adds a list of inputs.\n\nIt takes as input a list of tensors,\nall of the same shape, and returns\na single tensor (also of the same shape).\n",
+      "examples": [
+        {
+          "code": "import keras\n\ninput1 = keras.layers.Input(shape=(16,))\nx1 = keras.layers.Dense(8, activation='relu')(input1)\ninput2 = keras.layers.Input(shape=(32,))\nx2 = keras.layers.Dense(8, activation='relu')(input2)\nadded = keras.layers.Add()([x1, x2])  # equivalent to added = keras.layers.add([x1, x2])\n\nout = keras.layers.Dense(4)(added)\nmodel = keras.models.Model(inputs=[input1, input2], outputs=out)"
+        }
+      ],
       "inputs": [
         {
           "name": "x"
@@ -1479,6 +2100,12 @@
   {
     "name": "Subtract",
     "schema": {
+      "description": "Layer that subtracts two inputs.\n\nIt takes as input a list of tensors of size 2,\nboth of the same shape, and returns a single tensor, (inputs[0] - inputs[1]),\nalso of the same shape.\n",
+      "examples": [
+        {
+          "code": "import keras\n\ninput1 = keras.layers.Input(shape=(16,))\nx1 = keras.layers.Dense(8, activation='relu')(input1)\ninput2 = keras.layers.Input(shape=(32,))\nx2 = keras.layers.Dense(8, activation='relu')(input2)\n# Equivalent to subtracted = keras.layers.subtract([x1, x2])\nsubtracted = keras.layers.Subtract()([x1, x2])\n\nout = keras.layers.Dense(4)(subtracted)\nmodel = keras.models.Model(inputs=[input1, input2], outputs=out)"
+        }
+      ],
       "inputs": [
         {
           "name": "x"
@@ -1498,6 +2125,7 @@
   {
     "name": "Multiply",
     "schema": {
+      "description": "Layer that multiplies (element-wise) a list of inputs.\n\nIt takes as input a list of tensors,\nall of the same shape, and returns\na single tensor (also of the same shape).\n",
       "inputs": [
         {
           "name": "x"
@@ -1517,6 +2145,29 @@
   {
     "name": "Lambda",
     "schema": {
+      "attributes": [
+        {
+          "description": "The function to be evaluated.\nTakes input tensor as first argument.",
+          "name": "function"
+        },
+        {
+          "description": "Expected output shape from function.\nOnly relevant when using Theano.\nCan be a tuple or function.\nIf a tuple, it only specifies the first dimension onward;\nsample dimension is assumed either the same as the input:\n`output_shape = (input_shape[0], ) + output_shape`\nor, the input is `None` and\nthe sample dimension is also `None`:\n`output_shape = (None, ) + output_shape`\nIf a function, it specifies the entire shape as a function of the\ninput shape: `output_shape = f(input_shape)`",
+          "name": "output_shape"
+        },
+        {
+          "description": "optional dictionary of keyword arguments to be passed\nto the function.\n",
+          "name": "arguments"
+        }
+      ],
+      "description": "Wraps arbitrary expression as a `Layer` object.\n",
+      "examples": [
+        {
+          "code": "# add a x -> x^2 layer\nmodel.add(Lambda(lambda x: x ** 2))"
+        },
+        {
+          "code": "# add a layer that returns the concatenation\n# of the positive part of the input and\n# the opposite of the negative part\n\ndef antirectifier(x):\n    x -= K.mean(x, axis=1, keepdims=True)\n    x = K.l2_normalize(x, axis=1)\n    pos = K.relu(x)\n    neg = K.relu(-x)\n    return K.concatenate([pos, neg], axis=1)\n\ndef antirectifier_output_shape(input_shape):\n    shape = list(input_shape)\n    assert len(shape) == 2  # only valid for 2D tensors\n    shape[-1] *= 2\n    return tuple(shape)\n\nmodel.add(Lambda(antirectifier,\n                 output_shape=antirectifier_output_shape))"
+        }
+      ],
       "package": "keras.layers"
     }
   }
