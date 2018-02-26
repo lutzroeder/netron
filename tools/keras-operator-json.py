@@ -95,6 +95,19 @@ def split_docstring(docstring):
         headers[current_header] = current_lines
     return headers
 
+def update_hyperlink(description):
+    def replace_hyperlink(match):
+        name = match.group(1)
+        link = match.group(2)
+        if link.endswith('.md'):
+            if link.startswith('../'):
+                link = link.replace('../', 'https://keras.io/').rstrip('.md')
+            else:
+                link = 'https://keras.io/layers/' + link.rstrip('.md')
+            return '[' + name + '](' + link + ')'
+        return match.group(0)
+    return re.sub(r'\[(.*?)\]\((.*?)\)', replace_hyperlink, description)
+
 def update_argument(schema, name, lines):
     attribute = None
     if not 'attributes' in schema:
@@ -107,7 +120,9 @@ def update_argument(schema, name, lines):
         attribute = {}
         attribute['name'] = name
         schema['attributes'].append(attribute)
-    attribute['description'] = '\n'.join(lines)
+    description = '\n'.join(lines)
+    description = update_hyperlink(description)
+    attribute['description'] = description
 
 def update_arguments(schema, lines):
     argument_name = None
