@@ -232,10 +232,11 @@ class Application {
         var menuRecentsTemplate = [];
         if (this._configuration && this._configuration.recents) {
             this._configuration.recents = this._configuration.recents.filter(recent => fs.existsSync(recent.path));
-            this._configuration.recents.forEach((recent) => {
+            this._configuration.recents.forEach((recent, index) => {
                 var file = recent.path;
                 menuRecentsTemplate.push({ 
                     label: Application.minimizePath(recent.path),
+                    accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + index.toString(),
                     click: () => { this.openFile(file); }
                 });
             });
