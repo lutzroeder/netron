@@ -682,6 +682,13 @@ class KerasOperatorMetadata {
                     }
                 });
             }
+            if (schema.references) {
+                schema.references.forEach((reference) => {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                });                
+            }
             var template = Handlebars.compile(operatorTemplate, 'utf-8');
             return template(schema);
         }

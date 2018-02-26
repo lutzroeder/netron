@@ -69,6 +69,8 @@ var operatorTemplate = `
 .documentation tt { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 85%; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
 .documentation dl dt { font-size: 12px; font-weight: 600; padding: 0; margin-top: 16px; }
 .documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
+.documentation ul { margin-top: 6px; margin-bottom: 6px; padding-left: 20px; }
+.documentation li { }
 </style>
 
 <div id='documentation' class='documentation'>
@@ -123,11 +125,20 @@ var operatorTemplate = `
 
 {{#if examples}}
 <h2>Examples</h2>
-{{/if}}
 {{#examples}}
 <h3>{{{summary}}}</h3>
 <pre>{{{code}}}</pre>
 {{/examples}}
+{{/if}}
+
+{{#if references}}
+<h2>References</h2>
+<ul>
+{{#references}}
+<li>{{{description}}}</li>
+{{/references}}
+</ul>
+{{/if}}
 
 {{#if domain}}{{#if since_version}}{{#if support_level}}
 <h2>Support</h2>
