@@ -10,7 +10,7 @@ import re
 import sys
 
 def count_leading_spaces(s):
-    ws = re.search('\S', s)
+    ws = re.search(r'\S', s)
     if ws:
         return ws.start()
     else:
@@ -179,7 +179,37 @@ def update_references(schema, lines):
             if not 'references' in schema:
                 schema['references'] = []
             schema['references'].append({ 'description': line })
-        
+
+def update_input(schema, description):
+    entry = None
+    if 'inputs' in schema:
+        for current_input in schema['inputs']:
+            if current_input['name'] == 'input':
+                entry = current_input
+                break
+    else:
+        entry = {}
+        entry['name'] = 'input'
+        schema['inputs'] = []
+        schema['inputs'].append(entry)
+    if entry:
+        entry['description'] = description
+
+def update_output(schema, description):
+    entry = None
+    if 'outputs' in schema:
+        for current_output in schema['outputs']:
+            if current_output['name'] == 'output':
+                entry = current_output
+                break
+    else:
+        entry = {}
+        entry['name'] = 'output'
+        schema['outputs'] = []
+        schema['outputs'].append(entry)
+    if entry:
+        entry['description'] = description
+
 json_file = '../src/keras-operator.json'
 json_data = open(json_file).read()
 json_root = json.loads(json_data)
@@ -204,10 +234,10 @@ for entry in json_root:
             update_arguments(schema, headers['Arguments'])
             del headers['Arguments']
         if 'Input shape' in headers:
-            # TODO
+            update_input(schema, '\n'.join(headers['Input shape']))
             del headers['Input shape']
         if 'Output shape' in headers:
-            # TODO
+            update_output(schema, '\n'.join(headers['Output shape']))
             del headers['Output shape']
         if 'Examples' in headers:
             update_examples(schema, headers['Examples'])

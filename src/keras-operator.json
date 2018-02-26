@@ -70,11 +70,13 @@
       "description": "Applies an activation function to an output.\n",
       "inputs": [
         {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\nSame shape as input.\n",
           "name": "output"
         }
       ],
@@ -94,11 +96,13 @@
       "description": "Leaky version of a Rectified Linear Unit.\n\nIt allows a small gradient when the unit is not active:\n`f(x) = alpha * x for x < 0`,\n`f(x) = x for x >= 0`.\n",
       "inputs": [
         {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\nSame shape as the input.\n",
           "name": "output"
         }
       ],
@@ -123,11 +127,13 @@
       "description": "Thresholded Rectified Linear Unit.\n\nIt follows:\n`f(x) = x for x > theta`,\n`f(x) = 0 otherwise`.\n",
       "inputs": [
         {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\nSame shape as the input.\n",
           "name": "output"
         }
       ],
@@ -173,11 +179,13 @@
       "description": "Max pooling operation for temporal data.\n",
       "inputs": [
         {
+          "description": "\n3D tensor with shape: `(batch_size, steps, features)`.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n3D tensor with shape: `(batch_size, downsampled_steps, features)`.\n",
           "name": "output"
         }
       ],
@@ -219,11 +227,13 @@
       "description": "Max pooling operation for spatial data.\n",
       "inputs": [
         {
+          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, pooled_rows, pooled_cols)`\n",
           "name": "output"
         }
       ],
@@ -247,11 +257,13 @@
       "description": "Upsampling layer for 1D inputs.\n\nRepeats each temporal step `size` times along the time axis.\n",
       "inputs": [
         {
+          "description": "\n3D tensor with shape: `(batch, steps, features)`.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n3D tensor with shape: `(batch, upsampled_steps, features)`.\n",
           "name": "output"
         }
       ],
@@ -276,11 +288,13 @@
       "description": "Upsampling layer for 2D inputs.\n\nRepeats the rows and columns of the data\nby size[0] and size[1] respectively.\n",
       "inputs": [
         {
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, upsampled_rows, upsampled_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, upsampled_rows, upsampled_cols)`\n",
           "name": "output"
         }
       ],
@@ -305,11 +319,13 @@
       "description": "Upsampling layer for 3D inputs.\n\nRepeats the 1st, 2nd and 3rd dimensions\nof the data by size[0], size[1] and size[2] respectively.\n",
       "inputs": [
         {
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, dim1, dim2, dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, dim1, dim2, dim3)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, upsampled_dim1, upsampled_dim2, upsampled_dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, upsampled_dim1, upsampled_dim2, upsampled_dim3)`\n",
           "name": "output"
         }
       ],
@@ -323,11 +339,13 @@
       "description": "Global max pooling operation for temporal data.\n",
       "inputs": [
         {
+          "description": "\n3D tensor with shape: `(batch_size, steps, features)`.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n2D tensor with shape:\n`(batch_size, features)`\n",
           "name": "output"
         }
       ],
@@ -348,11 +366,13 @@
       "description": "Global max pooling operation for spatial data.\n",
       "inputs": [
         {
+          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n2D tensor with shape:\n`(batch_size, channels)`\n",
           "name": "output"
         }
       ],
@@ -367,11 +387,13 @@
       "description": "Global average pooling operation for temporal data.\n",
       "inputs": [
         {
+          "description": "\n3D tensor with shape: `(batch_size, steps, features)`.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n2D tensor with shape:\n`(batch_size, features)`\n",
           "name": "output"
         }
       ],
@@ -392,11 +414,13 @@
       "description": "Global average pooling operation for spatial data.\n",
       "inputs": [
         {
+          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n2D tensor with shape:\n`(batch_size, channels)`\n",
           "name": "output"
         }
       ],
@@ -429,11 +453,13 @@
       "description": "Average pooling operation for spatial data.\n",
       "inputs": [
         {
+          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, pooled_rows, pooled_cols)`\n",
           "name": "output"
         }
       ],
@@ -522,6 +548,7 @@
       "description": "Batch normalization layer (Ioffe and Szegedy, 2014).\n\nNormalize the activations of the previous layer at each batch,\ni.e. applies a transformation that maintains the mean activation\nclose to 0 and the activation standard deviation close to 1.\n",
       "inputs": [
         {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
           "name": "input"
         },
         {
@@ -539,6 +566,7 @@
       ],
       "outputs": [
         {
+          "description": "\nSame shape as input.\n",
           "name": "output"
         }
       ],
@@ -621,7 +649,7 @@
       ],
       "inputs": [
         {
-          "description": "nD tensor with shape: `(batch_size, ..., input_dim)`. The most common situation would be a 2D input with shape `(batch_size, input_dim)`.",
+          "description": "\nnD tensor with shape: `(batch_size, ..., input_dim)`.\nThe most common situation would be\na 2D input with shape `(batch_size, input_dim)`.\n",
           "name": "input",
           "type": "T"
         },
@@ -636,7 +664,7 @@
       ],
       "outputs": [
         {
-          "description": "nD tensor with shape: `(batch_size, ..., units)`. For instance, for a 2D input with shape `(batch_size, input_dim)`, the output would have shape `(batch_size, units)`.",
+          "description": "\nnD tensor with shape: `(batch_size, ..., units)`.\nFor instance, for a 2D input with shape `(batch_size, input_dim)`,\nthe output would have shape `(batch_size, units)`.\n",
           "name": "output",
           "type": "T"
         }
@@ -1156,8 +1184,15 @@
           "code": "# First, let's define a RNN Cell, as a layer subclass.\n\nclass MinimalRNNCell(keras.layers.Layer):\n\n    def __init__(self, units, **kwargs):\n        self.units = units\n        self.state_size = units\n        super(MinimalRNNCell, self).__init__(**kwargs)\n\n    def build(self, input_shape):\n        self.kernel = self.add_weight(shape=(input_shape[-1], self.units),\n                                      initializer='uniform',\n                                      name='kernel')\n        self.recurrent_kernel = self.add_weight(\n            shape=(self.units, self.units),\n            initializer='uniform',\n            name='recurrent_kernel')\n        self.built = True\n\n    def call(self, inputs, states):\n        prev_output = states[0]\n        h = K.dot(inputs, self.kernel)\n        output = h + K.dot(prev_output, self.recurrent_kernel)\n        return output, [output]\n\n# Let's use this cell in a RNN layer:\n\ncell = MinimalRNNCell(32)\nx = keras.Input((None, 5))\nlayer = RNN(cell)\ny = layer(x)\n\n# Here's how to use the cell to build a stacked RNN:\n\ncells = [MinimalRNNCell(32), MinimalRNNCell(64)]\nx = keras.Input((None, 5))\nlayer = RNN(cells)\ny = layer(x)"
         }
       ],
+      "inputs": [
+        {
+          "description": "\n3D tensor with shape `(batch_size, timesteps, input_dim)`.\n",
+          "name": "input"
+        }
+      ],
       "outputs": [
         {
+          "description": "\n- if `return_state`: a list of tensors. The first tensor is\nthe output. The remaining tensors are the last states,\neach with shape `(batch_size, units)`.\n- if `return_sequences`: 3D tensor with shape\n`(batch_size, timesteps, units)`.\n- else, 2D tensor with shape `(batch_size, units)`.\n",
           "name": "output"
         }
       ],
@@ -1255,6 +1290,7 @@
       "description": "1D convolution layer (e.g. temporal convolution).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input over a single spatial (or temporal) dimension\nto produce a tensor of outputs.\nIf `use_bias` is True, a bias vector is created and added to the outputs.\nFinally, if `activation` is not `None`,\nit is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide an `input_shape` argument\n(tuple of integers or `None`, e.g.\n`(10, 128)` for sequences of 10 vectors of 128-dimensional vectors,\nor `(None, 128)` for variable-length sequences of 128-dimensional vectors.\n",
       "inputs": [
         {
+          "description": "\n3D tensor with shape: `(batch_size, steps, input_dim)`\n",
           "name": "input"
         },
         {
@@ -1266,6 +1302,7 @@
       ],
       "outputs": [
         {
+          "description": "\n3D tensor with shape: `(batch_size, new_steps, filters)`\n`steps` value might have changed due to padding or strides.\n",
           "name": "output"
         }
       ],
@@ -1366,6 +1403,7 @@
       "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
+          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.\n",
           "name": "input"
         },
         {
@@ -1377,6 +1415,7 @@
       ],
       "outputs": [
         {
+          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -1514,6 +1553,7 @@
       "description": "Depthwise separable 2D convolution.\n\nSeparable convolutions consist in first performing\na depthwise spatial convolution\n(which acts on each input channel separately)\nfollowed by a pointwise convolution which mixes together the resulting\noutput channels. The `depth_multiplier` argument controls how many\noutput channels are generated per input channel in the depthwise step.\n\nIntuitively, separable convolutions can be understood as\na way to factorize a convolution kernel into two smaller kernels,\nor as an extreme version of an Inception block.\n",
       "inputs": [
         {
+          "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch, rows, cols, channels)` if data_format='channels_last'.\n",
           "name": "input"
         },
         {
@@ -1525,6 +1565,7 @@
       ],
       "outputs": [
         {
+          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -1629,6 +1670,7 @@
       "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
+          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.\n",
           "name": "input"
         },
         {
@@ -1640,6 +1682,7 @@
       ],
       "outputs": [
         {
+          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -1896,11 +1939,13 @@
       ],
       "inputs": [
         {
+          "description": "\nArbitrary, although all dimensions in the input shaped must be fixed.\nUse the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis)\nwhen using this layer as the first layer in a model.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n`(batch_size,) + target_shape`\n",
           "name": "output"
         }
       ],
@@ -1925,11 +1970,13 @@
       ],
       "inputs": [
         {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\nSame as the input shape, but with the dimensions re-ordered according\nto the specified pattern.\n",
           "name": "output"
         }
       ],
@@ -1954,11 +2001,13 @@
       ],
       "inputs": [
         {
+          "description": "\n2D tensor of shape `(num_samples, features)`.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
+          "description": "\n3D tensor of shape `(num_samples, n, features)`.\n",
           "name": "output"
         }
       ],
@@ -2053,6 +2102,7 @@
       ],
       "inputs": [
         {
+          "description": "\n2D tensor with shape: `(batch_size, sequence_length)`.\n",
           "name": "input"
         },
         {
@@ -2061,6 +2111,7 @@
       ],
       "outputs": [
         {
+          "description": "\n3D tensor with shape: `(batch_size, sequence_length, output_dim)`.\n",
           "name": "output"
         }
       ],
@@ -2166,6 +2217,18 @@
         },
         {
           "code": "# add a layer that returns the concatenation\n# of the positive part of the input and\n# the opposite of the negative part\n\ndef antirectifier(x):\n    x -= K.mean(x, axis=1, keepdims=True)\n    x = K.l2_normalize(x, axis=1)\n    pos = K.relu(x)\n    neg = K.relu(-x)\n    return K.concatenate([pos, neg], axis=1)\n\ndef antirectifier_output_shape(input_shape):\n    shape = list(input_shape)\n    assert len(shape) == 2  # only valid for 2D tensors\n    shape[-1] *= 2\n    return tuple(shape)\n\nmodel.add(Lambda(antirectifier,\n                 output_shape=antirectifier_output_shape))"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "\nArbitrary. Use the keyword argument input_shape\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "\nSpecified by `output_shape` argument\n(or auto-inferred when using TensorFlow).\n",
+          "name": "output"
         }
       ],
       "package": "keras.layers"
