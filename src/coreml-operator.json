@@ -84,7 +84,45 @@
     "name": "biDirectionalLSTM",
     "schema": {
       "category": "Layer",
-      "description": "Bidirectional long short-term memory (LSTM) layer. The first LSTM operates on the input sequence in the forward direction. The second LSTM operates on the input sequence in the reverse direction."
+      "description": "Bidirectional long short-term memory (LSTM) layer. The first LSTM operates on the input sequence in the forward direction. The second LSTM operates on the input sequence in the reverse direction.",
+      "inputs": [
+        { "name": "input" },
+        { "name": "h" },
+        { "name": "c" },
+        { "name": "h_rev" },
+        { "name": "c_rev" },
+        { "name": "inputGateWeightMatrix", "hidden": true },
+        { "name": "forgetGateWeightMatrix", "hidden": true },
+        { "name": "blockInputWeightMatrix", "hidden": true },
+        { "name": "outputGateWeightMatrix", "hidden": true },
+        { "name": "inputGateRecursionMatrix", "hidden": true },
+        { "name": "forgetGateRecursionMatrix", "hidden": true },
+        { "name": "blockInputRecursionMatrix", "hidden": true },
+        { "name": "outputGateRecursionMatrix", "hidden": true },
+        { "name": "inputGateBiasVector", "hidden": true },
+        { "name": "forgetGateBiasVector", "hidden": true },
+        { "name": "blockInputBiasVector", "hidden": true },
+        { "name": "outputGateBiasVector", "hidden": true },
+        { "name": "inputGateWeightMatrix_rev", "hidden": true },
+        { "name": "forgetGateWeightMatrix_rev", "hidden": true },
+        { "name": "blockInputWeightMatrix_rev", "hidden": true },
+        { "name": "outputGateWeightMatrix_rev", "hidden": true },
+        { "name": "inputGateRecursionMatrix_rev", "hidden": true },
+        { "name": "forgetGateRecursionMatrix_rev", "hidden": true },
+        { "name": "blockInputRecursionMatrix_rev", "hidden": true },
+        { "name": "outputGateRecursionMatrix_rev", "hidden": true },
+        { "name": "inputGateBiasVector_rev", "hidden": true },
+        { "name": "forgetGateBiasVector_rev", "hidden": true },
+        { "name": "blockInputBiasVector_rev", "hidden": true },
+        { "name": "outputGateBiasVector_rev", "hidden": true }
+      ],
+      "outputs": [
+        { "name": "output" },
+        { "name": "h" },
+        { "name": "c" },
+        { "name": "h_rev" },
+        { "name": "c_rev" }
+      ]
     }
   },
   {
@@ -166,6 +204,12 @@
         { "name": "y" }
       ]
     }
+  },
+  {
+    "name": "sequenceRepeat",
+    "schema": {
+      "category": "Shape"
+    }    
   },
   {
     "name": "concat",

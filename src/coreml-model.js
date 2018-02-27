@@ -386,10 +386,21 @@ class CoreMLNode {
             case 'uniDirectionalLSTM':
                 if (value instanceof coreml.LSTMWeightParams) {
                     Object.keys(value).forEach((key) => {
-                        this._initializers.push(new CoreMLTensor(key, value));
+                        this._initializers.push(new CoreMLTensor(key, value[key]));
                     });
                     return;
                 }
+                break;
+            case 'biDirectionalLSTM':
+                if (name == 'weightParams' && value.length == 2) {
+                    Object.keys(value[0]).forEach((key) => {
+                        this._initializers.push(new CoreMLTensor(key, value[0][key]));
+                    });
+                    Object.keys(value[1]).forEach((key) => {
+                        this._initializers.push(new CoreMLTensor(key + '_rev', value[1][key]));
+                    });
+                    return;
+                }    
                 break;
         }
 
