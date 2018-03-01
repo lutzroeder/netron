@@ -65,7 +65,13 @@ tflite.BuiltinOperator = {
   SQUEEZE: 43,
   UNIDIRECTIONAL_SEQUENCE_LSTM: 44,
   STRIDED_SLICE: 45,
-  BIDIRECTIONAL_SEQUENCE_RNN: 46
+  BIDIRECTIONAL_SEQUENCE_RNN: 46,
+  EXP: 47,
+  TOPK_V2: 48,
+  SPLIT: 49,
+  LOG_SOFTMAX: 50,
+  DELEGATE: 51,
+  BIDIRECTIONAL_SEQUENCE_LSTM: 52
 };
 
 /**
@@ -104,7 +110,11 @@ tflite.BuiltinOptions = {
   DivOptions: 29,
   SqueezeOptions: 30,
   SequenceRNNOptions: 31,
-  StridedSliceOptions: 32
+  StridedSliceOptions: 32,
+  ExpOptions: 33,
+  TopKV2Options: 34,
+  SplitOptions: 35,
+  LogSoftmaxOptions: 36
 };
 
 /**
@@ -2860,6 +2870,57 @@ tflite.DivOptions.endDivOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.TopKV2Options = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.TopKV2Options}
+ */
+tflite.TopKV2Options.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.TopKV2Options=} obj
+ * @returns {tflite.TopKV2Options}
+ */
+tflite.TopKV2Options.getRootAsTopKV2Options = function(bb, obj) {
+  return (obj || new tflite.TopKV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.TopKV2Options.startTopKV2Options = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.TopKV2Options.endTopKV2Options = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.EmbeddingLookupSparseOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -3045,6 +3106,57 @@ tflite.TransposeOptions.endTransposeOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.ExpOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.ExpOptions}
+ */
+tflite.ExpOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.ExpOptions=} obj
+ * @returns {tflite.ExpOptions}
+ */
+tflite.ExpOptions.getRootAsExpOptions = function(bb, obj) {
+  return (obj || new tflite.ExpOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.ExpOptions.startExpOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.ExpOptions.endExpOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.MeanOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -3217,6 +3329,73 @@ tflite.SqueezeOptions.endSqueezeOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.SplitOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.SplitOptions}
+ */
+tflite.SplitOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.SplitOptions=} obj
+ * @returns {tflite.SplitOptions}
+ */
+tflite.SplitOptions.getRootAsSplitOptions = function(bb, obj) {
+  return (obj || new tflite.SplitOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite.SplitOptions.prototype.numSplits = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.SplitOptions.startSplitOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numSplits
+ */
+tflite.SplitOptions.addNumSplits = function(builder, numSplits) {
+  builder.addFieldInt32(0, numSplits, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.SplitOptions.endSplitOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.StridedSliceOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -3341,6 +3520,57 @@ tflite.StridedSliceOptions.addShrinkAxisMask = function(builder, shrinkAxisMask)
  * @returns {flatbuffers.Offset}
  */
 tflite.StridedSliceOptions.endStridedSliceOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.LogSoftmaxOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.LogSoftmaxOptions}
+ */
+tflite.LogSoftmaxOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.LogSoftmaxOptions=} obj
+ * @returns {tflite.LogSoftmaxOptions}
+ */
+tflite.LogSoftmaxOptions.getRootAsLogSoftmaxOptions = function(bb, obj) {
+  return (obj || new tflite.LogSoftmaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.LogSoftmaxOptions.startLogSoftmaxOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.LogSoftmaxOptions.endLogSoftmaxOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
