@@ -330,19 +330,19 @@ class OnnxAttribute {
     get value() {
         if (this._attribute.ints && this._attribute.ints.length > 0) {
             if (this._attribute.ints.length > 65536) {
-                return "Too large to render.";
+                return "...";
             }
             return this._attribute.ints.map((v) => { return v.toString(); }).join(', '); 
         }
         else if (this._attribute.floats && this._attribute.floats.length > 0) {
             if (this._attribute.floats.length > 65536) {
-                return "Too large to render.";
+                return "...";
             }
             return this._attribute.floats.map(v => v.toString()).join(', ');
         }
         else if (this._attribute.strings && this._attribute.strings.length > 0) {
             if (this._attribute.strings.length > 65536) {
-                return "Too large to render.";
+                return "...";
             }
             return this._attribute.strings.map((s) => {
                 if (s.filter(c => c <= 32 && c >= 128).length == 0) {

@@ -154,6 +154,13 @@
     }
   },
   {
+    "name": "l2normalize",
+    "schema": {
+      "category": "Normalization",
+      "description": "A layer that performs L2 normalization, i.e. divides by the the square root of the sum of squares of all elements of input."
+    }
+  },
+  {
     "name": "lrn",
     "schema": {
       "category": "Normalization",
@@ -178,6 +185,12 @@
     }
   },
   {
+    "name": "reduce",
+    "schema": {
+      "description": "A layer that reduces the input using a specified operation."
+    }
+  },
+  {
     "name": "flatten",
     "schema": {
       "category": "Shape",
@@ -189,6 +202,20 @@
     "schema": {
       "category": "Shape",
       "description": "A layer that recasts the input into a new shape."
+    }
+  },
+  {
+    "name": "reorganizeData",
+    "schema": {
+      "category": "Shape",
+      "description": "A layer that reorganizes data in the input in: 1. SPACE_TO_DEPTH, 2. DEPTH_TO_SPACE."
+    }
+  },
+  {
+    "name": "padding",
+    "schema": {
+      "category": "Layer",
+      "description": "Fill a constant value in the padded region."
     }
   },
   {
@@ -208,7 +235,8 @@
   {
     "name": "sequenceRepeat",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "description": "A layer that repeats a sequence."
     }    
   },
   {
@@ -235,9 +263,58 @@
     }
   },
   {
+    "name": "multiply",
+    "schema": {
+      "description": "A layer that performs elementwise multiplication."
+    }
+  },
+  {
+    "name": "max",
+    "schema": {
+      "description": "A layer that computes the elementwise maximum over the inputs."
+    }
+  },
+  {
+    "name": "min",
+    "schema": {
+      "description": "A layer that computes the elementwise minimum over the inputs."
+    }
+  },
+  {
+    "name": "average",
+    "schema": {
+      "description": "A layer that computes the elementwise average of the inputs."
+    }
+  },
+  {
+    "name": "unary",
+    "schema": {
+      "description": "A layer that applies a unary function."
+    }
+  },
+  {
+    "name": "mvn",
+    "schema": {
+      "description": "Fill a constant value in the padded region."
+    }
+  },
+  {
+    "name": "dot",
+    "schema": {
+      "description": "If true, inputs are normalized first, thereby computing the cosine similarity."
+    }
+  },
+  {
     "name": "scale",
     "schema": {
+      "category": "Layer",
       "description": "A layer that performs elmentwise multiplication by a scale factor and optionally adds a bias."
+    }
+  },
+  {
+    "name": "upsample",
+    "schema": {
+      "description": "A layer that scales up spatial dimensions. It supports two modes: nearest neighbour (default) and bilinear."
     }
   },
   {
@@ -247,10 +324,22 @@
     }
   },
   {
+    "name": "slice",
+    "schema": {
+      "description": "A layer that uniformly splits across the channel dimension to produce a specified number of outputs."
+    }
+  },
+  {
     "name": "embedding",
     "schema": {
       "category": "Transform",
       "description": "A layer that performs a matrix lookup and optionally adds a bias."
+    }
+  },
+  {
+    "name": "loadConstant",
+    "schema": {
+      "category": "Data"
     }
   },
   {
