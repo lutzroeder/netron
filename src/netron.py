@@ -79,7 +79,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         if self.command != 'HEAD':
             if status_code == 404 and buffer is None:
-                self.wfile.write(str(status_code))
+                self.wfile.write(bytes(status_code))
             elif (status_code == 200 or status_code == 404) and buffer != None:
                 self.wfile.write(buffer)
         return

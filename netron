@@ -3,4 +3,5 @@
 [ -d node_modules ] || npm install
 rm -rf ./build/python
 python ./setup.py --quiet build
-PYTHONPATH=./build/python/lib python ./build/python/scripts-2.7/netron $@
+PYTHON_VERSION=$(python -c "import sys; print('.'.join(str(x) for x in sys.version_info[:2]))")
+PYTHONPATH=./build/python/lib python ./build/python/scripts-${PYTHON_VERSION}/netron $@
