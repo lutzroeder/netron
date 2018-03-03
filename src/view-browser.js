@@ -190,4 +190,45 @@ class BrowserHost {
     }
 }
 
+if (!window.TextDecoder) {
+    window.TextDecoder = class {
+        constructor(encoding) {
+            this._encoding = encoding;
+        }
+        decode(buffer) {
+            var result = '';
+            var length = buffer.length;
+            var i = 0
+            switch (this._encoding) {
+                case 'utf-8':
+                    while (i < length) {
+                        var c = buffer[i++];
+                        switch(c >> 4)
+                        { 
+                            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+                                result += String.fromCharCode(c);
+                                break;
+                            case 12: case 13:
+                                c2 = buffer[i++];
+                                result += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
+                                break;
+                            case 14:
+                                var c2 = buffer[i++];
+                                var c3 = buffer[i++];
+                                result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
+                                break;
+                        }
+                    }
+                    break;
+                case 'ascii':
+                    while (i < length) {
+                        result += String.fromCharCode(buffer[i++]);
+                    }
+                    break;
+            }
+            return result;
+        }
+    }
+}
+
 window.host = new BrowserHost();
