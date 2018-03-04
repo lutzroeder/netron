@@ -1,0 +1,70 @@
+[
+  {
+    "name": "Convolution",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+      ]
+    }
+  },
+  {
+    "name": "InnerProduct",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Scale",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout"
+    }
+  },
+  {
+    "name": "LRN",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "BatchNorm",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "Softmax",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "Split",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "Pooling",
+    "schema": {
+      "category": "Pool"
+    }
+  }
+]
