@@ -121,6 +121,10 @@ class TensorFlowGraph {
         return null;
     }
 
+    get groups() {
+        return false;
+    }
+
     get inputs() {
         this.update();
         var results = [];
@@ -300,6 +304,15 @@ class TensorFlowNode {
 
     get name() {
         return this._node.name;
+    }
+
+    get group() {
+        var name = this._node.name;
+        var lastIndex = name.lastIndexOf('/');
+        if (lastIndex != -1) {
+            return name.substring(0, lastIndex);
+        }
+        return null;
     }
 
     get description() {

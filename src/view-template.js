@@ -153,7 +153,7 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
 var summaryTemplate = `
 <style type='text/css'>
 .summary { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 12px; line-height: 1.5; overflow: hidden; margin: auto; }
-.summary h1 { font-family: inherit; font-weight: 600; font-size: 12px; margin: 0; color: #666; letter-spacing: 0.5px; padding: 10px 0px 0px 0px; margin: 20px 0px 0px 0px; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
+.summary h1 { font-family: inherit; font-weight: 600; font-size: 12px; margin: 0; color: #666; letter-spacing: 0.5px; padding: 10px 0px 0px 0px; margin: 10px 0px 0px 0px; -webkit-user-select: none; -moz-user-select: none; user-select: none; }
 .summary .section { color: #777; margin-top: 10px; margin-bottom: 10px; padding: 10px; overflow-y: auto; position: relative; border: 1px solid none; border-radius: 10px; border: 1px solid #ccc; }
 .summary .section .property { margin: 2px 0 2px 0; overflow: hidden; width: 100% !important; }
 .summary .section .property .name { float: left; clear: left; width: 80px; min-width: 80px; font-weight: 600; }

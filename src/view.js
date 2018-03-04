@@ -194,9 +194,9 @@ class View {
             svgElement.removeChild(svgElement.lastChild);
         }
     
-        var compound = false;
-    
-        var g = new dagre.graphlib.Graph({ compound: compound });
+        var groups = graph.groups;
+
+        var g = new dagre.graphlib.Graph({ compound: groups });
         g.setGraph({});
         // g.setGraph({ align: 'DR' });
         // g.setGraph({ ranker: 'network-simplex' });
@@ -211,13 +211,10 @@ class View {
         var clusterMap = {};
         var clusterParentMap = {};
     
-        if (compound) {
+        if (groups) {
             graph.nodes.forEach((node) => {
-                if (node.name) {
-                    var path = node.name.split('/');
-                    if (path.length > 1) {
-                        path.pop();
-                    }
+                if (node.group) {
+                    var path = node.group.split('/');
                     while (path.length > 0) {
                         var name = path.join('/');
                         path.pop();
@@ -226,7 +223,7 @@ class View {
                 }
             });
         }
-    
+
         graph.nodes.forEach((node) => {
             var formatter = new NodeFormatter();
     
@@ -366,26 +363,29 @@ class View {
                     }
                 }
             }
-            if (compound && node.name) {
-                var name = node.name;
-                if (!clusterParentMap.hasOwnProperty(name)) {
-                    var lastIndex = name.lastIndexOf('/');
-                    if (lastIndex != -1) {
-                        name = name.substring(0, lastIndex);
-                        if (!clusterParentMap.hasOwnProperty(name)) {
+    
+            if (groups) {
+                var name = node.group;
+                if (name && name.length > 0) {
+                    if (!clusterParentMap.hasOwnProperty(name)) {
+                        var lastIndex = name.lastIndexOf('/');
+                        if (lastIndex != -1) {
+                            name = name.substring(0, lastIndex);
+                            if (!clusterParentMap.hasOwnProperty(name)) {
+                                name = null;
+                            }
+                        }
+                        else {
                             name = null;
                         }
                     }
-                    else {
-                        name = null;
+                    if (name) {
+                        createCluster(name);
+                        g.setParent(nodeId, name);
                     }
                 }
-                if (name) {
-                    createCluster(name);
-                    g.setParent(nodeId, name);
-                }
             }
-    
+        
             nodeId++;
         });
     

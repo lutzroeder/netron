@@ -171,6 +171,10 @@ class OnnxGraph {
         return '';
     }
 
+    get groups() {
+        return false;
+    }
+
     get inputs() {
         if (!this._inputs) {
             this._inputs = [];
@@ -262,6 +266,10 @@ class OnnxNode {
 
     get category() {
         return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+    }
+
+    get group() {
+        return null;
     }
 
     get inputs() {

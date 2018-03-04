@@ -104,6 +104,10 @@ class TensorFlowLiteGraph {
         return this._name;
     }
 
+    get groups() {
+        return false;
+    }
+
     get inputs() {
         var results = [];
         var graph = this._graph;
@@ -171,6 +175,10 @@ class TensorFlowLiteNode {
         return null;
     }
 
+    get domain() {
+        return null;
+    }
+
     get primitive() {
         return null;
     }
@@ -179,7 +187,7 @@ class TensorFlowLiteNode {
         return null;
     }
 
-    get domain() {
+    get group() {
         return null;
     }
 

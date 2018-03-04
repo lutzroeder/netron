@@ -127,6 +127,10 @@ class KerasGraph {
         return this._name;
     }
 
+    get groups() {
+        return false;
+    }
+
     get inputs() {
         return this._inputs;
     }
@@ -311,16 +315,20 @@ class KerasNode {
         return KerasOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
     }
 
-    get category() {
-        return KerasOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
-    }
-
     get name() {
         if (this._config && this._config.name) {
             return this._config.name;
         }
         debugger;
         return '';
+    }
+
+    get group() {
+        return null;
+    }
+
+    get category() {
+        return KerasOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
     }
 
     get inputs() {

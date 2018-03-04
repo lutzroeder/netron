@@ -76,6 +76,7 @@ class CoreMLGraph {
     constructor(model)
     {
         this._description = model.description;
+        this._groups = false; 
 
         this._inputs = this._description.input.map((input) => {
             return {
@@ -96,7 +97,7 @@ class CoreMLGraph {
         });
 
         this._nodes = [];
-        this._type = this.loadModel(model);
+        this._type = this.loadModel(model, '');
     }
 
     get name() {
@@ -119,6 +120,10 @@ class CoreMLGraph {
         return this._nodes;
     }
 
+    get groups() {
+        return this._groups;
+    }
+
     updateInput(name, newName) {
         this._nodes.forEach((node) => {
             node._inputs = node._inputs.map((input) => (input != name) ? input : newName);
@@ -133,7 +138,7 @@ class CoreMLGraph {
         return newName;
     }
 
-    updateClassifierOutput(classifier) {
+    updateClassifierOutput(group, classifier) {
         var labelProbabilityLayerName = classifier.labelProbabilityLayerName;
         if (!labelProbabilityLayerName && this._nodes.length > 0) {
             labelProbabilityLayerName = this._nodes.slice(-1).pop()._outputs[0];
@@ -143,18 +148,19 @@ class CoreMLGraph {
         if (predictedFeatureName && predictedProbabilitiesName && labelProbabilityLayerName && classifier.ClassLabels) {
             var labelProbabilityInput = this.updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
             var operator = classifier.ClassLabels;
-            this._nodes.push(new CoreMLNode(operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
+            this._nodes.push(new CoreMLNode(group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
     }
 
-    loadModel(model) {
+    loadModel(model, group) {
+        this._groups = this._groups | (group.length > 0 ? true : false);
         if (model.neuralNetworkClassifier) {
             var neuralNetworkClassifier = model.neuralNetworkClassifier;
             neuralNetworkClassifier.layers.forEach((layer) => {
                 var operator = layer.layer;
-                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
+                this._nodes.push(new CoreMLNode(group, operator, layer.name, layer[operator], layer.input, layer.output));
             });
-            this.updateClassifierOutput(neuralNetworkClassifier);
+            this.updateClassifierOutput(group, neuralNetworkClassifier);
             if (neuralNetworkClassifier.preprocessing && neuralNetworkClassifier.preprocessing.length > 0) {               
                 var preprocessingInput = this._description.input[0].name;
                 var preprocessorOutput = preprocessingInput;
@@ -164,7 +170,7 @@ class CoreMLGraph {
                     var operator = preprocessing.preprocessor;
                     var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
                     preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
-                    nodes.push(new CoreMLNode(operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]));
+                    nodes.push(new CoreMLNode(group, operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]));
                     preprocessorIndex++;
                 });
                 this.updateInput(preprocessingInput, preprocessorOutput);
@@ -177,62 +183,62 @@ class CoreMLGraph {
         else if (model.neuralNetwork) {
             model.neuralNetwork.layers.forEach((layer) => {
                 var operator = layer.layer;
-                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
+                this._nodes.push(new CoreMLNode(group, operator, layer.name, layer[operator], layer.input, layer.output));
             });
             return 'Neural Network';
         }
         else if (model.neuralNetworkRegressor) {
             model.neuralNetworkRegressor.layers.forEach((layer) => {
                 var operator = layer.layer;
-                this._nodes.push(new CoreMLNode(operator, layer.name, layer[operator], layer.input, layer.output));
+                this._nodes.push(new CoreMLNode(group, operator, layer.name, layer[operator], layer.input, layer.output));
             });
             return 'Neural Network Regressor';
         }
         else if (model.pipeline) {
             model.pipeline.models.forEach((subModel) => {
-                this.loadModel(subModel);
+                this.loadModel(subModel, (group ? (group + '/') : '') + 'pipeline');
             });
             return 'Pipeline';
         }
         else if (model.pipelineClassifier) {
             model.pipelineClassifier.pipeline.models.forEach((subModel) => {
-                this.loadModel(subModel);
+                this.loadModel(subModel, (group ? (group + '/') : '') + 'pipelineClassifier');
             });
             return 'Pipeline Classifier';
         }
         else if (model.pipelineRegressor) {
             model.pipelineRegressor.pipeline.models.forEach((subModel) => {
-                this.loadModel(subModel);
+                this.loadModel(subModel, (group ? (group + '/') : '') + 'pipelineRegressor');
             });
             return 'Pipeline Regressor';
         }
         else if (model.glmClassifier) {
-            this._nodes.push(new CoreMLNode('glmClassifier', null, 
+            this._nodes.push(new CoreMLNode(group, 'glmClassifier', null, 
                 { classEncoding: model.glmClassifier.classEncoding, 
                   offset: model.glmClassifier.offset, 
                   weights: model.glmClassifier.weights }, 
                 [ model.description.input[0].name ],
                 [ model.description.predictedProbabilitiesName ]));
-            this.updateClassifierOutput(model.glmClassifier);
+            this.updateClassifierOutput(group, model.glmClassifier);
             return 'Generalized Linear Classifier';
         }
         else if (model.dictVectorizer) {
-            this._nodes.push(new CoreMLNode('dictVectorizer', null, model.dictVectorizer,
+            this._nodes.push(new CoreMLNode(group, 'dictVectorizer', null, model.dictVectorizer,
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]));
             return 'Dictionary Vectorizer';
         }
         else if (model.featureVectorizer) {
-            this._nodes.push(new CoreMLNode('featureVectorizer', null, model.featureVectorizer, 
+            this._nodes.push(new CoreMLNode(group, 'featureVectorizer', null, model.featureVectorizer, 
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]));
             return 'Feature Vectorizer';
         }
         else if (model.treeEnsembleClassifier) {
-            this._nodes.push(new CoreMLNode('treeEnsembleClassifier', null, model.treeEnsembleClassifier.treeEnsemble, 
+            this._nodes.push(new CoreMLNode(group, 'treeEnsembleClassifier', null, model.treeEnsembleClassifier.treeEnsemble, 
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]));
-            this.updateClassifierOutput(model.treeEnsembleClassifier);
+            this.updateClassifierOutput(group, model.treeEnsembleClassifier);
             return 'Tree Ensemble Classifier';
         }
         return 'Unknown';
@@ -296,7 +302,10 @@ class CoreMLGraph {
 
 class CoreMLNode {
 
-    constructor(operator, name, data, inputs, outputs) {
+    constructor(group, operator, name, data, inputs, outputs) {
+        if (group) {
+            this._group = group;
+        }
         this._operator = operator;
         this._name = name;
         this._inputs = inputs;
@@ -323,6 +332,10 @@ class CoreMLNode {
 
     get category() {
         return CoreMLOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+    }
+
+    get group() {
+        return this._group ? this._group : null;
     }
 
     get documentation() {
