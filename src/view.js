@@ -103,6 +103,11 @@ class View {
                 callback(err, model);
             });
         }
+        else if (extension == 'caffemodel') {
+            CaffeModel.open(buffer, identifier, this._host, (err, model) => {
+                callback(err, model);
+            });
+        }
         else if (extension == 'pb') {
             OnnxModel.open(buffer, identifier, this._host, (err, model) => {
                 if (!err) {

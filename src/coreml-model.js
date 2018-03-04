@@ -23,7 +23,7 @@ class CoreMLModel {
     static create(buffer, identifier, host, callback) {
         try {
             var decodedBuffer = coreml.Model.decode(buffer);
-            var model = new CoreMLModel(decodedBuffer, identifier);
+            var model = new CoreMLModel(decodedBuffer);
             CoreMLOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
             });
@@ -33,7 +33,7 @@ class CoreMLModel {
         }
     }
 
-    constructor(model, identifier) {
+    constructor(model) {
         this._specificationVersion = model.specificationVersion;
         this._description = model.description;
         this._graphs = [ new CoreMLGraph(model) ];

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+mkdir -p ../third_party
+
+identifier=caffe
+repository=https://github.com/BVLC/${identifier}.git
+
+if [ -d "../third_party/${identifier}" ]; then
+    pushd "../third_party/${identifier}" > /dev/null
+    echo "Fetch ${repository}..."
+    git fetch -p
+    echo "Reset ${repository}..."
+    git reset --hard origin/master
+    popd > /dev/null
+else
+    echo "Clone ${repository}..."
+    pushd "../third_party" > /dev/null
+    git clone --recursive ${repository}
+    popd > /dev/null
+fi
+
+echo "Generate '../src/caffe.js'"
+../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe -o ../src/caffe.js ../third_party/caffe/src/caffe/proto/caffe.proto
