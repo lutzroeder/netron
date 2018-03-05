@@ -28,6 +28,9 @@ fileAssociations:
   - name: "CoreML Model"
     ext:
     - mlmodel
+  - name: "Caffe Model"
+    ext:
+    - caffemodel
 publish:
   - provider: github
     releaseType: release
