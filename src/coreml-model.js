@@ -481,13 +481,10 @@ class CoreMLNode {
 
 class CoreMLAttribute {
 
-    constructor(owner, name, value, hidden) {
+    constructor(owner, name, value) {
         this._owner = owner;
         this._name = name;
         this._value = value;
-        if (hidden) {
-            this._hidden = hidden;
-        }
     }
 
     get name() {

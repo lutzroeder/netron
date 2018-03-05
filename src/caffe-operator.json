@@ -3,20 +3,58 @@
     "name": "Convolution",
     "schema": {
       "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "filter" },
+        { "name": "bias" }
+      ],
+      "ouptuts": [
+        { "name": "output" }
+      ],
       "attributes": [
+        { "name": "biasTerm", "hidden": true },
+        { "name": "weightFiller", "hidden": true },
+        { "name": "biasFiller", "hidden": true },
+        { "name": "pad", "default": [] },
+        { "name": "kernelSize", "default": [] },
+        { "name": "stride", "default": [] },
+        { "name": "dilation", "default": [] }
       ]
     }
   },
   {
     "name": "InnerProduct",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "biasTerm", "hidden": true },
+        { "name": "weightFiller", "hidden": true },
+        { "name": "biasFiller", "hidden": true }
+      ]
     }
   },
   {
     "name": "Scale",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "scale" },
+        { "name": "bias" }
+      ],
+      "attributes": [
+        { "name": "filler", "hidden": false },
+        { "name": "biasTerm", "hidden": false },
+        { "name": "biasFiller", "hidden": false }
+      ]
     }
   },
   {
@@ -34,13 +72,33 @@
   {
     "name": "BatchNorm",
     "schema": {
-      "category": "Normalization"
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "gamma" },
+        { "name": "beta" },
+        { "name": "mean" },
+        { "name": "variance" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Softmax",
     "schema": {
       "category": "Activation"
+    }
+  },
+  {
+    "name": "SoftmaxLoss",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" },
+        { "name": "labels" }
+      ]
     }
   },
   {
@@ -52,19 +110,43 @@
   {
     "name": "Concat",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
     }
   },
   {
     "name": "Split",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "outputs": [
+        { "name": "outputs", "option": "variadic" }
+      ]  
     }
   },
   {
     "name": "Pooling",
     "schema": {
       "category": "Pool"
+    }
+  },
+  {
+    "name": "Data",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "outputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "ImageData",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "outputs", "option": "variadic" }
+      ]
     }
   }
 ]
