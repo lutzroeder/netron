@@ -213,6 +213,7 @@ class CaffeNode {
             input.connections.forEach((connection) => {
                 if (connection.id instanceof CaffeTensor) {
                     connection.initializer = connection.id;
+                    connection.type = connection.initializer.type;
                     connection.id = '';
                 }
             });
@@ -283,7 +284,12 @@ class CaffeAttribute {
 
     constructor(owner, name, value) {
         this._owner = owner;
-        this._name = name;
+        this._name = '';
+        for (var i = 0; i < name.length; i++) {
+            var character = name[i];
+            var lowerCase = character.toLowerCase();
+            this._name += (character != lowerCase) ? ('_' + lowerCase) : character;
+        }
         this._value = value;
     }
 
@@ -304,6 +310,79 @@ class CaffeTensor {
 
     constructor(blob) {
         this._blob = blob;
+
+        if (blob.hasOwnProperty('num') && blob.hasOwnProperty('channels') &&
+            blob.hasOwnProperty('width') && blob.hasOwnProperty('height')) {
+            this._shape = [];
+            if (blob.num != 1) {
+                this._shape.push(blob.num);
+            }
+            if (blob.channels != 1) {
+                this._shape.push(blob.channels);
+            }
+            if (blob.width != 1) {
+                this._shape.push(blob.width);
+            }
+            if (blob.height != 1) {
+                this._shape.push(blob.height);
+            }
+        }
+        else if (blob.hasOwnProperty('shape')) {
+            this._shape = blob.shape.dim;
+        }
+
+        this._type = '?';
+        if (blob.data.length > 0) {
+            this._type = 'float';
+            this._data = blob.data;
+        }
+        else if (blob.doubleData.length > 0) {
+            this._type = 'double';
+            this._data = blob.doubleData;
+            debugger;
+        }
+    }
+
+    get type() {
+        return this._type + JSON.stringify(this._shape);
+    }
+
+    get value() {
+        if (this._data) {
+            this._index = 0;
+            this._count = 0;
+            var result = this.read(0);
+            delete this._index;
+            delete this._count;
+            return JSON.stringify(result, null, 4);
+        }
+        return '?';
+    }
+
+    read(dimension) {
+        var results = [];
+        var size = this._shape[dimension];
+        if (dimension == this._shape.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (this._count > 10000) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._data[this._index]);
+                this._index++;
+                this._count++;
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (this._count > 10000) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this.read(dimension + 1));
+            }
+        }
+        return results;
     }
 }
 

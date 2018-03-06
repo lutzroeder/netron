@@ -3,9 +3,9 @@
 
 Netron is a viewer for neural network and machine learning models. 
 
-Netron supports **[ONNX](http://onnx.ai)** models (`.onnx`, `.pb`), **Keras** models (`.keras`, `.h5`) and **TensorFlow Lite** models (`.tflite`).
+Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.keras`, `.h5`), **CoreML** (`.mlmodel`) and **TensorFlow Lite** (`.tflite`). 
 
-Netron has experimental support for **CoreML** models (`.mlmodel`) and **TensorFlow** models (`.pb`, `.meta`).
+Netron also has has experimental support for **Caffe** (`.caffemodel`) and **TensorFlow** (`.pb`, `.meta`).
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 
