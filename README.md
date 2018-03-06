@@ -3,9 +3,9 @@
 
 Netron is a viewer for neural network and machine learning models. 
 
-Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.keras`, `.h5`), **CoreML** (`.mlmodel`) and **TensorFlow Lite** (`.tflite`). 
+Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`) and **TensorFlow Lite** (`.tflite`). 
 
-Netron also has has experimental support for **Caffe** (`.caffemodel`) and **TensorFlow** (`.pb`, `.meta`).
+Netron has experimental support for **Caffe** (`.caffemodel`) and **TensorFlow** (`.pb`, `.meta`).
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 
@@ -50,17 +50,22 @@ Sample model files you can download and open:
 * [densenet](https://github.com/Hyperparticle/one-pixel-attack-keras/raw/master/networks/models/densenet.h5)
 * [tiny-yolo-voc](https://github.com/hollance/YOLO-CoreML-MPSNNGraph/raw/master/Convert/yad2k/model_data/tiny-yolo-voc.h5)
 
+**CoreML Models**
+
+* [MobileNet](https://docs-assets.developer.apple.com/coreml/models/MobileNet.mlmodel)
+* [Places205-GoogLeNet](https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel)
+* [Inception v3](https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel)
+
 **TensorFlow Lite Models**
 
 * [Smart Reply 1.0 ](https://storage.googleapis.com/download.tensorflow.org/models/tflite/smartreply_1.0_2017_11_01.zip)
 * [Mobilenet 1.0 224 Float](https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_v1_1.0_224_float_2017_11_08.zip)
 * [Inception v3 2016](https://storage.googleapis.com/download.tensorflow.org/models/tflite/inception_v3_slim_2016_android_2017_11_10.zip)
 
-**CoreML Models**
-
-* [MobileNet](https://docs-assets.developer.apple.com/coreml/models/MobileNet.mlmodel)
-* [Places205-GoogLeNet](https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel)
-* [Inception v3](https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel)
+**Caffe Models**
+* [BVLC AlexNet](http://dl.caffe.berkeleyvision.org/bvlc_alexnet.caffemodel)
+* [BVLC CaffeNet](http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel)
+* [BVLC GoogleNet](http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel)
 
 **TensorFlow models**
 
