@@ -6270,7 +6270,7 @@
         }
       ],
       "category": "Shape",
-      "description": "Reshape the input tensor similar to numpy.reshape.\n\nIt takes a tensor as input and an argument `shape`. It outputs the reshaped tensor.\n\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is going to be copied\nfrom the shape argument.",
+      "description": "Reshape the input tensor similar to numpy.reshape.\n\nIt takes a tensor as input and an argument `shape`. It outputs the reshaped tensor.\n\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor).",
       "domain": "ai.onnx",
       "examples": [
         {
