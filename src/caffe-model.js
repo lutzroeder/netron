@@ -179,7 +179,11 @@ class CaffeNode {
                 Object.keys(layer).forEach((key) => {
                     if (key.endsWith('Param')) {
                         var param = layer[key];
-                        if (param.constructor.name == this._type + 'Parameter') {
+                        var type = this._type;
+                        if (type == 'Deconvolution') {
+                            type = 'Convolution';
+                        }
+                        if (param.constructor.name == type + 'Parameter') {
                             Object.keys(param).forEach((attributeName) => {
                                 var attributeValue = param[attributeName];
                                 this._attributes.push(new CaffeAttribute(this, attributeName, attributeValue));

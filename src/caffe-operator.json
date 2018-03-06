@@ -23,6 +23,29 @@
     }
   },
   {
+    "name": "Deconvolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "filter" },
+        { "name": "bias" }
+      ],
+      "ouptuts": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "bias_term", "hidden": true },
+        { "name": "weight_filler", "hidden": true },
+        { "name": "bias_filler", "hidden": true },
+        { "name": "pad", "default": [] },
+        { "name": "kernel_size", "default": [] },
+        { "name": "stride", "default": [] },
+        { "name": "dilation", "default": [] }
+      ]
+    }
+  },
+  {
     "name": "InnerProduct",
     "schema": {
       "category": "Layer",
@@ -102,6 +125,16 @@
     }
   },
   {
+    "name": "SoftmaxWithLoss",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" },
+        { "name": "labels" }
+      ]
+    }
+  },
+  {
     "name": "ReLU",
     "schema": {
       "category": "Activation"
@@ -140,6 +173,12 @@
     }
   },
   {
+    "name": "Crop",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
     "name": "Data",
     "schema": {
       "category": "Data",
@@ -152,6 +191,14 @@
     "name": "ImageData",
     "schema": {
       "category": "Data",
+      "outputs": [
+        { "name": "outputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "Python",
+    "schema": {
       "outputs": [
         { "name": "outputs", "option": "variadic" }
       ]
