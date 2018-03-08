@@ -31,6 +31,9 @@ fileAssociations:
   - name: "Caffe Model"
     ext:
     - caffemodel
+  - name: "MXNet Model"
+    ext:
+    - json
 publish:
   - provider: github
     releaseType: release

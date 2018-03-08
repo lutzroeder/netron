@@ -77,6 +77,7 @@ setuptools.setup(
             'keras-model.js', 'keras-operator.json', 'hdf5.js',
             'coreml-model.js', 'coreml-operator.json', 'coreml.js',
             'caffe-model.js', 'caffe-operator.json', 'caffe.js',
+            'mxnet-model.js', 'mxnet-operator.json',
             'view-browser.html', 'view-browser.js',
             'view.js', 'view.css', 'view-render.css', 'view-render.js', 'view-template.js'
         ]

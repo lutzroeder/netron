@@ -83,18 +83,8 @@ class View {
                 callback(err, model);
            });
         }
-        else if (identifier == 'saved_model.pb' || extension == 'meta') {
-            TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
         else if (extension == 'onnx') {
             OnnxModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (extension == 'json' || extension == 'keras' || extension == 'h5') {
-            KerasModel.open(buffer, identifier, this._host, (err, model) => {
                 callback(err, model);
             });
         }
@@ -108,10 +98,25 @@ class View {
                 callback(err, model);
             });
         }
+        else if (identifier.endsWith('-symbol.json')) {
+            MXNetModel.open(buffer, identifier, this._host, (err, model) => {
+                callback(err, model);
+            });
+        }
+        else if (extension == 'keras' || extension == 'h5' || extension == 'json') {
+            KerasModel.open(buffer, identifier, this._host, (err, model) => {
+                callback(err, model);
+            });
+        }
+        else if (identifier == 'saved_model.pb' || extension == 'meta') {
+            TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
+                callback(err, model);
+            });
+        }
         else if (extension == 'pb') {
             OnnxModel.open(buffer, identifier, this._host, (err, model) => {
                 if (!err) {
-                    callback(err, model);    
+                    callback(err, model);
                 }
                 else {
                     TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {

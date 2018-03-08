@@ -1,0 +1,19 @@
+#!/bin/bash
+
+mkdir -p ../third_party
+
+repository=https://github.com/apache/incubator-mxnet.git
+
+if [ -d "../third_party/incubator-mxnet" ]; then
+    pushd "../third_party/${identifier}" > /dev/null
+    echo "Fetch ${repository}..."
+    git fetch -p
+    echo "Reset ${repository}..."
+    git reset --hard origin/master
+    popd > /dev/null
+else
+    echo "Clone ${repository}..."
+    pushd "../third_party" > /dev/null
+    git clone --recursive ${repository}
+    popd > /dev/null
+fi

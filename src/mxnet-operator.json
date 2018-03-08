@@ -1,0 +1,156 @@
+[
+  {
+    "name": "Convolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "attributes": [
+        { "name": "no_bias", "hidden": true },
+        { "name": "cudnn_off", "default": "False" },
+        { "name": "cudnn_tune", "default": "off" },
+        { "name": "num_group", "default": "1" },
+        { "name": "workspace", "default": "1024" }
+      ]
+    }
+  },
+  {
+    "name": "Deconvolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "attributes": [
+        { "name": "no_bias", "hidden": true },
+        { "name": "num_group", "default": "1" },
+        { "name": "workspace", "default": "1024" }
+      ]
+    }
+  },
+  {
+    "name": "FullyConnected",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "attributes": [
+        { "name": "no_bias", "hidden": true }
+      ]
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout"
+    }
+  },
+  {
+    "name": "LRN",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "SoftmaxOutput",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" },
+        { "name": "label" }
+      ]
+    }
+  },
+  {
+    "name": "SoftmaxActivation",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "Activation",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Pooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "Flatten",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "_Plus",
+    "schema": {
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "elemwise_add",
+    "schema": {
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
+    }
+  },  
+  {
+    "name": "BatchNorm",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "gamma" },
+        { "name": "beta" }
+      ]
+    }
+  },
+  {
+    "name": "CuDNNBatchNorm",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "gamma" },
+        { "name": "beta" }
+      ]
+    }
+  },
+  {
+    "name": "ElementWiseSum",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
+    }
+  }
+
+]

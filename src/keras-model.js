@@ -32,11 +32,7 @@ class KerasModel {
                 }
             }
             else if (extension == 'json') {
-                if (!window.TextDecoder) {
-                    throw new KerasError('TextDecoder not avaialble.');
-                }
-
-                var decoder = new TextDecoder('utf-8');
+                var decoder = new window.TextDecoder('utf-8');
                 json = decoder.decode(buffer);
             }
 

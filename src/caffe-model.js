@@ -556,7 +556,7 @@ class CaffeOperatorMetadata
                     return false;
                 }
                 while (length--) {
-                    if (!KerasOperatorMetadata.isEquivalent(a[length], b[length])) {
+                    if (!CaffeOperatorMetadata.isEquivalent(a[length], b[length])) {
                         return false;
                     }
                 }
@@ -570,7 +570,7 @@ class CaffeOperatorMetadata
         } 
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && KerasOperatorMetadata.isEquivalent(a[key], b[key]))) {
+            if (!(b.hasOwnProperty(key) && CaffeOperatorMetadata.isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }

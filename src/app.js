@@ -111,6 +111,7 @@ class Application {
                 { name: 'Keras Model', extension: [ 'json', 'keras', 'h5' ] },
                 { name: 'CoreML Model', extension: [ 'mlmodel' ] },
                 { name: 'Caffe Model', extension: [ 'caffemodel' ] },
+                { name: 'MXNet Model', extension: [ 'json' ] },
                 { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta' ] },
                 { name: 'TensorFlow Saved Model', extensions: [ 'saved_model.pb' ] },
                 { name: 'TensorFlow Lite Model', extensions: [ 'tflite' ] }
