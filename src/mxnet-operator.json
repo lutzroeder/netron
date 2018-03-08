@@ -9,10 +9,13 @@
         { "name": "bias" }
       ],
       "attributes": [
-        { "name": "no_bias", "hidden": true },
         { "name": "cudnn_off", "default": "False" },
         { "name": "cudnn_tune", "default": "off" },
+        { "name": "dilate", "default": "(1,)" },
+        { "name": "no_bias", "hidden": true },
         { "name": "num_group", "default": "1" },
+        { "name": "pad", "default": "(0,)" },
+        { "name": "stride", "default": "(1,)" },
         { "name": "workspace", "default": "1024" }
       ]
     }
@@ -43,6 +46,7 @@
         { "name": "bias" }
       ],
       "attributes": [
+        { "name": "flatten", "default": "True" },
         { "name": "no_bias", "hidden": true }
       ]
     }
@@ -66,6 +70,16 @@
       "inputs": [
         { "name": "input" },
         { "name": "label" }
+      ],
+      "attributes": [
+        { "name": "grad_scale", "default": "1" },
+        { "name": "ignore_label", "default": "1" },
+        { "name": "multi_output", "default": "False" },
+        { "name": "normalization", "default": "null" },
+        { "name": "out_grad", "default": "False" },
+        { "name": "smooth_alpha", "default": "0" },
+        { "name": "use_ignore", "default": "False" },
+        { "name": "preserve_shape", "default": "False" }
       ]
     }
   },
@@ -87,7 +101,14 @@
   {
     "name": "Pooling",
     "schema": {
-      "category": "Pool"
+      "category": "Pool",
+      "attributes": [
+        { "name": "cudnn_off", "default": "False" },
+        { "name": "global_pool", "default": "False" },
+        { "name": "pad", "default": "(0,)" },
+        { "name": "pooling_convention", "default": "valid" },
+        { "name": "stride", "default": "(1,)" }
+      ]
     }
   },
   {
@@ -102,6 +123,10 @@
       "category": "Tensor",
       "inputs": [
         { "name": "inputs", "option": "variadic" }
+      ],
+      "attributes": [
+        { "name": "dim", "default": "1" },
+        { "name": "num_args", "hidden": true }
       ]
     }
   },
@@ -129,6 +154,13 @@
         { "name": "input" },
         { "name": "gamma" },
         { "name": "beta" }
+      ],
+      "attributes": [
+        { "name": "axis", "default": "1" },
+        { "name": "eps", "default": "0.001" },
+        { "name": "momentum", "default": "0.9" },
+        { "name": "fix_gamma", "default": "True" },
+        { "name": "use_global_stats", "default": "False" }
       ]
     }
   },
@@ -152,5 +184,4 @@
       ]
     }
   }
-
 ]

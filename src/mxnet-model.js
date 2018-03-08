@@ -382,11 +382,26 @@ class MXNetOperatorMetadata {
                     return attribute.hidden;
                 }
                 if (attribute.hasOwnProperty('default')) {
+                    value = MXNetOperatorMetadata.formatTuple(value); 
                     return MXNetOperatorMetadata.isEquivalent(attribute.default, value);
                 }
             }
         }
         return false;
+    }
+
+    static formatTuple(value) {
+        if (value.startsWith('(') && value.endsWith(')')) {
+            var list = value.substring(1, value.length - 1).split(',');
+            list = list.map(item => item.trim());
+            if (list.length > 1) {
+                if (list.every(item => item == list[0])) {
+                    list = [ list[0], '' ];
+                }
+            }
+            return '(' + list.join(',') + ')';
+        }
+        return value;
     }
 
     static isEquivalent(a, b) {
