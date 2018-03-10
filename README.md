@@ -1,7 +1,7 @@
 
 <p align='center'><img width='400' src='media/logo.png'/></p>
 
-Netron is a viewer for neural network and machine learning models. 
+Netron is a viewer for neural network, deep learning and machine learning models. 
 
 Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`) and **TensorFlow Lite** (`.tflite`). 
 
@@ -66,6 +66,10 @@ Sample model files you can download and open:
 * [BVLC AlexNet](http://dl.caffe.berkeleyvision.org/bvlc_alexnet.caffemodel)
 * [BVLC CaffeNet](http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel)
 * [BVLC GoogleNet](http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel)
+
+**MXNet Models**
+* [CaffeNet](http://data.dmlc.ml/models/imagenet/squeezenet/squeezenet_v1.1-symbol.json)
+* [SqueezeNet v1.1](https://mxnet.incubator.apache.org/model_zoo/index.html)
 
 **TensorFlow models**
 

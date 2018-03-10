@@ -703,18 +703,36 @@
           "allowed_type_strs": [
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(bool)"
           ],
-          "description": "Constrain input types to float tensors.",
+          "description": "Constrain input types. Casting from strings and complex are not supported.",
           "type_param_str": "T1"
         },
         {
           "allowed_type_strs": [
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(bool)"
           ],
-          "description": "Constrain output types to float tensors.",
+          "description": "Constrain output types. Casting to strings and complex are not supported.",
           "type_param_str": "T2"
         }
       ]
@@ -2623,6 +2641,16 @@
       "category": "Pool",
       "description": "GlobalAveragePool consumes an input tensor X and applies average pooling across the\n the values in the same channel. This is equivalent to AveragePool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'GlobalAveragePool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\nspatial_shape = np.ndim(x) - 2\ny = np.average(x, axis=tuple(range(spatial_shape, spatial_shape + 2)))\nfor _ in range(spatial_shape):\n    y = np.expand_dims(y, -1)\nexpect(node, inputs=[x], outputs=[y], name='test_globalaveragepool')",
+          "summary": "globalaveragepool"
+        },
+        {
+          "code": "\nnode = onnx.helper.make_node(\n    'GlobalAveragePool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[[\n  [1, 2, 3],\n  [4, 5, 6],\n  [7, 8, 9],\n]]]).astype(np.float32)\ny = np.array([[[[5]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name='test_globalaveragepool_precomputed')",
+          "summary": "globalaveragepool_precomputed"
+        }
+      ],
       "inputs": [
         {
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
@@ -2756,6 +2784,16 @@
       "category": "Pool",
       "description": "GlobalMaxPool consumes an input tensor X and applies max pooling across the\n the values in the same channel. This is equivalent to MaxPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "\nnode = onnx.helper.make_node(\n    'GlobalMaxPool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\nspatial_shape = np.ndim(x) - 2\ny = np.max(x, axis=tuple(range(spatial_shape, spatial_shape + 2)))\nfor _ in range(spatial_shape):\n    y = np.expand_dims(y, -1)\nexpect(node, inputs=[x], outputs=[y], name='test_globalmaxpool')",
+          "summary": "globalmaxpool"
+        },
+        {
+          "code": "\nnode = onnx.helper.make_node(\n    'GlobalMaxPool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[[\n    [1, 2, 3],\n    [4, 5, 6],\n    [7, 8, 9],\n]]]).astype(np.float32)\ny = np.array([[[[9]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name='test_globalmaxpool_precomputed')",
+          "summary": "globalmaxpool_precomputed"
+        }
+      ],
       "inputs": [
         {
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
@@ -6927,7 +6965,7 @@
           "summary": "slice"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    starts=[0, 0, 3],\n    ends=[20, 10, 4],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_default_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x'],\n    outputs=['y'],\n    starts=[0, 0, 3],\n    ends=[20, 10, 4],\n)\n\nx = np.random.randn(20, 10, 5).astype(np.float32)\ny = x[:, :, 3:4]\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_slice_default_axes')",
           "summary": "slice_default_axes"
         },
         {
