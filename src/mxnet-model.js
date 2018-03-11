@@ -117,6 +117,7 @@ class MXNetGraph {
         return this._inputs.map((input) => {
             return { 
                 name: input.name,
+                type: 'T',
                 id: '[' + input.id.join(',') + ']' 
             };
         });
@@ -126,6 +127,7 @@ class MXNetGraph {
         return this._outputs.map((output) => {
             return { 
                 name: output.name,
+                type: 'T',
                 id: '[' + output.id.join(',') + ']' 
             };
         });

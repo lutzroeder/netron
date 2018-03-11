@@ -5,14 +5,10 @@ class View {
     constructor(host) {
         this._host = host;
         this._model = null;
-
         this._sidebar = new Sidebar();
-
         this._host.initialize(this);
-
         document.documentElement.style.overflow = 'hidden';
         document.body.scroll = 'no';        
-
         var navigationButton = document.getElementById('navigation-button');
         if (navigationButton) {
             navigationButton.addEventListener('click', (e) => {
@@ -249,7 +245,7 @@ class View {
                     });
                 }
             }
-    
+
             addOperator(this, formatter, node);
             addOperator(this, formatter, node.inner);
     

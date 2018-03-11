@@ -59,10 +59,9 @@ class KerasModel {
             this._backend = rootGroup.attributes.backend;
         }
 
-        var graph = new KerasGraph(model, rootGroup);
-        this._graphs = [ graph ];
-
-        this._activeGraph = graph; 
+        var model_weights = rootGroup ? rootGroup.group('model_weights') : null;
+        this._activeGraph = new KerasGraph(model, model_weights);
+        this._graphs = [ this._activeGraph ];
     }
 
     get properties() {
@@ -96,7 +95,7 @@ class KerasModel {
 
 class KerasGraph {
 
-    constructor(model, rootGroup) {
+    constructor(model, model_weights) {
         if (model.name) {
             this._name = model.name;
         }
@@ -106,13 +105,14 @@ class KerasGraph {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
+        this._groups = false;
 
         switch (model.class_name) {
             case 'Sequential':
-                this.loadSequential(model.config, rootGroup);
+                this.loadSequential(model.config, model_weights, '');
                 break;
             case 'Model':
-                this.loadModel(model.config, rootGroup);
+                this.loadModel(model.config, model_weights, '', null, null);
                 break;
             default:
                 throw new KerasError('\'' + model.class_name + '\' is not supported.');
@@ -124,7 +124,7 @@ class KerasGraph {
     }
 
     get groups() {
-        return false;
+        return this._groups ? true : false;
     }
 
     get inputs() {
@@ -139,7 +139,10 @@ class KerasGraph {
         return this._nodes;
     }
 
-    loadModel(config, rootGroup) {
+    loadModel(config, model_weights, group, inputs, outputs) {
+        if (group) {
+            this._groups = true;
+        }
         if (config.layers) {
             var nodeMap = {};
             config.layers.forEach((layer) => {
@@ -174,24 +177,45 @@ class KerasGraph {
             });
         }
         if (config.input_layers) {
-            config.input_layers.forEach((input_layer) => {
+            config.input_layers.forEach((input_layer, index) => {
                 var name = input_layer[0];
-                var input = {
+                var graphInput = {
                     id: name,
                     name: name
                 };
                 var node = nodeMap[name];
                 if (node && node.class_name == 'InputLayer') {
-                    this.translateInput(node, input);
+                    this.loadInput(node, graphInput);
                     delete nodeMap[name];
                 }
-                this._inputs.push(input); 
+                if (inputs && index < inputs.length) {
+                    if (config.layers) {
+                        config.layers.forEach((layer) => {
+                            if (layer._inputs) {
+                                layer._inputs = layer._inputs.map((input) => {
+                                    if (input == graphInput.id) {
+                                        return inputs[index];
+                                    }
+                                    return input;
+                                });
+                            }
+                        });
+                    }            
+                }
+                else {
+                    this._inputs.push(graphInput); 
+                }
             });
         }
         if (config.output_layers) {
-            config.output_layers.forEach((output_layer) => {
+            config.output_layers.forEach((output_layer, index) => {
                 var inputName = output_layer[0];
                 var inputNode = nodeMap[inputName];
+                var addGraphOutput = true;
+                if (outputs && index < outputs.length) {
+                    inputName = outputs[index];
+                    addGraphOutput = false;
+                }
                 if (inputNode) {
                     var inputIndex = output_layer[2];
                     if (inputIndex != 0) {
@@ -202,22 +226,28 @@ class KerasGraph {
                     }
                     inputNode._outputs[inputIndex] = inputName;
                 }
-                this._outputs.push({
-                    id: inputName,
-                    name: inputName
-                });
+                if (addGraphOutput) {
+                    this._outputs.push({
+                        id: inputName,
+                        type: 'T',
+                        name: inputName
+                    });
+                }
             });
         }
         if (config.layers) {
             config.layers.forEach((layer) => {
                 if (nodeMap[layer.name]) {
-                    this._nodes.push(new KerasNode(layer.class_name, layer.config, layer._inputs, layer._outputs, rootGroup));
+                    this.loadNode(layer, layer._inputs, layer._outputs, model_weights, group);
                 }
             });
         }
     }
 
-    loadSequential(config, rootGroup) {
+    loadSequential(config, model_weights, group) {
+        if (group) {
+            this._groups = true;
+        }
         var connection = 'input';
         var input = {
             id: connection,
@@ -229,7 +259,7 @@ class KerasGraph {
             var inputs = [ connection ];
             var name = id.toString();
             if (id == 0) {
-                this.translateInput(layer, input);
+                this.loadInput(layer, input);
             }
             id++;
             if (layer.config && layer.config.name) {
@@ -237,15 +267,38 @@ class KerasGraph {
             }
             connection = name;
             var outputs = [ connection ];
-            this._nodes.push(new KerasNode(layer.class_name, layer.config, inputs, outputs, rootGroup));
+            this.loadNode(layer, inputs, outputs, model_weights, group);
         });
         this._outputs.push({ 
             id: connection,
+            type: 'T',
             name: connection
         });
     }
 
-    translateInput(layer, input) {
+    loadNode(layer, inputs, outputs, model_weights, group) {
+        var class_name = layer.class_name;
+        switch (class_name) {
+            case 'Model':
+                this.loadModel(layer.config, model_weights, layer.name, inputs, outputs);
+                break;
+            default:
+                var config = layer.config;
+                var weights = null;
+                if (model_weights) {
+                    if (group) {
+                        weights = model_weights.group(group);
+                    }
+                    else if (config) {
+                        weights = model_weights.group(config.name);
+                    }
+                }
+                this._nodes.push(new KerasNode(class_name, config, inputs, outputs, group, weights));
+                break;
+        }
+    }
+
+    loadInput(layer, input) {
         input.type = '';
         if (layer && layer.config) {
             var config = layer.config;
@@ -265,7 +318,10 @@ class KerasGraph {
 
 class KerasNode {
 
-    constructor(operator, config, inputs, outputs, rootGroup) {
+    constructor(operator, config, inputs, outputs, group, weights) {
+        if (group) {
+            this._group = group;
+        }
         this._operator = operator;
         this._config = config;
         this._inputs = inputs;
@@ -274,31 +330,28 @@ class KerasNode {
         if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
             if (this._config && this._config.layer) {
                 var inner = this._config.layer;
-                this._inner = new KerasNode(inner.class_name, inner.config, [], [], null);
+                this._inner = new KerasNode(inner.class_name, inner.config, [], [], null, null);
             }
         }
 
         var name = this.name;
         this._initializers = {};
-        if (rootGroup) {
-            var model_weights = rootGroup.group('model_weights');
-            if (model_weights) {
-                var group = model_weights.group(name);
+        if (weights) {
+            var weight_names = weights.attributes.weight_names;
+            if (weight_names) {
                 if (group) {
-                    var weight_names = group.attributes.weight_names;
-                    if (weight_names) {
-                        weight_names.forEach((weight_name) => {
-                            var weight_variable = group.group(weight_name);
-                            if (weight_variable) {
-                                var variable = weight_variable.value;
-                                if (variable) {
-                                    this._inputs.push(weight_name);
-                                    this._initializers[weight_name] = new KerasTensor(variable);
-                                }
-                            }
-                        });
-                    }
+                    weight_names = weight_names.filter(weight => weight.startsWith(name + '/'));
                 }
+                weight_names.forEach((weight_name) => {
+                    var weight_variable = weights.group(weight_name);
+                    if (weight_variable) {
+                        var variable = weight_variable.value;
+                        if (variable) {
+                            this._inputs.push(weight_name);
+                            this._initializers[weight_name] = new KerasTensor(variable);
+                        }
+                    }
+                });
             }
         }
     }
@@ -320,7 +373,7 @@ class KerasNode {
     }
 
     get group() {
-        return null;
+        return this._group ? this._group : '';
     }
 
     get category() {

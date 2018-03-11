@@ -2421,6 +2421,7 @@
           "name": "padding"
         },
         {
+          "default": "channels_last",
           "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
@@ -2433,14 +2434,28 @@
           "name": "activation"
         },
         {
+          "default": true,
           "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias"
         },
         {
+          "default": {
+            "class_name": "VarianceScaling",
+            "config": {
+              "distribution": "uniform",
+              "mode": "fan_avg",
+              "scale": 1,
+              "seed": null
+            }
+          },
           "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer"
         },
         {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
           "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer"
         },
@@ -2471,6 +2486,12 @@
         {
           "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch, rows, cols, channels)` if data_format='channels_last'.\n",
           "name": "input"
+        },
+        {
+          "name": "kernel"
+        },
+        {
+          "name": "bias"
         }
       ],
       "outputs": [
