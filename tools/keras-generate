@@ -2,11 +2,10 @@
 
 mkdir -p ../third_party
 
-identifier=keras
-repository=https://github.com/keras-team/${identifier}.git
+repository=https://github.com/keras-team/keras.git
 
-if [ -d "../third_party/${identifier}" ]; then
-    pushd "../third_party/${identifier}" > /dev/null
+if [ -d "../third_party/keras" ]; then
+    pushd "../third_party/keras" > /dev/null
     echo "Fetch ${repository}..."
     git fetch -p
     echo "Reset ${repository}..."
@@ -19,5 +18,5 @@ else
     popd > /dev/null
 fi
 
-echo "Update '../src/${identifier}-operator.json'"
-python ${identifier}-operator-json.py
+echo "Update '../src/keras-operator.json'"
+python keras-operator-json.py

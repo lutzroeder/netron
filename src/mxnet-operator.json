@@ -2,52 +2,109 @@
   {
     "name": "Convolution",
     "schema": {
+      "attributes": [
+        {
+          "default": "False",
+          "name": "cudnn_off"
+        },
+        {
+          "default": "off",
+          "name": "cudnn_tune"
+        },
+        {
+          "default": "(1,)",
+          "name": "dilate"
+        },
+        {
+          "hidden": true,
+          "name": "no_bias"
+        },
+        {
+          "default": "1",
+          "name": "num_group"
+        },
+        {
+          "default": "(0,)",
+          "name": "pad"
+        },
+        {
+          "default": "(1,)",
+          "name": "stride"
+        },
+        {
+          "default": "1024",
+          "name": "workspace"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "weight" },
-        { "name": "bias" }
-      ],
-      "attributes": [
-        { "name": "cudnn_off", "default": "False" },
-        { "name": "cudnn_tune", "default": "off" },
-        { "name": "dilate", "default": "(1,)" },
-        { "name": "no_bias", "hidden": true },
-        { "name": "num_group", "default": "1" },
-        { "name": "pad", "default": "(0,)" },
-        { "name": "stride", "default": "(1,)" },
-        { "name": "workspace", "default": "1024" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "bias"
+        }
       ]
     }
   },
   {
     "name": "Deconvolution",
     "schema": {
+      "attributes": [
+        {
+          "hidden": true,
+          "name": "no_bias"
+        },
+        {
+          "default": "1",
+          "name": "num_group"
+        },
+        {
+          "default": "1024",
+          "name": "workspace"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "weight" },
-        { "name": "bias" }
-      ],
-      "attributes": [
-        { "name": "no_bias", "hidden": true },
-        { "name": "num_group", "default": "1" },
-        { "name": "workspace", "default": "1024" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "bias"
+        }
       ]
     }
   },
   {
     "name": "FullyConnected",
     "schema": {
+      "attributes": [
+        {
+          "default": "True",
+          "name": "flatten"
+        },
+        {
+          "hidden": true,
+          "name": "no_bias"
+        }
+      ],
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "weight" },
-        { "name": "bias" }
-      ],
-      "attributes": [
-        { "name": "flatten", "default": "True" },
-        { "name": "no_bias", "hidden": true }
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        },
+        {
+          "name": "bias"
+        }
       ]
     }
   },
@@ -66,20 +123,48 @@
   {
     "name": "SoftmaxOutput",
     "schema": {
+      "attributes": [
+        {
+          "default": "1",
+          "name": "grad_scale"
+        },
+        {
+          "default": "1",
+          "name": "ignore_label"
+        },
+        {
+          "default": "False",
+          "name": "multi_output"
+        },
+        {
+          "default": "null",
+          "name": "normalization"
+        },
+        {
+          "default": "False",
+          "name": "out_grad"
+        },
+        {
+          "default": "0",
+          "name": "smooth_alpha"
+        },
+        {
+          "default": "False",
+          "name": "use_ignore"
+        },
+        {
+          "default": "False",
+          "name": "preserve_shape"
+        }
+      ],
       "category": "Activation",
       "inputs": [
-        { "name": "input" },
-        { "name": "label" }
-      ],
-      "attributes": [
-        { "name": "grad_scale", "default": "1" },
-        { "name": "ignore_label", "default": "1" },
-        { "name": "multi_output", "default": "False" },
-        { "name": "normalization", "default": "null" },
-        { "name": "out_grad", "default": "False" },
-        { "name": "smooth_alpha", "default": "0" },
-        { "name": "use_ignore", "default": "False" },
-        { "name": "preserve_shape", "default": "False" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "label"
+        }
       ]
     }
   },
@@ -88,7 +173,9 @@
     "schema": {
       "category": "Activation",
       "inputs": [
-        { "name": "input" }
+        {
+          "name": "input"
+        }
       ]
     }
   },
@@ -101,14 +188,29 @@
   {
     "name": "Pooling",
     "schema": {
-      "category": "Pool",
       "attributes": [
-        { "name": "cudnn_off", "default": "False" },
-        { "name": "global_pool", "default": "False" },
-        { "name": "pad", "default": "(0,)" },
-        { "name": "pooling_convention", "default": "valid" },
-        { "name": "stride", "default": "(1,)" }
-      ]
+        {
+          "default": "False",
+          "name": "cudnn_off"
+        },
+        {
+          "default": "False",
+          "name": "global_pool"
+        },
+        {
+          "default": "(0,)",
+          "name": "pad"
+        },
+        {
+          "default": "valid",
+          "name": "pooling_convention"
+        },
+        {
+          "default": "(1,)",
+          "name": "stride"
+        }
+      ],
+      "category": "Pool"
     }
   },
   {
@@ -120,13 +222,22 @@
   {
     "name": "Concat",
     "schema": {
+      "attributes": [
+        {
+          "default": "1",
+          "name": "dim"
+        },
+        {
+          "hidden": true,
+          "name": "num_args"
+        }
+      ],
       "category": "Tensor",
       "inputs": [
-        { "name": "inputs", "option": "variadic" }
-      ],
-      "attributes": [
-        { "name": "dim", "default": "1" },
-        { "name": "num_args", "hidden": true }
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
       ]
     }
   },
@@ -134,7 +245,10 @@
     "name": "_Plus",
     "schema": {
       "inputs": [
-        { "name": "inputs", "option": "variadic" }
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
       ]
     }
   },
@@ -142,25 +256,49 @@
     "name": "elemwise_add",
     "schema": {
       "inputs": [
-        { "name": "inputs", "option": "variadic" }
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
       ]
     }
-  },  
+  },
   {
     "name": "BatchNorm",
     "schema": {
+      "attributes": [
+        {
+          "default": "1",
+          "name": "axis"
+        },
+        {
+          "default": "0.001",
+          "name": "eps"
+        },
+        {
+          "default": "0.9",
+          "name": "momentum"
+        },
+        {
+          "default": "True",
+          "name": "fix_gamma"
+        },
+        {
+          "default": "False",
+          "name": "use_global_stats"
+        }
+      ],
       "category": "Normalization",
       "inputs": [
-        { "name": "input" },
-        { "name": "gamma" },
-        { "name": "beta" }
-      ],
-      "attributes": [
-        { "name": "axis", "default": "1" },
-        { "name": "eps", "default": "0.001" },
-        { "name": "momentum", "default": "0.9" },
-        { "name": "fix_gamma", "default": "True" },
-        { "name": "use_global_stats", "default": "False" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "gamma"
+        },
+        {
+          "name": "beta"
+        }
       ]
     }
   },
@@ -169,9 +307,15 @@
     "schema": {
       "category": "Normalization",
       "inputs": [
-        { "name": "input" },
-        { "name": "gamma" },
-        { "name": "beta" }
+        {
+          "name": "input"
+        },
+        {
+          "name": "gamma"
+        },
+        {
+          "name": "beta"
+        }
       ]
     }
   },
@@ -180,7 +324,10 @@
     "schema": {
       "category": "Normalization",
       "inputs": [
-        { "name": "inputs", "option": "variadic" }
+        {
+          "name": "inputs",
+          "option": "variadic"
+        }
       ]
     }
   }

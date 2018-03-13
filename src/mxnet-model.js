@@ -198,6 +198,10 @@ class MXNetNode {
         return MXNetOperatorMetadata.operatorMetadata.getOperatorCategory(this._operator);
     }
 
+    get documentation() {
+        return MXNetOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
+    }
+
     get name() {
         return this._name;
     }
@@ -461,6 +465,41 @@ class MXNetOperatorMetadata {
             }
         }
         return true;
+    }
+
+    getOperatorDocumentation(operator) {
+        var schema = this._map[operator];
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            var template = Handlebars.compile(operatorTemplate, 'utf-8');
+            return template(schema);
+        }
+        return '';
     }
 }
 

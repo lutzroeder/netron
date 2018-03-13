@@ -17,3 +17,6 @@ else
     git clone --recursive ${repository}
     popd > /dev/null
 fi
+
+# echo "Update '../src/mxnet-operator.json'"
+# python mxnet-operator-json.py
