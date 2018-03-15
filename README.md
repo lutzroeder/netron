@@ -3,9 +3,7 @@
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
-Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`) and **TensorFlow Lite** (`.tflite`). 
-
-Netron has experimental support for **Caffe** (`.caffemodel`), **MXNet** (`-symbol.json`) and **TensorFlow** (`.pb`, `.meta`).
+Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **CoreML** (`.mlmodel`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **Caffe** (`.caffemodel`), **Caffe2** (`predict_net.pb`), **MXNet** (`-symbol.json`) and **TensorFlow** (`.pb`, `.meta`).
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='media/screenshot.png' width='800'></a></p>
 
@@ -47,7 +45,6 @@ Sample model files you can download and open:
 **Keras Models**
 
 * [resnet](https://github.com/Hyperparticle/one-pixel-attack-keras/raw/master/networks/models/resnet.h5)
-* [densenet](https://github.com/Hyperparticle/one-pixel-attack-keras/raw/master/networks/models/densenet.h5)
 * [tiny-yolo-voc](https://github.com/hollance/YOLO-CoreML-MPSNNGraph/raw/master/Convert/yad2k/model_data/tiny-yolo-voc.h5)
 
 **CoreML Models**
@@ -63,11 +60,18 @@ Sample model files you can download and open:
 * [Inception v3 2016](https://storage.googleapis.com/download.tensorflow.org/models/tflite/inception_v3_slim_2016_android_2017_11_10.zip)
 
 **Caffe Models**
+
 * [BVLC AlexNet](http://dl.caffe.berkeleyvision.org/bvlc_alexnet.caffemodel)
 * [BVLC CaffeNet](http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel)
 * [BVLC GoogleNet](http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel)
 
+**Caffe2 Models**
+
+* [BVLC GoogleNet](https://github.com/caffe2/models/raw/master/bvlc_googlenet/predict_net.pb)
+* [Inception v2](https://github.com/caffe2/models/raw/master/inception_v2/predict_net.pb)
+
 **MXNet Models**
+
 * [CaffeNet](http://data.dmlc.ml/models/imagenet/squeezenet/squeezenet_v1.1-symbol.json)
 * [SqueezeNet v1.1](https://mxnet.incubator.apache.org/model_zoo/index.html)
 

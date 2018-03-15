@@ -45,7 +45,8 @@ class CaffeModel {
         else if (netParameter.layer && netParameter.layer.length > 0) {
             this._version = 2;
         }
-        this._graphs = [ new CaffeGraph(netParameter, this._version) ];
+        var graph = new CaffeGraph(netParameter, this._version);
+        this._graphs = [ graph ];
     }
 
     get properties() {
@@ -343,7 +344,6 @@ class CaffeTensor {
         else if (blob.doubleData.length > 0) {
             this._type = 'double';
             this._data = blob.doubleData;
-            debugger;
         }
     }
 

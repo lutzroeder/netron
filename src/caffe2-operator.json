@@ -1,0 +1,231 @@
+[
+  {
+    "name": "Conv",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "X" },
+        { "name": "filter" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "Y" }
+      ]
+    }
+  },
+  {
+    "name": "ConvTranspose",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "X" },
+        { "name": "filter" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "Y" }
+      ]
+    }
+  },
+  {
+    "name": "FC",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "X" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "Y" }
+      ]
+    }
+  },
+  {
+    "name": "Add",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "Sum",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "Mul",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "MatMul",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "Y" }
+      ]
+    }
+  },
+  {
+    "name": "Relu",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "PRelu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "X" },
+        { "name": "Slope" }
+      ],
+      "outputs": [
+        { "name": "Y" }
+      ]
+    }
+  },
+  {
+    "name": "Softmax",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "MaxPool",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "AveragePool",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "SpatialBN",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "scale" },
+        { "name": "bias" },
+        { "name": "mean" },
+        { "name": "var" }
+      ]
+    }
+  },
+  {
+    "name": "LRN",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout"
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ], 
+      "outputs": [
+        { "name": "concat_result" },
+        { "name": "split_info" }
+      ]
+    }
+  },
+  {
+    "name": "GenerateProposals",
+    "schema": {
+      "inputs": [
+        { "name": "scores" },
+        { "name": "bbox_deltas" },
+        { "name": "im_info" },
+        { "name": "anchors" }
+      ],
+      "outputs": [
+        { "name": "rois" },
+        { "name": "rois_probs" }
+      ]
+    }
+  },
+  {
+    "name": "RoIAlign",
+    "schema": {
+      "inputs": [
+        { "name": "X" },
+        { "name": "RoIs" }
+      ],
+      "outputs": [
+        { "name": "Y" }
+      ]
+    }
+  },
+  {
+    "name": "BBoxTransform",
+    "schema": {
+      "inputs": [
+        { "name": "rois" },
+        { "name": "deltas" },
+        { "name": "im_info" }
+      ],
+      "outputs": [
+        { "name": "box_out" }
+      ]
+    }
+  },
+  {
+    "name": "BoxWithNMSLimit",
+    "schema": {
+      "inputs": [
+        { "name": "scores" },
+        { "name": "boxes" },
+        { "name": "batch_splits" }
+      ],
+      "outputs": [
+        { "name": "scores" },
+        { "name": "boxes" },
+        { "name": "classes" },
+        { "name": "batch_splits" },
+        { "name": "keeps" },
+        { "name": "keeps_size" }
+      ]
+    }
+  }
+]

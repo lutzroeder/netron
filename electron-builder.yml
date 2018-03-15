@@ -31,6 +31,9 @@ fileAssociations:
   - name: "Caffe Model"
     ext:
     - caffemodel
+  - name: "Caffe2 Model"
+    ext:
+    - pb
   - name: "MXNet Model"
     ext:
     - json

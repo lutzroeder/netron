@@ -94,6 +94,11 @@ class View {
                 callback(err, model);
             });
         }
+        else if (identifier.endsWith('predict_net.pb')) {
+            Caffe2Model.open(buffer, identifier, this._host, (err, model) => {
+                callback(err, model);
+            });
+        }
         else if (identifier.endsWith('-symbol.json')) {
             MXNetModel.open(buffer, identifier, this._host, (err, model) => {
                 callback(err, model);
