@@ -164,6 +164,10 @@ class Caffe2Node {
         return Caffe2OperatorMetadata.operatorMetadata.getOperatorCategory(this._operator);
     }
 
+    get documentation() {
+        return Caffe2OperatorMetadata.operatorMetadata.getOperatorDocumentation(this._operator);
+    }
+
     get inputs() {
         var inputs = Caffe2OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs);
         inputs.forEach((input) => {
@@ -236,7 +240,7 @@ class Caffe2OperatorMetadata
         }
         else {
             host.request('/caffe2-operator.json', (err, data) => {
-                Caffe2OperatorMetadata.operatorMetadata = new CaffeOperatorMetadata(data);
+                Caffe2OperatorMetadata.operatorMetadata = new Caffe2OperatorMetadata(data);
                 callback(null, Caffe2OperatorMetadata.operatorMetadata);
             });
         }    
@@ -265,6 +269,48 @@ class Caffe2OperatorMetadata
             return schema.category;
         }
         return null;
+    }
+
+    getOperatorDocumentation(operator) {
+        var schema = this._map[operator];
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            if (schema.references) {
+                schema.references.forEach((reference) => {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                });                
+            }
+            var template = Handlebars.compile(operatorTemplate, 'utf-8');
+            return template(schema);
+        }
+        return '';
     }
 
     getInputs(type, inputs) {
@@ -350,13 +396,13 @@ class Caffe2OperatorMetadata
                     return attribute.hidden;
                 }
                 if (attribute.hasOwnProperty('default')) {
-                    return CaffeOperatorMetadata.isEquivalent(attribute.default, value);
+                    return Caffe2OperatorMetadata.isEquivalent(attribute.default, value);
                 }
             }
         }
         return false;
     }
-
+    
     static isEquivalent(a, b) {
         if (a === b) {
             return a !== 0 || 1 / a === 1 / b;
@@ -393,7 +439,7 @@ class Caffe2OperatorMetadata
                     return false;
                 }
                 while (length--) {
-                    if (!CaffeOperatorMetadata.isEquivalent(a[length], b[length])) {
+                    if (!Caffe2OperatorMetadata.isEquivalent(a[length], b[length])) {
                         return false;
                     }
                 }
@@ -407,7 +453,7 @@ class Caffe2OperatorMetadata
         } 
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && CaffeOperatorMetadata.isEquivalent(a[key], b[key]))) {
+            if (!(b.hasOwnProperty(key) && Caffe2OperatorMetadata.isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }
