@@ -28,7 +28,7 @@ sudo -H pip3 install future numpy protobuf pydot python-gflags pyyaml scikit-ima
 
 echo "Build Caffe2"
 pushd "../third_party/caffe2" > /dev/null
-mkdir build && cd build
+mkdir -p build && cd build
 cmake -DUSE_CUDA=OFF ..
 sudo make install
 popd > /dev/null
