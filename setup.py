@@ -80,7 +80,10 @@ setuptools.setup(
             'caffe2-model.js', 'caffe2-operator.json', 'caffe2.js',
             'mxnet-model.js', 'mxnet-operator.json',
             'view-browser.html', 'view-browser.js',
-            'view.js', 'view.css', 'view-render.css', 'view-render.js', 'view-template.js'
+            'view-render.css', 'view-render.js',
+            'view-node.css', 'view-node.js',
+            'view-template.js',
+            'view.js', 'view.css'
         ]
     },
     install_requires=[],

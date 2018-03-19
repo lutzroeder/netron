@@ -509,12 +509,12 @@ class TensorFlowAttribute {
 
 class TensorFlowIdentityTensor {
     
-    constructor(tensor, id, name, title) {
+    constructor(tensor, id, name, kind) {
         this._tensor = tensor;
         this._id = id;
         this._name = name;
-        if (title) {
-            this._title = title;
+        if (kind) {
+            this._kind = kind;
         }
     }
 
@@ -526,8 +526,8 @@ class TensorFlowIdentityTensor {
         return this._name;
     }
 
-    get title() {
-        return this._title;
+    get kind() {
+        return this._kind;
     }
 
     get type() {
@@ -541,12 +541,12 @@ class TensorFlowIdentityTensor {
 
 class TensorFlowTensor {
 
-    constructor(tensor, id, name, title) {
+    constructor(tensor, id, name, kind) {
         this._tensor = tensor;
         this._id = id;
         this._name = name;
-        if (title) {
-            this._title = title;
+        if (kind) {
+            this._kind = kind;
         }
     }
 
@@ -562,8 +562,8 @@ class TensorFlowTensor {
         return TensorFlowTensor.formatTensorType(this._tensor);
     }
 
-    get title() {
-        return this._title;
+    get kind() {
+        return this._kind;
     }
 
     get value() {

@@ -215,6 +215,7 @@ class MXNetNode {
             input.connections.forEach((connection) => {
                 var initializer = this._initializers[connection.id];
                 if (initializer) {
+                    connection.type = initializer.type;
                     connection.initializer = initializer;
                 }
             });
@@ -259,10 +260,29 @@ class MXNetTensor {
     
     constructor(json) {
         this._json = json;
+        this._type = '';
+        var attrs = this._json.attrs; 
+        if (attrs) {
+            var dtype = attrs.__dtype__;
+            var shape = attrs.__shape__;
+            if (dtype && shape) {
+                dtype = dtype.replace('0', 'float');
+                shape = shape.split(' ').join('').replace('(', '[').replace(')', ']');
+                this._type = dtype + shape;
+            }
+        }
     }
 
     get name() {
         return this._json.name;
+    }
+
+    get kind() {
+        return 'Initializer';
+    }
+
+    get type() {
+        return this._type;
     }
 }
 

@@ -288,7 +288,7 @@ class View {
                     if (!input.hidden) {
                         var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
                         formatter.addItem(input.name, [ inputClass ], types, () => {
-                            this.showNodeInput(input);
+                            this.showNodeInput(node, input);
                         });    
                     }
     
@@ -531,19 +531,25 @@ class View {
     
     showNode(node) {
         if (node) {
-            var template = Handlebars.compile(nodeTemplate, 'utf-8');
-            var data = template(node);
-            this._sidebar.open(data, 'Node');
-    
-            var documentationButton = document.getElementById('documentation-button');
-            if (documentationButton) {
-                documentationButton.addEventListener('click', () => { 
-                    this.showDocumentation(node);
-                });
-            }
+            var documentationHandler = () => {
+                this.showDocumentation(node);
+            };
+            var view = new NodeView(node, documentationHandler);
+            this._sidebar.open(view.elements, 'Node');
         }
     }
-    
+
+    showNodeInput(node, input) {
+        if (input) {
+            var documentationHandler = () => {
+                this.showDocumentation(node);
+            };
+            var view = new NodeView(node, documentationHandler);
+            view.toggleInput(input.name);
+            this._sidebar.open(view.elements, 'Node');
+        }
+    }
+
     showDocumentation(node) {
         var documentation = node.documentation;
         if (documentation) {
@@ -561,14 +567,6 @@ class View {
                     }
                 });
             }
-        }
-    }
-
-    showNodeInput(input) {
-        if (input) {
-            var template = Handlebars.compile(inputTemplate, 'utf-8');
-            var data = template(input);
-            this._sidebar.open(data, 'Node Input');
         }
     }
 }
@@ -606,7 +604,20 @@ class Sidebar {
             closeButtonElement.addEventListener('click', this._closeSidebarHandler);
             closeButtonElement.style.color = '#818181';
             contentElement.style.height = window.innerHeight - 60;
-            contentElement.innerHTML = content;
+            while (contentElement.firstChild) {
+                contentElement.removeChild(contentElement.firstChild);
+            }
+            if (typeof content == 'string') {
+                contentElement.innerHTML = content;
+            }
+            else if (content instanceof Array) {
+                content.forEach((element) => {
+                    contentElement.appendChild(element);
+                });
+            }
+            else {
+                contentElement.appendChild(content);
+            }
             sidebarElement.style.width = width ? width : '500px';    
             if (width && width.endsWith('%')) {
                 contentElement.style.width = '100%';

@@ -131,6 +131,9 @@ class Caffe2Node {
         if (op.name) {
             this._name = op.name;
         }
+        if (op.engine) {
+            this._device = op.engine;
+        }
         this._operator = op.type;
         this._inputs = op.input;
         this._outputs = op.output;
@@ -146,7 +149,7 @@ class Caffe2Node {
                 var initializer = initializerMap[input];
                 if (initializer) {
                     delete initializerMap[input];
-                    this._initializers[input] = new Caffe2Tensor();
+                    this._initializers[input] = new Caffe2Tensor('Initializer');
                 }
             }
         });
@@ -154,6 +157,10 @@ class Caffe2Node {
 
     get name() {
         return this._name ? this._name : '';
+    }
+
+    get device() {
+        return this._device ? this._device : '';
     }
 
     get operator() {
@@ -225,9 +232,13 @@ class Caffe2Attribute {
 }
 
 class Caffe2Tensor {
-    
-    constructor() {
 
+    constructor(kind) {
+        this._kind = kind;
+    }
+
+    get kind() {
+        return this._kind;
     }
 }
 

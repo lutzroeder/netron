@@ -45,7 +45,8 @@
           "name": "weight"
         },
         {
-          "name": "bias"
+          "name": "bias",
+          "option": "optional"
         }
       ]
     }

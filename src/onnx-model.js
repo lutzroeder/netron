@@ -393,11 +393,11 @@ class OnnxAttribute {
 
 class OnnxTensor {
 
-    constructor(tensor, id, title) {
+    constructor(tensor, id, kind) {
         this._tensor = tensor;
         this._id = id;
-        if (title) {
-            this._title = title;
+        if (kind) {
+            this._kind = kind;
         }
     }
 
@@ -409,8 +409,8 @@ class OnnxTensor {
         return this._tensor.name ? this._tensor.name : this._id; 
     }
 
-    get title() {
-        return this._title ? this._title : null;
+    get kind() {
+        return this._kind ? this._kind : null;
     }
 
     get type() {

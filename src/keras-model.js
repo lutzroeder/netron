@@ -476,7 +476,7 @@ class KerasTensor {
         this._variable = variable;
     }
 
-    get title() {
+    get kind() {
         return 'Initializer';
     }
 
