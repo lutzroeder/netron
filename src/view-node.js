@@ -272,7 +272,7 @@ class NodeViewItemConnection {
         if (this._hasId) {
             var idLine = document.createElement('div');
             idLine.className = 'node-view-item-value-line';
-            idLine.innerHTML = 'id: <b>' + this._connection.id + '</b>';
+            idLine.innerHTML = '<span class=\'node-view-item-value-line-content\'>id: <b>' + this._connection.id + '</b></span>';
             this._element.appendChild(idLine);
         }
         else {

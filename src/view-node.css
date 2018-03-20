@@ -56,15 +56,17 @@
 
 .node-view-item {
     margin-bottom: 6px;
-    display: table-row;
+    display: block;
 }
 
 .node-view-item-name {
+    float: left; 
     font-size: 10px;
     min-width: 95px;
     max-width: 95px;
     padding-right: 5px;
-    display: table-cell;
+    padding-top: 7px;
+    display: block;
 }
 
 .node-view-item-name input {
@@ -82,10 +84,10 @@
 }
 
 .node-view-item-value-list {
-    overflow: auto;
-    width: 100%;
-    display: table-cell;
     margin: 0;
+    margin-left: 105px;
+    overflow: hidden;
+    display: block;
     padding: 0;
 }
 
@@ -96,6 +98,7 @@
     border: 1px solid rgba(27, 31, 35, 0.05);
     margin-top: 3px;
     margin-bottom: 3px;
+    overflow: auto;
 }
 
 .node-view-item-value b {
@@ -104,11 +107,18 @@
 
 .node-view-item-value code {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; 
+    overflow: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word; 
 }
 
 .node-view-item-value pre {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; 
     margin: 0;
+    overflow: auto;
+    white-space: pre;
+    word-wrap: normal;
+    display: block;
 }
 
 .node-view-item-value-line {
@@ -118,6 +128,13 @@
 .node-view-item-value-line-border {
     padding: 4px 6px 4px 6px;
     border-top: 1px solid rgba(27, 31, 35, 0.05);
+}
+
+.node-view-item-value-line-content {
+    white-space: pre;
+    word-wrap: normal;
+    overflow: auto;
+    display: block;
 }
 
 .node-view-item-value-expander {
