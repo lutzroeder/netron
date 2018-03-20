@@ -231,7 +231,7 @@ class TensorFlowGraph {
             this._initializerMap = {};
             this._graph.graphDef.node.forEach((node) => {
                 if (node.op == 'Const' && node.input.length == 0 && this.checkSingleOutput(node)) {
-                    var value = node.attr['value'];
+                    var value = node.attr.value;
                     if (value && value.hasOwnProperty('tensor')) {
                         var output = node.output[0];
                         if (output) {
@@ -255,8 +255,8 @@ class TensorFlowGraph {
             this._inputMap = {};
             this._graph.graphDef.node.forEach((node) => {
                 if (node.op == 'Placeholder' && node.input.length == 0 && node.output.length == 1) {
-                    var dtype = node.attr['dtype'];
-                    var shape = node.attr['shape'];
+                    var dtype = node.attr.dtype;
+                    var shape = node.attr.shape;
                     if (dtype && dtype.type && shape && shape.shape) {
                         this._inputMap[node.output[0]] = {
                             id: node.output[0],
@@ -304,6 +304,10 @@ class TensorFlowNode {
 
     get name() {
         return this._node.name;
+    }
+
+    get device() {
+        return this._node.device;
     }
 
     get group() {
@@ -437,7 +441,7 @@ class TensorFlowAttribute {
             return value.b.toString();
         }
         else if (value.hasOwnProperty('shape')) {
-            return TensorFlowTensor.formatTensorShape(value.shape);;
+            return TensorFlowTensor.formatTensorShape(value.shape);
         }
         else if (value.hasOwnProperty('s')) {
             if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
@@ -486,7 +490,6 @@ class TensorFlowAttribute {
                 return list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape));
             }
         }
-        debugger;
         return '';        
     }
 
@@ -582,7 +585,7 @@ class TensorFlowTensor {
         switch (this._tensor.dtype) {
             case tensorflow.DataType.DT_FLOAT:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength)
+                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
                 }
                 else if (this._tensor.floatVal && this._tensor.floatVal.length == this._size) {
                     this._data = this._tensor.floatVal;
@@ -593,7 +596,7 @@ class TensorFlowTensor {
                 break;
             case tensorflow.DataType.DT_INT32:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength)
+                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
                 }
                 else if (this._tensor.intVal && this._tensor.intVal.length == this._size) {
                     this._data = this._tensor.intVal;
@@ -614,10 +617,8 @@ class TensorFlowTensor {
                 }
                 break;
             case tensorflow.DataType.DT_BOOL:
-                debugger;
                 return 'Tensor data type is not implemented.';
             default:
-                debugger;
                 return 'Tensor data type is not implemented.';
         }
 
@@ -705,7 +706,6 @@ class TensorFlowTensor {
             }
             return type;
         }
-        debugger;
         return '?';
     }
 
@@ -723,7 +723,6 @@ class TensorFlowTensor {
         if (text) { 
             return text;
         }
-        debugger;
         return '?';
     }
 
@@ -740,7 +739,6 @@ class TensorFlowTensor {
             }
             return '[' + shape.dim.map((dim) => (dim.size && dim.size != -1) ? dim.size.toString() : '?').join(',') + ']';
         }
-        debugger;
         return '?';
     }
 }

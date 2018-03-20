@@ -477,7 +477,6 @@ class TensorFlowLiteTensor {
                         this._count++;
                         break;
                     default:
-                        debugger;
                         break;
                 }
             }
