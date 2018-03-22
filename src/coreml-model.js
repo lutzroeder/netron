@@ -243,6 +243,12 @@ class CoreMLGraph {
             this.updateClassifierOutput(group, model.treeEnsembleClassifier);
             return 'Tree Ensemble Classifier';
         }
+        else if (model.treeEnsembleRegressor) {
+            this._nodes.push(new CoreMLNode(group, 'treeEnsembleRegressor', null, model.treeEnsembleRegressor.treeEnsemble, 
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'Tree Ensemble Regressor';
+        }
         else if (model.supportVectorClassifier) {
             this._nodes.push(new CoreMLNode(group, 'supportVectorClassifier', null, 
                 { coefficients: model.supportVectorClassifier.coefficients, 
