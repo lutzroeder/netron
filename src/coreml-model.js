@@ -145,7 +145,9 @@ class CoreMLGraph {
         }
         var predictedFeatureName = this._description.predictedFeatureName;
         var predictedProbabilitiesName = this._description.predictedProbabilitiesName;
-        if (predictedFeatureName && predictedProbabilitiesName && labelProbabilityLayerName && classifier.ClassLabels) {
+        if ((predictedFeatureName || predictedProbabilitiesName) && labelProbabilityLayerName && classifier.ClassLabels) {
+            predictedFeatureName = predictedFeatureName ? predictedFeatureName : '?';
+            predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
             var labelProbabilityInput = this.updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
             var operator = classifier.ClassLabels;
             this._nodes.push(new CoreMLNode(group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
@@ -240,6 +242,21 @@ class CoreMLGraph {
                 [ model.description.output[0].name ]));
             this.updateClassifierOutput(group, model.treeEnsembleClassifier);
             return 'Tree Ensemble Classifier';
+        }
+        else if (model.supportVectorClassifier) {
+            this._nodes.push(new CoreMLNode(group, 'supportVectorClassifier', null, 
+                { coefficients: model.supportVectorClassifier.coefficients, 
+                  denseSupportVectors: model.supportVectorClassifier.denseSupportVectors,
+                  kernel: model.supportVectorClassifier.kernel,
+                  numberOfSupportVectorsPerClass: model.supportVectorClassifier.numberOfSupportVectorsPerClass,
+                  probA: model.supportVectorClassifier.probA,
+                  probB: model.supportVectorClassifier.probB,
+                  rho: model.supportVectorClassifier.rho,
+                  supportVectors: model.supportVectorClassifier.supportVectors }, 
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            this.updateClassifierOutput(group, model.supportVectorClassifier);
+            return 'Support Vector Classifier';            
         }
         return 'Unknown';
     }

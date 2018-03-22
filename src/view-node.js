@@ -194,6 +194,9 @@ class NodeViewItemAttribute {
         }
 
         var value = this._attribute.value;
+        if (value.length > 1000) {
+            value = value.substring(0, 1000) + '...';
+        }
         var valueLine = document.createElement('div');
         valueLine.className = 'node-view-item-value-line';
         valueLine.innerHTML = '<code>' + (value ? value : '&nbsp;') + '</code>';
@@ -275,7 +278,7 @@ class NodeViewItemConnection {
             idLine.innerHTML = '<span class=\'node-view-item-value-line-content\'>id: <b>' + this._connection.id + '</b></span>';
             this._element.appendChild(idLine);
         }
-        else {
+        else if (initializer) {
             var kindLine = document.createElement('div');
             kindLine.className = 'node-view-item-value-line';
             kindLine.innerHTML = 'kind: <b>' + initializer.kind + '</b>';
