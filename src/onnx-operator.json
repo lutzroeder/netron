@@ -235,7 +235,7 @@
           "summary": "and_axis"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n)\n\n#3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v1d')\n\n#3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v2d')\n\n#4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v2d')\n\n#4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v3d')",
+          "code": "node = onnx.helper.make_node(\n    'And',\n    inputs=['x', 'y'],\n    outputs=['and'],\n    broadcast=1,\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v1d')\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v2d')\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v2d')\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_and(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v3d')",
           "summary": "and_broadcast"
         }
       ],
@@ -468,8 +468,50 @@
         }
       ],
       "category": "Pool",
-      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i] + 1)\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements exclude pad.\n ",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0])\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_1d_default')",
+          "summary": "averagepool_1d_default"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0))\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_default')",
+          "summary": "averagepool_2d_default"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_pads')",
+          "summary": "averagepool_2d_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 7.5, 8, 8.5, 9],\n                [9.5, 10, 10.5, 11, 11.5],\n                [12, 12.5, 13, 13.5, 14],\n                [14.5, 15, 15.5, 16, 16.5],\n                [17, 17.5, 18, 18.5, 19]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_precomputed_pads')",
+          "summary": "averagepool_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 3, 3]\npad_shape: [2, 2] -> [1, 1, 1, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[4, 5.5, 7],\n                [11.5, 13, 14.5],\n                [19, 20.5, 22]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_precomputed_same_upper')",
+          "summary": "averagepool_2d_precomputed_same_upper"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[4, 6],\n                [14, 16]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_precomputed_strides')",
+          "summary": "averagepool_2d_precomputed_strides"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
+          "summary": "averagepool_2d_same_lower"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
+          "summary": "averagepool_2d_same_upper"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0))\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_strides')",
+          "summary": "averagepool_2d_strides"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0])\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_3d_default')",
+          "summary": "averagepool_3d_default"
+        }
+      ],
       "inputs": [
         {
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
@@ -674,7 +716,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n]   \n\nfor case in test_cases:\n    from_type = case[0]\n    to_type = case[1]\n    input = np.random.random_sample(shape).astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=to_type\n    )\n    output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    expect(node, inputs=[input], outputs=[output], name='test_cast_' + from_type + '_to_' + to_type)",
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n]\n\nfor case in test_cases:\n    from_type = case[0]\n    to_type = case[1]\n    input = np.random.random_sample(shape).astype(\n        TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=to_type\n    )\n    output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    expect(node, inputs=[input], outputs=[output],\n           name='test_cast_' + from_type + '_to_' + to_type)",
           "summary": "cast"
         }
       ],
@@ -882,7 +924,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Ceil',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2]).astype(np.float32)\ny = np.ceil(x) #expected output [-1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.ceil(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil')",
+          "code": "node = onnx.helper.make_node(\n    'Ceil',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2]).astype(np.float32)\ny = np.ceil(x)  # expected output [-1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.ceil(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil')",
           "summary": "ceil"
         }
       ],
@@ -940,7 +982,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1) #expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')",
           "summary": "clip"
         },
         {
@@ -997,7 +1039,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d':([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n    }\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values,i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n        name='test_concat_' + test_case + '_axis_' + str(i))",
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
           "summary": "concat"
         }
       ],
@@ -1051,7 +1093,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d':([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n    }\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values,i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n        name='test_concat_' + test_case + '_axis_' + str(i))",
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
           "summary": "concat"
         }
       ],
@@ -1263,11 +1305,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "\nx = np.array([[[[  0.,   1.,   2.,   3.,   4.], # (1, 1, 5, 5) input tensor\n                [  5.,   6.,   7.,   8.,   9.],\n                [ 10.,  11.,  12.,  13.,  14.],\n                [ 15.,  16.,  17.,  18.,  19.],\n                [ 20.,  21.,  22.,  23.,  24.]]]]).astype(np.float32)\nW = np.array([[[[ 1.,  1.,  1.], # (1, 1, 3, 3) tensor for convolution weights\n                [ 1.,  1.,  1.],\n                [ 1.,  1.,  1.]]]]).astype(np.float32)\n\n# Convolution with padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 1, 1, 1], # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n)\ny_with_padding = np.array([[[[  12.,   21.,   27.,   33.,   24.], # (1, 1, 5, 5) output tensor\n                             [  33.,   54.,   63.,   72.,   51.],\n                             [  63.,   99.,  108.,  117.,   81.],\n                             [  93.,  144.,  153.,  162.,  111.],\n                             [  72.,  111.,  117.,  123.,   84.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n   name='test_basic_conv_with_padding')\n\n# Convolution without padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[0, 0, 0, 0], # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n)\ny_without_padding = np.array([[[[  54.,   63.,   72.], # (1, 1, 3, 3) output tensor\n                                [  99.,  108.,  117.],\n                                [ 144.,  153.,  162.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n   name='test_basic_conv_without_padding')",
+          "code": "\nx = np.array([[[[0., 1., 2., 3., 4.],  # (1, 1, 5, 5) input tensor\n                [5., 6., 7., 8., 9.],\n                [10., 11., 12., 13., 14.],\n                [15., 16., 17., 18., 19.],\n                [20., 21., 22., 23., 24.]]]]).astype(np.float32)\nW = np.array([[[[1., 1., 1.],  # (1, 1, 3, 3) tensor for convolution weights\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\n# Convolution with padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n    pads=[1, 1, 1, 1],\n)\ny_with_padding = np.array([[[[12., 21., 27., 33., 24.],  # (1, 1, 5, 5) output tensor\n                             [33., 54., 63., 72., 51.],\n                             [63., 99., 108., 117., 81.],\n                             [93., 144., 153., 162., 111.],\n                             [72., 111., 117., 123., 84.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n       name='test_basic_conv_with_padding')\n\n# Convolution without padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    # Default values for other attributes: strides=[1, 1], dilations=[1, 1], groups=1\n    pads=[0, 0, 0, 0],\n)\ny_without_padding = np.array([[[[54., 63., 72.],  # (1, 1, 3, 3) output tensor\n                                [99., 108., 117.],\n                                [144., 153., 162.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n       name='test_basic_conv_without_padding')",
           "summary": "conv"
         },
         {
-          "code": "\nx = np.array([[[[  0.,   1.,   2.,   3.,   4.],  # (1, 1, 7, 5) input tensor\n                [  5.,   6.,   7.,   8.,   9.],\n                [ 10.,  11.,  12.,  13.,  14.],\n                [ 15.,  16.,  17.,  18.,  19.],\n                [ 20.,  21.,  22.,  23.,  24.],\n                [ 25.,  26.,  27.,  28.,  29.],\n                [ 30.,  31.,  32.,  33.,  34.]]]]).astype(np.float32)\nW = np.array([[[[ 1.,  1.,  1.],  # (1, 1, 3, 3) tensor for convolution weights\n                [ 1.,  1.,  1.],\n                [ 1.,  1.,  1.]]]]).astype(np.float32)\n\n# Convolution with strides=2 and padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 1, 1, 1],\n    strides=[2, 2], # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_padding = np.array([[[[  12.,   27.,   24.], # (1, 1, 4, 3) output tensor\n                             [  63.,  108.,   81.],\n                             [ 123.,  198.,  141.],\n                             [ 112.,  177.,  124.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n   name='test_conv_with_strides_padding')\n\n# Convolution with strides=2 and no padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[0, 0, 0, 0],\n    strides=[2, 2], # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_without_padding = np.array([[[[  54.,   72.], # (1, 1, 3, 2) output tensor\n                                [ 144., 162.],\n                                [ 234.,  252.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n   name='test_conv_with_strides_no_padding')\n\n# Convolution with strides=2 and padding only along one dimension (the H dimension in NxCxHxW tensor)\nnode_with_asymmetric_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 0, 1, 0],\n    strides=[2, 2], # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_asymmetric_padding = np.array([[[[  21.,   33.], # (1, 1, 4, 2) output tensor\n                                        [  99.,  117.],\n                                        [ 189.,  207.],\n                                        [ 171.,  183.]]]]).astype(np.float32)\nexpect(node_with_asymmetric_padding, inputs=[x, W], outputs=[y_with_asymmetric_padding],\n   name='test_conv_with_strides_and_asymmetric_padding')",
+          "code": "\nx = np.array([[[[0., 1., 2., 3., 4.],  # (1, 1, 7, 5) input tensor\n                [5., 6., 7., 8., 9.],\n                [10., 11., 12., 13., 14.],\n                [15., 16., 17., 18., 19.],\n                [20., 21., 22., 23., 24.],\n                [25., 26., 27., 28., 29.],\n                [30., 31., 32., 33., 34.]]]]).astype(np.float32)\nW = np.array([[[[1., 1., 1.],  # (1, 1, 3, 3) tensor for convolution weights\n                [1., 1., 1.],\n                [1., 1., 1.]]]]).astype(np.float32)\n\n# Convolution with strides=2 and padding\nnode_with_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 1, 1, 1],\n    strides=[2, 2],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_padding = np.array([[[[12., 27., 24.],  # (1, 1, 4, 3) output tensor\n                             [63., 108., 81.],\n                             [123., 198., 141.],\n                             [112., 177., 124.]]]]).astype(np.float32)\nexpect(node_with_padding, inputs=[x, W], outputs=[y_with_padding],\n       name='test_conv_with_strides_padding')\n\n# Convolution with strides=2 and no padding\nnode_without_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[0, 0, 0, 0],\n    strides=[2, 2],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_without_padding = np.array([[[[54., 72.],  # (1, 1, 3, 2) output tensor\n                                [144., 162.],\n                                [234., 252.]]]]).astype(np.float32)\nexpect(node_without_padding, inputs=[x, W], outputs=[y_without_padding],\n       name='test_conv_with_strides_no_padding')\n\n# Convolution with strides=2 and padding only along one dimension (the H dimension in NxCxHxW tensor)\nnode_with_asymmetric_padding = onnx.helper.make_node(\n    'Conv',\n    inputs=['x', 'W'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[1, 0, 1, 0],\n    strides=[2, 2],  # Default values for other attributes: dilations=[1, 1], groups=1\n)\ny_with_asymmetric_padding = np.array([[[[21., 33.],  # (1, 1, 4, 2) output tensor\n                                        [99., 117.],\n                                        [189., 207.],\n                                        [171., 183.]]]]).astype(np.float32)\nexpect(node_with_asymmetric_padding, inputs=[x, W], outputs=[y_with_asymmetric_padding],\n       name='test_conv_with_strides_and_asymmetric_padding')",
           "summary": "conv_with_strides"
         }
       ],
@@ -1600,7 +1642,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y #expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')",
+          "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')",
           "summary": "div"
         },
         {
@@ -1721,7 +1763,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Elu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n#expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu')",
+          "code": "node = onnx.helper.make_node(\n    'Elu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu')",
           "summary": "elu"
         },
         {
@@ -1844,7 +1886,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Exp',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.exp(x) #expected output [0.36787945, 1., 2.71828175]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.exp(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp')",
+          "code": "node = onnx.helper.make_node(\n    'Exp',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.exp(x)  # expected output [0.36787945, 1., 2.71828175]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.exp(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp')",
           "summary": "exp"
         }
       ],
@@ -2015,11 +2057,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (2, 3, 4, 5)\na = np.random.random_sample(shape).astype(np.float32)\n\nfor i in range(len(shape)):\n    node = onnx.helper.make_node(\n        'Flatten',\n        inputs=['a'],\n        outputs=['b'],\n        axis=i,\n    )\n\n    new_shape = (1, -1) if i == 0 else (np.prod(shape[0:i]).astype(int), -1)\n    b= np.reshape(a, new_shape)\n    expect(node, inputs=[a], outputs=[b],\n       name='test_flatten_axis' + str(i))",
+          "code": "shape = (2, 3, 4, 5)\na = np.random.random_sample(shape).astype(np.float32)\n\nfor i in range(len(shape)):\n    node = onnx.helper.make_node(\n        'Flatten',\n        inputs=['a'],\n        outputs=['b'],\n        axis=i,\n    )\n\n    new_shape = (1, -1) if i == 0 else (np.prod(shape[0:i]).astype(int), -1)\n    b = np.reshape(a, new_shape)\n    expect(node, inputs=[a], outputs=[b],\n           name='test_flatten_axis' + str(i))",
           "summary": "flatten"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Flatten',\n    inputs=['a'],\n    outputs=['b'], # Default value for axis: axis=1\n)\n\nshape = (5, 4, 3, 2)\na = np.random.random_sample(shape).astype(np.float32)\nnew_shape = (5, 24)\nb= np.reshape(a, new_shape)\nexpect(node, inputs=[a], outputs=[b],\n       name='test_flatten_default_axis')",
+          "code": "node = onnx.helper.make_node(\n    'Flatten',\n    inputs=['a'],\n    outputs=['b'],  # Default value for axis: axis=1\n)\n\nshape = (5, 4, 3, 2)\na = np.random.random_sample(shape).astype(np.float32)\nnew_shape = (5, 24)\nb = np.reshape(a, new_shape)\nexpect(node, inputs=[a], outputs=[b],\n       name='test_flatten_default_axis')",
           "summary": "flatten_with_default_axis"
         }
       ],
@@ -2063,7 +2105,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Floor',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2, 2]).astype(np.float32)\ny = np.floor(x) #expected output [-2., 1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.floor(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor')",
+          "code": "node = onnx.helper.make_node(\n    'Floor',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2, 2]).astype(np.float32)\ny = np.floor(x)  # expected output [-2., 1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.floor(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor')",
           "summary": "floor"
         }
       ],
@@ -2647,7 +2689,7 @@
           "summary": "globalaveragepool"
         },
         {
-          "code": "\nnode = onnx.helper.make_node(\n    'GlobalAveragePool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[[\n  [1, 2, 3],\n  [4, 5, 6],\n  [7, 8, 9],\n]]]).astype(np.float32)\ny = np.array([[[[5]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name='test_globalaveragepool_precomputed')",
+          "code": "\nnode = onnx.helper.make_node(\n    'GlobalAveragePool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[[\n    [1, 2, 3],\n    [4, 5, 6],\n    [7, 8, 9],\n]]]).astype(np.float32)\ny = np.array([[[[5]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y], name='test_globalaveragepool_precomputed')",
           "summary": "globalaveragepool_precomputed"
         }
       ],
@@ -2924,7 +2966,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'HardSigmoid',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.6\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1) #expected output [0.1, 0.6, 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid')",
+          "code": "node = onnx.helper.make_node(\n    'HardSigmoid',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.6\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1)  # expected output [0.1, 0.6, 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid')",
           "summary": "hardsigmoid"
         },
         {
@@ -2984,7 +3026,7 @@
           "summary": "hardmax"
         },
         {
-          "code": "def hardmax_2d(x):\n    return np.eye(x.shape[1])[np.argmax(x,axis=1)]\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = hardmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = hardmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = hardmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_2')",
+          "code": "def hardmax_2d(x):\n    return np.eye(x.shape[1])[np.argmax(x, axis=1)]\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = hardmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = hardmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = hardmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_2')",
           "summary": "hardmax_axis"
         }
       ],
@@ -3597,7 +3639,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'LeakyRelu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.1\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n#expected output [-0.1, 0., 1.]\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu')",
+          "code": "node = onnx.helper.make_node(\n    'LeakyRelu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.1\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-0.1, 0., 1.]\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu')",
           "summary": "leakyrelu"
         },
         {
@@ -3875,7 +3917,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Log',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 10]).astype(np.float32)\ny = np.log(x) #expected output [0., 2.30258512]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log_example')\n\nx = np.exp(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.log(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log')",
+          "code": "node = onnx.helper.make_node(\n    'Log',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 10]).astype(np.float32)\ny = np.log(x)  # expected output [0., 2.30258512]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log_example')\n\nx = np.exp(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.log(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log')",
           "summary": "log"
         }
       ],
@@ -3928,11 +3970,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[-1, 0, 1]]).astype(np.float32)\ny = x - np.log(np.sum(np.exp(x), axis=1)) #expected output [[-2.40760589, -1.40760589, -0.40760589]]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_example_1')",
+          "code": "node = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[-1, 0, 1]]).astype(np.float32)\n# expected output [[-2.40760589, -1.40760589, -0.40760589]]\ny = x - np.log(np.sum(np.exp(x), axis=1))\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_example_1')",
           "summary": "logsoftmax"
         },
         {
-          "code": "def logsoftmax_2d(x):\n    max_x = np.max(x, axis=1).reshape((-1, 1))\n    exp_x = np.exp(x - max_x)\n    return x - max_x - np.log(np.sum(exp_x, axis=1).reshape((-1, 1)))\n\nx = np.array([[0, 1, 2, 3], [10000, 10001, 10002, 10003]]).astype(np.float32)\n#expected output [[-3.4401896, -2.4401896, -1.44018972, -0.44018969],\n#                 [-3.4401896, -2.4401896, -1.44018972, -0.44018969]]\ny = logsoftmax_2d(x)\n\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_large_number')\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = logsoftmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = logsoftmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = logsoftmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_axis_2')",
+          "code": "def logsoftmax_2d(x):\n    max_x = np.max(x, axis=1).reshape((-1, 1))\n    exp_x = np.exp(x - max_x)\n    return x - max_x - np.log(np.sum(exp_x, axis=1).reshape((-1, 1)))\n\nx = np.array([[0, 1, 2, 3], [10000, 10001, 10002, 10003]]).astype(np.float32)\n# expected output [[-3.4401896, -2.4401896, -1.44018972, -0.44018969],\n#                 [-3.4401896, -2.4401896, -1.44018972, -0.44018969]]\ny = logsoftmax_2d(x)\n\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_large_number')\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = logsoftmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = logsoftmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'LogSoftmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = logsoftmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_logsoftmax_axis_2')",
           "summary": "logsoftmax_axis"
         }
       ],
@@ -4434,7 +4476,7 @@
         }
       ],
       "category": "Pool",
-      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i] + 1)\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n \n ",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4690,7 +4732,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y #expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')",
+          "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')",
           "summary": "mul"
         },
         {
@@ -4743,7 +4785,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Neg',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.negative(x) #expected output [4., -2.],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.negative(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg')",
+          "code": "node = onnx.helper.make_node(\n    'Neg',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.negative(x)  # expected output [4., -2.],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.negative(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg')",
           "summary": "neg"
         }
       ],
@@ -4960,7 +5002,7 @@
           "summary": "or_axis"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n)\n\n#3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v1d')\n\n#3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v2d')\n\n#4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v2d')\n\n#4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v3d')",
+          "code": "node = onnx.helper.make_node(\n    'Or',\n    inputs=['x', 'y'],\n    outputs=['or'],\n    broadcast=1,\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v1d')\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast3v2d')\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v2d')\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_or(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_or_bcast4v3d')",
           "summary": "or_broadcast"
         }
       ],
@@ -5262,11 +5304,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = np.power(x, y) # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.power(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.power(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
           "summary": "pow"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([2]).astype(np.float32)\nz = np.power(x, y) # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n    axis=0,\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([2, 3]).astype(np.float32)\nz = np.array([[1, 4, 9], [64, 125, 216]]).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_axis0')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([2]).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n    axis=0,\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([2, 3]).astype(np.float32)\nz = np.array([[1, 4, 9], [64, 125, 216]]).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_axis0')",
           "summary": "pow_broadcast"
         }
       ],
@@ -5694,7 +5736,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Reciprocal',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.reciprocal(x) #expected output [-0.25, 0.5],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal_example')\n\nx = np.random.rand(3, 4, 5).astype(np.float32) + 0.5\ny = np.reciprocal(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal')",
+          "code": "node = onnx.helper.make_node(\n    'Reciprocal',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.reciprocal(x)  # expected output [-0.25, 0.5],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal_example')\n\nx = np.random.rand(3, 4, 5).astype(np.float32) + 0.5\ny = np.reciprocal(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal')",
           "summary": "reciprocal"
         }
       ],
@@ -6312,7 +6354,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reduced_dims': np.array([3, 8], dtype=np.int64),\n    'extended_dims': np.array([3, 2, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([6, -1, 2], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = np.reshape(data, shape)\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n       name='test_reshape_' + test_name)",
+          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reduced_dims': np.array([3, 8], dtype=np.int64),\n    'extended_dims': np.array([3, 2, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([6, -1, 2], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = np.reshape(data, shape)\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
           "summary": "reshape"
         }
       ],
@@ -6357,7 +6399,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reduced_dims': np.array([3, 8], dtype=np.int64),\n    'extended_dims': np.array([3, 2, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([6, -1, 2], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = np.reshape(data, shape)\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n       name='test_reshape_' + test_name)",
+          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reduced_dims': np.array([3, 8], dtype=np.int64),\n    'extended_dims': np.array([3, 2, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([6, -1, 2], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = np.reshape(data, shape)\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
           "summary": "reshape"
         }
       ],
@@ -6781,11 +6823,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0,\n    gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n#expected output [-3.79272318, 0., 3.]\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu')",
+          "code": "node = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0,\n    gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu')",
           "summary": "selu"
         },
         {
-          "code": "default_alpha = 1.6732\ndefault_gamma = 1.0507\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
+          "code": "default_alpha = 1.6732\ndefault_gamma = 1.0507\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + \\\n    (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
           "summary": "selu_default"
         }
       ],
@@ -6888,7 +6930,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Sigmoid',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x))) #expected output [0.26894143, 0.5, 0.7310586]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x)))\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid')",
+          "code": "node = onnx.helper.make_node(\n    'Sigmoid',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x)))  # expected output [0.26894143, 0.5, 0.7310586]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x)))\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid')",
           "summary": "sigmoid"
         }
       ],
@@ -7080,11 +7122,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[-1, 0, 1]]).astype(np.float32)\ny = np.exp(x) / np.sum(np.exp(x), axis=1) #expected output [[0.09003058, 0.24472848, 0.66524094]]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_example')",
+          "code": "node = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.array([[-1, 0, 1]]).astype(np.float32)\n# expected output [[0.09003058, 0.24472848, 0.66524094]]\ny = np.exp(x) / np.sum(np.exp(x), axis=1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_example')",
           "summary": "softmax"
         },
         {
-          "code": "def softmax_2d(x):\n    max_x = np.max(x, axis=1).reshape((-1, 1))\n    exp_x = np.exp(x - max_x)\n    return exp_x / np.sum(exp_x, axis=1).reshape((-1, 1))\n\nx = np.array([[0, 1, 2, 3], [10000, 10001, 10002, 10003]]).astype(np.float32)\n#expected output [[0.0320586, 0.08714432, 0.23688284, 0.64391428],\n#                 [0.0320586, 0.08714432, 0.23688284, 0.64391428]]\ny = softmax_2d(x)\n\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_large_number')\n\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = softmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = softmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = softmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_axis_2')",
+          "code": "def softmax_2d(x):\n    max_x = np.max(x, axis=1).reshape((-1, 1))\n    exp_x = np.exp(x - max_x)\n    return exp_x / np.sum(exp_x, axis=1).reshape((-1, 1))\n\nx = np.array([[0, 1, 2, 3], [10000, 10001, 10002, 10003]]).astype(np.float32)\n# expected output [[0.0320586, 0.08714432, 0.23688284, 0.64391428],\n#                 [0.0320586, 0.08714432, 0.23688284, 0.64391428]]\ny = softmax_2d(x)\n\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_large_number')\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = softmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = softmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'Softmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = softmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softmax_axis_2')",
           "summary": "softmax_axis"
         }
       ],
@@ -7129,7 +7171,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Softplus',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.log(np.exp(x) + 1) #expected output [0.31326166, 0.69314718, 1.31326163]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softplus_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.log(np.exp(x) + 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softplus')",
+          "code": "node = onnx.helper.make_node(\n    'Softplus',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.log(np.exp(x) + 1)  # expected output [0.31326166, 0.69314718, 1.31326163]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softplus_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.log(np.exp(x) + 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_softplus')",
           "summary": "softplus"
         }
       ],
@@ -7378,7 +7420,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Sqrt',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 4, 9]).astype(np.float32)\ny = np.sqrt(x) #expected output [1., 2., 3.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt_example')\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.sqrt(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt')",
+          "code": "node = onnx.helper.make_node(\n    'Sqrt',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 4, 9]).astype(np.float32)\ny = np.sqrt(x)  # expected output [1., 2., 3.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt_example')\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.sqrt(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt')",
           "summary": "sqrt"
         }
       ],
@@ -7488,7 +7530,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y #expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')",
+          "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')",
           "summary": "sub"
         },
         {
@@ -7587,7 +7629,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Tanh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.tanh(x) #expected output [-0.76159418, 0., 0.76159418]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.tanh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh')",
+          "code": "node = onnx.helper.make_node(\n    'Tanh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.tanh(x)  # expected output [-0.76159418, 0., 0.76159418]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.tanh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh')",
           "summary": "tanh"
         }
       ],
@@ -7817,11 +7859,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (2,3,4)\ndata = np.random.random_sample(shape).astype(np.float32)\npermutations = list(itertools.permutations(np.arange(len(shape))))\n\nfor i in range(len(permutations)):\n    node = onnx.helper.make_node(\n        'Transpose',\n        inputs=['data'],\n        outputs=['transposed'],\n        perm=permutations[i]\n    )            \n    transposed = np.transpose(data, permutations[i])\n    expect(node, inputs=[data], outputs=[transposed],\n        name='test_transpose_all_permutations_' + str(i))            ",
+          "code": "shape = (2, 3, 4)\ndata = np.random.random_sample(shape).astype(np.float32)\npermutations = list(itertools.permutations(np.arange(len(shape))))\n\nfor i in range(len(permutations)):\n    node = onnx.helper.make_node(\n        'Transpose',\n        inputs=['data'],\n        outputs=['transposed'],\n        perm=permutations[i]\n    )\n    transposed = np.transpose(data, permutations[i])\n    expect(node, inputs=[data], outputs=[transposed],\n           name='test_transpose_all_permutations_' + str(i))",
           "summary": "all_permutations"
         },
         {
-          "code": "shape = (2, 3, 4)\ndata = np.random.random_sample(shape).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Transpose',\n    inputs=['data'],\n    outputs=['transposed']\n)\n\ntransposed = np.transpose(data)\nexpect(node, inputs=[data], outputs=[transposed],\n    name='test_transpose_default')",
+          "code": "shape = (2, 3, 4)\ndata = np.random.random_sample(shape).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Transpose',\n    inputs=['data'],\n    outputs=['transposed']\n)\n\ntransposed = np.transpose(data)\nexpect(node, inputs=[data], outputs=[transposed],\n       name='test_transpose_default')",
           "summary": "default"
         }
       ],
@@ -8296,11 +8338,11 @@
           "summary": "xor"
         },
         {
-          "code": "x = (np.random.randn(5, 5, 5, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=0,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis, np.newaxis, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis0')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=1,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis, np.newaxis,])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis1')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=2,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis,])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis2')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=3,\n)\n\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis3')",
+          "code": "x = (np.random.randn(5, 5, 5, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=0,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis, np.newaxis, np.newaxis])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis0')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=1,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis, np.newaxis, ])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis1')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=2,\n)\n\nz = np.logical_xor(x, y[:, np.newaxis, ])\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis2')\n\nnode = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n    axis=3,\n)\n\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_axis3')",
           "summary": "xor_axis"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n)\n\n#3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast3v1d')\n\n#3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast3v2d')\n\n#4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast4v2d')\n\n#4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast4v3d')",
+          "code": "node = onnx.helper.make_node(\n    'Xor',\n    inputs=['x', 'y'],\n    outputs=['xor'],\n    broadcast=1,\n)\n\n# 3d vs 1d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast3v1d')\n\n# 3d vs 2d\nx = (np.random.randn(3, 4, 5) > 0).astype(np.bool)\ny = (np.random.randn(4, 5) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast3v2d')\n\n# 4d vs 2d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(5, 6) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast4v2d')\n\n# 4d vs 3d\nx = (np.random.randn(3, 4, 5, 6) > 0).astype(np.bool)\ny = (np.random.randn(4, 5, 6) > 0).astype(np.bool)\nz = np.logical_xor(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_xor_bcast4v3d')",
           "summary": "xor_broadcast"
         }
       ],
