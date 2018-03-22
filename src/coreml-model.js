@@ -232,8 +232,8 @@ class CoreMLGraph {
         }
         else if (model.featureVectorizer) {
             this._nodes.push(new CoreMLNode(group, 'featureVectorizer', null, model.featureVectorizer, 
-                [ model.description.input[0].name ],
-                [ model.description.output[0].name ]));
+            CoreMLGraph.formatFeatureDescriptionList(model.description.input),
+            [ model.description.output[0].name ]));
             return 'Feature Vectorizer';
         }
         else if (model.treeEnsembleClassifier) {
@@ -320,6 +320,10 @@ class CoreMLGraph {
                 return 'BGR';
         }
         return '?';
+    }
+
+    static formatFeatureDescriptionList(list) {
+        return list.map((item) => item.name);
     }
 }
 

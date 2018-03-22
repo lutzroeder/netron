@@ -337,6 +337,14 @@
     }
   },
   {
+    "name": "featureVectorizer",
+    "schema": {
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
     "name": "loadConstant",
     "schema": {
       "category": "Data"
