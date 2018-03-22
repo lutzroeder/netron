@@ -264,6 +264,16 @@ class CoreMLGraph {
             this.updateClassifierOutput(group, model.supportVectorClassifier);
             return 'Support Vector Classifier';            
         }
+        else if (model.supportVectorRegressor) {
+            this._nodes.push(new CoreMLNode(group, 'supportVectorRegressor', null, 
+                { coefficients: model.supportVectorRegressor.coefficients, 
+                  kernel: model.supportVectorRegressor.kernel,
+                  rho: model.supportVectorRegressor.rho,
+                  supportVectors: model.supportVectorRegressor.supportVectors }, 
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'Support Vector Regressor';
+        }
         return 'Unknown';
     }
 
