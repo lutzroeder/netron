@@ -79,37 +79,17 @@ class CaffeGraph {
                 break;
         }
 
-        var nonInplaceLayers = [];
-        var inplaceMap = {};
-        layers.forEach((layer) => {
-            if (layer.top.length == 1 && layer.bottom.length == 1 && layer.top[0] == layer.bottom[0]) {
-                var key = layer.top[0];
-                if (!inplaceMap[key]) {
-                    inplaceMap[key] = [];
+        var scope = {};
+        layers.forEach((layer, index) => {
+            layer.bottom = layer.bottom.map((input) => scope[input] ? scope[input] : input);
+            layer.top = layer.top.map((output) => {
+                if (scope[output]) {
+                    var next = output + ' [' + index.toString() + ']';
+                    scope[output] = next;
+                    return next;
                 }
-                inplaceMap[key].push(layer);
-            }
-            else {
-                nonInplaceLayers.push(layer);
-            }
-        });
-
-        Object.keys(inplaceMap).forEach((key) => {
-            var nodes = inplaceMap[key];
-            nodes.forEach((node, index) => {
-                if (index > 0) {
-                    node.bottom[0] = node.bottom[0] + ':' + index.toString();
-                }
-                node.top[0] = node.top[0] + ':' + (index + 1).toString();
-            });
-        });
-
-        nonInplaceLayers.forEach((layer) => {
-            layer.bottom = layer.bottom.map((bottom) => {
-                if (inplaceMap[bottom]) {
-                    return bottom + ':' + inplaceMap[bottom].length.toString();
-                }
-                return bottom;
+                scope[output] = output;   
+                return output;
             });
         });
 
