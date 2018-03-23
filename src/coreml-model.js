@@ -224,6 +224,13 @@ class CoreMLGraph {
             this.updateClassifierOutput(group, model.glmClassifier);
             return 'Generalized Linear Classifier';
         }
+        else if (model.glmRegressor) {
+            this._nodes.push(new CoreMLNode(group, 'glmRegressor', null, 
+                model.glmRegressor,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'Generalized Linear Regressor';
+        }
         else if (model.dictVectorizer) {
             this._nodes.push(new CoreMLNode(group, 'dictVectorizer', null, model.dictVectorizer,
                 [ model.description.input[0].name ],
@@ -273,6 +280,42 @@ class CoreMLGraph {
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]));
             return 'Support Vector Regressor';
+        }
+        else if (model.arrayFeatureExtractor) {
+            this._nodes.push(new CoreMLNode(group, 'arrayFeatureExtractor', null, 
+                { extractIndex: model.arrayFeatureExtractor.extractIndex },
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'Array Feature Extractor';
+        }
+        else if (model.oneHotEncoder) {
+            var categoryType = model.oneHotEncoder.CategoryType;
+            var oneHotEncoderParams = { outputSparse: model.oneHotEncoder.outputSparse };
+            oneHotEncoderParams[categoryType] = model.oneHotEncoder[categoryType];
+            this._nodes.push(new CoreMLNode(group, 'oneHotEncoder', null, 
+                oneHotEncoderParams,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'One Hot Encoder';
+        }
+        else if (model.imputer) {
+            var imputedValue = model.imputer.ImputedValue;
+            var replaceValue = model.imputer.ReplaceValue;
+            var imputerParams = {};
+            imputerParams[imputedValue] = model.imputer[imputedValue];
+            imputerParams[replaceValue] = model.imputer[replaceValue];
+            this._nodes.push(new CoreMLNode(group, 'oneHotEncoder', null, 
+                imputerParams,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
+            return 'Imputer';
+            
+        }
+        else if (model.normalizer) {
+            this._nodes.push(new CoreMLNode(group, 'normalizer', null, 
+                model.normalizer,
+                [ model.description.input[0].name ],
+                [ model.description.output[0].name ]));
         }
         return 'Unknown';
     }
@@ -531,6 +574,9 @@ class CoreMLAttribute {
     get value() {
         if (Array.isArray(this._value)) {
             return this._value.map((item) => JSON.stringify(item)).join(', ');
+        }
+        if (Number.isNaN(this._value)) {
+            return 'NaN';
         }
         return JSON.stringify(this._value);
     }
