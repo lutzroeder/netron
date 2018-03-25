@@ -672,7 +672,7 @@
         },
         {
           "default": 0.99,
-          "description": "Momentum for the moving average.",
+          "description": "Momentum for the moving mean and the moving variance.",
           "name": "momentum"
         },
         {
@@ -1262,7 +1262,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer"
         },
         {
@@ -1273,7 +1273,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer"
         },
         {
@@ -1709,7 +1709,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer"
         },
         {
@@ -1720,7 +1720,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer"
         },
         {
@@ -1879,11 +1879,11 @@
           "name": "use_bias"
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer"
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer"
         },
         {
@@ -1948,11 +1948,11 @@
           "name": "use_bias"
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer"
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer"
         },
         {
@@ -2021,11 +2021,11 @@
           "name": "use_bias"
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer"
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer"
         },
         {
