@@ -123,6 +123,7 @@ class TensorFlowGraph {
 
     get groups() {
         return false;
+        // TODO return true;
     }
 
     get inputs() {
@@ -158,12 +159,25 @@ class TensorFlowGraph {
         return this._metadata;
     }
 
+    get namespaces() {
+        return this._namespaces;
+    }
+
     update() {
         if (!this._nodeMap) {
             this._nodeMap = {};
+            this._namespaces = {};
             var nodes = this._graph.graphDef.node;
             nodes.forEach((node) => {
-                this._nodeMap[node.name] = node;   
+                var name = node.name;
+                this._nodeMap[name] = node;   
+                if (node.op != 'Const') {
+                    var lastIndex = name.lastIndexOf('/');
+                    if (lastIndex != -1) {
+                        var namespace = name.substring(0, lastIndex);
+                        this._namespaces[namespace] = true;
+                    }
+                }
                 node.output = [];         
             });
             nodes.forEach((node) => {
@@ -312,11 +326,17 @@ class TensorFlowNode {
 
     get group() {
         var name = this._node.name;
+        if (this._graph.namespaces[name]) {
+            return name;
+        }
         var lastIndex = name.lastIndexOf('/');
         if (lastIndex != -1) {
-            return name.substring(0, lastIndex);
+            var namespace = name.substring(0, lastIndex);
+            if (this._graph.namespaces[namespace]) {
+                return namespace;
+            }
         }
-        return null;
+        return '';
     }
 
     get description() {
