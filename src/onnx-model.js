@@ -238,6 +238,7 @@ class OnnxNode {
     constructor(graph, node) {
         this._graph = graph;
         this._node = node;
+        this._opset = this._graph._model._model.opsetImport[0].version
     }
 
     get operator() {
@@ -257,7 +258,7 @@ class OnnxNode {
     }
 
     get documentation() {
-        return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator, this._opset);
     }
 
     get domain() {
@@ -265,7 +266,7 @@ class OnnxNode {
     }
 
     get category() {
-        return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator, this._opset);
     }
 
     get group() {
@@ -274,7 +275,7 @@ class OnnxNode {
 
     get inputs() {
         if (this._node.input) {
-            var inputs = OnnxOperatorMetadata.operatorMetadata.getInputs(this._node);
+            var inputs = OnnxOperatorMetadata.operatorMetadata.getInputs(this._node, this._opset);
             inputs.forEach((input) => {
                 input.connections.forEach((connection) => {
                     var initializer = this._graph.getInitializer(connection.id);
@@ -290,7 +291,7 @@ class OnnxNode {
     }
 
     get outputs() {
-        return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node);
+        return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node, this._opset);
     }
 
     get dependencies() {
@@ -302,8 +303,8 @@ class OnnxNode {
         var node = this._node;
         if (node.attribute && node.attribute.length > 0) {
             result = [];
-            node.attribute.forEach((attribute) => { 
-                result.push(new OnnxAttribute(this, attribute));
+            node.attribute.forEach((attribute) => {
+                result.push(new OnnxAttribute(this, attribute, this._opset));
             });
         }
         return result;
@@ -311,9 +312,10 @@ class OnnxNode {
 }
 
 class OnnxAttribute {
-    constructor(node, attribute) {
+    constructor(node, attribute, opset) {
         this._node = node;
         this._attribute = attribute;
+        this._opset = opset
     }
 
     get name() {
@@ -332,7 +334,7 @@ class OnnxAttribute {
         else if (this._attribute.hasOwnProperty('t')) {
             return OnnxTensor.formatTensorType(this._attribute.t);
         }
-        return OnnxOperatorMetadata.operatorMetadata.getAttributeType(this._node.operator, this._attribute.name);
+        return OnnxOperatorMetadata.operatorMetadata.getAttributeType(this._node.operator, this._attribute.name, this._opset);
     }
 
     get value() {
@@ -656,17 +658,27 @@ class OnnxOperatorMetadata {
                     {
                         var name = item.name;
                         var schema = item.schema;
-                        this._map[name] = schema;
+                        this._map[name] = this._map[name] || {};
+                        this._map[name][schema.since_version.toString()] = schema;
                     }
                 });
             }
         }
     }
 
-    getInputs(node) {
+    getSchema(opType, opset) {
+        var schemas = this._map[opType];
+        var versions = Object.keys(schemas);
+        versions.push(opset);
+        versions.sort((a, b) => parseInt(a) - parseInt(b));
+        var lastIndex = versions.length - 1 - versions.reverse().indexOf(opset);
+        return schemas[versions.reverse()[lastIndex - 1]];
+    }
+
+    getInputs(node, opset) {
         var inputs = [];
         var index = 0;
-        var schema = this._map[node.opType];
+        var schema = this.getSchema(node.opType, opset);
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputDef) => {
                 if (index < node.input.length || inputDef.option != 'optional') {
@@ -698,10 +710,10 @@ class OnnxOperatorMetadata {
         return inputs;
     }
 
-    getOutputs(node) {
+    getOutputs(node, opset) {
         var outputs = [];
         var index = 0;
-        var schema = this._map[node.opType];
+        var schema = this.getSchema(node.opType, opset);
         if (schema && schema.outputs) {
             schema.outputs.forEach((outputDef) => {
                 if (index < node.output.length || outputDef.option != 'optional') {
@@ -729,8 +741,8 @@ class OnnxOperatorMetadata {
         return outputs;
     }
 
-    getAttributeType(operator, name) {
-        var schema = this._map[operator];
+    getAttributeType(operator, name, opset) {
+        var schema = this.getSchema(operator, opset);
         if (schema) {
             var attributeMap = schema.attributeMap;
             if (!attributeMap) {
@@ -750,16 +762,16 @@ class OnnxOperatorMetadata {
         return '';
     }
 
-    getOperatorCategory(operator) {
-        var schema = this._map[operator];
+    getOperatorCategory(operator, opset) {
+        var schema = this.getSchema(operator, opset);
         if (schema && schema.category) {
             return schema.category;
         }
         return null;
     }
 
-    getOperatorDocumentation(operator) {
-        var schema = this._map[operator];
+    getOperatorDocumentation(operator, opset) {
+        var schema = this.getSchema(operator, opset);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = operator;
