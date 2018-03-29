@@ -238,7 +238,6 @@ class OnnxNode {
     constructor(graph, node) {
         this._graph = graph;
         this._node = node;
-        this._opset = this._graph._model._model.opsetImport[0].version
     }
 
     get operator() {
@@ -253,12 +252,16 @@ class OnnxNode {
         return this._node.docString ? this._node.docString : null;
     }
 
+    get opset() {
+        return this._graph._model._model.opsetImport ? this._graph._model._model.opsetImport[0].version : 1;
+    }
+
     get primitive() {
         return null;
     }
 
     get documentation() {
-        return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator, this._opset);
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator, this.opset);
     }
 
     get domain() {
@@ -266,7 +269,7 @@ class OnnxNode {
     }
 
     get category() {
-        return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator, this._opset);
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator, this.opset);
     }
 
     get group() {
@@ -275,7 +278,7 @@ class OnnxNode {
 
     get inputs() {
         if (this._node.input) {
-            var inputs = OnnxOperatorMetadata.operatorMetadata.getInputs(this._node, this._opset);
+            var inputs = OnnxOperatorMetadata.operatorMetadata.getInputs(this._node, this.opset);
             inputs.forEach((input) => {
                 input.connections.forEach((connection) => {
                     var initializer = this._graph.getInitializer(connection.id);
@@ -291,7 +294,7 @@ class OnnxNode {
     }
 
     get outputs() {
-        return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node, this._opset);
+        return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node, this.opset);
     }
 
     get dependencies() {
@@ -304,7 +307,7 @@ class OnnxNode {
         if (node.attribute && node.attribute.length > 0) {
             result = [];
             node.attribute.forEach((attribute) => {
-                result.push(new OnnxAttribute(this, attribute, this._opset));
+                result.push(new OnnxAttribute(this, attribute, this.opset));
             });
         }
         return result;
