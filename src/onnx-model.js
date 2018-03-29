@@ -712,7 +712,7 @@ class OnnxOperatorMetadata {
             for (var i = 0; i < domainKeys.length; i++) {
                 var domain = domainKeys[i];
                 var versionMap = domainMap[domain];
-                var importVersion = imports[domain];
+                var importVersion = Math.max.apply(Math, Object.keys(versionMap).map(Number).filter(x => x <= imports[domain]));
                 schema = versionMap[importVersion];
                 if (!schema) {
                     var version = -1;
