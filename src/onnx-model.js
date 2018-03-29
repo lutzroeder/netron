@@ -33,8 +33,26 @@ class OnnxModel {
 
     constructor(model) {
         this._model = model;
+
+        var imports = {};
+        if (this._model.opsetImport) {
+            this._model.opsetImport.forEach((opsetImport) => {
+                var domain = opsetImport.domain || '';
+                if (domain == 'ai.onnx') {
+                    domain = '';
+                }
+                if (!imports[domain] || imports[domain] > opsetImport.version) {
+                    imports[domain] = opsetImport.version;
+                }
+            });
+        }
+        if (Object.keys(imports).length == 0) {
+            imports[''] = 1;
+            imports['ai.onnx.ml'] = 1;
+        }
+
         if (this._model.graph) {
-            this._graphs = [ new OnnxGraph(this, this._model.graph, 0) ];
+            this._graphs = [ new OnnxGraph(this, imports, this._model.graph, 0) ];
             this._activeGraph = this._graphs[0];
         }
         else {
@@ -121,8 +139,9 @@ class OnnxModel {
 
 class OnnxGraph {
 
-    constructor(model, graph, index) {
+    constructor(model, imports, graph, index) {
         this._model = model;
+        this._imports = imports;
         this._graph = graph;
 
         if (this._graph) {
@@ -231,6 +250,10 @@ class OnnxGraph {
         var initializer = this._initializerMap[input];
         return initializer ? initializer : null;
     }
+
+    get imports() {
+        return this._imports;
+    }
 }
 
 class OnnxNode {
@@ -257,7 +280,7 @@ class OnnxNode {
     }
 
     get documentation() {
-        return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorDocumentation(this);
     }
 
     get domain() {
@@ -265,7 +288,7 @@ class OnnxNode {
     }
 
     get category() {
-        return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+        return OnnxOperatorMetadata.operatorMetadata.getOperatorCategory(this);
     }
 
     get group() {
@@ -274,7 +297,7 @@ class OnnxNode {
 
     get inputs() {
         if (this._node.input) {
-            var inputs = OnnxOperatorMetadata.operatorMetadata.getInputs(this._node);
+            var inputs = OnnxOperatorMetadata.operatorMetadata.getInputs(this);
             inputs.forEach((input) => {
                 input.connections.forEach((connection) => {
                     var initializer = this._graph.getInitializer(connection.id);
@@ -290,7 +313,7 @@ class OnnxNode {
     }
 
     get outputs() {
-        return OnnxOperatorMetadata.operatorMetadata.getOutputs(this._node);
+        return OnnxOperatorMetadata.operatorMetadata.getOutputs(this);
     }
 
     get dependencies() {
@@ -307,6 +330,14 @@ class OnnxNode {
             });
         }
         return result;
+    }
+
+    get graph() {
+        return this._graph;
+    }
+
+    get data() {
+        return this._node;
     }
 }
 
@@ -332,7 +363,7 @@ class OnnxAttribute {
         else if (this._attribute.hasOwnProperty('t')) {
             return OnnxTensor.formatTensorType(this._attribute.t);
         }
-        return OnnxOperatorMetadata.operatorMetadata.getAttributeType(this._node.operator, this._attribute.name);
+        return OnnxOperatorMetadata.operatorMetadata.getAttributeType(this._node, this._attribute.name);
     }
 
     get value() {
@@ -656,26 +687,69 @@ class OnnxOperatorMetadata {
                     {
                         var name = item.name;
                         var schema = item.schema;
-                        this._map[name] = schema;
+                        var domain = item.schema.domain || '';
+                        if (domain == 'ai.onnx') {
+                            domain = '';
+                        }
+                        var version = item.schema.since_version || 0;
+                        this._map[name] = this._map[name] || {};
+                        this._map[name][domain] = this._map[name][domain] || {};
+                        this._map[name][domain][version] = this._map[name][domain][version] || {};
+                        this._map[name][domain][version] = schema;
                     }
                 });
             }
         }
     }
 
+    getSchema(node) {
+        var schema = null;
+        var operator = node.operator;
+        var imports = node.graph.imports;
+        var domainMap = this._map[operator];
+        if (domainMap) {
+            var domainKeys = Object.keys(domainMap);
+            for (var i = 0; i < domainKeys.length; i++) {
+                var domain = domainKeys[i];
+                var versionMap = domainMap[domain];
+                var importVersion = imports[domain];
+                schema = versionMap[importVersion];
+                if (!schema) {
+                    var version = -1;
+                    var sinceVersionKeys = Object.keys(versionMap);
+                    for (var j = 0; j < sinceVersionKeys.length; j++) {
+                        var sinceVersion = sinceVersionKeys[j];
+                        if (importVersion >= sinceVersion && version < sinceVersion) {
+                            version = sinceVersion;
+                            schema = versionMap[sinceVersion];
+                        }
+                    }
+                    if (version >= 0) {
+                        versionMap[version] = schema;
+                    }
+                }
+                if (schema) {
+                    break;
+                }
+            }
+        }
+        return schema;
+    }
+
     getInputs(node) {
         var inputs = [];
         var index = 0;
-        var schema = this._map[node.opType];
+        var schema = this.getSchema(node);
+        var data = node.data;
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputDef) => {
-                if (index < node.input.length || inputDef.option != 'optional') {
+                if (index < data.input.length || inputDef.option != 'optional') {
                     var input = {};
                     input.name = inputDef.name;
                     input.type = inputDef.type;
-                    var count = (inputDef.option == 'variadic') ? (node.input.length - index) : 1;
+                    var count = (inputDef.option == 'variadic') ? (data.input.length - index) : 1;
                     input.connections = [];
-                    node.input.slice(index, index + count).forEach((id) => {
+                    data.input.slice(index, index + count).forEach((id) => {
                         if (id != '' || inputDef.option != 'optional') {
                             input.connections.push({ id: id});
                         }
@@ -686,7 +760,7 @@ class OnnxOperatorMetadata {
             });
         }
         else {
-            node.input.slice(index).forEach((input) => {
+            data.input.slice(index).forEach((input) => {
                 inputs.push({
                     name: '(' + index.toString() + ')',
                     connections: [ { id: input } ]
@@ -701,14 +775,15 @@ class OnnxOperatorMetadata {
     getOutputs(node) {
         var outputs = [];
         var index = 0;
-        var schema = this._map[node.opType];
+        var schema = this.getSchema(node);
+        var data = node.data;
         if (schema && schema.outputs) {
             schema.outputs.forEach((outputDef) => {
-                if (index < node.output.length || outputDef.option != 'optional') {
+                if (index < data.output.length || outputDef.option != 'optional') {
                     var output = {};
                     output.name = outputDef.name;
-                    var count = (outputDef.option == 'variadic') ? (node.output.length - index) : 1;
-                    output.connections = node.output.slice(index, index + count).map((id) => {
+                    var count = (outputDef.option == 'variadic') ? (data.output.length - index) : 1;
+                    output.connections = data.output.slice(index, index + count).map((id) => {
                         return { id: id };
                     });
                     index += count;
@@ -717,7 +792,7 @@ class OnnxOperatorMetadata {
             });
         }
         else {
-            node.output.slice(index).forEach((output) => {
+            data.output.slice(index).forEach((output) => {
                 outputs.push({
                     name: '(' + index.toString() + ')',
                     connections: [ { id: output } ]
@@ -729,8 +804,8 @@ class OnnxOperatorMetadata {
         return outputs;
     }
 
-    getAttributeType(operator, name) {
-        var schema = this._map[operator];
+    getAttributeType(node, name) {
+        var schema = this.getSchema(node);
         if (schema) {
             var attributeMap = schema.attributeMap;
             if (!attributeMap) {
@@ -750,19 +825,19 @@ class OnnxOperatorMetadata {
         return '';
     }
 
-    getOperatorCategory(operator) {
-        var schema = this._map[operator];
+    getOperatorCategory(node) {
+        var schema = this.getSchema(node);
         if (schema && schema.category) {
             return schema.category;
         }
         return null;
     }
 
-    getOperatorDocumentation(operator) {
-        var schema = this._map[operator];
+    getOperatorDocumentation(node) {
+        var schema = this.getSchema(node);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
+            schema.name = node.operator;
             if (schema.description) {
                 var input = schema.description.split('\n');
                 var output = [];

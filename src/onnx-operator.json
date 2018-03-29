@@ -45,6 +45,14 @@
   {
     "name": "Abs",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Absolute takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the absolute is, y = abs(x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -68,6 +76,123 @@
         {
           "description": "Output tensor",
           "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Abs",
+    "schema": {
+      "description": "Absolute takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the absolute is, y = abs(x), is applied to\nthe tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Abs',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.abs(x)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_abs')",
+          "summary": "abs"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Add",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If set, defines the broadcast dimensions. See doc for details.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Pass 1 to enable broadcasting",
+          "name": "broadcast",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "Performs element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add')",
+          "summary": "add"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_bcast')",
+          "summary": "add_broadcast"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "First operand, should share the type with the second operand.",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
+          "name": "B",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Result, has same dimensions and type as A",
+          "name": "C",
           "type": "T"
         }
       ],
@@ -138,7 +263,7 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -472,15 +597,15 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0])\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_1d_default')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_1d_default')",
           "summary": "averagepool_1d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0))\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_default')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_default')",
           "summary": "averagepool_2d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_pads')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_pads')",
           "summary": "averagepool_2d_pads"
         },
         {
@@ -496,19 +621,19 @@
           "summary": "averagepool_2d_precomputed_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_lower')",
           "summary": "averagepool_2d_same_lower"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape)\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_same_upper')",
           "summary": "averagepool_2d_same_upper"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0))\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_strides')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_2d_strides')",
           "summary": "averagepool_2d_strides"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0])\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_3d_default')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'AveragePool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'AVG')\n\nexpect(node, inputs=[x], outputs=[y], name='test_averagepool_3d_default')",
           "summary": "averagepool_3d_default"
         }
       ],
@@ -527,6 +652,121 @@
         {
           "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes. Floor value of the dimension is used",
           "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BatchNormalization",
+    "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": true,
+          "type": "int[]"
+        },
+        {
+          "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
+          "name": "epsilon",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "If set to nonzero, run spatial batch normalization in test mode, default is 0.",
+          "name": "is_test",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
+          "name": "momentum",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
+          "name": "spatial",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "category": "Normalization",
+      "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, mean, var, saved_mean, saved_var (training mode)\nOutput case #2: Y (test mode)\n    ",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "The input 4-dimensional tensor of shape NCHW.",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The scale as a 1-dimensional tensor of size C to be applied to the output.",
+          "name": "scale",
+          "type": "T"
+        },
+        {
+          "description": "The bias as a 1-dimensional tensor of size C to be applied to the output.",
+          "name": "B",
+          "type": "T"
+        },
+        {
+          "description": "The running mean (training) or the estimated mean (testing) as a 1-dimensional tensor of size C.",
+          "name": "mean",
+          "type": "T"
+        },
+        {
+          "description": "The running variance (training) or the estimated variance (testing) as a 1-dimensional tensor of size C.",
+          "name": "var",
+          "type": "T"
+        }
+      ],
+      "max_input": 5,
+      "max_output": 5,
+      "min_input": 5,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The output 4-dimensional tensor of the same shape as X.",
+          "name": "Y",
+          "type": "T"
+        },
+        {
+          "description": "The running mean after the BatchNormalization operator. Must be in-place with the input mean. Should not be used for testing.",
+          "name": "mean",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The running variance after the BatchNormalization operator. Must be in-place with the input var. Should not be used for testing.",
+          "name": "var",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Saved mean used during training to speed up gradient computation. Should not be used for testing.",
+          "name": "saved_mean",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Saved variance used during training to speed up gradient computation. Should not be used for testing.",
+          "name": "saved_var",
+          "option": "optional",
           "type": "T"
         }
       ],
@@ -639,7 +879,7 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -920,6 +1160,14 @@
   {
     "name": "Ceil",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Ceil takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the ceil is, y = ceil(x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -943,6 +1191,118 @@
         {
           "description": "Output tensor",
           "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Ceil",
+    "schema": {
+      "description": "Ceil takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the ceil is, y = ceil(x), is applied to\nthe tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Ceil',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2]).astype(np.float32)\ny = np.ceil(x)  # expected output [-1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.ceil(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_ceil')",
+          "summary": "ceil"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Clip",
+    "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "Maximum value, above which element is replaced by max",
+          "name": "max",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "Minimum value, under which element is replaced by min",
+          "name": "min",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "description": "Clip operator limits the given input within an interval. The interval is\nspecified with arguments 'min' and 'max'. They default to\nnumeric_limits::lowest() and numeric_limits::max() respectively.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')",
+          "summary": "clip"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')",
+          "summary": "clip_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor whose elements to be clipped",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor with clipped input elements",
+          "name": "output",
           "type": "T"
         }
       ],
@@ -1008,7 +1368,7 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -1523,6 +1883,16 @@
       ],
       "description": "DepthToSpace rearranges (permutes) data from depth into blocks of spatial data.\nThis is the reverse transformation of SpaceToDepth. More specifically, this op outputs a copy of\nthe input tensor where values from the depth dimension are moved in spatial blocks to the height\nand width dimensions.\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "b, c, h, w = shape = (2, 8, 3, 3)\nblocksize = 2\nnode = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=blocksize,\n)\nx = np.random.random_sample(shape).astype(np.float32)\ntmp = np.reshape(x, [b, blocksize, blocksize, c // (blocksize**2), h, w])\ntmp = np.transpose(tmp, [0, 3, 4, 1, 5, 2])\ny = np.reshape(tmp, [b, c // (blocksize**2), h * blocksize, w * blocksize])\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace')",
+          "summary": "depthtospace"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'DepthToSpace',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n)\n\n# (1, 4, 2, 3) input tensor\nx = np.array([[[[0, 1, 2],\n                [3, 4, 5]],\n               [[6, 7, 8],\n                [9, 10, 11]],\n               [[12, 13, 14],\n                [15, 16, 17]],\n               [[18, 19, 20],\n                [21, 22, 23]]]]).astype(np.float32)\n\n# (1, 1, 4, 6) output tensor\ny = np.array([[[[0, 6, 1, 7, 2, 8],\n                [12, 18, 13, 19, 14, 20],\n                [3, 9, 4, 10, 5, 11],\n                [15, 21, 16, 22, 17, 23]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_depthtospace_example')",
+          "summary": "example"
+        }
+      ],
       "inputs": [
         {
           "description": "Input tensor of [N,C,H,W], where N is the batch axis, C is the channel or depth, H is the height and W is the width.",
@@ -1636,6 +2006,12 @@
           "name": "broadcast",
           "required": false,
           "type": "int"
+        },
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
         }
       ],
       "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -1670,6 +2046,138 @@
         {
           "description": "Result, has same dimensions and type as A",
           "name": "C",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Div",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If set, defines the broadcast dimensions. See doc for details.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Pass 1 to enable broadcasting",
+          "name": "broadcast",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')",
+          "summary": "div"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_bcast')",
+          "summary": "div_broadcast"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "First operand, should share the type with the second operand.",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
+          "name": "B",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Result, has same dimensions and type as A",
+          "name": "C",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "(int, default 0) if nonzero, run dropout in test mode where the output is simply Y = X.",
+          "name": "is_test",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "(float, default 0.5) the ratio of random dropout",
+          "name": "ratio",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "category": "Dropout",
+      "description": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "The input data as Tensor.",
+          "name": "data",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The output.",
+          "name": "output",
+          "type": "T"
+        },
+        {
+          "description": "The output mask. If is_test is nonzero, this output is not filled.",
+          "name": "mask",
+          "option": "optional",
           "type": "T"
         }
       ],
@@ -1732,6 +2240,69 @@
           "type": "T"
         }
       ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Elu",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Coefficient of ELU default to 1.0.",
+          "name": "alpha",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "category": "Activation",
+      "description": "Elu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the function `f(x) = alpha * (exp(x) - 1.) for x <\n0`, `f(x) = x for x >= 0`., is applied to the tensor elementwise.\n\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Elu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-1.2642411, 0., 1.]\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu')",
+          "summary": "elu"
+        },
+        {
+          "code": "default_alpha = 1.0\nnode = onnx.helper.make_node(\n    'Elu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha\nexpect(node, inputs=[x], outputs=[y],\n       name='test_elu_default')",
+          "summary": "elu_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "1D input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "1D input tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -1789,7 +2360,7 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -1882,6 +2453,14 @@
   {
     "name": "Exp",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Calculates the exponential of the given input tensor, element-wise.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -1909,6 +2488,50 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "description": "Calculates the exponential of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Exp',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.exp(x)  # expected output [0.36787945, 1., 2.71828175]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.exp(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_exp')",
+          "summary": "exp"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The exponential of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -2101,6 +2724,14 @@
   {
     "name": "Floor",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Floor takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the floor is, y = floor(x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -2128,6 +2759,50 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Floor",
+    "schema": {
+      "description": "Floor takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the floor is, y = floor(x), is applied to\nthe tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Floor',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1.5, 1.2, 2]).astype(np.float32)\ny = np.floor(x)  # expected output [-2., 1., 2.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.floor(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_floor')",
+          "summary": "floor"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -2614,6 +3289,86 @@
     }
   },
   {
+    "name": "Gemm",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Scalar multiplier for the product of input tensors A * B",
+          "name": "alpha",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "Scalar multiplier for input tensor C",
+          "name": "beta",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "Whether C should be broadcasted",
+          "name": "broadcast",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Whether A should be transposed",
+          "name": "transA",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Whether B should be transposed",
+          "name": "transB",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input tensor A",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "Input tensor B",
+          "name": "B",
+          "type": "T"
+        },
+        {
+          "description": "Input tensor C, can be inplace.",
+          "name": "C",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "GivenTensorFill",
     "schema": {
       "attributes": [
@@ -2959,6 +3714,12 @@
           "name": "beta",
           "required": false,
           "type": "float"
+        },
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
         }
       ],
       "category": "Activation",
@@ -2993,6 +3754,69 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "HardSigmoid",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Value of alpha default to 0.2",
+          "name": "alpha",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "Value of beta default to 0.5",
+          "name": "beta",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "category": "Activation",
+      "description": "HardSigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the HardSigmoid function, y = max(0, min(1, alpha * x + beta)),\nis applied to the tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'HardSigmoid',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.6\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1)  # expected output [0.1, 0.6, 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x * 0.5 + 0.6, 0, 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid')",
+          "summary": "hardsigmoid"
+        },
+        {
+          "code": "default_alpha = 0.2\ndefault_beta = 0.5\nnode = onnx.helper.make_node(\n    'HardSigmoid',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x * default_alpha + default_beta, 0, 1)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardsigmoid_default')",
+          "summary": "hardsigmoid_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -3292,6 +4116,12 @@
     "schema": {
       "attributes": [
         {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        },
+        {
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
@@ -3330,6 +4160,63 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "InstanceNormalization",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
+          "name": "epsilon",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "category": "Normalization",
+      "description": "Carries out instance normalization as described in the paper\nhttps://arxiv.org/abs/1607.08022.\n\ny = scale * (x - mean) / sqrt(variance + epsilon) + B,\nwhere mean and variance are computed per instance per channel.\n\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "The input 4-dimensional tensor of shape NCHW.",
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "description": "The input 1-dimensional scale tensor of size C.",
+          "name": "scale",
+          "type": "T"
+        },
+        {
+          "description": "The input 1-dimensional bias tensor of size C.",
+          "name": "B",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The output 4-dimensional tensor of the same shape as input.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -3632,6 +4519,12 @@
           "name": "alpha",
           "required": false,
           "type": "float"
+        },
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
         }
       ],
       "category": "Activation",
@@ -3666,6 +4559,63 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LeakyRelu",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Coefficient of leakage default to 0.01.",
+          "name": "alpha",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "category": "Activation",
+      "description": "LeakyRelu takes input data (Tensor<T>) and an argument alpha, and produces one\noutput data (Tensor<T>) where the function `f(x) = alpha * x for x < 0`,\n`f(x) = x for x >= 0`, is applied to the data tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'LeakyRelu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=0.1\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-0.1, 0., 1.]\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * 0.1\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu')",
+          "summary": "leakyrelu"
+        },
+        {
+          "code": "default_alpha = 0.01\nnode = onnx.helper.make_node(\n    'LeakyRelu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * default_alpha\nexpect(node, inputs=[x], outputs=[y],\n       name='test_leakyrelu_default')",
+          "summary": "leakyrelu_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -3913,6 +4863,14 @@
   {
     "name": "Log",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Calculates the natural log of the given input tensor, element-wise.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -3940,6 +4898,50 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Log",
+    "schema": {
+      "description": "Calculates the natural log of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Log',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 10]).astype(np.float32)\ny = np.log(x)  # expected output [0., 2.30258512]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log_example')\n\nx = np.exp(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.log(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_log')",
+          "summary": "log"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The natural log of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -4404,6 +5406,14 @@
   {
     "name": "Max",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Element-wise max of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -4432,6 +5442,51 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Max",
+    "schema": {
+      "description": "Element-wise max of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 3]).astype(np.float32)\nresult = np.array([3, 5, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_max_example')\n\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_max_one_input')\n\nresult = np.maximum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_max_two_inputs')",
+          "summary": "max"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for Max.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor. Same dimension as inputs.",
+          "name": "max",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -4476,8 +5531,50 @@
         }
       ],
       "category": "Pool",
-      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i] + 1)\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n \n ",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i] + 1)\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
+          "summary": "maxpool_1d_default"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
+          "summary": "maxpool_2d_default"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "summary": "maxpool_2d_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[\n    [13, 14, 15, 15, 15],\n    [18, 19, 20, 20, 20],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_pads')",
+          "summary": "maxpool_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 3, 3]\npad_shape: [2, 2] -> [1, 1, 1, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9, 10],\n                [17, 19, 20],\n                [22, 24, 25]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_same_upper')",
+          "summary": "maxpool_2d_precomputed_same_upper"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9],\n                [17, 19]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_strides')",
+          "summary": "maxpool_2d_precomputed_strides"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
+          "summary": "maxpool_2d_same_lower"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
+          "summary": "maxpool_2d_same_upper"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
+          "summary": "maxpool_2d_strides"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
+          "summary": "maxpool_3d_default"
+        }
+      ],
       "inputs": [
         {
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
@@ -4572,6 +5669,14 @@
   {
     "name": "Mean",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Element-wise mean of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -4600,6 +5705,51 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Mean",
+    "schema": {
+      "description": "Element-wise mean of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 0, 2]).astype(np.float32)\ndata_1 = np.array([1, 3, 4]).astype(np.float32)\ndata_2 = np.array([2, 6, 6]).astype(np.float32)\nresult = np.array([2, 3, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_mean_example')\n\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_mean_one_input')\n\nresult = np.divide(np.add(data_0, data_1), 2.)\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_mean_two_inputs')",
+          "summary": "mean"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for Mean.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor. Same dimension as inputs.",
+          "name": "mean",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -4669,6 +5819,14 @@
   {
     "name": "Min",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Element-wise min of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -4693,6 +5851,124 @@
         {
           "description": "Output tensor. Same dimension as inputs.",
           "name": "min",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Min",
+    "schema": {
+      "description": "Element-wise min of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 0]).astype(np.float32)\nresult = np.array([1, 2, 0]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_min_example')\n\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_min_one_input')\n\nresult = np.minimum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_min_two_inputs')",
+          "summary": "min"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for Min",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor. Same dimension as inputs.",
+          "name": "min",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Mul",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If set, defines the broadcast dimensions. See doc for details.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Pass 1 to enable broadcasting",
+          "name": "broadcast",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "Performs element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')",
+          "summary": "mul"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_bcast')",
+          "summary": "mul_broadcast"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "First operand, should share the type with the second operand.",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
+          "name": "B",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Result, has same dimensions and type as A",
+          "name": "C",
           "type": "T"
         }
       ],
@@ -4763,6 +6039,58 @@
           "type": "T"
         }
       ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Neg",
+    "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "Neg takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where each element flipped sign, y = -x, is applied to\nthe tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Neg',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.negative(x)  # expected output [4., -2.],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.negative(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_neg')",
+          "summary": "neg"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -4807,7 +6135,7 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -5052,6 +6380,14 @@
   {
     "name": "PRelu",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "category": "Activation",
       "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\n\n",
       "domain": "ai.onnx",
@@ -5079,6 +6415,50 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "PRelu",
+    "schema": {
+      "category": "Activation",
+      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\n\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "Slope tensor. If `Slope` is of size 1, the value is sharedacross different channels",
+          "name": "slope",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -5732,6 +7112,14 @@
   {
     "name": "Reciprocal",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Reciprocal takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the reciprocal is, y = 1/x, is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -5759,6 +7147,50 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Reciprocal",
+    "schema": {
+      "description": "Reciprocal takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the reciprocal is, y = 1/x, is applied to\nthe tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Reciprocal',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-4, 2]).astype(np.float32)\ny = np.reciprocal(x)  # expected output [-0.25, 0.5],\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal_example')\n\nx = np.random.rand(3, 4, 5).astype(np.float32) + 0.5\ny = np.reciprocal(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_reciprocal')",
+          "summary": "reciprocal"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -6296,6 +7728,14 @@
   {
     "name": "Relu",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "category": "Activation",
       "description": "Relu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = max(0, x), is applied to\nthe tensor elementwise.\n",
       "domain": "ai.onnx",
@@ -6339,9 +7779,60 @@
     }
   },
   {
+    "name": "Relu",
+    "schema": {
+      "category": "Activation",
+      "description": "Relu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = max(0, x), is applied to\nthe tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Relu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_relu')",
+          "summary": "relu"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Reshape",
     "schema": {
       "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        },
         {
           "description": "New shape",
           "name": "shape",
@@ -6812,6 +8303,12 @@
           "type": "float"
         },
         {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        },
+        {
           "description": "Coefficient of SELU default to 1.0507.",
           "name": "gamma",
           "required": false,
@@ -6850,6 +8347,69 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Selu",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Coefficient of SELU default to 1.6732.",
+          "name": "alpha",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "Coefficient of SELU default to 1.0507.",
+          "name": "gamma",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "category": "Activation",
+      "description": "Selu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the scaled exponential linear unit function,\n`y = gamma * (alpha * e^x - alpha) for x <= 0`, `y = gamma * x for x > 0`,\nis applied to the tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=2.0,\n    gamma=3.0\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\n# expected output [-3.79272318, 0., 3.]\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * 3.0 + (np.exp(np.clip(x, -np.inf, 0)) - 1) * 2.0 * 3.0\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu')",
+          "summary": "selu"
+        },
+        {
+          "code": "default_alpha = 1.6732\ndefault_gamma = 1.0507\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + \\\n    (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
+          "summary": "selu_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -6925,6 +8485,14 @@
   {
     "name": "Sigmoid",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "category": "Activation",
       "description": "Sigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the sigmoid function, y = 1 / (1 + exp(-x)), is applied to the\ntensor elementwise.\n",
       "domain": "ai.onnx",
@@ -6953,6 +8521,51 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation",
+      "description": "Sigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the sigmoid function, y = 1 / (1 + exp(-x)), is applied to the\ntensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sigmoid',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x)))  # expected output [0.26894143, 0.5, 0.7310586]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = 1.0 / (1.0 + np.exp(np.negative(x)))\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sigmoid')",
+          "summary": "sigmoid"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -7416,6 +9029,14 @@
   {
     "name": "Sqrt",
     "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
       "description": "Square root takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the square root is, y = x^0.5, is applied to\nthe tensor elementwise. If x is negative, then it will return NaN.\n",
       "domain": "ai.onnx",
       "examples": [
@@ -7443,6 +9064,50 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sqrt",
+    "schema": {
+      "description": "Square root takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the square root is, y = x^0.5, is applied to\nthe tensor elementwise. If x is negative, then it will return NaN.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sqrt',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([1, 4, 9]).astype(np.float32)\ny = np.sqrt(x)  # expected output [1., 2., 3.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt_example')\n\nx = np.abs(np.random.randn(3, 4, 5).astype(np.float32))\ny = np.sqrt(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sqrt')",
+          "summary": "sqrt"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
@@ -7524,6 +9189,12 @@
           "name": "broadcast",
           "required": false,
           "type": "int"
+        },
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
         }
       ],
       "description": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
@@ -7577,6 +9248,126 @@
     }
   },
   {
+    "name": "Sub",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If set, defines the broadcast dimensions. See doc for details.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Pass 1 to enable broadcasting",
+          "name": "broadcast",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')",
+          "summary": "sub"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_bcast')",
+          "summary": "sub_broadcast"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "First operand, should share the type with the second operand.",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
+          "name": "B",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Result, has same dimensions and type as A",
+          "name": "C",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sum",
+    "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "Element-wise sum of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 0, 2]).astype(np.float32)\ndata_1 = np.array([1, 3, 4]).astype(np.float32)\ndata_2 = np.array([2, 6, 6]).astype(np.float32)\nresult = np.array([6, 9, 12]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_sum_example')\n\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_sum_one_input')\n\nresult = np.add(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_sum_two_inputs')",
+          "summary": "sum"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for Sum.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor. Same dimension as inputs.",
+          "name": "sum",
+          "type": "T"
+        }
+      ],
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Sum",
     "schema": {
       "description": "Element-wise sum of each of the input tensors. All inputs and outputs must\nhave the same shape and data type.\n",
@@ -7603,6 +9394,59 @@
         {
           "description": "Output tensor. Same dimension as inputs.",
           "name": "sum",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "attributes": [
+        {
+          "description": "legacy optimization attribute.",
+          "name": "consumed_inputs",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "category": "Activation",
+      "description": "Calculates the hyperbolic tangent of the given input tensor element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Tanh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.tanh(x)  # expected output [-0.76159418, 0., 0.76159418]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.tanh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tanh')",
+          "summary": "tanh"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "1-D input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The hyperbolic tangent values of the input tensor computed element-wise",
+          "name": "output",
           "type": "T"
         }
       ],
@@ -7651,7 +9495,7 @@
           "type": "T"
         }
       ],
-      "since_version": 1,
+      "since_version": 6,
       "support_level": "common",
       "type_constraints": [
         {
