@@ -1,0 +1,5 @@
+{
+    "files.exclude": {
+        "third_party": true
+    }
+}
