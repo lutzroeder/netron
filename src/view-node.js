@@ -323,6 +323,13 @@ class NodeViewItemConnection {
                         quantizationLine.innerHTML = 'quantization: ' + '<code><b>' + quantization + '</b></code>';
                         this._element.appendChild(quantizationLine);   
                     }
+                    var reference = initializer.reference;
+                    if (reference) {
+                        var referenceLine = document.createElement('div');
+                        referenceLine.className = 'node-view-item-value-line-border';
+                        referenceLine.innerHTML = 'reference: ' + '<b>' + reference + '</b>';
+                        this._element.appendChild(referenceLine);   
+                    }
                     var value = initializer.value;
                     if (value) {
                         var valueLine = document.createElement('div');
