@@ -106,7 +106,7 @@ class BrowserHost {
     url(file) {
         var url = file;
         if (window && window.location && window.location.href) {
-            var location = window.location.href;
+            var location = window.location.href.split('?').shift();
             if (location.endsWith('/')) {
                 location = location.slice(0, -1);
             }
