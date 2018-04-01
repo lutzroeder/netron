@@ -1,16 +1,11 @@
 #!/usr/bin/python
 
 import distutils
+import io
+import json
 import os
 import setuptools
-import setuptools.command
 import setuptools.command.build_py
-import json
-
-TOP_DIR = os.path.realpath(os.path.dirname(__file__))
-with open(os.path.join(TOP_DIR, 'package.json')) as package_file:
-    package_manifest = json.load(package_file)
-    package_version = package_manifest['version']
 
 node_dependencies = [ 
     ( 'netron', [
@@ -52,11 +47,26 @@ class build_py(setuptools.command.build_py.build_py):
                 self.copy_file(file, target)
         return result
 
+def package_version():
+    folder = os.path.realpath(os.path.dirname(__file__))
+    with open(os.path.join(folder, 'package.json')) as package_file:
+        package_manifest = json.load(package_file)
+        return package_manifest['version']
+
+def readme():
+    with io.open('README.md', mode='r', encoding='utf-8') as f:
+        return f.read()
+
 setuptools.setup(
     name="netron",
-    version=package_version,
-    description="Viewer for neural network models",
-    keywords='onnx keras tensorflow artificial intelligence machine learning deep learning neural network visualizer viewer',
+    version=package_version(),
+    description="Viewer for neural network, deep learning and machine learning models",
+    long_description=readme(),
+    keywords=[
+        'onnx', 'keras', 'tensorflow', 'coreml', 'mxnet', 'caffe', 'caffe2',
+        'artificial intelligence', 'machine learning', 'deep learning', 'neural network',
+        'visualizer', 'viewer'
+    ],
     license="MIT",
     cmdclass={
         'build_py': build_py
@@ -100,14 +110,13 @@ setuptools.setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development',
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Mathematics',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence'
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Scientific/Engineering :: Visualization'
     ]
-
 )
