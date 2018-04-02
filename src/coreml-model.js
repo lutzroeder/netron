@@ -1,37 +1,37 @@
 /*jshint esversion: 6 */
 
-// Experimental
-
 var coreml = null;
 
-class CoreMLModel {
+class CoreMLModelFactory {
 
-    static open(buffer, identifier, host, callback) { 
+    match(buffer, identifier) {
+        var extension = identifier.split('.').pop();
+        return extension == 'mlmodel';
+    }
+
+    open(buffer, identifier, host, callback) { 
         host.import('/coreml.js', (err) => {
             if (err) {
                 callback(err, null);
             }
             else {
                 coreml = protobuf.roots.coreml.CoreML.Specification;
-                CoreMLModel.create(buffer, identifier, host, (err, model) => {
-                    callback(err, model);
-                });
+                try {
+                    var decodedBuffer = coreml.Model.decode(buffer);
+                    var model = new CoreMLModel(decodedBuffer);
+                    CoreMLOperatorMetadata.open(host, (err, metadata) => {
+                        callback(null, model);
+                    });
+                }
+                catch (error) {
+                    callback(new CoreMLError(error.message), null);
+                }
             }
         });
     }
+}
 
-    static create(buffer, identifier, host, callback) {
-        try {
-            var decodedBuffer = coreml.Model.decode(buffer);
-            var model = new CoreMLModel(decodedBuffer);
-            CoreMLOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
-            });
-        }
-        catch (err) {
-            callback(err, null);
-        }
-    }
+class CoreMLModel {
 
     constructor(model) {
         this._specificationVersion = model.specificationVersion;
@@ -849,5 +849,11 @@ class CoreMLOperatorMetadata
         }
         return '';
     }
+}
 
+class CoreMLError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'CoreML Error';
+    }
 }

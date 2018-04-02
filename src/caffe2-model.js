@@ -4,34 +4,36 @@
 
 var caffe2 = null;
 
-class Caffe2Model {
+class Caffe2ModelFactory {
 
-    static open(buffer, identifier, host, callback) { 
+    match(buffer, identifier) {
+        return identifier.endsWith('predict_net.pb');
+    }    
+
+    open(buffer, identifier, host, callback) {
         host.import('/caffe2.js', (err) => {
             if (err) {
                 callback(err, null);
             }
             else {
                 caffe2 = protobuf.roots.caffe2.caffe2;
-                Caffe2Model.create(buffer, identifier, host, (err, model) => {
-                    callback(err, model);
-                });
+                try {
+                    var netDef = caffe2.NetDef.decode(buffer);
+                    var model = new Caffe2Model(netDef);
+                    Caffe2OperatorMetadata.open(host, (err, metadata) => {
+                        callback(null, model);
+                    });
+                }
+                catch (error) {
+                    callback(new Caffe2Error(error.message), null);
+                }
             }
         });
     }
 
-    static create(buffer, identifier, host, callback) {
-        try {
-            var netDef = caffe2.NetDef.decode(buffer);
-            var model = new Caffe2Model(netDef);
-            Caffe2OperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
-            });
-        }
-        catch (err) {
-            callback(err, null);
-        }
-    }
+}
+
+class Caffe2Model {
 
     constructor(netDef) {
         var graph = new Caffe2Graph(netDef);
@@ -469,5 +471,12 @@ class Caffe2OperatorMetadata
             }
         }
         return true;
+    }
+}
+
+class Caffe2Error extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'Caffe2 Error';
     }
 }

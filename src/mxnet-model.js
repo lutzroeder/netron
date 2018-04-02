@@ -2,28 +2,29 @@
 
 // Experimental
 
-class MXNetModel {
+class MXNetModelFactory {
 
-    static open(buffer, identifier, host, callback) { 
-        MXNetModel.create(buffer, identifier, host, (err, model) => {
-            callback(err, model);
-        });
+    match(buffer, identifier) {
+        return identifier.endsWith('-symbol.json');
     }
 
-    static create(buffer, identifier, host, callback) {
+    open(buffer, identifier, host, callback) {
         try {
             var decoder = new TextDecoder('utf-8');
             var json = decoder.decode(buffer);
-
             var model = new MXNetModel(json);
             MXNetOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
             });
         }
         catch (err) {
-            callback(err, null);
+            callback(new MXNetError(err.message), null);
         }
     }
+
+}
+
+class MXNetModel {
 
     constructor(json) {
         var model = JSON.parse(json);

@@ -1,37 +1,42 @@
 /*jshint esversion: 6 */
 
-class TensorFlowLiteModel {
-    
-    static open(buffer, identifier, host, callback) { 
+class TensorFlowLiteModelFactory {
+
+
+    match(buffer, identifier) {
+        var extension = identifier.split('.').pop();
+        return extension == 'tflite';
+    }
+
+    open(buffer, identifier, host, callback) {
         host.import('/tflite.js', (err) => {
             if (err) {
                 callback(err, null);
             }
             else {
-                TensorFlowLiteModel.create(buffer, identifier, host, (err, model) => {
-                    callback(err, model);
-                });
+                try {
+                    var byteBuffer = new flatbuffers.ByteBuffer(buffer);
+                    if (!tflite.Model.bufferHasIdentifier(byteBuffer))
+                    {
+                        callback(new TensorFlowLiteError('Invalid FlatBuffers identifier.'));
+                    }
+                    else {
+                        var model = tflite.Model.getRootAsModel(byteBuffer);
+                        model = new TensorFlowLiteModel(model);
+                        TensorFlowLiteOperatorMetadata.open(host, (err, metadata) => {
+                            callback(null, model);
+                        });
+                    }
+                }
+                catch (error) {
+                    callback(new TensorFlowLiteError(error.message), null);
+                }
             }
         });
     }
+}
 
-    static create(buffer, identifier, host, callback) { 
-        try {
-            var byteBuffer = new flatbuffers.ByteBuffer(buffer);
-            if (!tflite.Model.bufferHasIdentifier(byteBuffer))
-            {
-                throw new TensorFlowLiteError('Invalid FlatBuffers identifier.');
-            }
-            var model = tflite.Model.getRootAsModel(byteBuffer);
-            model = new TensorFlowLiteModel(model);
-            TensorFlowLiteOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
-            });
-        }
-        catch (err) {
-            callback(err, null);
-        }
-    }
+class TensorFlowLiteModel {
 
     constructor(model) {
         this._model = model;

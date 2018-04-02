@@ -4,67 +4,69 @@
 
 var tensorflow = null;
 
-class TensorFlowModel {
+class TensorFlowModelFactory {
 
-    static open(buffer, identifier, host, callback) { 
+    match(buffer, identifier) {
+        var extension = identifier.split('.').pop();
+        return (identifier != 'predict_net.pb') && (extension == 'pb' || extension == 'meta');
+    }
+
+    open(buffer, identifier, host, callback) { 
         host.import('/tf.js', (err) => {
             if (err) {
                 callback(err, null);
             }
             else {
                 tensorflow = protobuf.roots.tf.tensorflow;
-                var model = TensorFlowModel.create(buffer, identifier, host, (err, model) => {
-                    callback(err, model);
-                });
+                try {
+                    var model = null;
+                    var format = null;
+                    if (identifier == 'saved_model.pb') {
+                        model = tensorflow.SavedModel.decode(buffer);
+                        format = 'TensorFlow Saved Model';
+                        if (model.savedModelSchemaVersion) {
+                            format = format + ' v' + model.savedModelSchemaVersion.toString();
+                        }
+                    }
+                    else {
+                        var metaGraphDef = null;
+                        var extension = identifier.split('.').pop();
+                        if (extension != 'meta') {
+                            try {
+                                var graphDef = tensorflow.GraphDef.decode(buffer);
+                                metaGraphDef = new tensorflow.MetaGraphDef();
+                                metaGraphDef.graphDef = graphDef;
+                                metaGraphDef.anyInfo = identifier;
+                                format = 'TensorFlow Graph';
+                            }
+                            catch (metaError) {
+                            }
+                        }
+        
+                        if (!metaGraphDef) {
+                            metaGraphDef = tensorflow.MetaGraphDef.decode(buffer);
+                            format = 'TensorFlow MetaGraph';
+                        }
+        
+                        model = new tensorflow.SavedModel();
+                        model.metaGraphs.push(metaGraphDef);
+                    }
+        
+                    var result = new TensorFlowModel(model, format);
+        
+                    TensorFlowOperatorMetadata.open(host, (err, metadata) => {
+                        callback(null, result);
+                    });
+                }
+                catch (error) {
+                    callback(new TensorFlowError(error.message), null);
+                }    
             }
         });
     }
+}
 
-    static create(buffer, identifier, host, callback) {
-        try {
-            var model = null;
-            var format = null;
-            if (identifier == 'saved_model.pb') {
-                model = tensorflow.SavedModel.decode(buffer);
-                format = 'TensorFlow Saved Model';
-                if (model.savedModelSchemaVersion) {
-                    format = format + ' v' + model.savedModelSchemaVersion.toString();
-                }
-            }
-            else {
-                var metaGraphDef = null;
-                var extension = identifier.split('.').pop();
-                if (extension != 'meta') {
-                    try {
-                        var graphDef = tensorflow.GraphDef.decode(buffer);
-                        metaGraphDef = new tensorflow.MetaGraphDef();
-                        metaGraphDef.graphDef = graphDef;
-                        metaGraphDef.anyInfo = identifier;
-                        format = 'TensorFlow Graph';
-                    }
-                    catch (err) {
-                    }
-                }
-
-                if (!metaGraphDef) {
-                    metaGraphDef = tensorflow.MetaGraphDef.decode(buffer);
-                    format = 'TensorFlow MetaGraph';
-                }
-
-                model = new tensorflow.SavedModel();
-                model.metaGraphs.push(metaGraphDef);
-            }
-
-            var result = new TensorFlowModel(model, format);
-
-            TensorFlowOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, result);
-            });
-        }
-        catch (err) {
-            callback(err, null);
-        }    
-    }
+class TensorFlowModel {
 
     constructor(model, format) {
         this._model = model;
@@ -821,6 +823,7 @@ class TensorFlowGraphOperatorMetadata {
             'Dequantize': 'Tensor',
             'Identity': 'Control',
             'BatchNormWithGlobalNormalization': 'Normalization',
+            'FusedBatchNorm': 'Normalization',
             // 'VariableV2':
             // 'Assign':
             // 'BiasAdd':

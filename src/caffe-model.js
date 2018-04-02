@@ -4,34 +4,36 @@
 
 var caffe = null;
 
-class CaffeModel {
+class CaffeModelFactory {
 
-    static open(buffer, identifier, host, callback) { 
+    match(buffer, identifier) {
+        var extension = identifier.split('.').pop();
+        return extension == 'caffemodel';
+    }
+
+    open(buffer, identifier, host, callback) { 
         host.import('/caffe.js', (err) => {
             if (err) {
                 callback(err, null);
             }
             else {
                 caffe = protobuf.roots.caffe.caffe;
-                CaffeModel.create(buffer, identifier, host, (err, model) => {
-                    callback(err, model);
-                });
+                try {
+                    var netParameter = caffe.NetParameter.decode(buffer);
+                    var model = new CaffeModel(netParameter);
+                    CaffeOperatorMetadata.open(host, (err, metadata) => {
+                        callback(null, model);
+                    });
+                }
+                catch (error) {
+                    callback(new CaffeError(error.message), null);
+                }
             }
         });
     }
+}
 
-    static create(buffer, identifier, host, callback) {
-        try {
-            var netParameter = caffe.NetParameter.decode(buffer);
-            var model = new CaffeModel(netParameter);
-            CaffeOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
-            });
-        }
-        catch (err) {
-            callback(err, null);
-        }
-    }
+class CaffeModel {
 
     constructor(netParameter) {
         if (netParameter.layers && netParameter.layers.length > 0) {
@@ -560,5 +562,12 @@ class CaffeOperatorMetadata
             }
         }
         return true;
+    }
+}
+
+class CaffeError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'Caffe Error';
     }
 }

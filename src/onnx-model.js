@@ -2,34 +2,36 @@
 
 var onnx = null;
 
-class OnnxModel {
+class OnnxModelFactory {
 
-    static open(buffer, identifier, host, callback) { 
+    match(buffer, identifier) {
+        var extension = identifier.split('.').pop();
+        return (identifier != 'saved_model.pb') && (identifier != 'predict_net.pb') && (extension == 'onnx' || extension == 'pb');
+    }
+
+    open(buffer, identifier, host, callback) { 
         host.import('/onnx.js', (err) => {
             if (err) {
                 callback(err, null);
             }
             else {
                 onnx = protobuf.roots.onnx.onnx;
-                OnnxModel.create(buffer, host, (err, model) => {
-                    callback(err, model);
-                });
+                try {
+                    var model = onnx.ModelProto.decode(buffer);
+                    var result = new OnnxModel(model);
+                    OnnxOperatorMetadata.open(host, (err, metadata) => {
+                        callback(null, result);
+                    });
+                }
+                catch (error) {
+                    callback(new OnnxError(error.message), null);
+                }
             }
         });
     }
+}
 
-    static create(buffer, host, callback) {
-        try {
-            var model = onnx.ModelProto.decode(buffer);
-            var result = new OnnxModel(model);
-            OnnxOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, result);
-            });
-        }
-        catch (err) {
-            callback(err, null);
-        }
-    }
+class OnnxModel {
 
     constructor(model) {
         this._model = model;

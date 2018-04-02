@@ -69,66 +69,35 @@ class View {
     }
 
     loadBuffer(buffer, identifier, callback) {
-        var model = null;
-        var err = null;
-    
-        var extension = identifier.split('.').pop();
-
-        if (extension == 'tflite') {
-            TensorFlowLiteModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-           });
-        }
-        else if (extension == 'onnx') {
-            OnnxModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (extension == 'mlmodel') {
-            CoreMLModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (extension == 'caffemodel') {
-            CaffeModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (identifier.endsWith('predict_net.pb')) {
-            Caffe2Model.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (identifier.endsWith('-symbol.json')) {
-            MXNetModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (extension == 'keras' || extension == 'h5' || extension == 'json') {
-            KerasModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (identifier == 'saved_model.pb' || extension == 'meta') {
-            TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
-                callback(err, model);
-            });
-        }
-        else if (extension == 'pb') {
-            OnnxModel.open(buffer, identifier, this._host, (err, model) => {
-                if (!err) {
-                    callback(err, model);
-                }
-                else {
-                    TensorFlowModel.open(buffer, identifier, this._host, (err, model) => {
+        var modelFactoryRegistry = [
+            new OnnxModelFactory(),
+            new MXNetModelFactory(),
+            new KerasModelFactory(),
+            new CoreMLModelFactory(),
+            new CaffeModelFactory(),
+            new Caffe2ModelFactory(), 
+            new TensorFlowLiteModelFactory(),
+            new TensorFlowModelFactory()
+        ];
+        var matches = modelFactoryRegistry.filter((factory) => factory.match(buffer, identifier));
+        var next = () => {
+            if (matches.length > 0) {
+                var modelFactory = matches.shift();
+                modelFactory.open(buffer, identifier, this._host, (err, model) => {
+                    if (model || matches.length == 0) {
                         callback(err, model);
-                    });
-                }
-            });
-        }
-        else {
-            callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
-        }
+                    }
+                    else {
+                        next();
+                    }
+                });
+            }
+            else {
+                var extension = identifier.split('.').pop();
+                callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
+            }
+        };
+        next();
     }
 
     openBuffer(buffer, identifier, callback) {
