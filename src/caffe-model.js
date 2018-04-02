@@ -69,6 +69,8 @@ class CaffeGraph {
     {
         this._name = netParameter.name;
         this._nodes = [];
+        this._inputs = [];
+        this._outputs = [];
 
         var layers = [];
         switch (version) {
@@ -96,8 +98,66 @@ class CaffeGraph {
         });
 
         layers.forEach((layer) => {
-            this._nodes.push(new CaffeNode(layer, version));
+            var node = new CaffeNode(layer, version);
+            if (!this.translateInput(node)) {
+                this._nodes.push(node);
+            }
         });
+
+        if (netParameter.input && netParameter.input.length > 0) {
+            netParameter.input.forEach((input) => {
+                this._inputs.push({
+                    id: input,
+                    name: input,
+                    type: 'T'
+                });
+            });
+        }
+
+        if (this._outputs.length == 0) {
+            var nodeMap = {};
+            var countMap = {};
+            var outputs = [];
+            this._nodes.forEach((node) => {
+                if (node._outputs.length == 0) {
+                    outputs.push(node);
+                }
+                else {
+                    node._outputs.forEach((output) => {
+                        nodeMap[output] = node;
+                    });
+                }
+                node._inputs.forEach((input) => {
+                    if (countMap[input]) {
+                        countMap[input]++;
+                    }
+                    else {
+                        countMap[input] = 1;
+                    }
+                });
+            });
+            Object.keys(nodeMap).forEach((output) => {
+                if (countMap[output]) {
+                    delete nodeMap[output];
+                }
+            });
+            var keys = Object.keys(nodeMap);
+            if (keys.length == 1) {
+                this._outputs.push({
+                    id: keys[0],
+                    name: keys[0],
+                    type: 'T'
+                });
+            }
+            else if (outputs.length == 1) {
+                outputs[0]._outputs = [ 'output' ];
+                this._outputs.push({
+                    id: 'output',
+                    name: 'output',
+                    type: 'T'
+                });
+            }
+        }
     }
 
     get name() {
@@ -109,15 +169,36 @@ class CaffeGraph {
     }
 
     get inputs() {
-        return [];
+        return this._inputs;
     }
 
     get outputs() {
-        return [];
+        return this._outputs;
     }
 
     get nodes() {
         return this._nodes;
+    }
+
+    translateInput(node) {
+        if (node.operator == 'Input' && node._inputs.length == 0 && node._outputs.length == 1) {
+            var input = node._outputs[0];
+            var attributes = node.attributes;
+            if (attributes.length == 1) {
+                var attribute = attributes[0];
+                if (attribute.name == 'shape') {
+                    if (attribute._value.length == 1 && attribute._value[0].dim) {
+                        this._inputs.push({ 
+                            id: input,
+                            name: input,
+                            type: 'T' + JSON.stringify(attribute._value[0].dim)
+                        });
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
 
