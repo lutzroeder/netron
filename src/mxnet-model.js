@@ -5,7 +5,18 @@
 class MXNetModelFactory {
 
     match(buffer, identifier) {
-        return identifier.endsWith('-symbol.json');
+        if (identifier.endsWith('-symbol.json')) {
+            return true;
+        }
+        var extension = identifier.split('.').pop();
+        if (extension == 'json') {
+            var decoder = new TextDecoder('utf-8');
+            var json = decoder.decode(buffer);
+            if (json.includes('\"mxnet_version\":')) {
+                return true;
+            }
+        }
+        return false;
     }
 
     open(buffer, identifier, host, callback) {

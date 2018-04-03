@@ -4,7 +4,17 @@ class KerasModelFactory {
 
     match(buffer, identifier) {
         var extension = identifier.split('.').pop();
-        return (extension == 'keras' || extension == 'h5' || extension == 'json');
+        if (extension == 'keras' || extension == 'h5') {
+            return true;
+        }
+        if (extension == 'json') {
+            var decoder = new TextDecoder('utf-8');
+            var json = decoder.decode(buffer);
+            if (!json.includes('\"mxnet_version\":')) {
+                return true;
+            }
+        }
+        return false;
     }
 
     open(buffer, identifier, host, callback) {
