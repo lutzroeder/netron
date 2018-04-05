@@ -246,7 +246,7 @@ class TensorFlowGraph {
 
             this._initializerMap = {};
             this._graph.graphDef.node.forEach((node) => {
-                if (node.op == 'Const' && node.input.length == 0 && this.checkSingleOutput(node)) {
+                if (node.op == 'Const' && this.checkEmptyInput(node) && this.checkSingleOutput(node)) {
                     var value = node.attr.value;
                     if (value && value.hasOwnProperty('tensor')) {
                         var output = node.output[0];
@@ -288,6 +288,11 @@ class TensorFlowGraph {
     getInitializer(input) {
         var initializer = this._initializerMap[input];
         return initializer ? initializer : null;
+    }
+
+    checkEmptyInput(node) {
+        var inputs = node.input.filter((input) => !input.startsWith('^'));
+        return inputs.length == 0;
     }
 
     checkSingleOutput(node) { 
@@ -814,14 +819,20 @@ class TensorFlowGraphOperatorMetadata {
             'Relu': 'Activation',
             'Relu6': 'Activation',
             'Softmax': 'Activation',
+            'Sigmoid': 'Activation',
             'LRN': 'Normalization',
             'MaxPool': 'Pool',
+            'MaxPoolV2': 'Pool',
             'AvgPool': 'Pool',
             'Reshape': 'Shape',
             'Squeeze': 'Shape',
             'ConcatV2': 'Tensor',
+            'Split': 'Tensor',
             'Dequantize': 'Tensor',
             'Identity': 'Control',
+            'Variable': 'Control',
+            'VariableV2': 'Control',
+            'Assign': 'Control',
             'BatchNormWithGlobalNormalization': 'Normalization',
             'FusedBatchNorm': 'Normalization',
             // 'VariableV2':
