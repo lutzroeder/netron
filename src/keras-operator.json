@@ -552,7 +552,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, size of the max pooling windows.",
+          "description": "Integer, size of the average pooling windows.",
           "name": "pool_size"
         },
         {
@@ -769,6 +769,96 @@
     }
   },
   {
+    "name": "BatchNorm",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "axis"
+        },
+        {
+          "default": 0.001,
+          "name": "epsilon"
+        },
+        {
+          "default": 0.99,
+          "name": "momentum"
+        },
+        {
+          "default": true,
+          "name": "scale"
+        },
+        {
+          "default": true,
+          "name": "center"
+        },
+        {
+          "default": {
+            "class_name": "Ones",
+            "config": {}
+          },
+          "name": "gamma_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "moving_mean_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Ones",
+            "config": {}
+          },
+          "name": "moving_variance_initializer"
+        },
+        {
+          "default": {
+            "class_name": "Zeros",
+            "config": {}
+          },
+          "name": "beta_initializer"
+        },
+        {
+          "name": "beta_regularizer"
+        },
+        {
+          "name": "gamma_regularizer"
+        },
+        {
+          "name": "beta_constraint"
+        },
+        {
+          "name": "gamma_constraint"
+        }
+      ],
+      "category": "Normalization",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "gamma"
+        },
+        {
+          "name": "beta"
+        },
+        {
+          "name": "mean"
+        },
+        {
+          "name": "variance"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "ActivityRegularization",
     "schema": {
       "attributes": [
@@ -909,7 +999,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
@@ -988,7 +1078,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
@@ -1072,7 +1162,7 @@
       "attributes": [
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
@@ -1082,7 +1172,7 @@
         },
         {
           "default": "tanh",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
           "name": "activation"
         },
         {
@@ -1193,10 +1283,14 @@
         {
           "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
+        },
+        {
+          "description": "hard sigmoid (`hard_sigmoid`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "name": "Default"
         }
       ],
       "category": "Layer",
-      "description": "Long-Short Term Memory layer - Hochreiter 1997.\n",
+      "description": "Long Short-Term Memory layer - Hochreiter 1997.\n",
       "inputs": [
         {
           "name": "input"
@@ -1239,7 +1333,7 @@
       "attributes": [
         {
           "default": "tanh",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
           "name": "activation"
         },
         {
@@ -1296,7 +1390,7 @@
         },
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
@@ -1316,7 +1410,7 @@
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.\n",
+          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.",
           "name": "unroll"
         },
         {
@@ -1354,10 +1448,18 @@
         {
           "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
+        },
+        {
+          "description": "hard sigmoid (`hard_sigmoid`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "name": "Default"
+        },
+        {
+          "description": "GRU convention (whether to apply reset gate after or\nbefore matrix multiplication). False = \"before\" (default),\nTrue = \"after\" (CuDNN compatible).\n",
+          "name": "reset_after"
         }
       ],
       "category": "Layer",
-      "description": "Gated Recurrent Unit - Cho et al. 2014.\n",
+      "description": "Gated Recurrent Unit - Cho et al. 2014.\n\nThere are two variants. The default one is based on 1406.1078v3 and\nhas reset gate applied to hidden state before matrix multiplication. The\nother one is based on original 1406.1078v1 and has the order reversed.\n\nThe second variant is compatible with CuDNNGRU (GPU-only) and allows\ninference on CPU. Thus it has separate biases for `kernel` and\n`recurrent_kernel`. Use `'reset_after'=True` and\n`recurrent_activation='sigmoid'`.\n",
       "inputs": [
         {
           "name": "input"
@@ -1379,6 +1481,9 @@
       ],
       "package": "keras.layers",
       "references": [
+        {
+          "description": "[Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation](https://arxiv.org/abs/1406.1078)"
+        },
         {
           "description": "[On the Properties of Neural Machine Translation: Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)"
         },
@@ -1480,7 +1585,7 @@
           "name": "return_sequences"
         },
         {
-          "description": "Boolean (default False).\nIf True, rocess the input sequence backwards.",
+          "description": "Boolean (default False).\nIf True, process the input sequence backwards.",
           "name": "go_backwards"
         },
         {
@@ -1666,7 +1771,7 @@
       "attributes": [
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
@@ -1691,7 +1796,7 @@
         },
         {
           "default": "tanh",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
           "name": "activation"
         },
         {
@@ -1772,6 +1877,10 @@
         {
           "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
+        },
+        {
+          "description": "hyperbolic tangent (`tanh`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "name": "Default"
         }
       ],
       "category": "Layer",
@@ -1804,7 +1913,7 @@
       "attributes": [
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
@@ -1871,7 +1980,7 @@
           "name": "units"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
           "name": "activation"
         },
         {
@@ -1921,6 +2030,10 @@
         {
           "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.\n",
           "name": "recurrent_dropout"
+        },
+        {
+          "description": "hyperbolic tangent (`tanh`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "name": "Default"
         }
       ],
       "description": "Cell class for SimpleRNN.\n",
@@ -1936,7 +2049,7 @@
           "name": "units"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
           "name": "activation"
         },
         {
@@ -1992,8 +2105,16 @@
           "name": "recurrent_dropout"
         },
         {
-          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.\n",
+          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.",
           "name": "implementation"
+        },
+        {
+          "description": "hard sigmoid (`hard_sigmoid`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "name": "Default"
+        },
+        {
+          "description": "GRU convention (whether to apply reset gate after or\nbefore matrix multiplication). False = \"before\" (default),\nTrue = \"after\" (CuDNN compatible).\n",
+          "name": "reset_after"
         }
       ],
       "description": "Cell class for the GRU layer.\n",
@@ -2009,7 +2130,7 @@
           "name": "units"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you pass None, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
           "name": "activation"
         },
         {
@@ -2071,6 +2192,10 @@
         {
           "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.\n",
           "name": "implementation"
+        },
+        {
+          "description": "hard sigmoid (`hard_sigmoid`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).x",
+          "name": "Default"
         }
       ],
       "description": "Cell class for the LSTM layer.\n",
@@ -2154,7 +2279,7 @@
           "name": "kernel_initializer"
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
@@ -2267,7 +2392,7 @@
           "name": "kernel_initializer"
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
@@ -2323,7 +2448,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
@@ -2690,7 +2815,7 @@
           "name": "kernel_initializer"
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
@@ -2815,7 +2940,7 @@
           "name": "kernel_initializer"
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
