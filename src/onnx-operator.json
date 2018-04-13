@@ -128,11 +128,19 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to all numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -268,11 +276,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -441,7 +452,7 @@
         {
           "description": "Reduced output tensor with integer data type.",
           "name": "reduced",
-          "type": "tensor(int32)"
+          "type": "tensor(int64)"
         }
       ],
       "since_version": 1,
@@ -449,11 +460,19 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to all numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -493,7 +512,7 @@
         {
           "description": "Reduced output tensor with integer data type.",
           "name": "reduced",
-          "type": "tensor(int32)"
+          "type": "tensor(int64)"
         }
       ],
       "since_version": 1,
@@ -501,11 +520,19 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to all numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -639,7 +666,7 @@
       ],
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "type": "T"
         }
@@ -819,7 +846,7 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "The input 4-dimensional tensor of shape NCHW.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "type": "T"
         },
@@ -850,7 +877,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "The output 4-dimensional tensor of the same shape as X.",
+          "description": "The output tensor of the same shape as X.",
           "name": "Y",
           "type": "T"
         },
@@ -1399,7 +1426,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v, dtype=np.float32) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
           "summary": "concat"
         }
       ],
@@ -1453,7 +1480,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values in test_cases.items():\n    values = [np.asarray(v, dtype=np.float32) for v in values]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
           "summary": "concat"
         }
       ],
@@ -1675,7 +1702,7 @@
       ],
       "inputs": [
         {
-          "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image.Otherwise the size is (N x D1 x D2 ... x Dn)",
+          "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image. Otherwise the size is (N x C x D1 x D2 ... x Dn)",
           "name": "X",
           "type": "T"
         },
@@ -2121,11 +2148,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -3243,7 +3273,7 @@
           "type": "int"
         }
       ],
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3323,7 +3353,7 @@
           "type": "int"
         }
       ],
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. If A can be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -3450,7 +3480,7 @@
       ],
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "type": "T"
         }
@@ -3544,7 +3574,7 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "type": "T"
         }
@@ -3593,7 +3623,7 @@
       ],
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "type": "T"
         }
@@ -3850,7 +3880,7 @@
           "summary": "hardmax"
         },
         {
-          "code": "def hardmax_2d(x):\n    return np.eye(x.shape[1])[np.argmax(x, axis=1)]\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = hardmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = hardmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = hardmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_2')",
+          "code": "def hardmax_2d(x):\n    return np.eye(x.shape[1], dtype=x.dtype)[np.argmax(x, axis=1)]\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=0,\n)\ny = hardmax_2d(x.reshape(1, 60)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_0')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=1,\n)\ny = hardmax_2d(x.reshape(3, 20)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_1')\n\n# default axis is 1\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_default_axis')\n\nnode = onnx.helper.make_node(\n    'Hardmax',\n    inputs=['x'],\n    outputs=['y'],\n    axis=2,\n)\ny = hardmax_2d(x.reshape(12, 5)).reshape(3, 4, 5)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardmax_axis_2')",
           "summary": "hardmax_axis"
         }
       ],
@@ -3968,17 +3998,19 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(string)",
-            "tensor(bool)",
             "tensor(uint8)",
-            "tensor(int8)",
             "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
             "tensor(int16)",
+            "tensor(int32)",
             "tensor(int64)",
             "tensor(float16)",
-            "tensor(double)"
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
           "description": "All Tensor types",
           "type_param_str": "V"
@@ -4190,7 +4222,7 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "The input 4-dimensional tensor of shape NCHW.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "input",
           "type": "T"
         },
@@ -4211,7 +4243,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "The output 4-dimensional tensor of the same shape as input.",
+          "description": "The output tensor of the same shape as input.",
           "name": "output",
           "type": "T"
         }
@@ -5061,17 +5093,19 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(string)",
-            "tensor(bool)",
             "tensor(uint8)",
-            "tensor(int8)",
             "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
             "tensor(int16)",
+            "tensor(int32)",
             "tensor(int64)",
             "tensor(float16)",
-            "tensor(double)"
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
           "description": "All Tensor types",
           "type_param_str": "V"
@@ -5134,17 +5168,19 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float)",
-            "tensor(int32)",
-            "tensor(string)",
-            "tensor(bool)",
             "tensor(uint8)",
-            "tensor(int8)",
             "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
             "tensor(int16)",
+            "tensor(int32)",
             "tensor(int64)",
             "tensor(float16)",
-            "tensor(double)"
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
           "description": "All Tensor types",
           "type_param_str": "T"
@@ -5323,7 +5359,7 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "type": "T"
         }
@@ -5577,7 +5613,7 @@
       ],
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimension are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size.",
           "name": "X",
           "type": "T"
         }
@@ -6044,11 +6080,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -6140,11 +6179,15 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
             "tensor(float)",
+            "tensor(int32)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int64)",
+            "tensor(float16)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to signed numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7247,11 +7290,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7299,11 +7345,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7351,11 +7400,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7403,11 +7455,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7455,11 +7510,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7507,11 +7565,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7559,11 +7620,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7611,11 +7675,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7663,11 +7730,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7715,11 +7785,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -8932,6 +9005,20 @@
       "category": "Tensor",
       "description": "Split a tensor into a list of tensors, along the specified\n'axis'. The lengths of the split can be specified using argument 'axis' or\noptional second input blob to the operator. Otherwise, the tensor is split\nto equal sized parts.\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
+          "summary": "1d"
+        },
+        {
+          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
+          "summary": "2d"
+        },
+        {
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
+          "summary": "default_values"
+        }
+      ],
       "inputs": [
         {
           "description": "The tensor to split",
@@ -8977,7 +9064,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to split on",
+          "description": "Which axis to split on (defaults to 0)",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -8992,6 +9079,20 @@
       "category": "Tensor",
       "description": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
+          "summary": "1d"
+        },
+        {
+          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
+          "summary": "2d"
+        },
+        {
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
+          "summary": "default_values"
+        }
+      ],
       "inputs": [
         {
           "description": "The tensor to split",
@@ -9304,11 +9405,14 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to high-precision numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -9637,7 +9741,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x'],\n    outputs=['values', 'indices'],\n    k=3\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n])\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int32)\n\nexpect(node, inputs=[X], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
+          "code": "node = onnx.helper.make_node(\n    'TopK',\n    inputs=['x'],\n    outputs=['values', 'indices'],\n    k=3\n)\nX = np.array([\n    [0, 1, 2, 3],\n    [4, 5, 6, 7],\n    [8, 9, 10, 11],\n], dtype=np.float32)\nvalues_ref = np.array([\n    [3, 2, 1],\n    [7, 6, 5],\n    [11, 10, 9],\n], dtype=np.float32)\nindices_ref = np.array([\n    [3, 2, 1],\n    [3, 2, 1],\n    [3, 2, 1],\n], dtype=np.int64)\n\nexpect(node, inputs=[X], outputs=[values_ref, indices_ref],\n       name='test_top_k')",
           "summary": "top_k"
         }
       ],
@@ -9678,10 +9782,9 @@
         },
         {
           "allowed_type_strs": [
-            "tensor(int64)",
-            "tensor(int32)"
+            "tensor(int64)"
           ],
-          "description": "Constrain index tensor to integral types",
+          "description": "Constrain index tensor to int64",
           "type_param_str": "I"
         }
       ]
@@ -10120,6 +10223,12 @@
       ],
       "description": "Upsample the input tensor.\nThe width and height of the output tensor are:\n  output_width = floor(input_width * width_scale),\n  output_height = floor(input_height * height_scale).\n\nExample:\n  Given `data` tensor, width_scale, height_scale, mode,\n  Upsample the input 4-D tensor in nearest mode:\n\n  data = [[[\n      [1, 2],\n      [3, 4]\n  ]]]\n  width_scale = 2\n  height_scale = 2\n  mode = \"nearest\"\n\n  output = [[[\n      [1, 1, 2, 2],\n      [1, 1, 2, 2],\n      [3, 3, 4, 4],\n      [3, 3, 4, 4]\n  ]]]\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['x'],\n    outputs=['y'],\n    height_scale=2.0,\n    width_scale=3.0,\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data], outputs=[output],\n       name='test_upsample_nearest')",
+          "summary": "nearest"
+        }
+      ],
       "inputs": [
         {
           "description": "4-D tensor, [N,C,H,W]",
