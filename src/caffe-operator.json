@@ -183,7 +183,8 @@
     "schema": {
       "category": "Data",
       "outputs": [
-        { "name": "outputs", "option": "variadic" }
+        { "name": "data" },
+        { "name": "label" }
       ]
     }
   },
@@ -192,7 +193,18 @@
     "schema": {
       "category": "Data",
       "outputs": [
-        { "name": "outputs", "option": "variadic" }
+        { "name": "data" },
+        { "name": "label" }
+      ]
+    }
+  },
+  {
+    "name": "WindowData",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "data" },
+        { "name": "label" }
       ]
     }
   },

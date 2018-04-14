@@ -235,7 +235,7 @@ class CaffeNode {
                     }
                 });
                 layer.layer.blobs.forEach((blob) => {
-                    this._initializers.push(new CaffeTensor(blob, 'Initializer'));
+                    this._initializers.push(new CaffeTensor(blob));
                 });
                 break;
             case 1:
@@ -256,7 +256,7 @@ class CaffeNode {
                     }
                 });
                 layer.blobs.forEach((blob) => {
-                    this._initializers.push(new CaffeTensor(blob, 'Initializer'));
+                    this._initializers.push(new CaffeTensor(blob));
                 });
                 break;
         }
@@ -376,9 +376,8 @@ class CaffeAttribute {
 
 class CaffeTensor {
 
-    constructor(blob, kind) {
+    constructor(blob) {
         this._blob = blob;
-        this._kind = kind;
 
         if (blob.hasOwnProperty('num') && blob.hasOwnProperty('channels') &&
             blob.hasOwnProperty('width') && blob.hasOwnProperty('height')) {
@@ -412,7 +411,7 @@ class CaffeTensor {
     }
 
     get kind() {
-        return this._kind;
+        return 'Blob';
     }
 
     get type() {
