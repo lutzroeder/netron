@@ -333,7 +333,7 @@ class KerasGraph {
         var class_name = layer.class_name;
         switch (class_name) {
             case 'Model':
-                this.loadModel(layer.config, model_weights, weightsManifest, layer.name, inputs, outputs);
+                this.loadModel(layer.config, model_weights, weightsManifest, layer.config.name, inputs, outputs);
                 break;
             default:
                 var config = layer.config;
