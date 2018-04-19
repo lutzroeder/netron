@@ -620,7 +620,7 @@
         }
       ],
       "category": "Pool",
-      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i] + 1)\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements exclude pad.\n ",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements exclude pad.\n ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -976,14 +976,14 @@
           "description": "The data type to which the elements of the input tensor are cast.Strictly must be one of the types from DataType enum in TensorProto",
           "name": "to",
           "required": true,
-          "type": "string"
+          "type": "int"
         }
       ],
-      "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message.\n\nNOTE: Casting to and from strings is not supported yet.\n",
+      "description": "The operator casts the elements of a given input tensor to a data type\nspecified by the 'to' argument and returns an output tensor of the same size in\nthe converted type. The 'to' argument must be one of the data types specified\nin the 'DataType' enum field in the TensorProto message.\nNOTE: Casting to and from strings is not supported yet.\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n]\n\nfor case in test_cases:\n    from_type = case[0]\n    to_type = case[1]\n    input = np.random.random_sample(shape).astype(\n        TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=to_type\n    )\n    output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    expect(node, inputs=[input], outputs=[output],\n           name='test_cast_' + from_type + '_to_' + to_type)",
+          "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n]\n\nfor from_type, to_type in test_cases:\n    input = np.random.random_sample(shape).astype(\n        TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    expect(node, inputs=[input], outputs=[output],\n           name='test_cast_' + from_type + '_to_' + to_type)",
           "summary": "cast"
         }
       ],
@@ -3180,7 +3180,7 @@
           "type": "int"
         }
       ],
-      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\n\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\n\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [\n      [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
+      "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [\n      [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -5567,7 +5567,7 @@
         }
       ],
       "category": "Pool",
-      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = floor((input_spatial_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = floor(input_spatial_shape[i] / strides_spatial_shape[i] + 1)\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -6609,7 +6609,7 @@
         }
       ],
       "category": "Tensor",
-      "description": "Given `data` tensor, pads, mode, and value.\n\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 2, 0, 0]\n\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
+      "description": "Given `data` tensor, pads, mode, and value.\nExample:\n  Insert 0 pads to the beginning of the second dimension.\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  pads = [0, 2, 0, 0]\n  output = [\n      [\n          [0.0, 0.0, 1.0, 1.2],\n          [0.0, 0.0, 2.3, 3.4],\n          [0.0, 0.0, 4.5, 5.7],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7959,7 +7959,7 @@
     "name": "Reshape",
     "schema": {
       "category": "Shape",
-      "description": "Reshape the input tensor similar to numpy.reshape.\n\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\n\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor).",
+      "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor).",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -8703,9 +8703,9 @@
         },
         {
           "allowed_type_strs": [
-            "int64"
+            "tensor(int64)"
           ],
-          "description": "Constrains output to int64 scalar.",
+          "description": "Constrains output to int64 tensor, which should be a scalar though.",
           "type_param_str": "T1"
         }
       ]
@@ -8735,7 +8735,7 @@
         }
       ],
       "category": "Tensor",
-      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\n\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension. If the value passed to start or end is larger than the `n` (the\nnumber of elements in this dimension), it represents `n`. For slicing to the\nend of a dimension with unknown size, it is recommended to pass in `INT_MAX`.\nIf `axes` are omitted, they are set to `[0, ..., ndim-1]`.\n\nExample 1:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n\n  result = [\n      [5, 6, 7],\n  ]\n\n\nExample 2:\n\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0, 1]\n  ends = [-1, 1000]\n\n  result = [\n      [2, 3, 4],\n  ]\n\n",
+      "description": "Produces a slice of the input tensor along multiple axes. Similar to numpy:\nhttps://docs.scipy.org/doc/numpy/reference/arrays.indexing.html\nSlices uses `axes`, `starts` and `ends` attributes to specify the start and end\ndimension for each axis in the list of axes, it uses this information to\nslice the input `data` tensor. If a negative value is passed for any of the\nstart or end indices, it represent number of elements before the end of that\ndimension. If the value passed to start or end is larger than the `n` (the\nnumber of elements in this dimension), it represents `n`. For slicing to the\nend of a dimension with unknown size, it is recommended to pass in `INT_MAX`.\nIf `axes` are omitted, they are set to `[0, ..., ndim-1]`.\nExample 1:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  axes = [0, 1]\n  starts = [1, 0]\n  ends = [2, 3]\n  result = [\n      [5, 6, 7],\n  ]\nExample 2:\n  data = [\n      [1, 2, 3, 4],\n      [5, 6, 7, 8],\n  ]\n  starts = [0, 1]\n  ends = [-1, 1000]\n  result = [\n      [2, 3, 4],\n  ]\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -10157,7 +10157,7 @@
           "type": "int[]"
         }
       ],
-      "description": "Insert single-dimensional entries to the shape of a tensor.\nTakes one required argument `axes`, a list of dimensions that will be inserted.\nDimension indices in `axes` are as seen in the output tensor. For example:\n\n  Given a tensor such that tensor with shape [3, 4, 5], then\n  Unsqueeze(tensor, axes=[0, 4]) has shape [1, 3, 4, 5, 1]\n\n",
+      "description": "Insert single-dimensional entries to the shape of a tensor.\nTakes one required argument `axes`, a list of dimensions that will be inserted.\nDimension indices in `axes` are as seen in the output tensor. For example:\n  Given a tensor such that tensor with shape [3, 4, 5], then\n  Unsqueeze(tensor, axes=[0, 4]) has shape [1, 3, 4, 5, 1]\n",
       "domain": "ai.onnx",
       "examples": [
         {
