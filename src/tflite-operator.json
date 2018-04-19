@@ -127,6 +127,18 @@
     }
   },
   {
+    "name": "Relu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "T" }
+      ]
+    }
+  },
+  {
     "name": "Reshape",
     "schema": {
       "category": "Shape",
@@ -245,6 +257,47 @@
     }
   },
   {
+    "name": "Pad",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" },
+        { "name": "paddings" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Split",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "axis" },
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "StridedSlice",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" },
+        { "name": "begin" },
+        { "name": "end" },
+        { "name": "strides" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "SVDF",
     "schema": {
       "category": "Layer",
@@ -256,6 +309,42 @@
       ],
       "outputs": [
         { "name": "state", "type": "T" },
+        { "name": "output", "type": "T" }
+      ]
+    }
+  },
+  {
+    "name": "Add",
+    "schema": {
+      "inputs": [
+        { "name": "A", "type": "T" },
+        { "name": "B", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "C", "type": "T" }
+      ]
+    }
+  },
+  {
+    "name": "Mul",
+    "schema": {
+      "inputs": [
+        { "name": "A", "type": "T" },
+        { "name": "B", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "C", "type": "T" }
+      ]
+    }
+  },
+  {
+    "name": "Mean",
+    "schema": {
+      "inputs": [
+        { "name": "input", "type": "T" },
+        { "name": "axis", "type": "T" }
+      ],
+      "outputs": [
         { "name": "output", "type": "T" }
       ]
     }
