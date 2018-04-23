@@ -541,7 +541,7 @@
   {
     "name": "ArrayFeatureExtractor",
     "schema": {
-      "description": "Select a subset of the data based on the indices passed.\n",
+      "description": "Select a subset of the data X based on the indices provided Y.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -550,9 +550,9 @@
           "type": "T1"
         },
         {
-          "description": "The index values to select as a tensor of int64s",
+          "description": "The index values to select as a int64 tensor",
           "name": "Y",
-          "type": "T2"
+          "type": "tensor(int64)"
         }
       ],
       "max_input": 2,
@@ -577,15 +577,8 @@
             "tensor(int32)",
             "tensor(string)"
           ],
-          "description": " allowed types.",
+          "description": "allowed types.",
           "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(int64)"
-          ],
-          "description": " Index value types .",
-          "type_param_str": "T2"
         }
       ]
     }
@@ -962,7 +955,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "allowed types.",
           "type_param_str": "T"
         }
       ]
@@ -1052,7 +1045,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "what to cast output to, enum 'TO_FLOAT', 'TO_STRING', 'TO_INT64', default is 'TO_FLOAT'",
+          "description": "what type of tensor to cast the input to, enum 'TO_FLOAT','TO_STRING','TO_INT64', default is 'TO_FLOAT'",
           "name": "cast_to",
           "required": false,
           "type": "string"
@@ -2647,7 +2640,7 @@
           "description": "the size of each input in the input list",
           "name": "inputdimensions",
           "required": false,
-          "type": "int"
+          "type": "int[]"
         }
       ],
       "description": "Concatenates input features into one continuous output.\n    Inputlist is a list of input feature names, inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    All inputs are tensors of float.  Any feature that is not a tensor of float should\n    be converted using either Cast or CastMap.\n",
@@ -6198,7 +6191,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "0=Lmax, 1=L1, 2=L2",
+          "description": "enum 'MAX', 'L1', 'L2'",
           "name": "norm",
           "required": false,
           "type": "string"
@@ -6300,7 +6293,7 @@
           "type": "string[]"
         },
         {
-          "description": "if true and category is not present, will return all zeros, if false and missing category, operator will return false",
+          "description": "if true and category is not present, will return all zeros, if false and missing category, operator will return false. Default is true (1).",
           "name": "zeros",
           "required": false,
           "type": "int"
