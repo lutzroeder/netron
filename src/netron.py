@@ -11,12 +11,14 @@ if sys.version_info[0] > 2:
     from urllib.parse import urlparse
     from http.server import HTTPServer
     from http.server import BaseHTTPRequestHandler
+    from socketserver import ThreadingMixIn
 else:
     from urlparse import urlparse
     from BaseHTTPServer import HTTPServer
     from BaseHTTPServer import BaseHTTPRequestHandler
+    from SocketServer import ThreadingMixIn
 
-class MyHTTPRequestHandler(BaseHTTPRequestHandler):
+class HTTPRequestHandler(BaseHTTPRequestHandler):
     def handler(self):
         if not hasattr(self, 'mime_types_map'):
             self.mime_types_map = {
@@ -90,25 +92,25 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
 
-class MyHTTPServer(HTTPServer):
-    def initialize_data(self, data, file, verbose):
-        self.RequestHandlerClass.file = file
-        self.RequestHandlerClass.data = data
-        self.RequestHandlerClass.verbose = verbose
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 
 def serve_data(data, file, verbose=False, browse=False, port=8080, host='localhost'):
-    server = MyHTTPServer((host, port), MyHTTPRequestHandler)
+    server = ThreadedHTTPServer((host, port), HTTPRequestHandler)
+    server.RequestHandlerClass.file = file
+    server.RequestHandlerClass.data = data
+    server.RequestHandlerClass.verbose = verbose
     url = 'http://' + host + ':' + str(port)
     if file:
         print("Serving '" + file + "' at " + url)
     else:
         print("Serving at " + url)
-    server.initialize_data(data, file, verbose)
     sys.stdout.flush()
     if browse:
         threading.Timer(1, webbrowser.open, args=(url,)).start()
     try:
-        server.serve_forever()
+        while True:
+            sys.stdout.flush()
+            server.handle_request()
     except (KeyboardInterrupt, SystemExit):
         print("\nStopping")
         server.server_close()
