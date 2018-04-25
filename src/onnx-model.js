@@ -13,20 +13,28 @@ class OnnxModelFactory {
         host.import('/onnx.js', (err) => {
             if (err) {
                 callback(err, null);
+                return;
             }
-            else {
+            var model = null;
+            try {
                 onnx = protobuf.roots.onnx.onnx;
-                try {
-                    var model = onnx.ModelProto.decode(buffer);
-                    var result = new OnnxModel(model);
-                    OnnxOperatorMetadata.open(host, (err, metadata) => {
-                        callback(null, result);
-                    });
-                }
-                catch (error) {
-                    callback(new OnnxError(error.message), null);
-                }
+                model = onnx.ModelProto.decode(buffer);
             }
+            catch (error) {
+                callback(new OnnxError('Protocol Buffer loader failed to decode onnx.ModelProto input stream (' + error.message + ').'), null);
+                return;
+            }
+            var result = null;
+            try {
+                result = new OnnxModel(model);
+            }
+            catch (error) {
+                callback(new OnnxError(error.message), null);
+                return;
+            }
+            OnnxOperatorMetadata.open(host, (err, metadata) => {
+                callback(null, result);
+            });
         });
     }
 }

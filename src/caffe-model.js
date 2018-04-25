@@ -15,20 +15,28 @@ class CaffeModelFactory {
         host.import('/caffe.js', (err) => {
             if (err) {
                 callback(err, null);
+                return;
             }
-            else {
+            var netParameter = null;
+            try {
                 caffe = protobuf.roots.caffe.caffe;
-                try {
-                    var netParameter = caffe.NetParameter.decode(buffer);
-                    var model = new CaffeModel(netParameter);
-                    CaffeOperatorMetadata.open(host, (err, metadata) => {
-                        callback(null, model);
-                    });
-                }
-                catch (error) {
-                    callback(new CaffeError(error.message), null);
-                }
+                netParameter = caffe.NetParameter.decode(buffer);
             }
+            catch (error) {
+                callback(new CaffeError('Protocol Buffer loader failed to decode caffe.NetParameter input stream (' + error.message + ').'), null);
+                return;
+            }
+            var model = null;
+            try {
+                model = new CaffeModel(netParameter);
+            }
+            catch (error) {
+                callback(new CaffeError(error.message), null);
+                return;
+            }
+            CaffeOperatorMetadata.open(host, (err, metadata) => {
+                callback(null, model);
+            });
         });
     }
 }

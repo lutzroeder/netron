@@ -14,20 +14,28 @@ class Caffe2ModelFactory {
         host.import('/caffe2.js', (err) => {
             if (err) {
                 callback(err, null);
+                return;
             }
-            else {
+            var netDef = null;
+            try {
                 caffe2 = protobuf.roots.caffe2.caffe2;
-                try {
-                    var netDef = caffe2.NetDef.decode(buffer);
-                    var model = new Caffe2Model(netDef);
-                    Caffe2OperatorMetadata.open(host, (err, metadata) => {
-                        callback(null, model);
-                    });
-                }
-                catch (error) {
-                    callback(new Caffe2Error(error.message), null);
-                }
+                netDef = caffe2.NetDef.decode(buffer);
             }
+            catch (error) {
+                callback(new Caffe2Error('Protocol Buffer loader failed to decode caffe2.NetDef input stream (' + error.message + ').'), null);
+                return;
+            }
+            var model = null;
+            try {
+                model = new Caffe2Model(netDef);
+            }
+            catch (error) {
+                callback(new Caffe2Error(error.message), null);
+                return;
+            }
+            Caffe2OperatorMetadata.open(host, (err, metadata) => {
+                callback(null, model);
+            }); 
         });
     }
 

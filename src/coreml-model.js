@@ -13,20 +13,28 @@ class CoreMLModelFactory {
         host.import('/coreml.js', (err) => {
             if (err) {
                 callback(err, null);
+                return;
             }
-            else {
+            var decodedBuffer = null;
+            try {
                 coreml = protobuf.roots.coreml.CoreML.Specification;
-                try {
-                    var decodedBuffer = coreml.Model.decode(buffer);
-                    var model = new CoreMLModel(decodedBuffer);
-                    CoreMLOperatorMetadata.open(host, (err, metadata) => {
-                        callback(null, model);
-                    });
-                }
-                catch (error) {
-                    callback(new CoreMLError(error.message), null);
-                }
+                decodedBuffer = coreml.Model.decode(buffer);
             }
+            catch (error) {
+                callback(new CoreMLError('Protocol Buffer loader failed to decode coreml.Model input stream (' + error.message + ').'), null);
+                return;
+            }
+            var model = null;
+            try {
+                model = new CoreMLModel(decodedBuffer);
+            }
+            catch (error) {
+                callback(new CoreMLError(error.message), null);
+                return;
+            }
+            CoreMLOperatorMetadata.open(host, (err, metadata) => {
+                callback(null, model);
+            });
         });
     }
 }
