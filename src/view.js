@@ -127,10 +127,10 @@ class View {
                             }
                             callback(err);
                         }
-                    }, 20);   
+                    }, 2);   
                 }
             });    
-        }, 20);
+        }, 2);
     }
 
     showError(err) {
@@ -156,7 +156,7 @@ class View {
                         this._model = null;
                         this._activeGraph = null;
                     }
-                }, 250);
+                }, 2);
     
             }
         }
@@ -487,7 +487,7 @@ class View {
             }    
         
             this.show('graph');
-        }, 20);
+        }, 2);
     }
 
     showSummary() {
