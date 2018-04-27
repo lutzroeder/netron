@@ -283,6 +283,18 @@
     }
   },
   {
+    "name": "Squeeze",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "StridedSlice",
     "schema": {
       "category": "Tensor",
