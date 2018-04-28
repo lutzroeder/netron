@@ -42,6 +42,7 @@
              * @memberof onnx
              * @interface IAttributeProto
              * @property {string|null} [name] AttributeProto name
+             * @property {string|null} [refAttrName] AttributeProto refAttrName
              * @property {string|null} [docString] AttributeProto docString
              * @property {onnx.AttributeProto.AttributeType|null} [type] AttributeProto type
              * @property {number|null} [f] AttributeProto f
@@ -83,6 +84,14 @@
              * @instance
              */
             AttributeProto.prototype.name = "";
+    
+            /**
+             * AttributeProto refAttrName.
+             * @member {string} refAttrName
+             * @memberof onnx.AttributeProto
+             * @instance
+             */
+            AttributeProto.prototype.refAttrName = "";
     
             /**
              * AttributeProto docString.
@@ -235,6 +244,8 @@
                     writer.uint32(/* id 13, wireType 2 =*/106).string(message.docString);
                 if (message.type != null && message.hasOwnProperty("type"))
                     writer.uint32(/* id 20, wireType 0 =*/160).int32(message.type);
+                if (message.refAttrName != null && message.hasOwnProperty("refAttrName"))
+                    writer.uint32(/* id 21, wireType 2 =*/170).string(message.refAttrName);
                 return writer;
             };
     
@@ -271,6 +282,9 @@
                     switch (tag >>> 3) {
                     case 1:
                         message.name = reader.string();
+                        break;
+                    case 21:
+                        message.refAttrName = reader.string();
                         break;
                     case 13:
                         message.docString = reader.string();
@@ -366,6 +380,9 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
+                if (message.refAttrName != null && message.hasOwnProperty("refAttrName"))
+                    if (!$util.isString(message.refAttrName))
+                        return "refAttrName: string expected";
                 if (message.docString != null && message.hasOwnProperty("docString"))
                     if (!$util.isString(message.docString))
                         return "docString: string expected";
@@ -461,6 +478,8 @@
                 var message = new $root.onnx.AttributeProto();
                 if (object.name != null)
                     message.name = String(object.name);
+                if (object.refAttrName != null)
+                    message.refAttrName = String(object.refAttrName);
                 if (object.docString != null)
                     message.docString = String(object.docString);
                 switch (object.type) {
@@ -622,6 +641,7 @@
                     object.g = null;
                     object.docString = "";
                     object.type = options.enums === String ? "UNDEFINED" : 0;
+                    object.refAttrName = "";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -670,6 +690,8 @@
                     object.docString = message.docString;
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = options.enums === String ? $root.onnx.AttributeProto.AttributeType[message.type] : message.type;
+                if (message.refAttrName != null && message.hasOwnProperty("refAttrName"))
+                    object.refAttrName = message.refAttrName;
                 return object;
             };
     
@@ -3615,6 +3637,7 @@
                  * @interface IDimension
                  * @property {number|Long|null} [dimValue] Dimension dimValue
                  * @property {string|null} [dimParam] Dimension dimParam
+                 * @property {string|null} [denotation] Dimension denotation
                  */
     
                 /**
@@ -3647,6 +3670,14 @@
                  * @instance
                  */
                 Dimension.prototype.dimParam = "";
+    
+                /**
+                 * Dimension denotation.
+                 * @member {string} denotation
+                 * @memberof onnx.TensorShapeProto.Dimension
+                 * @instance
+                 */
+                Dimension.prototype.denotation = "";
     
                 // OneOf field names bound to virtual getters and setters
                 var $oneOfFields;
@@ -3690,6 +3721,8 @@
                         writer.uint32(/* id 1, wireType 0 =*/8).int64(message.dimValue);
                     if (message.dimParam != null && message.hasOwnProperty("dimParam"))
                         writer.uint32(/* id 2, wireType 2 =*/18).string(message.dimParam);
+                    if (message.denotation != null && message.hasOwnProperty("denotation"))
+                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.denotation);
                     return writer;
                 };
     
@@ -3729,6 +3762,9 @@
                             break;
                         case 2:
                             message.dimParam = reader.string();
+                            break;
+                        case 3:
+                            message.denotation = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3778,6 +3814,9 @@
                         if (!$util.isString(message.dimParam))
                             return "dimParam: string expected";
                     }
+                    if (message.denotation != null && message.hasOwnProperty("denotation"))
+                        if (!$util.isString(message.denotation))
+                            return "denotation: string expected";
                     return null;
                 };
     
@@ -3804,6 +3843,8 @@
                             message.dimValue = new $util.LongBits(object.dimValue.low >>> 0, object.dimValue.high >>> 0).toNumber();
                     if (object.dimParam != null)
                         message.dimParam = String(object.dimParam);
+                    if (object.denotation != null)
+                        message.denotation = String(object.denotation);
                     return message;
                 };
     
@@ -3820,6 +3861,8 @@
                     if (!options)
                         options = {};
                     var object = {};
+                    if (options.defaults)
+                        object.denotation = "";
                     if (message.dimValue != null && message.hasOwnProperty("dimValue")) {
                         if (typeof message.dimValue === "number")
                             object.dimValue = options.longs === String ? String(message.dimValue) : message.dimValue;
@@ -3833,6 +3876,8 @@
                         if (options.oneofs)
                             object.value = "dimParam";
                     }
+                    if (message.denotation != null && message.hasOwnProperty("denotation"))
+                        object.denotation = message.denotation;
                     return object;
                 };
     
@@ -3851,6 +3896,326 @@
             })();
     
             return TensorShapeProto;
+        })();
+    
+        onnx.DenotationConstProto = (function() {
+    
+            /**
+             * Properties of a DenotationConstProto.
+             * @memberof onnx
+             * @interface IDenotationConstProto
+             * @property {string|null} [DATA_BATCH] DenotationConstProto DATA_BATCH
+             * @property {string|null} [DATA_CHANNEL] DenotationConstProto DATA_CHANNEL
+             * @property {string|null} [DATA_TIME] DenotationConstProto DATA_TIME
+             * @property {string|null} [DATA_FEATURE] DenotationConstProto DATA_FEATURE
+             * @property {string|null} [FILTER_IN_CHANNEL] DenotationConstProto FILTER_IN_CHANNEL
+             * @property {string|null} [FILTER_OUT_CHANNEL] DenotationConstProto FILTER_OUT_CHANNEL
+             * @property {string|null} [FILTER_SPATIAL] DenotationConstProto FILTER_SPATIAL
+             */
+    
+            /**
+             * Constructs a new DenotationConstProto.
+             * @memberof onnx
+             * @classdesc Represents a DenotationConstProto.
+             * @implements IDenotationConstProto
+             * @constructor
+             * @param {onnx.IDenotationConstProto=} [properties] Properties to set
+             */
+            function DenotationConstProto(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * DenotationConstProto DATA_BATCH.
+             * @member {string} DATA_BATCH
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             */
+            DenotationConstProto.prototype.DATA_BATCH = "DATA_BATCH";
+    
+            /**
+             * DenotationConstProto DATA_CHANNEL.
+             * @member {string} DATA_CHANNEL
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             */
+            DenotationConstProto.prototype.DATA_CHANNEL = "DATA_CHANNEL";
+    
+            /**
+             * DenotationConstProto DATA_TIME.
+             * @member {string} DATA_TIME
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             */
+            DenotationConstProto.prototype.DATA_TIME = "DATA_TIME";
+    
+            /**
+             * DenotationConstProto DATA_FEATURE.
+             * @member {string} DATA_FEATURE
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             */
+            DenotationConstProto.prototype.DATA_FEATURE = "DATA_FEATURE";
+    
+            /**
+             * DenotationConstProto FILTER_IN_CHANNEL.
+             * @member {string} FILTER_IN_CHANNEL
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             */
+            DenotationConstProto.prototype.FILTER_IN_CHANNEL = "FILTER_IN_CHANNEL";
+    
+            /**
+             * DenotationConstProto FILTER_OUT_CHANNEL.
+             * @member {string} FILTER_OUT_CHANNEL
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             */
+            DenotationConstProto.prototype.FILTER_OUT_CHANNEL = "FILTER_OUT_CHANNEL";
+    
+            /**
+             * DenotationConstProto FILTER_SPATIAL.
+             * @member {string} FILTER_SPATIAL
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             */
+            DenotationConstProto.prototype.FILTER_SPATIAL = "FILTER_SPATIAL";
+    
+            /**
+             * Creates a new DenotationConstProto instance using the specified properties.
+             * @function create
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {onnx.IDenotationConstProto=} [properties] Properties to set
+             * @returns {onnx.DenotationConstProto} DenotationConstProto instance
+             */
+            DenotationConstProto.create = function create(properties) {
+                return new DenotationConstProto(properties);
+            };
+    
+            /**
+             * Encodes the specified DenotationConstProto message. Does not implicitly {@link onnx.DenotationConstProto.verify|verify} messages.
+             * @function encode
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {onnx.IDenotationConstProto} message DenotationConstProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            DenotationConstProto.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.DATA_BATCH != null && message.hasOwnProperty("DATA_BATCH"))
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.DATA_BATCH);
+                if (message.DATA_CHANNEL != null && message.hasOwnProperty("DATA_CHANNEL"))
+                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.DATA_CHANNEL);
+                if (message.DATA_TIME != null && message.hasOwnProperty("DATA_TIME"))
+                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.DATA_TIME);
+                if (message.DATA_FEATURE != null && message.hasOwnProperty("DATA_FEATURE"))
+                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.DATA_FEATURE);
+                if (message.FILTER_IN_CHANNEL != null && message.hasOwnProperty("FILTER_IN_CHANNEL"))
+                    writer.uint32(/* id 5, wireType 2 =*/42).string(message.FILTER_IN_CHANNEL);
+                if (message.FILTER_OUT_CHANNEL != null && message.hasOwnProperty("FILTER_OUT_CHANNEL"))
+                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.FILTER_OUT_CHANNEL);
+                if (message.FILTER_SPATIAL != null && message.hasOwnProperty("FILTER_SPATIAL"))
+                    writer.uint32(/* id 7, wireType 2 =*/58).string(message.FILTER_SPATIAL);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified DenotationConstProto message, length delimited. Does not implicitly {@link onnx.DenotationConstProto.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {onnx.IDenotationConstProto} message DenotationConstProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            DenotationConstProto.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a DenotationConstProto message from the specified reader or buffer.
+             * @function decode
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {onnx.DenotationConstProto} DenotationConstProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            DenotationConstProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.DenotationConstProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.DATA_BATCH = reader.string();
+                        break;
+                    case 2:
+                        message.DATA_CHANNEL = reader.string();
+                        break;
+                    case 3:
+                        message.DATA_TIME = reader.string();
+                        break;
+                    case 4:
+                        message.DATA_FEATURE = reader.string();
+                        break;
+                    case 5:
+                        message.FILTER_IN_CHANNEL = reader.string();
+                        break;
+                    case 6:
+                        message.FILTER_OUT_CHANNEL = reader.string();
+                        break;
+                    case 7:
+                        message.FILTER_SPATIAL = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a DenotationConstProto message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {onnx.DenotationConstProto} DenotationConstProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            DenotationConstProto.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a DenotationConstProto message.
+             * @function verify
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            DenotationConstProto.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.DATA_BATCH != null && message.hasOwnProperty("DATA_BATCH"))
+                    if (!$util.isString(message.DATA_BATCH))
+                        return "DATA_BATCH: string expected";
+                if (message.DATA_CHANNEL != null && message.hasOwnProperty("DATA_CHANNEL"))
+                    if (!$util.isString(message.DATA_CHANNEL))
+                        return "DATA_CHANNEL: string expected";
+                if (message.DATA_TIME != null && message.hasOwnProperty("DATA_TIME"))
+                    if (!$util.isString(message.DATA_TIME))
+                        return "DATA_TIME: string expected";
+                if (message.DATA_FEATURE != null && message.hasOwnProperty("DATA_FEATURE"))
+                    if (!$util.isString(message.DATA_FEATURE))
+                        return "DATA_FEATURE: string expected";
+                if (message.FILTER_IN_CHANNEL != null && message.hasOwnProperty("FILTER_IN_CHANNEL"))
+                    if (!$util.isString(message.FILTER_IN_CHANNEL))
+                        return "FILTER_IN_CHANNEL: string expected";
+                if (message.FILTER_OUT_CHANNEL != null && message.hasOwnProperty("FILTER_OUT_CHANNEL"))
+                    if (!$util.isString(message.FILTER_OUT_CHANNEL))
+                        return "FILTER_OUT_CHANNEL: string expected";
+                if (message.FILTER_SPATIAL != null && message.hasOwnProperty("FILTER_SPATIAL"))
+                    if (!$util.isString(message.FILTER_SPATIAL))
+                        return "FILTER_SPATIAL: string expected";
+                return null;
+            };
+    
+            /**
+             * Creates a DenotationConstProto message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {onnx.DenotationConstProto} DenotationConstProto
+             */
+            DenotationConstProto.fromObject = function fromObject(object) {
+                if (object instanceof $root.onnx.DenotationConstProto)
+                    return object;
+                var message = new $root.onnx.DenotationConstProto();
+                if (object.DATA_BATCH != null)
+                    message.DATA_BATCH = String(object.DATA_BATCH);
+                if (object.DATA_CHANNEL != null)
+                    message.DATA_CHANNEL = String(object.DATA_CHANNEL);
+                if (object.DATA_TIME != null)
+                    message.DATA_TIME = String(object.DATA_TIME);
+                if (object.DATA_FEATURE != null)
+                    message.DATA_FEATURE = String(object.DATA_FEATURE);
+                if (object.FILTER_IN_CHANNEL != null)
+                    message.FILTER_IN_CHANNEL = String(object.FILTER_IN_CHANNEL);
+                if (object.FILTER_OUT_CHANNEL != null)
+                    message.FILTER_OUT_CHANNEL = String(object.FILTER_OUT_CHANNEL);
+                if (object.FILTER_SPATIAL != null)
+                    message.FILTER_SPATIAL = String(object.FILTER_SPATIAL);
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a DenotationConstProto message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof onnx.DenotationConstProto
+             * @static
+             * @param {onnx.DenotationConstProto} message DenotationConstProto
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            DenotationConstProto.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.DATA_BATCH = "DATA_BATCH";
+                    object.DATA_CHANNEL = "DATA_CHANNEL";
+                    object.DATA_TIME = "DATA_TIME";
+                    object.DATA_FEATURE = "DATA_FEATURE";
+                    object.FILTER_IN_CHANNEL = "FILTER_IN_CHANNEL";
+                    object.FILTER_OUT_CHANNEL = "FILTER_OUT_CHANNEL";
+                    object.FILTER_SPATIAL = "FILTER_SPATIAL";
+                }
+                if (message.DATA_BATCH != null && message.hasOwnProperty("DATA_BATCH"))
+                    object.DATA_BATCH = message.DATA_BATCH;
+                if (message.DATA_CHANNEL != null && message.hasOwnProperty("DATA_CHANNEL"))
+                    object.DATA_CHANNEL = message.DATA_CHANNEL;
+                if (message.DATA_TIME != null && message.hasOwnProperty("DATA_TIME"))
+                    object.DATA_TIME = message.DATA_TIME;
+                if (message.DATA_FEATURE != null && message.hasOwnProperty("DATA_FEATURE"))
+                    object.DATA_FEATURE = message.DATA_FEATURE;
+                if (message.FILTER_IN_CHANNEL != null && message.hasOwnProperty("FILTER_IN_CHANNEL"))
+                    object.FILTER_IN_CHANNEL = message.FILTER_IN_CHANNEL;
+                if (message.FILTER_OUT_CHANNEL != null && message.hasOwnProperty("FILTER_OUT_CHANNEL"))
+                    object.FILTER_OUT_CHANNEL = message.FILTER_OUT_CHANNEL;
+                if (message.FILTER_SPATIAL != null && message.hasOwnProperty("FILTER_SPATIAL"))
+                    object.FILTER_SPATIAL = message.FILTER_SPATIAL;
+                return object;
+            };
+    
+            /**
+             * Converts this DenotationConstProto to JSON.
+             * @function toJSON
+             * @memberof onnx.DenotationConstProto
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            DenotationConstProto.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return DenotationConstProto;
         })();
     
         onnx.TypeProto = (function() {
