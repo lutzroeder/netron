@@ -2643,7 +2643,7 @@
           "type": "int[]"
         }
       ],
-      "description": "Concatenates input features into one continuous output.\n    Inputlist is a list of input feature names, inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    All inputs are tensors of float.  Any feature that is not a tensor of float should\n    be converted using either Cast or CastMap.\n",
+      "description": "Concatenates input features into one continuous output of floats.\n    inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    If an input tensor is shorter than its matching input dimension the output will be padded with zeros.\n    If an input tensor is longer than its matching input dimension, the additional input will be ignored.\n    Input tensors must all be of the same type. Use Cast as needed.  \n    Input tensors must all be of the same batch size.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -2659,9 +2659,9 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Full output array, in order assigned in the inputlist, as floats",
+          "description": "Output array, in same order as Input, as floats",
           "name": "Y",
-          "type": "T2"
+          "type": "tensor(float)"
         }
       ],
       "since_version": 1,
@@ -2676,13 +2676,6 @@
           ],
           "description": " Allowed input types",
           "type_param_str": "T1"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(float)"
-          ],
-          "description": " Output data type",
-          "type_param_str": "T2"
         }
       ]
     }
@@ -3380,7 +3373,7 @@
           "type": "T"
         },
         {
-          "description": "Input tensor C, can be inplace.",
+          "description": "Input tensor C",
           "name": "C",
           "type": "T"
         }
@@ -8434,7 +8427,7 @@
           "summary": "selu"
         },
         {
-          "code": "default_alpha = 1.6732\ndefault_gamma = 1.0507\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + \\\n    (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
+          "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + \\\n    (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
           "summary": "selu_default"
         }
       ],
@@ -8476,13 +8469,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "Coefficient of SELU default to 1.6732.",
+          "description": "Coefficient of SELU default to 1.67326319217681884765625 (i.e., float32 approximation of 1.6732632423543772848170429916717).",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
-          "description": "Coefficient of SELU default to 1.0507.",
+          "description": "Coefficient of SELU default to 1.05070102214813232421875 (i.e., float32 approximation of 1.0507009873554804934193349852946).",
           "name": "gamma",
           "required": false,
           "type": "float"
@@ -8497,7 +8490,7 @@
           "summary": "selu"
         },
         {
-          "code": "default_alpha = 1.6732\ndefault_gamma = 1.0507\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + \\\n    (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
+          "code": "default_alpha = 1.67326319217681884765625\ndefault_gamma = 1.05070102214813232421875\nnode = onnx.helper.make_node(\n    'Selu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) * default_gamma + \\\n    (np.exp(np.clip(x, -np.inf, 0)) - 1) * default_alpha * default_gamma\nexpect(node, inputs=[x], outputs=[y],\n       name='test_selu_default')",
           "summary": "selu_default"
         }
       ],
