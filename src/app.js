@@ -193,6 +193,36 @@ class Application {
         }
     }
 
+    get package() { 
+        if (!this._package) {
+            var appPath = electron.app.getAppPath();
+            var file = appPath + '/package.json'; 
+            var data = fs.readFileSync(file);
+            this._package = JSON.parse(data);
+            this._package.date = new Date(fs.statSync(file).mtime);
+        }
+        return this._package;
+    }
+
+    about() {
+        var owner = electron.BrowserWindow.getFocusedWindow();
+        var author = this.package.author;
+        var date = this.package.date;
+        var details = [];
+        details.push('Version ' + electron.app.getVersion());
+        if (author && author.name && date) {
+            details.push('');
+            details.push('Copyright \u00A9 ' + date.getFullYear().toString() + ' ' + author.name);
+        }
+        var aboutDialogOptions = {
+            icon: path.join(__dirname, 'icon.png'),
+            title: ' ',
+            message: electron.app.getName(),
+            detail: details.join('\n')
+        };
+        electron.dialog.showMessageBox(owner, aboutDialogOptions);
+    }
+
     isDev() {
         return ('ELECTRON_IS_DEV' in process.env) ?
             (parseInt(process.env.ELECTRON_IS_DEV, 10) === 1) :
@@ -327,19 +357,29 @@ class Application {
                 ]
             });
         }    
-        
+
+        var helpSubmenu = [
+            {
+                label: '&Search Feature Requests',
+                click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues'); }
+            },
+            {
+                label: 'Report &Issues',
+                click: () => { electron.shell.openExternal('https://www.github.com/' + this.package.repository + '/issues/new'); }
+            }
+        ];
+
+        if (process.platform != 'darwin') {
+            helpSubmenu.push({ type: 'separator' });
+            helpSubmenu.push({
+                role: 'about',
+                click: () => this.about()
+            });
+        }
+
         menuTemplate.push({
             role: 'help',
-            submenu: [
-                {
-                    label: '&Search Feature Requests',
-                    click: () => { electron.shell.openExternal('https://www.github.com/lutzroeder/Netron/issues'); }
-                },
-                {
-                    label: 'Report &Issues',
-                    click: () => { electron.shell.openExternal('https://www.github.com/lutzroeder/Netron/issues/new'); }
-                }
-            ]
+            submenu: helpSubmenu
         });
 
         var menu = electron.Menu.buildFromTemplate(menuTemplate);
