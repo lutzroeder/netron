@@ -639,7 +639,12 @@ class OnnxTensor {
                     var tensorType = type.tensorType;
                     var text = OnnxTensor.formatElementType(tensorType.elemType); 
                     if (tensorType.shape && tensorType.shape.dim) {
-                        text += '[' + tensorType.shape.dim.map(dimension => dimension.dimValue.toString()).join(',') + ']';
+                        text += '[' + tensorType.shape.dim.map((dimension) => {
+                            if (dimension.dimParam) {
+                                return dimension.dimParam;
+                            }
+                            return dimension.dimValue.toString();
+                        }).join(',') + ']';
                     }
                     return text;
                 case 'mapType':
