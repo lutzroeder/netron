@@ -423,7 +423,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The axis in which to compute the arg indices",
+          "description": "The axis in which to compute the arg indices. Default is 0.",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -483,7 +483,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The axis in which to compute the arg indices",
+          "description": "The axis in which to compute the arg indices. Default is 0.",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -1897,7 +1897,7 @@
         {
           "description": "Blocks of [blocksize, blocksize] are moved.",
           "name": "blocksize",
-          "required": false,
+          "required": true,
           "type": "int"
         }
       ],
@@ -2978,13 +2978,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
           "type": "float[]"
@@ -4339,13 +4339,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
           "type": "float[]"
@@ -6751,7 +6751,7 @@
           "summary": "pow"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([2]).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n    axis=0,\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([2, 3]).astype(np.float32)\nz = np.array([[1, 4, 9], [64, 125, 216]]).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_axis0')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array(2).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n    broadcast=1,\n    axis=0,\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([2, 3]).astype(np.float32)\nz = np.array([[1, 4, 9], [64, 125, 216]]).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_axis0')",
           "summary": "pow_broadcast"
         }
       ],
@@ -6798,13 +6798,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
           "name": "activation_alpha",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM.",
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
           "name": "activation_beta",
           "required": false,
           "type": "float[]"
@@ -7020,13 +7020,13 @@
           "type": "float"
         }
       ],
-      "description": "Generate a tensor with random values drawn from a normal distribution. The shape\nof the tensor is computed from the input argument and the parameter of the normal distribution\nspecified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
+      "description": "Generate a tensor with random values drawn from a normal distribution. \nThe shape of the output tensor is copied from the shape of the input tensor, \nand the parameters of the normal distribution are specified by `mean` and `scale`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided. \nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message, and be valid as an output type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "Input tensor to provide shape information.",
+          "description": "Input tensor to copy shape and optionally type information from.",
           "name": "input",
-          "type": "tensor(int32)"
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -7037,7 +7037,7 @@
         {
           "description": "Output tensor of random values drawn from normal distribution",
           "name": "output",
-          "type": "T"
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -7045,12 +7045,31 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
+          ],
+          "description": "Constrain to any tensor type. If the dtype attribute is not provided this must be a valid output type.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
           "description": "Constrain output types to float tensors.",
-          "type_param_str": "T"
+          "type_param_str": "T2"
         }
       ]
     }
@@ -7147,13 +7166,13 @@
           "type": "float"
         }
       ],
-      "description": "Generate a tensor with random values drawn from a uniform distribution. The shape\nof the tensor is computed from the input argument and the range by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument. The 'dtype' argument must\nbe one of the data types specified in the 'DataType' enum field in the\nTensorProto message.\n",
+      "description": "Generate a tensor with random values drawn from a uniform distribution. \nThe shape of the output tensor is copied from the shape of the input tensor, \nand the parameters of the uniform distribution are specified by `low` and `high`.\n\nThe data type is specified by the 'dtype' argument, or copied from the input tensor if not provided. \nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "Input tensor to provide shape information.",
+          "description": "Input tensor to copy shape and optionally type information from.",
           "name": "input",
-          "type": "tensor(int32)"
+          "type": "T1"
         }
       ],
       "max_input": 1,
@@ -7164,7 +7183,7 @@
         {
           "description": "Output tensor of random values drawn from uniform distribution",
           "name": "output",
-          "type": "T"
+          "type": "T2"
         }
       ],
       "since_version": 1,
@@ -7172,12 +7191,31 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
+          ],
+          "description": "Constrain to any tensor type. If the dtype attribute is not provided this must be a valid output type.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
           "description": "Constrain output types to float tensors.",
-          "type_param_str": "T"
+          "type_param_str": "T2"
         }
       ]
     }
@@ -7283,7 +7321,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7338,7 +7376,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7393,7 +7431,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7448,7 +7486,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7503,7 +7541,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7558,7 +7596,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7613,7 +7651,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7668,7 +7706,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7723,7 +7761,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -7778,7 +7816,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce.",
+          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor.",
           "name": "axes",
           "required": false,
           "type": "int[]"
@@ -8976,7 +9014,7 @@
         {
           "description": "Blocks of [blocksize, blocksize] are moved.",
           "name": "blocksize",
-          "required": false,
+          "required": true,
           "type": "int"
         }
       ],
