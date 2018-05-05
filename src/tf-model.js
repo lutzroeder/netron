@@ -96,9 +96,6 @@ class TensorFlowGraph {
         this._graph = graph;
         this._metadata = new TensorFlowGraphOperatorMetadata(graph.metaInfoDef);
         this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
-
-        // metaInfoDef.tensorflowGitVersion
-        // TODO signature
     }
 
     get model() {
@@ -770,79 +767,18 @@ class TensorFlowTensor {
     }
 }
 
-class TensorFlowOperatorMetadata {
-
-    static open(host, callback) {
-        if (TensorFlowOperatorMetadata.operatorMetadata) {
-            callback(null, TensorFlowOperatorMetadata.operatorMetadata);
-        }
-        else {
-            host.request('/tf-operator.pb', (err, data) => {
-                TensorFlowOperatorMetadata.operatorMetadata = new TensorFlowOperatorMetadata(data);
-                callback(null, TensorFlowOperatorMetadata.operatorMetadata);
-            });
-        }
-    }
-
-    constructor(data) {
-        this._map = {};
-        if (data) {
-            var operators = tensorflow.OpList.decode(data);
-            if (operators.op) {
-                operators.op.forEach((opDef) => {
-                    this._map[opDef.name] = opDef;
-                });
-            }
-        }
-    }
-
-    getOpDef(operator) {
-        return this._map[operator];
-    }
-}
-
 class TensorFlowGraphOperatorMetadata {
 
     constructor(metaInfoDef) {
         this._map = {};
         if (metaInfoDef && metaInfoDef.strippedOpList && metaInfoDef.strippedOpList.op) {
             metaInfoDef.strippedOpList.op.forEach((opDef) => {
-                this._map[opDef.name] = opDef;
             });
         }
-
-        this._categoryMap = {
-            'Const': 'Constant',
-            'Conv2D': 'Layer',
-            'BiasAdd': 'Layer',
-            'DepthwiseConv2dNative': 'Layer',
-            'Relu': 'Activation',
-            'Relu6': 'Activation',
-            'Softmax': 'Activation',
-            'Sigmoid': 'Activation',
-            'LRN': 'Normalization',
-            'MaxPool': 'Pool',
-            'MaxPoolV2': 'Pool',
-            'AvgPool': 'Pool',
-            'Reshape': 'Shape',
-            'Squeeze': 'Shape',
-            'ConcatV2': 'Tensor',
-            'Split': 'Tensor',
-            'Dequantize': 'Tensor',
-            'Identity': 'Control',
-            'Variable': 'Control',
-            'VariableV2': 'Control',
-            'Assign': 'Control',
-            'BatchNormWithGlobalNormalization': 'Normalization',
-            'FusedBatchNorm': 'Normalization',
-            // 'VariableV2':
-            // 'Assign':
-            // 'BiasAdd':
-        };
     }
 
-    getOpDef(operator) {
-        var schema = TensorFlowOperatorMetadata.operatorMetadata.getOpDef(operator);
+    getSchema(operator) {
+        var schema = TensorFlowOperatorMetadata.operatorMetadata.getSchema(operator);
         if (!schema) {
             schema = this._map[operator];
         }
@@ -853,26 +789,26 @@ class TensorFlowGraphOperatorMetadata {
         var results = [];
         var index = 0;
         var inputs = node.input.filter(input => !input.startsWith('^'));
-        var opDef = this.getOpDef(node.op);
-        if (opDef && opDef.inputArg) {
-            opDef.inputArg.forEach((inputArg) => {
+        var schema = this.getSchema(node.op);
+        if (schema && schema.inputs) {
+            schema.inputs.forEach((input) => {
                 var count = 1;
-                if (inputArg.numberAttr) {
-                    var number = node.attr[inputArg.numberAttr];
+                if (input.numberAttr) {
+                    var number = node.attr[input.numberAttr];
                     if (number && number.i) {
                         count = number.i;
                     }
                 }
                 var result = {};
-                result.name = inputArg.name;
-                if (inputArg.type) {
-                    result.type = TensorFlowTensor.formatDataType(inputArg.type);
+                result.name = input.name;
+                if (input.type) {
+                    result.type = TensorFlowTensor.formatDataType(input.type);
                 }
-                else if (inputArg.typeAttr) {
-                    result.type = inputArg.typeAttr;
+                else if (input.typeAttr) {
+                    result.type = input.typeAttr;
                 }
-                else if (inputArg.typeListAttr) {
-                    result.type = inputArg.typeListAttr;
+                else if (input.typeListAttr) {
+                    result.type = input.typeListAttr;
                 }
                 result.connections = inputs.slice(index, index + count).map((id) => {
                     return { 
@@ -899,26 +835,26 @@ class TensorFlowGraphOperatorMetadata {
         var results = [];
         var index = 0;
         var outputs = node.output;
-        var opDef = this.getOpDef(node.op);
-        if (opDef && opDef.outputArg) {
-            opDef.outputArg.forEach((outputArg) => {
+        var schema = this.getSchema(node.op);
+        if (schema && schema.outputs) {
+            schema.outputs.forEach((output) => {
                 var count = 1;
-                if (outputArg.numberAttr) {
-                    var number = node.attr[outputArg.numberAttr];
+                if (output.numberAttr) {
+                    var number = node.attr[output.numberAttr];
                     if (number && number.i) {
                         count = number.i;
                     }
                 }
                 var result = {};
-                result.name = outputArg.name;
-                if (outputArg.type) {
-                    result.type = TensorFlowTensor.formatDataType(outputArg.type);
+                result.name = output.name;
+                if (output.type) {
+                    result.type = TensorFlowTensor.formatDataType(output.type);
                 }
-                else if (outputArg.typeAttr) {
-                    result.type = outputArg.typeAttr;
+                else if (output.typeAttr) {
+                    result.type = output.typeAttr;
                 }
-                else if (outputArg.typeListAttr) {
-                    result.type = outputArg.typeListAttr;
+                else if (output.typeListAttr) {
+                    result.type = output.typeListAttr;
                 }
                 result.connections = outputs.slice(index, index + count).map((id) => {
                     return { id: id };
@@ -944,31 +880,31 @@ class TensorFlowGraphOperatorMetadata {
             '_output_shapes': true,
             '_class': true
         };
-        var opDef = this.getOpDef(operator);
-        if (opDef) {
-            if (opDef.inputArg) {
-                opDef.inputArg.forEach((inputArg) => {
-                    if (inputArg.typeAttr) {
-                        result[inputArg.typeAttr] = true;
+        var schema = this.getSchema(operator);
+        if (schema) {
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.typeAttr) {
+                        result[input.typeAttr] = true;
                     }
-                    else if (inputArg.typeListAttr) {
-                        result[inputArg.typeListAttr] = true;
+                    else if (input.typeListAttr) {
+                        result[input.typeListAttr] = true;
                     }
-                    if (inputArg.numberAttr) {
-                        result[inputArg.numberAttr] = true;
+                    if (input.numberAttr) {
+                        result[input.numberAttr] = true;
                     }
                 });
             }
-            if (opDef.outputArg) {
-                opDef.outputArg.forEach((outputArg) => {
-                    if (outputArg.typeAttr) {
-                        result[outputArg.typeAttr] = true;
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.typeAttr) {
+                        result[output.typeAttr] = true;
                     }
-                    else if (outputArg.typeListAttr) {
-                        result[outputArg.typeListAttr] = true;
+                    else if (output.typeListAttr) {
+                        result[output.typeListAttr] = true;
                     }
-                    if (outputArg.numberAttr) {
-                        result[outputArg.numberAttr] = true;
+                    if (output.numberAttr) {
+                        result[output.numberAttr] = true;
                     }
                 });
             }
@@ -977,7 +913,7 @@ class TensorFlowGraphOperatorMetadata {
     }
 
     getAttributeType(operator, name) {
-        var opDef = this.getOpDef(operator);
+        var opDef = this.getSchema(operator);
         if (opDef) {
             var attributeMap = opDef.attributeMap;
             if (!attributeMap) {
@@ -997,83 +933,69 @@ class TensorFlowGraphOperatorMetadata {
         return '';
     }
 
-    getOperatorCategory(operator) {
-        var category = this._categoryMap[operator];
-        if (category) {
-            return category;
+    getOperatorCategory(node) {
+        var schema = this.getSchema(node);
+        if (schema && schema.category) {
+            return schema.category;
         }
         return null;
     }
 
     getOperatorDocumentation(operator) {
-        var schema = {};
-        var opDef = this.getOpDef(operator);
-        if (opDef) {
+        var schema = this.getSchema(operator);
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
             schema.name = operator;
-            if (opDef.summary) {
-                schema.summary = marked(opDef.summary);
+            if (schema.summary) {
+                schema.summary = marked(schema.summary);
             }
-            if (opDef.description) {
-                schema.description = marked(opDef.description);
+            if (schema.description) {
+                schema.description = marked(schema.description);
             }
-            if (opDef.inputArg) {
-                schema.inputs = [];
-                opDef.inputArg.forEach((inputArg) => {
-                    var input = {};
-                    input.name = inputArg.name;
-                    if (inputArg.type) {
-                        input.type = TensorFlowTensor.formatDataType(inputArg.type);
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.type) {
+                        input.type = TensorFlowTensor.formatDataType(input.type);
                     }
-                    else if (inputArg.typeAttr) {
-                        input.type = inputArg.typeAttr;
+                    else if (input.typeAttr) {
+                        input.type = input.typeAttr;
                     }
-                    else if (inputArg.typeListAttr) {
-                        input.type = inputArg.typeListAttr;
+                    else if (input.typeListAttr) {
+                        input.type = input.typeListAttr;
                     }
-                    if (inputArg.description) {
-                        input.description = marked(inputArg.description);
+                    if (input.description) {
+                        input.description = marked(input.description);
                     }
-                    schema.inputs.push(input);
                 });
             }
-            if (opDef.outputArg) {
-                schema.outputs = [];
-                opDef.outputArg.forEach((outputArg) => {
-                    var output = {};
-                    output.name = outputArg.name;
-                    if (outputArg.type) {
-                        output.type = TensorFlowTensor.formatDataType(outputArg.type);
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.type) {
+                        output.type = TensorFlowTensor.formatDataType(output.type);
                     }
-                    else if (outputArg.typeAttr) {
-                        output.type = outputArg.typeAttr;
+                    else if (output.typeAttr) {
+                        output.type = output.typeAttr;
                     }
-                    else if (outputArg.typeListAttr) {
-                        output.type = outputArg.typeListAttr;
+                    else if (output.typeListAttr) {
+                        output.type = output.typeListAttr;
                     }
-                    if (outputArg.description) {
-                        output.description = marked(outputArg.description);
+                    if (output.description) {
+                        output.description = marked(output.description);
                     }
-                    schema.outputs.push(output);
                 });
             }
-            if (opDef.attr) {
-                schema.attributes = [];
-                opDef.attr.forEach((attr) => {
-                    var attribute = {};
-                    attribute.name = attr.name;
-                    if (attr.type) {
-                        attribute.type = attr.type;
-                    }
-                    var description = attr.description;
-                    if (attr.allowedValues) {
-                        var allowedValues = TensorFlowAttribute.formatAttributeValue(attr.allowedValues);
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    var description = attribute.description;
+                    if (attribute.allowedValues) {
+                        var allowedValues = TensorFlowGraphOperatorMetadata.formatAttributeValue(attribute.allowedValues);
                         allowedValues = Array.isArray(allowedValues) ? allowedValues : [ allowedValues ];
                         allowedValues = allowedValues.map((item) => '`' + item + '`').join(', ');
                         allowedValues = 'Must be one of the following: ' + allowedValues + '.';
                         description = description ? (allowedValues + ' ' + description) : allowedValues;
                     }
-                    if (attr.defaultValue) {
-                        var defaultValue = TensorFlowAttribute.formatAttributeValue(attr.defaultValue);
+                    if (attribute.defaultValue) {
+                        var defaultValue = TensorFlowGraphOperatorMetadata.formatAttributeValue(attribute.defaultValue);
                         defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
                         defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
                         defaultValue = 'Defaults to ' + defaultValue + '.';
@@ -1082,13 +1004,68 @@ class TensorFlowGraphOperatorMetadata {
                     if (description) {
                         attribute.description = marked(description);
                     }
-                    schema.attributes.push(attribute);
                 });
             }
             var template = Handlebars.compile(operatorTemplate, 'utf-8');
             return template(schema);
         }
         return null;
+    }
+
+    static formatAttributeValue(value) {
+        if (Array.isArray(value)) {
+            return value.map((item) => TensorFlowGraphOperatorMetadata.formatAttributeValue(item));
+        }
+        if (value === Object(value)) {
+            switch (value.type) {
+                case 'type':
+                    return TensorFlowTensor.formatDataType(value.value);
+                case 'shape':
+                    return value.value;
+                case 'tensor':
+                    return value.value;
+            }
+        }
+        if (typeof value === 'string') {
+            return '"' + value + '"';
+        }
+        return value;
+    }
+}
+
+class TensorFlowOperatorMetadata {
+
+    static open(host, callback) {
+        if (TensorFlowOperatorMetadata.operatorMetadata) {
+            callback(null, TensorFlowOperatorMetadata.operatorMetadata);
+        }
+        else {
+            host.request('/tf-operator.json', (err, data) => {
+                TensorFlowOperatorMetadata.operatorMetadata = new TensorFlowOperatorMetadata(data);
+                callback(null, TensorFlowOperatorMetadata.operatorMetadata);
+            });
+        }
+    }
+
+    constructor(data) {
+        this._map = {};
+        if (data) {
+            if (data) {
+                var items = JSON.parse(data);
+                if (items) {
+                    items.forEach((item) => {
+                        if (item.name && item.schema)
+                        {
+                            this._map[item.name] = item.schema;
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    getSchema(operator) {
+        return this._map[operator];
     }
 }
 

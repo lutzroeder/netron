@@ -82,7 +82,7 @@ setuptools.setup(
             'netron', 'netron.py',
             'logo.svg', 'favicon.ico', 'icon.png',
             'onnx-model.js', 'onnx.js', 'onnx-operator.json',
-            'tf-model.js', 'tf.js', 'tf-operator.pb',
+            'tf-model.js', 'tf.js', 'tf-operator.json',
             'tflite-model.js', 'tflite.js', 'tflite-operator.json',
             'keras-model.js', 'keras-operator.json', 'hdf5.js',
             'coreml-model.js', 'coreml-operator.json', 'coreml.js',
