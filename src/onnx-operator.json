@@ -547,7 +547,7 @@
         {
           "description": "Data to be selected",
           "name": "X",
-          "type": "T1"
+          "type": "T"
         },
         {
           "description": "The index values to select as a int64 tensor",
@@ -563,7 +563,7 @@
         {
           "description": "Selected output data as an array",
           "name": "Z",
-          "type": "T1"
+          "type": "T"
         }
       ],
       "since_version": 1,
@@ -578,7 +578,7 @@
             "tensor(string)"
           ],
           "description": "allowed types.",
-          "type_param_str": "T1"
+          "type_param_str": "T"
         }
       ]
     }
@@ -7445,6 +7445,16 @@
       ],
       "description": "Computes the log sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'ReduceLogSum',\n    inputs=['data'],\n    outputs=[\"reduced\"]\n)\ndata = np.random.ranf([3, 4, 5]).astype(np.float32)\nreduced = np.log(np.sum(data, keepdims=True))\nexpect(node, inputs=[data], outputs=[reduced],\n       name='test_reduce_log_sum_default')",
+          "summary": "keepdims"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'ReduceLogSum',\n    inputs=['data'],\n    outputs=[\"reduced\"],\n    axes=[2, 1],\n    keepdims=0\n)\ndata = np.random.ranf([3, 4, 5]).astype(np.float32)\nreduced = np.log(np.sum(data, axis=(2, 1), keepdims=False))\nexpect(node, inputs=[data], outputs=[reduced],\n       name='test_reduce_log_sum_desc_axes')\n\nnode = onnx.helper.make_node(\n    'ReduceLogSum',\n    inputs=['data'],\n    outputs=[\"reduced\"],\n    axes=[0, 1],\n    keepdims=0\n)\ndata = np.random.ranf([3, 4, 5]).astype(np.float32)\nreduced = np.log(np.sum(data, axis=(0, 1), keepdims=False))\nexpect(node, inputs=[data], outputs=[reduced],\n       name='test_reduce_log_sum_asc_axes')",
+          "summary": "nokeepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
