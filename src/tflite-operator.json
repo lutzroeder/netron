@@ -15,7 +15,9 @@
         { "name": "padding", "type": "Padding" },
         { "name": "stride_w", "type": "int" },
         { "name": "stride_h", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" },
+        { "name": "dilation_w_factor", "type": "int", "defaultValue": 1 },
+        { "name": "dilation_h_factor", "type": "int", "defaultValue": 1 }
       ]
     }
   },
@@ -48,6 +50,9 @@
         { "name": "output_state", "type": "T" },
         { "name": "cell_state", "type": "T" },
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },
@@ -64,6 +69,9 @@
       "outputs": [
         { "name": "hidden", "type": "T" },
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },
@@ -78,6 +86,9 @@
       ],
       "outputs": [
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },
@@ -98,7 +109,7 @@
         { "name": "stride_w", "type": "int" },
         { "name": "stride_h", "type": "int" },
         { "name": "depth_multiplier", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },
@@ -173,6 +184,9 @@
       ],
       "outputs": [
         { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },
@@ -252,7 +266,7 @@
       ],
       "attributes": [
         { "name": "axis", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },
@@ -334,6 +348,9 @@
       ],
       "outputs": [
         { "name": "C", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },
@@ -346,6 +363,9 @@
       ],
       "outputs": [
         { "name": "C", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
       ]
     }
   },

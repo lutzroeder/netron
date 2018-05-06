@@ -262,17 +262,15 @@ class TensorFlowLiteNode {
                         attributeNames.push(attributeName);
                     }
                 });
-                attributeNames.forEach((attributeName) => {
-                    if (options[attributeName] && typeof options[attributeName] == 'function') {
-                        var attributeValue = options[attributeName]();
-                        attributeValue = this.formatAttributeValue(attributeValue, attributeName, optionsTypeName);
-                        if (attributeValue != null) {
-                            attributeName = this.formatAttributeName(attributeName);
-                            this._attributes.push({
-                                name: attributeName,
-                                type: metadata.getAttributeType(operator, attributeName),
-                                value: attributeValue
-                            });
+                attributeNames.forEach((name) => {
+                    if (options[name] && typeof options[name] == 'function') {
+                        var value = options[name]();
+                        value = this.formatAttributeValue(value, name, optionsTypeName);
+                        if (value != null) {
+                            name = this.formatAttributeName(name);
+                            var type = metadata.getAttributeType(operator, name);
+                            var visible = metadata.getAttributeVisible(operator, name, value);
+                            this._attributes.push(new TensorFlowLiteAttribute(name, type, value, visible));
                         }
                     }
                 });
@@ -296,42 +294,42 @@ class TensorFlowLiteNode {
             var optionsEnumTypeMap = TensorFlowLiteNode._optionsEnumTypeMap;
             optionsEnumTypeMap['tflite.Conv2DOptions'] = {
                 padding: { type: tflite.Padding },
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.Pool2DOptions'] = {
                 padding: { type: tflite.Padding },
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.DepthwiseConv2DOptions'] = {
                 padding: { type: tflite.Padding },
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.LSHProjectionOptions'] = {
                 type: { type: tflite.LSHProjectionType }
             };
             optionsEnumTypeMap['tflite.SVDFOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.RNNOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.FullyConnectedOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.ConcatenationOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.AddOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.MulOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.L2NormOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.LSTMOptions'] = {
-                fusedActivationFunction: { type: tflite.ActivationFunctionType, default: 'NONE' }
+                fusedActivationFunction: { type: tflite.ActivationFunctionType }
             };
             optionsEnumTypeMap['tflite.EmbeddingLookupSparseOptions'] = {
                 combiner: { type: tflite.CombinerType }
@@ -352,16 +350,38 @@ class TensorFlowLiteNode {
                 }
                 var enumValue = map[attributeValue];
                 if (enumValue) {
-                    var defaultValue = attributeType.default;
-                    if (defaultValue && defaultValue == enumValue) {
-                        return null;
-                    }
                     return enumValue;
                 }
             }
         }
         return attributeValue;
     }
+}
+
+class TensorFlowLiteAttribute {
+
+    constructor(name, type, value, visible) {
+        this._name = name;
+        this._type = type;
+        this._value = value;
+        this._visible = visible;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    get hidden() {
+        return !this._visible;
+    }    
 }
 
 class TensorFlowLiteTensor {
@@ -521,6 +541,7 @@ class TensorFlowLiteTensor {
             map[tflite.TensorType.UINT8] = 'byte';
             map[tflite.TensorType.INT64] = 'int64';
             map[tflite.TensorType.STRING] = 'string';
+            map[tflite.TensorType.BOOL] = 'bool';
             TensorFlowLiteTensor.tensorTypeMap = map;
         }
         var result = TensorFlowLiteTensor.tensorTypeMap[tensor.type()]; 
@@ -624,8 +645,12 @@ class TensorFlowLiteOperatorMetadata {
         return '(' + index.toString() + ')';
     }
 
-    getAttributeType(operator, name) {
-        var schema = this._map[operator];
+    getSchema(operator) {
+        return this._map[operator];
+    }
+
+    getAttributeSchema(operator, name) {
+        var schema = this.getSchema(operator);
         if (schema) {
             var attributeMap = schema.attributeMap;
             if (!attributeMap) {
@@ -637,12 +662,28 @@ class TensorFlowLiteOperatorMetadata {
                 }
                 schema.attributeMap = attributeMap;
             }
-            var attributeEntry = attributeMap[name];
-            if (attributeEntry) { 
-                return attributeEntry.type;
+            var attributeSchema = attributeMap[name];
+            if (attributeSchema) {
+                return attributeSchema; 
             }
         }
+        return null;
+    }
+
+    getAttributeType(operator, name) {
+        var attributeSchema = this.getAttributeSchema(operator, name);
+        if (attributeSchema) {
+            return attributeSchema.type;
+        }
         return '';
+    }
+
+    getAttributeVisible(operator, name, value) {
+        var attributeSchema = this.getAttributeSchema(operator, name);
+        if (attributeSchema && attributeSchema.defaultValue) {
+            return value != attributeSchema.defaultValue;
+        }
+        return true;
     }
 
     getOperatorCategory(operator) {

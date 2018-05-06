@@ -15,7 +15,8 @@ tflite.TensorType = {
   INT32: 2,
   UINT8: 3,
   INT64: 4,
-  STRING: 5
+  STRING: 5,
+  BOOL: 6
 };
 
 /**
@@ -29,6 +30,7 @@ tflite.BuiltinOperator = {
   DEPTHWISE_CONV_2D: 4,
   DEQUANTIZE: 6,
   EMBEDDING_LOOKUP: 7,
+  FLOOR: 8,
   FULLY_CONNECTED: 9,
   HASHTABLE_LOOKUP: 10,
   L2_NORMALIZATION: 11,
@@ -73,7 +75,13 @@ tflite.BuiltinOperator = {
   LOG_SOFTMAX: 50,
   DELEGATE: 51,
   BIDIRECTIONAL_SEQUENCE_LSTM: 52,
-  CAST: 53
+  CAST: 53,
+  PRELU: 54,
+  MAXIMUM: 55,
+  ARG_MAX: 56,
+  MINIMUM: 57,
+  LESS: 58,
+  NEG: 59
 };
 
 /**
@@ -118,7 +126,11 @@ tflite.BuiltinOptions = {
   SplitOptions: 35,
   LogSoftmaxOptions: 36,
   CastOptions: 37,
-  DequantizeOptions: 38
+  DequantizeOptions: 38,
+  MaximumMinimumOptions: 39,
+  ArgMaxOptions: 40,
+  LessOptions: 41,
+  NegOptions: 42
 };
 
 /**
@@ -664,10 +676,26 @@ tflite.Conv2DOptions.prototype.fusedActivationFunction = function() {
 };
 
 /**
+ * @returns {number}
+ */
+tflite.Conv2DOptions.prototype.dilationWFactor = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.Conv2DOptions.prototype.dilationHFactor = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.Conv2DOptions.startConv2DOptions = function(builder) {
-  builder.startObject(4);
+  builder.startObject(6);
 };
 
 /**
@@ -700,6 +728,22 @@ tflite.Conv2DOptions.addStrideH = function(builder, strideH) {
  */
 tflite.Conv2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
   builder.addFieldInt8(3, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} dilationWFactor
+ */
+tflite.Conv2DOptions.addDilationWFactor = function(builder, dilationWFactor) {
+  builder.addFieldInt32(4, dilationWFactor, 1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} dilationHFactor
+ */
+tflite.Conv2DOptions.addDilationHFactor = function(builder, dilationHFactor) {
+  builder.addFieldInt32(5, dilationHFactor, 1);
 };
 
 /**
@@ -3615,10 +3659,42 @@ tflite.CastOptions.getRootAsCastOptions = function(bb, obj) {
 };
 
 /**
+ * @returns {tflite.TensorType}
+ */
+tflite.CastOptions.prototype.inDataType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+};
+
+/**
+ * @returns {tflite.TensorType}
+ */
+tflite.CastOptions.prototype.outDataType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.CastOptions.startCastOptions = function(builder) {
-  builder.startObject(0);
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite.TensorType} inDataType
+ */
+tflite.CastOptions.addInDataType = function(builder, inDataType) {
+  builder.addFieldInt8(0, inDataType, tflite.TensorType.FLOAT32);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite.TensorType} outDataType
+ */
+tflite.CastOptions.addOutDataType = function(builder, outDataType) {
+  builder.addFieldInt8(1, outDataType, tflite.TensorType.FLOAT32);
 };
 
 /**
@@ -3677,6 +3753,226 @@ tflite.DequantizeOptions.startDequantizeOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite.DequantizeOptions.endDequantizeOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.MaximumMinimumOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.MaximumMinimumOptions}
+ */
+tflite.MaximumMinimumOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.MaximumMinimumOptions=} obj
+ * @returns {tflite.MaximumMinimumOptions}
+ */
+tflite.MaximumMinimumOptions.getRootAsMaximumMinimumOptions = function(bb, obj) {
+  return (obj || new tflite.MaximumMinimumOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.MaximumMinimumOptions.startMaximumMinimumOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.MaximumMinimumOptions.endMaximumMinimumOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.ArgMaxOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.ArgMaxOptions}
+ */
+tflite.ArgMaxOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.ArgMaxOptions=} obj
+ * @returns {tflite.ArgMaxOptions}
+ */
+tflite.ArgMaxOptions.getRootAsArgMaxOptions = function(bb, obj) {
+  return (obj || new tflite.ArgMaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {tflite.TensorType}
+ */
+tflite.ArgMaxOptions.prototype.outputType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.ArgMaxOptions.startArgMaxOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite.TensorType} outputType
+ */
+tflite.ArgMaxOptions.addOutputType = function(builder, outputType) {
+  builder.addFieldInt8(0, outputType, tflite.TensorType.FLOAT32);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.ArgMaxOptions.endArgMaxOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.LessOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.LessOptions}
+ */
+tflite.LessOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.LessOptions=} obj
+ * @returns {tflite.LessOptions}
+ */
+tflite.LessOptions.getRootAsLessOptions = function(bb, obj) {
+  return (obj || new tflite.LessOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.LessOptions.startLessOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.LessOptions.endLessOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.NegOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.NegOptions}
+ */
+tflite.NegOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.NegOptions=} obj
+ * @returns {tflite.NegOptions}
+ */
+tflite.NegOptions.getRootAsNegOptions = function(bb, obj) {
+  return (obj || new tflite.NegOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.NegOptions.startNegOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.NegOptions.endNegOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4533,10 +4829,35 @@ tflite.Model.prototype.buffersLength = function() {
 };
 
 /**
+ * @param {number} index
+ * @returns {number}
+ */
+tflite.Model.prototype.metadataBuffer = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.Model.prototype.metadataBufferLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+tflite.Model.prototype.metadataBufferArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.Model.startModel = function(builder) {
-  builder.startObject(5);
+  builder.startObject(6);
 };
 
 /**
@@ -4639,6 +4960,35 @@ tflite.Model.createBuffersVector = function(builder, data) {
  * @param {number} numElems
  */
 tflite.Model.startBuffersVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} metadataBufferOffset
+ */
+tflite.Model.addMetadataBuffer = function(builder, metadataBufferOffset) {
+  builder.addFieldOffset(5, metadataBufferOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite.Model.createMetadataBufferVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite.Model.startMetadataBufferVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
