@@ -476,8 +476,8 @@ class KerasNode {
             Object.keys(this._config).forEach((name) => {
                 var value = this._config[name];
                 if (name != 'name' && value != null) {
-                    var hidden = !KerasOperatorMetadata.operatorMetadata.showAttribute(this.operator, name, value);
-                    results.push(new KerasAttribute(name, value, hidden));
+                    var visible = !KerasOperatorMetadata.operatorMetadata.getAttributeVisible(this.operator, name, value);
+                    results.push(new KerasAttribute(name, value, visible));
                 }
             });
         }
@@ -495,10 +495,12 @@ class KerasNode {
 
 class KerasAttribute {
 
-    constructor(name, value, hidden) {
+    constructor(name, value, visible) {
         this._name = name;
         this._value = value;
-        this._hidden = hidden;
+        if (!visible) {
+            this._hidden = true;
+        }
     }
 
     get name() {
@@ -530,8 +532,8 @@ class KerasAttribute {
         return '?';
     }
 
-    get hidden() {
-        return this._hidden;
+    get visible() {
+        return this._hidden ? false : true;
     }
 }
 
@@ -748,7 +750,7 @@ class KerasOperatorMetadata {
         return '(' + index.toString() + ')';
     }
 
-    showAttribute(operator, attributeName, attributeValue) {
+    getAttributeVisible(operator, attributeName, attributeValue) {
         if (attributeName == 'trainable') {
             return false;
         }

@@ -462,7 +462,7 @@ class CoreMLNode {
                     type: initializer.type,
                     initializer: initializer, } ]
             };
-            if (CoreMLOperatorMetadata.operatorMetadata.getInputHidden(this._operator, initializer.name)) {
+            if (!CoreMLOperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name)) {
                 input.hidden = true;
             }
             results.push(input);
@@ -608,8 +608,8 @@ class CoreMLAttribute {
         return JSON.stringify(this._value);
     }
 
-    get hidden() {
-        return CoreMLOperatorMetadata.operatorMetadata.getAttributeHidden(this._owner.operator, this._name);
+    get visible() {
+        return CoreMLOperatorMetadata.operatorMetadata.getAttributeVisible(this._owner.operator, this._name);
     }
 }
 
@@ -769,7 +769,7 @@ class CoreMLOperatorMetadata
         return results;
     }
 
-    getInputHidden(operator, name) {
+    getInputVisible(operator, name) {
         var schema = this._map[operator];
         if (schema && schema.inputs) {
             if (!schema.inputsMap) {
@@ -779,11 +779,11 @@ class CoreMLOperatorMetadata
                 });
             }
             var input = schema.inputsMap[name];
-            if (input) {
-                return input.hidden;
+            if (input && input.hasOwnProperty('visible')) {
+                return input.visible;
             }
         }
-        return false;
+        return true;
     }
 
     getOutputName(operator, index) {
@@ -806,7 +806,7 @@ class CoreMLOperatorMetadata
         return '(' + index.toString() + ')';
     }
 
-    getAttributeHidden(operator, name) {
+    getAttributeVisible(operator, name) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributesMap) {
@@ -816,11 +816,11 @@ class CoreMLOperatorMetadata
                 });
             }
             var attribute = schema.attributesMap[name];
-            if (attribute) {
-                return attribute.hidden;
+            if (attribute && attribute.hasOwnProperty('visible')) {
+                return attribute.visible;
             }
         }
-        return false;
+        return true;
     }
 
     getOperatorDocumentation(operator) {

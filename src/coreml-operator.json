@@ -5,13 +5,13 @@
       "category": "Layer",
       "description": "A layer that performs spatial convolution or deconvolution.",
       "attributes": [
-        { "name": "outputShape", "type": "tuple | None", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "hidden": true },
-        { "name": "outputChannels", "type": "int", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "hidden": true },
-        { "name": "kernelChannels", "type": "int", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "hidden": true },
+        { "name": "outputShape", "type": "tuple | None", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "visible": false },
+        { "name": "outputChannels", "type": "int", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
+        { "name": "kernelChannels", "type": "int", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
         { "name": "nGroups", "type": "int", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1." },
         { "name": "isDeconvolution", "type": "boolean", "description": "lag to specify whether it is a deconvolution layer." },
-        { "name": "valid", "hidden": true },
-        { "name": "hasBias", "type": "boolean", "description": "Whether bias is ignored.", "hidden": true }
+        { "name": "valid", "visible": false },
+        { "name": "hasBias", "type": "boolean", "description": "Whether bias is ignored.", "visible": false }
       ]
     }
   },
@@ -21,9 +21,9 @@
       "category": "Layer",
       "description": "A layer that performs a matrix vector product. This is equivalent to a fully-connected, or dense layer.",
       "attributes": [
-        { "name": "inputChannels", "hidden": true },
-        { "name": "outputChannels", "hidden": true },
-        { "name": "hasBias", "hidden": true }
+        { "name": "inputChannels", "visible": false },
+        { "name": "outputChannels", "visible": false },
+        { "name": "hasBias", "visible": false }
       ]
    }
   },
@@ -35,15 +35,15 @@
       "inputs": [
         { "name": "input" },
         { "name": "h" },
-        { "name": "updateGateWeightMatrix", "hidden": true },
-        { "name": "resetGateWeightMatrix", "hidden": true },
-        { "name": "outputGateWeightMatrix", "hidden": true },
-        { "name": "updateGateRecursionMatrix", "hidden": true },
-        { "name": "resetGateRecursionMatrix", "hidden": true },
-        { "name": "outputGateRecursionMatrix", "hidden": true },
-        { "name": "updateGateBiasVector", "hidden": true },
-        { "name": "resetGateBiasVector", "hidden": true },
-        { "name": "outputGateBiasVector", "hidden": true }
+        { "name": "updateGateWeightMatrix", "visible": false },
+        { "name": "resetGateWeightMatrix", "visible": false },
+        { "name": "outputGateWeightMatrix", "visible": false },
+        { "name": "updateGateRecursionMatrix", "visible": false },
+        { "name": "resetGateRecursionMatrix", "visible": false },
+        { "name": "outputGateRecursionMatrix", "visible": false },
+        { "name": "updateGateBiasVector", "visible": false },
+        { "name": "resetGateBiasVector", "visible": false },
+        { "name": "outputGateBiasVector", "visible": false }
       ],
       "outputs": [
         { "name": "output" },
@@ -60,18 +60,18 @@
         { "name": "input" },
         { "name": "h" },
         { "name": "c" },
-        { "name": "inputGateWeightMatrix", "hidden": true },
-        { "name": "forgetGateWeightMatrix", "hidden": true },
-        { "name": "blockInputWeightMatrix", "hidden": true },
-        { "name": "outputGateWeightMatrix", "hidden": true },
-        { "name": "inputGateRecursionMatrix", "hidden": true },
-        { "name": "forgetGateRecursionMatrix", "hidden": true },
-        { "name": "blockInputRecursionMatrix", "hidden": true },
-        { "name": "outputGateRecursionMatrix", "hidden": true },
-        { "name": "inputGateBiasVector", "hidden": true },
-        { "name": "forgetGateBiasVector", "hidden": true },
-        { "name": "blockInputBiasVector", "hidden": true },
-        { "name": "outputGateBiasVector", "hidden": true }
+        { "name": "inputGateWeightMatrix", "visible": false },
+        { "name": "forgetGateWeightMatrix", "visible": false },
+        { "name": "blockInputWeightMatrix", "visible": false },
+        { "name": "outputGateWeightMatrix", "visible": false },
+        { "name": "inputGateRecursionMatrix", "visible": false },
+        { "name": "forgetGateRecursionMatrix", "visible": false },
+        { "name": "blockInputRecursionMatrix", "visible": false },
+        { "name": "outputGateRecursionMatrix", "visible": false },
+        { "name": "inputGateBiasVector", "visible": false },
+        { "name": "forgetGateBiasVector", "visible": false },
+        { "name": "blockInputBiasVector", "visible": false },
+        { "name": "outputGateBiasVector", "visible": false }
       ],
       "outputs": [
         { "name": "output" },
@@ -91,30 +91,30 @@
         { "name": "c" },
         { "name": "h_rev" },
         { "name": "c_rev" },
-        { "name": "inputGateWeightMatrix", "hidden": true },
-        { "name": "forgetGateWeightMatrix", "hidden": true },
-        { "name": "blockInputWeightMatrix", "hidden": true },
-        { "name": "outputGateWeightMatrix", "hidden": true },
-        { "name": "inputGateRecursionMatrix", "hidden": true },
-        { "name": "forgetGateRecursionMatrix", "hidden": true },
-        { "name": "blockInputRecursionMatrix", "hidden": true },
-        { "name": "outputGateRecursionMatrix", "hidden": true },
-        { "name": "inputGateBiasVector", "hidden": true },
-        { "name": "forgetGateBiasVector", "hidden": true },
-        { "name": "blockInputBiasVector", "hidden": true },
-        { "name": "outputGateBiasVector", "hidden": true },
-        { "name": "inputGateWeightMatrix_rev", "hidden": true },
-        { "name": "forgetGateWeightMatrix_rev", "hidden": true },
-        { "name": "blockInputWeightMatrix_rev", "hidden": true },
-        { "name": "outputGateWeightMatrix_rev", "hidden": true },
-        { "name": "inputGateRecursionMatrix_rev", "hidden": true },
-        { "name": "forgetGateRecursionMatrix_rev", "hidden": true },
-        { "name": "blockInputRecursionMatrix_rev", "hidden": true },
-        { "name": "outputGateRecursionMatrix_rev", "hidden": true },
-        { "name": "inputGateBiasVector_rev", "hidden": true },
-        { "name": "forgetGateBiasVector_rev", "hidden": true },
-        { "name": "blockInputBiasVector_rev", "hidden": true },
-        { "name": "outputGateBiasVector_rev", "hidden": true }
+        { "name": "inputGateWeightMatrix", "visible": false },
+        { "name": "forgetGateWeightMatrix", "visible": false },
+        { "name": "blockInputWeightMatrix", "visible": false },
+        { "name": "outputGateWeightMatrix", "visible": false },
+        { "name": "inputGateRecursionMatrix", "visible": false },
+        { "name": "forgetGateRecursionMatrix", "visible": false },
+        { "name": "blockInputRecursionMatrix", "visible": false },
+        { "name": "outputGateRecursionMatrix", "visible": false },
+        { "name": "inputGateBiasVector", "visible": false },
+        { "name": "forgetGateBiasVector", "visible": false },
+        { "name": "blockInputBiasVector", "visible": false },
+        { "name": "outputGateBiasVector", "visible": false },
+        { "name": "inputGateWeightMatrix_rev", "visible": false },
+        { "name": "forgetGateWeightMatrix_rev", "visible": false },
+        { "name": "blockInputWeightMatrix_rev", "visible": false },
+        { "name": "outputGateWeightMatrix_rev", "visible": false },
+        { "name": "inputGateRecursionMatrix_rev", "visible": false },
+        { "name": "forgetGateRecursionMatrix_rev", "visible": false },
+        { "name": "blockInputRecursionMatrix_rev", "visible": false },
+        { "name": "outputGateRecursionMatrix_rev", "visible": false },
+        { "name": "inputGateBiasVector_rev", "visible": false },
+        { "name": "forgetGateBiasVector_rev", "visible": false },
+        { "name": "blockInputBiasVector_rev", "visible": false },
+        { "name": "outputGateBiasVector_rev", "visible": false }
       ],
       "outputs": [
         { "name": "output" },
@@ -173,7 +173,7 @@
       "category": "Pool",
       "description": "Spatial Pooling layer to reduce dimensions of input using the specified kernel size and type.",
       "attributes": [
-        { "name": "includeLastPixel", "hidden": true }
+        { "name": "includeLastPixel", "visible": false }
       ]
     }
   },

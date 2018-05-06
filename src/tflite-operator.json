@@ -15,9 +15,9 @@
         { "name": "padding", "type": "Padding" },
         { "name": "stride_w", "type": "int" },
         { "name": "stride_h", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" },
-        { "name": "dilation_w_factor", "type": "int", "defaultValue": 1 },
-        { "name": "dilation_h_factor", "type": "int", "defaultValue": 1 }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+        { "name": "dilation_w_factor", "type": "int", "default": 1 },
+        { "name": "dilation_h_factor", "type": "int", "default": 1 }
       ]
     }
   },
@@ -27,23 +27,23 @@
       "category": "Layer",
       "inputs": [
         { "name": "input", "type": "T", "description": "Input tensor." },
-        { "name": "input_input_weights", "type": "T", "option": "optional", "description": "Input to input weights tensor.", "hidden": true },
-        { "name": "input_forget_weights", "type": "T", "description": "Input to forget weights tensor.", "hidden": true },
-        { "name": "input_cell_weights", "type": "T", "description": "Input to cell weights tensor.", "hidden": true },
-        { "name": "input_output_weights", "type": "T", "description": "Input to output weights tensor.", "hidden": true },
-        { "name": "recurrent_input_weights", "type": "T", "option": "optional", "description": "Recurrent to input weights tensor.", "hidden": true },
-        { "name": "recurrent_forget_weights", "type": "T", "description": "Recurrent to forget weights tensor.", "hidden": true },
-        { "name": "recurrent_cell_weights", "type": "T", "description": "Recurrent to cell weights tensor.", "hidden": true },
-        { "name": "recurrent_output_weights", "type": "T", "description": "Recurrent to output weights tensor.", "hidden": true },
-        { "name": "cell_input_weights", "type": "T", "option": "optional", "description": "Cell to input weights tensor.", "hidden": true },
-        { "name": "cell_forget_weights", "type": "T", "option": "optional", "description": "Cell to forget weights tensor.", "hidden": true },
-        { "name": "cell_output_weights", "type": "T", "option": "optional", "description": "Cell to output weights tensor.", "hidden": true },
-        { "name": "input_bias", "type": "T", "option": "optional", "description": "Input gate bias tensor.", "hidden": true },
-        { "name": "forget_bias", "type": "T", "description": "Forget gate bias tensor.", "hidden": true },
-        { "name": "cell_bias", "type": "T", "description": "Cell gate bias tensor.", "hidden": true },
-        { "name": "output_bias", "type": "T", "description": "Output gate bias tensor.", "hidden": true },
-        { "name": "projection_weights", "type": "T", "option": "optional", "description": "Projection weights tensor.", "hidden": true },
-        { "name": "projection_bias", "type": "T", "option": "optional", "description": "Projection bias tensor.", "hidden": true }
+        { "name": "input_input_weights", "type": "T", "option": "optional", "description": "Input to input weights tensor.", "visible": false },
+        { "name": "input_forget_weights", "type": "T", "description": "Input to forget weights tensor.", "visible": false },
+        { "name": "input_cell_weights", "type": "T", "description": "Input to cell weights tensor.", "visible": false },
+        { "name": "input_output_weights", "type": "T", "description": "Input to output weights tensor.", "visible": false },
+        { "name": "recurrent_input_weights", "type": "T", "option": "optional", "description": "Recurrent to input weights tensor.", "visible": false },
+        { "name": "recurrent_forget_weights", "type": "T", "description": "Recurrent to forget weights tensor.", "visible": false },
+        { "name": "recurrent_cell_weights", "type": "T", "description": "Recurrent to cell weights tensor.", "visible": false },
+        { "name": "recurrent_output_weights", "type": "T", "description": "Recurrent to output weights tensor.", "visible": false },
+        { "name": "cell_input_weights", "type": "T", "option": "optional", "description": "Cell to input weights tensor.", "visible": false },
+        { "name": "cell_forget_weights", "type": "T", "option": "optional", "description": "Cell to forget weights tensor.", "visible": false },
+        { "name": "cell_output_weights", "type": "T", "option": "optional", "description": "Cell to output weights tensor.", "visible": false },
+        { "name": "input_bias", "type": "T", "option": "optional", "description": "Input gate bias tensor.", "visible": false },
+        { "name": "forget_bias", "type": "T", "description": "Forget gate bias tensor.", "visible": false },
+        { "name": "cell_bias", "type": "T", "description": "Cell gate bias tensor.", "visible": false },
+        { "name": "output_bias", "type": "T", "description": "Output gate bias tensor.", "visible": false },
+        { "name": "projection_weights", "type": "T", "option": "optional", "description": "Projection weights tensor.", "visible": false },
+        { "name": "projection_bias", "type": "T", "option": "optional", "description": "Projection bias tensor.", "visible": false }
       ],
       "outputs": [
         { "name": "scratch", "type": "T" },
@@ -52,7 +52,7 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -71,7 +71,7 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -88,7 +88,7 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -109,7 +109,7 @@
         { "name": "stride_w", "type": "int" },
         { "name": "stride_h", "type": "int" },
         { "name": "depth_multiplier", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -186,7 +186,7 @@
         { "name": "output" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -266,7 +266,7 @@
       ],
       "attributes": [
         { "name": "axis", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -350,7 +350,7 @@
         { "name": "C", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -365,7 +365,7 @@
         { "name": "C", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "defaultValue": "NONE" }
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
       ]
     }
   },

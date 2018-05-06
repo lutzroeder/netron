@@ -377,8 +377,8 @@ class CaffeAttribute {
         return JSON.stringify(this._value);
     }
 
-    get hidden() {
-        return CaffeOperatorMetadata.operatorMetadata.getAttributeHidden(this._owner.operator, this._name, this._value);
+    get visible() {
+        return CaffeOperatorMetadata.operatorMetadata.getAttributeVisible(this._owner.operator, this._name, this._value);
     }
 }
 
@@ -573,7 +573,7 @@ class CaffeOperatorMetadata
         return results;
     }
 
-    getAttributeHidden(operator, name, value) {
+    getAttributeVisible(operator, name, value) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributesMap) {
@@ -584,15 +584,15 @@ class CaffeOperatorMetadata
             }
             var attribute = schema.attributesMap[name];
             if (attribute) {
-                if (attribute.hasOwnProperty('hidden')) {
-                    return attribute.hidden;
+                if (attribute.hasOwnProperty('visible')) {
+                    return attribute.visible;
                 }
                 if (attribute.hasOwnProperty('default')) {
-                    return CaffeOperatorMetadata.isEquivalent(attribute.default, value);
+                    return !CaffeOperatorMetadata.isEquivalent(attribute.default, value);
                 }
             }
         }
-        return false;
+        return true;
     }
 
     static isEquivalent(a, b) {

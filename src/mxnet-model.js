@@ -263,8 +263,8 @@ class MXNetAttribute {
         return this._value;
     }
 
-    get hidden() {
-        return MXNetOperatorMetadata.operatorMetadata.getAttributeHidden(this._owner.operator, this._name, this._value);
+    get visible() {
+        return MXNetOperatorMetadata.operatorMetadata.getAttributeVisible(this._owner.operator, this._name, this._value);
     }
 }
 
@@ -405,7 +405,7 @@ class MXNetOperatorMetadata {
         return results;
     }
 
-    getAttributeHidden(operator, name, value) {
+    getAttributeVisible(operator, name, value) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributesMap) {
@@ -416,16 +416,16 @@ class MXNetOperatorMetadata {
             }
             var attribute = schema.attributesMap[name];
             if (attribute) {
-                if (attribute.hasOwnProperty('hidden')) {
-                    return attribute.hidden;
+                if (attribute.hasOwnProperty('visible')) {
+                    return attribute.visible;
                 }
                 if (attribute.hasOwnProperty('default')) {
                     value = MXNetOperatorMetadata.formatTuple(value); 
-                    return MXNetOperatorMetadata.isEquivalent(attribute.default, value);
+                    return !MXNetOperatorMetadata.isEquivalent(attribute.default, value);
                 }
             }
         }
-        return false;
+        return true;
     }
 
     static formatTuple(value) {

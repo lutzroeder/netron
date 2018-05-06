@@ -12,13 +12,15 @@
         { "name": "output" }
       ],
       "attributes": [
-        { "name": "bias_term", "hidden": true },
-        { "name": "weight_filler", "hidden": true },
-        { "name": "bias_filler", "hidden": true },
+        { "name": "bias_term", "visible": false },
+        { "name": "weight_filler", "visible": false },
+        { "name": "bias_filler", "visible": false },
+        { "name": "num_output", "visible": false },
         { "name": "pad", "default": [] },
         { "name": "kernel_size", "default": [] },
         { "name": "stride", "default": [] },
-        { "name": "dilation", "default": [] }
+        { "name": "dilation", "default": [] },
+        { "name": "group", "default": 1 }
       ]
     }
   },
@@ -35,9 +37,9 @@
         { "name": "output" }
       ],
       "attributes": [
-        { "name": "bias_term", "hidden": true },
-        { "name": "weight_filler", "hidden": true },
-        { "name": "bias_filler", "hidden": true },
+        { "name": "bias_term", "visible": false },
+        { "name": "weight_filler", "visible": false },
+        { "name": "bias_filler", "visible": false },
         { "name": "pad", "default": [] },
         { "name": "kernel_size", "default": [] },
         { "name": "stride", "default": [] },
@@ -58,9 +60,10 @@
         { "name": "output" }
       ],
       "attributes": [
-        { "name": "bias_term", "hidden": true },
-        { "name": "weight_filler", "hidden": true },
-        { "name": "bias_filler", "hidden": true }
+        { "name": "bias_term", "visible": false },
+        { "name": "weight_filler", "visible": false },
+        { "name": "bias_filler", "visible": false },
+        { "name": "num_output", "visible": false }
       ]
     }
   },
@@ -74,22 +77,30 @@
         { "name": "bias" }
       ],
       "attributes": [
-        { "name": "filler", "hidden": false },
-        { "name": "bias_term", "hidden": false },
-        { "name": "bias_filler", "hidden": false }
+        { "name": "filler", "visible": false },
+        { "name": "bias_term", "visible": false },
+        { "name": "bias_filler", "visible": false }
       ]
     }
   },
   {
     "name": "Dropout",
     "schema": {
-      "category": "Dropout"
+      "category": "Dropout",
+      "attributes": [
+        { "name": "dropout_ratio", "default": 0.5 }
+      ]
     }
   },
   {
     "name": "LRN",
     "schema": {
-      "category": "Normalization"
+      "category": "Normalization",
+      "attributes": [
+        { "name": "local_size", "type": "uint32", "default": 5 },
+        { "name": "alpha", "type": "float", "default": 1 },
+        { "name": "beta", "type": "float", "default": 0.75 }
+      ]
     }
   },
   {
@@ -105,6 +116,10 @@
       ],
       "outputs": [
         { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "use_global_stats", "visible": false },
+        { "name": "eps", "default": 1e-5 }
       ]
     }
   },
@@ -163,13 +178,19 @@
     "schema": {
       "inputs": [
         { "name": "inputs", "option": "variadic" }
+      ],
+      "attributes": [
+        { "name": "operation", "default": 1 }
       ]
     }
   },
   {
     "name": "Pooling",
     "schema": {
-      "category": "Pool"
+      "category": "Pool",
+      "attributes": [
+        { "name": "pool", "default": 0 }
+      ]
     }
   },
   {
@@ -205,6 +226,15 @@
       "outputs": [
         { "name": "data" },
         { "name": "label" }
+      ]
+    }
+  },
+  {
+    "name": "Slice",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        { "name": "axis", "default": 1 }
       ]
     }
   },

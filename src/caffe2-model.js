@@ -239,6 +239,10 @@ class Caffe2Attribute {
     get value() {
         return this._value;
     }
+
+    get visible() {
+        return true;
+    }
 }
 
 class Caffe2Tensor {

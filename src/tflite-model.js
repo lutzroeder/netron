@@ -379,8 +379,8 @@ class TensorFlowLiteAttribute {
         return this._value;
     }
 
-    get hidden() {
-        return !this._visible;
+    get visible() {
+        return this._visible;
     }    
 }
 
@@ -591,13 +591,17 @@ class TensorFlowLiteOperatorMetadata {
         }
     }
 
+    getSchema(operator) {
+        return this._map[operator];
+    }
+
     getInputs(node, operator) {
         var results = [];
         var connections = [];
         for (var i = 0; i < node.inputsLength(); i++) {
             connections.push(node.inputs(i));
         }
-        var schema = this._map[operator];
+        var schema = this.getSchema(operator);
         var index = 0;
         while (index < connections.length) {
             var result = { connections: [] };
@@ -609,7 +613,7 @@ class TensorFlowLiteOperatorMetadata {
                 if (input.option == 'variadic') {
                     count = connections.length - index;
                 }
-                if (input.hidden) {
+                if (input.hasOwnProperty('visible') && !input.visible) {
                     result.hidden = true;
                 }
             }
@@ -627,7 +631,7 @@ class TensorFlowLiteOperatorMetadata {
     }
 
     getOutputName(operator, index) {
-        var schema = this._map[operator];
+        var schema = this.getSchema(operator);
         if (schema) {
             var outputs = schema.outputs;
             if (outputs && index < outputs.length) {
@@ -643,10 +647,6 @@ class TensorFlowLiteOperatorMetadata {
             }
         }
         return '(' + index.toString() + ')';
-    }
-
-    getSchema(operator) {
-        return this._map[operator];
     }
 
     getAttributeSchema(operator, name) {
@@ -680,14 +680,19 @@ class TensorFlowLiteOperatorMetadata {
 
     getAttributeVisible(operator, name, value) {
         var attributeSchema = this.getAttributeSchema(operator, name);
-        if (attributeSchema && attributeSchema.defaultValue) {
-            return value != attributeSchema.defaultValue;
+        if (attributeSchema) {
+            if (attributeSchema.hasOwnProperty('visible')) {
+                return attributeSchema.visible;
+            }
+            if (attributeSchema.hasOwnProperty('default')) {
+                return value != attributeSchema.default;
+            }
         }
         return true;
     }
 
     getOperatorCategory(operator) {
-        var schema = this._map[operator];
+        var schema = this.getSchema(operator);
         if (schema && schema.category) {
             return schema.category;
         }

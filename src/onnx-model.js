@@ -405,8 +405,8 @@ class OnnxAttribute {
         return this._attribute.docString ? this._attribute.docString : null;
     }
 
-    get hidden() {
-        return false;
+    get visible() {
+        return true;
     }
 
     get tensor() {

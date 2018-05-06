@@ -409,9 +409,9 @@ class TensorFlowNode {
         if (node.attr) {
             var hiddenAttributeMap = graphMetadata.getHiddenAttributeMap(node.op);
             Object.keys(node.attr).forEach((name) => {
-                var hidden = hiddenAttributeMap[name] == true;
+                var visible = !hiddenAttributeMap[name];
                 var value = node.attr[name];
-                result.push(new TensorFlowAttribute(this, name, value, hidden));
+                result.push(new TensorFlowAttribute(this, name, value, visible));
             });
         }
         return result;
@@ -419,12 +419,12 @@ class TensorFlowNode {
 }
 
 class TensorFlowAttribute { 
-    constructor(node, name, value, hidden) {
+    constructor(node, name, value, visible) {
         this._node = node;
         this._name = name;
         this._value = value;
-        if (hidden) {
-            this._hidden = hidden;
+        if (!visible) {
+            this._hidden = true;
         }
     }
 
@@ -517,8 +517,8 @@ class TensorFlowAttribute {
         return '';        
     }
 
-    get hidden() {
-        return this._hidden ? this._hidden : false;
+    get visible() {
+        return this._hidden ? false : true;
     }
 
     get tensor() {

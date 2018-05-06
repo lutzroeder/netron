@@ -312,9 +312,7 @@ class View {
                     this.showNode(node);
                 });
                 node.attributes.forEach((attribute) => {
-                    if (attribute.hidden) {
-                    }
-                    else {
+                    if (attribute.visible) {
                         var attributeValue = '';
                         if (attribute.tensor) {
                             attributeValue = '[...]';
