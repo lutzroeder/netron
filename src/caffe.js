@@ -4667,6 +4667,7 @@
              * @property {caffe.ISoftmaxParameter|null} [softmaxParam] LayerParameter softmaxParam
              * @property {caffe.ISPPParameter|null} [sppParam] LayerParameter sppParam
              * @property {caffe.ISliceParameter|null} [sliceParam] LayerParameter sliceParam
+             * @property {caffe.ISwishParameter|null} [swishParam] LayerParameter swishParam
              * @property {caffe.ITanHParameter|null} [tanhParam] LayerParameter tanhParam
              * @property {caffe.IThresholdParameter|null} [thresholdParam] LayerParameter thresholdParam
              * @property {caffe.ITileParameter|null} [tileParam] LayerParameter tileParam
@@ -5129,6 +5130,14 @@
             LayerParameter.prototype.sliceParam = null;
     
             /**
+             * LayerParameter swishParam.
+             * @member {caffe.ISwishParameter|null|undefined} swishParam
+             * @memberof caffe.LayerParameter
+             * @instance
+             */
+            LayerParameter.prototype.swishParam = null;
+    
+            /**
              * LayerParameter tanhParam.
              * @member {caffe.ITanHParameter|null|undefined} tanhParam
              * @memberof caffe.LayerParameter
@@ -5308,6 +5317,8 @@
                     $root.caffe.ParameterParameter.encode(message.parameterParam, writer.uint32(/* id 145, wireType 2 =*/1162).fork()).ldelim();
                 if (message.recurrentParam != null && message.hasOwnProperty("recurrentParam"))
                     $root.caffe.RecurrentParameter.encode(message.recurrentParam, writer.uint32(/* id 146, wireType 2 =*/1170).fork()).ldelim();
+                if (message.swishParam != null && message.hasOwnProperty("swishParam"))
+                    $root.caffe.SwishParameter.encode(message.swishParam, writer.uint32(/* id 147, wireType 2 =*/1178).fork()).ldelim();
                 return writer;
             };
     
@@ -5529,6 +5540,9 @@
                         break;
                     case 126:
                         message.sliceParam = $root.caffe.SliceParameter.decode(reader, reader.uint32());
+                        break;
+                    case 147:
+                        message.swishParam = $root.caffe.SwishParameter.decode(reader, reader.uint32());
                         break;
                     case 127:
                         message.tanhParam = $root.caffe.TanHParameter.decode(reader, reader.uint32());
@@ -5870,6 +5884,11 @@
                     if (error)
                         return "sliceParam." + error;
                 }
+                if (message.swishParam != null && message.hasOwnProperty("swishParam")) {
+                    var error = $root.caffe.SwishParameter.verify(message.swishParam);
+                    if (error)
+                        return "swishParam." + error;
+                }
                 if (message.tanhParam != null && message.hasOwnProperty("tanhParam")) {
                     var error = $root.caffe.TanHParameter.verify(message.tanhParam);
                     if (error)
@@ -6202,6 +6221,11 @@
                         throw TypeError(".caffe.LayerParameter.sliceParam: object expected");
                     message.sliceParam = $root.caffe.SliceParameter.fromObject(object.sliceParam);
                 }
+                if (object.swishParam != null) {
+                    if (typeof object.swishParam !== "object")
+                        throw TypeError(".caffe.LayerParameter.swishParam: object expected");
+                    message.swishParam = $root.caffe.SwishParameter.fromObject(object.swishParam);
+                }
                 if (object.tanhParam != null) {
                     if (typeof object.tanhParam !== "object")
                         throw TypeError(".caffe.LayerParameter.tanhParam: object expected");
@@ -6299,6 +6323,7 @@
                     object.cropParam = null;
                     object.parameterParam = null;
                     object.recurrentParam = null;
+                    object.swishParam = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -6440,6 +6465,8 @@
                     object.parameterParam = $root.caffe.ParameterParameter.toObject(message.parameterParam, options);
                 if (message.recurrentParam != null && message.hasOwnProperty("recurrentParam"))
                     object.recurrentParam = $root.caffe.RecurrentParameter.toObject(message.recurrentParam, options);
+                if (message.swishParam != null && message.hasOwnProperty("swishParam"))
+                    object.swishParam = $root.caffe.SwishParameter.toObject(message.swishParam, options);
                 return object;
             };
     
@@ -17660,6 +17687,193 @@
             })();
     
             return SoftmaxParameter;
+        })();
+    
+        caffe.SwishParameter = (function() {
+    
+            /**
+             * Properties of a SwishParameter.
+             * @memberof caffe
+             * @interface ISwishParameter
+             * @property {number|null} [beta] SwishParameter beta
+             */
+    
+            /**
+             * Constructs a new SwishParameter.
+             * @memberof caffe
+             * @classdesc Represents a SwishParameter.
+             * @implements ISwishParameter
+             * @constructor
+             * @param {caffe.ISwishParameter=} [properties] Properties to set
+             */
+            function SwishParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * SwishParameter beta.
+             * @member {number} beta
+             * @memberof caffe.SwishParameter
+             * @instance
+             */
+            SwishParameter.prototype.beta = 1;
+    
+            /**
+             * Creates a new SwishParameter instance using the specified properties.
+             * @function create
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {caffe.ISwishParameter=} [properties] Properties to set
+             * @returns {caffe.SwishParameter} SwishParameter instance
+             */
+            SwishParameter.create = function create(properties) {
+                return new SwishParameter(properties);
+            };
+    
+            /**
+             * Encodes the specified SwishParameter message. Does not implicitly {@link caffe.SwishParameter.verify|verify} messages.
+             * @function encode
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {caffe.ISwishParameter} message SwishParameter message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            SwishParameter.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.beta != null && message.hasOwnProperty("beta"))
+                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.beta);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified SwishParameter message, length delimited. Does not implicitly {@link caffe.SwishParameter.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {caffe.ISwishParameter} message SwishParameter message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            SwishParameter.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a SwishParameter message from the specified reader or buffer.
+             * @function decode
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {caffe.SwishParameter} SwishParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            SwishParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.SwishParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.beta = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a SwishParameter message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {caffe.SwishParameter} SwishParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            SwishParameter.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a SwishParameter message.
+             * @function verify
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            SwishParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.beta != null && message.hasOwnProperty("beta"))
+                    if (typeof message.beta !== "number")
+                        return "beta: number expected";
+                return null;
+            };
+    
+            /**
+             * Creates a SwishParameter message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {caffe.SwishParameter} SwishParameter
+             */
+            SwishParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.SwishParameter)
+                    return object;
+                var message = new $root.caffe.SwishParameter();
+                if (object.beta != null)
+                    message.beta = Number(object.beta);
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a SwishParameter message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof caffe.SwishParameter
+             * @static
+             * @param {caffe.SwishParameter} message SwishParameter
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            SwishParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.beta = 1;
+                if (message.beta != null && message.hasOwnProperty("beta"))
+                    object.beta = options.json && !isFinite(message.beta) ? String(message.beta) : message.beta;
+                return object;
+            };
+    
+            /**
+             * Converts this SwishParameter to JSON.
+             * @function toJSON
+             * @memberof caffe.SwishParameter
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            SwishParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SwishParameter;
         })();
     
         caffe.TanHParameter = (function() {
