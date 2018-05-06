@@ -1,7 +1,7 @@
 
 build: build_python build_electron
 
-publish: clean publish_pip publish_github_pages publish_github_electron publish_cask
+publish: clean publish_github_electron publish_pip publish_github_pages publish_cask
 
 install:
 	rm -rf ./node_modules
