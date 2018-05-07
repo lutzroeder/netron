@@ -4,7 +4,7 @@
 
 var hdf5 = hdf5 || {};
 
-hdf5.File = class HDF5 {
+hdf5.File = class {
 
     constructor(buffer) {
         var reader = new hdf5.Reader(buffer, 0);
