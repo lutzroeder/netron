@@ -32,3 +32,6 @@ mkdir -p build && cd build
 cmake -DUSE_CUDA=OFF ..
 sudo make install
 popd > /dev/null
+
+echo "Generate '../src/caffe2-operator.json'"
+python caffe2-operator-json.py
