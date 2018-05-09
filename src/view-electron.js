@@ -69,6 +69,12 @@ class ElectronHost {
 
     import(file, callback) {
         var pathname = path.join(__dirname, file);
+        for (var i = 0; i < document.scripts.length; i++) {
+            if (pathname == document.scripts[i]) {
+                callback(null);
+                return;
+            }
+        }
         var script = document.createElement('script');
         script.onload = () => {
             callback(null);

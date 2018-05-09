@@ -65,6 +65,12 @@ class BrowserHost {
     
     import(file, callback) {
         var url = this.url(file);
+        for (var i = 0; i < document.scripts.length; i++) {
+            if (url == document.scripts[i]) {
+                callback(null);
+                return;
+            }
+        }
         var script = document.createElement('script');
         script.onload = () => {
             callback(null);
