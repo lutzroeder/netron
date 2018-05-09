@@ -407,10 +407,9 @@ class TensorFlowNode {
         var node = this._node;
         var result = [];
         if (node.attr) {
-            var hiddenAttributeMap = graphMetadata.getHiddenAttributeMap(node.op);
             Object.keys(node.attr).forEach((name) => {
-                var visible = !hiddenAttributeMap[name];
                 var value = node.attr[name];
+                var visible = graphMetadata.getAttributeVisible(node.op, name, value);
                 result.push(new TensorFlowAttribute(this, name, value, visible));
             });
         }
@@ -875,62 +874,90 @@ class TensorFlowGraphOperatorMetadata {
         return results;
     }
 
-    getHiddenAttributeMap(operator) {
-        var result = {
-            '_output_shapes': true,
-            '_class': true
-        };
+    getAttributeSchema(operator, name, value) {
         var schema = this.getSchema(operator);
         if (schema) {
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.typeAttr) {
-                        result[input.typeAttr] = true;
-                    }
-                    else if (input.typeListAttr) {
-                        result[input.typeListAttr] = true;
-                    }
-                    if (input.numberAttr) {
-                        result[input.numberAttr] = true;
-                    }
-                });
+            var attributeMap = schema.attributeMap;
+            if (!attributeMap) {
+                attributeMap = {};
+                if (schema.attributes) {
+                    schema.attributes.forEach((attribute) => {
+                        attributeMap[attribute.name] = attribute;
+                    });
+                }
+                schema.attributeMap = attributeMap;
             }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.typeAttr) {
-                        result[output.typeAttr] = true;
-                    }
-                    else if (output.typeListAttr) {
-                        result[output.typeListAttr] = true;
-                    }
-                    if (output.numberAttr) {
-                        result[output.numberAttr] = true;
-                    }
-                });
+            var attributeSchema = attributeMap[name];
+            if (attributeSchema) {
+                return attributeSchema; 
             }
-        }   
-        return result;
+        }
+        return null;        
     }
 
     getAttributeType(operator, name) {
-        var opDef = this.getSchema(operator);
-        if (opDef) {
-            var attributeMap = opDef.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (opDef.attr) {
-                    opDef.attr.forEach((attr) => {
-                        attributeMap[attr.name] = attr;
+        var attributeSchema = this.getAttributeSchema(operator, name);
+        if (attributeSchema && attributeSchema.type) {
+            return attributeSchema.type;
+        }
+        return '';
+    }
+
+    getAttributeVisible(operator, name, value) {
+        var schema = this.getSchema(operator);
+        if (schema) {
+            var attributeSchema = this.getAttributeSchema(operator, name);
+            if (attributeSchema) {
+                if (attributeSchema.hasOwnProperty('visible')) {
+                    return attributeSchema.visible;
+                }
+                if (attributeSchema.hasOwnProperty('defaultValue')) {
+                    var valueText = TensorFlowAttribute.formatAttributeValue(value);
+                    var defaultValueText = TensorFlowGraphOperatorMetadata.formatAttributeValue(attributeSchema.defaultValue);
+                    if (valueText == defaultValueText) {
+                        return false;
+                    }
+                }
+            }
+            if (name == '_output_shapes' || name == '_class') {
+                return false;
+            }
+            var hiddenAttributeMap = schema.hiddenAttributeMap;
+            if (!hiddenAttributeMap) {
+                hiddenAttributeMap = {};
+                if (schema.inputs) {
+                    schema.inputs.forEach((input) => {
+                        if (input.typeAttr) {
+                            hiddenAttributeMap[input.typeAttr] = true;
+                        }
+                        else if (input.typeListAttr) {
+                            hiddenAttributeMap[input.typeListAttr] = true;
+                        }
+                        if (input.numberAttr) {
+                            hiddenAttributeMap[input.numberAttr] = true;
+                        }
                     });
                 }
-                opDef.attributeMap = attributeMap;
+                if (schema.outputs) {
+                    schema.outputs.forEach((output) => {
+                        if (output.typeAttr) {
+                            hiddenAttributeMap[output.typeAttr] = true;
+                        }
+                        else if (output.typeListAttr) {
+                            hiddenAttributeMap[output.typeListAttr] = true;
+                        }
+                        if (output.numberAttr) {
+                            hiddenAttributeMap[output.numberAttr] = true;
+                        }
+                    });
+                }
+                schema.hiddenAttributeMap = hiddenAttributeMap;
             }
-            var attributeEntry = attributeMap[name];
-            if (attributeEntry) { 
-                return attributeEntry.type;
+            if (hiddenAttributeMap[name]) {
+                return false;
             }
-        }        
-        return '';
+        }
+        return true;
     }
 
     getOperatorCategory(node) {
@@ -1029,7 +1056,7 @@ class TensorFlowGraphOperatorMetadata {
         if (typeof value === 'string') {
             return '"' + value + '"';
         }
-        return value;
+        return value.toString();
     }
 }
 
