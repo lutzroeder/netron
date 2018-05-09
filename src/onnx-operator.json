@@ -3928,6 +3928,12 @@
     "schema": {
       "description": "Identity operator",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Identity',\n    inputs=['x'],\n    outputs=['y'],\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data], outputs=[data],\n       name='test_identity')",
+          "summary": "identity"
+        }
+      ],
       "inputs": [
         {
           "description": "Input tensor",
@@ -3947,15 +3953,25 @@
         }
       ],
       "since_version": 1,
-      "support_level": "experimental",
+      "support_level": "common",
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -8359,7 +8375,7 @@
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "1-D input tensor",
+          "description": "Input tensor",
           "name": "input",
           "type": "T"
         }
@@ -8986,7 +9002,7 @@
       ],
       "inputs": [
         {
-          "description": "1-D input tensor",
+          "description": "Input tensor",
           "name": "input",
           "type": "T"
         }
@@ -9661,7 +9677,7 @@
       ],
       "inputs": [
         {
-          "description": "1-D input tensor",
+          "description": "Input tensor",
           "name": "input",
           "type": "T"
         }
