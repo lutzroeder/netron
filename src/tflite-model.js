@@ -354,6 +354,9 @@ class TensorFlowLiteNode {
                 }
             }
         }
+        if (typeof attributeValue != 'string') {
+            attributeValue = attributeValue.toString();
+        }
         return attributeValue;
     }
 }
