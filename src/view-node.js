@@ -42,7 +42,7 @@ class NodeView {
         }
 
         var attributes = node.attributes;
-        if (attributes && node.attributes.length > 0) {
+        if (attributes && attributes.length > 0) {
             this.addHeader('Attributes');
             attributes.forEach((attribute) => {
                 this.addAttribute(attribute.name, attribute);
@@ -50,7 +50,7 @@ class NodeView {
         }
 
         var inputs = node.inputs;
-        if (inputs && node.inputs.length > 0) {
+        if (inputs && inputs.length > 0) {
             this.addHeader('Inputs');
             inputs.forEach((input) => {
                 this.addInput(input.name, input);
@@ -58,7 +58,7 @@ class NodeView {
           }
 
         var outputs = node.outputs;
-        if (outputs && node.outputs.length > 0) {
+        if (outputs && outputs.length > 0) {
             this.addHeader('Outputs');
             outputs.forEach((output) => {
                 this.addOutput(output.name, output);

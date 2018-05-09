@@ -307,11 +307,12 @@ class View {
                 formatter.setControlDependencies();
             }
     
-            if (node.attributes && !primitive) {
+            var attributes = node.attributes; 
+            if (attributes && !primitive) {
                 formatter.setAttributeHandler(() => { 
                     this.showNode(node);
                 });
-                node.attributes.forEach((attribute) => {
+                attributes.forEach((attribute) => {
                     if (attribute.visible) {
                         var attributeValue = '';
                         if (attribute.tensor) {
