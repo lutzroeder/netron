@@ -2,20 +2,15 @@
 
 mkdir -p ../third_party
 
-repository=https://github.com/keras-team/keras.git
+identifier=keras
+repository=https://github.com/keras-team/${identifier}.git
 
-if [ -d "../third_party/keras" ]; then
-    pushd "../third_party/keras" > /dev/null
-    echo "Fetch ${repository}..."
-    git fetch -p
-    echo "Reset ${repository}..."
-    git reset --hard origin/master
-    popd > /dev/null
+if [ -d "../third_party/${identifier}" ]; then
+    git -C "../third_party/${identifier}" fetch -p
+    git -C "../third_party/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    pushd "../third_party" > /dev/null
-    git clone --recursive ${repository}
-    popd > /dev/null
+    git -C "../third_party" clone --recursive ${repository}
 fi
 
 echo "Update '../src/keras-metadata.json'"

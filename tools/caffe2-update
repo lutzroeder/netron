@@ -2,32 +2,34 @@
 
 mkdir -p ../third_party
 
-repository=https://github.com/caffe2/caffe2.git
+identifier=pytorch
+repository=https://github.com/pytorch/pytorch.git
 
-if [ -d "../third_party/caffe2" ]; then
-    pushd "../third_party/caffe2" > /dev/null
-    echo "Fetch ${repository}..."
-    git fetch -p
-    echo "Reset ${repository}..."
-    git reset --hard origin/master
-    popd > /dev/null
+if [ -d "../third_party/${identifier}" ]; then
+    git -C "../third_party/${identifier}" fetch -p
+    git -C "../third_party/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    pushd "../third_party" > /dev/null
-    git clone --recursive ${repository}
-    popd > /dev/null
+    git -C "../third_party" clone --recursive ${repository}
 fi
 
 echo "Generate '../src/caffe2.js'"
-../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ../src/caffe2.js ../third_party/caffe2/caffe2/proto/caffe2.proto
+../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ../src/caffe2.js ../third_party/pytorch/caffe2/proto/caffe2.proto
 
 echo "Install Caffe2 dependencies"
-brew install automake cmake gflags glog
-sudo -H pip install future numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
-sudo -H pip3 install future numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
+brew bundle --file=- <<-EOS
+brew "automake"
+brew "cmake"
+brew "gflags"
+brew "glog"
+EOS
+
+sudo pip install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
+sudo pip3 install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
 
 echo "Build Caffe2"
-pushd "../third_party/caffe2" > /dev/null
+pushd "../third_party/pytorch" > /dev/null
+git submodule update --init
 mkdir -p build && cd build
 cmake -DUSE_CUDA=OFF ..
 sudo make install

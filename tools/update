@@ -1,0 +1,11 @@
+#!/bin/bash
+
+./keras-update
+./tf-update
+./coreml-update
+./caffe-update
+./mxnet-update
+
+./onnx-update
+./tflite-update
+./caffe2-update
