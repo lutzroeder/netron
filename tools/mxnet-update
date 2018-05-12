@@ -18,5 +18,5 @@ else
     popd > /dev/null
 fi
 
-# echo "Update '../src/mxnet-operator.json'"
-# python mxnet-operator-json.py
+# echo "Update '../src/mxnet-metadata.json'"
+# python mxnet-metadata.py

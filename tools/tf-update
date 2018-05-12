@@ -35,7 +35,7 @@ echo "Generate '../src/tf.js'"
     ../third_party/tensorflow/tensorflow/core/framework/tensor.proto \
     ../third_party/tensorflow/tensorflow/core/framework/resource_handle.proto \
 
-echo "Generate '../src/tf-operator.json'"
+echo "Generate '../src/tf-metadata.json'"
 protoc --proto_path /Users/lutzroeder/Projects/Netron/third_party/tensorflow tensorflow/core/framework/attr_value.proto --python_out=.
 protoc --proto_path /Users/lutzroeder/Projects/Netron/third_party/tensorflow tensorflow/core/framework/tensor.proto --python_out=.
 protoc --proto_path /Users/lutzroeder/Projects/Netron/third_party/tensorflow tensorflow/core/framework/types.proto --python_out=.
@@ -46,5 +46,5 @@ protoc --proto_path /Users/lutzroeder/Projects/Netron/third_party/tensorflow ten
 touch tensorflow/__init__.py
 touch tensorflow/core/__init__.py
 touch tensorflow/core/framework/__init__.py
-python tf-operator-json.py
+python tf-metadata.py
 rm -rf ./tensorflow

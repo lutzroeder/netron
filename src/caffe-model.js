@@ -473,7 +473,7 @@ class CaffeOperatorMetadata
             callback(null, CaffeOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/caffe-operator.json', (err, data) => {
+            host.request('/caffe-metadata.json', (err, data) => {
                 CaffeOperatorMetadata.operatorMetadata = new CaffeOperatorMetadata(data);
                 callback(null, CaffeOperatorMetadata.operatorMetadata);
             });

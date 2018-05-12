@@ -25,8 +25,8 @@ pushd "../third_party/onnx" > /dev/null
 python ./setup.py build --build-lib ./build/lib
 popd > /dev/null
 
-echo "Generate '../src/onnx-operator.json'"
-PYTHONPATH=../third_party/onnx/build/lib python onnx-operator-json.py
+echo "Generate '../src/onnx-metadata.json'"
+PYTHONPATH=../third_party/onnx/build/lib python onnx-metadata.py
 
 echo "Generate '../src/onnx.js'"
 sed 's/package ONNX_NAMESPACE/package onnx/g' <../third_party/onnx/onnx/onnx-ml.proto >./onnx-ml.proto

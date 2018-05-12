@@ -18,5 +18,5 @@ else
     popd > /dev/null
 fi
 
-echo "Update '../src/keras-operator.json'"
-python keras-operator-json.py
+echo "Update '../src/keras-metadata.json'"
+python keras-metadata.py

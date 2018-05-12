@@ -252,7 +252,7 @@ for op in ops_list.op:
         'schema': json_schema 
     })
 
-json_file = '../src/tf-operator.json'
+json_file = '../src/tf-metadata.json'
 with io.open(json_file, 'w', newline='') as fout:
     json_data = json.dumps(json_root, sort_keys=True, indent=2)
     for line in json_data.splitlines():

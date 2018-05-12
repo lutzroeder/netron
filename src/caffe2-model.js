@@ -264,7 +264,7 @@ class Caffe2OperatorMetadata
             callback(null, Caffe2OperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/caffe2-operator.json', (err, data) => {
+            host.request('/caffe2-metadata.json', (err, data) => {
                 Caffe2OperatorMetadata.operatorMetadata = new Caffe2OperatorMetadata(data);
                 callback(null, Caffe2OperatorMetadata.operatorMetadata);
             });

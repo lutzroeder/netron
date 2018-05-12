@@ -572,7 +572,7 @@ class TensorFlowLiteOperatorMetadata {
             callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/tflite-operator.json', (err, data) => {
+            host.request('/tflite-metadata.json', (err, data) => {
                 TensorFlowLiteOperatorMetadata.operatorMetadata = new TensorFlowLiteOperatorMetadata(data);
                 callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
             });    

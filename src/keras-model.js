@@ -654,7 +654,7 @@ class KerasOperatorMetadata {
             callback(null, KerasOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/keras-operator.json', (err, data) => {
+            host.request('/keras-metadata.json', (err, data) => {
                 KerasOperatorMetadata.operatorMetadata = new KerasOperatorMetadata(data);
                 callback(null, KerasOperatorMetadata.operatorMetadata);
             });    

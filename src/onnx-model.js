@@ -883,7 +883,7 @@ class OnnxOperatorMetadata {
             callback(null, OnnxOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/onnx-operator.json', (err, data) => {
+            host.request('/onnx-metadata.json', (err, data) => {
                 OnnxOperatorMetadata.operatorMetadata = new OnnxOperatorMetadata(data);
                 callback(null, OnnxOperatorMetadata.operatorMetadata);
             });

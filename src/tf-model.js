@@ -1067,7 +1067,7 @@ class TensorFlowOperatorMetadata {
             callback(null, TensorFlowOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/tf-operator.json', (err, data) => {
+            host.request('/tf-metadata.json', (err, data) => {
                 TensorFlowOperatorMetadata.operatorMetadata = new TensorFlowOperatorMetadata(data);
                 callback(null, TensorFlowOperatorMetadata.operatorMetadata);
             });

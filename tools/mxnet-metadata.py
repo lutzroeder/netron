@@ -9,7 +9,7 @@ import pydoc
 import re
 import sys
 
-json_file = '../src/mxnet-operator.json'
+json_file = '../src/mxnet-metadata.json'
 json_data = open(json_file).read()
 json_root = json.loads(json_data)
 

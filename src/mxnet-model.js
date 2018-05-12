@@ -305,7 +305,7 @@ class MXNetOperatorMetadata {
             callback(null, MXNetOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/mxnet-operator.json', (err, data) => {
+            host.request('/mxnet-metadata.json', (err, data) => {
                 MXNetOperatorMetadata.operatorMetadata = new MXNetOperatorMetadata(data);
                 callback(null, MXNetOperatorMetadata.operatorMetadata);
             });

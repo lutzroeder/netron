@@ -704,7 +704,7 @@ class CoreMLOperatorMetadata
             callback(null, CoreMLOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/coreml-operator.json', (err, data) => {
+            host.request('/coreml-metadata.json', (err, data) => {
                 CoreMLOperatorMetadata.operatorMetadata = new CoreMLOperatorMetadata(data);
                 callback(null, CoreMLOperatorMetadata.operatorMetadata);
             });
