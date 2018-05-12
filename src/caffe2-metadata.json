@@ -24,7 +24,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -52,7 +52,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -97,7 +97,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -132,7 +132,7 @@
           "name": "C"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -160,7 +160,7 @@
           "name": "sum"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -195,7 +195,7 @@
           "name": "C"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -240,7 +240,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -260,7 +260,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -280,7 +280,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -304,7 +304,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -331,7 +331,7 @@
           "name": "output"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -351,7 +351,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -371,7 +371,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -460,7 +460,7 @@
           "name": "saved_var"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -468,7 +468,7 @@
     "schema": {
       "category": "Normalization",
       "description": null,
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -503,7 +503,7 @@
           "name": "mask"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -544,7 +544,7 @@
           "name": "split_info"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -606,7 +606,7 @@
           "name": "rois_probs"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -651,7 +651,7 @@
           "name": "Y"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -699,7 +699,7 @@
           "name": "roi_batch_splits"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   },
   {
@@ -783,7 +783,7 @@
           "name": "keeps_size"
         }
       ],
-      "support_level": "core"
+      "support_level": "default"
     }
   }
 ]

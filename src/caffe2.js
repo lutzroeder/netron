@@ -2617,7 +2617,9 @@
          * @property {number} CUDA=1 CUDA value
          * @property {number} MKLDNN=2 MKLDNN value
          * @property {number} OPENGL=3 OPENGL value
-         * @property {number} COMPILE_TIME_MAX_DEVICE_TYPES=4 COMPILE_TIME_MAX_DEVICE_TYPES value
+         * @property {number} OPENCL=4 OPENCL value
+         * @property {number} IDEEP=5 IDEEP value
+         * @property {number} COMPILE_TIME_MAX_DEVICE_TYPES=6 COMPILE_TIME_MAX_DEVICE_TYPES value
          * @property {number} ONLY_FOR_TEST=20901701 ONLY_FOR_TEST value
          */
         caffe2.DeviceType = (function() {
@@ -2626,7 +2628,9 @@
             values[valuesById[1] = "CUDA"] = 1;
             values[valuesById[2] = "MKLDNN"] = 2;
             values[valuesById[3] = "OPENGL"] = 3;
-            values[valuesById[4] = "COMPILE_TIME_MAX_DEVICE_TYPES"] = 4;
+            values[valuesById[4] = "OPENCL"] = 4;
+            values[valuesById[5] = "IDEEP"] = 5;
+            values[valuesById[6] = "COMPILE_TIME_MAX_DEVICE_TYPES"] = 6;
             values[valuesById[20901701] = "ONLY_FOR_TEST"] = 20901701;
             return values;
         })();
@@ -2642,6 +2646,7 @@
              * @property {number|null} [randomSeed] DeviceOption randomSeed
              * @property {string|null} [nodeName] DeviceOption nodeName
              * @property {number|null} [numaNodeId] DeviceOption numaNodeId
+             * @property {Array.<string>|null} [extraInfo] DeviceOption extraInfo
              */
     
             /**
@@ -2653,6 +2658,7 @@
              * @param {caffe2.IDeviceOption=} [properties] Properties to set
              */
             function DeviceOption(properties) {
+                this.extraInfo = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -2700,6 +2706,14 @@
             DeviceOption.prototype.numaNodeId = -1;
     
             /**
+             * DeviceOption extraInfo.
+             * @member {Array.<string>} extraInfo
+             * @memberof caffe2.DeviceOption
+             * @instance
+             */
+            DeviceOption.prototype.extraInfo = $util.emptyArray;
+    
+            /**
              * Creates a new DeviceOption instance using the specified properties.
              * @function create
              * @memberof caffe2.DeviceOption
@@ -2733,6 +2747,9 @@
                     writer.uint32(/* id 4, wireType 2 =*/34).string(message.nodeName);
                 if (message.numaNodeId != null && message.hasOwnProperty("numaNodeId"))
                     writer.uint32(/* id 5, wireType 0 =*/40).int32(message.numaNodeId);
+                if (message.extraInfo != null && message.extraInfo.length)
+                    for (var i = 0; i < message.extraInfo.length; ++i)
+                        writer.uint32(/* id 6, wireType 2 =*/50).string(message.extraInfo[i]);
                 return writer;
             };
     
@@ -2781,6 +2798,11 @@
                         break;
                     case 5:
                         message.numaNodeId = reader.int32();
+                        break;
+                    case 6:
+                        if (!(message.extraInfo && message.extraInfo.length))
+                            message.extraInfo = [];
+                        message.extraInfo.push(reader.string());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2832,6 +2854,13 @@
                 if (message.numaNodeId != null && message.hasOwnProperty("numaNodeId"))
                     if (!$util.isInteger(message.numaNodeId))
                         return "numaNodeId: integer expected";
+                if (message.extraInfo != null && message.hasOwnProperty("extraInfo")) {
+                    if (!Array.isArray(message.extraInfo))
+                        return "extraInfo: array expected";
+                    for (var i = 0; i < message.extraInfo.length; ++i)
+                        if (!$util.isString(message.extraInfo[i]))
+                            return "extraInfo: string[] expected";
+                }
                 return null;
             };
     
@@ -2857,6 +2886,13 @@
                     message.nodeName = String(object.nodeName);
                 if (object.numaNodeId != null)
                     message.numaNodeId = object.numaNodeId | 0;
+                if (object.extraInfo) {
+                    if (!Array.isArray(object.extraInfo))
+                        throw TypeError(".caffe2.DeviceOption.extraInfo: array expected");
+                    message.extraInfo = [];
+                    for (var i = 0; i < object.extraInfo.length; ++i)
+                        message.extraInfo[i] = String(object.extraInfo[i]);
+                }
                 return message;
             };
     
@@ -2873,6 +2909,8 @@
                 if (!options)
                     options = {};
                 var object = {};
+                if (options.arrays || options.defaults)
+                    object.extraInfo = [];
                 if (options.defaults) {
                     object.deviceType = 0;
                     object.cudaGpuId = 0;
@@ -2890,6 +2928,11 @@
                     object.nodeName = message.nodeName;
                 if (message.numaNodeId != null && message.hasOwnProperty("numaNodeId"))
                     object.numaNodeId = message.numaNodeId;
+                if (message.extraInfo && message.extraInfo.length) {
+                    object.extraInfo = [];
+                    for (var j = 0; j < message.extraInfo.length; ++j)
+                        object.extraInfo[j] = message.extraInfo[j];
+                }
                 return object;
             };
     
