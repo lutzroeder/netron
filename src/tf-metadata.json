@@ -20991,6 +20991,7 @@
     "schema": {
       "attributes": [
         {
+          "description": "A function to apply to the outputs of `input_dataset`.",
           "name": "f",
           "type": "func"
         },
@@ -21010,13 +21011,15 @@
           "type": "list(shape)"
         }
       ],
-      "description": "batches `batch_size` of them.\n\nUnlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `batch_size * num_parallel_batches` copies of `f` in parallel.",
+      "description": "Creates a dataset that applies `f` to the outputs of `input_dataset` and then\nbatches `batch_size` of them.\n\nUnlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `batch_size * num_parallel_batches` copies of `f` in parallel.",
       "inputs": [
         {
+          "description": "A variant tensor representing the input dataset.",
           "name": "input_dataset",
           "type": 21
         },
         {
+          "description": "A list of tensors, typically values that were captured when building a closure\nfor `f`.",
           "name": "other_arguments",
           "typeListAttr": "Targuments"
         },
@@ -21026,11 +21029,12 @@
           "type": 9
         },
         {
-          "description": "A scalar representing the number of batches to create in\nparallel. Processing multiple batches in parallel benefits workloads prone to\nstragglers.",
+          "description": "A scalar representing the number of batches to create in parallel. Processing\nmultiple batches in parallel benefits workloads prone to stragglers.",
           "name": "num_parallel_batches",
           "type": 9
         },
         {
+          "description": "A scalar representing whether the last batch should be dropped in case its size\nis smaller than desired.",
           "name": "drop_remainder",
           "type": 10
         }
@@ -21041,7 +21045,69 @@
           "type": 21
         }
       ],
-      "summary": "Creates a dataset that applies `f` to the outputs of `input_dataset` and then"
+      "summary": "Creates a dataset that fuses mapping with batching."
+    }
+  },
+  {
+    "name": "MapAndBatchDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A function to apply to the outputs of `input_dataset`.",
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "Creates a dataset that applies `f` to the outputs of `input_dataset` and then\nbatches `batch_size` of them.\n\nUnlike a \"MapDataset\", which applies `f` sequentially, this dataset invokes up\nto `batch_size * num_parallel_batches` copies of `f` in parallel.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A list of tensors, typically values that were captured when building a closure\nfor `f`.",
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        },
+        {
+          "description": "A scalar representing the number of elements to accumulate in a\nbatch. It determines the number of concurrent invocations of `f` that process\nelements from `input_dataset` in parallel.",
+          "name": "batch_size",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing the maximum number of parallel invocations of the `map_fn`\nfunction. Applying the `map_fn` on consecutive input elements in parallel has\nthe potential to improve input pipeline throughput.",
+          "name": "num_parallel_calls",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing whether the last batch should be dropped in case its size\nis smaller than desired.",
+          "name": "drop_remainder",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that fuses mapping with batching."
     }
   },
   {
