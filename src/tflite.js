@@ -81,7 +81,12 @@ tflite.BuiltinOperator = {
   ARG_MAX: 56,
   MINIMUM: 57,
   LESS: 58,
-  NEG: 59
+  NEG: 59,
+  PADV2: 60,
+  GREATER: 61,
+  GREATER_EQUAL: 62,
+  LESS_EQUAL: 63,
+  SELECT: 64
 };
 
 /**
@@ -130,7 +135,12 @@ tflite.BuiltinOptions = {
   MaximumMinimumOptions: 39,
   ArgMaxOptions: 40,
   LessOptions: 41,
-  NegOptions: 42
+  NegOptions: 42,
+  PadV2Options: 43,
+  GreaterOptions: 44,
+  GreaterEqualOptions: 45,
+  LessEqualOptions: 46,
+  SelectOptions: 47
 };
 
 /**
@@ -2411,6 +2421,57 @@ tflite.PadOptions.endPadOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.PadV2Options = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.PadV2Options}
+ */
+tflite.PadV2Options.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.PadV2Options=} obj
+ * @returns {tflite.PadV2Options}
+ */
+tflite.PadV2Options.getRootAsPadV2Options = function(bb, obj) {
+  return (obj || new tflite.PadV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.PadV2Options.startPadV2Options = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.PadV2Options.endPadV2Options = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.ReshapeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -3878,6 +3939,108 @@ tflite.ArgMaxOptions.endArgMaxOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.GreaterOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.GreaterOptions}
+ */
+tflite.GreaterOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.GreaterOptions=} obj
+ * @returns {tflite.GreaterOptions}
+ */
+tflite.GreaterOptions.getRootAsGreaterOptions = function(bb, obj) {
+  return (obj || new tflite.GreaterOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.GreaterOptions.startGreaterOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.GreaterOptions.endGreaterOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.GreaterEqualOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.GreaterEqualOptions}
+ */
+tflite.GreaterEqualOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.GreaterEqualOptions=} obj
+ * @returns {tflite.GreaterEqualOptions}
+ */
+tflite.GreaterEqualOptions.getRootAsGreaterEqualOptions = function(bb, obj) {
+  return (obj || new tflite.GreaterEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.GreaterEqualOptions.startGreaterEqualOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.GreaterEqualOptions.endGreaterEqualOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.LessOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -3929,6 +4092,57 @@ tflite.LessOptions.endLessOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.LessEqualOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.LessEqualOptions}
+ */
+tflite.LessEqualOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.LessEqualOptions=} obj
+ * @returns {tflite.LessEqualOptions}
+ */
+tflite.LessEqualOptions.getRootAsLessEqualOptions = function(bb, obj) {
+  return (obj || new tflite.LessEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.LessEqualOptions.startLessEqualOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.LessEqualOptions.endLessEqualOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.NegOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -3973,6 +4187,57 @@ tflite.NegOptions.startNegOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite.NegOptions.endNegOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.SelectOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.SelectOptions}
+ */
+tflite.SelectOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.SelectOptions=} obj
+ * @returns {tflite.SelectOptions}
+ */
+tflite.SelectOptions.getRootAsSelectOptions = function(bb, obj) {
+  return (obj || new tflite.SelectOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.SelectOptions.startSelectOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.SelectOptions.endSelectOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
