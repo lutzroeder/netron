@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 mkdir -p ../third_party
 
 identifier=keras
@@ -14,4 +16,4 @@ else
 fi
 
 echo "Update '../src/keras-metadata.json'"
-python keras-metadata.py
+python keras-metadata.py || exit 1

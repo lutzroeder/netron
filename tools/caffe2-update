@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 mkdir -p ../third_party
 
 identifier=pytorch

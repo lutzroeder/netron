@@ -1,10 +1,11 @@
-
 #!/bin/bash
+
+set -e
 
 mkdir -p ../third_party
 
 identifier=tensorflow
-repository=git@github.com:tensorflow/${identifier}.git
+repository=https://github.com/tensorflow/${identifier}.git
 
 if [ -d "../third_party/${identifier}" ]; then
     git -C "../third_party/${identifier}" fetch -p

@@ -1,21 +1,18 @@
 #!/bin/bash
 
+set -e
+
 mkdir -p ../third_party
 
-repository=git@github.com:apple/coremltools.git
+identifier=coremltools
+repository=https://github.com/apple/${identifier}.git
 
-if [ -d "../third_party/coremltools" ]; then
-    pushd "../third_party/coremltools" > /dev/null
-    echo "Fetch ${repository}..."
-    git fetch -p
-    echo "Reset ${repository}..."
-    git reset --hard origin/master
-    popd > /dev/null
+if [ -d "../third_party/${identifier}" ]; then
+    git -C "../third_party/${identifier}" fetch -p
+    git -C "../third_party/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    pushd "../third_party" > /dev/null
-    git clone --recursive ${repository}
-    popd > /dev/null
+    git -C "../third_party" clone --recursive ${repository}
 fi
 
 echo "Generate '../src/coreml.js'"

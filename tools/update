@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 ./keras-update
 ./tf-update
 ./coreml-update
