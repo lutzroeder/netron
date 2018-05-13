@@ -476,7 +476,7 @@ class KerasNode {
             Object.keys(this._config).forEach((name) => {
                 var value = this._config[name];
                 if (name != 'name' && value != null) {
-                    var visible = !KerasOperatorMetadata.operatorMetadata.getAttributeVisible(this.operator, name, value);
+                    var visible = KerasOperatorMetadata.operatorMetadata.getAttributeVisible(this.operator, name, value);
                     results.push(new KerasAttribute(name, value, visible));
                 }
             });
@@ -763,10 +763,10 @@ class KerasOperatorMetadata {
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributeMap) {
                 schema.attributeMap = {};
+                schema.attributes.forEach(attribute => {
+                    schema.attributeMap[attribute.name] = attribute;
+                });
             }
-            schema.attributes.forEach(attribute => {
-                schema.attributeMap[attribute.name] = attribute;
-            });
             var attribute = schema.attributeMap[attributeName];
             if (attribute) {
                 if (attribute && attribute.hasOwnProperty('default')) {
