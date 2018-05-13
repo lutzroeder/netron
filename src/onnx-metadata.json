@@ -147,6 +147,50 @@
     }
   },
   {
+    "name": "Acos",
+    "schema": {
+      "description": "Calculates the arccosine (inverse of cosine) of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Acos',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-0.5, 0, 0.5]).astype(np.float32)\ny = np.arccos(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_acos_example')\n\nx = np.random.rand(3, 4, 5).astype(np.float32)\ny = np.arccos(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_acos')",
+          "summary": "acos"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The arccosine of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Add",
     "schema": {
       "attributes": [
@@ -578,6 +622,94 @@
             "tensor(string)"
           ],
           "description": "allowed types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Asin",
+    "schema": {
+      "description": "Calculates the arcsine (inverse of sine) of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Asin',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-0.5, 0, 0.5]).astype(np.float32)\ny = np.arcsin(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_asin_example')\n\nx = np.random.rand(3, 4, 5).astype(np.float32)\ny = np.arcsin(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_asin')",
+          "summary": "asin"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The arcsine of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Atan",
+    "schema": {
+      "description": "Calculates the arctangent (inverse of tangent) of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Atan',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.arctan(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_atan_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.arctan(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_atan')",
+          "summary": "atan"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The arctangent of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
         }
       ]
@@ -1936,6 +2068,50 @@
         }
       ],
       "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Cos",
+    "schema": {
+      "description": "Calculates the cosine of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Cos',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.cos(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_cos_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.cos(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_cos')",
+          "summary": "cos"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The cosine of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 7,
       "support_level": "common",
       "type_constraints": [
         {
@@ -8861,6 +9037,50 @@
     }
   },
   {
+    "name": "Sin",
+    "schema": {
+      "description": "Calculates the sine of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sin',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.sin(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sin_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.sin(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sin')",
+          "summary": "sin"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The sine of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Size",
     "schema": {
       "description": "Takes a tensor as input and outputs a int64 scalar that equals to the total number of elements of the input tensor.\n",
@@ -9709,6 +9929,50 @@
         }
       ],
       "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Tan",
+    "schema": {
+      "description": "Calculates the tangent of the given input tensor, element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Tan',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.tan(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tan_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.tan(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_tan')",
+          "summary": "tan"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The tangent of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 7,
       "support_level": "common",
       "type_constraints": [
         {
