@@ -769,7 +769,10 @@ class KerasOperatorMetadata {
             }
             var attribute = schema.attributeMap[attributeName];
             if (attribute) {
-                if (attribute && attribute.hasOwnProperty('default')) {
+                if (attribute.hasOwnProperty('visible')) {
+                    return attribute.visible;
+                }
+                if (attribute.hasOwnProperty('default')) {
                     return !KerasOperatorMetadata.isEquivalent(attribute.default, attributeValue);
                 }
             }
