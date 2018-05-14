@@ -409,11 +409,11 @@ class TensorFlowLiteTensor {
 
     get quantization() {
         var quantization = this._tensor.quantization();
-        if (quantization && quantization.scaleLength() == 1 && quantization.zeroPointLength() == 1) {
-            var scale = quantization.scale(0);
-            if (scale != 0) {
-                var zeroPoint = quantization.zeroPoint(0).toFloat64();
-                return 'f = ' + scale.toString() + ' * ' + (zeroPoint != 0 ? ('(q - ' + zeroPoint.toString() + ')') : 'q');
+        if (quantization) {
+            var scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
+            var zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
+            if (scale != 0 || zeroPoint != 0) {
+                return 'f = ' + scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
             }
         }
         return null;
