@@ -135,6 +135,7 @@ class OnnxGraph {
         this._model = model;
         this._metadata = metadata;
         this._graph = graph;
+        this._nodes = [];
 
         if (this._graph) {
             this._name = this._graph.name ? this._graph.name : ('(' + index.toString() + ')');
@@ -142,11 +143,7 @@ class OnnxGraph {
             this._outputMap = {};
             this._graph.node.forEach((node) => {
                 node.output.forEach((output) => {
-                    var count = this._outputMap[output];
-                    if (!count) {
-                        count = 0;
-                    }
-                    this._outputMap[output] = count + 1;
+                    this._outputMap[output] = (this._outputMap[output] || 0) + 1;
                 });
             });
     
@@ -155,13 +152,18 @@ class OnnxGraph {
                 this._initializerMap[tensor.name] = new OnnxTensor(tensor, tensor.name, 'Initializer');
             });
             this._graph.node.forEach((node) => {
+                var add = true;
                 if (node.opType == 'Constant' && node.output && node.output.length == 1 && this._outputMap[node.output[0]] == 1) {
                     node.attribute.forEach((attribute) => {
                         if (attribute.name == 'value' && attribute.t) {
                             var name = node.output[0];
                             this._initializerMap[name] = new OnnxTensor(attribute.t, name, 'Constant');
+                            add = false;
                         }
                     });
+                }
+                if (add) {
+                    this._nodes.push(new OnnxNode(this, node));
                 }
             });
         }
@@ -227,15 +229,7 @@ class OnnxGraph {
     }
 
     get nodes() {
-        var results = [];
-        if (this._graph) {
-            this._graph.node.forEach((node) => {
-                if (!this._initializerMap[node.output[0]]) {
-                    results.push(new OnnxNode(this, node));
-                }
-            });
-        }
-        return results;
+        return this._nodes;
     }
 
     getInitializer(input) {
