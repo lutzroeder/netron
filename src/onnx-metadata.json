@@ -1664,7 +1664,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values_ in test_cases.items():\n    values = [np.asarray(v, dtype=np.float32) for v in values_]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}  # type: Dict[Text, Sequence[Any]]\n\nfor test_case, values_ in test_cases.items():\n    values = [np.asarray(v, dtype=np.float32) for v in values_]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
           "summary": "concat"
         }
       ],
@@ -1718,7 +1718,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}\n\nfor test_case, values_ in test_cases.items():\n    values = [np.asarray(v, dtype=np.float32) for v in values_]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
+          "code": "test_cases = {\n    '1d': ([1, 2],\n           [3, 4]),\n    '2d': ([[1, 2], [3, 4]],\n           [[5, 6], [7, 8]]),\n    '3d': ([[[1, 2], [3, 4]], [[5, 6], [7, 8]]],\n           [[[9, 10], [11, 12]], [[13, 14], [15, 16]]])\n}  # type: Dict[Text, Sequence[Any]]\n\nfor test_case, values_ in test_cases.items():\n    values = [np.asarray(v, dtype=np.float32) for v in values_]\n    for i in range(len(values[0].shape)):\n        in_args = ['value' + str(k) for k in range(len(values))]\n        node = onnx.helper.make_node(\n            'Concat',\n            inputs=[s for s in in_args],\n            outputs=['output'],\n            axis=i\n        )\n        output = np.concatenate(values, i)\n        expect(node, inputs=[v for v in values], outputs=[output],\n               name='test_concat_' + test_case + '_axis_' + str(i))",
           "summary": "concat"
         }
       ],
@@ -1746,11 +1746,21 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
-          "description": "Constrain output types to float tensors.",
+          "description": "Constrain output types to any tensor type.",
           "type_param_str": "T"
         }
       ]
@@ -2859,69 +2869,6 @@
     }
   },
   {
-    "name": "FC",
-    "schema": {
-      "attributes": [
-        {
-          "description": "(int32_t) default to 1; describes the axis of the inputs; defaults to one because the 0th axis most likely describes the batch_size",
-          "name": "axis",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "(int32_t) default to 1; describes the axis of the weights; defaults to one because the 0th axis most likely describes the batch_size",
-          "name": "axis_w",
-          "required": false,
-          "type": "int"
-        }
-      ],
-      "category": "Layer",
-      "description": "Computes the result of passing an input vector X into a fully\nconnected layer with 2D weight matrix W and 1D bias vector b. That is,\nthe layer computes Y = X * W^T + b, where X has size (M x K),\nW has size (N x K), b has size (N), and Y has size (M x N),\nwhere M is often the batch size.\nNOTE: X does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \\in N+ and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = M and a_1 * ... * a_{n-1} = K.\nLastly, even though b is a 1D vector of size N, it is copied/resized to\nbe size (M x N) implicitly and added to each vector in the batch.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
-      "domain": "ai.onnx",
-      "inputs": [
-        {
-          "description": "input tensor that's coerced into a 2D matrix of size (MxK) as described above",
-          "name": "X",
-          "type": "T"
-        },
-        {
-          "description": "2D blob of size (KxN) containing fully connected weight matrix",
-          "name": "W",
-          "type": "T"
-        },
-        {
-          "description": "1D blob containing bias vector",
-          "name": "B",
-          "type": "T"
-        }
-      ],
-      "max_input": 3,
-      "max_output": 1,
-      "min_input": 3,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "2D output tensor",
-          "name": "Y",
-          "type": "T"
-        }
-      ],
-      "since_version": 1,
-      "support_level": "experimental",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)"
-          ],
-          "description": "Constrain input and output types to float tensors.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
     "name": "FeatureVectorizer",
     "schema": {
       "attributes": [
@@ -3159,12 +3106,6 @@
         {
           "description": "Number of neurons in the hidden layer",
           "name": "hidden_size",
-          "required": false,
-          "type": "int"
-        },
-        {
-          "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
-          "name": "linear_before_reset",
           "required": false,
           "type": "int"
         },
@@ -3475,6 +3416,7 @@
           "type": "int"
         }
       ],
+      "category": "Transform",
       "description": "Given `data` tensor of rank r >= 1, and `indices` tensor of rank q, gather\nentries of the axis dimension of `data` (by default outer-most one as axis=0) indexed by `indices`, and concatenates\nthem in an output tensor of rank q + (r - 1).\nExample 1:\n  data = [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n  indices = [\n      [0, 1],\n      [1, 2],\n  ]\n  output = [\n      [\n          [1.0, 1.2],\n          [2.3, 3.4],\n      ],\n      [\n          [2.3, 3.4],\n          [4.5, 5.7],\n      ],\n  ]\nExample 2:\n  data = [\n      [1.0, 1.2, 1.9],\n      [2.3, 3.4, 3.9],\n      [4.5, 5.7, 5.9],\n  ]\n  indices = [\n      [0, 2],\n  ]\n  axis = 1,\n  output = [\n      [\n          [1.0, 1.9],\n          [2.3, 3.9],\n          [4.5, 5.9],\n      ],\n  ]\n",
       "domain": "ai.onnx",
       "examples": [
@@ -3515,11 +3457,21 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to any tensor type.",
           "type_param_str": "T"
         },
         {
@@ -3568,6 +3520,7 @@
           "type": "int"
         }
       ],
+      "category": "Layer",
       "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -3648,6 +3601,7 @@
           "type": "int"
         }
       ],
+      "category": "Layer",
       "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "inputs": [
@@ -4579,19 +4533,19 @@
     "schema": {
       "attributes": [
         {
-          "description": "Scaling parameter",
+          "description": "Scaling parameter, default is 1e-4f.",
           "name": "alpha",
-          "required": true,
+          "required": false,
           "type": "float"
         },
         {
-          "description": "The exponent",
+          "description": "The exponent, default is 0.75f",
           "name": "beta",
-          "required": true,
+          "required": false,
           "type": "float"
         },
         {
-          "description": "Default to 1.f",
+          "description": "Default to 1.0f",
           "name": "bias",
           "required": false,
           "type": "float"
@@ -4604,11 +4558,11 @@
         }
       ],
       "category": "Normalization",
-      "description": "Local Response Normalization. It normalizes over local input regions.\nEach input value is divided by\n(bias+(alpha/size)*sum(xi^2 for every xi in the local region))^beta.\n",
+      "description": "Local Response Normalization proposed in the [AlexNet paper](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf).\nIt normalizes over local input regions.\nThe local region is defined across the channels. For an element X[n, c, d1, ..., dk] in a tensor\nof shape (N x C x D1 x D2, ..., Dk), its region is\n{X[n, i, d1, ..., dk] | max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2) - 1)}.\n\nsquare_sum[n, c, d1, ..., dk] = sum(X[n, i, d1, ..., dk] ^ 2),\nwhere max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2) - 1).\n\nY[n, c, d1, ..., dk] = X[n, c, d1, ..., dk] / (bias + alpha / size * square_sum[n, c, d1, ..., dk] ) ^ beta\n",
       "domain": "ai.onnx",
       "inputs": [
         {
-          "description": "Input tensor",
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
           "name": "X",
           "type": "T"
         }
@@ -4619,7 +4573,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor",
+          "description": "Output tensor, which has the shape and type as input tensor",
           "name": "Y",
           "type": "T"
         }
@@ -4705,7 +4659,7 @@
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3., 4.], [5., 6., 7., 8.]]]).astype(np.float32)\n\ninput_size = 4\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\nnumber_of_peepholes = 3\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c', 'P'],\n    outputs=['Y'],\n    hidden_size=hidden_size\n)\n\n# Initializing Inputs\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\nB = np.zeros((1, 2 * number_of_gates * hidden_size)).astype(np.float32)\nseq_lens = np.repeat(input.shape[0], input.shape[1]).astype(np.float32)\ninit_h = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\ninit_c = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\nP = weight_scale * np.ones((1, number_of_peepholes * hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B, P=P, initial_c=init_c, initial_h=init_h)\noutput = lstm.step()\n\nexpect(node, inputs=[input, W, R, B, seq_lens, init_h, init_c, P], outputs=[output], name='test_lstm_with_peepholes')",
+          "code": "input = np.array([[[1., 2., 3., 4.], [5., 6., 7., 8.]]]).astype(np.float32)\n\ninput_size = 4\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\nnumber_of_peepholes = 3\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c', 'P'],\n    outputs=['Y'],\n    hidden_size=hidden_size\n)\n\n# Initializing Inputs\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\nB = np.zeros((1, 2 * number_of_gates * hidden_size)).astype(np.float32)\nseq_lens = np.repeat(input.shape[0], input.shape[1]).astype(np.int32)\ninit_h = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\ninit_c = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\nP = weight_scale * np.ones((1, number_of_peepholes * hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B, P=P, initial_c=init_c, initial_h=init_h)\noutput = lstm.step()\n\nexpect(node, inputs=[input, W, R, B, seq_lens, init_h, init_c, P], outputs=[output], name='test_lstm_with_peepholes')",
           "summary": "peepholes"
         }
       ],
@@ -6419,6 +6373,72 @@
     }
   },
   {
+    "name": "Multinomial",
+    "schema": {
+      "attributes": [
+        {
+          "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will use int32.",
+          "name": "dtype",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Number of times to sample.",
+          "name": "sample_size",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "(Optional) Seed to the random generator, if not specified we will auto generate one.",
+          "name": "seed",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "description": "Generate a tensor of samples from a multinomial distribution according to the probabilities\nof each of the possible outcomes.\n",
+      "domain": "ai.onnx",
+      "inputs": [
+        {
+          "description": "Input tensor with shape [batch_size, class_size], where class_size is the number of all possible outcomes. Each value along the axis zero represents the unnormalized log-probability of each corresponding outcome in a batch.",
+          "name": "input",
+          "type": "T1"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor with shape [batch_size, sample_size], where sample_size is the number of times to sample. Each value along the axis zero represents the outcome of the corresponding sample in a batch.",
+          "name": "output",
+          "type": "T2"
+        }
+      ],
+      "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input types to float tensors.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain output types to integral tensors.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
     "name": "Neg",
     "schema": {
       "attributes": [
@@ -6921,7 +6941,7 @@
           "type": "string"
         },
         {
-          "description": "List of integers indicate the padding element count at the beginning and end of each axis, for 2D it is the number of pixel. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
+          "description": "List of integers indicating the number of padding elements to add or remove (if negative) at the beginning and end of each axis. For 2D it is the number of pixels. `pads` rank should be double of the input's rank. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`.",
           "name": "pads",
           "required": true,
           "type": "int[]"
@@ -9692,11 +9712,21 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to any tensor type.",
           "type_param_str": "T"
         }
       ]
@@ -10671,11 +10701,21 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to any tensor type.",
           "type_param_str": "T"
         }
       ]

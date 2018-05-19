@@ -21,6 +21,7 @@ categories = {
     'RNN': 'Layer',
     'LSTM': 'Layer',
     'GRU': 'Layer',
+    'Gemm': 'Layer',
 
     'Dropout': 'Dropout',
 
@@ -71,6 +72,8 @@ categories = {
 
     'ImageScaler': 'Data',
     'Crop': 'Data',
+
+    'Gather': 'Transform',
 
     # 'Gemm': '',
     # 'MatMul': '',

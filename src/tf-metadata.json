@@ -10091,10 +10091,11 @@
         },
         {
           "allowedValues": [
-            "bilinear"
+            "bilinear",
+            "nearest"
           ],
           "defaultValue": "bilinear",
-          "description": "A string specifying the interpolation method. Only 'bilinear' is\nsupported for now.",
+          "description": "A string specifying the sampling method for resizing. It can be either\n`\"bilinear\"` or `\"nearest\"` and default to `\"bilinear\"`. Currently two sampling\nmethods are supported: Bilinear and Nearest Neighbor.",
           "name": "method",
           "type": "string"
         },
@@ -10105,7 +10106,7 @@
           "type": "float"
         }
       ],
-      "description": "with aspect ratio change) to a common output size specified by `crop_size`. This\nis more general than the `crop_to_bounding_box` op which extracts a fixed size\nslice from the input image and does not allow resizing or aspect ratio change.\n\nReturns a tensor with `crops` from the input `image` at positions defined at the\nbounding box locations in `boxes`. The cropped boxes are all resized (with\nbilinear interpolation) to a fixed `size = [crop_height, crop_width]`. The\nresult is a 4-D tensor `[num_boxes, crop_height, crop_width, depth]`. The\nresizing is corner aligned. In particular, if `boxes = [[0, 0, 1, 1]]`, the\nmethod will give identical results to using `tf.image.resize_bilinear()`\nwith `align_corners=True`.",
+      "description": "Extracts crops from the input image tensor and resizes them using bilinear\nsampling or nearest neighbor sampling (possibly with aspect ratio change) to a\ncommon output size specified by `crop_size`. This is more general than the\n`crop_to_bounding_box` op which extracts a fixed size slice from the input image\nand does not allow resizing or aspect ratio change.\n\nReturns a tensor with `crops` from the input `image` at positions defined at the\nbounding box locations in `boxes`. The cropped boxes are all resized (with\nbilinear or nearest neighbor interpolation) to a fixed\n`size = [crop_height, crop_width]`. The result is a 4-D tensor\n`[num_boxes, crop_height, crop_width, depth]`. The resizing is corner aligned.\nIn particular, if `boxes = [[0, 0, 1, 1]]`, the method will give identical\nresults to using `tf.image.resize_bilinear()` or\n`tf.image.resize_nearest_neighbor()`(depends on the `method` argument) with\n`align_corners=True`.",
       "inputs": [
         {
           "description": "A 4-D tensor of shape `[batch, image_height, image_width, depth]`.\nBoth `image_height` and `image_width` need to be positive.",
@@ -10135,7 +10136,7 @@
           "type": 1
         }
       ],
-      "summary": "Extracts crops from the input image tensor and bilinearly resizes them (possibly"
+      "summary": "Extracts crops from the input image tensor and resizes them."
     }
   },
   {
@@ -10250,7 +10251,8 @@
         },
         {
           "allowedValues": [
-            "bilinear"
+            "bilinear",
+            "nearest"
           ],
           "defaultValue": "bilinear",
           "description": "A string specifying the interpolation method. Only 'bilinear' is\nsupported for now.",
@@ -24952,6 +24954,47 @@
         {
           "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
           "name": "iou_threshold",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 1-D integer tensor of shape `[M]` representing the selected\nindices from the boxes tensor, where `M <= max_output_size`.",
+          "name": "selected_indices",
+          "type": 3
+        }
+      ],
+      "summary": "Greedily selects a subset of bounding boxes in descending order of score,"
+    }
+  },
+  {
+    "name": "NonMaxSuppressionV3",
+    "schema": {
+      "description": "pruning away boxes that have high intersection-over-union (IOU) overlap\nwith previously selected boxes.  Bounding boxes with score less than\n`score_threshold` are removed.  Bounding boxes are supplied as\n[y1, x1, y2, x2], where (y1, x1) and (y2, x2) are the coordinates of any\ndiagonal pair of box corners and the coordinates can be provided as normalized\n(i.e., lying in the interval [0, 1]) or absolute.  Note that this algorithm\nis agnostic to where the origin is in the coordinate system and more\ngenerally is invariant to orthogonal transformations and translations\nof the coordinate system; thus translating or reflections of the coordinate\nsystem result in the same boxes being selected by the algorithm.\nThe output of this operation is a set of integers indexing into the input\ncollection of bounding boxes representing the selected boxes.  The bounding\nbox coordinates corresponding to the selected indices can then be obtained\nusing the `tf.gather operation`.  For example:\n  selected_indices = tf.image.non_max_suppression_v2(\n      boxes, scores, max_output_size, iou_threshold, score_threshold)\n  selected_boxes = tf.gather(boxes, selected_indices)",
+      "inputs": [
+        {
+          "description": "A 2-D float tensor of shape `[num_boxes, 4]`.",
+          "name": "boxes",
+          "type": 1
+        },
+        {
+          "description": "A 1-D float tensor of shape `[num_boxes]` representing a single\nscore corresponding to each box (each row of boxes).",
+          "name": "scores",
+          "type": 1
+        },
+        {
+          "description": "A scalar integer tensor representing the maximum number of\nboxes to be selected by non max suppression.",
+          "name": "max_output_size",
+          "type": 3
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
+          "name": "iou_threshold",
+          "type": 1
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding when to remove\nboxes based on score.",
+          "name": "score_threshold",
           "type": 1
         }
       ],
