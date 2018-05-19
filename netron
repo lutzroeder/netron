@@ -1,7 +1,10 @@
 #!/bin/bash
 # Build and start Netron as a Python web server from local directory
+source=$(dirname ${0})
+pushd ${source} > /dev/null
 [ -d node_modules ] || npm install
 rm -rf ./build/python
 python ./setup.py --quiet build
+popd > /dev/null
 PYTHON_VERSION=$(python -c "import sys; print('.'.join(str(x) for x in sys.version_info[:2]))")
-PYTHONPATH=./build/python/lib python ./build/python/scripts-${PYTHON_VERSION}/netron $@
+PYTHONPATH=${source}/build/python/lib python ${source}/build/python/scripts-${PYTHON_VERSION}/netron $@
