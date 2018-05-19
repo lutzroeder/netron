@@ -7,6 +7,7 @@
     padding-bottom: 0.3em;
     margin-top: 0;
     margin-bottom: 16px;
+    color: #333;
     user-select: none; 
     -webkit-user-select: none; 
     -moz-user-select: none;
@@ -21,6 +22,7 @@
     margin-bottom: 16px;
     border-bottom: 1px solid #eaecef;
     display: block;
+    color: #333;
     user-select: none; 
     -webkit-user-select: none; 
     -moz-user-select: none;

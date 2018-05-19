@@ -12,7 +12,7 @@ class View {
         var navigationButton = document.getElementById('navigation-button');
         if (navigationButton) {
             navigationButton.addEventListener('click', (e) => {
-                this.showSummary();
+                this.showModelProperties();
             });
         }
     }
@@ -207,7 +207,7 @@ class View {
         graph.nodes.forEach((node) => {
             var formatter = new NodeFormatter();
     
-            function addOperator(viewService, formatter, node) {
+            function addOperator(view, formatter, node) {
                 if (node) {
                     var styles = [ 'node-item-operator' ];
                     var category = node.category;
@@ -215,7 +215,7 @@ class View {
                         styles.push('node-item-operator-' + category.toLowerCase());
                     }
                     formatter.addItem(node.primitive ? node.primitive : node.operator, styles, node.name, () => { 
-                        viewService.showNode(node);
+                        view.showNodeProperties(node);
                     });
                 }
             }
@@ -279,12 +279,12 @@ class View {
     
             if (hiddenInputs) {
                 formatter.addItem('...', [ 'node-item-input' ], '', () => {
-                    this.showNode(node);
+                    this.showNodeProperties(node);
                 });    
             }
             if (hiddenInitializers) {
                 formatter.addItem('...', [ 'node-item-constant' ], '', () => {
-                    this.showNode(node);
+                    this.showNodeProperties(node);
                 });    
             }
     
@@ -310,7 +310,7 @@ class View {
             var attributes = node.attributes; 
             if (attributes && !primitive) {
                 formatter.setAttributeHandler(() => { 
-                    this.showNode(node);
+                    this.showNodeProperties(node);
                 });
                 attributes.forEach((attribute) => {
                     if (attribute.visible) {
@@ -380,7 +380,7 @@ class View {
     
             var formatter = new NodeFormatter();
             formatter.addItem(input.name, [ 'graph-item-input' ], input.type, () => {
-                this.showSummary();
+                this.showModelProperties();
             });
             g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
         });
@@ -400,7 +400,7 @@ class View {
     
             var formatter = new NodeFormatter();
             formatter.addItem(output.name, [ 'graph-item-output' ], output.type, () => {
-                this.showSummary();
+                this.showProperties();
             });
             g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
         });
@@ -489,21 +489,21 @@ class View {
         }, 2);
     }
 
-    showSummary() {
+    showModelProperties() {
         if (this._model) {
             var template = Handlebars.compile(summaryTemplate, 'utf-8');
             var data = template(this._model);
-            this._sidebar.open(data, 'Summary');
+            this._sidebar.open(data, 'Model Properties');
         }
     }
     
-    showNode(node) {
+    showNodeProperties(node) {
         if (node) {
             var documentationHandler = () => {
                 this.showDocumentation(node);
             };
             var view = new NodeView(node, documentationHandler);
-            this._sidebar.open(view.elements, 'Node');
+            this._sidebar.open(view.elements, 'Node Properties');
         }
     }
 
