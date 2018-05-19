@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+source=$(dirname ${0})
+third_party=${source}/../third_party
+
+mkdir -p ${third_party}
+
+identifier=onnxmltools
+repository=https://github.com/onnx/${identifier}.git
+
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
+else
+    echo "Clone ${repository}..."
+    git -C "${third_party}" clone --recursive ${repository}
+fi
+
+export PYTHONUSERBASE=${third_party}/${identifier}/build/pypi
+export PATH=$PATH:${PYTHONUSERBASE}/bin
+pip install --user ${third_party}/${identifier}
+
+python ${source}/onnx-converter.py $@
