@@ -182,7 +182,7 @@ class TensorFlowGraph {
             nodes.forEach((node) => {
                 for (var i = 0; i < node.input.length; i++)
                 {
-                    var split = node.input[i].split(':', 1);
+                    var split = node.input[i].split(':', 2);
                     var inputName = split[0];
                     if (!inputName.startsWith('^')) {
                         var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
@@ -389,7 +389,16 @@ class TensorFlowNode {
     }
 
     get outputs() {
-        return this._graph.metadata.getOutputs(this._node);
+        var result = this._graph.metadata.getOutputs(this._node);
+        if (result.length > 1) {
+            for (var i = 1; i < result.length; i++) {
+                if (result[i].connections.length > 1) {
+                    alert(this.operator);
+                    debugger;    
+                }
+            }
+        }
+        return result;
     }
 
     get dependencies() {
