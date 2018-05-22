@@ -2,20 +2,24 @@
 
 set -e
 
-mkdir -p ../third_party
+tools=$(dirname ${0})
+src=${tools}/../src
+third_party=${tools}/../third_party
+
+mkdir -p ${third_party}
 
 identifier=flatbuffers
 repository=https://github.com/google/${identifier}.git
 
-if [ -d "../third_party/${identifier}" ]; then
-    git -C "../third_party/${identifier}" fetch -p
-   git -C "../third_party/${identifier}" reset --hard origin/master
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
 else
-   echo "Clone ${repository}..."
-   git -C "../third_party" clone --recursive ${repository}
+    echo "Clone ${repository}..."
+    git -C "${third_party}" clone --recursive ${repository}
 fi
 
-pushd "../third_party/flatbuffers" > /dev/null
+pushd "${third_party}/${identifier}" > /dev/null
 cmake -G "Unix Makefiles"
 make
 popd > /dev/null
@@ -23,14 +27,14 @@ popd > /dev/null
 identifier=tensorflow
 repository=https://github.com/tensorflow/${identifier}.git
 
-if [ -d "../third_party/${identifier}" ]; then
-    git -C "../third_party/${identifier}" fetch -p
-    git -C "../third_party/${identifier}" reset --hard origin/master
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    git -C "../third_party" clone --recursive ${repository}
+    git -C "${third_party}" clone --recursive ${repository}
 fi
 
 echo "Generate '../src/tflite.js'"
-../third_party/flatbuffers/flatc --js ../third_party/tensorflow/tensorflow/contrib/lite/schema/schema.fbs 
-mv ./schema_generated.js ../src/tflite.js
+${third_party}/flatbuffers/flatc --js ${third_party}/tensorflow/tensorflow/contrib/lite/schema/schema.fbs 
+mv ./schema_generated.js ${src}/tflite.js

@@ -2,13 +2,13 @@
 
 set -e
 
-source=$(dirname ${0})
-third_party=${source}/../third_party
-
-mkdir -p ${third_party}
+tools=$(dirname ${0})
+third_party=${tools}/../third_party
 
 identifier=onnxmltools
 repository=https://github.com/onnx/${identifier}.git
+
+mkdir -p ${third_party}
 
 if [ -d "${third_party}/${identifier}" ]; then
     git -C "${third_party}/${identifier}" fetch -p
@@ -22,4 +22,4 @@ export PYTHONUSERBASE=${third_party}/${identifier}/build/pypi
 export PATH=$PATH:${PYTHONUSERBASE}/bin
 pip install --user ${third_party}/${identifier}
 
-python ${source}/onnx-converter.py $@
+python ${tools}/onnx-converter.py $@

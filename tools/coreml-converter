@@ -2,13 +2,13 @@
 
 set -e
 
-source=$(dirname ${0})
-third_party=${source}/../third_party
-
-mkdir -p ${third_party}
+tools=$(dirname ${0})
+third_party=${tools}/../third_party
 
 identifier=coremltools
 repository=https://github.com/apple/${identifier}.git
+
+mkdir -p ${third_party}
 
 if [ -d "${third_party}/${identifier}" ]; then
     git -C "${third_party}/${identifier}" fetch -p
@@ -23,4 +23,4 @@ export PATH=$PATH:${PYTHONUSERBASE}/bin
 pip install --user onnx
 pip install --user ${third_party}/${identifier}
 
-python ${source}/coreml-converter.py $@
+python ${tools}/coreml-converter.py $@

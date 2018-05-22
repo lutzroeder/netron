@@ -2,30 +2,37 @@
 
 set -e
 
-mkdir -p ../third_party
+tools=$(dirname ${0})
+src=${tools}/../src
+third_party=${tools}/../third_party
 
 identifier=onnx
 repository=https://github.com/onnx/${identifier}.git
 
-if [ -d "../third_party/${identifier}" ]; then
-    git -C "../third_party/${identifier}" fetch -p
-    git -C "../third_party/${identifier}" reset --hard origin/master
+mkdir -p ${third_party}
+
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    git -C "../third_party" clone --recursive ${repository}
+    git -C "${third_party}" clone --recursive ${repository}
 fi
 
 export ONNX_ML=1
 export ONNX_NAMESPACE=onnx
 
-pushd "../third_party/onnx" > /dev/null
-python ./setup.py build --build-lib ./build/lib
+pushd "${third_party}/${identifier}" > /dev/null
+python setup.py build --build-lib build/lib
 popd > /dev/null
 
 echo "Generate '../src/onnx-metadata.json'"
-PYTHONPATH=../third_party/onnx/build/lib python onnx-metadata.py
+pushd ${tools} > /dev/null
+export PYTHONPATH=${third_party}/${identifier}/build/lib
+python onnx-metadata.py
+popd > /dev/null
 
 echo "Generate '../src/onnx.js'"
-sed 's/package ONNX_NAMESPACE/package onnx/g' <../third_party/onnx/onnx/onnx-ml.proto >./onnx-ml.proto
-../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ../src/onnx.js ./onnx-ml.proto
-rm ./onnx-ml.proto
+sed 's/package ONNX_NAMESPACE/package onnx/g' <${third_party}/${identifier}/onnx/onnx-ml.proto >${tools}/onnx-ml.proto
+${third_party}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ${src}/onnx.js ${tools}/onnx-ml.proto
+rm ${tools}/onnx-ml.proto

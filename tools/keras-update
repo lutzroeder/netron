@@ -2,18 +2,23 @@
 
 set -e
 
-mkdir -p ../third_party
+tools=$(dirname ${0})
+third_party=${tools}/../third_party
 
 identifier=keras
 repository=https://github.com/keras-team/${identifier}.git
 
-if [ -d "../third_party/${identifier}" ]; then
-    git -C "../third_party/${identifier}" fetch -p
-    git -C "../third_party/${identifier}" reset --hard origin/master
+mkdir -p ${third_party}
+
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    git -C "../third_party" clone --recursive ${repository}
+    git -C "${third_party}" clone --recursive ${repository}
 fi
 
 echo "Update '../src/keras-metadata.json'"
-python keras-metadata.py || exit 1
+pushd ${tools} > /dev/null
+python keras-metadata.py
+popd > /dev/null

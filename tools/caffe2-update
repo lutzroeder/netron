@@ -2,21 +2,25 @@
 
 set -e
 
-mkdir -p ../third_party
+tools=$(dirname ${0})
+src=${tools}/../src
+third_party=${tools}/../third_party
 
 identifier=pytorch
 repository=https://github.com/pytorch/pytorch.git
 
-if [ -d "../third_party/${identifier}" ]; then
-    git -C "../third_party/${identifier}" fetch -p
-    git -C "../third_party/${identifier}" reset --hard origin/master
+mkdir -p ${third_party}
+
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    git -C "../third_party" clone --recursive ${repository}
+    git -C "${third_party}" clone --recursive ${repository}
 fi
 
 echo "Generate '../src/caffe2.js'"
-../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ../src/caffe2.js ../third_party/pytorch/caffe2/proto/caffe2.proto
+${third_party}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
 
 echo "Install Caffe2 dependencies"
 brew bundle --file=- <<-EOS
@@ -26,11 +30,14 @@ brew "gflags"
 brew "glog"
 EOS
 
-sudo pip install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
-sudo pip3 install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
+export PYTHONUSERBASE=${third_party}/${identifier}/build/pypi
+export PATH=$PATH:${PYTHONUSERBASE}/bin
+
+pip install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
+pip3 install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
 
 echo "Build Caffe2"
-pushd "../third_party/pytorch" > /dev/null
+pushd "${third_party}/pytorch" > /dev/null
 git submodule update --init
 mkdir -p build && cd build
 cmake -DUSE_CUDA=OFF ..
@@ -38,4 +45,6 @@ sudo make install
 popd > /dev/null
 
 echo "Generate '../src/caffe2-metadata.json'"
+pushd ${tools} > /dev/null
 python caffe2-metadata.py
+popd > /dev/null

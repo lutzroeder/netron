@@ -2,18 +2,22 @@
 
 set -e
 
-mkdir -p ../third_party
+tools=$(dirname ${0})
+src=${tools}/../src
+third_party=${tools}/../third_party
 
 identifier=caffe
 repository=https://github.com/BVLC/${identifier}.git
 
-if [ -d "../third_party/${identifier}" ]; then
-    git -C "../third_party/${identifier}" fetch -p
-    git -C "../third_party/${identifier}" reset --hard origin/master
+mkdir -p ${third_party}
+
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
 else
     echo "Clone ${repository}..."
-    git -C "../third_party" clone --recursive ${repository}
+    git -C "${third_party}" clone --recursive ${repository}
 fi
 
 echo "Generate '../src/caffe.js'"
-../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe -o ../src/caffe.js ../third_party/caffe/src/caffe/proto/caffe.proto
+${tools}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe -o ${src}/caffe.js ${third_party}/caffe/src/caffe/proto/caffe.proto
