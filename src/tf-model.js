@@ -389,16 +389,7 @@ class TensorFlowNode {
     }
 
     get outputs() {
-        var result = this._graph.metadata.getOutputs(this._node);
-        if (result.length > 1) {
-            for (var i = 1; i < result.length; i++) {
-                if (result[i].connections.length > 1) {
-                    alert(this.operator);
-                    debugger;    
-                }
-            }
-        }
-        return result;
+        return this._graph.metadata.getOutputs(this._node);
     }
 
     get dependencies() {
