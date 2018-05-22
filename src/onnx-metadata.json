@@ -280,7 +280,7 @@
           "type": "int"
         }
       ],
-      "description": "Performs element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -2400,7 +2400,7 @@
           "type": "int"
         }
       ],
-      "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary division (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -3523,6 +3523,16 @@
       "category": "Layer",
       "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = 0.5 * np.dot(a, b) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_nobroadcast')",
+          "summary": "notranspose"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5,\n    broadcast=1,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.random.ranf([1, 1]).astype(np.float32)\ny = 0.5 * np.dot(a.T, b.T) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_broadcast')",
+          "summary": "transpose"
+        }
+      ],
       "inputs": [
         {
           "description": "Input tensor A",
@@ -3604,6 +3614,16 @@
       "category": "Layer",
       "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = 0.5 * np.dot(a, b) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_nobroadcast')",
+          "summary": "notranspose"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5,\n    broadcast=1,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.random.ranf([1, 1]).astype(np.float32)\ny = 0.5 * np.dot(a.T, b.T) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_broadcast')",
+          "summary": "transpose"
+        }
+      ],
       "inputs": [
         {
           "description": "Input tensor A",
@@ -6319,7 +6339,7 @@
           "type": "int"
         }
       ],
-      "description": "Performs element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7068,7 +7088,7 @@
           "type": "int"
         }
       ],
-      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7660,6 +7680,20 @@
       ],
       "description": "Computes the L1 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceL1',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l1_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l1_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [2]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceL1',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[3., 7.], [11., 15.], [19., 23.]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l1_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l1_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceL1',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[3.], [7.]], [[11.], [15.]], [[19.], [23.]]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l1_keep_dims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(a=np.abs(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l1_keep_dims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -7715,6 +7749,20 @@
       ],
       "description": "Computes the L2 norm of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceL2',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(np.sum(\n    a=np.square(data), axis=axes, keepdims=keepdims == 1))\n#print(reduced)\n#[[[25.49509757]]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l2_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(np.sum(\n    a=np.square(data), axis=axes, keepdims=keepdims == 1))\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l2_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [2]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceL2',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(np.sum(\n    a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1))\n#print(reduced)\n#[[2.23606798, 5.],\n# [7.81024968, 10.63014581],\n# [13.45362405, 16.2788206]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l2_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(np.sum(\n    a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l2_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceL2',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims\n)\n\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]], [[9., 10.], [11., 12.]]]\n\nreduced = np.sqrt(np.sum(\n    a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1))\n#print(reduced)\n#[[[2.23606798], [5.]]\n# [[7.81024968], [10.63014581]]\n# [[13.45362405], [16.2788206 ]]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_l2_keep_dims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sqrt(np.sum(\n    a=np.square(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_l2_keep_dims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -7835,6 +7883,20 @@
       ],
       "description": "Computes the log sum exponent of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceLogSumExp',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32)\nreduced = np.log(np.sum(np.exp(data),\n                        axis=axes,\n                        keepdims=keepdims == 1))\n# print(reduced)\n# [[[60.00671387]]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n      name='test_reduce_log_sum_exp_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.log(np.sum(np.exp(data),\n                        axis=axes,\n                        keepdims=keepdims == 1))\nexpect(node, inputs=[data], outputs=[reduced],\n      name='test_reduce_log_sum_exp_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ReduceLogSumExp',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32)\nreduced = np.log(np.sum(\n    np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n# print(reduced)\n#[[20., 2.31326175]\n# [40.00004578, 2.31326175]\n# [60.00671387, 2.31326175]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n      name='test_reduce_log_sum_exp_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.log(np.sum(\n    np.exp(data), axis=tuple(axes), keepdims=keepdims == 1))\n\nexpect(node, inputs=[data], outputs=[reduced],\n    name='test_reduce_log_sum_exp_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ReduceLogSumExp',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims\n)\n\ndata = np.array(\n    [[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]],\n    dtype=np.float32)\nreduced = np.log(np.sum(np.exp(data),\n                        axis=tuple(axes),\n                        keepdims=keepdims == 1))\n# print(reduced)\n# [[[20., 2.31326175]]\n# [[40.00004578, 2.31326175]]\n# [[60.00671387, 2.31326175]]]\n\nexpect(node, inputs=[data], outputs=[reduced],\n      name='test_reduce_log_sum_exp_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.log(np.sum(np.exp(data),\n                        axis=tuple(axes),\n                        keepdims=keepdims == 1))\n\nexpect(node, inputs=[data], outputs=[reduced],\n      name='test_reduce_log_sum_exp_keepdims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -7890,6 +7952,20 @@
       ],
       "description": "Computes the max of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ReduceMax',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n[[[60.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_default_axes_keepdim_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceMax',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[20., 2.]\n# [40., 2.]\n# [60., 2.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMax',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[20., 2.]]\n# [[40., 2.]]\n# [[60., 2.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.maximum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_max_keepdims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -7945,6 +8021,20 @@
       ],
       "description": "Computes the mean of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMean',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.mean(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[18.25]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_mean_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.mean(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_mean_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceMean',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.mean(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[12.5, 1.5]\n# [35., 1.5]\n# [57.5, 1.5]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_mean_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.mean(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_mean_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMean',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.mean(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[12.5, 1.5]]\n# [[35., 1.5]]\n# [[57.5, 1.5]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_mean_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.mean(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_mean_keepdims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -8000,6 +8090,20 @@
       ],
       "description": "Computes the min of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMin',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.minimum.reduce(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[1.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceMin',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[5., 1.]\n# [30., 1.]\n# [55., 1.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceMin', inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[5, 1], [20, 2]], [[30, 1], [40, 2]], [[55, 1], [60, 2]]], dtype=np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[5., 1.]]\n# [[30., 1.]]\n# [[55., 1.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.minimum.reduce(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_min_keepdims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -8055,6 +8159,20 @@
       ],
       "description": "Computes the product of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceProd',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.prod(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[4.790016e+08]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_prod_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=axes, keepdims=keepdims == 1)\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_prod_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceProd',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[3., 8.]\n# [35., 48.]\n# [99., 120.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_prod_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_prod_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceProd',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[3., 8.]]\n# [[35., 48.]]\n# [[99., 120.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_prod_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.prod(data, axis=tuple(axes), keepdims=keepdims == 1)\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_prod_keepdims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -8110,6 +8228,20 @@
       ],
       "description": "Computes the sum of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[4., 6.]\n# [12., 14.]\n# [20., 22.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -8165,6 +8297,20 @@
       ],
       "description": "Computes the sum square of the input tensor's element along the provided axes. The resulted\ntensor has the same rank as the input if keepdims equal 1. If keepdims equal 0, then\nthe resulted tensor have the reduced dimension pruned.\n\nThe above behavior is similar to numpy, with the exception that numpy default keepdims to\nFalse instead of True.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSumSquare',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(np.square(data), axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[650.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_square_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_square_default_axes_keepdims_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSumSquare',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[10., 20.]\n# [74., 100.]\n# [202., 244.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_square_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_square_do_not_keepdims_random')",
+          "summary": "do_not_keepdims"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSumSquare',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[10., 20.]]\n# [[74., 100.]]\n# [[202., 244.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_square_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(np.square(data), axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_square_keepdims_random')",
+          "summary": "keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -9822,7 +9968,7 @@
           "type": "int"
         }
       ],
-      "description": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "Performs element-wise binary subtraction (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of element size 1 (including a scalar tensor and any\ntensor with rank equal to or smaller than the first tensor), or having its\nshape as a contiguous subset of the first tensor's shape. The starting of the\nmutually equal shape is specified by the argument \"axis\", and if it is not set,\nsuffix matching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (1, 1), i.e. B is an 1-element tensor\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nAttribute `broadcast=1` needs to be passed to enable broadcasting.\n",
       "domain": "ai.onnx",
       "examples": [
         {
