@@ -115,6 +115,83 @@
     }
   },
   {
+    "name": "PReLU",
+    "schema": {
+      "attributes": [
+        {
+          "description": "initializer function for the weights.",
+          "name": "alpha_initializer"
+        },
+        {
+          "description": "regularizer for the weights.",
+          "name": "alpha_regularizer"
+        },
+        {
+          "description": "constraint for the weights.",
+          "name": "alpha_constraint"
+        },
+        {
+          "description": "the axes along which to share learnable\nparameters for the activation function.\nFor example, if the incoming feature maps\nare from a 2D convolution\nwith output shape `(batch, height, width, channels)`,\nand you wish to share parameters across space\nso that each filter only has one set of parameters,\nset `shared_axes=[1, 2]`.\n",
+          "name": "shared_axes"
+        }
+      ],
+      "category": "Activation",
+      "description": "Parametric Rectified Linear Unit.\n\nIt follows:\n`f(x) = alpha * x for x < 0`,\n`f(x) = x for x >= 0`,\nwhere `alpha` is a learned array with the same shape as x.\n",
+      "inputs": [
+        {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
+          "name": "input"
+        },
+        {
+          "name": "params"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "\nSame shape as the input.\n",
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification](https://arxiv.org/abs/1502.01852)"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ELU",
+    "schema": {
+      "attributes": [
+        {
+          "description": "scale for the negative factor.\n",
+          "name": "alpha"
+        }
+      ],
+      "category": "Activation",
+      "description": "Exponential Linear Unit.\n\nIt follows:\n`f(x) =  alpha * (exp(x) - 1.) for x < 0`,\n`f(x) = x for x >= 0`.\n",
+      "inputs": [
+        {
+          "description": "\nArbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "\nSame shape as the input.\n",
+          "name": "output"
+        }
+      ],
+      "package": "keras.layers",
+      "references": [
+        {
+          "description": "[Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)](https://arxiv.org/abs/1511.07289v1)"
+        }
+      ]
+    }
+  },
+  {
     "name": "ThresholdedReLU",
     "schema": {
       "attributes": [
@@ -3296,6 +3373,19 @@
         }
       ],
       "description": "Layer that computes a dot product between samples in two tensors.\n\nE.g. if applied to two tensors `a` and `b` of shape `(batch_size, n)`,\nthe output will be a tensor of shape `(batch_size, 1)`\nwhere each entry `i` will be the dot product between\n`a[i]` and `b[i]`.\n",
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z"
+        }
+      ],
       "package": "keras.layers"
     }
   },
@@ -3567,7 +3657,7 @@
       ],
       "outputs": [
         {
-          "name": "output"
+          "name": "z"
         }
       ],
       "package": "keras.layers"
