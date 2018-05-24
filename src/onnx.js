@@ -4227,6 +4227,7 @@
              * @property {onnx.TypeProto.ITensor|null} [tensorType] TypeProto tensorType
              * @property {onnx.TypeProto.ISequence|null} [sequenceType] TypeProto sequenceType
              * @property {onnx.TypeProto.IMap|null} [mapType] TypeProto mapType
+             * @property {string|null} [denotation] TypeProto denotation
              */
     
             /**
@@ -4267,6 +4268,14 @@
              * @instance
              */
             TypeProto.prototype.mapType = null;
+    
+            /**
+             * TypeProto denotation.
+             * @member {string} denotation
+             * @memberof onnx.TypeProto
+             * @instance
+             */
+            TypeProto.prototype.denotation = "";
     
             // OneOf field names bound to virtual getters and setters
             var $oneOfFields;
@@ -4312,6 +4321,8 @@
                     $root.onnx.TypeProto.Sequence.encode(message.sequenceType, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
                 if (message.mapType != null && message.hasOwnProperty("mapType"))
                     $root.onnx.TypeProto.Map.encode(message.mapType, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+                if (message.denotation != null && message.hasOwnProperty("denotation"))
+                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.denotation);
                 return writer;
             };
     
@@ -4354,6 +4365,9 @@
                         break;
                     case 5:
                         message.mapType = $root.onnx.TypeProto.Map.decode(reader, reader.uint32());
+                        break;
+                    case 6:
+                        message.denotation = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4419,6 +4433,9 @@
                             return "mapType." + error;
                     }
                 }
+                if (message.denotation != null && message.hasOwnProperty("denotation"))
+                    if (!$util.isString(message.denotation))
+                        return "denotation: string expected";
                 return null;
             };
     
@@ -4449,6 +4466,8 @@
                         throw TypeError(".onnx.TypeProto.mapType: object expected");
                     message.mapType = $root.onnx.TypeProto.Map.fromObject(object.mapType);
                 }
+                if (object.denotation != null)
+                    message.denotation = String(object.denotation);
                 return message;
             };
     
@@ -4465,6 +4484,8 @@
                 if (!options)
                     options = {};
                 var object = {};
+                if (options.defaults)
+                    object.denotation = "";
                 if (message.tensorType != null && message.hasOwnProperty("tensorType")) {
                     object.tensorType = $root.onnx.TypeProto.Tensor.toObject(message.tensorType, options);
                     if (options.oneofs)
@@ -4480,6 +4501,8 @@
                     if (options.oneofs)
                         object.value = "mapType";
                 }
+                if (message.denotation != null && message.hasOwnProperty("denotation"))
+                    object.denotation = message.denotation;
                 return object;
             };
     
@@ -5283,6 +5306,260 @@
             })();
     
             return TypeProto;
+        })();
+    
+        onnx.TypeDenotationConstProto = (function() {
+    
+            /**
+             * Properties of a TypeDenotationConstProto.
+             * @memberof onnx
+             * @interface ITypeDenotationConstProto
+             * @property {string|null} [TENSOR] TypeDenotationConstProto TENSOR
+             * @property {string|null} [IMAGE] TypeDenotationConstProto IMAGE
+             * @property {string|null} [AUDIO] TypeDenotationConstProto AUDIO
+             * @property {string|null} [TEXT] TypeDenotationConstProto TEXT
+             */
+    
+            /**
+             * Constructs a new TypeDenotationConstProto.
+             * @memberof onnx
+             * @classdesc Represents a TypeDenotationConstProto.
+             * @implements ITypeDenotationConstProto
+             * @constructor
+             * @param {onnx.ITypeDenotationConstProto=} [properties] Properties to set
+             */
+            function TypeDenotationConstProto(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * TypeDenotationConstProto TENSOR.
+             * @member {string} TENSOR
+             * @memberof onnx.TypeDenotationConstProto
+             * @instance
+             */
+            TypeDenotationConstProto.prototype.TENSOR = "TENSOR";
+    
+            /**
+             * TypeDenotationConstProto IMAGE.
+             * @member {string} IMAGE
+             * @memberof onnx.TypeDenotationConstProto
+             * @instance
+             */
+            TypeDenotationConstProto.prototype.IMAGE = "IMAGE";
+    
+            /**
+             * TypeDenotationConstProto AUDIO.
+             * @member {string} AUDIO
+             * @memberof onnx.TypeDenotationConstProto
+             * @instance
+             */
+            TypeDenotationConstProto.prototype.AUDIO = "AUDIO";
+    
+            /**
+             * TypeDenotationConstProto TEXT.
+             * @member {string} TEXT
+             * @memberof onnx.TypeDenotationConstProto
+             * @instance
+             */
+            TypeDenotationConstProto.prototype.TEXT = "TEXT";
+    
+            /**
+             * Creates a new TypeDenotationConstProto instance using the specified properties.
+             * @function create
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {onnx.ITypeDenotationConstProto=} [properties] Properties to set
+             * @returns {onnx.TypeDenotationConstProto} TypeDenotationConstProto instance
+             */
+            TypeDenotationConstProto.create = function create(properties) {
+                return new TypeDenotationConstProto(properties);
+            };
+    
+            /**
+             * Encodes the specified TypeDenotationConstProto message. Does not implicitly {@link onnx.TypeDenotationConstProto.verify|verify} messages.
+             * @function encode
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {onnx.ITypeDenotationConstProto} message TypeDenotationConstProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            TypeDenotationConstProto.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.TENSOR != null && message.hasOwnProperty("TENSOR"))
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.TENSOR);
+                if (message.IMAGE != null && message.hasOwnProperty("IMAGE"))
+                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.IMAGE);
+                if (message.AUDIO != null && message.hasOwnProperty("AUDIO"))
+                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.AUDIO);
+                if (message.TEXT != null && message.hasOwnProperty("TEXT"))
+                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.TEXT);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified TypeDenotationConstProto message, length delimited. Does not implicitly {@link onnx.TypeDenotationConstProto.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {onnx.ITypeDenotationConstProto} message TypeDenotationConstProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            TypeDenotationConstProto.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a TypeDenotationConstProto message from the specified reader or buffer.
+             * @function decode
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {onnx.TypeDenotationConstProto} TypeDenotationConstProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            TypeDenotationConstProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TypeDenotationConstProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.TENSOR = reader.string();
+                        break;
+                    case 2:
+                        message.IMAGE = reader.string();
+                        break;
+                    case 3:
+                        message.AUDIO = reader.string();
+                        break;
+                    case 4:
+                        message.TEXT = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a TypeDenotationConstProto message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {onnx.TypeDenotationConstProto} TypeDenotationConstProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            TypeDenotationConstProto.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a TypeDenotationConstProto message.
+             * @function verify
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            TypeDenotationConstProto.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.TENSOR != null && message.hasOwnProperty("TENSOR"))
+                    if (!$util.isString(message.TENSOR))
+                        return "TENSOR: string expected";
+                if (message.IMAGE != null && message.hasOwnProperty("IMAGE"))
+                    if (!$util.isString(message.IMAGE))
+                        return "IMAGE: string expected";
+                if (message.AUDIO != null && message.hasOwnProperty("AUDIO"))
+                    if (!$util.isString(message.AUDIO))
+                        return "AUDIO: string expected";
+                if (message.TEXT != null && message.hasOwnProperty("TEXT"))
+                    if (!$util.isString(message.TEXT))
+                        return "TEXT: string expected";
+                return null;
+            };
+    
+            /**
+             * Creates a TypeDenotationConstProto message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {onnx.TypeDenotationConstProto} TypeDenotationConstProto
+             */
+            TypeDenotationConstProto.fromObject = function fromObject(object) {
+                if (object instanceof $root.onnx.TypeDenotationConstProto)
+                    return object;
+                var message = new $root.onnx.TypeDenotationConstProto();
+                if (object.TENSOR != null)
+                    message.TENSOR = String(object.TENSOR);
+                if (object.IMAGE != null)
+                    message.IMAGE = String(object.IMAGE);
+                if (object.AUDIO != null)
+                    message.AUDIO = String(object.AUDIO);
+                if (object.TEXT != null)
+                    message.TEXT = String(object.TEXT);
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a TypeDenotationConstProto message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof onnx.TypeDenotationConstProto
+             * @static
+             * @param {onnx.TypeDenotationConstProto} message TypeDenotationConstProto
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            TypeDenotationConstProto.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.TENSOR = "TENSOR";
+                    object.IMAGE = "IMAGE";
+                    object.AUDIO = "AUDIO";
+                    object.TEXT = "TEXT";
+                }
+                if (message.TENSOR != null && message.hasOwnProperty("TENSOR"))
+                    object.TENSOR = message.TENSOR;
+                if (message.IMAGE != null && message.hasOwnProperty("IMAGE"))
+                    object.IMAGE = message.IMAGE;
+                if (message.AUDIO != null && message.hasOwnProperty("AUDIO"))
+                    object.AUDIO = message.AUDIO;
+                if (message.TEXT != null && message.hasOwnProperty("TEXT"))
+                    object.TEXT = message.TEXT;
+                return object;
+            };
+    
+            /**
+             * Converts this TypeDenotationConstProto to JSON.
+             * @function toJSON
+             * @memberof onnx.TypeDenotationConstProto
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            TypeDenotationConstProto.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return TypeDenotationConstProto;
         })();
     
         onnx.OperatorSetIdProto = (function() {
