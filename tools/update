@@ -2,12 +2,15 @@
 
 set -e
 
-./keras-update
-./tf-update
-./coreml-update
-./caffe-update
-./mxnet-update
+tools=$(dirname ${0})
 
-./onnx-update
-./tflite-update
-./caffe2-update
+${tools}/keras-update
+${tools}/tf-update
+${tools}/coreml-update
+${tools}/caffe-update
+${tools}/mxnet-update
+
+${tools}/onnx-update
+${tools}/tflite-update
+
+${tools}/caffe2-update

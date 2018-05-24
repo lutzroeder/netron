@@ -19,16 +19,16 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
+echo "Build ONNX"
 export ONNX_ML=1
 export ONNX_NAMESPACE=onnx
-
 pushd "${third_party}/${identifier}" > /dev/null
 python setup.py build --build-lib build/lib
 popd > /dev/null
 
 echo "Generate '../src/onnx-metadata.json'"
 pushd ${tools} > /dev/null
-export PYTHONPATH=${third_party}/${identifier}/build/lib
+export PYTHONPATH=../third_party/${identifier}/build/lib
 python onnx-metadata.py
 popd > /dev/null
 
