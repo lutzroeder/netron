@@ -4131,7 +4131,7 @@
         }
       ],
       "category": "Layer",
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has\ndimension (M X K), input tensor B has dimension (K X N), input tensor C and\noutput tensor Y have dimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -4222,7 +4222,7 @@
         }
       ],
       "category": "Layer",
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has dimension (M X K)\n, input tensor B has dimension (K X N), input tensor C and output tensor Y have\ndimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\nCompute Y = alpha * A * B + beta * C, where input tensor A has\ndimension (M X K), input tensor B has dimension (K X N), input tensor C and\noutput tensor Y have dimension (M X N).\nIf attribute broadcast is non-zero, input tensor C will be broadcasted to match\nthe dimension requirement. A will be transposed before doing the computation\nif attribute transA is non-zero, same for B and transB.\n",
       "domain": "ai.onnx",
       "examples": [
         {
