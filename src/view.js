@@ -7,6 +7,7 @@ class View {
         this._model = null;
         this._sidebar = new Sidebar();
         this._host.initialize(this);
+        this._showDetails = true;
         document.documentElement.style.overflow = 'hidden';
         document.body.scroll = 'no';        
         var navigationButton = document.getElementById('navigation-button');
@@ -254,11 +255,13 @@ class View {
                         }
                     }
     
-                    if (!input.hidden) {
-                        var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
-                        formatter.addItem(input.name, [ inputClass ], types, () => {
-                            this.showNodeInput(node, input);
-                        });    
+                    if (this._showDetails) {
+                        if (!input.hidden) {
+                            var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
+                            formatter.addItem(input.name, [ inputClass ], types, () => {
+                                this.showNodeInput(node, input);
+                            });    
+                        }
                     }
     
                     input.connections.forEach((connection) => {
@@ -277,15 +280,17 @@ class View {
                 }
             });
     
-            if (hiddenInputs) {
-                formatter.addItem('...', [ 'node-item-input' ], '', () => {
-                    this.showNodeProperties(node);
-                });    
-            }
-            if (hiddenInitializers) {
-                formatter.addItem('...', [ 'node-item-constant' ], '', () => {
-                    this.showNodeProperties(node);
-                });    
+            if (this._showDetails) {
+                if (hiddenInputs) {
+                    formatter.addItem('...', [ 'node-item-input' ], '', () => {
+                        this.showNodeProperties(node);
+                    });    
+                }
+                if (hiddenInitializers) {
+                    formatter.addItem('...', [ 'node-item-constant' ], '', () => {
+                        this.showNodeProperties(node);
+                    });    
+                }
             }
     
             node.outputs.forEach((output) => {
@@ -307,26 +312,28 @@ class View {
                 formatter.setControlDependencies();
             }
     
-            var attributes = node.attributes; 
-            if (attributes && !primitive) {
-                formatter.setAttributeHandler(() => { 
-                    this.showNodeProperties(node);
-                });
-                attributes.forEach((attribute) => {
-                    if (attribute.visible) {
-                        var attributeValue = '';
-                        if (attribute.tensor) {
-                            attributeValue = '[...]';
-                        }
-                        else {
-                            attributeValue = attribute.value;
-                            if (attributeValue.length > 25) {
-                                attributeValue = attributeValue.substring(0, 25) + '...';
+            if (this._showDetails) {
+                var attributes = node.attributes; 
+                if (attributes && !primitive) {
+                    formatter.setAttributeHandler(() => { 
+                        this.showNodeProperties(node);
+                    });
+                    attributes.forEach((attribute) => {
+                        if (attribute.visible) {
+                            var attributeValue = '';
+                            if (attribute.tensor) {
+                                attributeValue = '[...]';
                             }
+                            else {
+                                attributeValue = attribute.value;
+                                if (attributeValue.length > 25) {
+                                    attributeValue = attributeValue.substring(0, 25) + '...';
+                                }
+                            }
+                            formatter.addAttribute(attribute.name, attributeValue, attribute.type);
                         }
-                        formatter.addAttribute(attribute.name, attributeValue, attribute.type);
-                    }
-                });
+                    });
+                }
             }
     
             g.setNode(nodeId, { label: formatter.format(svgElement) });
@@ -342,7 +349,7 @@ class View {
                     }
                 }
             }
-    
+
             if (groups) {
                 var name = node.group;
                 if (name && name.length > 0) {
@@ -377,7 +384,7 @@ class View {
             tuple.from = { 
                 node: nodeId,
             };
-    
+
             var formatter = new NodeFormatter();
             formatter.addItem(input.name, [ 'graph-item-input' ], input.type, () => {
                 this.showModelProperties();
@@ -420,6 +427,10 @@ class View {
                         text = to.name;
                     }
     
+                    if (!this._showDetails) {
+                        text = '';
+                    }
+
                     if (to.dependency) { 
                         g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
                     }
@@ -428,13 +439,6 @@ class View {
                     }
                 });
             }
-            // else {
-            //    console.log('?');
-            // }
-    
-            // if (tuple.from == null || tuple.to.length == 0) {
-            //     console.log(edge);
-            // }
         });
     
         // Workaround for Safari background drag/zoom issue:
