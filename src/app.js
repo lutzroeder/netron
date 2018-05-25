@@ -152,8 +152,8 @@ class Application {
         this._configuration.recents = this._configuration.recents.filter(recent => file != recent.path);
         view.open(file);
         this._configuration.recents.unshift({ path: file });
-        if (this._configuration.recents.length > 10) {
-            this._configuration.recents.splice(10);
+        if (this._configuration.recents.length > 9) {
+            this._configuration.recents.splice(9);
         }
         this.resetMenu();
     }
@@ -264,12 +264,15 @@ class Application {
 
         var menuRecentsTemplate = [];
         if (this._configuration && this._configuration.recents) {
-            this._configuration.recents = this._configuration.recents.filter(recent => fs.existsSync(recent.path));
+            this._configuration.recents = this._configuration.recents.filter(recent => fs.existsSync(recent.path) && fs.statSync(recent.path).isFile());
+            if (this._configuration.recents.length > 9) {
+                this._configuration.recents.splice(9);
+            }
             this._configuration.recents.forEach((recent, index) => {
                 var file = recent.path;
-                menuRecentsTemplate.push({ 
+                menuRecentsTemplate.push({
                     label: Application.minimizePath(recent.path),
-                    accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + index.toString(),
+                    accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + (index + 1).toString(),
                     click: () => { this.openFile(file); }
                 });
             });
@@ -387,10 +390,12 @@ class Application {
     }
 
     static minimizePath(file) {
-        var home = os.homedir();
-        if (file.startsWith(home))
-        {
-            return '~' + file.substring(home.length);
+        if (process.platform != 'win32') {
+            var home = os.homedir();
+            if (file.startsWith(home))
+            {
+                return '~' + file.substring(home.length);
+            }
         }
         return file;
     }
