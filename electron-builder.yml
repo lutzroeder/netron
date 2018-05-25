@@ -24,7 +24,6 @@ fileAssociations:
     ext:
     - keras
     - h5
-    - json
   - name: "CoreML Model"
     ext:
     - mlmodel
@@ -34,9 +33,6 @@ fileAssociations:
   - name: "Caffe2 Model"
     ext:
     - pb
-  - name: "MXNet Model"
-    ext:
-    - json
 publish:
   - provider: github
     releaseType: release
