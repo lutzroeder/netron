@@ -2536,23 +2536,28 @@
         },
         {
           "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
-          "name": "kernel_regularizer"
+          "name": "kernel_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
-          "name": "bias_regularizer"
+          "name": "bias_regularizer",
+          "visible": false
         },
         {
           "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
-          "name": "activity_regularizer"
+          "name": "activity_regularizer",
+          "visible": false
         },
         {
           "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
-          "name": "kernel_constraint"
+          "name": "kernel_constraint",
+          "visible": false
         },
         {
           "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
-          "name": "bias_constraint"
+          "name": "bias_constraint",
+          "visible": false
         }
       ],
       "category": "Layer",
