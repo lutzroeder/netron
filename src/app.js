@@ -55,7 +55,7 @@ class Application {
 
         this.parseCommandLine(process.argv);
 
-        this.update();
+        this.checkForUpdates();
     }
 
     makeSingleInstance() {
@@ -219,10 +219,30 @@ class Application {
         }
     }
 
-    update() {
-        if (!this.isDev()) {
-            updater.autoUpdater.checkForUpdatesAndNotify();
+    checkForUpdates() {
+        if (this.isDev()) {
+            return;
         }
+        var autoUpdater = updater.autoUpdater;
+        autoUpdater.autoDownload = false;
+        autoUpdater.on('update-available', (info) => {
+            var owner = electron.BrowserWindow.getFocusedWindow();
+            var messageBoxOptions = {
+                icon: path.join(__dirname, 'icon.png'),
+                title: ' ',
+                message: 'A new version of ' + electron.app.getName() + ' is available.',
+                detail: 'Click \'Download and Install\' to download the update and automatically install it on exit.',
+                buttons: ['Download and Install', 'Remind Me Later'],
+                defaultId: 0,
+                cancelId: 1
+            };
+            var result = electron.dialog.showMessageBox(owner, messageBoxOptions);
+            if (result == 0) {
+                autoUpdater.autoDownload = true;
+                autoUpdater.checkForUpdatesAndNotify();
+            }
+        });
+        autoUpdater.checkForUpdates();
     }
 
     get package() { 
