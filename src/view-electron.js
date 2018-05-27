@@ -25,17 +25,28 @@ class ElectronHost {
                     if (err) {
                         this.showError(err.toString());
                         this._view.show(null);
-                        electron.ipcRenderer.send('update', null);
+                        this.update('path', null);
+                        this.update('show-details', this._view.showDetails);
+                        this.update('show-names', this._view.showNames);
                         return;
                     }
-                    data.windowId = electron.remote.getCurrentWindow().id;
-                    electron.ipcRenderer.send('update', data);
+                    this.update('path', file);
+                    this.update('show-details', this._view.showDetails);
+                    this.update('show-names', this._view.showNames);
                 });
             }
         });
-    
+
         electron.ipcRenderer.on('copy', (event, data) => {
             this._view.copy();
+        });
+        electron.ipcRenderer.on('toggle-details', (event, data) => {
+            this._view.toggleDetails();
+            this.update('show-details', this._view.showDetails);
+        });
+        electron.ipcRenderer.on('toggle-names', (event, data) => {
+            this._view.toggleNames();
+            this.update('show-names', this._view.showNames);
         });
         electron.ipcRenderer.on('zoom-in', (event, data) => {
             this._view.zoomIn();
@@ -70,6 +81,10 @@ class ElectronHost {
             this.dropFiles(files);
             return false;
         });
+    }
+
+    update(name, value) {
+        electron.ipcRenderer.send('update', { name: name, value: value });
     }
 
     dropFiles(files) {

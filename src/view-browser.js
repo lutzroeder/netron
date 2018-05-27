@@ -14,16 +14,31 @@ class BrowserHost {
 
         window.addEventListener('keydown', (e) => {
             if (this._view) {
-                switch (e.keyCode) {
-                    case 187: // =
-                        this._view.zoomIn();
-                        break;
-                    case 189: // -
-                        this._view.zoomOut();
-                        break;
-                    case 48: // 0
-                        this._view.resetZoom();
-                        break;
+                if (!e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
+                    switch (e.keyCode) {
+                        case 187: // =
+                            this._view.zoomIn();
+                            e.preventDefault();
+                            break;
+                        case 189: // -
+                            this._view.zoomOut();
+                            e.preventDefault();
+                            break;
+                        case 48: // 0
+                            this._view.resetZoom();
+                            e.preventDefault();
+                            break;
+                        case 68: // D
+                            this._view.toggleDetails();
+                            e.preventDefault();
+                            break;
+                        case 85: // U
+                            this._view.toggleNames();
+                            e.preventDefault();
+                            break;
+                        case 69: // E
+                            break;
+                    }
                 }
             }
         });

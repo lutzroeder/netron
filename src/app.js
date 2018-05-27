@@ -103,6 +103,9 @@ class Application {
         this._views.on('active-view-changed', (e) => {
             this.resetMenu();
         });
+        this._views.on('active-view-updated', (e) => {
+            this.resetMenu();
+        });
     }
 
     openFileDialog() {
@@ -175,10 +178,10 @@ class Application {
         });
     }
 
-    copy() {
+    executeCommand(command) {
         var view = this._views.activeView;
         if (view) {
-            view.send('copy', {});
+            view.send(command, {});
         }
     }
 
@@ -186,27 +189,6 @@ class Application {
         var view = this._views.activeView;
         if (view && view.path) {
             this.loadFile(view.path, view);
-        }
-    }
-
-    resetZoom() {
-        var view = this._views.activeView;
-        if (view) {
-            view.send('reset-zoom', {});
-        }
-    }
-
-    zoomIn() {
-        var view = this._views.activeView;
-        if (view) {
-            view.send('zoom-in', {});
-        }
-    }
-
-    zoomOut() {
-        var view = this._views.activeView;
-        if (view) {
-            view.send('zoom-out', {});
         }
     }
 
@@ -367,6 +349,22 @@ class Application {
         };
 
         viewTemplate.submenu.push({
+            label: !view || !view.get('show-details') ?  'Show &Details' : 'Hide &Details',
+            accelerator: (process.platform === 'darwin') ? 'Cmd+D' : 'Ctrl+D',
+            click: () => this.executeCommand('toggle-details'),
+            enabled: view && view.path ? true : false
+        });
+
+        viewTemplate.submenu.push({
+            label: !view || !view.get('show-names') ?  'Show &Names' : 'Hide &Names',
+            accelerator: (process.platform === 'darwin') ? 'Cmd+U' : 'Ctrl+U',
+            click: () => this.executeCommand('toggle-names'),
+            enabled: view && view.path ? true : false
+        });
+
+        viewTemplate.submenu.push({ type: 'separator' });
+
+        viewTemplate.submenu.push({
             label: '&Reload',
             accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
             click: () => this.reload(),
@@ -374,22 +372,23 @@ class Application {
         });
 
         viewTemplate.submenu.push({ type: 'separator' });
+
         viewTemplate.submenu.push({
             label: 'Actual &Size',
-            accelerator: (process.platform === 'darwin') ? '0' : '0',
-            click: () => this.resetZoom(),
+            accelerator: (process.platform === 'darwin') ? 'Cmd+0' : 'Ctrl+0',
+            click: () => this.executeCommand('reset-zoom'),
             enabled: view && view.path ? true : false
         });
         viewTemplate.submenu.push({
             label: 'Zoom &In',
-            accelerator: (process.platform === 'darwin') ? '=' : '=',
-            click: () => this.zoomIn(),
+            accelerator: (process.platform === 'darwin') ? 'Cmd+Plus' : 'Ctrl+=',
+            click: () => this.executeCommand('zoom-in'),
             enabled: view && view.path ? true : false
         });
         viewTemplate.submenu.push({
             label: 'Zoom &Out',
-            accelerator: (process.platform === 'darwin') ? '-' : '-',
-            click: () => this.zoomOut(),
+            accelerator: (process.platform === 'darwin') ? 'Cmd+-' : 'Ctrl+-',
+            click: () => this.executeCommand('zoom-out'),
             enabled: view && view.path ? true : false
         });
 
@@ -459,6 +458,7 @@ class View {
         this._owner = owner;
         this._ready = false;
         this._path = null;
+        this._properties = {};
 
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         var options = {};
@@ -488,8 +488,10 @@ class View {
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
         this._updateCallback = (e, data) => { 
-            this.update(e, data); 
-            this.raise('activated');
+            if (e.sender == this._window.webContents) {
+                this.update(data.name, data.value); 
+                this.raise('updated');
+            }
         };
         electron.ipcMain.on('update', this._updateCallback);
         this._window.on('closed', () => {
@@ -511,6 +513,14 @@ class View {
             slashes: true
         });
         this._window.loadURL(location);
+    }
+
+    get window() {
+        return this._window;
+    }
+
+    get path() {
+        return this._path;
     }
 
     open(file) {
@@ -540,21 +550,6 @@ class View {
         }
     }
 
-    update(e, data) {
-        if (e.sender == this._window.webContents) {
-            if (data && data.file) {
-                this._path = data.file;
-                var title = Application.minimizePath(this._path);
-                if (process.platform !== 'darwin') {
-                    title = title + ' - ' + electron.app.getName();
-                }
-                this._window.setTitle(title);
-                this._window.focus();
-            }
-            this._openPath = null;
-        } 
-    }
-
     match(path) {
         if (this._openPath) {
             if (path == null) {
@@ -567,16 +562,32 @@ class View {
         return (this._path == path);
     }
 
-    get path() {
-        return this._path;
-    }
-
-    get window() {
-        return this._window;
-    }
-
     send(channel, data) {
         this._window.webContents.send(channel, data);
+    }
+
+    update(name, value) {
+        switch (name) {
+            case 'path':
+                if (value) {
+                    this._path = value;
+                    var title = Application.minimizePath(this._path);
+                    if (process.platform !== 'darwin') {
+                        title = title + ' - ' + electron.app.getName();
+                    }
+                    this._window.setTitle(title);
+                    this._window.focus();
+                }
+                this._openPath = null;
+                break;
+            default:
+                this._properties[name] = value;
+                break;
+        }
+    }
+
+    get(name) {
+        return this._properties[name];
     }
 
     on(event, callback) {
@@ -612,6 +623,9 @@ class ViewCollection {
         view.on('activated', (sender) => {
             this._activeView = sender;
             this.raise('active-view-changed', { activeView: this._activeView });
+        });
+        view.on('updated', (sender) => {
+            this.raise('active-view-updated', { activeView: this._activeView });            
         });
         view.on('deactivated', (sender) => {
             this._activeView = null;

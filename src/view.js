@@ -8,6 +8,7 @@ class View {
         this._sidebar = new Sidebar();
         this._host.initialize(this);
         this._showDetails = true;
+        this._showNames = false;
         document.documentElement.style.overflow = 'hidden';
         document.body.scroll = 'no';        
         var navigationButton = document.getElementById('navigation-button');
@@ -71,6 +72,26 @@ class View {
 
     copy() {
         document.execCommand('copy');
+    }
+
+    toggleDetails() {
+        this._showDetails = !this._showDetails;
+        this.show('spinner');
+        this.updateGraph(this._model, this._activeGraph);
+    }
+
+    get showDetails() {
+        return this._showDetails;
+    }
+
+    toggleNames() {
+        this._showNames = !this._showNames;
+        this.show('spinner');
+        this.updateGraph(this._model, this._activeGraph);
+    }
+
+    get showNames() {
+        return this._showNames;
     }
 
     zoomIn() {
@@ -242,7 +263,9 @@ class View {
                     if (category) {
                         styles.push('node-item-operator-' + category.toLowerCase());
                     }
-                    formatter.addItem(node.primitive ? node.primitive : node.operator, styles, node.name, () => { 
+                    var text = view.showNames && node.name ? node.name : (node.primitive ? node.primitive : node.operator);
+                    var title = view.showNames && node.name ? node.operator : node.name;
+                    formatter.addItem(text, styles, title, () => { 
                         view.showNodeProperties(node, null);
                     });
                 }
@@ -454,6 +477,9 @@ class View {
                         text = to.name;
                     }
     
+                    if (this._showNames) {
+                        text = edge;
+                    }
                     if (!this._showDetails) {
                         text = '';
                     }
