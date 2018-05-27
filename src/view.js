@@ -69,6 +69,10 @@ class View {
         }
     }
 
+    copy() {
+        document.execCommand('copy');
+    }
+
     zoomIn() {
         if (this._zoom) {
             var svgElement = document.getElementById('graph');

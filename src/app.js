@@ -175,6 +175,13 @@ class Application {
         });
     }
 
+    copy() {
+        var view = this._views.activeView;
+        if (view) {
+            view.send('copy', {});
+        }
+    }
+
     reload() {
         var view = this._views.activeView;
         if (view && view.path) {
@@ -354,7 +361,12 @@ class Application {
         menuTemplate.push({
             label: '&Edit',
             submenu: [
-                { role: 'copy' }
+                { 
+                    label: '&Copy',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+C' : 'Ctrl+C',
+                    click: () => this.copy(),
+                    enabled: view && view.path ? true : false
+                }
             ]
         });
     

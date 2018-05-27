@@ -34,14 +34,15 @@ class ElectronHost {
             }
         });
     
+        electron.ipcRenderer.on('copy', (event, data) => {
+            this._view.copy();
+        });
         electron.ipcRenderer.on('zoom-in', (event, data) => {
             this._view.zoomIn();
         });
-
         electron.ipcRenderer.on('zoom-out', (event, data) => {
             this._view.zoomOut();
         });
-
         electron.ipcRenderer.on('reset-zoom', (event, data) => {
             this._view.resetZoom();
         });
