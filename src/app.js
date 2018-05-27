@@ -12,8 +12,8 @@ class Application {
 
     constructor() {
         this._views = new ViewCollection();
+        this._configuration = new ConfigurationService();
         this._openFileQueue = [];
-        this._configuration = null;
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
 
@@ -46,15 +46,10 @@ class Application {
         });
 
         electron.app.on('will-quit', () => {
-            this.saveConfiguration();
-        });
-
-        this._views.on('active-view-changed', (e) => {
-            this.resetMenu();
+            this._configuration.save();
         });
 
         this.parseCommandLine(process.argv);
-
         this.checkForUpdates();
     }
 
@@ -92,8 +87,7 @@ class Application {
     }
 
     ready() {
-        this.loadConfiguration();
-        this.resetMenu();
+        this._configuration.load();
         if (this._openFileQueue) {
             var openFileQueue = this._openFileQueue;
             this._openFileQueue = null;
@@ -105,6 +99,10 @@ class Application {
         if (this._views.count == 0) {
             this._views.openView();
         }
+        this.resetMenu();
+        this._views.on('active-view-changed', (e) => {
+            this.resetMenu();
+        });
     }
 
     openFileDialog() {
@@ -153,12 +151,14 @@ class Application {
     }
 
     loadFile(file, view) {
-        this._configuration.recents = this._configuration.recents.filter(recent => file != recent.path);
+        var recents = this._configuration.get('recents');
+        recents = recents.filter(recent => file != recent.path);
         view.open(file);
-        this._configuration.recents.unshift({ path: file });
-        if (this._configuration.recents.length > 9) {
-            this._configuration.recents.splice(9);
+        recents.unshift({ path: file });
+        if (recents.length > 9) {
+            recents.splice(9);
         }
+        this._configuration.set('recents', recents);
         this.resetMenu();
     }
 
@@ -281,48 +281,19 @@ class Application {
             (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
     }
 
-    loadConfiguration() {
-        var dir = electron.app.getPath('userData');
-        if (dir && dir.length > 0) {
-            var file = path.join(dir, 'configuration.json'); 
-            if (fs.existsSync(file)) {
-                var data = fs.readFileSync(file);
-                if (data) {
-                    this._configuration = JSON.parse(data);
-                }
-            }
-        }
-        if (!this._configuration) {
-            this._configuration = {
-                'recents': []
-            };
-        }
-    }
-
-    saveConfiguration() {
-        if (this._configuration) {
-            var data = JSON.stringify(this._configuration);
-            if (data) {
-                var dir = electron.app.getPath('userData');
-                if (dir && dir.length > 0) {
-                    var file = path.join(dir, 'configuration.json'); 
-                    fs.writeFileSync(file, data);          
-                }
-            }
-        }
-    }
-
     resetMenu() {
 
         var view = this._views.activeView;
 
         var menuRecentsTemplate = [];
-        if (this._configuration && this._configuration.recents) {
-            this._configuration.recents = this._configuration.recents.filter(recent => fs.existsSync(recent.path) && fs.statSync(recent.path).isFile());
-            if (this._configuration.recents.length > 9) {
-                this._configuration.recents.splice(9);
+        if (this._configuration.has('recents')) {
+            var recents = this._configuration.get('recents');
+            recents = recents.filter(recent => fs.existsSync(recent.path) && fs.statSync(recent.path).isFile());
+            if (recents.length > 9) {
+                recents.splice(9);
             }
-            this._configuration.recents.forEach((recent, index) => {
+            this._configuration.set('recents', recents);
+            recents.forEach((recent, index) => {
                 var file = recent.path;
                 menuRecentsTemplate.push({
                     label: Application.minimizePath(recent.path),
@@ -694,6 +665,53 @@ class ViewCollection {
             });
         }
     }
+}
+
+class ConfigurationService {
+
+    load() {
+        var dir = electron.app.getPath('userData');
+        if (dir && dir.length > 0) {
+            var file = path.join(dir, 'configuration.json'); 
+            if (fs.existsSync(file)) {
+                var data = fs.readFileSync(file);
+                if (data) {
+                    this._data = JSON.parse(data);
+                }
+            }
+        }
+        if (!this._data) {
+            this._data = {
+                'recents': []
+            };
+        }
+    }
+
+    save() {
+        if (this._data) {
+            var data = JSON.stringify(this._data);
+            if (data) {
+                var dir = electron.app.getPath('userData');
+                if (dir && dir.length > 0) {
+                    var file = path.join(dir, 'configuration.json'); 
+                    fs.writeFileSync(file, data);          
+                }
+            }
+        }
+    }
+
+    has(name) {
+        return this._data && this._data.hasOwnProperty(name);
+    }
+
+    set(name, value) {
+        this._data[name] = value;
+    }
+
+    get(name) {
+        return this._data[name];
+    }
+
 }
 
 var application = new Application();
