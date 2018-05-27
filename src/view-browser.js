@@ -12,6 +12,22 @@ class BrowserHost {
     initialize(view) {
         this._view = view;
 
+        window.addEventListener('keydown', (e) => {
+            if (this._view) {
+                switch (e.keyCode) {
+                    case 187: // =
+                        this._view.zoomIn();
+                        break;
+                    case 189: // -
+                        this._view.zoomOut();
+                        break;
+                    case 48: // 0
+                        this._view.resetZoom();
+                        break;
+                }
+            }
+        });
+
         var fileElement = Array.from(document.getElementsByTagName('meta')).filter(e => e.name == 'file').shift();
         if (fileElement && fileElement.content && fileElement.content.length > 0) {
             this.openModel('/data', fileElement.content.split('/').pop());

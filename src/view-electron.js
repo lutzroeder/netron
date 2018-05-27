@@ -34,6 +34,18 @@ class ElectronHost {
             }
         });
     
+        electron.ipcRenderer.on('zoom-in', (event, data) => {
+            this._view.zoomIn();
+        });
+
+        electron.ipcRenderer.on('zoom-out', (event, data) => {
+            this._view.zoomOut();
+        });
+
+        electron.ipcRenderer.on('reset-zoom', (event, data) => {
+            this._view.resetZoom();
+        });
+
         var openFileButton = document.getElementById('open-file-button');
         if (openFileButton) {
             openFileButton.style.opacity = 1;

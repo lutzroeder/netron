@@ -69,6 +69,27 @@ class View {
         }
     }
 
+    zoomIn() {
+        if (this._zoom) {
+            var svgElement = document.getElementById('graph');
+            d3.select(svgElement).call(this._zoom.scaleBy, 1.2);
+        }
+    }
+
+    zoomOut() {
+        if (this._zoom) {
+            var svgElement = document.getElementById('graph');
+            d3.select(svgElement).call(this._zoom.scaleBy, 0.8);
+        }
+    }
+
+    resetZoom() { 
+        if (this._zoom) {
+            var svgElement = document.getElementById('graph');
+            d3.select(svgElement).call(this._zoom.scaleTo, 1);
+        }
+    }
+
     loadBuffer(buffer, identifier, callback) {
         var modelFactoryRegistry = [
             new OnnxModelFactory(),
@@ -174,7 +195,9 @@ class View {
         while (svgElement.lastChild) {
             svgElement.removeChild(svgElement.lastChild);
         }
-    
+
+        this._zoom = null;
+
         var groups = graph.groups;
 
         var g = new dagre.graphlib.Graph({ compound: groups });
@@ -454,14 +477,15 @@ class View {
         svgElement.appendChild(outputGroup);
     
         // Set up zoom support
-        var zoom = d3.zoom();
-        zoom.scaleExtent([0.1, 2]);
-        zoom.on('zoom', (e) => {
+        this._zoom = d3.zoom();
+        this._zoom.scaleExtent([0.1, 2]);
+        this._zoom.on('zoom', (e) => {
             d3.select(outputGroup).attr('transform', d3.event.transform);
         });
         var svg = d3.select(svgElement);
-        svg.call(zoom);
-        svg.call(zoom.transform, d3.zoomIdentity);
+        svg.call(this._zoom);
+        svg.call(this._zoom.transform, d3.zoomIdentity);
+        this._svg = svg;
     
         setTimeout(() => {
     
@@ -483,10 +507,10 @@ class View {
                 x = x / inputElements.length;
                 y = y / inputElements.length;
     
-                svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+                svg.call(this._zoom.transform, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
             }
             else {
-                svg.call(zoom.transform, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                svg.call(this._zoom.transform, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
             }    
         
             this.show('graph');

@@ -26,7 +26,7 @@ class Application {
         });
 
         electron.ipcMain.on('drop-files', (e, data) => {
-            this.dropFiles(data.files, e.sender);
+            this.dropFiles(e.sender, data.files);
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -47,6 +47,10 @@ class Application {
 
         electron.app.on('will-quit', () => {
             this.saveConfiguration();
+        });
+
+        this._views.on('active-view-changed', (e) => {
+            this.resetMenu();
         });
 
         this.parseCommandLine(process.argv);
@@ -158,7 +162,7 @@ class Application {
         this.resetMenu();
     }
 
-    dropFiles(files, sender) {
+    dropFiles(sender, files) {
         var view = this._views.from(sender);
         files.forEach((file) => {
             if (view) {
@@ -175,6 +179,27 @@ class Application {
         var view = this._views.activeView;
         if (view && view.path) {
             this.loadFile(view.path, view);
+        }
+    }
+
+    resetZoom() {
+        var view = this._views.activeView;
+        if (view) {
+            view.send('reset-zoom', {});
+        }
+    }
+
+    zoomIn() {
+        var view = this._views.activeView;
+        if (view) {
+            view.send('zoom-in', {});
+        }
+    }
+
+    zoomOut() {
+        var view = this._views.activeView;
+        if (view) {
+            view.send('zoom-out', {});
         }
     }
 
@@ -262,6 +287,8 @@ class Application {
 
     resetMenu() {
 
+        var view = this._views.activeView;
+
         var menuRecentsTemplate = [];
         if (this._configuration && this._configuration.recents) {
             this._configuration.recents = this._configuration.recents.filter(recent => fs.existsSync(recent.path) && fs.statSync(recent.path).isFile());
@@ -333,14 +360,35 @@ class Application {
     
         var viewTemplate = {
             label: '&View',
-            submenu: [
-                {
-                    label: '&Reload',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
-                    click: () => this.reload()
-                }
-            ]
+            submenu: []
         };
+
+        viewTemplate.submenu.push({
+            label: '&Reload',
+            accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
+            click: () => this.reload(),
+            enabled: view && view.path ? true : false
+        });
+
+        viewTemplate.submenu.push({ type: 'separator' });
+        viewTemplate.submenu.push({
+            label: 'Actual &Size',
+            accelerator: (process.platform === 'darwin') ? '0' : '0',
+            click: () => this.resetZoom(),
+            enabled: view && view.path ? true : false
+        });
+        viewTemplate.submenu.push({
+            label: 'Zoom &In',
+            accelerator: (process.platform === 'darwin') ? '=' : '=',
+            click: () => this.zoomIn(),
+            enabled: view && view.path ? true : false
+        });
+        viewTemplate.submenu.push({
+            label: 'Zoom &Out',
+            accelerator: (process.platform === 'darwin') ? '-' : '-',
+            click: () => this.zoomOut(),
+            enabled: view && view.path ? true : false
+        });
 
         if (this.isDev()) {
             viewTemplate.submenu.push({ type: 'separator' });
@@ -436,11 +484,20 @@ class View {
         }
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
-        this._updateCallback = (e, data) => { this.update(e, data); };
+        this._updateCallback = (e, data) => { 
+            this.update(e, data); 
+            this.raise('activated');
+        };
         electron.ipcMain.on('update', this._updateCallback);
         this._window.on('closed', () => {
             electron.ipcMain.removeListener('update', this._updateCallback);
             this._owner.closeView(this);
+        });
+        this._window.on('focus', (e) => {
+            this.raise('activated');
+        });
+        this._window.on('blur', (e) => {
+            this.raise('deactivated');
         });
         this._window.webContents.on('dom-ready', () => {
             this._ready = true;
@@ -514,6 +571,24 @@ class View {
     get window() {
         return this._window;
     }
+
+    send(channel, data) {
+        this._window.webContents.send(channel, data);
+    }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    raise(event, data) {
+        if (this._events && this._events[event]) {
+            this._events[event].forEach((callback) => {
+                callback(this, data);
+            });
+        }
+    }
 }
 
 class ViewCollection {
@@ -531,7 +606,16 @@ class ViewCollection {
 
     openView() {
         var view = new View(this);
+        view.on('activated', (sender) => {
+            this._activeView = sender;
+            this.raise('active-view-changed', { activeView: this._activeView });
+        });
+        view.on('deactivated', (sender) => {
+            this._activeView = null;
+            this.raise('active-view-changed', { activeView: this._activeView });
+        });
         this._views.push(view);
+        this.updateActiveView();
         return view;
     }
 
@@ -541,6 +625,7 @@ class ViewCollection {
                 this._views.splice(i, 1);
             }
         }
+        this.updateActiveView();
     }
 
     find(path) {
@@ -551,9 +636,31 @@ class ViewCollection {
         return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents == contents);
     }
 
-    get activeView() {
+    updateActiveView() {
         var window = electron.BrowserWindow.getFocusedWindow();
-        return this._views.find(view => view.window == window);
+        var view = this._views.find(view => view.window == window) || null;
+        if (view != this._activeView) {
+            this._activeView = view;
+            this.raise('active-view-changed', { activeView: this._activeView });        
+        }
+    }
+
+    get activeView() {
+        return this._activeView;
+    }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    raise(event, data) {
+        if (this._events && this._events[event]) {
+            this._events[event].forEach((callback) => {
+                callback(this, data);
+            });
+        }
     }
 }
 
