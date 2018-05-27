@@ -243,7 +243,7 @@ class View {
                         styles.push('node-item-operator-' + category.toLowerCase());
                     }
                     formatter.addItem(node.primitive ? node.primitive : node.operator, styles, node.name, () => { 
-                        view.showNodeProperties(node);
+                        view.showNodeProperties(node, null);
                     });
                 }
             }
@@ -286,7 +286,7 @@ class View {
                         if (!input.hidden) {
                             var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
                             formatter.addItem(input.name, [ inputClass ], types, () => {
-                                this.showNodeInput(node, input);
+                                this.showNodeProperties(node, input);
                             });    
                         }
                     }
@@ -310,12 +310,12 @@ class View {
             if (this._showDetails) {
                 if (hiddenInputs) {
                     formatter.addItem('...', [ 'node-item-input' ], '', () => {
-                        this.showNodeProperties(node);
+                        this.showNodeProperties(node, null);
                     });    
                 }
                 if (hiddenInitializers) {
                     formatter.addItem('...', [ 'node-item-constant' ], '', () => {
-                        this.showNodeProperties(node);
+                        this.showNodeProperties(node, null);
                     });    
                 }
             }
@@ -343,7 +343,7 @@ class View {
                 var attributes = node.attributes; 
                 if (attributes && !primitive) {
                     formatter.setAttributeHandler(() => { 
-                        this.showNodeProperties(node);
+                        this.showNodeProperties(node, null);
                     });
                     attributes.forEach((attribute) => {
                         if (attribute.visible) {
@@ -529,24 +529,16 @@ class View {
         }
     }
     
-    showNodeProperties(node) {
+    showNodeProperties(node, input) {
         if (node) {
             var documentationHandler = () => {
                 this.showDocumentation(node);
             };
             var view = new NodeView(node, documentationHandler);
+            if (input) {
+                view.toggleInput(input.name);
+            }
             this._sidebar.open(view.elements, 'Node Properties');
-        }
-    }
-
-    showNodeInput(node, input) {
-        if (input) {
-            var documentationHandler = () => {
-                this.showDocumentation(node);
-            };
-            var view = new NodeView(node, documentationHandler);
-            view.toggleInput(input.name);
-            this._sidebar.open(view.elements, 'Node');
         }
     }
 
