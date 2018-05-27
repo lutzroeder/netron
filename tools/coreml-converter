@@ -21,6 +21,7 @@ fi
 export PYTHONUSERBASE=${third_party}/${identifier}/build/pypi
 export PATH=$PATH:${PYTHONUSERBASE}/bin
 pip install --user onnx
+pip install --user sklearn
 pip install --user ${third_party}/${identifier}
 
 python ${tools}/coreml-converter.py $@
