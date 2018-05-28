@@ -58,6 +58,10 @@ class ElectronHost {
             this._view.resetZoom();
         });
 
+        electron.ipcRenderer.on('find', (event, data) => {
+            this._view.find();
+        });
+
         var openFileButton = document.getElementById('open-file-button');
         if (openFileButton) {
             openFileButton.style.opacity = 1;

@@ -339,64 +339,64 @@ class Application {
                     accelerator: (process.platform === 'darwin') ? 'Cmd+C' : 'Ctrl+C',
                     click: () => this.copy(),
                     enabled: view && view.path ? true : false
-                }
+                },
+                /* { type: 'separator' },
+                {
+                    label: '&Find...',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+F' : 'Ctrl+F',
+                    click: () => this.executeCommand('find'),
+                    enabled: view && view.path ? true : false
+                } */
             ]
         });
     
         var viewTemplate = {
             label: '&View',
-            submenu: []
+            submenu: [
+                {
+                    label: !view || !view.get('show-details') ?  'Show &Details' : 'Hide &Details',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+D' : 'Ctrl+D',
+                    click: () => this.executeCommand('toggle-details'),
+                    enabled: view && view.path ? true : false
+                },
+                {
+                    label: !view || !view.get('show-names') ?  'Show &Names' : 'Hide &Names',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+U' : 'Ctrl+U',
+                    click: () => this.executeCommand('toggle-names'),
+                    enabled: view && view.path ? true : false
+                },
+                { type: 'separator' },
+                {
+                    label: '&Reload',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
+                    click: () => this.reload(),
+                    enabled: view && view.path ? true : false
+                },
+                { type: 'separator' },
+                {
+                    label: 'Actual &Size',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+0' : 'Ctrl+0',
+                    click: () => this.executeCommand('reset-zoom'),
+                    enabled: view && view.path ? true : false
+                },
+                {
+                    label: 'Zoom &In',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+Plus' : 'Ctrl+=',
+                    click: () => this.executeCommand('zoom-in'),
+                    enabled: view && view.path ? true : false
+                },
+                {
+                    label: 'Zoom &Out',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+-' : 'Ctrl+-',
+                    click: () => this.executeCommand('zoom-out'),
+                    enabled: view && view.path ? true : false
+                }        
+            ]
         };
-
-        viewTemplate.submenu.push({
-            label: !view || !view.get('show-details') ?  'Show &Details' : 'Hide &Details',
-            accelerator: (process.platform === 'darwin') ? 'Cmd+D' : 'Ctrl+D',
-            click: () => this.executeCommand('toggle-details'),
-            enabled: view && view.path ? true : false
-        });
-
-        viewTemplate.submenu.push({
-            label: !view || !view.get('show-names') ?  'Show &Names' : 'Hide &Names',
-            accelerator: (process.platform === 'darwin') ? 'Cmd+U' : 'Ctrl+U',
-            click: () => this.executeCommand('toggle-names'),
-            enabled: view && view.path ? true : false
-        });
-
-        viewTemplate.submenu.push({ type: 'separator' });
-
-        viewTemplate.submenu.push({
-            label: '&Reload',
-            accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
-            click: () => this.reload(),
-            enabled: view && view.path ? true : false
-        });
-
-        viewTemplate.submenu.push({ type: 'separator' });
-
-        viewTemplate.submenu.push({
-            label: 'Actual &Size',
-            accelerator: (process.platform === 'darwin') ? 'Cmd+0' : 'Ctrl+0',
-            click: () => this.executeCommand('reset-zoom'),
-            enabled: view && view.path ? true : false
-        });
-        viewTemplate.submenu.push({
-            label: 'Zoom &In',
-            accelerator: (process.platform === 'darwin') ? 'Cmd+Plus' : 'Ctrl+=',
-            click: () => this.executeCommand('zoom-in'),
-            enabled: view && view.path ? true : false
-        });
-        viewTemplate.submenu.push({
-            label: 'Zoom &Out',
-            accelerator: (process.platform === 'darwin') ? 'Cmd+-' : 'Ctrl+-',
-            click: () => this.executeCommand('zoom-out'),
-            enabled: view && view.path ? true : false
-        });
-
         if (this.isDev()) {
             viewTemplate.submenu.push({ type: 'separator' });
             viewTemplate.submenu.push({ role: 'toggledevtools' });
         }
-
         menuTemplate.push(viewTemplate);
 
         if (process.platform === 'darwin') {
