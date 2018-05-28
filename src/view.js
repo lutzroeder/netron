@@ -229,8 +229,14 @@ class View {
 
         var groups = graph.groups;
 
+        var graphOptions = {};
+        if (!this._showDetails) {
+            graphOptions.nodesep = 25;
+            graphOptions.ranksep = 25;
+        }
+
         var g = new dagre.graphlib.Graph({ compound: groups });
-        g.setGraph({});
+        g.setGraph(graphOptions);
         // g.setGraph({ align: 'DR' });
         // g.setGraph({ ranker: 'network-simplex' });
         // g.setGraph({ ranker: 'tight-tree' });
