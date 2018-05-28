@@ -11,8 +11,8 @@ repository=https://github.com/apple/${identifier}.git
 mkdir -p ${third_party}
 
 if [ -d "${third_party}/${identifier}" ]; then
-    git -C "${third_party}/${identifier}" fetch -p
-    git -C "${third_party}/${identifier}" reset --hard origin/master
+    git -C "${third_party}/${identifier}" fetch -p --quiet
+    git -C "${third_party}/${identifier}" reset --quiet --hard origin/master
 else
     echo "Clone ${repository}..."
     git -C "${third_party}" clone --recursive ${repository}
@@ -20,8 +20,8 @@ fi
 
 export PYTHONUSERBASE=${third_party}/${identifier}/build/pypi
 export PATH=$PATH:${PYTHONUSERBASE}/bin
-pip install --user onnx
-pip install --user sklearn
-pip install --user ${third_party}/${identifier}
+pip install --quiet --user onnx
+pip install --quiet --user sklearn
+pip install --quiet --user ${third_party}/${identifier}
 
 python ${tools}/coreml-converter.py $@
