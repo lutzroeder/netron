@@ -468,7 +468,7 @@ class View {
                 tuple.to.forEach((to) => {
                     var text = '';
                     if (tuple.from.name && to.name) {
-                        text = tuple.from.name + ' => ' + to.name;
+                        text = tuple.from.name + ' \u21E8 ' + to.name;
                     }
                     else if (tuple.from.name) {
                         text = tuple.from.name;
