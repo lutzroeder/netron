@@ -145,7 +145,7 @@ class TensorFlowGraph {
         this._graph.graphDef.node.forEach((node) => {
             if (node.output.filter(output => !output.startsWith('^')) != 0 ||
                 node.input.filter(input => !input.startsWith('^')).length > 0) {
-                var id = node.name + ':0';
+                var id = node.name;
                 if (!this._initializerMap[id] && !this._inputMap[id] /* && node.op != 'NoOp' */) {
                     results.push(new TensorFlowNode(this, node));
                 }
@@ -170,7 +170,7 @@ class TensorFlowGraph {
             nodes.forEach((node) => {
                 var name = node.name;
                 this._nodeMap[name] = node;   
-                if (node.op != 'Const') {
+                        if (node.op != 'Const') {
                     var lastIndex = name.lastIndexOf('/');
                     if (lastIndex != -1) {
                         var namespace = name.substring(0, lastIndex);
@@ -188,7 +188,7 @@ class TensorFlowGraph {
                         var outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
                         var outputName = inputName;
                         var outputNode = this._nodeMap[outputName];
-                        node.input[i] = inputName + ':' + outputIndex.toString();
+                        node.input[i] = outputIndex == 0 ? inputName : inputName + ':' + outputIndex.toString();
                         if (outputNode) {
                             for (var j = outputNode.output.length; j <= outputIndex; j++) {
                                 outputNode.output.push('');
