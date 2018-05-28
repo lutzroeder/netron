@@ -50,7 +50,7 @@ publish_github_pages:
 	git -C ./build/gh-pages push --force origin gh-pages
 
 publish_cask:
-	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/caskroom/homebrew-cask/forks -d ''
+	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d ''
 	@export PACKAGE_VERSION=`node -pe "require('./package.json').version"`; \
 	cask-repair --cask-version $$PACKAGE_VERSION --blind-submit netron
 	@curl -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/lutzroeder/homebrew-cask
