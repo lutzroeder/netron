@@ -57,6 +57,9 @@ class ElectronHost {
         electron.ipcRenderer.on('reset-zoom', (event, data) => {
             this._view.resetZoom();
         });
+        electron.ipcRenderer.on('show-properties', (event, data) => {
+            this._view.showModelProperties();
+        });
 
         electron.ipcRenderer.on('find', (event, data) => {
             this._view.find();

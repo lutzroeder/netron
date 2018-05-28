@@ -390,6 +390,13 @@ class Application {
                     accelerator: (process.platform === 'darwin') ? 'Cmd+-' : 'Ctrl+-',
                     click: () => this.executeCommand('zoom-out'),
                     enabled: view && view.path ? true : false
+                },
+                { type: 'separator' },
+                {
+                    label: '&Properties...',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+Enter' : 'Ctrl+Enter',
+                    click: () => this.executeCommand('show-properties'),
+                    enabled: view && view.path ? true : false
                 }        
             ]
         };

@@ -16,17 +16,7 @@ class BrowserHost {
             if (this._view) {
                 if (!e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
                     switch (e.keyCode) {
-                        case 187: // =
-                            this._view.zoomIn();
-                            e.preventDefault();
-                            break;
-                        case 189: // -
-                            this._view.zoomOut();
-                            e.preventDefault();
-                            break;
-                        case 48: // 0
-                            this._view.resetZoom();
-                            e.preventDefault();
+                        case 69: // E
                             break;
                         case 68: // D
                             this._view.toggleDetails();
@@ -36,7 +26,21 @@ class BrowserHost {
                             this._view.toggleNames();
                             e.preventDefault();
                             break;
-                        case 69: // E
+                        case 48: // 0
+                            this._view.resetZoom();
+                            e.preventDefault();
+                            break;
+                        case 187: // =
+                            this._view.zoomIn();
+                            e.preventDefault();
+                            break;
+                        case 189: // -
+                            this._view.zoomOut();
+                            e.preventDefault();
+                            break;
+                        case 13: // Return
+                            this._view.showModelProperties();
+                            e.preventDefault();
                             break;
                     }
                 }
