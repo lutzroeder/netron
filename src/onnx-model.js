@@ -400,7 +400,7 @@ class OnnxAttribute {
     }
 
     get visible() {
-        return true;
+        return this._node.graph.metadata.getAttributeVisible(this._node, this);
     }
 
     get tensor() {
@@ -688,6 +688,27 @@ class OnnxGraphOperatorMetadata {
         return schema;
     }
 
+    getAttributeSchema(node, name) {
+        var schema = this.getSchema(node);
+        if (schema) {
+            var attributeMap = schema.attributeMap;
+            if (!attributeMap) {
+                attributeMap = {};
+                if (schema.attributes) {
+                    schema.attributes.forEach((attribute) => {
+                        attributeMap[attribute.name] = attribute;
+                    });
+                }
+                schema.attributeMap = attributeMap;
+            }
+            var attributeSchema = attributeMap[name];
+            if (attributeSchema) {
+                return attributeSchema; 
+            }
+        }
+        return null;
+    }
+
     getInputs(node) {
         var inputs = [];
         var index = 0;
@@ -757,24 +778,21 @@ class OnnxGraphOperatorMetadata {
     }
 
     getAttributeType(node, name) {
-        var schema = this.getSchema(node);
-        if (schema) {
-            var attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    schema.attributes.forEach((attribute) => {
-                        attributeMap[attribute.name] = attribute;
-                    });
-                }
-                schema.attributeMap = attributeMap;
-            }
-            var attributeEntry = attributeMap[name];
-            if (attributeEntry) { 
-                return attributeEntry.type;
-            }
+        var schema = this.getAttributeSchema(node, name);
+        if (schema && schema.type) {
+            return schema.type;
         }
         return '';
+    }
+
+    getAttributeVisible(node, attribute) {
+        var schema = this.getAttributeSchema(node, attribute.name);
+        if (schema && schema.hasOwnProperty('default') && schema.default) {
+            if (attribute.value == schema.default.toString()) {
+                return false;
+            }
+        }
+        return true;     
     }
 
     getOperatorCategory(node) {

@@ -394,6 +394,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Value of alpha",
           "name": "alpha",
           "required": false,
@@ -584,6 +585,7 @@
           "type": "int"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -644,6 +646,7 @@
           "type": "int"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -831,6 +834,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "NOTSET",
           "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
@@ -938,6 +942,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "NOTSET",
           "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
@@ -1057,6 +1062,7 @@
           "type": "int[]"
         },
         {
+          "default": 9.999999747378752e-06,
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
@@ -1069,12 +1075,14 @@
           "type": "int"
         },
         {
+          "default": 0.8999999761581421,
           "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
           "name": "momentum",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1,
           "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
           "name": "spatial",
           "required": false,
@@ -1166,6 +1174,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 9.999999747378752e-06,
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
@@ -1178,12 +1187,14 @@
           "type": "int"
         },
         {
+          "default": 0.8999999761581421,
           "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
           "name": "momentum",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1,
           "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
           "name": "spatial",
           "required": false,
@@ -1275,18 +1286,21 @@
     "schema": {
       "attributes": [
         {
+          "default": 9.999999747378752e-06,
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
           "type": "float"
         },
         {
+          "default": 0.8999999761581421,
           "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
           "name": "momentum",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1,
           "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
           "name": "spatial",
           "required": false,
@@ -1583,18 +1597,21 @@
     "schema": {
       "attributes": [
         {
+          "default": "TO_FLOAT",
           "description": "what type of tensor to cast the input to, enum 'TO_FLOAT','TO_STRING','TO_INT64', default is 'TO_FLOAT'",
           "name": "cast_to",
           "required": false,
           "type": "string"
         },
         {
+          "default": "DENSE",
           "description": "whether to only output as many values as are in the input, or position the input based on using the key of the map as the index of the output (sparse), enum 'DENSE', 'SPARSE', default is 'DENSE'",
           "name": "map_form",
           "required": false,
           "type": "string"
         },
         {
+          "default": 1,
           "description": "if map_form packing is SPARSE, what is the total length of each output in N (max index value)",
           "name": "max_map",
           "required": false,
@@ -1661,12 +1678,14 @@
           "type": "string[]"
         },
         {
+          "default": -1,
           "description": "int value to use if the string is not in the map",
           "name": "default_int64",
           "required": false,
           "type": "int"
         },
         {
+          "default": "_Unused",
           "description": "string value to use if the int is not in the map",
           "name": "default_string",
           "required": false,
@@ -1884,12 +1903,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 3.4028234663852886e+38,
           "description": "Maximum value, above which element is replaced by max",
           "name": "max",
           "required": false,
           "type": "float"
         },
         {
+          "default": -3.4028234663852886e+38,
           "description": "Minimum value, under which element is replaced by min",
           "name": "min",
           "required": false,
@@ -2110,6 +2131,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1,
           "description": "The data type for the elements of the output tensor.Strictly must be one of the types from DataType enum in TensorProto.",
           "name": "dtype",
           "required": false,
@@ -2192,6 +2214,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "NOTSET",
           "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
@@ -2204,6 +2227,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "number of groups input channels and output channels are divided into, default is 1.",
           "name": "group",
           "required": false,
@@ -2290,6 +2314,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "NOTSET",
           "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
@@ -2302,6 +2327,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "number of groups input channels and output channels are divided into, default is 1.",
           "name": "group",
           "required": false,
@@ -2819,6 +2845,7 @@
           "type": "int"
         },
         {
+          "default": 0.5,
           "description": "(float, default 0.5) the ratio of random dropout",
           "name": "ratio",
           "required": false,
@@ -2878,6 +2905,7 @@
           "type": "int"
         },
         {
+          "default": 0.5,
           "description": "(float, default 0.5) the ratio of random dropout",
           "name": "ratio",
           "required": false,
@@ -2931,6 +2959,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 0.5,
           "description": "(float, default 0.5) the ratio of random dropout",
           "name": "ratio",
           "required": false,
@@ -2984,6 +3013,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Coefficient of ELU default to 1.0.",
           "name": "alpha",
           "required": false,
@@ -3047,6 +3077,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Coefficient of ELU default to 1.0.",
           "name": "alpha",
           "required": false,
@@ -3384,6 +3415,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1,
           "description": "(Default to 1) Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output. The value for axis must be in the range [0, R], where R is the rank of the input tensor. When axis = 0, the shape of the output tensor is (1, (d_0 X d_1 ... d_n), where the shape of the input tensor is (d_0, d_1, ... d_n). ",
           "name": "axis",
           "required": false,
@@ -3561,6 +3593,7 @@
           "type": "float"
         },
         {
+          "default": "foward",
           "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
           "name": "direction",
           "required": false,
@@ -3699,6 +3732,7 @@
           "type": "float"
         },
         {
+          "default": "forward",
           "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
           "name": "direction",
           "required": false,
@@ -3844,6 +3878,7 @@
           "type": "float"
         },
         {
+          "default": "forward",
           "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
           "name": "direction",
           "required": false,
@@ -4100,12 +4135,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Scalar multiplier for the product of input tensors A * B",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1.0,
           "description": "Scalar multiplier for input tensor C",
           "name": "beta",
           "required": false,
@@ -4191,12 +4228,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Scalar multiplier for the product of input tensors A * B",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1.0,
           "description": "Scalar multiplier for input tensor C",
           "name": "beta",
           "required": false,
@@ -4282,12 +4321,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Scalar multiplier for the product of input tensors A * B",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1.0,
           "description": "Scalar multiplier for input tensor C",
           "name": "beta",
           "required": false,
@@ -4480,6 +4521,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 2.0,
           "description": "p value of the Lp norm used to pool over the input data, default is 2.0.",
           "name": "p",
           "required": false,
@@ -4527,6 +4569,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 2,
           "description": "p value of the Lp norm used to pool over the input data, default is 2.",
           "name": "p",
           "required": false,
@@ -4759,12 +4802,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 0.20000000298023224,
           "description": "Value of alpha default to 0.2",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
+          "default": 0.5,
           "description": "Value of beta default to 0.5",
           "name": "beta",
           "required": false,
@@ -4828,12 +4873,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 0.20000000298023224,
           "description": "Value of alpha default to 0.2",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
+          "default": 0.5,
           "description": "Value of beta default to 0.5",
           "name": "beta",
           "required": false,
@@ -4891,6 +4938,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1,
           "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
@@ -5077,6 +5125,7 @@
           "type": "float[]"
         },
         {
+          "default": 1.0,
           "description": "(float, default 1.0) the scale to apply.",
           "name": "scale",
           "required": false,
@@ -5195,6 +5244,7 @@
           "type": "int[]"
         },
         {
+          "default": 9.999999747378752e-06,
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
@@ -5252,6 +5302,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 9.999999747378752e-06,
           "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
           "name": "epsilon",
           "required": false,
@@ -5309,18 +5360,21 @@
     "schema": {
       "attributes": [
         {
+          "default": 9.999999747378752e-05,
           "description": "Scaling parameter, default is 1e-4f.",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
+          "default": 0.75,
           "description": "The exponent, default is 0.75f",
           "name": "beta",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1.0,
           "description": "Default to 1.0f",
           "name": "bias",
           "required": false,
@@ -5398,6 +5452,7 @@
           "type": "float"
         },
         {
+          "default": "forward",
           "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
           "name": "direction",
           "required": false,
@@ -5561,6 +5616,7 @@
           "type": "float"
         },
         {
+          "default": "forward",
           "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
           "name": "direction",
           "required": false,
@@ -5700,12 +5756,14 @@
           "type": "string[]"
         },
         {
+          "default": -1,
           "description": "Default value if not in class list as int64",
           "name": "default_int64",
           "required": false,
           "type": "int"
         },
         {
+          "default": "_Unused",
           "description": "Default value if not in class list as string",
           "name": "default_string",
           "required": false,
@@ -5759,6 +5817,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 0.009999999776482582,
           "description": "Coefficient of leakage default to 0.01.",
           "name": "alpha",
           "required": false,
@@ -5822,6 +5881,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 0.009999999776482582,
           "description": "Coefficient of leakage default to 0.01.",
           "name": "alpha",
           "required": false,
@@ -6045,6 +6105,7 @@
           "type": "int"
         },
         {
+          "default": "NONE",
           "description": "enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
           "name": "post_transform",
           "required": false,
@@ -6117,12 +6178,14 @@
           "type": "float[]"
         },
         {
+          "default": "NONE",
           "description": "enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
           "name": "post_transform",
           "required": false,
           "type": "string"
         },
         {
+          "default": 1,
           "description": "total number of regression targets (default is 1)",
           "name": "targets",
           "required": false,
@@ -6266,6 +6329,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1,
           "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
@@ -6473,12 +6537,14 @@
     "schema": {
       "attributes": [
         {
+          "default": -1,
           "description": "(int64, default -1) the axis on which to apply normalization, -1 mean last axis.",
           "name": "axis",
           "required": false,
           "type": "int"
         },
         {
+          "default": 2,
           "description": "(int64, default 2) the order of the normalization, only 1 or 2 are supported.",
           "name": "p",
           "required": false,
@@ -6526,6 +6592,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "NOTSET",
           "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
@@ -6538,6 +6605,7 @@
           "type": "int[]"
         },
         {
+          "default": 2.0,
           "description": "p value of the Lp norm used to pool over the input data, default is 2.0.",
           "name": "p",
           "required": false,
@@ -6597,6 +6665,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "NOTSET",
           "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
@@ -6609,6 +6678,7 @@
           "type": "int[]"
         },
         {
+          "default": 2,
           "description": "p value of the Lp norm used to pool over the input data, default is 2.",
           "name": "p",
           "required": false,
@@ -6815,6 +6885,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "NOTSET",
           "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
           "name": "auto_pad",
           "required": false,
@@ -6928,6 +6999,7 @@
           "type": "int[]"
         },
         {
+          "default": 1.0,
           "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling, default is 1.0f.",
           "name": "spatial_scale",
           "required": false,
@@ -7084,6 +7156,7 @@
           "type": "int"
         },
         {
+          "default": 1,
           "description": "If 0, normalize the mean only.  Default is 1.",
           "name": "normalize_variance",
           "required": false,
@@ -7427,12 +7500,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 6,
           "description": "(Optional) The data type for the elements of the output tensor, if not specified, we will use int32.",
           "name": "dtype",
           "required": false,
           "type": "int"
         },
         {
+          "default": 1,
           "description": "Number of times to sample.",
           "name": "sample_size",
           "required": false,
@@ -7593,6 +7668,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "MAX",
           "description": "enum 'MAX', 'L1', 'L2'",
           "name": "norm",
           "required": false,
@@ -7695,6 +7771,7 @@
           "type": "string[]"
         },
         {
+          "default": 1,
           "description": "if true and category is not present, will return all zeros, if false and missing category, operator will return false. Default is true (1).",
           "name": "zeros",
           "required": false,
@@ -7991,6 +8068,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "constant",
           "description": "Three modes: constant(default), reflect, edge",
           "name": "mode",
           "required": false,
@@ -8060,6 +8138,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "constant",
           "description": "Three modes: constant(default), reflect, edge",
           "name": "mode",
           "required": false,
@@ -8325,6 +8404,7 @@
           "type": "float"
         },
         {
+          "default": "forward",
           "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
           "name": "direction",
           "required": false,
@@ -8464,6 +8544,7 @@
           "type": "float"
         },
         {
+          "default": "forward",
           "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
           "name": "direction",
           "required": false,
@@ -8573,6 +8654,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1,
           "description": "The data type for the elements of the output tensor. Default is TensorProto::FLOAT.",
           "name": "dtype",
           "required": false,
@@ -8585,6 +8667,7 @@
           "type": "float"
         },
         {
+          "default": 1.0,
           "description": "The standard deviation of the normal distribution. If not specified, default is 1.",
           "name": "scale",
           "required": false,
@@ -8648,6 +8731,7 @@
           "type": "float"
         },
         {
+          "default": 1.0,
           "description": "The standard deviation of the normal distribution. If not specified, default is 1.",
           "name": "scale",
           "required": false,
@@ -8719,12 +8803,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 1,
           "description": "The data type for the elements of the output tensor. If not specified, default is TensorProto::FLOAT.",
           "name": "dtype",
           "required": false,
           "type": "int"
         },
         {
+          "default": 1.0,
           "description": "Upper boundary of the output values. If not specified, default is 1.",
           "name": "high",
           "required": false,
@@ -8788,6 +8874,7 @@
           "type": "int"
         },
         {
+          "default": 1.0,
           "description": "Upper boundary of the output values. If not specified, default is 1.",
           "name": "high",
           "required": false,
@@ -8967,6 +9054,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9036,6 +9124,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9105,6 +9194,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9170,6 +9260,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9239,6 +9330,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9308,6 +9400,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9377,6 +9470,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9446,6 +9540,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9515,6 +9610,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9584,6 +9680,7 @@
           "type": "int[]"
         },
         {
+          "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
           "required": false,
@@ -9878,12 +9975,14 @@
           "type": "float[]"
         },
         {
+          "default": "LINEAR",
           "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
           "name": "kernel_type",
           "required": false,
           "type": "string"
         },
         {
+          "default": "NONE",
           "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
           "name": "post_transform",
           "required": false,
@@ -9986,6 +10085,7 @@
           "type": "float[]"
         },
         {
+          "default": "LINEAR",
           "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
           "name": "kernel_type",
           "required": false,
@@ -10004,6 +10104,7 @@
           "type": "int"
         },
         {
+          "default": "NONE",
           "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
           "name": "post_transform",
           "required": false,
@@ -10063,6 +10164,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "(float, default 1.0) the scale to apply.",
           "name": "scale",
           "required": false,
@@ -10214,6 +10316,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.673200011253357,
           "description": "Coefficient of SELU default to 1.6732.",
           "name": "alpha",
           "required": false,
@@ -10226,6 +10329,7 @@
           "type": "int[]"
         },
         {
+          "default": 1.0506999492645264,
           "description": "Coefficient of SELU default to 1.0507.",
           "name": "gamma",
           "required": false,
@@ -10283,12 +10387,14 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.6732631921768188,
           "description": "Coefficient of SELU default to 1.67326319217681884765625 (i.e., float32 approximation of 1.6732632423543772848170429916717).",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
+          "default": 1.0507010221481323,
           "description": "Coefficient of SELU default to 1.05070102214813232421875 (i.e., float32 approximation of 1.0507009873554804934193349852946).",
           "name": "gamma",
           "required": false,
@@ -10685,6 +10791,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1,
           "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
@@ -11617,6 +11724,7 @@
     "schema": {
       "attributes": [
         {
+          "default": 1.0,
           "description": "Threshold value",
           "name": "alpha",
           "required": false,
@@ -11801,6 +11909,7 @@
     "schema": {
       "attributes": [
         {
+          "default": -1,
           "description": "Dimension on which to do the sort. Default -1, which indicates the last axis",
           "name": "axis",
           "required": false,
@@ -12024,6 +12133,7 @@
           "type": "float[]"
         },
         {
+          "default": "NONE",
           "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
           "name": "post_transform",
           "required": false,
@@ -12084,6 +12194,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "SUM",
           "description": " enum, how to aggregate leaf values within a target, AVERAGE,SUM,MIN,MAX",
           "name": "aggregate_function",
           "required": false,
@@ -12156,6 +12267,7 @@
           "type": "float[]"
         },
         {
+          "default": "NONE",
           "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
           "name": "post_transform",
           "required": false,
@@ -12295,6 +12407,7 @@
           "type": "float"
         },
         {
+          "default": "nearest",
           "description": "Two interpolation modes: nearest(default), bilinear",
           "name": "mode",
           "required": false,
@@ -12356,6 +12469,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "nearest",
           "description": "Two interpolation modes: nearest (default), and linear (including bilinear, trilinear, etc)",
           "name": "mode",
           "required": false,

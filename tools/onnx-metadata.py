@@ -129,6 +129,17 @@ def generate_json_attr_type(type):
         s = s[0:-1] + '[]'
     return s
 
+def generate_json_attr_default_value(attr_value):
+    if not str(attr_value):
+        return None
+    if attr_value.HasField('i'):
+        return attr_value.i
+    if attr_value.HasField('s'):
+        return attr_value.s
+    if attr_value.HasField('f'):
+        return attr_value.f
+    return None
+
 def generate_json_support_level_name(support_level):
     assert isinstance(support_level, OpSchema.SupportType)
     s = str(support_level)
@@ -152,7 +163,7 @@ def generate_json(schemas, json_file):
         json_schema['since_version'] = schema.since_version
         json_schema['support_level'] = generate_json_support_level_name(schema.support_level)
         if schema.doc:
-            json_schema['description'] = schema.doc.lstrip();
+            json_schema['description'] = schema.doc.lstrip()
         if schema.inputs:
             json_schema['inputs'] = []
             for input in schema.inputs:
@@ -165,8 +176,8 @@ def generate_json(schemas, json_file):
                 elif input.option == OpSchema.FormalParameterOption.Variadic:
                     json_input['option'] = 'variadic'
                 json_schema['inputs'].append(json_input)
-        json_schema['min_input'] = schema.min_input;
-        json_schema['max_input'] = schema.max_input;
+        json_schema['min_input'] = schema.min_input
+        json_schema['max_input'] = schema.max_input
         if schema.outputs:
             json_schema['outputs'] = []
             for output in schema.outputs:
@@ -179,16 +190,20 @@ def generate_json(schemas, json_file):
                 elif output.option == OpSchema.FormalParameterOption.Variadic:
                     json_output['option'] = 'variadic'
                 json_schema['outputs'].append(json_output)
-        json_schema['min_output'] = schema.min_output;
-        json_schema['max_output'] = schema.max_output;
+        json_schema['min_output'] = schema.min_output
+        json_schema['max_output'] = schema.max_output
         if schema.attributes:
             json_schema['attributes'] = []
             for _, attribute in sorted(schema.attributes.items()):
-                json_schema['attributes'].append({
-                    'name' : attribute.name,
-                    'description': attribute.description,
-                    'type': generate_json_attr_type(attribute.type),
-                    'required': attribute.required })
+                json_attribute = {}
+                json_attribute['name'] = attribute.name
+                json_attribute['description'] = attribute.description
+                json_attribute['type'] = generate_json_attr_type(attribute.type)
+                json_attribute['required'] = attribute.required
+                default_value = generate_json_attr_default_value(attribute.default_value)
+                if default_value:
+                    json_attribute['default'] = default_value
+                json_schema['attributes'].append(json_attribute)
         if schema.type_constraints:
             json_schema['type_constraints'] = []
             for type_constraint in schema.type_constraints:
