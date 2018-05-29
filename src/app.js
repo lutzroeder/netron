@@ -337,7 +337,7 @@ class Application {
                 { 
                     label: '&Copy',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+C' : 'Ctrl+C',
-                    click: () => this.copy(),
+                    click: () => this.executeCommand('copy'),
                     enabled: view && view.path ? true : false
                 },
                 /* { type: 'separator' },
