@@ -507,7 +507,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to width and height.\n- If tuple of 2 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n- If tuple of 2 tuples of 2 ints:\ninterpreted as\n`((left_dim1_pad, right_dim1_pad), (left_dim2_pad, right_dim2_pad), (left_dim3_pad, right_dim3_pad))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to width and height.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_pad, right_dim1_pad), (left_dim2_pad, right_dim2_pad), (left_dim3_pad, right_dim3_pad))`",
           "name": "padding"
         },
         {
@@ -1711,7 +1711,7 @@
       "description": "Convolutional LSTM.\n\nIt is similar to an LSTM layer, but the input transformations\nand recurrent transformations are both convolutional.\n",
       "inputs": [
         {
-          "description": "\n- if data_format='channels_first'\n5D tensor with shape:\n`(samples,time, channels, rows, cols)`\n- if data_format='channels_last'\n5D tensor with shape:\n`(samples,time, rows, cols, channels)`\n",
+          "description": "\n- if data_format='channels_first'\n5D tensor with shape:\n`(samples, time, channels, rows, cols)`\n- if data_format='channels_last'\n5D tensor with shape:\n`(samples, time, rows, cols, channels)`\n",
           "name": "input"
         }
       ],
@@ -2473,7 +2473,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\nNote that `\"same\"` is slightly inconsistent across backends with\n`strides` != 1, as described\n[here](https://github.com/keras-team/keras/pull/9473#issuecomment-372166860)",
           "name": "padding"
         },
         {
@@ -2911,11 +2911,12 @@
             1,
             1
           ],
+          "description": "An integer or tuple/list of 2 integers, specifying\nthe dilation rate to use for dilated convolution.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any `strides` value != 1.",
           "name": "dilation_rate"
         },
         {
           "default": 1,
-          "description": "The number of depthwise convolution output channels\nfor each input channel.\nThe total number of depthwise convolution output\nchannels will be equal to `filterss_in * depth_multiplier`.",
+          "description": "The number of depthwise convolution output channels\nfor each input channel.\nThe total number of depthwise convolution output\nchannels will be equal to `filters_in * depth_multiplier`.",
           "name": "depth_multiplier"
         },
         {
@@ -3039,7 +3040,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\nNote that `\"same\"` is slightly inconsistent across backends with\n`strides` != 1, as described\n[here](https://github.com/keras-team/keras/pull/9473#issuecomment-372166860)",
           "name": "padding"
         },
         {
@@ -3397,6 +3398,12 @@
   {
     "name": "Flatten",
     "schema": {
+      "attributes": [
+        {
+          "description": "A string, one of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, ..., channels)` while `channels_first` corresponds to\ninputs with shape `(batch, channels, ...)`.\n",
+          "name": "data_format"
+        }
+      ],
       "category": "Shape",
       "description": "Flattens the input. Does not affect the batch size.\n",
       "examples": [
