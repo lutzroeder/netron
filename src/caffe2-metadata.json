@@ -3,24 +3,24 @@
     "name": "Conv",
     "schema": {
       "category": "Layer",
-      "description": "\nThe convolution operator consumes an input vector, a filter blob\nand a bias blob and computes the output. \nNote that other parameters, such as the stride and\nkernel size, or the pads' sizes in each direction are not necessary for input\nbecause they are provided by the ConvPoolOpBase operator. Various dimension\nchecks are done implicitly, and the sizes are specified in the Input docs for\nthis operator. As is expected, the filter is convolved with a subset of the\nimage and the bias is added; this is done throughout the image data and the\noutput is computed. As a side note on the implementation layout:\nconv_op_impl.h is the templated implementation of the conv_op.h file, which is\nwhy they are separate files.\n",
+      "description": "\nThe convolution operator consumes an input vector, a filter blob\nand a bias blob and computes the output. \nThe Conv2D operator computes a 2D convolution operation over an input blob $(X)$, with a filter blob $(filter)$ and a bias blob $(bias)$, and outputs a single output blob $(Y)$. Although there are several options for order, the convention is that the input $(X)$ is a blob of shape $(N,C_{in},H_{in},W_{in})$ and the output $(Y)$ is a blob of shape $(N,C_{out},H_{out},W_{out})$. Here, $N$ is the batch size, $C$ is the number of channels, $H$ is the spatial height, and $W$ is the spatial width. For example, if your input data was a batch of five, 100x120pixel RGB images, $X$ would have shape $(5,3,120,100)$.\n\nThe $filter$ input blob may contain multiple filters and has shape $(M, C_{in}, K_H, K_W)$. Here, $M$ is the number of individual filters contained in the blob, $C_{in}$ is the number of channels of each filter (by convention in 2D convolution it is the same as the number of channels in the input), $K_H$ is the spatial height of the kernel, and $K_W$ is the spatial width of the kernel. The $bias$ blob is a vector of length $M$, where there is one bias for each filter in the $filter$ blob.\n\nGiven the shape of the input blob and the filter blob, we can calculate the shape of the output blob as follows. The number of items in the batch $N$ will stay the same. The number of channels in the output will equal the number of kernels in the filter blob, so $C_{out} = M.$ With stride and pad defined below, the spatial height and width of the output ($H_{out}$ and $W_{out}$) are calculated as\n\n$$H_{out} = \\left \\lfloor{\\frac{H_{in} - K_H + 2*pad}{stride}+1}\\right \\rfloor$$\n\n\n$$W_{out} = \\left \\lfloor{\\frac{W_{in} - K_W + 2*pad}{stride}+1}\\right \\rfloor$$\n\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_op.cc\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_pool_op_base.h\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Conv\",\n    [\"X\", \"filter\", \"bias\"],\n    [\"Y\"],\n    kernel=5,\n    pad=1,\n    stride=2\n)\n\n# Create X: (N,C,H,W)\ndata = np.random.randn(1,1,8,8).astype(np.float32)\nprint(\"Data shape: \",data.shape)\n\n# Create W: (M,C,Kh,Kw)\nfilters = np.random.randn(3,1,5,5).astype(np.float32)\nprint(\"Filter shape: \",filters.shape)\n\n# Create b: M\nbias = np.array([1.,1.,1.]).astype(np.float32)\nprint(\"Bias shape: \",bias.shape)\n\n# Put the inputs into the workspace\nworkspace.FeedBlob(\"X\", data)\nworkspace.FeedBlob(\"filter\", filters)\nworkspace.FeedBlob(\"bias\", bias)\n\n# Run the operator\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nData shape:  (1, 1, 8, 8)\nFilter shape:  (3, 1, 5, 5)\nBias shape:  (3,)\nY:\n [[[[  0.6406407    0.8620521    0.56461596]\n   [ -1.5042953   -0.79549205 -10.683343  ]\n   [ -0.5240259    3.4538248   -3.9564204 ]]\n\n  [[  0.6876496    4.8328524   -1.9525816 ]\n   [  1.2995434   -2.3895378    7.2670045 ]\n   [  3.9929862    1.8126237    5.4699917 ]]\n\n  [[  3.55949      4.7934155    0.76086235]\n   [  3.9588015   -1.3251319    4.413117  ]\n   [ -1.5296054   -1.4924102   -3.2552304 ]]]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
-          "description": "Input data blob from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the NCHW usage. On the other hand, the NHWC Op has a different set of dimension constraints. ",
+          "description": "Input data blob, of shape $(N, C_{in}, H_{in}, W_{in})$, to be convolved with the kernels in the filter blob.",
           "name": "X"
         },
         {
-          "description": "The filter blob that will be used in the convolutions; has size (M x C x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel.",
+          "description": "The filter blob, of shape $(M, C_{in}, K_H, K_W)$, containing the filters to be convolved with the data.",
           "name": "filter"
         },
         {
-          "description": "The 1D bias blob that is added through the convolution; has size (M).",
+          "description": "The bias blob, of length $M$, containing the biases for the convolution, one bias per filter.",
           "name": "bias"
         }
       ],
       "outputs": [
         {
-          "description": "Output data blob that contains the result of the convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
+          "description": "Output data blob, of shape $(N, C_{out}, H_{out}, W_{out})$, that contains the result of the convolution.",
           "name": "Y"
         }
       ],
@@ -30,25 +30,67 @@
   {
     "name": "ConvTranspose",
     "schema": {
+      "attributes": [
+        {
+          "description": "*(type: int; optional)* Should the legacy padding be VALID or SAME. When used, pads should not be used.",
+          "name": "legacy_pad",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: [int]; default: [])* Desired kernel size. If left at default the kernel size will be inferred from the input $filter$ blob.",
+          "name": "kernels",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: [int]; default: [])* Controls the stride of the kernel as it traverses the input blob.",
+          "name": "strides",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: [int]; default: [])* Controls the amount of padding applied to the input feature map before computation.",
+          "name": "pads",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: [int]; default: [])*",
+          "name": "adjs",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: string; default: \"NCHW\")* Specifies the order of the input data blob, where $N$ is batch size, $C$ is number of channels, $H$ is spatial height, and $W$ is spatial width. The only other valid option is \"NHWC\".",
+          "name": "order",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: int; default: 0)*",
+          "name": "shared_buffer",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: bool; default: False)* ",
+          "name": "no_bias",
+          "option": "optional"
+        }
+      ],
       "category": "Layer",
-      "description": "\nThe transposed convolution consumes an input vector, the filter blob, and\nthe bias blob, and computes the output. Note that other parameters, such as\nthe stride and kernel size, or the pads' sizes in each direction are not\nnecessary for input because they are provided by the\nConvTransposeUnpoolOpBase operator. Various dimension checks are done\nimplicitly, and the sizes are specified in the Input docs for this operator.\nAs is expected, the filter is deconvolved with a subset of the\nimage and the bias is added; this is done throughout the image data and the\noutput is computed. As a side note on the implementation layout:\nconv_transpose_op_impl.h is the templated implementation of the\nconv_transpose_op.h file, which is why they are separate files.\n  ",
+      "description": "\nThe ConvTranspose op takes an input data tensor $X$, an input weight tensor $filter$, and optionally an input bias tensor $bias$. It then computes the transposed convolution, sometimes referred to as deconvolution, and produces a single output tensor $Y$. The hyperparameters of the op such as kernel size, stride, and padding are specified as args. At each stride, the filter is deconvolved with a subset of $X$ and the $bias$ is added. This is done throughout the input data until the output computation is complete.\n\nThe output shapes are computed as follows. The number of channels in the output feature map is the number of kernels specified in the filter blob. The spatial height and width are computed as:\n\n$$H_{out} = (H_{in}-1)*strides[0] - 2*pads[0] + kernels[0]$$\n\n\n$$W_{out} = (W_{in}-1)*strides[1] - 2*pads[1] + kernels[1]$$\n\nNote on the implementation layout: conv_transpose_op_impl.h is the templated implementation of the conv_transpose_op.h file, which is why they are separate files. Also, in the implementation this operator inherits from the *ConvTransposeUnpoolOpBase* operator.\n\nGithub Links:\n- https://github.com/pytorch/pytorch/tree/master/caffe2/operators/conv_transpose_op.h\n- https://github.com/pytorch/pytorch/tree/master/caffe2/operators/conv_transpose_op.cc\n- https://github.com/pytorch/pytorch/tree/master/caffe2/operators/conv_transpose_unpool_op_base.h\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"ConvTranspose\",\n    [\"X\", \"filter\", \"bias\"],\n    [\"Y\"],\n    kernels=[2,2],\n    pads=[4,4,4,4],\n    strides=[2,2]\n)\n\n# Create X: (N,C,H,W)\ndata = np.random.randn(2,3,5,5).astype(np.float32)\nprint(\"Data shape: \",data.shape)\n\n# Create filter: (M,C,Kh,Kw)\nfilters = np.random.randn(3,1,2,2).astype(np.float32)\nprint(\"Filter shape: \",filters.shape)\n\n# Create b: M\nbias = np.array([1.]).astype(np.float32)\nprint(\"Bias shape: \",bias.shape)\n\n# Put the inputs into the workspace\nworkspace.FeedBlob(\"X\", data)\nworkspace.FeedBlob(\"filter\", filters)\nworkspace.FeedBlob(\"bias\", bias)\n\n# Run the operator\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nData shape:  (2, 3, 5, 5)\nFilter shape:  (3, 1, 2, 2)\nBias shape:  (1,)\nY:\n [[[[0.53606427 0.5775447 ]\n   [0.40148795 1.5188271 ]]]\n\n\n [[[1.9903406  3.2794335 ]\n   [0.09960175 0.31917763]]]]\n\n```\n\n</details>\n\n  ",
       "inputs": [
         {
-          "description": "Input data blob from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the NCHW usage. On the other hand, the NHWC Op has a different set of dimension constraints.",
+          "description": "Input data blob, of shape $(N, C_{in}, H_{in}, W_{in})$, to be operated on.",
           "name": "X"
         },
         {
-          "description": "The filter blob that will be used in the transposed convolution; has size (M x C x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel.",
+          "description": "The filter blob, of shape $(M, C_{out}, K_H, K_W)$, containing the filters to be used in the transposed convolution.",
           "name": "filter"
         },
         {
-          "description": "The 1D bias blob that is added through the convolution;has size (C). Optional, if not passed, will treat it as all 0.",
+          "description": "The bias blob, of length $C_{out}$, containing the biases for the operation, one bias per output channel. If not passed, biases assumed to be zeros.",
           "name": "bias"
         }
       ],
       "outputs": [
         {
-          "description": "Output data blob that contains the result of the transposed convolution. The output dimensions are functions of the kernel size, stride size, and pad lengths.",
+          "description": "Output data blob, of shape $(N, C_{out}, H_{out}, W_{out})$, that contains the result of the operation.",
           "name": "Y"
         }
       ],
@@ -60,40 +102,40 @@
     "schema": {
       "attributes": [
         {
-          "description": "(int32_t) default to 1; describes the axis of the inputs; defaults to one because the 0th axis most likely describes the batch_size",
+          "description": "*(type: int; default: 1)* Describes the axis of the input data $X$. Defaults to one because in the common case when the input $X$ has shape $(M,K)$, the first axis encodes the batch size.",
           "name": "axis",
           "option": "optional"
         },
         {
-          "description": "(int32_t) default to 1; describes the axis of the weight matrix W; defaults to one because the 0th axis most likely describes the batch_size",
+          "description": "*(type: int; default: 1)* Describes the axis of the input weight matrix $W$. Defaults to one because the first axis most likely describes the batch_size.",
           "name": "axis_w",
           "option": "optional"
         },
         {
-          "description": "Whether to use float-16 compute kernel",
+          "description": "*(type: bool; default: False)* Whether to use float-16 compute kernel.",
           "name": "float16_compute",
           "option": "optional"
         }
       ],
       "category": "Layer",
-      "description": "\nComputes the result of passing an input vector X into a fully\nconnected layer with 2D weight matrix W and 1D bias vector b. That is,\nthe layer computes Y = X * W^T + b, where X has size (M x K),\nW has size (N x K), b has size (N), and Y has size (M x N),\nwhere M is often the batch size.\n\n\nNOTE: X does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ...,a_{k-1}, a_k, ..., a_{n-1}] where a_i \\in N+ and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = M and a_1 * ... * a_{n-1} = K.\nLastly, even though b is a 1D vector of size N, it is copied/resized to\nbe size (M x N) implicitly and added to each vector in the batch.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "\nThe FC operator computes an output $(Y)$ as a linear combination of the input data blob $(X)$ with a weight blob $(W)$ and bias blob $(b)$. More formally,\n\n$$Y = XW^T+b$$\n\nHere, $X$ is a matrix of shape $(M,K)$, $W$ is a matrix of shape $(N,K)$, $b$ is a vector of length $N$, and $Y$ is a matrix of shape $(M,N)$. $N$ can be thought of as the number of nodes in the layer, $M$ is the batch size, and $K$ is the number of features in an input observation.\n\n*NOTE: $X$ does not need to explicitly be a 2-dimensional matrix, however, if it is not it will be coerced into one. For an arbitrary $n$-dimensional tensor $X$, e.g. $[a_0, a_1, \\ldots ,a_{k-1}, a_k, \\ldots , a_{n-1}]$, where $a_i$ in $N$, and $k$ is the $axis$ arg provided, then $X$ will be coerced into a 2-dimensional tensor with dimensions $[a_0 * \\ldots * a_{k-1}, a_k * \\ldots * a_{n-1}]$. For the default case where axis=1, this means the $X$ tensor will be coerced into a 2D tensor of dimensions $[a_0, a_1 * \\ldots * a_{n-1}]$, where $a_0$ is often the batch size. In this situation, we must have $a_0 = M$ and $a_1 * \\ldots * a_{n-1} = K$. Lastly, even though $b$ is a vector of length $N$, it is copied and resized to shape $(M x N)$ implicitly, then added to each vector in the batch.*\n\nGithub Links:\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/fully_connected_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/fully_connected_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\n# In this example, our batch size is 1 (M=1), the input observation will have\n#   6 features (K=6), and the layer will have one hidden node (N=1). The\n#   expected output is Y=7.\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"FC\",\n    [\"X\", \"W\", \"b\"],\n    [\"Y\"]\n)\n\n# Create X: MxK\ndata = np.array([1,2,3,4,5,6]).astype(np.float32)\ndata = data[np.newaxis,:]\n\n# Create W: NxK\nweights = np.array(np.array([1,1/2.,1/3.,1/4.,1/5.,1/6.])).astype(np.float32)\nweights = weights[np.newaxis,:]\n\n# Create b: N\nbias = np.array([1.]).astype(np.float32)\n\n# Put the inputs into the workspace\nworkspace.FeedBlob(\"X\", data)\nworkspace.FeedBlob(\"W\", weights)\nworkspace.FeedBlob(\"b\", bias)\n\n# Run the operator\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nY:\n [[7.]]\n\n```\n\n</details>\n\n",
       "inputs": [
         {
-          "description": "input tensor that's coerced into a 2D matrix of size (MxK) as described above",
+          "description": "Input blob to be coerced into a 2D matrix of shape $(M,K)$, where $M$ is the batch size and $K$ is the number of features in a single observation.",
           "name": "X"
         },
         {
-          "description": "A tensor that is coerced into a 2D blob of size (KxN) containing fully connected weight matrix",
+          "description": "Input blob to be coerced into a 2D matrix of shape $(N,K)$ describing a fully connected weight matrix. Here, $K$ is the number of features in a single observation and $N$ is the number of nodes in the FC layer.",
           "name": "W"
         },
         {
-          "description": "1D blob containing bias vector",
+          "description": "Input blob containing vector of length $N$ which describes one bias for each node in the layer.",
           "name": "b"
         }
       ],
       "outputs": [
         {
-          "description": "2D output tensor",
+          "description": "Ouput blob containing a 2D output matrix of shape $(M,N)$, where $M$ is the batch size and $N$ is the number of nodes in the layer. The ouput is calculated as $Y=XW^T+b$.",
           "name": "Y"
         }
       ],
@@ -247,7 +289,7 @@
     "name": "Relu",
     "schema": {
       "category": "Activation",
-      "description": "\nRelu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = max(0, x), is applied to\nthe tensor elementwise.\n",
+      "description": "\nApplies rectified linear unit operation to the input data element-wise. The Relu operation takes one input $X$, produces one output $Y$, and is defined as:\n\n$$Y = max(0,X)$$\n\nGithub Links:\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/relu_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/relu_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n  \"Relu\",\n  [\"X\"],\n  [\"Y\"]\n  )\n\nworkspace.FeedBlob(\"X\", np.random.randn(4, 4).astype(np.float32)) # NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\n\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nX:\n [[-1.4655551   0.64575136  0.7921748   0.4150579 ]\n [ 0.41085166 -0.2837964   0.9881425  -1.9300346 ]\n [ 0.39705405  0.44639114  0.9940703   0.2926532 ]\n [-0.6726489   0.01330667  1.101319    0.33858967]]\n\nY:\n [[0.         0.64575136 0.7921748  0.4150579 ]\n [0.41085166 0.         0.9881425  0.        ]\n [0.39705405 0.44639114 0.9940703  0.2926532 ]\n [0.         0.01330667 1.101319   0.33858967]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
           "description": "1D input tensor",
@@ -256,7 +298,7 @@
       ],
       "outputs": [
         {
-          "description": "1D input tensor",
+          "description": "1D output tensor with same shape as input",
           "name": "Y"
         }
       ],
@@ -287,20 +329,20 @@
     "name": "PRelu",
     "schema": {
       "category": "Activation",
-      "description": "\n\nPRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\n\n",
+      "description": "\n\nThe *PRelu* op takes input data tensor $X$, an input slope tensor $slope$, and produces one output tensor $Y$ of the same shape as $X.$ The op performs the element wise *PRelu* operation, defined as\n\n$$y=prelu(x) =\\begin{cases}slope * x & x < 0\\\\x & otherwise\\end{cases}$$\n\nNote, is slope is size 1, the value is shared across the channels, otherwise $X$ and $slope$ must be the same shape. See [Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification](https://arxiv.org/abs/1502.01852) for more information.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/prelu_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/prelu_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"PRelu\",\n    [\"X\",\"Slope\"],\n    [\"Y\"],\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(3, 3).astype(np.float32))\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\n\nworkspace.FeedBlob(\"Slope\", np.array([0.1]).astype(np.float32))\nprint(\"Slope:\\n\", workspace.FetchBlob(\"Slope\"), \"\\n\")\n\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nX:\n [[ 0.3957382  -0.19725518 -0.26991343]\n [ 1.5513182  -0.27427664 -0.14584002]\n [-0.4121164   0.9292345   0.96426094]]\n\nSlope:\n [0.1]\n\nY:\n [[ 0.3957382  -0.01972552 -0.02699134]\n [ 1.5513182  -0.02742766 -0.014584  ]\n [-0.04121164  0.9292345   0.96426094]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
-          "description": "1D input tensor",
+          "description": "Input tensor of data to be operated on.",
           "name": "X"
         },
         {
-          "description": "1D slope tensor. If `Slope` is of size 1, the value is sharedacross different channels",
+          "description": "1D input slope tensor. If `Slope` is of size 1, the value is shared across different channels",
           "name": "Slope"
         }
       ],
       "outputs": [
         {
-          "description": "1D input tensor",
+          "description": "Output tensor, with same shape as $X$.",
           "name": "Y"
         }
       ],
@@ -379,76 +421,76 @@
     "schema": {
       "attributes": [
         {
-          "description": "If set to nonzero, run spatial batch normalization in test mode.",
+          "description": "*(type: int; default: 0)* If set to nonzero, run spatial batch normalization in test mode.",
           "name": "is_test"
         },
         {
-          "description": "The epsilon value to use to avoid division by zero.",
+          "description": "*(type: float; default: 1e-5)* The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
           "option": "optional"
         },
         {
-          "description": "A StorageOrder string.",
+          "description": "*(type: string; default: \"NCHW\")* Specifies the order of the input data blob, where $N$ is batch size, $C$ is number of channels, $H$ is spatial height, and $W$ is spatial width. The only other valid option is \"NHWC\".",
           "name": "order",
           "option": "optional"
         },
         {
-          "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)",
+          "description": "*(type: float; default: 0.9)* Factor used in computing the running mean and variance. e.g., running_mean = running_mean x momentum + mean x (1 - momentum)",
           "name": "momentum",
           "option": "optional"
         },
         {
-          "description": "(Optional) Specifies the number of batches to apply normalization on. Requires specifying the optional sums and sumsq inputs that provide statistics across multiple batches from which mean and variance can be determined.",
+          "description": "*(type: int; default: 1)* Specifies the number of batches to apply normalization on. Requires specifying the optional sums and sumsq inputs that provide statistics across multiple batches from which mean and variance can be determined.",
           "name": "num_batches",
           "option": "optional"
         }
       ],
       "category": "Normalization",
-      "description": "\nCarries out spatial batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167 . Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\n\nOutput case #1:\n  Y, mean, var, saved_mean, saved_var (training mode)\n\n\nOutput case #2:\n  Y (test mode)\n",
+      "description": "\nApplies spatial batch normalization to the input tensor as described in the original paper, [Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167). Be aware, this operator has two different output sets, depending on the value of *is_test*. According to the paper, the primary operation of spatial batch normalization is:\n\n$$Y = \\frac{X - \\mu_x}{\\sqrt{\\sigma^2_{x} + \\epsilon}}*\\gamma + b$$\n\nIn the equation, $\\mu_x$ is the *mean*, $X$ is the input data, $\\sigma^2_{x}$ is the *var*, $\\epsilon$ is *epsilon*, $\\gamma$ is the *scale*, $b$ is the *bias*, and $Y$ is the output data. The *momentum* arg also affects this calculation in the computation of the running mean and variance. The influence of *momentum* is as follows:\n\n$$running\\_mean = running\\_mean * momentum + mean * (1 - momentum)$$\n\n$$running\\_var = running\\_var * momentum + var * (1 - momentum)$$\n\nOutput when is_test = 0 (train mode): *Y, mean, var, saved_mean, saved_var*\n\nOutput when is_test = 1 (test mode): *Y*\n\nGithub Links:\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/spatial_batch_norm_op.cc\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/spatial_batch_norm_op.h\n\n",
       "inputs": [
         {
           "name": "input"
         },
         {
-          "description": "The scale as a 1-dimensional tensor of size C to be applied to the output.",
+          "description": "The scale as a 1-dimensional tensor of size $C$ to be applied to the output.",
           "name": "scale"
         },
         {
-          "description": "The bias as a 1-dimensional tensor of size C to be applied to the output.",
+          "description": "The bias as a 1-dimensional tensor of size $C$ to be applied to the output.",
           "name": "bias"
         },
         {
-          "description": "The running mean (training) or the estimated mean (testing) as a 1-dimensional tensor of size C.",
+          "description": "The running mean (training) or the estimated mean (testing) as a 1-dimensional tensor of size $C$.",
           "name": "mean"
         },
         {
-          "description": "The running variance (training) or the estimated variance (testing) as a 1-dimensional tensor of size C.",
+          "description": "The running variance (training) or the estimated variance (testing) as a 1-dimensional tensor of size $C$.",
           "name": "var"
         },
         {
-          "description": "The input 4-dimensional tensor of shape NCHW or NHWC depending on the order parameter.",
+          "description": "The input 4-dimensional tensor of shape $NCHW$ or $NHWC$ depending on the order parameter.",
           "name": "X"
         },
         {
-          "description": "(optional) Per-channel sums of elements to be used to determine the mean and variance for this batch",
+          "description": "*(optional)* Per-channel sums of elements to be used to determine the mean and variance for this batch.",
           "name": "sums"
         },
         {
-          "description": "(optional) Per-channel sum of elements squared per channel to be used to determine the variance for this batch",
+          "description": "*(optional)* Per-channel sum of elements squared per channel to be used to determine the variance for this batch.",
           "name": "sumsq"
         }
       ],
       "outputs": [
         {
-          "description": "The output 4-dimensional tensor of the same shape as X.",
+          "description": "The output 4-dimensional tensor of the same shape as $X$.",
           "name": "Y"
         },
         {
-          "description": "The running mean after the spatial BN operator. Must be in-place with the input mean. Should not be used for testing.",
+          "description": "The running mean after the spatial BN operator. Must be in-place with the input *mean*. Should not be used for testing.",
           "name": "mean"
         },
         {
-          "description": "The running variance after the spatial BN operator. Must be in-place with the input var. Should not be used for testing.",
+          "description": "The running variance after the spatial BN operator. Must be in-place with the input *var*. Should not be used for testing.",
           "name": "var"
         },
         {
