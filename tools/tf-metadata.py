@@ -125,7 +125,7 @@ def convert_attr_value(attr_value):
         attr_value_list = attr_value.list
         if len(attr_value_list.s) > 0:
             for s in attr_value_list.s:
-                list.append(s)
+                list.append(s.decode('utf8'))
         if len(attr_value_list.i) > 0:
             for i in attr_value_list.i:
                 list.append(i)
@@ -141,7 +141,7 @@ def convert_attr_value(attr_value):
                     raise Exception()
         return list
     if attr_value.HasField('s'):
-        return attr_value.s
+        return attr_value.s.decode('utf8')
     if attr_value.HasField('i'):
         return attr_value.i
     if attr_value.HasField('f'):

@@ -2,9 +2,10 @@
 
 set -e
 
-tools=$(dirname ${0})
-src=${tools}/../src
-third_party=${tools}/../third_party
+root=$(cd $(dirname ${0})/..; pwd)
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
 
 identifier=caffe
 repository=https://github.com/BVLC/${identifier}.git
@@ -20,4 +21,4 @@ else
 fi
 
 echo "Generate '../src/caffe.js'"
-${tools}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe -o ${src}/caffe.js ${third_party}/caffe/src/caffe/proto/caffe.proto
+${root}/node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe -o ${src}/caffe.js ${third_party}/${identifier}/src/caffe/proto/caffe.proto

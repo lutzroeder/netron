@@ -2,9 +2,10 @@
 
 set -e
 
-tools=$(dirname ${0})
-src=${tools}/../src
-third_party=${tools}/../third_party
+root=$(cd $(dirname ${0})/..; pwd)
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
 
 identifier=tensorflow
 repository=https://github.com/tensorflow/${identifier}.git
@@ -20,7 +21,7 @@ else
 fi
 
 echo "Generate '../src/tf.js'"
-${tools}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ${src}/tf.js \
+${root}/node_modules/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ${src}/tf.js \
     ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
     ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
     ${third_party}/${identifier}/tensorflow/core/protobuf/saver.proto \
@@ -36,7 +37,7 @@ ${tools}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r tf -
     ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
 
 echo "Generate '../src/tf-metadata.json'"
-protoc --proto_path "${third_party}/${identifier}" tensorflow/core/framework/attr_value.proto --python_out=${tools}
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}
 protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor.proto --python_out=${tools}
 protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/types.proto --python_out=${tools}
 protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor_shape.proto --python_out=${tools}

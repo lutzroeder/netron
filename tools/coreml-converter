@@ -2,8 +2,10 @@
 
 set -e
 
-tools=$(dirname ${0})
-third_party=${tools}/../third_party
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+tools=${root}/tools
+third_party=${root}/third_party
 
 identifier=coremltools
 repository=https://github.com/apple/${identifier}.git
@@ -18,8 +20,9 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-export PYTHONUSERBASE=${third_party}/${identifier}/build/pypi
+export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=$PATH:${PYTHONUSERBASE}/bin
+
 pip install --quiet --user onnx
 pip install --quiet --user sklearn
 pip install --quiet --user ${third_party}/${identifier}

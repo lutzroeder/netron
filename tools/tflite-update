@@ -2,9 +2,10 @@
 
 set -e
 
-tools=$(dirname ${0})
-src=${tools}/../src
-third_party=${tools}/../third_party
+root=$(cd $(dirname ${0})/..; pwd)
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
 
 mkdir -p ${third_party}
 

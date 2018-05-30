@@ -2,9 +2,11 @@
 
 set -e
 
-tools=$(dirname ${0})
-src=${tools}/../src
-third_party=${tools}/../third_party
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
 
 identifier=pytorch
 repository=https://github.com/pytorch/pytorch.git
@@ -30,7 +32,7 @@ brew "gflags"
 brew "glog"
 EOS
 
-export PYTHONUSERBASE=${third_party}/${identifier}/build/pypi
+export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=$PATH:${PYTHONUSERBASE}/bin
 
 pip install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six

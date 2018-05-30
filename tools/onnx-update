@@ -2,9 +2,11 @@
 
 set -e
 
-tools=$(dirname ${0})
-src=${tools}/../src
-third_party=${tools}/../third_party
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+src=${root}/src
+third_party=${root}/third_party
+tools=${root}/tools
 
 identifier=onnx
 repository=https://github.com/onnx/${identifier}.git
@@ -19,16 +21,16 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-echo "Build ONNX"
+echo "Build"
 export ONNX_ML=1
 export ONNX_NAMESPACE=onnx
 pushd "${third_party}/${identifier}" > /dev/null
-python setup.py build --build-lib build/lib
+python setup.py build --build-lib ${build}/third_party/lib/${identifier}
 popd > /dev/null
 
 echo "Generate '../src/onnx-metadata.json'"
 pushd ${tools} > /dev/null
-export PYTHONPATH=../third_party/${identifier}/build/lib
+export PYTHONPATH=${build}/third_party/lib/${identifier}
 python onnx-metadata.py
 popd > /dev/null
 

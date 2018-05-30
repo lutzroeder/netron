@@ -2,8 +2,9 @@
 
 set -e
 
-tools=$(dirname ${0})
-third_party=${tools}/../third_party
+root=$(cd $(dirname ${0})/..; pwd)
+tools=${root}/tools
+third_party=${root}/third_party
 
 identifier=keras
 repository=https://github.com/keras-team/${identifier}.git

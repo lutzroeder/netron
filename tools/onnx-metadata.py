@@ -74,51 +74,6 @@ categories = {
     'Crop': 'Data',
 
     'Gather': 'Transform',
-
-    # 'Gemm': '',
-    # 'MatMul': '',
-    # 'Hardmax':
-    # 'Log':
-    # 'Max':
-    # 'Div': 'Basic',
-    # 'Ceil': 'Basic',
-    # 'Exp': 'Basic',
-    # 'Floor': 'Basic',
-    # 'Sqrt': 'Basic',
-    # 'Sub': 'Basic',
-    # 'Sum': 'Basic',
-    # 'Min': 'Basic',
-    # 'Mul': 'Basic',
-    # 'Neg': 'Basic',
-    # 'Abs': 'Basic',
-    # 'Add': 'Basic',
-    # 'Pow': 'Basic',
-    # 'ArgMax':
-    # 'ArgMin':
-    # 'Cast':
-    # 'Clip':
-    # 'DepthToSpace':
-    # 'Mean': 
-    # 'Pad':
-    # 'RandomNormal':
-    # 'RandomNormalLike':
-    # 'RandomUniform':
-    # 'RandomUniformLike':
-    # 'Reciprocal':
-    # 'ReduceL1':
-    # 'ReduceL2':
-    # 'ReduceLogSum':
-    # 'ReduceLogSumExp':
-    # 'ReduceMax':
-    # 'ReduceMean':
-    # 'ReduceMin':
-    # 'ReduceProd':
-    # 'ReduceSum':
-    # 'ReduceSumSquare':
-    # 'SpaceToDepth':
-    # 'Squeeze':
-    # 'Tile':
-    # 'Gather':
 }
 
 def generate_json_attr_type(type):
@@ -135,7 +90,7 @@ def generate_json_attr_default_value(attr_value):
     if attr_value.HasField('i'):
         return attr_value.i
     if attr_value.HasField('s'):
-        return attr_value.s
+        return attr_value.s.decode('utf8')
     if attr_value.HasField('f'):
         return attr_value.f
     return None
@@ -235,5 +190,6 @@ def generate_json(schemas, json_file):
             fout.write('\n')
 
 if __name__ == '__main__':
-    schemas = sorted(defs.get_all_schemas_with_history(), key=lambda schema: schema.name)
+    schemas = defs.get_all_schemas_with_history()
+    schemas = sorted(schemas, key=lambda schema: schema.name)
     generate_json(schemas, '../src/onnx-metadata.json')
