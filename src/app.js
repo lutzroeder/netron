@@ -375,19 +375,19 @@ class Application {
                 { type: 'separator' },
                 {
                     label: 'Actual &Size',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+0' : 'Ctrl+0',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+Backspace' : 'Ctrl+Backspace',
                     click: () => this.executeCommand('reset-zoom'),
                     enabled: view && view.path ? true : false
                 },
                 {
                     label: 'Zoom &In',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+Plus' : 'Ctrl+=',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+Up' : 'Ctrl+Down',
                     click: () => this.executeCommand('zoom-in'),
                     enabled: view && view.path ? true : false
                 },
                 {
                     label: 'Zoom &Out',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+-' : 'Ctrl+-',
+                    accelerator: (process.platform === 'darwin') ? 'Cmd+Down' : 'Ctrl+Down',
                     click: () => this.executeCommand('zoom-out'),
                     enabled: view && view.path ? true : false
                 },

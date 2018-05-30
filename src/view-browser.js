@@ -18,6 +18,8 @@ class BrowserHost {
                     switch (e.keyCode) {
                         case 69: // E
                             break;
+                        case 70: // F
+                            break;
                         case 68: // D
                             this._view.toggleDetails();
                             e.preventDefault();
@@ -26,20 +28,20 @@ class BrowserHost {
                             this._view.toggleNames();
                             e.preventDefault();
                             break;
-                        case 48: // 0
+                        case 13: // Return
+                            this._view.showModelProperties();
+                            e.preventDefault();
+                            break;
+                        case 8: // Backspace
                             this._view.resetZoom();
                             e.preventDefault();
                             break;
-                        case 187: // =
+                        case 38: // Up
                             this._view.zoomIn();
                             e.preventDefault();
                             break;
-                        case 189: // -
+                        case 40: // Down
                             this._view.zoomOut();
-                            e.preventDefault();
-                            break;
-                        case 13: // Return
-                            this._view.showModelProperties();
                             e.preventDefault();
                             break;
                     }
