@@ -4,6 +4,7 @@ set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
+node_modules=${root}/node_modules
 src=${root}/src
 third_party=${root}/third_party
 tools=${root}/tools
@@ -21,20 +22,22 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-echo "Build"
+export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
+
 export ONNX_ML=1
 export ONNX_NAMESPACE=onnx
+
+echo "Build"
 pushd "${third_party}/${identifier}" > /dev/null
-python setup.py build --build-lib ${build}/third_party/lib/${identifier}
+pip install --user .
 popd > /dev/null
 
 echo "Generate '../src/onnx-metadata.json'"
 pushd ${tools} > /dev/null
-export PYTHONPATH=${build}/third_party/lib/${identifier}
 python onnx-metadata.py
 popd > /dev/null
 
 echo "Generate '../src/onnx.js'"
 sed 's/package ONNX_NAMESPACE/package onnx/g' <${third_party}/${identifier}/onnx/onnx-ml.proto >${tools}/onnx-ml.proto
-${third_party}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ${src}/onnx.js ${tools}/onnx-ml.proto
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ${src}/onnx.js ${tools}/onnx-ml.proto
 rm ${tools}/onnx-ml.proto
