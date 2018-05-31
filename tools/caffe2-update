@@ -4,6 +4,7 @@ set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
 build=${root}/build
+node_modules=${root}/node_modules
 src=${root}/src
 tools=${root}/tools
 third_party=${root}/third_party
@@ -22,7 +23,7 @@ else
 fi
 
 echo "Generate '../src/caffe2.js'"
-${third_party}/../node_modules/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
 
 echo "Install Caffe2 dependencies"
 brew bundle --file=- <<-EOS
