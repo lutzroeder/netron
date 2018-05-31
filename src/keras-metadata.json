@@ -390,7 +390,7 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         },
         {
@@ -421,7 +421,7 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `channels_first` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         },
         {
@@ -477,11 +477,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to width and height.\n- If tuple of 2 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_height_pad, symmetric_width_pad)`.\n- If tuple of 2 tuples of 2 ints:\ninterpreted as\n`((top_pad, bottom_pad), (left_pad, right_pad))`",
+          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to height and width.\n- If tuple of 2 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_height_pad, symmetric_width_pad)`.\n- If tuple of 2 tuples of 2 ints:\ninterpreted as\n`((top_pad, bottom_pad), (left_pad, right_pad))`",
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -507,11 +507,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to width and height.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_pad, right_dim1_pad), (left_dim2_pad, right_dim2_pad), (left_dim3_pad, right_dim3_pad))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to height and width.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_pad, right_dim1_pad), (left_dim2_pad, right_dim2_pad), (left_dim3_pad, right_dim3_pad))`",
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `channels_first` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -2371,6 +2371,7 @@
         },
         {
           "default": "channels_last",
+          "description": "A string,\none of `\"channels_last\"` (default) or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, length, channels)`\n(default format for temporal data in Keras)\nwhile `\"channels_first\"` corresponds to inputs\nwith shape `(batch, channels, length)`.",
           "name": "data_format"
         },
         {
@@ -2484,7 +2485,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -2492,7 +2493,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -2531,7 +2532,7 @@
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
           "name": "kernel_size"
         },
         {
@@ -2564,7 +2565,7 @@
       "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.\n",
+          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         },
         {
@@ -2576,7 +2577,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -2604,7 +2605,7 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `channels_first` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -2655,13 +2656,13 @@
       "description": "3D convolution layer (e.g. spatial convolution over volumes).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\nwith a single channel,\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
-          "description": "\n5D tensor with shape:\n`(samples, channels, conv_dim1, conv_dim2, conv_dim3)` if data_format='channels_first'\nor 5D tensor with shape:\n`(samples, conv_dim1, conv_dim2, conv_dim3, channels)` if data_format='channels_last'.\n",
+          "description": "\n5D tensor with shape:\n`(samples, channels, conv_dim1, conv_dim2, conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(samples, conv_dim1, conv_dim2, conv_dim3, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n`(samples, filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)` if data_format='channels_first'\nor 5D tensor with shape:\n`(samples, new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)` if data_format='channels_last'.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have changed due to padding.\n",
+          "description": "\n5D tensor with shape:\n`(samples, filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(samples, new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)`\nif `data_format` is `\"channels_last\"`.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -2677,11 +2678,11 @@
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -2690,7 +2691,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -2755,7 +2756,7 @@
       "description": "Transposed convolution layer (sometimes called Deconvolution).\n\nThe need for transposed convolutions generally arises\nfrom the desire to use a transformation going in the opposite direction\nof a normal convolution, i.e., from something that has the shape of the\noutput of some convolution to something that has the shape of its input\nwhile maintaining a connectivity pattern that is compatible with\nsaid convolution.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch, rows, cols, channels)` if data_format='channels_last'.\n",
+          "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         },
         {
@@ -2767,7 +2768,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -2813,16 +2814,16 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n- If int: the same symmetric cropping\nis applied to width and height.\n- If tuple of 2 ints:\ninterpreted as two different\nsymmetric cropping values for height and width:\n`(symmetric_height_crop, symmetric_width_crop)`.\n- If tuple of 2 tuples of 2 ints:\ninterpreted as\n`((top_crop, bottom_crop), (left_crop, right_crop))`",
+          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n- If int: the same symmetric cropping\nis applied to height and width.\n- If tuple of 2 ints:\ninterpreted as two different\nsymmetric cropping values for height and width:\n`(symmetric_height_crop, symmetric_width_crop)`.\n- If tuple of 2 tuples of 2 ints:\ninterpreted as\n`((top_crop, bottom_crop), (left_crop, right_crop))`",
           "name": "cropping"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
       "category": "Shape",
-      "description": "Cropping layer for 2D input (e.g. picture).\n\nIt crops along spatial dimensions, i.e. width and height.\n",
+      "description": "Cropping layer for 2D input (e.g. picture).\n\nIt crops along spatial dimensions, i.e. height and width.\n",
       "examples": [
         {
           "code": "# Crop the input 2D images or feature maps\nmodel = Sequential()\nmodel.add(Cropping2D(cropping=((2, 2), (4, 4)),\n                     input_shape=(28, 28, 3)))\n# now model.output_shape == (None, 24, 20, 3)\nmodel.add(Conv2D(64, (3, 3), padding='same'))\nmodel.add(Cropping2D(cropping=((2, 2), (2, 2))))\n# now model.output_shape == (None, 20, 16. 64)"
@@ -2852,7 +2853,7 @@
           "name": "cropping"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `channels_first` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -2895,7 +2896,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -2903,7 +2904,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -2974,7 +2975,7 @@
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
           "name": "kernel_size"
         },
         {
@@ -3010,7 +3011,7 @@
       "description": "Depthwise separable 2D convolution.\n\nSeparable convolutions consist in first performing\na depthwise spatial convolution\n(which acts on each input channel separately)\nfollowed by a pointwise convolution which mixes together the resulting\noutput channels. The `depth_multiplier` argument controls how many\noutput channels are generated per input channel in the depthwise step.\n\nIntuitively, separable convolutions can be understood as\na way to factorize a convolution kernel into two smaller kernels,\nor as an extreme version of an Inception block.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch, rows, cols, channels)` if data_format='channels_last'.\n",
+          "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         },
         {
@@ -3022,7 +3023,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -3051,7 +3052,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -3059,7 +3060,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -3102,7 +3103,7 @@
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
           "name": "kernel_size"
         },
         {
@@ -3130,7 +3131,7 @@
       "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.\n",
+          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         },
         {
@@ -3142,7 +3143,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -3255,75 +3256,6 @@
     }
   },
   {
-    "name": "Merge",
-    "schema": {
-      "attributes": [
-        {
-          "default": -1,
-          "description": "Integer, axis to use in mode `concat`.",
-          "name": "concat_axis"
-        },
-        {
-          "default": -1,
-          "description": "Integer or tuple of integers,\naxes to use in mode `dot` or `cos`.",
-          "name": "dot_axes"
-        },
-        {
-          "default": {},
-          "name": "arguments"
-        },
-        {
-          "description": "String or lambda/function. If string, must be one",
-          "name": "mode",
-          "sum": {}
-        },
-        {
-          "description": "Can be a list of Keras tensors or\na list of layer instances. Must be more\nthan one layer/tensor.",
-          "name": "layers"
-        },
-        {
-          "description": "'sum', 'mul', 'concat', 'ave', 'cos', 'dot', 'max'.\nIf lambda/function, it should take as input a list of tensors\nand return a single tensor.",
-          "name": "of"
-        },
-        {
-          "description": "Either a shape tuple (tuple of integers),\nor a lambda/function\nto compute `output_shape`\n(only if merge mode is a lambda/function).\nIf the argument is a tuple,\nit should be expected output shape, *not* including the batch size\n(same convention as the `input_shape` argument in layers).\nIf the argument is callable,\nit should take as input a list of shape tuples\n(1:1 mapping to input tensors)\nand return a single shape tuple, including the\nbatch size (same convention as the\n`compute_output_shape` method of layers).",
-          "name": "output_shape"
-        },
-        {
-          "description": "Optional list of integers containing\nthe output node index for each input layer\n(in case some input layers have multiple output nodes).\nwill default to an array of 0s if not provided.",
-          "name": "node_indices"
-        },
-        {
-          "description": "Optional list of indices of output tensors\nto consider for merging\n(in case some input layer node returns multiple tensors).",
-          "name": "tensor_indices"
-        },
-        {
-          "description": "Mask or lambda/function to compute the output mask (only\nif merge mode is a lambda/function). If the latter case, it should\ntake as input a list of masks and return a single mask.\n",
-          "name": "output_mask"
-        }
-      ],
-      "category": "Tensor",
-      "description": "A `Merge` layer can be used to merge a list of tensors\ninto a single tensor, following some merge `mode`.",
-      "examples": [
-        {
-          "code": "model1 = Sequential()\nmodel1.add(Dense(32, input_dim=32))\nmodel2 = Sequential()\nmodel2.add(Dense(32, input_dim=32))\nmerged_model = Sequential()\nmerged_model.add(Merge([model1, model2], mode='concat', concat_axis=1))"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "inputs",
-          "option": "variadic"
-        }
-      ],
-      "outputs": [
-        {
-          "name": "output"
-        }
-      ],
-      "package": "keras.layers"
-    }
-  },
-  {
     "name": "Average",
     "schema": {
       "category": "Tensor",
@@ -3378,7 +3310,7 @@
           "name": "**kwargs"
         }
       ],
-      "description": "Layer that computes a dot product between samples in two tensors.\n\nE.g. if applied to two tensors `a` and `b` of shape `(batch_size, n)`,\nthe output will be a tensor of shape `(batch_size, 1)`\nwhere each entry `i` will be the dot product between\n`a[i]` and `b[i]`.\n",
+      "description": "Layer that computes a dot product between samples in two tensors.\n\nE.g. if applied to a list of two tensors `a` and `b` of shape `(batch_size, n)`,\nthe output will be a tensor of shape `(batch_size, 1)`\nwhere each entry `i` will be the dot product between\n`a[i]` and `b[i]`.\n",
       "inputs": [
         {
           "name": "x"
@@ -3400,7 +3332,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A string, one of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, ..., channels)` while `channels_first` corresponds to\ninputs with shape `(batch, channels, ...)`.\n",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\nThe purpose of this argument is to preserve weight\nordering when switching a model from one data format\nto another.\n`channels_last` corresponds to inputs with shape\n`(batch, ..., channels)` while `channels_first` corresponds to\ninputs with shape `(batch, channels, ...)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
