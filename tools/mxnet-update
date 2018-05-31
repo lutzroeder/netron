@@ -7,6 +7,9 @@ src=${root}/src
 tools=${root}/tools
 third_party=${root}/third_party
 
+python=${python:-python}
+pip=${pip:-pip}
+
 identifier=mxnet
 repository=https://github.com/apache/incubator-${identifier}.git
 
@@ -21,4 +24,4 @@ else
 fi
 
 # echo "Update '../src/mxnet-metadata.json'"
-# python mxnet-metadata.py
+# ${python} mxnet-metadata.py

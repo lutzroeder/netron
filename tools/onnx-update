@@ -9,6 +9,9 @@ src=${root}/src
 third_party=${root}/third_party
 tools=${root}/tools
 
+python=${python:-python}
+pip=${pip:-pip}
+
 identifier=onnx
 repository=https://github.com/onnx/${identifier}.git
 
@@ -29,12 +32,12 @@ export ONNX_NAMESPACE=onnx
 
 echo "Build"
 pushd "${third_party}/${identifier}" > /dev/null
-pip install --user .
+${pip} install --user .
 popd > /dev/null
 
 echo "Generate '../src/onnx-metadata.json'"
 pushd ${tools} > /dev/null
-python onnx-metadata.py
+${python} onnx-metadata.py
 popd > /dev/null
 
 echo "Generate '../src/onnx.js'"

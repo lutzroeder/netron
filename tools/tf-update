@@ -8,6 +8,9 @@ src=${root}/src
 tools=${root}/tools
 third_party=${root}/third_party
 
+python=${python:-python}
+pip=${pip:-pip}
+
 identifier=tensorflow
 repository=https://github.com/tensorflow/${identifier}.git
 
@@ -49,6 +52,6 @@ touch ${tools}/tensorflow/__init__.py
 touch ${tools}/tensorflow/core/__init__.py
 touch ${tools}/tensorflow/core/framework/__init__.py
 pushd ${tools} > /dev/null
-python tf-metadata.py
+${python} tf-metadata.py
 popd > /dev/null
 rm -rf ${tools}/tensorflow

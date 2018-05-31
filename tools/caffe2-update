@@ -9,6 +9,9 @@ src=${root}/src
 tools=${root}/tools
 third_party=${root}/third_party
 
+python=${python:-python}
+pip=${pip:-pip}
+
 identifier=pytorch
 repository=https://github.com/pytorch/pytorch.git
 
@@ -36,18 +39,15 @@ EOS
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=$PATH:${PYTHONUSERBASE}/bin
 
-pip install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
-pip3 install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
+${pip} install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
 
 echo "Build Caffe2"
 pushd "${third_party}/pytorch" > /dev/null
 git submodule update --init
-mkdir -p build && cd build
-cmake -DUSE_CUDA=OFF ..
-sudo make install
+${python} setup_caffe2.py develop --user
 popd > /dev/null
 
 echo "Generate '../src/caffe2-metadata.json'"
 pushd ${tools} > /dev/null
-python caffe2-metadata.py
+${python} caffe2-metadata.py
 popd > /dev/null

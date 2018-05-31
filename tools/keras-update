@@ -7,6 +7,9 @@ build=${root}/build
 tools=${root}/tools
 third_party=${root}/third_party
 
+python=${python:-python}
+pip=${pip:-pip}
+
 identifier=keras
 repository=https://github.com/keras-team/${identifier}.git
 
@@ -23,10 +26,10 @@ fi
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 
 pushd ${third_party}/${identifier} > /dev/null
-pip install --user .
+${pip} install --user .
 popd > /dev/null
 
 echo "Update '../src/keras-metadata.json'"
 pushd ${tools} > /dev/null
-python keras-metadata.py
+${python} keras-metadata.py
 popd > /dev/null

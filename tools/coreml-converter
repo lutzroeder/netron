@@ -7,6 +7,9 @@ build=${root}/build
 tools=${root}/tools
 third_party=${root}/third_party
 
+python=${python:-python}
+pip=${pip:-pip}
+
 identifier=coremltools
 repository=https://github.com/apple/${identifier}.git
 
@@ -23,8 +26,8 @@ fi
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=$PATH:${PYTHONUSERBASE}/bin
 
-pip install --quiet --user onnx
-pip install --quiet --user sklearn
-pip install --quiet --user ${third_party}/${identifier}
+${pip} install --quiet --user onnx
+${pip} install --quiet --user sklearn
+${pip} install --quiet --user ${third_party}/${identifier}
 
-python ${tools}/coreml-converter.py $@
+${python} ${tools}/coreml-converter.py $@
