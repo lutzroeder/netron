@@ -3,6 +3,7 @@
 set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
 tools=${root}/tools
 third_party=${root}/third_party
 
@@ -18,6 +19,12 @@ else
     echo "Clone ${repository}..."
     git -C "${third_party}" clone --recursive ${repository}
 fi
+
+export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
+
+pushd ${third_party}/${identifier} > /dev/null
+pip install --user .
+popd > /dev/null
 
 echo "Update '../src/keras-metadata.json'"
 pushd ${tools} > /dev/null
