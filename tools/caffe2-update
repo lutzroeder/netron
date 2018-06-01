@@ -28,20 +28,19 @@ fi
 echo "Generate '../src/caffe2.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
 
-echo "Install Caffe2 dependencies"
+echo "Install Caffe2"
+if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
 brew bundle --file=- <<-EOS
 brew "automake"
 brew "cmake"
 brew "gflags"
 brew "glog"
 EOS
-
+fi
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=$PATH:${PYTHONUSERBASE}/bin
-
-${pip} install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six
-
-echo "Build Caffe2"
+rm -rf ${PYTHONUSERBASE}
+${pip} install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis
 pushd "${third_party}/pytorch" > /dev/null
 git submodule update --init
 ${python} setup_caffe2.py develop --user

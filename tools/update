@@ -5,7 +5,8 @@ set -e
 # export python=python3
 # export pip=pip3
 
-tools=$(dirname ${0})
+root=$(cd $(dirname ${0})/..; pwd)
+tools=${root}/tools
 
 ${tools}/keras-update
 ${tools}/tf-update

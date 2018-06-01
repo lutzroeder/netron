@@ -22,7 +22,7 @@ fi
 
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=$PATH:${PYTHONUSERBASE}/bin
-
+rm -rf ${PYTHONUSERBASE}
 pip install --quiet --user ${third_party}/${identifier}
 
 python ${tools}/onnx-converter.py $@

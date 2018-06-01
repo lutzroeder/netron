@@ -25,15 +25,14 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 
+echo "Install ONNX"
+export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
+export PATH=$PATH:${PYTHONUSERBASE}/bin
+rm -rf ${PYTHONUSERBASE}
 export ONNX_ML=1
 export ONNX_NAMESPACE=onnx
-
-echo "Build"
-pushd "${third_party}/${identifier}" > /dev/null
-${pip} install --user .
-popd > /dev/null
+${pip} install --user ${third_party}/${identifier}
 
 echo "Generate '../src/onnx-metadata.json'"
 pushd ${tools} > /dev/null

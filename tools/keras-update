@@ -23,11 +23,11 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
+echo "Install Keras"
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
-
-pushd ${third_party}/${identifier} > /dev/null
-${pip} install --user .
-popd > /dev/null
+export PATH=${PATH}:${build}/third_party/pypi/${identifier}/bin
+rm -rf ${PYTHONUSERBASE}
+${pip} install --user ${third_party}/${identifier}
 
 echo "Update '../src/keras-metadata.json'"
 pushd ${tools} > /dev/null
