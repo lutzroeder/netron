@@ -951,6 +951,7 @@
              * @property {boolean} isSigned QTensorProto isSigned
              * @property {Array.<number>|null} [data] QTensorProto data
              * @property {string|null} [name] QTensorProto name
+             * @property {caffe2.TensorProto.DataType|null} [dataType] QTensorProto dataType
              */
     
             /**
@@ -1027,6 +1028,14 @@
             QTensorProto.prototype.name = "";
     
             /**
+             * QTensorProto dataType.
+             * @member {caffe2.TensorProto.DataType} dataType
+             * @memberof caffe2.QTensorProto
+             * @instance
+             */
+            QTensorProto.prototype.dataType = 2;
+    
+            /**
              * Creates a new QTensorProto instance using the specified properties.
              * @function create
              * @memberof caffe2.QTensorProto
@@ -1065,6 +1074,8 @@
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     writer.uint32(/* id 7, wireType 2 =*/58).string(message.name);
+                if (message.dataType != null && message.hasOwnProperty("dataType"))
+                    writer.uint32(/* id 8, wireType 0 =*/64).int32(message.dataType);
                 return writer;
             };
     
@@ -1134,6 +1145,9 @@
                     case 7:
                         message.name = reader.string();
                         break;
+                    case 8:
+                        message.dataType = reader.int32();
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -1202,6 +1216,25 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
+                if (message.dataType != null && message.hasOwnProperty("dataType"))
+                    switch (message.dataType) {
+                    default:
+                        return "dataType: enum value expected";
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 12:
+                    case 13:
+                        break;
+                    }
                 return null;
             };
     
@@ -1248,6 +1281,60 @@
                 }
                 if (object.name != null)
                     message.name = String(object.name);
+                switch (object.dataType) {
+                case "UNDEFINED":
+                case 0:
+                    message.dataType = 0;
+                    break;
+                case "FLOAT":
+                case 1:
+                    message.dataType = 1;
+                    break;
+                case "INT32":
+                case 2:
+                    message.dataType = 2;
+                    break;
+                case "BYTE":
+                case 3:
+                    message.dataType = 3;
+                    break;
+                case "STRING":
+                case 4:
+                    message.dataType = 4;
+                    break;
+                case "BOOL":
+                case 5:
+                    message.dataType = 5;
+                    break;
+                case "UINT8":
+                case 6:
+                    message.dataType = 6;
+                    break;
+                case "INT8":
+                case 7:
+                    message.dataType = 7;
+                    break;
+                case "UINT16":
+                case 8:
+                    message.dataType = 8;
+                    break;
+                case "INT16":
+                case 9:
+                    message.dataType = 9;
+                    break;
+                case "INT64":
+                case 10:
+                    message.dataType = 10;
+                    break;
+                case "FLOAT16":
+                case 12:
+                    message.dataType = 12;
+                    break;
+                case "DOUBLE":
+                case 13:
+                    message.dataType = 13;
+                    break;
+                }
                 return message;
             };
     
@@ -1274,6 +1361,7 @@
                     object.bias = 0;
                     object.isSigned = false;
                     object.name = "";
+                    object.dataType = options.enums === String ? "INT32" : 2;
                 }
                 if (message.dims && message.dims.length) {
                     object.dims = [];
@@ -1298,6 +1386,8 @@
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
+                if (message.dataType != null && message.hasOwnProperty("dataType"))
+                    object.dataType = options.enums === String ? $root.caffe2.TensorProto.DataType[message.dataType] : message.dataType;
                 return object;
             };
     
