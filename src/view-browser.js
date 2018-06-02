@@ -16,8 +16,6 @@ class BrowserHost {
             if (this._view) {
                 if (!e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
                     switch (e.keyCode) {
-                        case 69: // E
-                            break;
                         case 70: // F
                             break;
                         case 68: // D
@@ -118,6 +116,9 @@ class BrowserHost {
         script.setAttribute('type', 'text/javascript');
         script.setAttribute('src', url);
         document.head.appendChild(script);
+    }
+
+    export(file, data, mimeType) {
     }
 
     request(file, callback) {

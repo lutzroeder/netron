@@ -112,15 +112,15 @@ class Application {
         var showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
-                { name: 'ONNX Model', extensions: [ 'onnx', 'pb' ] },
+                { name: 'ONNX Model', extension: [ 'onnx', 'pb' ] },
                 { name: 'Keras Model', extension: [ 'json', 'keras', 'h5' ] },
                 { name: 'CoreML Model', extension: [ 'mlmodel' ] },
                 { name: 'Caffe Model', extension: [ 'caffemodel' ] },
                 { name: 'Caffe2 Model', extension: [ 'pb' ] },
                 { name: 'MXNet Model', extension: [ 'json' ] },
-                { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta' ] },
-                { name: 'TensorFlow Saved Model', extensions: [ 'saved_model.pb' ] },
-                { name: 'TensorFlow Lite Model', extensions: [ 'tflite' ] }
+                { name: 'TensorFlow Graph', extension: [ 'pb', 'meta' ] },
+                { name: 'TensorFlow Saved Model', extension: [ 'saved_model.pb' ] },
+                { name: 'TensorFlow Lite Model', extension: [ 'tflite' ] }
             ]
         };
         electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {
@@ -178,10 +178,38 @@ class Application {
         });
     }
 
-    executeCommand(command) {
+
+    export() {
+        var view = this._views.activeView;
+        if (view && view.path) {
+            var defaultPath = 'Untitled';
+            var file = view.path;
+            var lastIndex = file.lastIndexOf('.');
+            if (lastIndex != -1) {
+                defaultPath = file.substring(0, lastIndex);
+            }
+            var owner = electron.BrowserWindow.getFocusedWindow();
+            var showSaveDialogOptions = {
+                title: 'Export',
+                defaultPath: defaultPath,
+                buttonLabel: 'Export',
+                filters: [
+                    { name: 'PNG', extensions: [ 'png' ] },
+                    { name: 'SVG', extensions: [ 'svg' ] }
+                ]
+            };
+            electron.dialog.showSaveDialog(owner, showSaveDialogOptions, (filename) => {
+                if (filename) {
+                    view.execute('export', { 'file': filename });
+                }
+            });
+        }
+    }
+
+    execute(command, data) {
         var view = this._views.activeView;
         if (view) {
-            view.send(command, {});
+            view.execute(command, data || {});
         }
     }
 
@@ -315,6 +343,13 @@ class Application {
                     submenu: menuRecentsTemplate
                 },
                 { type: 'separator' },
+                { 
+                    label: '&Export...',
+                    accelerator: 'CmdOrCtrl+Shift+E',
+                    click: () => this.export(),
+                    enabled: view && view.path ? true : false
+                },
+                { type: 'separator' },
                 { role: 'close' },
             ]
         });
@@ -325,7 +360,7 @@ class Application {
                 { role: 'quit' }
             );
         }
-        
+
         if (process.platform == 'darwin') {
             electron.systemPreferences.setUserDefault('NSDisabledDictationMenuItem', 'boolean', true);
             electron.systemPreferences.setUserDefault('NSDisabledCharacterPaletteMenuItem', 'boolean', true);
@@ -337,14 +372,14 @@ class Application {
                 { 
                     label: '&Copy',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+C' : 'Ctrl+C',
-                    click: () => this.executeCommand('copy'),
+                    click: () => this.execute('copy', null),
                     enabled: view && view.path ? true : false
                 },
                 /* { type: 'separator' },
                 {
                     label: '&Find...',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+F' : 'Ctrl+F',
-                    click: () => this.executeCommand('find'),
+                    click: () => this.execute('find', null),
                     enabled: view && view.path ? true : false
                 } */
             ]
@@ -356,13 +391,13 @@ class Application {
                 {
                     label: !view || !view.get('show-details') ?  'Show &Details' : 'Hide &Details',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+D' : 'Ctrl+D',
-                    click: () => this.executeCommand('toggle-details'),
+                    click: () => this.execute('toggle-details', null),
                     enabled: view && view.path ? true : false
                 },
                 {
                     label: !view || !view.get('show-names') ?  'Show &Names' : 'Hide &Names',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+U' : 'Ctrl+U',
-                    click: () => this.executeCommand('toggle-names'),
+                    click: () => this.execute('toggle-names', null),
                     enabled: view && view.path ? true : false
                 },
                 { type: 'separator' },
@@ -376,26 +411,26 @@ class Application {
                 {
                     label: 'Actual &Size',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+Backspace' : 'Ctrl+Backspace',
-                    click: () => this.executeCommand('reset-zoom'),
+                    click: () => this.execute('reset-zoom', null),
                     enabled: view && view.path ? true : false
                 },
                 {
                     label: 'Zoom &In',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+Up' : 'Ctrl+Down',
-                    click: () => this.executeCommand('zoom-in'),
+                    click: () => this.execute('zoom-in', null),
                     enabled: view && view.path ? true : false
                 },
                 {
                     label: 'Zoom &Out',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+Down' : 'Ctrl+Down',
-                    click: () => this.executeCommand('zoom-out'),
+                    click: () => this.execute('zoom-out', null),
                     enabled: view && view.path ? true : false
                 },
                 { type: 'separator' },
                 {
                     label: '&Properties...',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+Enter' : 'Ctrl+Enter',
-                    click: () => this.executeCommand('show-properties'),
+                    click: () => this.execute('show-properties', null),
                     enabled: view && view.path ? true : false
                 }        
             ]
@@ -569,8 +604,10 @@ class View {
         return (this._path == path);
     }
 
-    send(channel, data) {
-        this._window.webContents.send(channel, data);
+    execute(command, data) {
+        if (this._window && this._window.webContents) {
+            this._window.webContents.send(command, data);
+        }
     }
 
     update(name, value) {

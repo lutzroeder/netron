@@ -37,6 +37,9 @@ class ElectronHost {
             }
         });
 
+        electron.ipcRenderer.on('export', (event, data) => {
+            this._view.export(data.file);
+        });
         electron.ipcRenderer.on('copy', (event, data) => {
             this._view.copy();
         });
@@ -99,7 +102,9 @@ class ElectronHost {
     }
 
     showError(message) {
-        electron.remote.dialog.showErrorBox(electron.remote.app.getName(), message);        
+        if (message) {
+            electron.remote.dialog.showErrorBox(electron.remote.app.getName(), message);        
+        }
     }
 
     import(file, callback) {
@@ -120,6 +125,28 @@ class ElectronHost {
         script.setAttribute('type', 'text/javascript');
         script.setAttribute('src', pathname);
         document.head.appendChild(script);
+    }
+
+    export(file, data, mimeType) {
+        var encoding = 'utf-8';
+        if (mimeType == 'image/png') {
+            try
+            {
+                var nativeImage = electron.nativeImage.createFromDataURL(data);
+                data = nativeImage.toPNG();
+                encoding = 'binary';
+            }
+            catch (e)
+            {
+                this.showError(e);
+                return;
+            }    
+        }
+        fs.writeFile(file, data, encoding, (err) => {
+            if (err) {
+                this.showError(err);
+            }
+        });
     }
 
     request(file, callback) {

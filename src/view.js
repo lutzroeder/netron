@@ -506,21 +506,23 @@ class View {
     
         // Workaround for Safari background drag/zoom issue:
         // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-        var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('width', '100%');
-        rect.setAttribute('height', '100%');
-        rect.setAttribute('fill', 'none');
-        rect.setAttribute('pointer-events', 'all');
-        svgElement.appendChild(rect);
+        var backgroundElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        backgroundElement.setAttribute('id', 'background');
+        backgroundElement.setAttribute('width', '100%');
+        backgroundElement.setAttribute('height', '100%');
+        backgroundElement.setAttribute('fill', 'none');
+        backgroundElement.setAttribute('pointer-events', 'all');
+        svgElement.appendChild(backgroundElement);
     
-        var outputGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        svgElement.appendChild(outputGroup);
+        var originElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        originElement.setAttribute('id', 'origin');
+        svgElement.appendChild(originElement);
     
         // Set up zoom support
         this._zoom = d3.zoom();
         this._zoom.scaleExtent([0.1, 2]);
         this._zoom.on('zoom', (e) => {
-            d3.select(outputGroup).attr('transform', d3.event.transform);
+            d3.select(originElement).attr('transform', d3.event.transform);
         });
         var svg = d3.select(svgElement);
         svg.call(this._zoom);
@@ -529,7 +531,7 @@ class View {
     
         setTimeout(() => {
     
-            var graphRenderer = new GraphRenderer(outputGroup);
+            var graphRenderer = new GraphRenderer(originElement);
             graphRenderer.render(g);
     
             var svgSize = svgElement.getBoundingClientRect();
@@ -555,6 +557,108 @@ class View {
         
             this.show('graph');
         }, 2);
+    }
+
+    copyStylesInline(destinationNode, sourceNode) {
+        var containerElements = ["svg","g"];
+        for (var cd = 0; cd < destinationNode.childNodes.length; cd++) {
+            var child = destinationNode.childNodes[cd];
+            if (containerElements.indexOf(child.tagName) != -1) {
+                 this.copyStylesInline(child, sourceNode.childNodes[cd]);
+                 continue;
+            }
+            var style = sourceNode.childNodes[cd].currentStyle || window.getComputedStyle(sourceNode.childNodes[cd]);
+            if (style == "undefined" || style == null) continue;
+            for (var st = 0; st < style.length; st++){
+                 child.style.setProperty(style[st], style.getPropertyValue(style[st]));
+            }
+        }
+    }
+
+    transferStyleSheet(element, name) {
+
+        var result = [];
+        result.push('<style type="text/css">');
+        for (var i = 0; i < document.styleSheets.length; i++) {
+            var styleSheet = document.styleSheets[i];
+            if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
+                for (var j = 0; j < styleSheet.rules.length; j++) {
+                    var rule = styleSheet.rules[j];
+                    result.push(rule.cssText);
+                }
+            }
+        }
+        result.push('</style>');
+
+        var defsElement = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        defsElement.innerHTML = result.join('\n') + '\n';
+
+        element.insertBefore(defsElement, element.firstChild);
+    }
+
+    export(file) {
+        var extension = '';
+        var lastIndex = file.lastIndexOf('.');
+        if (lastIndex != -1) {
+            extension = file.substring(lastIndex + 1);
+        }
+        if (extension != 'png' && extension != 'svg') {
+            return;
+        }
+
+        var svgElement = document.getElementById('graph');
+        var exportElement = svgElement.cloneNode(true);
+        this.transferStyleSheet(exportElement, 'view-render.css');
+        exportElement.setAttribute('id', 'export');
+        exportElement.removeAttribute('width');
+        exportElement.removeAttribute('height');
+        exportElement.style.removeProperty('opacity');
+        exportElement.style.removeProperty('display');
+        var originElement = exportElement.getElementById('origin');
+        originElement.setAttribute('transform', 'translate(0,0) scale(1)');
+        var backgroundElement = exportElement.getElementById('background');
+        backgroundElement.removeAttribute('width');
+        backgroundElement.removeAttribute('height');
+
+        var parentElement = svgElement.parentElement;
+        parentElement.insertBefore(exportElement, svgElement);
+        var size = exportElement.getBBox();
+        parentElement.removeChild(exportElement);
+
+        var delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
+        var width = Math.ceil(delta + size.width + delta);
+        var height = Math.ceil(delta + size.height + delta);
+        originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
+        exportElement.setAttribute('width', width);
+        exportElement.setAttribute('height', height);
+        backgroundElement.setAttribute('width', width);
+        backgroundElement.setAttribute('height', height);
+        backgroundElement.setAttribute('fill', '#fff');
+
+        var data = new XMLSerializer().serializeToString(exportElement);
+
+        if (extension == 'svg') {
+            this._host.export(file, data, 'image/svg');
+        }
+
+        if (extension == 'png') {
+            var imageElement = new Image();
+            document.body.insertBefore(imageElement, document.body.firstChild);
+            imageElement.onload = () => {
+                var max = Math.max(width, height);
+                var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
+                var canvas = document.createElement('canvas');
+                canvas.width = Math.ceil(width * scale);
+                canvas.height = Math.ceil(height * scale);    
+                var context = canvas.getContext('2d');
+                context.scale(scale, scale);
+                context.drawImage(imageElement, 0, 0);
+                document.body.removeChild(imageElement);
+                var pngBase64 = canvas.toDataURL('image/png');
+                this._host.export(file, pngBase64, 'image/png');
+            };
+            imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+        }
     }
 
     showModelProperties() {
