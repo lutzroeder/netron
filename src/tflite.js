@@ -89,7 +89,10 @@ tflite.BuiltinOperator = {
   SELECT: 64,
   SLICE: 65,
   SIN: 66,
-  TRANSPOSE_CONV: 67
+  TRANSPOSE_CONV: 67,
+  SPARSE_TO_DENSE: 68,
+  TILE: 69,
+  EXPAND_DIMS: 70
 };
 
 /**
@@ -145,7 +148,10 @@ tflite.BuiltinOptions = {
   LessEqualOptions: 46,
   SelectOptions: 47,
   SliceOptions: 48,
-  TransposeConvOptions: 49
+  TransposeConvOptions: 49,
+  SparseToDenseOptions: 50,
+  TileOptions: 51,
+  ExpandDimsOptions: 52
 };
 
 /**
@@ -3877,6 +3883,57 @@ tflite.MaximumMinimumOptions.endMaximumMinimumOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.TileOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.TileOptions}
+ */
+tflite.TileOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.TileOptions=} obj
+ * @returns {tflite.TileOptions}
+ */
+tflite.TileOptions.getRootAsTileOptions = function(bb, obj) {
+  return (obj || new tflite.TileOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.TileOptions.startTileOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.TileOptions.endTileOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.ArgMaxOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -4393,6 +4450,124 @@ tflite.TransposeConvOptions.addStrideH = function(builder, strideH) {
  * @returns {flatbuffers.Offset}
  */
 tflite.TransposeConvOptions.endTransposeConvOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.ExpandDimsOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.ExpandDimsOptions}
+ */
+tflite.ExpandDimsOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.ExpandDimsOptions=} obj
+ * @returns {tflite.ExpandDimsOptions}
+ */
+tflite.ExpandDimsOptions.getRootAsExpandDimsOptions = function(bb, obj) {
+  return (obj || new tflite.ExpandDimsOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.ExpandDimsOptions.startExpandDimsOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.ExpandDimsOptions.endExpandDimsOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.SparseToDenseOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.SparseToDenseOptions}
+ */
+tflite.SparseToDenseOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.SparseToDenseOptions=} obj
+ * @returns {tflite.SparseToDenseOptions}
+ */
+tflite.SparseToDenseOptions.getRootAsSparseToDenseOptions = function(bb, obj) {
+  return (obj || new tflite.SparseToDenseOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {boolean}
+ */
+tflite.SparseToDenseOptions.prototype.validateIndices = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.SparseToDenseOptions.startSparseToDenseOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} validateIndices
+ */
+tflite.SparseToDenseOptions.addValidateIndices = function(builder, validateIndices) {
+  builder.addFieldInt8(0, +validateIndices, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.SparseToDenseOptions.endSparseToDenseOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
