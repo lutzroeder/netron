@@ -45,14 +45,12 @@ class View {
         if (page == 'welcome') {
             document.body.style.cursor = 'default';
             welcomeElement.style.display = 'block';
-            var offsetHeight1 = welcomeElement.offsetHeight; 
             openFileButton.style.display = 'block';
             openFileButton.style.opacity = 1;
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'none';
             graphElement.style.opacity = 0;
             toolbarElement.style.display = 'none';
-
             this._model = null;
             this._graph = false;
         }
@@ -60,14 +58,13 @@ class View {
         if (page == 'spinner') {
             document.body.style.cursor = 'wait';
             welcomeElement.style.display = 'block';
-            openFileButton.style.opacity = 0;
             spinnerElement.style.display = 'block';
-            var offsetHeight2 = spinnerElement.offsetHeight;
+            openFileButton.style.display = 'block';
             graphElement.style.display = 'block';
             graphElement.style.opacity = 0;
             toolbarElement.style.display = 'none';
         }
-    
+
         if (page == 'graph') {
             welcomeElement.style.display = 'none';
             openFileButton.style.display = 'none';

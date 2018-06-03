@@ -77,7 +77,7 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'netron', 'netron.py',
-            'logo.svg', 'favicon.ico', 'icon.png',
+            'logo.svg', 'spinner.svg', 'favicon.ico', 'icon.png',
             'onnx-model.js', 'onnx.js', 'onnx-metadata.json',
             'tf-model.js', 'tf.js', 'tf-metadata.json',
             'tflite-model.js', 'tflite.js', 'tflite-metadata.json',

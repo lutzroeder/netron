@@ -1,0 +1,5 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024' viewBox='0 0 1024 1024'>
+    <g id='spinner' transform='translate(512, 512)' style='opacity: 1'>
+        <path d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width='24' stroke='#e6e6e6' fill='None' />
+    </g>
+</svg>

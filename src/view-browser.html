@@ -15,12 +15,12 @@
 </head>
 <body>
 <div id='welcome' class='background' style='display: block'>
-    <a href='https://github.com/lutzroeder/Netron' target='_blank'>
-        <img id='logo' class='center' src='logo.svg' width='128' height='128'>
+    <a class='center logo' href='https://github.com/lutzroeder/Netron' target='_blank'>
+        <img class='logo absolute' src='logo.svg' />
+        <img id='spinner' class='spinner logo absolute' src='spinner.svg' style='display: none;' />
     </a>
     <button id='open-file-button' class='center' style='top: 200px; width: 125px; opacity: 0;'>Open Model...</button>
     <input type="file" id="open-file-dialog" style="display:none" multiple="false" accept=".onnx, .pb, .meta, .tflite, .keras, .h5, .json, .mlmodel, .caffemodel">
-    <div id='spinner' class='spinner' style='display: none'></div>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style='font-weight: normal; color: #e6e6e6; user-select: none;'>.</div>
     <div style='font-weight: 600; color: #e6e6e6; user-select: none;'>.</div>

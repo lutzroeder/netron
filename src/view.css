@@ -1,4 +1,11 @@
 
+body {
+    margin: 0;
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 12px;
+    text-rendering: geometricPrecision;
+}
+
 .background {
     position: fixed;
     top: 0;
@@ -20,11 +27,32 @@
     -moz-user-select: none;
 }
 
-body {
-    margin: 0;
-    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
-    font-size: 12px;
-    text-rendering: geometricPrecision;
+.absolute { 
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.logo {
+    width: 128px;
+    height: 128px;
+}
+
+.spinner {
+    -webkit-animation: orbit 0.5s infinite linear;
+    animation: orbit 0.5s infinite linear;
+}
+
+@-webkit-keyframes orbit {
+    0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+}
+
+@keyframes orbit {
+      0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 
+      100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
 }
 
 .background button {
@@ -57,40 +85,6 @@ body {
 .background button:focus
 {
     outline: 0;
-}
-
-@-webkit-keyframes orbit {
-    0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
-}
-
-@keyframes orbit {
-      0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 
-      100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
-}
-
-.spinner, .spinner:after {
-    border-radius: 50%;
-    width: 104px;
-    height: 104px;
-}
-  
-.spinner {
-    margin: auto;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-top: 4px solid #bbb;
-    border-right: 4px solid #bbb;
-    border-bottom: 4px solid #bbb;
-    border-left: 4px solid #e6e6e6;
-    -webkit-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-animation: orbit 1.1s infinite linear;
-    animation: orbit 0.5s infinite linear;
 }
 
 .sidebar {
