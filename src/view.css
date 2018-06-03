@@ -27,7 +27,7 @@ body {
     text-rendering: geometricPrecision;
 }
 
-button {
+.background button {
     font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
     font-size: 12px;
     font-weight: 600;
@@ -37,36 +37,11 @@ button {
     padding: 0 10px 0 10px;
     min-width: 60px;
     height: 30px;
-    margin: 0;
     border-radius: 6px;
     transition: 0.1s;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
-}
-
-button:hover {
-    cursor: hand;
-    transition: 0.2s;
-}
-
-button:focus
-{
-    outline: 0;
-}
-
-button {
-    color: #999;
-    background-color: #fff;
-    border: 1px solid #999;
-}
-
-button:hover { 
-    color: #fff;
-    background-color: #999;
-}
-
-.background button {
     color: #888;
     background-color: #e6e6e6;
     border: 1px solid #aaa;
@@ -75,6 +50,13 @@ button:hover {
 .background button:hover { 
     color: #e6e6e6;
     background-color: #aaa;
+    cursor: hand;
+    transition: 0.2s;
+}
+
+.background button:focus
+{
+    outline: 0;
 }
 
 @-webkit-keyframes orbit {
@@ -168,6 +150,21 @@ button:hover {
 }
 
 .sidebar button {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0 10px 0 10px;
+    min-width: 60px;
+    height: 30px;
+    margin: 0;
+    border-radius: 6px;
+    transition: 0.1s;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
     color: #888;
     background-color: #f8f8f8;
     border: 1px solid #aaa;
@@ -176,6 +173,11 @@ button:hover {
 .sidebar button:hover {
     color: #f8f8f8;
     background-color: #aaa;
+    transition: 0.2s;
+}
+
+.sidebar button:focus {
+    outline: 0;
 }
 
 .graph {
@@ -186,4 +188,29 @@ button:hover {
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
+}
+
+.toolbar {
+    padding: 0;
+    margin: 0;
+}
+
+.toolbar button {
+    background: None;
+    border-radius: 6px;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    fill: None;
+    stroke: #777;
+    cursor: hand;
+}
+
+.toolbar button:hover {
+    fill: None;
+    stroke: #000;
+}
+
+.toolbar button:focus {
+    outline: 0;
 }

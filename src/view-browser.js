@@ -27,7 +27,7 @@ class BrowserHost {
                             e.preventDefault();
                             break;
                         case 13: // Return
-                            this._view.showModelProperties();
+                            document.getElementById('model-properties-button').click();
                             e.preventDefault();
                             break;
                         case 8: // Backspace
@@ -35,11 +35,11 @@ class BrowserHost {
                             e.preventDefault();
                             break;
                         case 38: // Up
-                            this._view.zoomIn();
+                            document.getElementById('zoom-in-button').click();
                             e.preventDefault();
                             break;
                         case 40: // Down
-                            this._view.zoomOut();
+                            document.getElementById('zoom-out-button').click();
                             e.preventDefault();
                             break;
                     }

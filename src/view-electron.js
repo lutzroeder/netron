@@ -52,18 +52,17 @@ class ElectronHost {
             this.update('show-names', this._view.showNames);
         });
         electron.ipcRenderer.on('zoom-in', (event, data) => {
-            this._view.zoomIn();
+            document.getElementById('zoom-in-button').click();
         });
         electron.ipcRenderer.on('zoom-out', (event, data) => {
-            this._view.zoomOut();
+            document.getElementById('zoom-out-button').click();
         });
         electron.ipcRenderer.on('reset-zoom', (event, data) => {
             this._view.resetZoom();
         });
         electron.ipcRenderer.on('show-properties', (event, data) => {
-            this._view.showModelProperties();
+            document.getElementById('model-properties-button').click();
         });
-
         electron.ipcRenderer.on('find', (event, data) => {
             this._view.find();
         });

@@ -11,12 +11,15 @@ class View {
         this._showNames = false;
         document.documentElement.style.overflow = 'hidden';
         document.body.scroll = 'no';        
-        var navigationButton = document.getElementById('navigation-button');
-        if (navigationButton) {
-            navigationButton.addEventListener('click', (e) => {
-                this.showModelProperties();
-            });
-        }
+        document.getElementById('model-properties-button').addEventListener('click', (e) => {
+            this.showModelProperties();
+        });
+        document.getElementById('zoom-in-button').addEventListener('click', (e) => {
+            this.zoomIn();
+        });
+        document.getElementById('zoom-out-button').addEventListener('click', (e) => {
+            this.zoomOut();
+        });
     }
     
     show(page) {
@@ -31,7 +34,7 @@ class View {
         var openFileButton = document.getElementById('open-file-button');
         var spinnerElement = document.getElementById('spinner');
         var graphElement = document.getElementById('graph');
-        var navigationElement = document.getElementById('navigation-button');
+        var toolbarElement = document.getElementById('toolbar');
     
         if (page == 'welcome') {
             document.body.style.cursor = 'default';
@@ -42,7 +45,7 @@ class View {
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'none';
             graphElement.style.opacity = 0;
-            navigationElement.style.display = 'none';
+            toolbarElement.style.display = 'none';
 
             this._model = null;
             this._graph = false;
@@ -56,7 +59,7 @@ class View {
             var offsetHeight2 = spinnerElement.offsetHeight;
             graphElement.style.display = 'block';
             graphElement.style.opacity = 0;
-            navigationElement.style.display = 'none';
+            toolbarElement.style.display = 'none';
         }
     
         if (page == 'graph') {
@@ -65,7 +68,7 @@ class View {
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'block';
             graphElement.style.opacity = 1;
-            navigationElement.style.display = 'block';
+            toolbarElement.style.display = 'block';
             document.body.style.cursor = 'default';
         }
     }

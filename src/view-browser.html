@@ -27,7 +27,42 @@
     <div style='font-weight: bold; color: #e6e6e6; user-select: none;'>.</div>
 </div>
 <svg id='graph' class='graph' preserveAspectRatio='xMidYMid meet' width='100%' height='100%'></svg>
-<button id='navigation-button' style='position: absolute; top: 10px; left: 10px; display: none;'>Summary</button> 
+<div id='toolbar' class='toolbar' style='position: absolute; top: 10px; left: 10px; display: none;'>
+    <button id='model-properties-button' class='xxx' title='Model Properties'>
+        <svg viewBox="0 0 100 100" width="24" height="24">
+            <rect x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="8" stroke="#fff" />
+            <line x1="30" y1="37" x2="70" y2="37" stroke-width="8" stroke-linecap="round" stroke="#fff" />
+            <line x1="30" y1="50" x2="70" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff" />
+            <line x1="30" y1="63" x2="70" y2="63" stroke-width="8" stroke-linecap="round" stroke="#fff" />
+            <rect x="12" y="12" width="76" height="76" rx="16" ry="16" stroke-width="4" />
+            <line x1="30" y1="37" x2="70" y2="37" stroke-width="4" stroke-linecap="round" />
+            <line x1="30" y1="50" x2="70" y2="50" stroke-width="4" stroke-linecap="round" />
+            <line x1="30" y1="63" x2="70" y2="63" stroke-width="4" stroke-linecap="round" />
+        </svg>
+    </button>
+    <button id='zoom-in-button' class='icon' title='Zoom In'>
+        <svg viewBox="0 0 100 100" width="24" height="24">
+            <circle cx="50" cy="50" r="35" stroke-width="8" stroke="#fff" />
+            <line x1="50" y1="38" x2="50" y2="62" stroke-width="8" stroke-linecap="round" stroke="#fff" />
+            <line x1="38" y1="50" x2="62" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff" />
+            <line x1="78" y1="78" x2="82" y2="82" stroke-width="12" stroke-linecap="square" stroke="#fff" />
+            <circle cx="50" cy="50" r="35" stroke-width="4" />
+            <line x1="50" y1="38" x2="50" y2="62" stroke-width="4" stroke-linecap="round" />
+            <line x1="38" y1="50" x2="62" y2="50" stroke-width="4" stroke-linecap="round" />
+            <line x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square" />
+        </svg>
+    </button>
+    <button id='zoom-out-button' class='icon' title='Zoom Out'>
+        <svg viewBox="0 0 100 100" width="24" height="24">
+            <circle cx="50" cy="50" r="35" stroke-width="8" stroke="#fff" />
+            <line x1="38" y1="50" x2="62" y2="50" stroke-width="8" stroke-linecap="round" stroke="#fff" />
+            <line x1="78" y1="78" x2="82" y2="82" stroke-width="12" stroke-linecap="square" stroke="#fff" />
+            <circle cx="50" cy="50" r="35" stroke-width="4" />
+            <line x1="38" y1="50" x2="62" y2="50" stroke-width="4" stroke-linecap="round" />
+            <line x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square" />
+        </svg>
+    </button>
+</div>
 <div id='sidebar' class='sidebar'>
     <h1 id='sidebar-title' class='sidebar-title'></h1>
     <a href='javascript:void(0)' id='sidebar-closebutton' class='sidebar-closebutton'>&times;</a>
