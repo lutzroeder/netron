@@ -20,6 +20,12 @@ class View {
         document.getElementById('zoom-out-button').addEventListener('click', (e) => {
             this.zoomOut();
         });
+        document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
+            this.preventZoom(e);
+        });
+        document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
+            this.preventZoom(e);
+        });
     }
     
     show(page) {
@@ -77,6 +83,10 @@ class View {
         document.execCommand('copy');
     }
 
+    find() {
+        this._sidebar.open('<div></div>', 'Find');
+    }
+
     toggleDetails() {
         this._showDetails = !this._showDetails;
         this.show('spinner');
@@ -118,8 +128,10 @@ class View {
         }
     }
 
-    find() {
-        this._sidebar.open('<div></div>', 'Find');
+    preventZoom(e) {
+        if (e.shiftKey || e.ctrlKey) {
+            e.preventDefault();
+        }
     }
 
     loadBuffer(buffer, identifier, callback) {
