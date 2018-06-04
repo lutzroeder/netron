@@ -8039,6 +8039,60 @@
     "name": "PRelu",
     "schema": {
       "category": "Activation",
+      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\n\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'PRelu',\n    inputs=['x', 'slope'],\n    outputs=['y'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nslope = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * slope\n\nexpect(node, inputs=[x, slope], outputs=[y],\n       name='test_prelu_example')",
+          "summary": "prelu"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'PRelu',\n    inputs=['x', 'slope'],\n    outputs=['y'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nslope = np.random.randn(5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * slope\n\nexpect(node, inputs=[x, slope], outputs=[y],\n       name='test_prelu_broadcast')",
+          "summary": "prelu_broadcast"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "Slope tensor. If `Slope` is of size 1, the value is sharedacross different channels",
+          "name": "slope",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "PRelu",
+    "schema": {
+      "category": "Activation",
       "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\nThis operator supports **unidirectional broadcasting** (tensor slope should be unidirectional broadcastable to input tensor X); for more details please check [the doc](Broadcasting.md).",
       "domain": "ai.onnx",
       "examples": [
@@ -8074,7 +8128,7 @@
           "type": "T"
         }
       ],
-      "since_version": 6,
+      "since_version": 7,
       "support_level": "common",
       "type_constraints": [
         {
