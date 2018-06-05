@@ -186,6 +186,14 @@ tflite.LSHProjectionType = {
 /**
  * @enum
  */
+tflite.LSTMKernelType = {
+  FULL: 0,
+  BASIC: 1
+};
+
+/**
+ * @enum
+ */
 tflite.CombinerType = {
   SUM: 0,
   MEAN: 1,
@@ -2205,10 +2213,18 @@ tflite.LSTMOptions.prototype.projClip = function() {
 };
 
 /**
+ * @returns {tflite.LSTMKernelType}
+ */
+tflite.LSTMOptions.prototype.kernelType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? /** @type {tflite.LSTMKernelType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.LSTMKernelType.FULL;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.LSTMOptions.startLSTMOptions = function(builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -2233,6 +2249,14 @@ tflite.LSTMOptions.addCellClip = function(builder, cellClip) {
  */
 tflite.LSTMOptions.addProjClip = function(builder, projClip) {
   builder.addFieldFloat32(2, projClip, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite.LSTMKernelType} kernelType
+ */
+tflite.LSTMOptions.addKernelType = function(builder, kernelType) {
+  builder.addFieldInt8(3, kernelType, tflite.LSTMKernelType.FULL);
 };
 
 /**
