@@ -5416,6 +5416,16 @@
       "category": "Normalization",
       "description": "Local Response Normalization proposed in the [AlexNet paper](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf).\nIt normalizes over local input regions.\nThe local region is defined across the channels. For an element X[n, c, d1, ..., dk] in a tensor\nof shape (N x C x D1 x D2, ..., Dk), its region is\n{X[n, i, d1, ..., dk] | max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2) - 1)}.\n\nsquare_sum[n, c, d1, ..., dk] = sum(X[n, i, d1, ..., dk] ^ 2),\nwhere max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2) - 1).\n\nY[n, c, d1, ..., dk] = X[n, c, d1, ..., dk] / (bias + alpha / size * square_sum[n, c, d1, ..., dk] ) ^ beta\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "alpha = 0.0001\nbeta = 0.75\nbias = 1.0\nnsize = 3\nnode = onnx.helper.make_node(\n    'LRN',\n    inputs=['x'],\n    outputs=['y'],\n    size=3\n)\nx = np.random.randn(5, 5, 5, 5).astype(np.float32)\nsquare_sum = np.zeros((5, 5, 5, 5)).astype(np.float32)\nfor n, c, h, w in np.ndindex(x.shape):\n    square_sum[n, c, h, w] = sum(x[n,\n                                   max(0, c - int(math.floor((nsize - 1) / 2))):min(4, c + int(math.ceil((nsize - 1) / 2)) + 1),\n                                   h,\n                                   w] ** 2)\ny = x / ((bias + (alpha / nsize) * square_sum) ** beta)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_lrn_default')",
+          "summary": "default"
+        },
+        {
+          "code": "alpha = 0.0002\nbeta = 0.5\nbias = 2.0\nnsize = 3\nnode = onnx.helper.make_node(\n    'LRN',\n    inputs=['x'],\n    outputs=['y'],\n    alpha=alpha,\n    beta=beta,\n    bias=bias,\n    size=nsize\n)\nx = np.random.randn(5, 5, 5, 5).astype(np.float32)\nsquare_sum = np.zeros((5, 5, 5, 5)).astype(np.float32)\nfor n, c, h, w in np.ndindex(x.shape):\n    square_sum[n, c, h, w] = sum(x[n,\n                                   max(0, c - int(math.floor((nsize - 1) / 2))):min(4, c + int(math.ceil((nsize - 1) / 2)) + 1),\n                                   h,\n                                   w] ** 2)\ny = x / ((bias + (alpha / nsize) * square_sum) ** beta)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_lrn')",
+          "summary": "lrn"
+        }
+      ],
       "inputs": [
         {
           "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
