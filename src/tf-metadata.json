@@ -5314,6 +5314,100 @@
     }
   },
   {
+    "name": "BatchFunction",
+    "schema": {
+      "attributes": [
+        {
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "description": "Number of scheduling threads for processing batches of work.\nDetermines the number of batches processed in parallel.",
+          "name": "num_batch_threads",
+          "type": "int"
+        },
+        {
+          "description": "Batch sizes will never be bigger than this.",
+          "name": "max_batch_size",
+          "type": "int"
+        },
+        {
+          "description": "Maximum number of microseconds to wait before outputting\nan incomplete batch.",
+          "name": "batch_timeout_micros",
+          "type": "int"
+        },
+        {
+          "defaultValue": 10,
+          "description": "Maximum number of batches enqueued. Default: 10.",
+          "name": "max_enqueued_batches",
+          "type": "int"
+        },
+        {
+          "defaultValue": [],
+          "description": "Optional list of allowed batch sizes. If left empty, does\nnothing. Otherwise, supplies a list of batch sizes, causing the op to pad\nbatches up to one of those sizes. The entries must increase monotonically, and\nthe final entry must equal max_batch_size.",
+          "name": "allowed_batch_sizes",
+          "type": "list(int)"
+        },
+        {
+          "defaultValue": "",
+          "description": "Controls the scope of sharing of this batch.",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "defaultValue": "",
+          "description": "Concurrently running instances of batch in the same device with the\nsame container and shared_name will batch their elements together. If left\nempty, the op name will be used as the shared name.",
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "defaultValue": "",
+          "name": "batching_queue",
+          "type": "string"
+        },
+        {
+          "description": "the types of tensors to be batched.",
+          "minimum": 1,
+          "name": "Tin",
+          "type": "list(type)"
+        },
+        {
+          "description": "the types of the captured tensors.",
+          "minimum": 0,
+          "name": "Tcaptured",
+          "type": "list(type)"
+        },
+        {
+          "description": "the types of the output tensors.",
+          "minimum": 1,
+          "name": "Tout",
+          "type": "list(type)"
+        }
+      ],
+      "description": "So, for example, in the following code\n\n  ```python\n\n  # This input will be captured.\n  y = tf.placeholder_with_default(1.0, shape=[])\n\n  @tf.Defun(tf.float32)\n  def computation(a):\n    return tf.matmul(a, a) + y\n\n  b = gen_batch_ops.batch_function(\n          f=computation\n          in_tensors=[a],\n          captured_tensors=computation.captured_inputs,\n          Tout=[o.type for o in computation.definition.signature.output_arg],\n          num_batch_threads=1,\n          max_batch_size=10,\n          batch_timeout_micros=100000,  # 100ms\n          allowed_batch_sizes=[3, 10],\n          batching_queue=\"\")\n\nIf more than one session.run call is simultaneously trying to compute `b`\nthe values of `a` will be gathered, non-deterministically concatenated\nalong the first axis, and only one thread will run the computation.\n\nAssumes that all arguments of the function are Tensors which will be batched\nalong their first dimension.\n\nArguments that are captured, are not batched. The session.run call which does\nthe concatenation, will use the values of the captured tensors available to it.\nTherefore, typical uses of captured tensors should involve values which remain\nunchanged across session.run calls. Inference is a good example of this.\n\nSparseTensor is not supported. The return value of the decorated function\nmust be a Tensor or a list/tuple of Tensors.",
+      "inputs": [
+        {
+          "description": "The tensors to be batched.",
+          "name": "in_tensors",
+          "typeListAttr": "Tin"
+        },
+        {
+          "description": "The tensors which are captured in the function, and don't need\nto be batched.",
+          "name": "captured_tensors",
+          "typeListAttr": "Tcaptured"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The output tensors.",
+          "name": "out_tensors",
+          "typeListAttr": "Tout"
+        }
+      ],
+      "summary": "Batches all the inputs tensors to the computation done by the function."
+    }
+  },
+  {
     "name": "BatchIFFT",
     "schema": {
       "inputs": [
@@ -11607,6 +11701,27 @@
         }
       ],
       "summary": "Returns the permuted vector/tensor in the destination data format given the"
+    }
+  },
+  {
+    "name": "DatasetToGraph",
+    "schema": {
+      "description": "Returns a graph representation for `input_dataset`.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the dataset to return the graph representation for.",
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The graph representation of the dataset (as serialized GraphDef).",
+          "name": "graph",
+          "type": 7
+        }
+      ],
+      "summary": "Returns a serialized GraphDef representing `input_dataset`."
     }
   },
   {
@@ -18211,6 +18326,38 @@
         }
       ],
       "summary": "Return a tensor with the same shape and contents as the input tensor or value."
+    }
+  },
+  {
+    "name": "IdentityDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "A placeholder for input pipeline graph optimizations.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "A placeholder for input pipeline graph optimizations."
     }
   },
   {
@@ -25426,6 +25573,43 @@
     }
   },
   {
+    "name": "OptimizeDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "Creates a dataset by applying optimizations to `input_dataset`.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A `tf.string` vector `tf.Tensor` identifying optimizations to use.",
+          "name": "optimizations",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset by applying optimizations to `input_dataset`."
+    }
+  },
+  {
     "name": "OrderedMapClear",
     "schema": {
       "attributes": [
@@ -27685,7 +27869,7 @@
           "type": "type"
         }
       ],
-      "description": "This op simulates the precision loss from the quantized forward pass by:\n1. Quantizing the tensor to fixed point numbers, which should match the target\n   quantization method when it is used in inference.\n2. Dequantizing it back to floating point numbers for the following ops, most\n   likely matmul.\n\nThere are different ways to quantize. This version uses only scaling, so 0.0\nmaps to 0.\n\nFrom the specified 'num_bits' in the quantized output type, it determines\nminimum and maximum representable quantized values.\n\ne.g.\n\n*   [-128, 127] for signed, num_bits = 8, or\n*   [0, 255] for unsigned, num_bits = 8.\n\nIf range_given == False, the initial input_min, input_max will be determined\nautomatically as the minimum and maximum values in the input tensor, otherwise\nthe specified values of input_min, input_max are used.\n\nNote: If the input_min, input_max are specified, they do not need to equal the\nactual minimum and maximum values in the tensor. e.g. in some cases it may be\nbeneficial to specify these values such that the low probability extremes of the\ninput distribution are clipped.\n\nThis op determines the maximum scale_factor that would map the initial\n[input_min, input_max] range to a range that lies within the representable\nquantized range.\n\nIt determines the scale from one of input_min and input_max, then updates the\nother one to maximize the respresentable range.\n\ne.g.\n\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    5.0]: it would use a scale_factor of -128 / -10.0 = 12.8 In this case, it\n    would update input_max to be 127 / 12.8 = 9.921875\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    10.0]: it would use a scale_factor of 127 / 10.0 = 12.7 In this case, it\n    would update input_min to be 128.0 / 12.7 = -10.07874\n*   if the output is unsigned, input_min is forced to be 0, and only the\n    specifide input_max is used.\n\nAfter determining the scale_factor and updating the input tange, it applies the\nfollowing to each value in the 'input' tensor.\n\noutput = round(clamp(value, input_min, input_max) * scale_factor) / scale_factor.\n",
+      "description": "This op simulates the precision loss from the quantized forward pass by:\n\n1. Quantizing the tensor to fixed point numbers, which should match the target\n   quantization method when it is used in inference.\n2. Dequantizing it back to floating point numbers for the following ops, most\n   likely matmul.\n\nThere are different ways to quantize. This version uses only scaling, so 0.0\nmaps to 0.\n\nFrom the specified 'num_bits' in the quantized output type, it determines\nminimum and maximum representable quantized values.\n\ne.g.\n\n*   [-128, 127] for signed, num_bits = 8, or\n*   [0, 255] for unsigned, num_bits = 8.\n\nIf range_given == False, the initial input_min, input_max will be determined\nautomatically as the minimum and maximum values in the input tensor, otherwise\nthe specified values of input_min, input_max are used.\n\nNote: If the input_min, input_max are specified, they do not need to equal the\nactual minimum and maximum values in the tensor. e.g. in some cases it may be\nbeneficial to specify these values such that the low probability extremes of the\ninput distribution are clipped.\n\nThis op determines the maximum scale_factor that would map the initial\n[input_min, input_max] range to a range that lies within the representable\nquantized range.\n\nIt determines the scale from one of input_min and input_max, then updates the\nother one to maximize the respresentable range.\n\ne.g.\n\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    5.0]: it would use a scale_factor of -128 / -10.0 = 12.8 In this case, it\n    would update input_max to be 127 / 12.8 = 9.921875\n*   if the output is signed, num_bits = 8, [input_min, input_max] = [-10.0,\n    10.0]: it would use a scale_factor of 127 / 10.0 = 12.7 In this case, it\n    would update input_min to be 128.0 / 12.7 = -10.07874\n*   if the output is unsigned, input_min is forced to be 0, and only the\n    specified input_max is used.\n\nAfter determining the scale_factor and updating the input range, it applies the\nfollowing to each value in the 'input' tensor.\n\noutput = round(clamp(value, input_min, input_max) * scale_factor) / scale_factor.\n",
       "inputs": [
         {
           "description": "Tensor to quantize and then dequantize.",
@@ -40909,7 +41093,7 @@
           "type": "type"
         }
       ],
-      "description": "if < 0, `scale * features` otherwise.\n\nSee [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)",
+      "description": "if < 0, `scale * features` otherwise.\n\nTo be used together with\n`initializer = tf.variance_scaling_initializer(factor=1.0, mode='FAN_IN')`.\nFor correct dropout, use `tf.contrib.nn.alpha_dropout`.\n\nSee [Self-Normalizing Neural Networks](https://arxiv.org/abs/1706.02515)",
       "inputs": [
         {
           "name": "features",
