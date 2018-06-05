@@ -2709,7 +2709,8 @@
          * @property {number} OPENGL=3 OPENGL value
          * @property {number} OPENCL=4 OPENCL value
          * @property {number} IDEEP=5 IDEEP value
-         * @property {number} COMPILE_TIME_MAX_DEVICE_TYPES=6 COMPILE_TIME_MAX_DEVICE_TYPES value
+         * @property {number} HIP=6 HIP value
+         * @property {number} COMPILE_TIME_MAX_DEVICE_TYPES=7 COMPILE_TIME_MAX_DEVICE_TYPES value
          * @property {number} ONLY_FOR_TEST=20901701 ONLY_FOR_TEST value
          */
         caffe2.DeviceType = (function() {
@@ -2720,7 +2721,8 @@
             values[valuesById[3] = "OPENGL"] = 3;
             values[valuesById[4] = "OPENCL"] = 4;
             values[valuesById[5] = "IDEEP"] = 5;
-            values[valuesById[6] = "COMPILE_TIME_MAX_DEVICE_TYPES"] = 6;
+            values[valuesById[6] = "HIP"] = 6;
+            values[valuesById[7] = "COMPILE_TIME_MAX_DEVICE_TYPES"] = 7;
             values[valuesById[20901701] = "ONLY_FOR_TEST"] = 20901701;
             return values;
         })();
@@ -2737,6 +2739,7 @@
              * @property {string|null} [nodeName] DeviceOption nodeName
              * @property {number|null} [numaNodeId] DeviceOption numaNodeId
              * @property {Array.<string>|null} [extraInfo] DeviceOption extraInfo
+             * @property {number|null} [hipGpuId] DeviceOption hipGpuId
              */
     
             /**
@@ -2804,6 +2807,14 @@
             DeviceOption.prototype.extraInfo = $util.emptyArray;
     
             /**
+             * DeviceOption hipGpuId.
+             * @member {number} hipGpuId
+             * @memberof caffe2.DeviceOption
+             * @instance
+             */
+            DeviceOption.prototype.hipGpuId = 0;
+    
+            /**
              * Creates a new DeviceOption instance using the specified properties.
              * @function create
              * @memberof caffe2.DeviceOption
@@ -2840,6 +2851,8 @@
                 if (message.extraInfo != null && message.extraInfo.length)
                     for (var i = 0; i < message.extraInfo.length; ++i)
                         writer.uint32(/* id 6, wireType 2 =*/50).string(message.extraInfo[i]);
+                if (message.hipGpuId != null && message.hasOwnProperty("hipGpuId"))
+                    writer.uint32(/* id 7, wireType 0 =*/56).int32(message.hipGpuId);
                 return writer;
             };
     
@@ -2893,6 +2906,9 @@
                         if (!(message.extraInfo && message.extraInfo.length))
                             message.extraInfo = [];
                         message.extraInfo.push(reader.string());
+                        break;
+                    case 7:
+                        message.hipGpuId = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2951,6 +2967,9 @@
                         if (!$util.isString(message.extraInfo[i]))
                             return "extraInfo: string[] expected";
                 }
+                if (message.hipGpuId != null && message.hasOwnProperty("hipGpuId"))
+                    if (!$util.isInteger(message.hipGpuId))
+                        return "hipGpuId: integer expected";
                 return null;
             };
     
@@ -2983,6 +3002,8 @@
                     for (var i = 0; i < object.extraInfo.length; ++i)
                         message.extraInfo[i] = String(object.extraInfo[i]);
                 }
+                if (object.hipGpuId != null)
+                    message.hipGpuId = object.hipGpuId | 0;
                 return message;
             };
     
@@ -3007,6 +3028,7 @@
                     object.randomSeed = 0;
                     object.nodeName = "";
                     object.numaNodeId = -1;
+                    object.hipGpuId = 0;
                 }
                 if (message.deviceType != null && message.hasOwnProperty("deviceType"))
                     object.deviceType = message.deviceType;
@@ -3023,6 +3045,8 @@
                     for (var j = 0; j < message.extraInfo.length; ++j)
                         object.extraInfo[j] = message.extraInfo[j];
                 }
+                if (message.hipGpuId != null && message.hasOwnProperty("hipGpuId"))
+                    object.hipGpuId = message.hipGpuId;
                 return object;
             };
     
