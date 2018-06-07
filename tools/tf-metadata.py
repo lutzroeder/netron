@@ -52,7 +52,23 @@ def find_multiline(line, colon):
     return None
 
 def str_escape(text):
-    return text.replace('\n', '\\n').replace('\"', '\\\"')
+    result = ''
+    for c in text:
+        if (c == '\n'):
+            result += '\\n'
+        elif (c == '\r'):
+            result += "\\r"
+        elif (c == '\t'):
+            result += "\\t"
+        elif (c == '\"'):
+            result += "\\\""
+        elif (c == '\''):
+            result += "\\'"
+        elif (c == '\\'):
+            result += "\\\\"
+        else:
+            result += c
+    return result
 
 def pbtxt_from_multiline(multiline_pbtxt):
     pbtxt = ''

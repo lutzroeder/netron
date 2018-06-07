@@ -54,7 +54,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `x`, this operation returns a tensor containing the absolute\nvalue of each element in `x`. For example, if x is an input element and y is\nan output element, this operation computes \\(y = |x|\\).",
+      "description": "Given a tensor `x`, this operation returns a tensor containing the absolute\nvalue of each element in `x`. For example, if x is an input element and y is\nan output element, this operation computes \\\\(y = |x|\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -1188,7 +1188,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the argument of each element in `input`. All elements in\n`input` must be complex numbers of the form \\(a + bj\\), where *a*\nis the real part and *b* is the imaginary part.\n\nThe argument returned by this operation is of the form \\(atan2(b, a)\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.angle(input) ==> [2.0132, 1.056]\n```\n\n@compatibility(numpy)\nEquivalent to np.angle.\n@end_compatibility",
+      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the argument of each element in `input`. All elements in\n`input` must be complex numbers of the form \\\\(a + bj\\\\), where *a*\nis the real part and *b* is the imaginary part.\n\nThe argument returned by this operation is of the form \\\\(atan2(b, a)\\\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.angle(input) ==> [2.0132, 1.056]\n```\n\n@compatibility(numpy)\nEquivalent to np.angle.\n@end_compatibility",
       "inputs": [
         {
           "name": "input",
@@ -1923,7 +1923,7 @@
           "type": "bool"
         }
       ],
-      "description": "$$lr_t := \text{learning_rate} * \\sqrt{(1 - beta_2^t) / (1 - beta_1^t)}$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+      "description": "$$lr_t := \\text{learning_rate} * \\sqrt{(1 - beta_2^t) / (1 - beta_1^t)}$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -4370,7 +4370,7 @@
           "type": "type"
         }
       ],
-      "description": "This is the angle \\( \theta \\in [-\\pi, \\pi] \\) such that\n\\[ x = r \\cos(\theta) \\]\nand\n\\[ y = r \\sin(\theta) \\]\nwhere \\(r = \\sqrt(x^2 + y^2) \\).",
+      "description": "This is the angle \\( \\theta \\in [-\\pi, \\pi] \\) such that\n\\[ x = r \\cos(\\theta) \\]\nand\n\\[ y = r \\sin(\\theta) \\]\nwhere \\(r = \\sqrt(x^2 + y^2) \\).",
       "inputs": [
         {
           "name": "y",
@@ -6404,7 +6404,7 @@
           "type": "type"
         }
       ],
-      "description": "The regularized incomplete beta integral is defined as:\n\n\n\\(I_x(a, b) = \frac{B(x; a, b)}{B(a, b)}\\)\n\nwhere\n\n\n\\(B(x; a, b) = \\int_0^x t^{a-1} (1 - t)^{b-1} dt\\)\n\n\nis the incomplete beta function and \\(B(a, b)\\) is the *complete*\nbeta function.",
+      "description": "The regularized incomplete beta integral is defined as:\n\n\n\\\\(I_x(a, b) = \\frac{B(x; a, b)}{B(a, b)}\\\\)\n\nwhere\n\n\n\\\\(B(x; a, b) = \\int_0^x t^{a-1} (1 - t)^{b-1} dt\\\\)\n\n\nis the incomplete beta function and \\\\(B(a, b)\\\\) is the *complete*\nbeta function.",
       "inputs": [
         {
           "name": "a",
@@ -8668,7 +8668,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `real` representing the real part of a complex number, and a\ntensor `imag` representing the imaginary part of a complex number, this\noperation returns complex numbers elementwise of the form \\(a + bj\\), where\n*a* represents the `real` part and *b* represents the `imag` part.\n\nThe input tensors `real` and `imag` must have the same shape.\n\nFor example:\n\n```\n# tensor 'real' is [2.25, 3.25]\n# tensor `imag` is [4.75, 5.75]\ntf.complex(real, imag) ==> [[2.25 + 4.75j], [3.25 + 5.75j]]\n```",
+      "description": "Given a tensor `real` representing the real part of a complex number, and a\ntensor `imag` representing the imaginary part of a complex number, this\noperation returns complex numbers elementwise of the form \\\\(a + bj\\\\), where\n*a* represents the `real` part and *b* represents the `imag` part.\n\nThe input tensors `real` and `imag` must have the same shape.\n\nFor example:\n\n```\n# tensor 'real' is [2.25, 3.25]\n# tensor `imag` is [4.75, 5.75]\ntf.complex(real, imag) ==> [[2.25 + 4.75j], [3.25 + 5.75j]]\n```",
       "inputs": [
         {
           "name": "real",
@@ -8729,7 +8729,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `x` of complex numbers, this operation returns a tensor of type\n`float` or `double` that is the absolute value of each element in `x`. All\nelements in `x` must be complex numbers of the form \\(a + bj\\). The absolute\nvalue is computed as \\( \\sqrt{a^2 + b^2}\\).",
+      "description": "Given a tensor `x` of complex numbers, this operation returns a tensor of type\n`float` or `double` that is the absolute value of each element in `x`. All\nelements in `x` must be complex numbers of the form \\\\(a + bj\\\\). The absolute\nvalue is computed as \\\\( \\sqrt{a^2 + b^2}\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -9097,7 +9097,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ncomplex numbers that are the complex conjugate of each element in `input`. The\ncomplex numbers in `input` must be of the form \\(a + bj\\), where *a* is the\nreal part and *b* is the imaginary part.\n\nThe complex conjugate returned by this operation is of the form \\(a - bj\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.conj(input) ==> [-2.25 - 4.75j, 3.25 - 5.75j]\n```",
+      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ncomplex numbers that are the complex conjugate of each element in `input`. The\ncomplex numbers in `input` must be of the form \\\\(a + bj\\\\), where *a* is the\nreal part and *b* is the imaginary part.\n\nThe complex conjugate returned by this operation is of the form \\\\(a - bj\\\\).\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.conj(input) ==> [-2.25 - 4.75j, 3.25 - 5.75j]\n```",
       "inputs": [
         {
           "name": "input",
@@ -14874,7 +14874,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = (\\exp x) - 1\\).",
+      "description": "I.e., \\\\(y = (\\exp x) - 1\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -15312,6 +15312,31 @@
         }
       ],
       "summary": "Output a fact about factorials."
+    }
+  },
+  {
+    "name": "FakeParam",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "description": "    The purported shape of the output. This is only used for shape inference;\n    the output will not necessarily have this shape. Can be a partial shape.",
+          "name": "shape",
+          "type": "shape"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "    \\\"Fake\\\" output value. This should not be consumed by another op.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "  This op is used as a placeholder in If branch functions. It doesn't provide a\n  valid output when run, so must either be removed (e.g. replaced with a\n  function input) or guaranteed not to be used (e.g. if mirroring an\n  intermediate output needed for the gradient computation of the other branch)."
     }
   },
   {
@@ -18515,7 +18540,7 @@
           "type": "type"
         }
       ],
-      "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\)\n\nwhere\n\n\\(gamma(a, x) = int_{0}^{x} t^{a-1} exp(-t) dt\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
+      "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\\\)\n\nwhere\n\n\\\\(gamma(a, x) = int_{0}^{x} t^{a-1} exp(-t) dt\\\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
       "inputs": [
         {
           "name": "a",
@@ -18554,7 +18579,7 @@
           "type": "type"
         }
       ],
-      "description": "The upper regularized incomplete Gamma function is defined as:\n\n\\(Q(a, x) = Gamma(a, x) / Gamma(a) = 1 - P(a, x)\\)\n\nwhere\n\n\\(Gamma(a, x) = int_{x}^{\\infty} t^{a-1} exp(-t) dt\\)\n\nis the upper incomplete Gama function.\n\nNote, above `P(a, x)` (`Igamma`) is the lower regularized complete\nGamma function.",
+      "description": "The upper regularized incomplete Gamma function is defined as:\n\n\\\\(Q(a, x) = Gamma(a, x) / Gamma(a) = 1 - P(a, x)\\\\)\n\nwhere\n\n\\\\(Gamma(a, x) = int_{x}^{\\infty} t^{a-1} exp(-t) dt\\\\)\n\nis the upper incomplete Gama function.\n\nNote, above `P(a, x)` (`Igamma`) is the lower regularized complete\nGamma function.",
       "inputs": [
         {
           "name": "a",
@@ -18615,7 +18640,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the imaginary part of each element in `input`. All\nelements in `input` must be complex numbers of the form \\(a + bj\\), where *a*\nis the real part and *b* is the imaginary part returned by this operation.\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.imag(input) ==> [4.75, 5.75]\n```",
+      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the imaginary part of each element in `input`. All\nelements in `input` must be complex numbers of the form \\\\(a + bj\\\\), where *a*\nis the real part and *b* is the imaginary part returned by this operation.\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.imag(input) ==> [4.75, 5.75]\n```",
       "inputs": [
         {
           "name": "input",
@@ -18774,7 +18799,7 @@
           "type": "type"
         }
       ],
-      "description": "This outputs a `batch_size` bool array, an entry `out[i]` is `true` if the\nprediction for the target class is among the top `k` predictions among\nall predictions for example `i`. Note that the behavior of `InTopK` differs\nfrom the `TopK` op in its handling of ties; if multiple classes have the\nsame prediction value and straddle the top-`k` boundary, all of those\nclasses are considered to be in the top `k`.\n\nMore formally, let\n\n  \\(predictions_i\\) be the predictions for all classes for example `i`,\n  \\(targets_i\\) be the target class for example `i`,\n  \\(out_i\\) be the output for example `i`,\n\n$$out_i = predictions_{i, targets_i} \\in TopKIncludingTies(predictions_i)$$",
+      "description": "This outputs a `batch_size` bool array, an entry `out[i]` is `true` if the\nprediction for the target class is among the top `k` predictions among\nall predictions for example `i`. Note that the behavior of `InTopK` differs\nfrom the `TopK` op in its handling of ties; if multiple classes have the\nsame prediction value and straddle the top-`k` boundary, all of those\nclasses are considered to be in the top `k`.\n\nMore formally, let\n\n  \\\\(predictions_i\\\\) be the predictions for all classes for example `i`,\n  \\\\(targets_i\\\\) be the target class for example `i`,\n  \\\\(out_i\\\\) be the output for example `i`,\n\n$$out_i = predictions_{i, targets_i} \\in TopKIncludingTies(predictions_i)$$",
       "inputs": [
         {
           "description": "A `batch_size` x `classes` tensor.",
@@ -18820,7 +18845,7 @@
           "type": "type"
         }
       ],
-      "description": "This outputs a `batch_size` bool array, an entry `out[i]` is `true` if the\nprediction for the target class is among the top `k` predictions among\nall predictions for example `i`. Note that the behavior of `InTopK` differs\nfrom the `TopK` op in its handling of ties; if multiple classes have the\nsame prediction value and straddle the top-`k` boundary, all of those\nclasses are considered to be in the top `k`.\n\nMore formally, let\n\n  \\(predictions_i\\) be the predictions for all classes for example `i`,\n  \\(targets_i\\) be the target class for example `i`,\n  \\(out_i\\) be the output for example `i`,\n\n$$out_i = predictions_{i, targets_i} \\in TopKIncludingTies(predictions_i)$$",
+      "description": "This outputs a `batch_size` bool array, an entry `out[i]` is `true` if the\nprediction for the target class is among the top `k` predictions among\nall predictions for example `i`. Note that the behavior of `InTopK` differs\nfrom the `TopK` op in its handling of ties; if multiple classes have the\nsame prediction value and straddle the top-`k` boundary, all of those\nclasses are considered to be in the top `k`.\n\nMore formally, let\n\n  \\\\(predictions_i\\\\) be the predictions for all classes for example `i`,\n  \\\\(targets_i\\\\) be the target class for example `i`,\n  \\\\(out_i\\\\) be the output for example `i`,\n\n$$out_i = predictions_{i, targets_i} \\in TopKIncludingTies(predictions_i)$$",
       "inputs": [
         {
           "description": "A `batch_size` x `classes` tensor.",
@@ -19212,7 +19237,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = 1 / x\\).",
+      "description": "I.e., \\\\(y = 1 / x\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -20515,7 +20540,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = \\log_e x\\).",
+      "description": "I.e., \\\\(y = \\log_e x\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -20566,7 +20591,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = \\log_e (1 + x)\\).",
+      "description": "I.e., \\\\(y = \\log_e (1 + x)\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -22171,7 +22196,7 @@
           "type": "bool"
         }
       ],
-      "description": "`matrix` is a tensor of shape `[..., M, N]` whose inner-most 2 dimensions\nform real or complex matrices of size `[M, N]`. `Rhs` is a tensor of the same\ntype as `matrix` and shape `[..., M, K]`.\nThe output is a tensor shape `[..., N, K]` where each output matrix solves\neach of the equations\n`matrix[..., :, :]` * `output[..., :, :]` = `rhs[..., :, :]`\nin the least squares sense.\n\nWe use the following notation for (complex) matrix and right-hand sides\nin the batch:\n\n`matrix`=\\(A \\in \\mathbb{C}^{m \times n}\\),\n`rhs`=\\(B  \\in \\mathbb{C}^{m \times k}\\),\n`output`=\\(X  \\in \\mathbb{C}^{n \times k}\\),\n`l2_regularizer`=\\(\\lambda \\in \\mathbb{R}\\).\n\nIf `fast` is `True`, then the solution is computed by solving the normal\nequations using Cholesky decomposition. Specifically, if \\(m \\ge n\\) then\n\\(X = (A^H A + \\lambda I)^{-1} A^H B\\), which solves the least-squares\nproblem \\(X = \\mathrm{argmin}_{Z \\in \\Re^{n \times k} } ||A Z - B||_F^2 + \\lambda ||Z||_F^2\\). \nIf \\(m \\lt n\\) then `output` is computed as\n\\(X = A^H (A A^H + \\lambda I)^{-1} B\\), which (for \\(\\lambda = 0\\)) is the\nminimum-norm solution to the under-determined linear system, i.e.\n\\(X = \\mathrm{argmin}_{Z \\in \\mathbb{C}^{n \times k} } ||Z||_F^2 \\),\nsubject to \\(A Z = B\\). Notice that the fast path is only numerically stable\nwhen \\(A\\) is numerically full rank and has a condition number\n\\(\\mathrm{cond}(A) \\lt \frac{1}{\\sqrt{\\epsilon_{mach} } }\\) or \\(\\lambda\\) is\nsufficiently large.\n\nIf `fast` is `False` an algorithm based on the numerically robust complete\northogonal decomposition is used. This computes the minimum-norm\nleast-squares solution, even when \\(A\\) is rank deficient. This path is\ntypically 6-7 times slower than the fast path. If `fast` is `False` then\n`l2_regularizer` is ignored.",
+      "description": "`matrix` is a tensor of shape `[..., M, N]` whose inner-most 2 dimensions\nform real or complex matrices of size `[M, N]`. `Rhs` is a tensor of the same\ntype as `matrix` and shape `[..., M, K]`.\nThe output is a tensor shape `[..., N, K]` where each output matrix solves\neach of the equations\n`matrix[..., :, :]` * `output[..., :, :]` = `rhs[..., :, :]`\nin the least squares sense.\n\nWe use the following notation for (complex) matrix and right-hand sides\nin the batch:\n\n`matrix`=\\\\(A \\in \\mathbb{C}^{m \\times n}\\\\),\n`rhs`=\\\\(B  \\in \\mathbb{C}^{m \\times k}\\\\),\n`output`=\\\\(X  \\in \\mathbb{C}^{n \\times k}\\\\),\n`l2_regularizer`=\\\\(\\lambda \\in \\mathbb{R}\\\\).\n\nIf `fast` is `True`, then the solution is computed by solving the normal\nequations using Cholesky decomposition. Specifically, if \\\\(m \\ge n\\\\) then\n\\\\(X = (A^H A + \\lambda I)^{-1} A^H B\\\\), which solves the least-squares\nproblem \\\\(X = \\mathrm{argmin}_{Z \\in \\Re^{n \\times k} } ||A Z - B||_F^2 + \\lambda ||Z||_F^2\\\\). \nIf \\\\(m \\lt n\\\\) then `output` is computed as\n\\\\(X = A^H (A A^H + \\lambda I)^{-1} B\\\\), which (for \\\\(\\lambda = 0\\\\)) is the\nminimum-norm solution to the under-determined linear system, i.e.\n\\\\(X = \\mathrm{argmin}_{Z \\in \\mathbb{C}^{n \\times k} } ||Z||_F^2 \\\\),\nsubject to \\\\(A Z = B\\\\). Notice that the fast path is only numerically stable\nwhen \\\\(A\\\\) is numerically full rank and has a condition number\n\\\\(\\mathrm{cond}(A) \\lt \\frac{1}{\\sqrt{\\epsilon_{mach} } }\\\\) or \\\\(\\lambda\\\\) is\nsufficiently large.\n\nIf `fast` is `False` an algorithm based on the numerically robust complete\northogonal decomposition is used. This computes the minimum-norm\nleast-squares solution, even when \\\\(A\\\\) is rank deficient. This path is\ntypically 6-7 times slower than the fast path. If `fast` is `False` then\n`l2_regularizer` is ignored.",
       "inputs": [
         {
           "description": "Shape is `[..., M, N]`.",
@@ -24988,7 +25013,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = -x\\).",
+      "description": "I.e., \\\\(y = -x\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -27094,7 +27119,7 @@
           "type": "type"
         }
       ],
-      "description": "The polygamma function is defined as:\n\n\n\\(\\psi^{(n)}(x) = \frac{d^n}{dx^n} \\psi(x)\\)\n\nwhere \\(\\psi(x)\\) is the digamma function.",
+      "description": "The polygamma function is defined as:\n\n\n\\\\(\\psi^{(n)}(x) = \\frac{d^n}{dx^n} \\psi(x)\\\\)\n\nwhere \\\\(\\psi(x)\\\\) is the digamma function.",
       "inputs": [
         {
           "name": "a",
@@ -27216,7 +27241,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `x` and a tensor `y`, this operation computes \\(x^y\\) for\ncorresponding elements in `x` and `y`. For example:\n\n```\n# tensor 'x' is [[2, 2]], [3, 3]]\n# tensor 'y' is [[8, 16], [2, 3]]\ntf.pow(x, y) ==> [[256, 65536], [9, 27]]\n```",
+      "description": "Given a tensor `x` and a tensor `y`, this operation computes \\\\(x^y\\\\) for\ncorresponding elements in `x` and `y`. For example:\n\n```\n# tensor 'x' is [[2, 2]], [3, 3]]\n# tensor 'y' is [[8, 16], [2, 3]]\ntf.pow(x, y) ==> [[256, 65536], [9, 27]]\n```",
       "inputs": [
         {
           "name": "x",
@@ -31720,7 +31745,7 @@
           "type": "type"
         }
       ],
-      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the real part of each element in `input`. All elements in\n`input` must be complex numbers of the form \\(a + bj\\), where *a* is the real\n part returned by this operation and *b* is the imaginary part.\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.real(input) ==> [-2.25, 3.25]\n```",
+      "description": "Given a tensor `input` of complex numbers, this operation returns a tensor of\ntype `float` that is the real part of each element in `input`. All elements in\n`input` must be complex numbers of the form \\\\(a + bj\\\\), where *a* is the real\n part returned by this operation and *b* is the imaginary part.\n\nFor example:\n\n```\n# tensor 'input' is [-2.25 + 4.75j, 3.25 + 5.75j]\ntf.real(input) ==> [-2.25, 3.25]\n```",
       "inputs": [
         {
           "name": "input",
@@ -31858,7 +31883,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = 1 / x\\).",
+      "description": "I.e., \\\\(y = 1 / x\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -34056,7 +34081,7 @@
           "type": "bool"
         }
       ],
-      "description": "$$lr_t := \text{learning_rate} * \\sqrt{(1 - beta_2^t) / (1 - beta_1^t)}$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+      "description": "$$lr_t := \\text{learning_rate} * \\sqrt{(1 - beta_2^t) / (1 - beta_1^t)}$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -38442,7 +38467,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = 1 / \\sqrt{x}\\).",
+      "description": "I.e., \\\\(y = 1 / \\sqrt{x}\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -40475,7 +40500,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\(output_i = \\max_j(data_j)\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\\\(output_i = \\max_j(data_j)\\\\) where `max` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the max is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMax.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
@@ -40590,7 +40615,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\(output_i = \frac{\\sum_j data_j}{N}\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\\\(output_i = \\frac{\\sum_j data_j}{N}\\\\) where `mean` is\nover `j` such that `segment_ids[j] == i` and `N` is the total number of\nvalues summed.\n\nIf the mean is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMean.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
@@ -40685,7 +40710,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\(output_i = \\min_j(data_j)\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\\\(output_i = \\min_j(data_j)\\\\) where `min` is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the min is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentMin.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
@@ -40800,7 +40825,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\(output_i = \\prod_j data_j\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the product is empty for a given segment ID `i`, `output[i] = 1`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentProd.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
@@ -40915,7 +40940,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\(output_i = \\sum_j data_j\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
@@ -47896,7 +47921,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = \\sqrt{x} = x^{1/2}\\).",
+      "description": "I.e., \\\\(y = \\sqrt{x} = x^{1/2}\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -48010,7 +48035,7 @@
           "type": "type"
         }
       ],
-      "description": "I.e., \\(y = x * x = x^2\\).",
+      "description": "I.e., \\\\(y = x * x = x^2\\\\).",
       "inputs": [
         {
           "name": "x",
@@ -53208,7 +53233,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\(output_i = \\max_j data_j\\) where max is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_j data_j\\\\) where max is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
@@ -53325,7 +53350,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\(output_i = \\min_j data_j\\) where min is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.",
+      "description": "Read @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_j data_j\\\\) where min is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.",
       "inputs": [
         {
           "name": "data",
@@ -53442,7 +53467,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\(output_i = \\prod_j data_j\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf there is no entry for a given segment ID `i`, it outputs 1.",
+      "description": "Read @{$math_ops#segmentation$the section on segmentation} for an explanation of\nsegments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf there is no entry for a given segment ID `i`, it outputs 1.",
       "inputs": [
         {
           "name": "data",
@@ -54384,7 +54409,7 @@
           "type": "type"
         }
       ],
-      "description": "The Hurwitz zeta function is defined as:\n\n\n\\(\\zeta(x, q) = \\sum_{n=0}^{\\infty} (q + n)^{-x}\\)",
+      "description": "The Hurwitz zeta function is defined as:\n\n\n\\\\(\\zeta(x, q) = \\sum_{n=0}^{\\infty} (q + n)^{-x}\\\\)",
       "inputs": [
         {
           "name": "x",
