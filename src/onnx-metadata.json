@@ -5414,7 +5414,7 @@
         }
       ],
       "category": "Normalization",
-      "description": "Local Response Normalization proposed in the [AlexNet paper](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf).\nIt normalizes over local input regions.\nThe local region is defined across the channels. For an element X[n, c, d1, ..., dk] in a tensor\nof shape (N x C x D1 x D2, ..., Dk), its region is\n{X[n, i, d1, ..., dk] | max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2) - 1)}.\n\nsquare_sum[n, c, d1, ..., dk] = sum(X[n, i, d1, ..., dk] ^ 2),\nwhere max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2) - 1).\n\nY[n, c, d1, ..., dk] = X[n, c, d1, ..., dk] / (bias + alpha / size * square_sum[n, c, d1, ..., dk] ) ^ beta\n",
+      "description": "Local Response Normalization proposed in the [AlexNet paper](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf).\nIt normalizes over local input regions.\nThe local region is defined across the channels. For an element X[n, c, d1, ..., dk] in a tensor\nof shape (N x C x D1 x D2, ..., Dk), its region is\n{X[n, i, d1, ..., dk] | max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2))}.\n\nsquare_sum[n, c, d1, ..., dk] = sum(X[n, i, d1, ..., dk] ^ 2),\nwhere max(0, c - floor((size - 1) / 2)) <= i <= min(C - 1, c + ceil((size - 1) / 2) - 1).\n\nY[n, c, d1, ..., dk] = X[n, c, d1, ..., dk] / (bias + alpha / size * square_sum[n, c, d1, ..., dk] ) ^ beta\n",
       "domain": "ai.onnx",
       "examples": [
         {
