@@ -125,7 +125,7 @@ var summaryTemplate = `
 {{#if name}}
 <div class='property'>
 <div class='name'>Name</div>
-<div class='value'><input type='text' value='{{name}}'/></div>
+<div class='value'><input type='text' value='{{name}}' readonly='true'/></div>
 </div>
 {{/if}}
 {{#if version}}

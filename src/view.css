@@ -140,7 +140,6 @@ body {
     padding-left: 20px;
     padding-right: 20px;
     overflow-y: auto;
-    position: relative;
 }
 
 .sidebar button {
@@ -187,6 +186,9 @@ body {
 .toolbar {
     padding: 0;
     margin: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
 }
 
 .toolbar button {

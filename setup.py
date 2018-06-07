@@ -89,6 +89,7 @@ setuptools.setup(
             'view-browser.html', 'view-browser.js',
             'view-render.css', 'view-render.js',
             'view-node.css', 'view-node.js',
+            'view-find.css', 'view-find.js',
             'view-template.js',
             'view.js', 'view.css'
         ]

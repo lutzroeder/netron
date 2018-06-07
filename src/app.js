@@ -13,6 +13,7 @@ class Application {
     constructor() {
         this._views = new ViewCollection();
         this._configuration = new ConfigurationService();
+        this._menu = new MenuService();
         this._openFileQueue = [];
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
@@ -101,10 +102,10 @@ class Application {
         }
         this.resetMenu();
         this._views.on('active-view-changed', (e) => {
-            this.resetMenu();
+            this.updateMenu();
         });
         this._views.on('active-view-updated', (e) => {
-            this.resetMenu();
+            this.updateMenu();
         });
     }
 
@@ -211,6 +212,7 @@ class Application {
         if (view) {
             view.execute(command, data || {});
         }
+        this.updateMenu();
     }
 
     reload() {
@@ -291,9 +293,15 @@ class Application {
             (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
     }
 
-    resetMenu() {
+    updateMenu() {
+        var context = {};
+        context.window = electron.BrowserWindow.getFocusedWindow();
+        context.webContents = context.window ? context.window.webContents : null; 
+        context.view = this._views.activeView;
+        this._menu.update(context);
+    }
 
-        var view = this._views.activeView;
+    resetMenu() {
 
         var menuRecentsTemplate = [];
         if (this._configuration.has('recents')) {
@@ -344,10 +352,10 @@ class Application {
                 },
                 { type: 'separator' },
                 { 
+                    id: 'file.export',
                     label: '&Export...',
                     accelerator: 'CmdOrCtrl+Shift+E',
                     click: () => this.export(),
-                    enabled: view && view.path ? true : false
                 },
                 { type: 'separator' },
                 { role: 'close' },
@@ -369,19 +377,37 @@ class Application {
         menuTemplate.push({
             label: '&Edit',
             submenu: [
-                { 
-                    label: '&Copy',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+C' : 'Ctrl+C',
-                    click: () => this.execute('copy', null),
-                    enabled: view && view.path ? true : false
-                },
-                /* { type: 'separator' },
                 {
+                    id: 'edit.cut',
+                    label: 'Cu&t',
+                    accelerator: 'CmdOrCtrl+X',
+                    click: () => this.execute('cut', null),
+                },
+                {
+                    id: 'edit.copy',
+                    label: '&Copy',
+                    accelerator: 'CmdOrCtrl+C',
+                    click: () => this.execute('copy', null),
+                },
+                {
+                    id: 'edit.paste',
+                    label: '&Paste',
+                    accelerator: 'CmdOrCtrl+V',
+                    click: () => this.execute('paste', null),
+                },
+                {
+                    id: 'edit.select-all',
+                    label: 'Select &All',
+                    accelerator: 'CmdOrCtrl+A',
+                    click: () => this.execute('selectall', null),
+                },
+                { type: 'separator' },
+                {
+                    id: 'edit.find',
                     label: '&Find...',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+F' : 'Ctrl+F',
+                    accelerator: 'CmdOrCtrl+F',
                     click: () => this.execute('find', null),
-                    enabled: view && view.path ? true : false
-                } */
+                }
             ]
         });
     
@@ -389,49 +415,47 @@ class Application {
             label: '&View',
             submenu: [
                 {
-                    label: !view || !view.get('show-details') ?  'Show &Details' : 'Hide &Details',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+D' : 'Ctrl+D',
+                    id: 'view.show-details',
+                    accelerator: 'CmdOrCtrl+D',
                     click: () => this.execute('toggle-details', null),
-                    enabled: view && view.path ? true : false
                 },
                 {
-                    label: !view || !view.get('show-names') ?  'Show &Names' : 'Hide &Names',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+U' : 'Ctrl+U',
+                    id: 'view.show-names',
+                    accelerator: 'CmdOrCtrl+U',
                     click: () => this.execute('toggle-names', null),
-                    enabled: view && view.path ? true : false
                 },
                 { type: 'separator' },
                 {
+                    id: 'view.reload',
                     label: '&Reload',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
                     click: () => this.reload(),
-                    enabled: view && view.path ? true : false
                 },
                 { type: 'separator' },
                 {
+                    id: 'view.reset-zoom',
                     label: 'Actual &Size',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+Backspace' : 'Ctrl+Backspace',
+                    accelerator: 'CmdOrCtrl+Backspace',
                     click: () => this.execute('reset-zoom', null),
-                    enabled: view && view.path ? true : false
                 },
                 {
+                    id: 'view.zoom-in',
                     label: 'Zoom &In',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+Up' : 'Ctrl+Down',
+                    accelerator: 'CmdOrCtrl+Up',
                     click: () => this.execute('zoom-in', null),
-                    enabled: view && view.path ? true : false
                 },
                 {
+                    id: 'view.zoom-out',
                     label: 'Zoom &Out',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+Down' : 'Ctrl+Down',
+                    accelerator: 'CmdOrCtrl+Down',
                     click: () => this.execute('zoom-out', null),
-                    enabled: view && view.path ? true : false
                 },
                 { type: 'separator' },
                 {
+                    id: 'view.show-properties',
                     label: '&Properties...',
-                    accelerator: (process.platform === 'darwin') ? 'Cmd+Enter' : 'Ctrl+Enter',
+                    accelerator: 'CmdOrCtrl+Enter',
                     click: () => this.execute('show-properties', null),
-                    enabled: view && view.path ? true : false
                 }        
             ]
         };
@@ -477,8 +501,51 @@ class Application {
             submenu: helpSubmenu
         });
 
-        var menu = electron.Menu.buildFromTemplate(menuTemplate);
-        electron.Menu.setApplicationMenu(menu);
+        var commandTable = {};
+        commandTable['file.export'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['edit.cut'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['edit.copy'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['edit.paste'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['edit.select-all'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['edit.find'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['view.show-details'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            label: (context) => { return !context.view || !context.view.get('show-details') ? 'Show &Details' : 'Hide &Details'; }
+        };
+        commandTable['view.show-names'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            label: (context) => { return !context.view || !context.view.get('show-names') ? 'Show &Names' : 'Hide &Names'; }
+        };
+        commandTable['view.reload'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['view.reset-zoom'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['view.zoom-in'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['view.zoom-out'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+        commandTable['view.show-properties'] = {
+            enabled: (context) => { return context.view && context.view.path ? true : false; }
+        };
+
+        this._menu.build(menuTemplate, commandTable);
+        this.updateMenu();
     }
 
     static minimizePath(file) {
@@ -752,7 +819,7 @@ class ConfigurationService {
                 var dir = electron.app.getPath('userData');
                 if (dir && dir.length > 0) {
                     var file = path.join(dir, 'configuration.json'); 
-                    fs.writeFileSync(file, data);          
+                    fs.writeFileSync(file, data);
                 }
             }
         }
@@ -770,6 +837,66 @@ class ConfigurationService {
         return this._data[name];
     }
 
+}
+
+class MenuService {
+
+    build(menuTemplate, commandTable) {
+        this._menuTemplate = menuTemplate;
+        this._commandTable = commandTable;
+        this._itemTable = {};
+        menuTemplate.forEach((menuTemplateMenu) => {
+            menuTemplateMenu.submenu.forEach((menuTemplateItem) => {
+                if (menuTemplateItem.id) {
+                    this._itemTable[menuTemplateItem.id] = menuTemplateItem;
+                }
+            });
+        });
+        this.rebuild();
+    }
+
+    rebuild() {
+        this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
+        electron.Menu.setApplicationMenu(this._menu);
+    }
+
+    update(context) {
+        if (!this._menu && !this._commandTable) {
+            return;
+        }
+        var rebuild = false;
+        Object.keys(this._commandTable).forEach((id) => {
+            var menuItem = this._menu.getMenuItemById(id);
+            var command = this._commandTable[id];
+            if (command && command.label) {
+                var label = command.label(context);
+                if (label != menuItem.label) {
+                    var menuTemplateItem = this._itemTable[id];
+                    if (menuTemplateItem) {
+                        menuTemplateItem.label = label;
+                        rebuild = true;
+                    }
+                }
+            }
+        });
+        if (rebuild) {
+            this.rebuild();
+        }
+        Object.keys(this._commandTable).forEach((id) => {
+            var menuItem = this._menu.getMenuItemById(id);
+            var command = this._commandTable[id];
+            if (command) {
+                if (command.enabled) {
+                    menuItem.enabled = command.enabled(context);
+                }
+                if (command.label) {
+                    if (menuItem.label != command.label(context)) {
+
+                    }
+                }
+            }
+        });
+    }
 }
 
 var application = new Application();

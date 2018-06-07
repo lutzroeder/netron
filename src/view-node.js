@@ -129,6 +129,7 @@ class NodeViewItem {
         inputName.setAttribute('type', 'text');
         inputName.setAttribute('value', name);
         inputName.setAttribute('title', name);
+        inputName.setAttribute('readonly', 'true');
         itemName.appendChild(inputName);
 
         var itemValueList = document.createElement('div');
@@ -271,19 +272,21 @@ class NodeViewItemConnection {
             this._element.appendChild(this._expander);
         }
 
-        this._hasId = this._connection.id ? true : false;
-        if (this._hasId) {
-            var idLine = document.createElement('div');
-            idLine.className = 'node-view-item-value-line';
-            var id = this._connection.id.split('@').shift();
-            idLine.innerHTML = '<span class=\'node-view-item-value-line-content\'>id: <b>' + id + '</b></span>';
-            this._element.appendChild(idLine);
-        }
-        else if (initializer) {
+        var id = this._connection.id || '';
+        this._hasId = id ? true : false;
+        if (initializer && !this._hasId) {
             var kindLine = document.createElement('div');
             kindLine.className = 'node-view-item-value-line';
             kindLine.innerHTML = 'kind: <b>' + initializer.kind + '</b>';
             this._element.appendChild(kindLine);
+        }
+        else {
+            var idLine = document.createElement('div');
+            idLine.className = 'node-view-item-value-line';
+            id = this._connection.id.split('@').shift();
+            id = id || ' ';
+            idLine.innerHTML = '<span class=\'node-view-item-value-line-content\'>id: <b>' + id + '</b></span>';
+            this._element.appendChild(idLine);
         }
     }
 

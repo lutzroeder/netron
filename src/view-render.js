@@ -9,18 +9,22 @@ class GraphRenderer {
     render(graph) {
 
         var svgClusterGroup = this.createElement('g');
+        svgClusterGroup.setAttribute('id', 'clusters');
         svgClusterGroup.setAttribute('class', 'clusters');
         this._svgElement.appendChild(svgClusterGroup);
 
         var svgEdgePathGroup = this.createElement('g');
+        svgEdgePathGroup.setAttribute('id', 'edge-paths');
         svgEdgePathGroup.setAttribute('class', 'edge-paths');
         this._svgElement.appendChild(svgEdgePathGroup);
 
         var svgEdgeLabelGroup = this.createElement('g');
+        svgEdgeLabelGroup.setAttribute('id', 'edge-labels');
         svgEdgeLabelGroup.setAttribute('class', 'edge-labels');
         this._svgElement.appendChild(svgEdgeLabelGroup);
 
         var svgNodeGroup = this.createElement('g');
+        svgNodeGroup.setAttribute('id', 'nodes');
         svgNodeGroup.setAttribute('class', 'nodes');
         this._svgElement.appendChild(svgNodeGroup);
 
@@ -28,6 +32,9 @@ class GraphRenderer {
             if (graph.children(nodeId).length == 0) {
                 var node = graph.node(nodeId);
                 var element = this.createElement('g');
+                if (node.id) {
+                    element.setAttribute('id', node.id);
+                }
                 element.setAttribute('class', node.hasOwnProperty('class') ? ('node ' + node.class) : 'node');
                 element.style.setProperty('opacity', 0);
                 var container = this.createElement('g');
@@ -114,6 +121,9 @@ class GraphRenderer {
             element.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
             element.setAttribute('d', points);
             element.setAttribute('marker-end', 'url(#arrowhead-vee)');
+            if (edge.id) {
+                element.setAttribute('id', edge.id);
+            }
             svgEdgePathGroup.appendChild(element);
         });
 
@@ -335,7 +345,7 @@ class NodeFormatter {
         if (hasAttributes) {
             root.append('line').classed('node', true).attr('x1', 0).attr('y1', itemHeight).attr('x2', maxWidth).attr('y2', itemHeight);
         }
-        var border = root.append('path').classed('node', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
+        var border = root.append('path').classed('node border', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
 
         if (this._controlDependencies) {
             border.classed('node-control-dependency', true);

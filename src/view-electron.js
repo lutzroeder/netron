@@ -40,8 +40,17 @@ class ElectronHost {
         electron.ipcRenderer.on('export', (event, data) => {
             this._view.export(data.file);
         });
+        electron.ipcRenderer.on('cut', (event, data) => {
+            this._view.cut();
+        });
         electron.ipcRenderer.on('copy', (event, data) => {
             this._view.copy();
+        });
+        electron.ipcRenderer.on('paste', (event, data) => {
+            this._view.paste();
+        });
+        electron.ipcRenderer.on('selectall', (event, data) => {
+            this._view.selectAll();
         });
         electron.ipcRenderer.on('toggle-details', (event, data) => {
             this._view.toggleDetails();

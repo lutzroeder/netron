@@ -1,0 +1,39 @@
+
+.find input[type=text] {
+    font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf;
+    font-size: 12px;
+    padding: 4px 6px 4px 6px;
+    background: #fff;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    outline: 0;
+}
+
+.find ol {
+    list-style-type: none;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+    margin: 8px 0 20px 0;
+    padding: 0;
+}
+
+.find li {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; 
+    font-size: 10px;
+    margin: 0;
+    padding: 5px 8px 5px 8px;
+    outline: 0;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+}
+
+.find li:not(:first-child) {
+    border-top: 1px solid #f0f0f0;
+}
+
+.find li:hover {
+    background: #eee;
+}

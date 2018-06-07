@@ -5,10 +5,12 @@ class View {
     constructor(host) {
         this._host = host;
         this._model = null;
+        this._selection = [];
         this._sidebar = new Sidebar();
         this._host.initialize(this);
         this._showDetails = true;
         this._showNames = false;
+        this._searchText = '';
         document.documentElement.style.overflow = 'hidden';
         document.body.scroll = 'no';        
         document.getElementById('model-properties-button').addEventListener('click', (e) => {
@@ -25,6 +27,9 @@ class View {
         });
         document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
             this.preventZoom(e);
+        });
+        document.addEventListener('keydown', (e) => {
+            this.clearSelection();
         });
     }
     
@@ -76,12 +81,37 @@ class View {
         }
     }
 
+    cut() {
+        document.execCommand('cut');
+    }
+
     copy() {
         document.execCommand('copy');
     }
 
+    paste() {
+        document.execCommand('paste');
+    }
+
+    selectAll() {
+        document.execCommand('selectall');
+    }
+
     find() {
-        this._sidebar.open('<div></div>', 'Find');
+        if (this._activeGraph) {
+            this.clearSelection();
+            var graphElement = document.getElementById('graph');
+            var view = new FindView(graphElement, this._activeGraph);
+            view.on('search-text-changed', (sender, text) => {
+                this._searchText = text;
+            });
+            view.on('select', (sender, selection) => {
+                this._sidebar.close();
+                this.select(selection);
+            });
+            this._sidebar.open(view.content, 'Find');  
+            view.focus(this._searchText);  
+        }
     }
 
     toggleDetails() {
@@ -128,6 +158,44 @@ class View {
     preventZoom(e) {
         if (e.shiftKey || e.ctrlKey) {
             e.preventDefault();
+        }
+    }
+
+    select(selection) {
+        this.clearSelection();
+        if (selection && selection.length > 0) {
+            var graphElement = document.getElementById('graph');
+            var graphRect = graphElement.getBoundingClientRect();
+            var x = 0;
+            var y = 0;
+            selection.forEach((element) => {
+                var classes = element.getAttribute('class').split(' ');
+                classes.push('select');
+                element.setAttribute('class', classes.join(' '));
+                this._selection.push(element);
+                var box = element.getBBox();
+                var ex = box.x + (box.width / 2);
+                var ey = box.y + (box.height / 2);
+                var transform = element.transform.baseVal.consolidate();
+                if (transform) {
+                    ex = transform.matrix.e;
+                    ey = transform.matrix.f;
+                }
+                x += ex;
+                y += ey;
+            });
+            x = x / selection.length;
+            y = y / selection.length;
+            this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));        
+        }
+    }
+
+    clearSelection() {
+        while (this._selection.length > 0) {
+            var element = this._selection.pop();
+            var classes = element.getAttribute('class').split(' ');
+            classes = classes.filter((className) => className != 'select');
+            element.setAttribute('class', classes.join(' '));
         }
     }
 
@@ -276,6 +344,7 @@ class View {
         }
 
         graph.nodes.forEach((node) => {
+
             var formatter = new NodeFormatter();
     
             function addOperator(view, formatter, node) {
@@ -407,8 +476,14 @@ class View {
                     });
                 }
             }
-    
-            g.setNode(nodeId, { label: formatter.format(svgElement) });
+
+            var name = node.name;
+            if (name) {
+                g.setNode(nodeId, { id: 'node-' + name, label: formatter.format(svgElement) });
+            }
+            else {
+                g.setNode(nodeId, { label: formatter.format(svgElement) });
+            }
     
             function createCluster(name) {
                 if (!clusterMap[name]) {
@@ -479,7 +554,7 @@ class View {
     
             var formatter = new NodeFormatter();
             formatter.addItem(output.name, [ 'graph-item-output' ], output.type, () => {
-                this.showProperties();
+                this.showModelProperties();
             });
             g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
         });
@@ -507,10 +582,10 @@ class View {
                     }
 
                     if (to.dependency) { 
-                        g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
+                        g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
                     }
                     else {
-                        g.setEdge(tuple.from.node, to.node, { label: text, arrowhead: 'vee', curve: d3.curveBasis } );
+                        g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis } );
                     }
                 });
             }
@@ -537,15 +612,15 @@ class View {
             d3.select(originElement).attr('transform', d3.event.transform);
         });
         var svg = d3.select(svgElement);
-        svg.call(this._zoom);
-        svg.call(this._zoom.transform, d3.zoomIdentity);
+        this._zoom(svg);
+        this._zoom.transform(svg, d3.zoomIdentity);
         this._svg = svg;
     
         setTimeout(() => {
     
             var graphRenderer = new GraphRenderer(originElement);
             graphRenderer.render(g);
-    
+
             var svgSize = svgElement.getBoundingClientRect();
     
             var inputElements = svgElement.getElementsByClassName('graph-input');
@@ -561,10 +636,10 @@ class View {
                 x = x / inputElements.length;
                 y = y / inputElements.length;
     
-                svg.call(this._zoom.transform, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
             }
             else {
-                svg.call(this._zoom.transform, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
             }    
         
             this.show('graph');
