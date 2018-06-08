@@ -36044,6 +36044,56 @@
     }
   },
   {
+    "name": "ResourceScatterNdAdd",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "defaultValue": true,
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "bool"
+        }
+      ],
+      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tfe.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_add(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 12, 3, 14, 14, 6, 7, 20]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
+      "inputs": [
+        {
+          "description": "A resource handle. Must be from a VarHandleOp.",
+          "name": "ref",
+          "type": 20
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of\nvalues to add to ref.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Adds sparse `updates` to individual values or slices within a given"
+    }
+  },
+  {
     "name": "ResourceScatterNdUpdate",
     "schema": {
       "attributes": [
