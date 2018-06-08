@@ -92,7 +92,9 @@ tflite.BuiltinOperator = {
   TRANSPOSE_CONV: 67,
   SPARSE_TO_DENSE: 68,
   TILE: 69,
-  EXPAND_DIMS: 70
+  EXPAND_DIMS: 70,
+  EQUAL: 71,
+  NOT_EQUAL: 72
 };
 
 /**
@@ -151,7 +153,9 @@ tflite.BuiltinOptions = {
   TransposeConvOptions: 49,
   SparseToDenseOptions: 50,
   TileOptions: 51,
-  ExpandDimsOptions: 52
+  ExpandDimsOptions: 52,
+  EqualOptions: 53,
+  NotEqualOptions: 54
 };
 
 /**
@@ -4592,6 +4596,108 @@ tflite.SparseToDenseOptions.addValidateIndices = function(builder, validateIndic
  * @returns {flatbuffers.Offset}
  */
 tflite.SparseToDenseOptions.endSparseToDenseOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.EqualOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.EqualOptions}
+ */
+tflite.EqualOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.EqualOptions=} obj
+ * @returns {tflite.EqualOptions}
+ */
+tflite.EqualOptions.getRootAsEqualOptions = function(bb, obj) {
+  return (obj || new tflite.EqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.EqualOptions.startEqualOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.EqualOptions.endEqualOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.NotEqualOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.NotEqualOptions}
+ */
+tflite.NotEqualOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.NotEqualOptions=} obj
+ * @returns {tflite.NotEqualOptions}
+ */
+tflite.NotEqualOptions.getRootAsNotEqualOptions = function(bb, obj) {
+  return (obj || new tflite.NotEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.NotEqualOptions.startNotEqualOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.NotEqualOptions.endNotEqualOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
