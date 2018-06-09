@@ -324,6 +324,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -380,6 +381,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -2789,6 +2791,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -2845,6 +2848,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -7466,6 +7470,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -7522,6 +7527,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9194,6 +9200,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9264,6 +9271,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9330,6 +9338,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9400,6 +9409,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9470,6 +9480,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9540,6 +9551,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9610,6 +9622,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9680,6 +9693,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9750,6 +9764,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -9820,6 +9835,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -11504,6 +11520,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
@@ -11560,6 +11577,7 @@
             "tensor(uint64)",
             "tensor(int32)",
             "tensor(int64)",
+            "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
