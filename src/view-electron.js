@@ -85,7 +85,7 @@ class ElectronHost {
     }
 
     error(message, detail) {
-        var owner = electron.remote.BrowserWindow.getFocusedWindow();
+        var owner = electron.remote.getCurrentWindow();
         var options = {
             type: 'error',
             message: message,
@@ -95,7 +95,7 @@ class ElectronHost {
     }
 
     confirm(message, detail) {
-        var owner = electron.remote.BrowserWindow.getFocusedWindow();
+        var owner = electron.remote.getCurrentWindow();
         var options = {
             type: 'question',
             message: message,
