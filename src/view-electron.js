@@ -18,25 +18,8 @@ class ElectronHost {
         this._view.show('welcome');
 
         electron.ipcRenderer.on('open', (event, data) => {
-            var file = data.file;
-            if (file) {
-                this._view.show('spinner');
-                this.openFile(file, (err) => {
-                    if (err) {
-                        this.showError(err.toString());
-                        this._view.show(null);
-                        this.update('path', null);
-                        this.update('show-details', this._view.showDetails);
-                        this.update('show-names', this._view.showNames);
-                        return;
-                    }
-                    this.update('path', file);
-                    this.update('show-details', this._view.showDetails);
-                    this.update('show-names', this._view.showNames);
-                });
-            }
+            this.openFile(data.file);
         });
-
         electron.ipcRenderer.on('export', (event, data) => {
             this._view.export(data.file);
         });
@@ -109,10 +92,28 @@ class ElectronHost {
         electron.ipcRenderer.send('drop-files', { files: files });
     }
 
-    showError(message) {
-        if (message) {
-            electron.remote.dialog.showErrorBox(electron.remote.app.getName(), message);        
-        }
+    error(message, detail) {
+        var owner = electron.remote.BrowserWindow.getFocusedWindow();
+        var options = {
+            type: 'error',
+            message: message,
+            detail: detail,
+        };
+        electron.remote.dialog.showMessageBox(owner, options);
+    }
+
+    confirm(message, detail) {
+        var owner = electron.remote.BrowserWindow.getFocusedWindow();
+        var options = {
+            type: 'question',
+            message: message,
+            detail: detail,
+            buttons: ['Yes', 'No'],
+            defaultId: 0,
+            cancelId: 1
+        };
+        var result = electron.remote.dialog.showMessageBox(owner, options);
+        return result == 0;
     }
 
     import(file, callback) {
@@ -146,13 +147,13 @@ class ElectronHost {
             }
             catch (e)
             {
-                this.showError(e);
+                this.error('Export failure.', e);
                 return;
             }    
         }
         fs.writeFile(file, data, encoding, (err) => {
             if (err) {
-                this.showError(err);
+                this.error('Export write failure.', err);
             }
         });
     }
@@ -180,46 +181,65 @@ class ElectronHost {
         electron.shell.openExternal(url);
     }
 
-    openFile(file, callback) {
+    openFile(file) {
+        if (file) {
+            this._view.show('spinner');
+            this.readFile(file, (err, buffer) => {
+                if (err) {
+                    this._view.show(null);
+                    this.error('Error while reading file.', err.message);
+                    this.update('path', null);
+                    return;
+                }
+                this._view.openBuffer(buffer, path.basename(file), (err, model) => {
+                    this._view.show(null);
+                    if (err) {
+                        this.error(err.name, err.message);
+                        this.update('path', null);
+                    }
+                    if (model) {
+                        this.update('path', file);
+                    }
+                    this.update('show-details', this._view.showDetails);
+                    this.update('show-names', this._view.showNames);
+                });
+            });
+        }
+    }
+
+    readFile(file, callback) {
         fs.exists(file, (exists) => {
             if (!exists) {
-                this._view.showError('File not found.');
+                callback(new Error('The file \'' + file + '\' does not exist.'), null);
+                return;
             }
-            else {
-                fs.stat(file, (err, stats) => {
+            fs.stat(file, (err, stats) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                fs.open(file, 'r', (err, fd) => {
                     if (err) {
-                        this._view.showError(err);
+                        callback(err, null);
+                        return;
                     }
-                    else {
-                        var size = stats.size;
-                        var buffer = new Uint8Array(size);
-                        fs.open(file, 'r', (err, fd) => {
+                    var size = stats.size;
+                    var buffer = new Uint8Array(size);
+                    fs.read(fd, buffer, 0, size, 0, (err, bytesRead, buffer) => {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        fs.close(fd, (err) => {
                             if (err) {
-                                this._view.showError(err);
+                                callback(err, null);
+                                return;
                             }
-                            else {
-                                fs.read(fd, buffer, 0, size, 0, (err, bytesRead, buffer) => {
-                                    if (err) {
-                                        this._view.showError(err);
-                                    }
-                                    else {
-                                        fs.close(fd, (err) => {
-                                            if (err) {
-                                                this._view.showError(err);
-                                            }
-                                            else {
-                                                this._view.openBuffer(buffer, path.basename(file), (err) => {
-                                                    callback(err);
-                                                });
-                                            }
-                                        });
-                                    }
-                                });
-                            }
+                            callback(null, buffer);
                         });
-                    }
+                    });
                 });
-            }
+            });
         });
     }
 }

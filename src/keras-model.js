@@ -895,6 +895,6 @@ class KerasOperatorMetadata {
 class KerasError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'Keras Error';
+        this.name = 'Error loading Keras model.';
     }
 }

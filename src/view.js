@@ -36,7 +36,7 @@ class View {
     show(page) {
 
         if (!page) {
-            page = (!this._model && !this._graph) ? 'welcome' : 'graph';
+            page = (!this._model && !this._activeGraph) ? 'welcome' : 'graph';
         }
 
         this._sidebar.close();
@@ -56,10 +56,8 @@ class View {
             graphElement.style.display = 'none';
             graphElement.style.opacity = 0;
             toolbarElement.style.display = 'none';
-            this._model = null;
-            this._graph = false;
         }
-    
+
         if (page == 'spinner') {
             document.body.style.cursor = 'wait';
             welcomeElement.style.display = 'block';
@@ -117,7 +115,11 @@ class View {
     toggleDetails() {
         this._showDetails = !this._showDetails;
         this.show('spinner');
-        this.updateGraph(this._model, this._activeGraph);
+        this.updateGraph(this._model, this._activeGraph, (err) => {
+            if (err) {
+                this.error('Graph update failed.', err);
+            }
+        });
     }
 
     get showDetails() {
@@ -127,7 +129,11 @@ class View {
     toggleNames() {
         this._showNames = !this._showNames;
         this.show('spinner');
-        this.updateGraph(this._model, this._activeGraph);
+        this.updateGraph(this._model, this._activeGraph, (err) => {
+            if (err) {
+                this.error('Graph update failed.', err);
+            }
+        });
     }
 
     get showNames() {
@@ -231,6 +237,12 @@ class View {
         next();
     }
 
+    error(message, err) {
+        this._sidebar.close();
+        this._host.error(message, err.toString());
+        this.show('welcome');
+    }
+
     openBuffer(buffer, identifier, callback) {
         this._sidebar.close();
         setTimeout(() => {
@@ -240,410 +252,422 @@ class View {
                 }
                 else {
                     setTimeout(() => {
-                        this._graph = false;
-                        try {
-                            var graph = model.graphs.length > 0 ? model.graphs[0] : null;
-                            this.updateGraph(model, graph);
-                            this._model = model;
-                            this._activeGraph = graph;
-                            callback(null);
-                        }
-                        catch (err) {
-                            try {
-                                this.updateGraph(this._model, this._activeGraph);
-                            }
-                            catch (obj) {
-                                this._model = null;
-                                this._activeGraph = null;
-                            }
-                            callback(err);
-                        }
-                    }, 2);   
+                        var graph = model.graphs.length > 0 ? model.graphs[0] : null;
+                        this.updateGraph(model, graph, (err, model) => {
+                            callback(err, model);
+                        });
+                    }, 20);   
                 }
             });    
         }, 2);
-    }
-
-    showError(err) {
-        this._sidebar.close();
-        this._host.showError(err.toString());
-        this.show('welcome');
     }
 
     updateActiveGraph(name) {
         this._sidebar.close();
         if (this._model) {
             var model = this._model;
-            var graph = model.graphs.filter(graph => graph.name).shift();
+            var graph = model.graphs.filter(graph => name == graph.name).shift();
             if (graph) {
                 this.show('spinner');
                 setTimeout(() => {
-                    try {
-                        this.updateGraph(model, graph);
-                        this._model = model;
-                        this._activeGraph = graph;
-                    }
-                    catch (obj) {
-                        this._model = null;
-                        this._activeGraph = null;
-                    }
-                }, 2);
-    
+                    this.updateGraph(model, graph, (err, model) => {
+                        if (err) {
+                            this.error('Graph update failed.', err);
+                        }
+                    });
+                }, 200);
             }
         }
     }
-    
-    updateGraph(model, graph) {
 
-        if (!graph) {
-            this.show('graph');
-            return;
-        }
-    
-        var svgElement = document.getElementById('graph');
-        while (svgElement.lastChild) {
-            svgElement.removeChild(svgElement.lastChild);
-        }
-
-        this._zoom = null;
-
-        var groups = graph.groups;
-
-        var graphOptions = {};
-        if (!this._showDetails) {
-            graphOptions.nodesep = 25;
-            graphOptions.ranksep = 25;
-        }
-
-        var g = new dagre.graphlib.Graph({ compound: groups });
-        g.setGraph(graphOptions);
-        // g.setGraph({ align: 'DR' });
-        // g.setGraph({ ranker: 'network-simplex' });
-        // g.setGraph({ ranker: 'tight-tree' });
-        // g.setGraph({ ranker: 'longest-path' });
-        // g.setGraph({ acyclicer: 'greedy' });
-        g.setDefaultEdgeLabel(() => { return {}; });
-    
-        var nodeId = 0;
-        var edgeMap = {};
-    
-        var clusterMap = {};
-        var clusterParentMap = {};
-    
-        if (groups) {
-            graph.nodes.forEach((node) => {
-                if (node.group) {
-                    var path = node.group.split('/');
-                    while (path.length > 0) {
-                        var name = path.join('/');
-                        path.pop();
-                        clusterParentMap[name] = path.join('/');
-                    }
-                }
-            });
-        }
-
-        graph.nodes.forEach((node) => {
-
-            var formatter = new NodeFormatter();
-    
-            function addOperator(view, formatter, node) {
-                if (node) {
-                    var styles = [ 'node-item-operator' ];
-                    var category = node.category;
-                    if (category) {
-                        styles.push('node-item-operator-' + category.toLowerCase());
-                    }
-                    var text = view.showNames && node.name ? node.name : (node.primitive ? node.primitive : node.operator);
-                    var title = view.showNames && node.name ? node.operator : node.name;
-                    formatter.addItem(text, styles, title, () => { 
-                        view.showNodeProperties(node, null);
-                    });
-                }
+    updateGraph(model, graph, callback) {
+        setTimeout(() => {
+            if (graph && graph != this._activeGraph && graph.nodes.length > 1500 && !this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
+                this.show(null);
+                callback(null, null);
             }
-
-            addOperator(this, formatter, node);
-            addOperator(this, formatter, node.inner);
-    
-            var primitive = node.primitive;
-    
-            var hiddenInputs = false;
-            var hiddenInitializers = false;
-    
-            node.inputs.forEach((input) => {
-                // TODO what about mixed input & initializer
-                if (input.connections.length > 0) {
-                    var initializers = input.connections.filter(connection => connection.initializer);
-                    var inputClass = 'node-item-input';
-                    if (initializers.length == 0) {
-                        inputClass = 'node-item-input';
-                        if (input.hidden) {
-                            hiddenInputs = true;
-                        }
+            else {
+                this.renderGraph(graph, (err) => {
+                    if (err) {
+                        this.renderGraph(this._activeGraph, (nestedError) => {
+                            if (nestedError) {
+                                this._model = null;
+                                this._activeGraph = null;
+                                this.show('welcome');
+                            }
+                            else {
+                                this.show('graph');
+                            }
+                            callback(err, this._model);
+                        });
                     }
                     else {
-                        if (initializers.length == input.connections.length) {
-                            inputClass = 'node-item-constant';
-                            if (input.hidden) {
-                                hiddenInitializers = true;
+                        this._model = model;
+                        this._activeGraph = graph;                            
+                        this.show('graph');
+                        callback(null, this._model);
+                    }
+                });
+            }
+        }, 100);
+    }
+
+    renderGraph(graph, callback) {
+        try {
+            if (!graph) {
+                callback(null);
+            }
+            else {
+                var svgElement = document.getElementById('graph');
+                while (svgElement.lastChild) {
+                    svgElement.removeChild(svgElement.lastChild);
+                }
+    
+                this._zoom = null;
+    
+                var groups = graph.groups;
+    
+                var graphOptions = {};
+                if (!this._showDetails) {
+                    graphOptions.nodesep = 25;
+                    graphOptions.ranksep = 25;
+                }
+    
+                var g = new dagre.graphlib.Graph({ compound: groups });
+                g.setGraph(graphOptions);
+                g.setDefaultEdgeLabel(() => { return {}; });
+            
+                var nodeId = 0;
+                var edgeMap = {};
+            
+                var clusterMap = {};
+                var clusterParentMap = {};
+    
+                var nodes = graph.nodes;
+        
+                if (groups) {
+                    nodes.forEach((node) => {
+                        if (node.group) {
+                            var path = node.group.split('/');
+                            while (path.length > 0) {
+                                var name = path.join('/');
+                                path.pop();
+                                clusterParentMap[name] = path.join('/');
                             }
                         }
-                        else {
-                            inputClass = 'node-item-constant';
-                            if (input.hidden) {
-                                hiddenInputs = true;
+                    });
+                }
+    
+                nodes.forEach((node) => {
+    
+                    var formatter = new NodeFormatter();
+            
+                    function addOperator(view, formatter, node) {
+                        if (node) {
+                            var styles = [ 'node-item-operator' ];
+                            var category = node.category;
+                            if (category) {
+                                styles.push('node-item-operator-' + category.toLowerCase());
                             }
+                            var text = view.showNames && node.name ? node.name : (node.primitive ? node.primitive : node.operator);
+                            var title = view.showNames && node.name ? node.operator : node.name;
+                            formatter.addItem(text, styles, title, () => { 
+                                view.showNodeProperties(node, null);
+                            });
                         }
                     }
     
+                    addOperator(this, formatter, node);
+                    addOperator(this, formatter, node.inner);
+            
+                    var primitive = node.primitive;
+            
+                    var hiddenInputs = false;
+                    var hiddenInitializers = false;
+            
+                    node.inputs.forEach((input) => {
+                        // TODO what about mixed input & initializer
+                        if (input.connections.length > 0) {
+                            var initializers = input.connections.filter(connection => connection.initializer);
+                            var inputClass = 'node-item-input';
+                            if (initializers.length == 0) {
+                                inputClass = 'node-item-input';
+                                if (input.hidden) {
+                                    hiddenInputs = true;
+                                }
+                            }
+                            else {
+                                if (initializers.length == input.connections.length) {
+                                    inputClass = 'node-item-constant';
+                                    if (input.hidden) {
+                                        hiddenInitializers = true;
+                                    }
+                                }
+                                else {
+                                    inputClass = 'node-item-constant';
+                                    if (input.hidden) {
+                                        hiddenInputs = true;
+                                    }
+                                }
+                            }
+            
+                            if (this._showDetails) {
+                                if (!input.hidden) {
+                                    var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
+                                    formatter.addItem(input.name, [ inputClass ], types, () => {
+                                        this.showNodeProperties(node, input);
+                                    });    
+                                }
+                            }
+            
+                            input.connections.forEach((connection) => {
+                                if (!connection.initializer) {
+                                    var tuple = edgeMap[connection.id];
+                                    if (!tuple) {
+                                        tuple = { from: null, to: [] };
+                                        edgeMap[connection.id] = tuple;
+                                    }
+                                    tuple.to.push({ 
+                                        node: nodeId, 
+                                        name: input.name
+                                    });
+                                }
+                            });    
+                        }
+                    });
+            
                     if (this._showDetails) {
-                        if (!input.hidden) {
-                            var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
-                            formatter.addItem(input.name, [ inputClass ], types, () => {
-                                this.showNodeProperties(node, input);
+                        if (hiddenInputs) {
+                            formatter.addItem('...', [ 'node-item-input' ], '', () => {
+                                this.showNodeProperties(node, null);
+                            });    
+                        }
+                        if (hiddenInitializers) {
+                            formatter.addItem('...', [ 'node-item-constant' ], '', () => {
+                                this.showNodeProperties(node, null);
                             });    
                         }
                     }
-    
-                    input.connections.forEach((connection) => {
-                        if (!connection.initializer) {
+            
+                    node.outputs.forEach((output) => {
+                        output.connections.forEach((connection) => {
                             var tuple = edgeMap[connection.id];
                             if (!tuple) {
                                 tuple = { from: null, to: [] };
                                 edgeMap[connection.id] = tuple;
                             }
-                            tuple.to.push({ 
-                                node: nodeId, 
-                                name: input.name
+                            tuple.from = { 
+                                node: nodeId,
+                                name: output.name
+                            };    
+                        });
+                    });
+            
+                    var dependencies = node.dependencies;
+                    if (dependencies && dependencies.length > 0) {
+                        formatter.setControlDependencies();
+                    }
+            
+                    if (this._showDetails) {
+                        var attributes = node.attributes; 
+                        if (attributes && !primitive) {
+                            formatter.setAttributeHandler(() => { 
+                                this.showNodeProperties(node, null);
+                            });
+                            attributes.forEach((attribute) => {
+                                if (attribute.visible) {
+                                    var attributeValue = '';
+                                    if (attribute.tensor) {
+                                        attributeValue = '[...]';
+                                    }
+                                    else {
+                                        attributeValue = attribute.value;
+                                        if (attributeValue.length > 25) {
+                                            attributeValue = attributeValue.substring(0, 25) + '...';
+                                        }
+                                    }
+                                    formatter.addAttribute(attribute.name, attributeValue, attribute.type);
+                                }
                             });
                         }
-                    });    
-                }
-            });
+                    }
     
-            if (this._showDetails) {
-                if (hiddenInputs) {
-                    formatter.addItem('...', [ 'node-item-input' ], '', () => {
-                        this.showNodeProperties(node, null);
-                    });    
-                }
-                if (hiddenInitializers) {
-                    formatter.addItem('...', [ 'node-item-constant' ], '', () => {
-                        this.showNodeProperties(node, null);
-                    });    
-                }
-            }
+                    var name = node.name;
+                    if (name) {
+                        g.setNode(nodeId, { id: 'node-' + name, label: formatter.format(svgElement) });
+                    }
+                    else {
+                        g.setNode(nodeId, { label: formatter.format(svgElement) });
+                    }
+            
+                    function createCluster(name) {
+                        if (!clusterMap[name]) {
+                            g.setNode(name, { rx: 5, ry: 5});
+                            clusterMap[name] = true;
+                            var parent = clusterParentMap[name];
+                            if (parent) {
+                                createCluster(parent);
+                                g.setParent(name, parent);
+                            }
+                        }
+                    }
     
-            node.outputs.forEach((output) => {
-                output.connections.forEach((connection) => {
-                    var tuple = edgeMap[connection.id];
+                    if (groups) {
+                        var groupName = node.group;
+                        if (groupName && groupName.length > 0) {
+                            if (!clusterParentMap.hasOwnProperty(groupName)) {
+                                var lastIndex = groupName.lastIndexOf('/');
+                                if (lastIndex != -1) {
+                                    groupName = groupName.substring(0, lastIndex);
+                                    if (!clusterParentMap.hasOwnProperty(groupName)) {
+                                        groupName = null;
+                                    }
+                                }
+                                else {
+                                    groupName = null;
+                                }
+                            }
+                            if (groupName) {
+                                createCluster(groupName);
+                                g.setParent(nodeId, groupName);
+                            }
+                        }
+                    }
+                
+                    nodeId++;
+                });
+            
+                graph.inputs.forEach((input) => {
+                    var tuple = edgeMap[input.id];
                     if (!tuple) {
                         tuple = { from: null, to: [] };
-                        edgeMap[connection.id] = tuple;
+                        edgeMap[input.id] = tuple;
                     }
                     tuple.from = { 
                         node: nodeId,
-                        name: output.name
-                    };    
-                });
-            });
+                    };
     
-            var dependencies = node.dependencies;
-            if (dependencies && dependencies.length > 0) {
-                formatter.setControlDependencies();
-            }
-    
-            if (this._showDetails) {
-                var attributes = node.attributes; 
-                if (attributes && !primitive) {
-                    formatter.setAttributeHandler(() => { 
-                        this.showNodeProperties(node, null);
+                    var formatter = new NodeFormatter();
+                    formatter.addItem(input.name, [ 'graph-item-input' ], input.type, () => {
+                        this.showModelProperties();
                     });
-                    attributes.forEach((attribute) => {
-                        if (attribute.visible) {
-                            var attributeValue = '';
-                            if (attribute.tensor) {
-                                attributeValue = '[...]';
+                    g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
+                });
+            
+                graph.outputs.forEach((output) => {
+                    var outputId = output.id;
+                    var outputName = output.name;
+                    var tuple = edgeMap[outputId];
+                    if (!tuple) {
+                        tuple = { from: null, to: [] };
+                        edgeMap[outputId] = tuple;
+                    }
+                    tuple.to.push({
+                        node: nodeId,
+                        // name: valueInfo.name
+                    });
+            
+                    var formatter = new NodeFormatter();
+                    formatter.addItem(output.name, [ 'graph-item-output' ], output.type, () => {
+                        this.showModelProperties();
+                    });
+                    g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
+                });
+            
+                Object.keys(edgeMap).forEach((edge) => {
+                    var tuple = edgeMap[edge];
+                    if (tuple.from != null) {
+                        tuple.to.forEach((to) => {
+                            var text = '';
+                            if (tuple.from.name && to.name) {
+                                text = tuple.from.name + ' \u21E8 ' + to.name;
+                            }
+                            else if (tuple.from.name) {
+                                text = tuple.from.name;
                             }
                             else {
-                                attributeValue = attribute.value;
-                                if (attributeValue.length > 25) {
-                                    attributeValue = attributeValue.substring(0, 25) + '...';
-                                }
+                                text = to.name;
                             }
-                            formatter.addAttribute(attribute.name, attributeValue, attribute.type);
-                        }
-                    });
-                }
-            }
-
-            var name = node.name;
-            if (name) {
-                g.setNode(nodeId, { id: 'node-' + name, label: formatter.format(svgElement) });
-            }
-            else {
-                g.setNode(nodeId, { label: formatter.format(svgElement) });
-            }
-    
-            function createCluster(name) {
-                if (!clusterMap[name]) {
-                    g.setNode(name, { rx: 5, ry: 5});
-                    clusterMap[name] = true;
-                    var parent = clusterParentMap[name];
-                    if (parent) {
-                        createCluster(parent);
-                        g.setParent(name, parent);
-                    }
-                }
-            }
-
-            if (groups) {
-                var name = node.group;
-                if (name && name.length > 0) {
-                    if (!clusterParentMap.hasOwnProperty(name)) {
-                        var lastIndex = name.lastIndexOf('/');
-                        if (lastIndex != -1) {
-                            name = name.substring(0, lastIndex);
-                            if (!clusterParentMap.hasOwnProperty(name)) {
-                                name = null;
+            
+                            if (this._showNames) {
+                                text = edge;
                             }
-                        }
-                        else {
-                            name = null;
-                        }
-                    }
-                    if (name) {
-                        createCluster(name);
-                        g.setParent(nodeId, name);
-                    }
-                }
-            }
-        
-            nodeId++;
-        });
+                            if (!this._showDetails) {
+                                text = '';
+                            }
     
-        graph.inputs.forEach((input) => {
-            var tuple = edgeMap[input.id];
-            if (!tuple) {
-                tuple = { from: null, to: [] };
-                edgeMap[input.id] = tuple;
-            }
-            tuple.from = { 
-                node: nodeId,
-            };
-
-            var formatter = new NodeFormatter();
-            formatter.addItem(input.name, [ 'graph-item-input' ], input.type, () => {
-                this.showModelProperties();
-            });
-            g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
-        });
-    
-        graph.outputs.forEach((output) => {
-            var outputId = output.id;
-            var outputName = output.name;
-            var tuple = edgeMap[outputId];
-            if (!tuple) {
-                tuple = { from: null, to: [] };
-                edgeMap[outputId] = tuple;
-            }
-            tuple.to.push({
-                node: nodeId,
-                // name: valueInfo.name
-            });
-    
-            var formatter = new NodeFormatter();
-            formatter.addItem(output.name, [ 'graph-item-output' ], output.type, () => {
-                this.showModelProperties();
-            });
-            g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
-        });
-    
-        Object.keys(edgeMap).forEach((edge) => {
-            var tuple = edgeMap[edge];
-            if (tuple.from != null) {
-                tuple.to.forEach((to) => {
-                    var text = '';
-                    if (tuple.from.name && to.name) {
-                        text = tuple.from.name + ' \u21E8 ' + to.name;
-                    }
-                    else if (tuple.from.name) {
-                        text = tuple.from.name;
-                    }
-                    else {
-                        text = to.name;
-                    }
-    
-                    if (this._showNames) {
-                        text = edge;
-                    }
-                    if (!this._showDetails) {
-                        text = '';
-                    }
-
-                    if (to.dependency) { 
-                        g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
-                    }
-                    else {
-                        g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis } );
+                            if (to.dependency) { 
+                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
+                            }
+                            else {
+                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis } );
+                            }
+                        });
                     }
                 });
-            }
-        });
-    
-        // Workaround for Safari background drag/zoom issue:
-        // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-        var backgroundElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        backgroundElement.setAttribute('id', 'background');
-        backgroundElement.setAttribute('width', '100%');
-        backgroundElement.setAttribute('height', '100%');
-        backgroundElement.setAttribute('fill', 'none');
-        backgroundElement.setAttribute('pointer-events', 'all');
-        svgElement.appendChild(backgroundElement);
-    
-        var originElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        originElement.setAttribute('id', 'origin');
-        svgElement.appendChild(originElement);
-    
-        // Set up zoom support
-        this._zoom = d3.zoom();
-        this._zoom.scaleExtent([0.1, 2]);
-        this._zoom.on('zoom', (e) => {
-            d3.select(originElement).attr('transform', d3.event.transform);
-        });
-        var svg = d3.select(svgElement);
-        this._zoom(svg);
-        this._zoom.transform(svg, d3.zoomIdentity);
-        this._svg = svg;
-    
-        setTimeout(() => {
-    
-            var graphRenderer = new GraphRenderer(originElement);
-            graphRenderer.render(g);
+            
+                // Workaround for Safari background drag/zoom issue:
+                // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
+                var backgroundElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                backgroundElement.setAttribute('id', 'background');
+                backgroundElement.setAttribute('width', '100%');
+                backgroundElement.setAttribute('height', '100%');
+                backgroundElement.setAttribute('fill', 'none');
+                backgroundElement.setAttribute('pointer-events', 'all');
+                svgElement.appendChild(backgroundElement);
+            
+                var originElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                originElement.setAttribute('id', 'origin');
+                svgElement.appendChild(originElement);
+            
+                // Set up zoom support
+                this._zoom = d3.zoom();
+                this._zoom.scaleExtent([0.1, 2]);
+                this._zoom.on('zoom', (e) => {
+                    d3.select(originElement).attr('transform', d3.event.transform);
+                });
+                var svg = d3.select(svgElement);
+                this._zoom(svg);
+                this._zoom.transform(svg, d3.zoomIdentity);
+                this._svg = svg;
+            
+                setTimeout(() => {
+                    try {
+                        var graphRenderer = new GraphRenderer(originElement);
+                        graphRenderer.render(g);
+            
+                        var svgSize = svgElement.getBoundingClientRect();
+            
+                        var inputElements = svgElement.getElementsByClassName('graph-input');
+                        if (inputElements && inputElements.length > 0) {
+                            // Center view based on input elements
+                            var x = 0;
+                            var y = 0;
+                            for (var i = 0; i < inputElements.length; i++) {
+                                var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                                x += inputTransform.e;
+                                y += inputTransform.f;
+                            }
+                            x = x / inputElements.length;
+                            y = y / inputElements.length;
+            
+                            this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+                        }
+                        else {
+                            this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                        }
 
-            var svgSize = svgElement.getBoundingClientRect();
-    
-            var inputElements = svgElement.getElementsByClassName('graph-input');
-            if (inputElements && inputElements.length > 0) {
-                // Center view based on input elements
-                var x = 0;
-                var y = 0;
-                for (var i = 0; i < inputElements.length; i++) {
-                    var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
-                    x += inputTransform.e;
-                    y += inputTransform.f;
-                }
-                x = x / inputElements.length;
-                y = y / inputElements.length;
-    
-                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+                        callback(null);
+                    }
+                    catch (err) {
+                        callback(err);
+                    }
+                }, 20);
             }
-            else {
-                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
-            }    
-        
-            this.show('graph');
-        }, 2);
+        }
+        catch (err) {
+            callback(err);
+        }
     }
 
     copyStylesInline(destinationNode, sourceNode) {

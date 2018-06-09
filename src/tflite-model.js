@@ -706,6 +706,6 @@ class TensorFlowLiteOperatorMetadata {
 class TensorFlowLiteError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'TensorFlow Lite Error';
+        this.name = 'Error loading TensorFlow Lite model.';
     }
 }

@@ -1099,6 +1099,6 @@ class TensorFlowOperatorMetadata {
 class TensorFlowError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'TensorFlow Error';
+        this.name = 'Error loading TensorFlow model.';
     }
 }

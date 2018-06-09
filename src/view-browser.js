@@ -13,40 +13,7 @@ class BrowserHost {
         this._view = view;
 
         window.addEventListener('keydown', (e) => {
-            if (this._view) {
-                if (!e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
-                    switch (e.keyCode) {
-                        case 70: // F
-                            this._view.find();
-                            e.preventDefault();
-                            break;
-                        case 68: // D
-                            this._view.toggleDetails();
-                            e.preventDefault();
-                            break;
-                        case 85: // U
-                            this._view.toggleNames();
-                            e.preventDefault();
-                            break;
-                        case 13: // Return
-                            document.getElementById('model-properties-button').click();
-                            e.preventDefault();
-                            break;
-                        case 8: // Backspace
-                            this._view.resetZoom();
-                            e.preventDefault();
-                            break;
-                        case 38: // Up
-                            document.getElementById('zoom-in-button').click();
-                            e.preventDefault();
-                            break;
-                        case 40: // Down
-                            document.getElementById('zoom-out-button').click();
-                            e.preventDefault();
-                            break;
-                    }
-                }
-            }
+            this.keyHandler(e);
         });
 
         var fileElement = Array.from(document.getElementsByTagName('meta')).filter(e => e.name == 'file').shift();
@@ -96,10 +63,14 @@ class BrowserHost {
         });
     }
     
-    showError(message) {
-        alert(message);
+    error(message, detail) {
+        alert(message + ' ' + detail);
     }
     
+    confirm(message, detail) {
+        return confirm(message + ' ' + detail);
+    }
+
     import(file, callback) {
         var url = this.url(file);
         for (var i = 0; i < document.scripts.length; i++) {
@@ -182,22 +153,22 @@ class BrowserHost {
         request.onload = () => {
             if (request.status == 200) {
                 var buffer = new Uint8Array(request.response);
-                this._view.openBuffer(buffer, file, (err) => {
+                this._view.openBuffer(buffer, file, (err, model) => {
+                    this._view.show(null);
                     if (err) {
-                        this.showError(err.toString());
-                        this._view.show(null);
+                        this.error(err.name, err.message);
                     }
-                    else {
+                    if (model) {
                         document.title = file;
                     }
                 });
             }
             else {
-                this._view.showError(request.status);
+                this.error('Model load request failed.', request.status);
             }
         };
         request.onerror = () => {
-            this._view.showError(request.status);
+            this.error('Error while requesting model.', request.status);
         };
         request.open('GET', url, true);
         request.send();
@@ -209,13 +180,14 @@ class BrowserHost {
 
     openFile(file) {
         this._view.show('spinner');
-        this.openBuffer(file, (err) => {
+        this.openBuffer(file, (err, model) => {
+            this._view.show(null);
             if (err) {
-                this.showError(err.toString());
-                this._view.show(null);
-                return;
+                this.error(err.name, err.message);
             }
-            document.title = file.name;
+            if (model) {
+                document.title = file.name;
+            }
         });
     }
 
@@ -224,15 +196,50 @@ class BrowserHost {
         var reader = new FileReader();
         reader.onloadend = () => {
             if (reader.error) {
-                callback(reader.error);
+                callback(reader.error, null);
                 return;
             }
             var buffer = new Uint8Array(reader.result);
-            this._view.openBuffer(buffer, file.name, (err) => {
-                callback(err);
+            this._view.openBuffer(buffer, file.name, (err, model) => {
+                callback(err, model);
             });
         };
         reader.readAsArrayBuffer(file);
+    }
+
+    keyHandler(e) {
+        if (!e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
+            switch (e.keyCode) {
+                case 70: // F
+                    this._view.find();
+                    e.preventDefault();
+                    break;
+                case 68: // D
+                    this._view.toggleDetails();
+                    e.preventDefault();
+                    break;
+                case 85: // U
+                    this._view.toggleNames();
+                    e.preventDefault();
+                    break;
+                case 13: // Return
+                    document.getElementById('model-properties-button').click();
+                    e.preventDefault();
+                    break;
+                case 8: // Backspace
+                    this._view.resetZoom();
+                    e.preventDefault();
+                    break;
+                case 38: // Up
+                    document.getElementById('zoom-in-button').click();
+                    e.preventDefault();
+                    break;
+                case 40: // Down
+                    document.getElementById('zoom-out-button').click();
+                    e.preventDefault();
+                    break;
+            }
+        }
     }
 }
 
@@ -244,7 +251,7 @@ if (!window.TextDecoder) {
         decode(buffer) {
             var result = '';
             var length = buffer.length;
-            var i = 0
+            var i = 0;
             switch (this._encoding) {
                 case 'utf-8':
                     while (i < length) {
@@ -274,7 +281,7 @@ if (!window.TextDecoder) {
             }
             return result;
         }
-    }
+    };
 }
 
 window.host = new BrowserHost();

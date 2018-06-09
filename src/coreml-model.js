@@ -862,6 +862,6 @@ class CoreMLOperatorMetadata
 class CoreMLError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'CoreML Error';
+        this.name = 'Error loading CoreML model.';
     }
 }

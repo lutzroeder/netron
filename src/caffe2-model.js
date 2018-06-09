@@ -489,6 +489,6 @@ class Caffe2OperatorMetadata
 class Caffe2Error extends Error {
     constructor(message) {
         super(message);
-        this.name = 'Caffe2 Error';
+        this.name = 'Error loading Caffe2 model.';
     }
 }

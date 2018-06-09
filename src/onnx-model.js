@@ -21,7 +21,7 @@ class OnnxModelFactory {
                 model = onnx.ModelProto.decode(buffer);
             }
             catch (error) {
-                callback(new OnnxError('Protocol Buffer loader failed to decode onnx.ModelProto input stream (' + error.message + ').'), null);
+                callback(new OnnxError('Protocol Buffer loader failed to decode ModelProto input stream (' + error.message + ').'), null);
                 return;
             }
             var result = null;
@@ -944,6 +944,6 @@ class OnnxOperatorMetadata {
 class OnnxError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'ONNX Error';
+        this.name = 'Error loading ONNX model.';
     }
 }

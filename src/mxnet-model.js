@@ -538,6 +538,6 @@ class MXNetOperatorMetadata {
 class MXNetError extends Error {
     constructor(message) {
         super(message);
-        this.name = 'MXNet Error';
+        this.name = 'Error loading MXNet model.';
     }
 }
