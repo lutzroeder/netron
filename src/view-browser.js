@@ -13,24 +13,24 @@ class BrowserHost {
         this._view = view;
 
         window.addEventListener('keydown', (e) => {
-            this.keyHandler(e);
+            this._keyHandler(e);
         });
 
         var fileElement = Array.from(document.getElementsByTagName('meta')).filter(e => e.name == 'file').shift();
         if (fileElement && fileElement.content && fileElement.content.length > 0) {
-            this.openModel('/data', fileElement.content.split('/').pop());
+            this._openModel('/data', fileElement.content.split('/').pop());
             return;
         }
 
-        var urlParam = this.getQueryParameter('url');
+        var urlParam = this._getQueryParameter('url');
         if (urlParam && urlParam.length > 0) {
-            this.openModel(urlParam, urlParam.split('/').pop());
+            this._openModel(urlParam, urlParam.split('/').pop());
             return;
         }
 
-        var modelParam = this.getQueryParameter('model');
+        var modelParam = this._getQueryParameter('model');
         if (modelParam && modelParam.length > 0) {
-            this.openModel(modelParam, modelParam.split('/').pop());
+            this._openModel(modelParam, modelParam.split('/').pop());
             return;
         }
         
@@ -44,7 +44,7 @@ class BrowserHost {
             });
             openFileDialog.addEventListener('change', (e) => {
                 if (e.target && e.target.files && e.target.files.length == 1) {
-                    this.openFile(e.target.files[0]);
+                    this._openFile(e.target.files[0]);
                 }
             });
         }
@@ -57,7 +57,7 @@ class BrowserHost {
         document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
-                this.openFile(e.dataTransfer.files[0]);
+                this._openFile(e.dataTransfer.files[0]);
             }
             return false;
         });
@@ -72,7 +72,7 @@ class BrowserHost {
     }
 
     import(file, callback) {
-        var url = this.url(file);
+        var url = this._url(file);
         for (var i = 0; i < document.scripts.length; i++) {
             if (url == document.scripts[i]) {
                 callback(null);
@@ -95,7 +95,7 @@ class BrowserHost {
     }
 
     request(file, callback) {
-        var url = this.url(file);
+        var url = this._url(file);
         var request = new XMLHttpRequest();
         if (file.endsWith('.pb')) {
             request.responseType = 'arraybuffer';
@@ -120,7 +120,11 @@ class BrowserHost {
         request.send();
     }
 
-    url(file) {
+    openURL(url) {
+        window.open(url, '_target');
+    }
+
+    _url(file) {
         var url = file;
         if (window && window.location && window.location.href) {
             var location = window.location.href.split('?').shift();
@@ -129,10 +133,10 @@ class BrowserHost {
             }
             url = location + file;
         }
-        return url;        
+        return url;
     }
 
-    getQueryParameter(name) {
+    _getQueryParameter(name) {
         var url = window.location.href;
         name = name.replace(/[\[\]]/g, "\\$&");
         var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
@@ -146,7 +150,7 @@ class BrowserHost {
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    openModel(url, file) {
+    _openModel(url, file) {
         this._view.show('spinner');
         var request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
@@ -174,13 +178,9 @@ class BrowserHost {
         request.send();
     }
 
-    openURL(url) {
-        window.open(url, '_target');
-    }
-
-    openFile(file) {
+    _openFile(file) {
         this._view.show('spinner');
-        this.openBuffer(file, (err, model) => {
+        this._openBuffer(file, (err, model) => {
             this._view.show(null);
             if (err) {
                 this.error(err.name, err.message);
@@ -191,7 +191,7 @@ class BrowserHost {
         });
     }
 
-    openBuffer(file, callback) {
+    _openBuffer(file, callback) {
         var size = file.size;
         var reader = new FileReader();
         reader.onloadend = () => {
@@ -207,7 +207,7 @@ class BrowserHost {
         reader.readAsArrayBuffer(file);
     }
 
-    keyHandler(e) {
+    _keyHandler(e) {
         if (!e.altKey && !e.shiftKey && (e.ctrlKey || e.metaKey)) {
             switch (e.keyCode) {
                 case 70: // F

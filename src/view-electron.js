@@ -18,7 +18,7 @@ class ElectronHost {
         this._view.show('welcome');
 
         electron.ipcRenderer.on('open', (event, data) => {
-            this.openFile(data.file);
+            this._openFile(data.file);
         });
         electron.ipcRenderer.on('export', (event, data) => {
             this._view.export(data.file);
@@ -37,11 +37,11 @@ class ElectronHost {
         });
         electron.ipcRenderer.on('toggle-details', (event, data) => {
             this._view.toggleDetails();
-            this.update('show-details', this._view.showDetails);
+            this._update('show-details', this._view.showDetails);
         });
         electron.ipcRenderer.on('toggle-names', (event, data) => {
             this._view.toggleNames();
-            this.update('show-names', this._view.showNames);
+            this._update('show-names', this._view.showNames);
         });
         electron.ipcRenderer.on('zoom-in', (event, data) => {
             document.getElementById('zoom-in-button').click();
@@ -79,17 +79,9 @@ class ElectronHost {
             for (var i = 0; i < e.dataTransfer.files.length; i++) {
                 files.push(e.dataTransfer.files[i].path);
             }
-            this.dropFiles(files);
+            electron.ipcRenderer.send('drop-files', { files: files });
             return false;
         });
-    }
-
-    update(name, value) {
-        electron.ipcRenderer.send('update', { name: name, value: value });
-    }
-
-    dropFiles(files) {
-        electron.ipcRenderer.send('drop-files', { files: files });
     }
 
     error(message, detail) {
@@ -181,33 +173,33 @@ class ElectronHost {
         electron.shell.openExternal(url);
     }
 
-    openFile(file) {
+    _openFile(file) {
         if (file) {
             this._view.show('spinner');
-            this.readFile(file, (err, buffer) => {
+            this._readFile(file, (err, buffer) => {
                 if (err) {
                     this._view.show(null);
                     this.error('Error while reading file.', err.message);
-                    this.update('path', null);
+                    this._update('path', null);
                     return;
                 }
                 this._view.openBuffer(buffer, path.basename(file), (err, model) => {
                     this._view.show(null);
                     if (err) {
                         this.error(err.name, err.message);
-                        this.update('path', null);
+                        this._update('path', null);
                     }
                     if (model) {
-                        this.update('path', file);
+                        this._update('path', file);
                     }
-                    this.update('show-details', this._view.showDetails);
-                    this.update('show-names', this._view.showNames);
+                    this._update('show-details', this._view.showDetails);
+                    this._update('show-names', this._view.showNames);
                 });
             });
         }
     }
 
-    readFile(file, callback) {
+    _readFile(file, callback) {
         fs.exists(file, (exists) => {
             if (!exists) {
                 callback(new Error('The file \'' + file + '\' does not exist.'), null);
@@ -241,6 +233,10 @@ class ElectronHost {
                 });
             });
         });
+    }
+
+    _update(name, value) {
+        electron.ipcRenderer.send('update', { name: name, value: value });
     }
 }
 

@@ -743,7 +743,7 @@ class ViewCollection {
             this.raise('active-view-changed', { activeView: this._activeView });
         });
         this._views.push(view);
-        this.updateActiveView();
+        this._updateActiveView();
         return view;
     }
 
@@ -753,7 +753,7 @@ class ViewCollection {
                 this._views.splice(i, 1);
             }
         }
-        this.updateActiveView();
+        this._updateActiveView();
     }
 
     find(path) {
@@ -762,15 +762,6 @@ class ViewCollection {
 
     from(contents) {
         return this._views.find(view => view && view.window && view.window.webContents && view.window.webContents == contents);
-    }
-
-    updateActiveView() {
-        var window = electron.BrowserWindow.getFocusedWindow();
-        var view = this._views.find(view => view.window == window) || null;
-        if (view != this._activeView) {
-            this._activeView = view;
-            this.raise('active-view-changed', { activeView: this._activeView });        
-        }
     }
 
     get activeView() {
@@ -788,6 +779,15 @@ class ViewCollection {
             this._events[event].forEach((callback) => {
                 callback(this, data);
             });
+        }
+    }
+
+    _updateActiveView() {
+        var window = electron.BrowserWindow.getFocusedWindow();
+        var view = this._views.find(view => view.window == window) || null;
+        if (view != this._activeView) {
+            this._activeView = view;
+            this.raise('active-view-changed', { activeView: this._activeView });        
         }
     }
 }
@@ -852,12 +852,7 @@ class MenuService {
                 }
             });
         });
-        this.rebuild();
-    }
-
-    rebuild() {
-        this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
-        electron.Menu.setApplicationMenu(this._menu);
+        this._rebuild();
     }
 
     update(context) {
@@ -880,7 +875,7 @@ class MenuService {
             }
         });
         if (rebuild) {
-            this.rebuild();
+            this._rebuild();
         }
         Object.keys(this._commandTable).forEach((id) => {
             var menuItem = this._menu.getMenuItemById(id);
@@ -896,6 +891,11 @@ class MenuService {
                 }
             }
         });
+    }
+
+    _rebuild() {
+        this._menu = electron.Menu.buildFromTemplate(this._menuTemplate);
+        electron.Menu.setApplicationMenu(this._menu);
     }
 }
 
