@@ -181,6 +181,20 @@
     }
   },
   {
+    "name": "LeakyReLU",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight"
+        }
+      ]
+    }
+  },
+  {
     "name": "Activation",
     "schema": {
       "category": "Activation"
