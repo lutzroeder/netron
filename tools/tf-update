@@ -3,6 +3,7 @@
 set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
 tools=${root}/tools
@@ -39,6 +40,12 @@ ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ${src}/
     ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto \
     ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
     ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
+
+export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
+export PATH=$PATH:${PYTHONUSERBASE}/bin
+echo $PYTHONUSERBASE
+rm -rf ${PYTHONUSERBASE}
+${pip} install --user protobuf
 
 echo "Generate '../src/tf-metadata.json'"
 protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}

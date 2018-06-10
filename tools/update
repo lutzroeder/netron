@@ -13,8 +13,6 @@ ${tools}/tf-update
 ${tools}/coreml-update
 ${tools}/caffe-update
 ${tools}/mxnet-update
-
 ${tools}/onnx-update
 ${tools}/tflite-update
-
 ${tools}/caffe2-update

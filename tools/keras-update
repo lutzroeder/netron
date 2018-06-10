@@ -27,6 +27,7 @@ echo "Install Keras"
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=${PATH}:${build}/third_party/pypi/${identifier}/bin
 rm -rf ${PYTHONUSERBASE}
+${pip} install --user tensorflow
 ${pip} install --user ${third_party}/${identifier}
 
 echo "Update '../src/keras-metadata.json'"
