@@ -641,16 +641,18 @@ class View {
                         var inputElements = svgElement.getElementsByClassName('graph-input');
                         if (inputElements && inputElements.length > 0) {
                             // Center view based on input elements
-                            var x = 0;
-                            var y = 0;
+                            var xs = [];
+                            var ys = [];
                             for (var i = 0; i < inputElements.length; i++) {
                                 var inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
-                                x += inputTransform.e;
-                                y += inputTransform.f;
+                                xs.push(inputTransform.e);
+                                ys.push(inputTransform.f);
                             }
-                            x = x / inputElements.length;
-                            y = y / inputElements.length;
-            
+                            var x = xs[0];
+                            var y = ys[0];
+                            if (ys.every(y => y == ys[0])) {
+                                x = xs.reduce((a,b) => { return a + b; }) / xs.length;
+                            }            
                             this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
                         }
                         else {
