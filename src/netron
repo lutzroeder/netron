@@ -6,7 +6,7 @@ import netron
 import os
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Viewer for neural network models.')
+    parser = argparse.ArgumentParser(description='Viewer for neural network, deep learning and machine learning models.')
     parser.add_argument('file', metavar='MODEL_FILE', help='model file to serve', nargs='?', default=None)
     parser.add_argument('-v', '--verbose', help='log details to console', action='store_true')
     parser.add_argument('-b', '--browse', help='launch web browser', action='store_true')
