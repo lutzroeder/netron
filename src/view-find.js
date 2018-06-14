@@ -83,15 +83,6 @@ class FindView {
         var edgeMatches = {};
 
         this._graph.nodes.forEach((node) => {
-            var name = node.name;
-            if (name && name.toLowerCase().indexOf(text) != -1 && !nodeMatches[name]) {
-                var item = document.createElement('li');
-                item.innerText = '\u25A2 ' + node.name;
-                item.id = 'node-' + node.name;
-                this._resultElement.appendChild(item);
-                nodeMatches[node.name] = true;
-            }
-
             node.inputs.forEach((input) => {
                 input.connections.forEach((connection) => {
                     if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
@@ -105,6 +96,15 @@ class FindView {
                     }    
                 });
             });
+
+            var name = node.name;
+            if (name && name.toLowerCase().indexOf(text) != -1 && !nodeMatches[name]) {
+                var item = document.createElement('li');
+                item.innerText = '\u25A2 ' + node.name;
+                item.id = 'node-' + node.name;
+                this._resultElement.appendChild(item);
+                nodeMatches[node.name] = true;
+            }
         });
 
         this._graph.nodes.forEach((node) => {

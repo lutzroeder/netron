@@ -11,8 +11,6 @@
 
 .find ol {
     list-style-type: none;
-    border-radius: 4px;
-    border: 1px solid #ccc;
     overflow-y: auto;
     margin: 8px 0 20px 0;
     padding: 0;
