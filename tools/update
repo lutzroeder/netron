@@ -2,8 +2,10 @@
 
 set -e
 
-# export python=python3
-# export pip=pip3
+if [ $(which python3) ] && [ $(which pip3) ]; then
+    export python=python3
+    export pip=pip3
+fi
 
 root=$(cd $(dirname ${0})/..; pwd)
 tools=${root}/tools
