@@ -5263,6 +5263,46 @@
     }
   },
   {
+    "name": "BatchDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A scalar representing the number of elements to accumulate in a batch.",
+          "name": "batch_size",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing whether the last batch should be dropped in case its size\nis smaller than desired.",
+          "name": "drop_remainder",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that batches `batch_size` elements from `input_dataset`."
+    }
+  },
+  {
     "name": "BatchFFT",
     "schema": {
       "inputs": [
@@ -6383,6 +6423,92 @@
         }
       ],
       "summary": "BatchToSpace for N-D tensors of type T."
+    }
+  },
+  {
+    "name": "BesselI0e",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Exponentially scaled modified Bessel function of order 0 defined as\n`bessel_i0e(x) = exp(-abs(x)) bessel_i0(x)`.\n\nThis function is faster and numerically stabler than `bessel_i0(x)`.",
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the Bessel i0e function of `x` element-wise."
+    }
+  },
+  {
+    "name": "BesselI1e",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Exponentially scaled modified Bessel function of order 0 defined as\n`bessel_i1e(x) = exp(-abs(x)) bessel_i1(x)`.\n\nThis function is faster and numerically stabler than `bessel_i1(x)`.",
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the Bessel i1e function of `x` element-wise."
     }
   },
   {
@@ -15639,6 +15765,39 @@
     }
   },
   {
+    "name": "FeatureStatsDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "tag",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "Fill",
     "schema": {
       "attributes": [
@@ -18478,7 +18637,7 @@
         },
         {
           "description": "A list of input types.",
-          "minimum": 1,
+          "minimum": 0,
           "name": "Tin",
           "type": "list(type)"
         },
@@ -26140,6 +26299,62 @@
           "description": "A list of scalars containing the padding value to use for\neach of the outputs.",
           "name": "padding_values",
           "typeListAttr": "Toutput_types"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that batches and pads `batch_size` elements from the input."
+    }
+  },
+  {
+    "name": "PaddedBatchDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "Toutput_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A scalar representing the number of elements to accumulate in a\nbatch.",
+          "name": "batch_size",
+          "type": 9
+        },
+        {
+          "description": "A list of int64 tensors representing the desired padded shapes\nof the corresponding output components. These shapes may be partially\nspecified, using `-1` to indicate that a particular dimension should be\npadded to the maximum size of all batch elements.",
+          "name": "padded_shapes",
+          "numberAttr": "N",
+          "type": 9
+        },
+        {
+          "description": "A list of scalars containing the padding value to use for\neach of the outputs.",
+          "name": "padding_values",
+          "typeListAttr": "Toutput_types"
+        },
+        {
+          "description": "A scalar representing whether the last batch should be dropped in case its size\nis smaller than desired.",
+          "name": "drop_remainder",
+          "type": 10
         }
       ],
       "outputs": [
@@ -45725,7 +45940,7 @@
           "type": "type"
         }
       ],
-      "description": "The inputs must be two-dimensional matrices and the inner dimension of \"a\" must\nmatch the outer dimension of \"b\". This op is optimized for the case where at\nleast one of \"a\" or \"b\" is sparse. The breakeven for using this versus a dense\nmatrix multiply on one platform was 30% zero values in the sparse matrix.\n\nThe gradient computation of this operation will only take advantage of sparsity\nin the input gradient when that gradient comes from a Relu.",
+      "description": "The inputs must be two-dimensional matrices and the inner dimension of \"a\" must\nmatch the outer dimension of \"b\". Both \"a\" and \"b\" must be `Tensor`s not\n`SparseTensor`s.  This op is optimized for the case where at least one of \"a\" or\n\"b\" is sparse, in the sense that they have a large proportion of zero values.\nThe breakeven for using this versus a dense matrix multiply on one platform was\n30% zero values in the sparse matrix.\n\nThe gradient computation of this operation will only take advantage of sparsity\nin the input gradient when that gradient comes from a Relu.",
       "inputs": [
         {
           "name": "a",
@@ -50730,6 +50945,47 @@
         }
       ],
       "summary": "Creates a TensorArray for storing the gradients of values in the given handle."
+    }
+  },
+  {
+    "name": "TensorArrayGradWithShape",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The gradient source string, used to decide which gradient TensorArray\nto return.",
+          "name": "source",
+          "type": "string"
+        }
+      ],
+      "description": "Similar to TensorArrayGradV3. However it creates an accumulator with an\nexpanded shape compared to the input TensorArray whose gradient is being\ncomputed. This enables multiple gradients for the same TensorArray to be\ncalculated using the same accumulator.",
+      "inputs": [
+        {
+          "description": "The handle to the forward TensorArray.",
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "description": "A float scalar that enforces proper chaining of operations.",
+          "name": "flow_in",
+          "type": 1
+        },
+        {
+          "description": "An int32 vector representing a shape. Elements in the gradient accumulator will\nhave shape which is this shape_to_prepend value concatenated with shape of the\nelements in the TensorArray corresponding to the input handle.",
+          "name": "shape_to_prepend",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "grad_handle",
+          "type": 20
+        },
+        {
+          "name": "flow_out",
+          "type": 1
+        }
+      ],
+      "summary": "Creates a TensorArray for storing multiple gradients of values in the given handle."
     }
   },
   {
