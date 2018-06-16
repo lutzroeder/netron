@@ -16,7 +16,8 @@ tflite.TensorType = {
   UINT8: 3,
   INT64: 4,
   STRING: 5,
-  BOOL: 6
+  BOOL: 6,
+  INT16: 7
 };
 
 /**
@@ -94,7 +95,8 @@ tflite.BuiltinOperator = {
   TILE: 69,
   EXPAND_DIMS: 70,
   EQUAL: 71,
-  NOT_EQUAL: 72
+  NOT_EQUAL: 72,
+  LOG: 73
 };
 
 /**
@@ -565,10 +567,18 @@ tflite.Tensor.prototype.quantization = function(obj) {
 };
 
 /**
+ * @returns {boolean}
+ */
+tflite.Tensor.prototype.isVariable = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.Tensor.startTensor = function(builder) {
-  builder.startObject(5);
+  builder.startObject(6);
 };
 
 /**
@@ -630,6 +640,14 @@ tflite.Tensor.addName = function(builder, nameOffset) {
  */
 tflite.Tensor.addQuantization = function(builder, quantizationOffset) {
   builder.addFieldOffset(4, quantizationOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} isVariable
+ */
+tflite.Tensor.addIsVariable = function(builder, isVariable) {
+  builder.addFieldInt8(5, +isVariable, +false);
 };
 
 /**
@@ -4946,10 +4964,35 @@ tflite.Operator.prototype.customOptionsFormat = function() {
 };
 
 /**
+ * @param {number} index
+ * @returns {boolean}
+ */
+tflite.Operator.prototype.mutatingVariableInputs = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? !!this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index) : false;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.Operator.prototype.mutatingVariableInputsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int8Array}
+ */
+tflite.Operator.prototype.mutatingVariableInputsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.Operator.startOperator = function(builder) {
-  builder.startObject(7);
+  builder.startObject(8);
 };
 
 /**
@@ -5069,6 +5112,35 @@ tflite.Operator.startCustomOptionsVector = function(builder, numElems) {
  */
 tflite.Operator.addCustomOptionsFormat = function(builder, customOptionsFormat) {
   builder.addFieldInt8(6, customOptionsFormat, tflite.CustomOptionsFormat.FLEXBUFFERS);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} mutatingVariableInputsOffset
+ */
+tflite.Operator.addMutatingVariableInputs = function(builder, mutatingVariableInputsOffset) {
+  builder.addFieldOffset(7, mutatingVariableInputsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<boolean>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite.Operator.createMutatingVariableInputsVector = function(builder, data) {
+  builder.startVector(1, data.length, 1);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt8(+data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite.Operator.startMutatingVariableInputsVector = function(builder, numElems) {
+  builder.startVector(1, numElems, 1);
 };
 
 /**
