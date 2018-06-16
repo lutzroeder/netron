@@ -2826,7 +2826,7 @@
       "description": "Cropping layer for 2D input (e.g. picture).\n\nIt crops along spatial dimensions, i.e. height and width.\n",
       "examples": [
         {
-          "code": "# Crop the input 2D images or feature maps\nmodel = Sequential()\nmodel.add(Cropping2D(cropping=((2, 2), (4, 4)),\n                     input_shape=(28, 28, 3)))\n# now model.output_shape == (None, 24, 20, 3)\nmodel.add(Conv2D(64, (3, 3), padding='same'))\nmodel.add(Cropping2D(cropping=((2, 2), (2, 2))))\n# now model.output_shape == (None, 20, 16. 64)"
+          "code": "# Crop the input 2D images or feature maps\nmodel = Sequential()\nmodel.add(Cropping2D(cropping=((2, 2), (4, 4)),\n                     input_shape=(28, 28, 3)))\n# now model.output_shape == (None, 24, 20, 3)\nmodel.add(Conv2D(64, (3, 3), padding='same'))\nmodel.add(Cropping2D(cropping=((2, 2), (2, 2))))\n# now model.output_shape == (None, 20, 16, 64)"
         }
       ],
       "inputs": [
