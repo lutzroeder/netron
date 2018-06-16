@@ -147,30 +147,30 @@
     "schema": {
       "attributes": [
         {
-          "description": "Pass 1 to enable broadcasting",
+          "description": "*(type: int; default: 0)* Pass 1 to enable broadcasting",
           "name": "broadcast",
           "option": "optional"
         },
         {
-          "description": "If set, defines the broadcast dimensions. See doc for details.",
+          "description": "*(type: int; default: -1)* Axis to concatenate on.",
           "name": "axis",
           "option": "optional"
         }
       ],
-      "description": "\nPerforms element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "\nPerforms element-wise binary addition (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_op_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Add\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 6  8]\n [10 12]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
-          "description": "First operand, should share the type with the second operand.",
+          "description": "*(type: Tensor`<float>`)* First operand, should share the type with the second operand.",
           "name": "A"
         },
         {
-          "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
+          "description": "*(type: Tensor`<float>`)* Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size as A.",
           "name": "B"
         }
       ],
       "outputs": [
         {
-          "description": "Result, has same dimensions and type as A",
+          "description": "*(type: Tensor`<float>`)* Output tensor with same dimensions and type as A.",
           "name": "C"
         }
       ],
@@ -180,12 +180,14 @@
   {
     "name": "Sum",
     "schema": {
-      "description": "\nElement-wise sum of each of the input tensors. The first input tensor can be\nused in-place as the output tensor, in which case the sum will be done in\nplace and results will be accumulated in input0. All inputs and outputs must\nhave the same shape and data type.\n",
+      "description": "\nElement-wise sum of each of the input tensors. The first input tensor can be used\nin-place as the output tensor, in which case the sum will be done in place and\nresults will be accumulated the first input tensor. All inputs and outputs must\nhave the same shape and data type.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_sum_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Sum\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]).astype(np.float32))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]).astype(np.float32))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"A\"))\n\n```\n\n**Result**\n\n```\n\nA: [[1. 2.]\n [3. 4.]]\nB: [[5. 6.]\n [7. 8.]]\nC: [[1. 2.]\n [3. 4.]]\n\n```\n\n</details>\n\n<details>\n\n<summary> <b>Example 2</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Sum\",\n    [\"A\",  \"B\"],\n    [\"A\"],  # inplace\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2,5],[8,3,4]]).astype(np.float32))\nworkspace.FeedBlob(\"B\", np.array([[9,5,6],[6,7,8]]).astype(np.float32))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"A after Sum:\", workspace.FetchBlob(\"A\"))\n\n```\n\n**Result**\n\n```\n\nA: [[1. 2. 5.]\n [8. 3. 4.]]\nB: [[9. 5. 6.]\n [6. 7. 8.]]\nA after Sum: [[10.  7. 11.]\n [14. 10. 12.]]\n\n```\n\n</details>\n\n",
       "inputs": [
         {
+          "description": "*(type: Tensor`<float>`)* First tensor to be added element-wise.",
           "name": "A"
         },
         {
+          "description": "*(type: Tensor`<float>`)* Second tensor to be added element-wise.",
           "name": "B"
         },
         {
@@ -195,6 +197,7 @@
       ],
       "outputs": [
         {
+          "description": "*(type: Tensor`<float>`)* Sum of A and B.",
           "name": "C"
         },
         {
@@ -210,30 +213,30 @@
     "schema": {
       "attributes": [
         {
-          "description": "Pass 1 to enable broadcasting",
+          "description": "*(type: int; default: 0)* Pass 1 to enable broadcasting",
           "name": "broadcast",
           "option": "optional"
         },
         {
-          "description": "If set, defines the broadcast dimensions. See doc for details.",
+          "description": "*(type: int; default: -1)* Axis to concatenate on.",
           "name": "axis",
           "option": "optional"
         }
       ],
-      "description": "\nPerforms element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n",
+      "description": "\nPerforms element-wise binary multiplication (with limited broadcast support).\n\nIf necessary the right-hand-side argument will be broadcasted to match the\nshape of left-hand-side argument. When broadcasting is specified, the second\ntensor can either be of size 1 (a scalar value), or having its shape as a\ncontiguous subset of the first tensor's shape. The starting of the mutually\nequal shape is specified by the argument \"axis\", and if it is not set, suffix\nmatching is assumed. 1-dim expansion doesn't work yet.\n\nFor example, the following tensor shapes are supported (with broadcast=1):\n```\n  shape(A) = (2, 3, 4, 5), shape(B) = (,), i.e. B is a scalar\n  shape(A) = (2, 3, 4, 5), shape(B) = (5,)\n  shape(A) = (2, 3, 4, 5), shape(B) = (4, 5)\n  shape(A) = (2, 3, 4, 5), shape(B) = (3, 4), with axis=1\n  shape(A) = (2, 3, 4, 5), shape(B) = (2), with axis=0\n```\nArgument `broadcast=1` needs to be passed to enable broadcasting.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/elementwise_op_schema.cc\n\n\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Mul\",\n    [\"A\",  \"B\"],\n    [\"C\"],\n)\n\nworkspace.FeedBlob(\"A\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"B\", np.array([[5,6],[7,8]]))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"C:\", workspace.FetchBlob(\"C\"))\n\n```\n\n**Result**\n\n```\n\nA:\n[[1 2]\n [3 4]]\nB:\n[[5 6]\n [7 8]]\nC:\n[[ 5 12]\n [21 32]]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
-          "description": "First operand, should share the type with the second operand.",
+          "description": "*(type: Tensor`<float>`)* First operand, should share the type with the second operand.",
           "name": "A"
         },
         {
-          "description": "Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size.",
+          "description": "*(type: Tensor`<float>`)* Second operand. With broadcasting can be of smaller size than A. If broadcasting is disabled it should be of the same size as A.",
           "name": "B"
         }
       ],
       "outputs": [
         {
-          "description": "Result, has same dimensions and type as A",
+          "description": "*(type: Tensor`<float>`)* Output tensor with same dimensions and type as A.",
           "name": "C"
         }
       ],
@@ -245,40 +248,40 @@
     "schema": {
       "attributes": [
         {
-          "description": "Exclusive axis that divides the first and second dimension of matrix A, default to 1",
+          "description": "*(type: int; default: 1)* Exclusive axis that divides the first and second dimension of matrix `A`.",
           "name": "axis_a",
           "option": "optional"
         },
         {
-          "description": "Exclusive axis that divides the first and second dimension of matrix B, default to 1",
+          "description": "*(type: int; default: 1)* Exclusive axis that divides the first and second dimension of matrix `B`.",
           "name": "axis_b",
           "option": "optional"
         },
         {
-          "description": "Pass 1 to transpose A before multiplication and after the dimension adjustment using axis_a",
+          "description": "*(type: int; default: 0)* Pass 1 to transpose `A` before multiplication and after the dimension adjustment using `axis_a`.",
           "name": "trans_a",
           "option": "optional"
         },
         {
-          "description": "Pass 1 to transpose B before multiplication and after the dimension adjustment using axis_b",
+          "description": "*(type: int; default: 0)* Pass 1 to transpose `B` before multiplication and after the dimension adjustment using `axis_b`.",
           "name": "trans_b",
           "option": "optional"
         }
       ],
-      "description": "\nMatrix multiplication Y = A * B, where A has size (M x K), B has size (K x N),\nand Y will have a size (M x N).\n",
+      "description": "\nMatrix multiplication $Y = A * B$, where `A` has size (M x K), `B` has size\n(K x N), and `Y` will have a size (M x N). To transpose `A` or `B` before\nmultiplication, pass 1 to the `trans_a` and/or `trans_b` arguments, which\nseparate the first and second dimensions of the respective matrices using\n`axis_a` and `axis_b`.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/matmul_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"MatMul\",\n    [\"A\", \"B\"],\n    [\"Y\"],\n)\n\nworkspace.FeedBlob(\"A\", np.random.randint(10, size=(3,3)).astype(np.float32))\nworkspace.FeedBlob(\"B\", np.random.randint(10, size=(3,3)).astype(np.float32))\nprint(\"A:\", workspace.FetchBlob(\"A\"))\nprint(\"B:\", workspace.FetchBlob(\"B\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nA: [[1. 8. 3.]\n [6. 4. 4.]\n [5. 4. 7.]]\nB: [[4. 0. 3.]\n [3. 1. 1.]\n [8. 5. 8.]]\nY: [[52. 23. 35.]\n [68. 24. 54.]\n [88. 39. 75.]]\n```\n\n</details>\n\n",
       "inputs": [
         {
-          "description": "2D matrix of size (M x K)",
+          "description": "*(type: Tensor`<float>`)* 2D matrix of size (M x K).",
           "name": "A"
         },
         {
-          "description": "2D matrix of size (K x N)",
+          "description": "*(type: Tensor`<float>`)* 2D matrix of size (K x N).",
           "name": "B"
         }
       ],
       "outputs": [
         {
-          "description": "2D matrix of size (M x N)",
+          "description": "*(type: Tensor`<float>`)* 2D matrix of size (M x N).",
           "name": "Y"
         }
       ],
@@ -309,16 +312,16 @@
     "name": "Sigmoid",
     "schema": {
       "category": "Activation",
-      "description": "\nSigmoid takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the sigmoid function, y = 1 / (1 + exp(-x)), is applied to the\ntensor elementwise.\n",
+      "description": "\nApply the Sigmoid function element-wise to the input tensor. This is often used\nas a non-linear activation function in a neural network. The sigmoid function is\ndefined as:\n\n$$Sigmoid(x) = \\frac{1}{1+\\exp(-x)}$$\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/sigmoid_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Sigmoid\",\n    [\"X\"],\n    [\"Y\"]\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(5).astype(np.float32))\nprint(\"input:\", workspace.FetchBlob(\"X\"))\nworkspace.RunOperatorOnce(op)\nprint(\"sigmoid:\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\ninput: [ 1.5744036   0.31632107  1.7842269   1.4450722  -2.1726978 ]\nsigmoid: [0.8284105  0.57842743 0.85621804 0.80923885 0.10222916]\n\n```\n\n</details>\n\n\n",
       "inputs": [
         {
-          "description": "1D input tensor",
+          "description": "*(type: Tensor`<float>`)* Input tensor.",
           "name": "X"
         }
       ],
       "outputs": [
         {
-          "description": "1D output tensor",
+          "description": "*(type: Tensor`<float>`)* Output tensor.",
           "name": "Y"
         }
       ],
@@ -354,23 +357,31 @@
     "schema": {
       "attributes": [
         {
-          "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
+          "description": "*(type: int; default: 1)* Axis of the inputs when coerced to 2D matrix.",
           "name": "axis",
           "option": "optional"
         }
       ],
       "category": "Activation",
-      "description": "\nThe operator computes the softmax normalized values for each layer in the batch\n of the given input. The input is a 2-D tensor (Tensor<float>) of size\n(batch_size x input_feature_dimensions). The output tensor has the same shape\nand contains the softmax normalized values of the corresponding input.\n\nX does not need to explicitly be a 2D vector; rather, it will be\ncoerced into one. For an arbitrary n-dimensional tensor\nX \\in [a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}] and k is\nthe axis provided, then X will be coerced into a 2-dimensional tensor with\ndimensions [a_0 * ... * a_{k-1}, a_k * ... * a_{n-1}]. For the default\ncase where axis=1, this means the X tensor will be coerced into a 2D tensor\nof dimensions [a_0, a_1 * ... * a_{n-1}], where a_0 is often the batch size.\nIn this situation, we must have a_0 = N and a_1 * ... * a_{n-1} = D.\nEach of these dimensions must be matched correctly, or else the operator\nwill throw errors.\n",
+      "description": "\n\nApplies the Softmax function to an n-dimensional input Tensor rescaling them so \nthat the elements of the n-dimensional output Tensor lie in the range (0,1) and \nsum to 1. The softmax operator is typically the last layer in a classifier network,\nas its output can be interpreted as confidence probabilities of an input belonging\nto each class. The input is a 2-D tensor (Tensor) of size (batch_size x \ninput_feature_dimensions). The output tensor has the same shape and contains the \nsoftmax normalized values of the corresponding input. The softmax function is \ndefined as follows:\n\n$$softmax(x_i) = \\frac{\\exp(x_i)}{\\sum_{j} \\exp(x_j)}$$\n\nThe input does not need to explicitly be a 2D vector; rather, it will be coerced\ninto one. For an arbitrary n-dimensional tensor `X` in \n$[a_0, a_1, ..., a_{k-1}, a_k, ..., a_{n-1}]$, where k is the `axis` provided, \nthen `X` will be coerced into a 2-dimensional tensor with dimensions \n$[(a_0 * ... * a_{k-1}), (a_k * ... * a_{n-1})]$. For the default case where\n`axis`=1, the `X` tensor will be coerced into a 2D tensor of dimensions \n$[a_0, (a_1 * ... * a_{n-1})]$, where $a_0$ is often the batch size. In this\nsituation, we must have $a_0 = N$ and $a_1 * ... * a_{n-1} = D$. Each of these \ndimensions must be matched correctly, or else the operator will throw errors.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/softmax_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/softmax_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Softmax\",\n    [\"X\"],\n    [\"Y\"]\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(1, 5).astype(np.float32))\nprint(\"input:\", workspace.FetchBlob(\"X\"))\nworkspace.RunOperatorOnce(op)\nprint(\"softmax:\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\ninput: [[ 0.0417839   0.61960053 -0.23150268 -0.64389366 -3.0000346 ]]\nsoftmax: [[0.24422921 0.43525138 0.18582782 0.12303016 0.01166145]]\n\n```\n\n</details>\n\n\n\n",
       "inputs": [
         {
           "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above.",
           "name": "input"
+        },
+        {
+          "description": "*(type: Tensor`<float>`)* Input tensor that's coerced into a 2D matrix of size (NxD) as described above.",
+          "name": "X"
         }
       ],
       "outputs": [
         {
           "description": "The softmax normalized output values with the same shape as input tensor.",
           "name": "output"
+        },
+        {
+          "description": "*(type: Tensor`<float>`)* The softmax normalized output tensor with the same shape as input tensor.",
+          "name": "Y"
         }
       ],
       "support_level": "default"
@@ -380,16 +391,16 @@
     "name": "MaxPool",
     "schema": {
       "category": "Pool",
-      "description": "MaxPool \nconsumes an input blob X and applies max pooling across the\nthe blob according to kernel sizes, stride sizes, and pad lengths defined by the\nConvPoolOpBase operator. Max pooling consisting of taking the maximum value of a\nsubset of the input tensor according to the kernel size and downsampling the\ndata into the output blob Y for further processing.\n",
+      "description": "MaxPool \nconsumes an input blob and applies max pooling across the the blob according to\nkernel sizes, stride sizes, pad lengths and dilation. Max pooling consists of\ntaking the maximum value of a subset of the input tensor according to the kernel\nsize and downsampling the data into the output blob for further processing. The\n`brew` module has a wrapper for this operator for use in a `ModelHelper` object.\n\nPooling layers reduce the spatial dimensionality of the input blob. Each of the\noutput blob's dimensions will reduce according to:\n\n$$dim_{out}=\\frac{dim_{in}-kernel+2*pad}{stride}+1$$\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/pool_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/pool_op.cc\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_pool_op_base.h\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"MaxPool\",\n    [\"X\"],\n    [\"Y\"],\n    kernel=2,\n    stride=2,\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(1, 1, 6, 6).astype(np.float32)) # NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nX:\n [[[[-2.8534958e-01 -1.7719941e+00 -8.2277227e-04  1.1088650e+00\n    -2.1476576e+00 -3.5070452e-01]\n   [-9.0058845e-01 -3.0070004e-01 -1.7907504e+00 -7.1746534e-01\n     1.2798511e+00 -3.2214901e-01]\n   [ 1.5806322e+00  1.6845188e+00 -2.6633200e-01 -3.8576153e-01\n    -9.6424848e-02 -3.9696163e-01]\n   [ 1.2572408e-01  6.3612902e-01 -3.9554062e-01 -6.9735396e-01\n    -9.1898698e-01 -1.9609968e-01]\n   [-1.1587460e+00  2.4605224e+00 -1.5497679e+00  1.3020347e-01\n    -8.1293899e-01 -7.8803545e-01]\n   [ 1.4323474e+00  1.3618395e+00  9.8975077e-02 -1.1307785e-01\n     7.2035044e-01  2.7642491e-01]]]]\n\nY:\n [[[[-0.28534958  1.108865    1.2798511 ]\n   [ 1.6845188  -0.266332   -0.09642485]\n   [ 2.4605224   0.13020347  0.72035044]]]]\n\n```\n\n</details>\n\n",
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case.",
+          "description": "*(type: Tensor`<float>`)* Input data tensor of shape NCHW or NHWC.",
           "name": "X"
         }
       ],
       "outputs": [
         {
-          "description": "Output data tensor from max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
+          "description": "*(type: Tensor`<float>`)* Output data tensor.",
           "name": "Y"
         }
       ],
@@ -400,16 +411,16 @@
     "name": "AveragePool",
     "schema": {
       "category": "Pool",
-      "description": "AveragePool \nconsumes an input blob X and applies average pooling across the\nthe blob according to kernel sizes, stride sizes, and pad lengths defined by the\nConvPoolOpBase operator. Average pooling consisting of averaging all values of a\nsubset of the input tensor according to the kernel size and downsampling the\ndata into the output blob Y for further processing.\n",
+      "description": "AveragePool \nconsumes an input blob and applies average pooling across the the blob according\nto kernel sizes, stride sizes, pad lengths and dilation. Average pooling consists\nof taking the average value of a subset of the input tensor according to the kernel\nsize and downsampling the data into the output blob for further processing. The\n`brew` module has a wrapper for this operator for use in a `ModelHelper` object.\n\nPooling layers reduce the spatial dimensionality of the input blob. Each of the\noutput blob's dimensions will reduce according to:\n\n$$dim_{out}=\\frac{dim_{in}-kernel+2*pad}{stride}+1$$\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/pool_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/pool_op.cc\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/conv_pool_op_base.h\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"AveragePool\",\n    [\"X\"],\n    [\"Y\"],\n    kernel=2,\n    stride=2,\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(1, 1, 6, 6).astype(np.float32)) # NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nX:\n [[[[-0.2883434   0.43498734  0.05417408  1.912558    0.09390241\n    -0.33173105]\n   [ 1.633709    1.2047161   0.36964908  0.99961185  0.4184147\n     0.9989975 ]\n   [ 1.7644193   0.1789665   1.5812988  -0.6038542  -0.36090398\n     0.33195344]\n   [ 0.9457722  -0.95174325 -0.78124577  1.2062047   1.1903144\n     0.2586746 ]\n   [ 1.252104    0.32645547  1.8073524  -0.78397465  0.9978303\n    -0.97614396]\n   [ 0.5440196   1.5778259  -0.76750124  0.5051756   0.8838398\n    -0.37085298]]]]\n\nY:\n [[[[0.7462672  0.83399826 0.2948959 ]\n   [0.4843537  0.3506009  0.35500962]\n   [0.9251013  0.19026303 0.13366827]]]]\n```\n\n</details>\n\n",
       "inputs": [
         {
-          "description": "Input data tensor from the previous operator; dimensions depend on whether the NCHW or NHWC operators are being used. For example, in the former, the input has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. The corresponding permutation of dimensions is used in the latter case.",
+          "description": "*(type: Tensor`<float>`)* Input data tensor of shape NCHW or NHWC.",
           "name": "X"
         }
       ],
       "outputs": [
         {
-          "description": "Output data tensor from average pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes.",
+          "description": "*(type: Tensor`<float>`)* Output data tensor.",
           "name": "Y"
         }
       ],
@@ -508,8 +519,51 @@
   {
     "name": "LRN",
     "schema": {
+      "attributes": [
+        {
+          "description": "*(type: int; default: 0)* Amount of neighboring channels to sum over for normalization",
+          "name": "size",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: float; default: 0)* Multiplicative (scaling) factor.",
+          "name": "alpha",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: float; default: 0)* Exponent.",
+          "name": "beta",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: float; default: 1.0)* Additive factor.",
+          "name": "bias",
+          "option": "optional"
+        },
+        {
+          "description": "*(type: float; default: 'NCHW')* Order of blob dimensions.",
+          "name": "order",
+          "option": "optional"
+        }
+      ],
       "category": "Normalization",
-      "description": null,
+      "description": "\n\n`LRN` applies Local Response Normalization to an input blob. This operation performs\na kind of \"lateral inhibition\" by normalizing over local input regions, where \nnormalization is applied across channels. This operator is typically used to \nnormalize an unbounded activation (such as ReLU). The output shape is the same as\nthe input shape. The `brew` module has a wrapper for this operator for use in a\n`ModelHelper` object.\n\nThe formula for LRN is as follows:\n\n$$b_{c} = a_{c}(bias + \\frac{\\alpha}{n}\\sum_{c'=max(0,c-n/2)}^{min(N-1,c+n/2)} a_{c'}^2 )^{-\\beta}$$\n\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/local_response_normalization_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/local_response_normalization_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\"LRN\",\n     [\"X\"],\n     [\"Y\", \"Y_scale\"],\n     size=11,\n     alpha=0.001,\n     beta=0.5,\n     bias=2.0,\n     order=\"NHWC\"\n)\n\nworkspace.FeedBlob(\"X\", np.random.randn(1, 6, 6, 1).astype(np.float32)) # NCHW\nprint(\"X:\\n\", workspace.FetchBlob(\"X\"), \"\\n\")\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\\n\", workspace.FetchBlob(\"Y\"))\nprint(\"Y_scale:\\n\", workspace.FetchBlob(\"Y_scale\"))\n```\n\n**Result**\n\n```\nX:\n [[[[ 0.72985137]\n   [-0.3753357 ]\n   [ 2.7344604 ]\n   [-0.5937792 ]\n   [ 0.38440478]\n   [-2.1659644 ]]\n\n  [[-0.92846817]\n   [-0.9996144 ]\n   [ 0.212943  ]\n   [-1.968045  ]\n   [-0.77839696]\n   [ 0.45492038]]\n\n  [[-0.11263168]\n   [ 1.9901097 ]\n   [ 0.19275683]\n   [ 0.15630436]\n   [ 0.7536298 ]\n   [-0.77339894]]\n\n  [[ 0.8353551 ]\n   [-0.7784452 ]\n   [ 1.779317  ]\n   [ 0.22421335]\n   [ 1.3846219 ]\n   [-3.0546608 ]]\n\n  [[ 0.09977621]\n   [ 2.2071757 ]\n   [ 0.79971045]\n   [ 3.563886  ]\n   [-0.7169287 ]\n   [ 0.77170426]]\n\n  [[-1.4296649 ]\n   [ 0.19181213]\n   [ 0.45961624]\n   [-1.0201577 ]\n   [ 0.62854475]\n   [-0.6395456 ]]]] \n\nY:\n [[[[ 0.5160766 ]\n   [-0.26540157]\n   [ 1.9332271 ]\n   [-0.41986194]\n   [ 0.27181432]\n   [-1.5314047 ]]\n\n  [[-0.6565133 ]\n   [-0.7068181 ]\n   [ 0.15057328]\n   [-1.3914955 ]\n   [-0.5504022 ]\n   [ 0.32167578]]\n\n  [[-0.0796426 ]\n   [ 1.4070934 ]\n   [ 0.13629955]\n   [ 0.11052381]\n   [ 0.53288984]\n   [-0.5468682 ]]\n\n  [[ 0.5906759 ]\n   [-0.5504363 ]\n   [ 1.2580767 ]\n   [ 0.1585426 ]\n   [ 0.9790328 ]\n   [-2.1595135 ]]\n\n  [[ 0.07055242]\n   [ 1.5605361 ]\n   [ 0.5654725 ]\n   [ 2.5193207 ]\n   [-0.50693923]\n   [ 0.54567   ]]\n\n  [[-1.0108787 ]\n   [ 0.13563155]\n   [ 0.3249962 ]\n   [-0.72134334]\n   [ 0.44444424]\n   [-0.45222285]]]]\nY_scale:\n [[[[2.0000484]\n   [2.0000129]\n   [2.0006797]\n   [2.000032 ]\n   [2.0000134]\n   [2.0004265]]\n\n  [[2.0000784]\n   [2.0000908]\n   [2.000004 ]\n   [2.0003521]\n   [2.000055 ]\n   [2.0000188]]\n\n  [[2.0000012]\n   [2.00036  ]\n   [2.0000033]\n   [2.0000021]\n   [2.0000517]\n   [2.0000544]]\n\n  [[2.0000634]\n   [2.000055 ]\n   [2.0002878]\n   [2.0000045]\n   [2.0001743]\n   [2.0008483]]\n\n  [[2.000001 ]\n   [2.000443 ]\n   [2.0000582]\n   [2.0011547]\n   [2.0000467]\n   [2.0000541]]\n\n  [[2.0001857]\n   [2.0000033]\n   [2.0000193]\n   [2.0000947]\n   [2.000036 ]\n   [2.0000372]]]]\n```\n\n</details>\n\n",
+      "inputs": [
+        {
+          "description": "*(type: Tensor`<float>`)* Input data tensor (ReLU output).",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "*(type: Tensor`<float>`)* Output tensor.",
+          "name": "Y"
+        },
+        {
+          "description": "*(type: Tensor`<float>`)* Output scale.",
+          "name": "Y_scale"
+        }
+      ],
       "support_level": "default"
     }
   },
@@ -518,21 +572,25 @@
     "schema": {
       "attributes": [
         {
-          "description": "(float, default 0.5) the ratio of random dropout",
+          "description": "*(type: float; default: 0.5)* Probability of an element to be zeroed.",
           "name": "ratio",
           "option": "optional"
         },
         {
-          "description": "(int) if nonzero, run dropout in test mode where the output is simply Y = X.",
+          "description": "*(type: int; default: 0)* If zero (train mode), perform dropout. If non-zero(test mode), Y = X.",
           "name": "is_test"
         }
       ],
       "category": "Dropout",
-      "description": "\nDropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\n",
+      "description": "\n\n`Dropout` takes one input data tensor (`X`) and produces two tensor outputs, `Y` and\n`mask`. If the `is_test` argument is zero (default=0), the output `Y` will be the input\nwith random elements zeroed. The probability that a given element is zeroed is\ndetermined by the `ratio` argument.\n\nIf the `is_test` argument is set to non-zero, the output `Y` is exactly the same as the\ninput `X`. Note that outputs are scaled by a factor of $\\frac{1}{1-ratio}$ during\ntraining, so that during test time, we can simply compute an identity function. This\nscaling is important because we want the output at test time to equal the expected value\nat training time. Dropout has been proven to be an effective regularization technique to\nprevent overfitting during training.\n\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/dropout_op.h\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/dropout_op.cc\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Dropout\",\n    [\"X\"],\n    [\"Y\"] + [\"mask\"],\n    ratio=0.5,\n    is_test=0\n)\n\nworkspace.FeedBlob(\"X\", np.random.randint(10, size=(5, 5)).astype(np.float32))\nprint(\"X:\", workspace.FetchBlob(\"X\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\nprint(\"mask:\", workspace.FetchBlob(\"mask\"))\n```\n\n**Result**\n\n```\nX: [[5. 4. 3. 6. 9.]\n [2. 1. 8. 0. 9.]\n [7. 3. 0. 6. 3.]\n [1. 8. 2. 6. 4.]\n [6. 2. 6. 4. 0.]]\nY: [[ 0.  0.  0. 12. 18.]\n [ 0.  0. 16.  0.  0.]\n [ 0.  0.  0. 12.  6.]\n [ 0.  0.  4.  0.  0.]\n [12.  0.  0.  0.  0.]]\nmask: [[False False False  True  True]\n [False False  True  True False]\n [False False  True  True  True]\n [False False  True False False]\n [ True False False False False]]\n```\n\n</details>\n\n",
       "inputs": [
         {
           "description": "The input data as Tensor.",
           "name": "data"
+        },
+        {
+          "description": "*(type: Tensor`<float>`)* Input data tensor.",
+          "name": "X"
         }
       ],
       "outputs": [
@@ -541,8 +599,12 @@
           "name": "output"
         },
         {
-          "description": "The output mask. If is_test is nonzero, this output is not filled.",
+          "description": "*(type: Tensor`<bool>`)* The output mask containing boolean values foreach element, signifying which elements are dropped out. If `is_test` isnonzero, this output is not filled.",
           "name": "mask"
+        },
+        {
+          "description": "*(type: Tensor`<float>`)* Output tensor.",
+          "name": "Y"
         }
       ],
       "support_level": "default"
@@ -553,36 +615,40 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to concat on",
+          "description": "*(type: int; default: -1)* Axis to concatenate on.",
           "name": "axis",
           "option": "optional"
         },
         {
-          "description": "Either NHWC or NCHW, will concat on C axis, defaults to NCHW",
+          "description": "*(type: string; default='NCHW')* Order of blob dimensions. Concats on the C dimension.",
           "name": "order",
           "option": "optional"
         },
         {
-          "description": "Pass 1 to add the axis specified in arg 'axis' to all input tensors",
+          "description": "*(type: int)* Pass non-zero integer to add the axis specified in `axis` to all input tensors.",
           "name": "add_axis",
           "option": "optional"
         }
       ],
       "category": "Tensor",
-      "description": "Concatenate a list of tensors into a single tensor",
+      "description": "\nConcatenate a list of tensors into a single tensor. Similar functionality to\nNumpy's [concatenate](https://docs.scipy.org/doc/numpy/reference/generated/numpy.concatenate.html)\nfunction. The `axis` argument specifies what axis along which the arrays will be concatenated.\nWhen set to non-zero (default=0), the `add_axis` argument adds the axis specified in `axis` to\nall input tensors.\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/concat_split_op.cc\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/concat_split_op.h\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Concat\",\n    [\"X1\",  \"X2\"],\n    [\"Y\", \"split_info\"],\n    axis=0\n)\n\nworkspace.FeedBlob(\"X1\", np.array([[1,2],[3,4]]))\nworkspace.FeedBlob(\"X2\", np.array([[5,6]]))\nprint(\"X1:\", workspace.FetchBlob(\"X1\"))\nprint(\"X2:\", workspace.FetchBlob(\"X2\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\nprint(\"split_info:\", workspace.FetchBlob(\"split_info\"))\n\n```\n\n**Result**\n\n```\n\nX1: [[1 2]\n [3 4]]\nX2: [[5 6]]\nY: [[1 2]\n [3 4]\n [5 6]]\nsplit_info: [2 1]\n\n```\n\n</details>\n\n<details>\n\n<summary> <b>Example 2</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Concat\",\n    [\"X1\",  \"X2\"],\n    [\"Y\", \"split_info\"],\n    add_axis=1,\n    axis=3\n)\n\nworkspace.FeedBlob(\"X1\", np.random.randint(10, size=(1, 1, 5, 5))) # NCHW\nworkspace.FeedBlob(\"X2\", np.random.randint(10, size=(1, 1, 5, 5))) # NCHW\nprint(\"X1:\", workspace.FetchBlob(\"X1\"))\nprint(\"X2:\", workspace.FetchBlob(\"X2\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\nprint(\"split_info:\", workspace.FetchBlob(\"split_info\"))\n\n```\n\n**Result**\n\n```\n\nX1: [[[[1 8 3 9 0]\n   [6 4 6 5 6]\n   [3 9 1 9 9]\n   [5 1 0 7 7]\n   [9 4 0 0 9]]]]\nX2: [[[[7 0 2 6 1]\n   [3 9 4 0 3]\n   [5 3 8 9 4]\n   [3 4 2 1 0]\n   [0 8 8 8 1]]]]\nY: [[[[[1 8 3 9 0]\n    [7 0 2 6 1]]\n\n   [[6 4 6 5 6]\n    [3 9 4 0 3]]\n\n   [[3 9 1 9 9]\n    [5 3 8 9 4]]\n\n   [[5 1 0 7 7]\n    [3 4 2 1 0]]\n\n   [[9 4 0 0 9]\n    [0 8 8 8 1]]]]]\nsplit_info: [1 1]\n\n```\n\n</details>\n\n    ",
       "inputs": [
         {
           "name": "inputs",
           "option": "variadic"
+        },
+        {
+          "description": "*(type: Tensor`<float>`)* List of input tensors.",
+          "name": "X1, X2, ..."
         }
       ],
       "outputs": [
         {
-          "description": "Concatenated tensor",
+          "description": "*(type: Tensor`<float>`)* Concatenated tensor.",
           "name": "concat_result"
         },
         {
-          "description": "The dimensions of the inputs.",
+          "description": "*(type: Tensor`<int>`)* The dimensions of the inputs.",
           "name": "split_info"
         }
       ],
