@@ -779,6 +779,11 @@ class View {
             var template = Handlebars.compile(summaryTemplate, 'utf-8');
             var data = template(this._model);
             this._sidebar.open(data, 'Model Properties');
+
+            /*
+            var view = new ModelView(this._model);
+            this._sidebar.open(view.elements, 'Model Properties');
+            */
         }
     }
     
@@ -955,6 +960,6 @@ class Uint64 {
     }
 
     readInt32(offset) {
-      return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
+        return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
     }
 }
