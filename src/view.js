@@ -590,7 +590,7 @@ class View {
                             }
             
                             if (this._showNames) {
-                                text = edge;
+                                text = edge.split('@').shift();
                             }
                             if (!this._showDetails) {
                                 text = '';
@@ -776,23 +776,20 @@ class View {
 
     showModelProperties() {
         if (this._model) {
-            var template = Handlebars.compile(summaryTemplate, 'utf-8');
-            var data = template(this._model);
-            this._sidebar.open(data, 'Model Properties');
-
-            /*
             var view = new ModelView(this._model);
+            view.on('update-active-graph', (sender, name) => {
+                this.updateActiveGraph(name);
+            });
             this._sidebar.open(view.elements, 'Model Properties');
-            */
         }
     }
     
     showNodeProperties(node, input) {
         if (node) {
-            var documentationHandler = () => {
+            var view = new NodeView(node);
+            view.on('show-documentation', (sender, e) => {
                 this.showDocumentation(node);
-            };
-            var view = new NodeView(node, documentationHandler);
+            });
             if (input) {
                 view.toggleInput(input.name);
             }
@@ -893,10 +890,6 @@ class Sidebar {
 }
 
 window.view = new View(window.host);
-
-function updateActiveGraph(name) {
-    window.view.updateActiveGraph(name);
-}
 
 class Int64 {
 

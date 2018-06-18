@@ -61,7 +61,7 @@ class CaffeModel {
 
     get properties() {
         var results = [];
-        results.push({ name: 'Format', value: 'Caffe' + (this.hasOwnProperty('_version') ? ' v' + this._version.toString() : '') });
+        results.push({ name: 'format', value: 'Caffe' + (this.hasOwnProperty('_version') ? ' v' + this._version.toString() : '') });
         return results;
     }
 
@@ -79,6 +79,7 @@ class CaffeGraph {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
+        this._operators = {};
 
         var layers = [];
         switch (version) {
@@ -107,6 +108,7 @@ class CaffeGraph {
 
         layers.forEach((layer) => {
             var node = new CaffeNode(layer, version);
+            this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             if (!this.translateInput(node)) {
                 this._nodes.push(node);
             }
@@ -166,6 +168,10 @@ class CaffeGraph {
                 });
             }
         }
+    }
+
+    get operators() {
+        return this._operators;
     }
 
     get name() {

@@ -59,7 +59,7 @@ class OnnxModel {
         if (this._irVersion) {
             format = format + ' v' + this._irVersion.toString();
         }
-        results.push({ name: 'Format', value: format });
+        results.push({ name: 'format', value: format });
         if (this._opsetImport && this._opsetImport.length > 0) {
             var opsetImports = [];
             this._opsetImport.forEach((opsetImport) => {
@@ -69,7 +69,7 @@ class OnnxModel {
                     opsetImports.push(result);
                 }
             });
-            results.push({ name: 'Imports', value: opsetImports.join(', ') });
+            results.push({ name: 'imports', value: opsetImports.join(', ') });
         }
         var producer = [];
         if (this._producerName) {
@@ -79,16 +79,16 @@ class OnnxModel {
             producer.push(this._producerVersion);
         }
         if (producer.length > 0) {
-            results.push({ 'name': 'Producer', 'value': producer.join(' ') });
+            results.push({ 'name': 'producer', 'value': producer.join(' ') });
         }
         if (this._domain) {
-            results.push({ name: 'Domain', value: this._domain });
+            results.push({ name: 'domain', value: this._domain });
         }
         if (this._modelVersion) {
-            results.push({ name: 'Version', value: this._modelVersion });
+            results.push({ name: 'version', value: this._modelVersion });
         }
         if (this._docString) {
-            results.push({ name: 'Description', value: this._docString });
+            results.push({ name: 'description', value: this._docString });
         }
         var metadata = {};
         if (this._metadataProps)
@@ -98,13 +98,13 @@ class OnnxModel {
             });
         }
         if (metadata.author) {
-            results.push({ name: 'Author', value: metadata.author });
+            results.push({ name: 'author', value: metadata.author });
         }
         if (metadata.company) {
-            results.push({ name: 'Company', value: metadata.company });
+            results.push({ name: 'company', value: metadata.company });
         }
         if (metadata.converted_from) {
-            results.push({ name: 'Source', value: metadata.converted_from });
+            results.push({ name: 'source', value: metadata.converted_from });
         }
         var license = [];
         if (metadata.license && metadata.license.length > 0) {
@@ -114,7 +114,7 @@ class OnnxModel {
             license.push('<a href=\'' + metadata.license_url + '\'>' + metadata.license_url + '</a>');
         }
         if (license.length > 0) {
-            results.push({ name: 'License', value: license.join(' ') });
+            results.push({ name: 'license', value: license.join(' ') });
         }
 
         return results;
@@ -141,6 +141,9 @@ class OnnxGraph {
         this._node = '';
         this._description = '';
         this._nodes = [];
+        this._inputs = [];
+        this._outputs = [];
+        this._operators = {};
 
         if (graph) {
             this._name = graph.name || ('(' + index.toString() + ')');
@@ -158,6 +161,7 @@ class OnnxGraph {
             var nodes = [];
             var outputCountMap = {};
             graph.node.forEach((node) => {
+                this._operators[node.opType] = (this._operators[node.opType] || 0) + 1; 
                 node.output.forEach((output) => {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 });
@@ -179,7 +183,6 @@ class OnnxGraph {
                 }
             });
 
-            this._inputs = [];
             graph.input.forEach((valueInfo) => {
                 if (!this._initializerMap[valueInfo.name]) {
                     var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.docString);
@@ -187,7 +190,6 @@ class OnnxGraph {
                     this._inputs.push(connection);
                 }
             });
-            this._outputs = [];
             graph.output.map((valueInfo) => {
                 var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.docString);
                 connection.name = valueInfo.name;
@@ -227,6 +229,10 @@ class OnnxGraph {
 
     get description() {
         return this._description;
+    }
+
+    get operators() {
+        return this._operators;
     }
 
     get groups() {

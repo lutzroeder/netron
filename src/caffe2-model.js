@@ -50,7 +50,7 @@ class Caffe2Model {
 
     get properties() {
         var results = [];
-        results.push({ name: 'Format', value: 'Caffe2' });
+        results.push({ name: 'format', value: 'Caffe2' });
         return results;
     }
 
@@ -65,6 +65,7 @@ class Caffe2Graph {
         this._name = netDef.name ? netDef.name : '';
         this._type = netDef.type ? netDef.type : '';
         this._nodes = [];
+        this._operators = {};
 
         var inplaceIndices = [];
         var inplaceMap = {};
@@ -89,6 +90,7 @@ class Caffe2Graph {
         });
 
         netDef.op.forEach((op) => {
+            this._operators[op.type] = (this._operators[op.type] || 0) + 1;
             this._nodes.push(new Caffe2Node(op, initializerMap));
         });
 
@@ -133,6 +135,10 @@ class Caffe2Graph {
     get nodes() {
         return this._nodes;
     }
+
+    get operators() {
+        return this._operators;
+    }
 }
 
 class Caffe2Node {
@@ -166,11 +172,11 @@ class Caffe2Node {
     }
 
     get name() {
-        return this._name ? this._name : '';
+        return this._name || '';
     }
 
     get device() {
-        return this._device ? this._device : '';
+        return this._device || '';
     }
 
     get operator() {

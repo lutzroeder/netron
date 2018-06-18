@@ -124,10 +124,10 @@ class KerasModel {
         var results = [];
 
         var format = this._format + (this._version ? (' v' + this._version) : '');
-        results.push({ name: 'Format', value: format });
+        results.push({ name: 'format', value: format });
 
         if (this._backend) {
-            results.push({ name: 'Backend', value: this._backend });
+            results.push({ name: 'backend', value: this._backend });
         }
 
         return results;
@@ -159,6 +159,7 @@ class KerasGraph {
         this._outputs = [];
         this._nodes = [];
         this._groups = false;
+        this._operators = {};
 
         switch (model.class_name) {
             case 'Sequential':
@@ -170,6 +171,10 @@ class KerasGraph {
             default:
                 throw new KerasError('\'' + model.class_name + '\' is not supported.');
         }
+    }
+
+    get operators() {
+        return this._operators;
     }
 
     get name() {
@@ -290,6 +295,7 @@ class KerasGraph {
         }
         if (config.layers) {
             config.layers.forEach((layer) => {
+                this._operators[layer.class_name] = (this._operators[layer.class_name] || 0) + 1; 
                 if (nodeMap[layer.name]) {
                     this.loadNode(layer, layer._inputs, layer._outputs, model_weights, weightsManifest, group);
                 }
@@ -309,6 +315,7 @@ class KerasGraph {
         this._inputs.push(input);
         var id = 0;
         config.forEach((layer) => {
+            this._operators[layer.class_name] = (this._operators[layer.class_name] || 0) + 1; 
             var inputs = [ connection ];
             var name = id.toString();
             if (id == 0) {

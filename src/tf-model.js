@@ -80,7 +80,7 @@ class TensorFlowModel {
 
     get properties() {
         var results = [];
-        results.push({ name: 'Format', value: this._format });
+        results.push({ name: 'format', value: this._format });
         return results;
     }
 
@@ -96,6 +96,14 @@ class TensorFlowGraph {
         this._graph = graph;
         this._metadata = new TensorFlowGraphOperatorMetadata(graph.metaInfoDef);
         this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
+        this._operators = {};
+        this._graph.graphDef.node.forEach((node) => {
+            this._operators[node.op] = (this._operators[node.op] || 0) + 1;
+        });
+    }
+
+    get operators() {
+        return this._operators;
     }
 
     get model() {
@@ -126,7 +134,7 @@ class TensorFlowGraph {
     }
 
     get inputs() {
-        this.update();
+        this._update();
         var results = [];
         Object.keys(this._inputMap).forEach((key) => {
             results.push(this._inputMap[key]);
@@ -135,12 +143,12 @@ class TensorFlowGraph {
     }
 
     get outputs() {
-        this.update();
+        this._update();
         return [];
     }
 
     get nodes() {
-        this.update();
+        this._update();
         var results = [];
         this._graph.graphDef.node.forEach((node) => {
             if (node.output.filter(output => !output.startsWith('^')) != 0 ||
@@ -162,7 +170,7 @@ class TensorFlowGraph {
         return this._namespaces;
     }
 
-    update() {
+    _update() {
         if (!this._nodeMap) {
             this._nodeMap = {};
             this._namespaces = {};
@@ -243,7 +251,7 @@ class TensorFlowGraph {
 
             this._initializerMap = {};
             this._graph.graphDef.node.forEach((node) => {
-                if (node.op == 'Const' && this.checkEmptyInput(node) && this.checkSingleOutput(node)) {
+                if (node.op == 'Const' && this._checkEmptyInput(node) && this._checkSingleOutput(node)) {
                     var value = node.attr.value;
                     if (value && value.hasOwnProperty('tensor')) {
                         var output = node.output[0];
@@ -254,7 +262,7 @@ class TensorFlowGraph {
                 }
             });
             this._graph.graphDef.node.forEach((node) => {
-                if (node.op == 'Identity' && node.input.length == 1 && this.checkSingleOutput(node)) {
+                if (node.op == 'Identity' && node.input.length == 1 && this._checkSingleOutput(node)) {
                     var input = node.input[0];
                     var tensor = this._initializerMap[input];
                     if (tensor) {
@@ -282,17 +290,17 @@ class TensorFlowGraph {
         }
     }
 
-    getInitializer(input) {
+    _getInitializer(input) {
         var initializer = this._initializerMap[input];
         return initializer ? initializer : null;
     }
 
-    checkEmptyInput(node) {
+    _checkEmptyInput(node) {
         var inputs = node.input.filter((input) => !input.startsWith('^'));
         return inputs.length == 0;
     }
 
-    checkSingleOutput(node) { 
+    _checkSingleOutput(node) { 
         if (node.output.length != 1) {
             return false;
         }
@@ -376,7 +384,7 @@ class TensorFlowNode {
             var inputs = this._graph.metadata.getInputs(this._node);
             inputs.forEach((input) => {
                 input.connections.forEach((connection) => {
-                    var initializer = this._graph.getInitializer(connection.id);
+                    var initializer = this._graph._getInitializer(connection.id);
                     if (initializer) {
                         connection.type = initializer.type;
                         connection.initializer = initializer;

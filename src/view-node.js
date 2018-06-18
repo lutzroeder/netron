@@ -2,9 +2,8 @@
 
 class NodeView {
 
-    constructor(node, documentationHandler) {
+    constructor(node) {
         this._node = node;
-        this._documentationHandler = documentationHandler;
         this._elements = [];
         this._attributes = [];
         this._inputs = [];
@@ -12,33 +11,34 @@ class NodeView {
 
         var operatorElement = document.createElement('div');
         operatorElement.className = 'node-view-title';
-        operatorElement.innerText = node.operator + ' ';
+        operatorElement.innerText = node.operator;
         this._elements.push(operatorElement);
 
         if (node.documentation) {
+            operatorElement.innerText += ' ';
             var documentationButton = document.createElement('a');
             documentationButton.className = 'node-view-documentation-button';
             documentationButton.innerText = '?';
             documentationButton.addEventListener('click', (e) => {
-                this._documentationHandler();
+                this.raise('show-documentation', null);
             });
             operatorElement.appendChild(documentationButton);
         }
 
         if (node.name) {
-            this.addProperty('name', new ValueItemContent(node.name));
+            this.addProperty('name', new ValueContentView(node.name));
         }
 
         if (node.domain) {
-            this.addProperty('domain', new ValueItemContent(node.domain));
+            this.addProperty('domain', new ValueContentView(node.domain));
         }
 
         if (node.description) {
-            this.addProperty('description', new ValueItemContent(node.description));
+            this.addProperty('description', new ValueContentView(node.description));
         }
 
         if (node.device) {
-            this.addProperty('device', new ValueItemContent(node.device));
+            this.addProperty('device', new ValueContentView(node.device));
         }
 
         var attributes = node.attributes;
@@ -82,19 +82,19 @@ class NodeView {
     }
 
     addProperty(name, value) {
-        var item = new NameValueItem(name, value);
+        var item = new NameValueView(name, value);
         this._elements.push(item.element);
     }
 
     addAttribute(name, attribute) {
-        var item = new NameValueItem(name, new NodeViewItemAttribute(attribute));
+        var item = new NameValueView(name, new NodeAttributeValueView(attribute));
         this._attributes.push(item);
         this._elements.push(item.element);
     }
 
     addInput(name, input) {
         if (input.connections.length > 0) {
-            var item = new NameValueItem(name, new NodeViewItemList(input));
+            var item = new NameValueView(name, new NodeArgumentView(input));
             this._inputs.push(item);
             this._elements.push(item.element);
         }
@@ -102,7 +102,7 @@ class NodeView {
 
     addOutput(name, output) {
         if (output.connections.length > 0) {
-            var item = new NameValueItem(name, new NodeViewItemList(output));
+            var item = new NameValueView(name, new NodeArgumentView(output));
             this._outputs.push(item);
             this._elements.push(item.element);
         }
@@ -115,9 +115,23 @@ class NodeView {
             }
         });
     }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    raise(event, data) {
+        if (this._events && this._events[event]) {
+            this._events[event].forEach((callback) => {
+                callback(this, data);
+            });
+        }
+    }
 }
 
-class NameValueItem {
+class NameValueView {
     constructor(name, value) {
         this._name = name;
         this._value = value;
@@ -158,7 +172,7 @@ class NameValueItem {
     }
 }
 
-class ValueItemContent {
+class ValueContentView {
     constructor(value) {
         var line = document.createElement('div');
         line.className = 'node-view-item-value-line';
@@ -177,7 +191,7 @@ class ValueItemContent {
     }
 }
 
-class NodeViewItemAttribute {
+class NodeAttributeValueView {
 
     constructor(attribute) {
         this._attribute = attribute;
@@ -226,14 +240,14 @@ class NodeViewItemAttribute {
     }
 }
 
-class NodeViewItemList {
+class NodeArgumentView {
 
     constructor(list) {
         this._list = list;
         this._elements = [];
         this._items = [];
         list.connections.forEach((connection) => {
-            var item = new NodeViewItemConnection(connection);
+            var item = new NodeConnectionView(connection);
             this._items.push(item);
             this._elements.push(item.element);
         });
@@ -250,7 +264,7 @@ class NodeViewItemList {
     }
 }
 
-class NodeViewItemConnection {
+class NodeConnectionView {
     constructor(connection) {
         this._connection = connection;
         this._element = document.createElement('div');
@@ -357,33 +371,53 @@ class ModelView {
     constructor(model) {
         this._model = model;
         this._elements = [];
-        this._arguments = [];
 
         this._model.properties.forEach((property) => {
-            this.addProperty(property.name, new ValueItemContent(property.value));
+            this.addProperty(property.name, new ValueContentView(property.value));
         });
 
-        this._model.graphs.forEach((graph) => {
+        var graphs = this._model.graphs;
+        graphs.forEach((graph, index) => {
 
-            var operatorElement = document.createElement('div');
-            operatorElement.className = 'node-view-title';
-            operatorElement.innerText = 'Graph';
-            this._elements.push(operatorElement);
+            var name = graph.name ? ("'" + graph.name + "'") : ('(' + index.toString() + ')');
+
+            var graphTitleElement = document.createElement('div');
+            graphTitleElement.className = 'node-view-title';
+            graphTitleElement.style.marginTop = '16px';
+            graphTitleElement.innerText = 'Graph';
+            if (graphs.length > 1) {
+                graphTitleElement.innerText += " " + name;
+                graphTitleElement.innerText += ' ';
+                var graphButton = document.createElement('a');
+                graphButton.className = 'node-view-documentation-button';
+                graphButton.id = graph.name;
+                graphButton.innerText = '\u21a9';
+                graphButton.addEventListener('click', (e) => {
+                    this.raise('update-active-graph', e.target.id);
+                });
+                graphTitleElement.appendChild(graphButton);
+            }
+            this._elements.push(graphTitleElement);
     
             if (graph.name) {
-                this.addProperty('name', new ValueItemContent(graph.name));
+                this.addProperty('name', new ValueContentView(graph.name));
             }
             if (graph.version) {
-                this.addProperty('version', new ValueItemContent(graph.version));
+                this.addProperty('version', new ValueContentView(graph.version));
             }
             if (graph.type) {
-                this.addProperty('type', new ValueItemContent(graph.type));                
+                this.addProperty('type', new ValueContentView(graph.type));                
             }
             if (graph.tags) {
-                this.addProperty('tags', new ValueItemContent(graph.tags));
+                this.addProperty('tags', new ValueContentView(graph.tags));
             }
             if (graph.description) {
-                this.addProperty('description', new ValueItemContent(graph.description));                
+                this.addProperty('description', new ValueContentView(graph.description));                
+            }
+
+            if (graph.operators) {
+                var item = new NameValueView('operators', new GraphOperatorListView(graph.operators));
+                this._elements.push(item.element);
             }
 
             if (graph.inputs.length > 0) {
@@ -414,14 +448,82 @@ class ModelView {
     }
 
     addProperty(name, value) {
-        var item = new NameValueItem(name, value);
+        var item = new NameValueView(name, value);
         this._elements.push(item.element);
     }
 
     addArgument(name, argument) {
-        var item = new NameValueItem(name, new GraphArgumentView(argument));
-        this._arguments.push(item);
+        var item = new NameValueView(name, new GraphArgumentView(argument));
         this._elements.push(item.element);
+    }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    raise(event, data) {
+        if (this._events && this._events[event]) {
+            this._events[event].forEach((callback) => {
+                callback(this, data);
+            });
+        }
+    }
+}
+
+class GraphOperatorListView {
+
+    constructor(operators) {
+
+        this._element = document.createElement('div');
+        this._element.className = 'node-view-item-value';
+
+        var count = 0;
+        this._list = [];
+        Object.keys(operators).forEach((operator) => {
+            this._list.push({ name: operator, count: operators[operator] });
+            count += operators[operator];
+        });
+        this._list = this._list.sort((a, b) => { return (a.name > b.name) - (a.name < b.name); });
+        this._list = this._list.map((item) => { return item.name + ': ' + item.count.toString(); });
+
+        this._expander = document.createElement('div');
+        this._expander.className = 'node-view-item-value-expander';
+        this._expander.innerText = '+';
+        this._expander.addEventListener('click', (e) => {
+            this.toggle();
+        });
+
+        this._element.appendChild(this._expander);
+
+        var countLine = document.createElement('div');
+        countLine.className = 'node-view-item-value-line';
+        countLine.innerHTML = '<code>' + 'Total: ' + count.toString() + '<code>';
+        this._element.appendChild(countLine);
+    }
+
+    get elements() {
+        return [ this._element ];
+    }
+
+    toggle() {
+        if (this._expander) {
+            if (this._expander.innerText == '+') {
+                this._expander.innerText = '-';
+    
+                var valueLine = document.createElement('div');
+                valueLine.className = 'node-view-item-value-line-border';
+                valueLine.innerHTML = '<pre>' + this._list.join('\n') + '</pre>';
+                this._element.appendChild(valueLine);
+            }
+            else {
+                this._expander.innerText = '+';
+                while (this._element.childElementCount > 2) {
+                    this._element.removeChild(this._element.lastChild);
+                }
+            }
+        }
     }
 }
 
@@ -447,6 +549,10 @@ class GraphArgumentView {
         typeLine.className = 'node-view-item-value-line';
         typeLine.innerHTML = '<code>' + type.replace('<', '&lt;').replace('>', '&gt;') + '</code>';
         this._element.appendChild(typeLine);
+
+        if (argument.description) {
+            this.toggle();
+        }
     }
 
     get elements() {

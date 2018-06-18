@@ -65,7 +65,7 @@ class MXNetModel {
 
     get properties() {
         var results = [];
-        results.push({ name: 'Format', value: 'MXNet' + (this._version ? (' v' + this._version) : '') });
+        results.push({ name: 'format', value: 'MXNet' + (this._version ? (' v' + this._version) : '') });
         return results;
     }
 
@@ -82,13 +82,16 @@ class MXNetGraph {
         var nodes = json.nodes;
 
         this._nodes = [];
-        json.nodes.forEach((node) => {
+        this._operators = [];
+        nodes.forEach((node) => {
+            if (node.op && node.op != 'null') { 
+                this._operators[node.op] = (this._operators[node.op] || 0) + 1;
+            }
             node.outputs = [];
         });
-
         nodes.forEach((node) => {
             node.inputs = node.inputs.map((input) => {
-                return MXNetGraph.updateOutput(nodes, input);
+                return MXNetGraph._updateOutput(nodes, input);
             });
         });
 
@@ -100,7 +103,7 @@ class MXNetGraph {
         this._outputs = [];
         var headMap = {};
         json.heads.forEach((head, index) => {
-            var id = MXNetGraph.updateOutput(nodes, head);
+            var id = MXNetGraph._updateOutput(nodes, head);
             var name = 'output' + ((index == 0) ? '' : (index + 1).toString());
             this._outputs.push({ id: id, name: name });
         });
@@ -119,24 +122,15 @@ class MXNetGraph {
                 this._inputs.push( { id: argument.outputs[0], name: argument.name });
             }
         });
-    }
 
-    get name() {
-        return '';
-    }
-
-    get inputs() {
-        return this._inputs.map((input) => {
+        this._inputs = this._inputs.map((input) => {
             return { 
                 name: input.name,
                 type: 'T',
                 id: '[' + input.id.join(',') + ']' 
             };
         });
-    }
-
-    get outputs() {
-        return this._outputs.map((output) => {
+        this._outputs = this._outputs.map((output) => {
             return { 
                 name: output.name,
                 type: 'T',
@@ -145,11 +139,27 @@ class MXNetGraph {
         });
     }
 
+    get operators() { 
+        return this._operators;
+    }
+
+    get name() {
+        return '';
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
     get nodes() {
         return this._nodes;
     }
 
-    static updateOutput(nodes, input) {
+    static _updateOutput(nodes, input) {
         var sourceNodeIndex = input[0];
         var sourceNode = nodes[sourceNodeIndex];
         var sourceOutputIndex = input[1];

@@ -41,12 +41,6 @@ class TensorFlowLiteModel {
     constructor(model) {
         this._model = model;
         this._graphs = [];
-        var subgraphsLength = this._model.subgraphsLength();
-        for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
-            var name = (subgraphsLength > 1) ? ('(' + subgraph.toString() + ')') : '';
-            this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), name));
-        }
-        this._activeGraph = this._graphs.length > 0 ? this._graphs[0] : null;
         this._operatorCodeList = [];
         var builtinOperatorMap = {};
         Object.keys(tflite.BuiltinOperator).forEach(function (key) {
@@ -61,17 +55,22 @@ class TensorFlowLiteModel {
             var builtinCode = operatorCode.builtinCode();
             this._operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
         }
+        var subgraphsLength = this._model.subgraphsLength();
+        for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
+            var name = (subgraphsLength > 1) ? ('(' + subgraph.toString() + ')') : '';
+            this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), name));
+        }
     }
 
     get properties() {
         var results = [];
 
         var format = 'TensorFlow Lite v' + this._model.version().toString();
-        results.push({ name: 'Format', value: format });
+        results.push({ name: 'format', value: format });
 
         var description = this._model.description();
         if (description && description.length > 0) {
-            results.push({ name: 'Description', value: description });
+            results.push({ name: 'description', value: description });
         }
 
         return results;
@@ -88,6 +87,8 @@ class TensorFlowLiteGraph {
         this._model = model;
         this._graph = graph;
         this._name = this._graph.name();
+        this._nodes = [];
+        this._operators = {};
         if (!this._name) {
             this._name = name;
         }
@@ -99,6 +100,16 @@ class TensorFlowLiteGraph {
                 this._initializerMap[i] = new TensorFlowLiteTensor(tensor, buffer, i);
             }
         }
+
+        for (var j = 0; j < this._graph.operatorsLength(); j++) {
+            var node = new TensorFlowLiteNode(this, this._graph.operators(j));
+            this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
+            this._nodes.push(node);
+        } 
+    }
+
+    get operators() {
+        return this._operators;
     }
 
     get model() {
@@ -144,12 +155,7 @@ class TensorFlowLiteGraph {
     }
 
     get nodes() {
-        var results = [];
-        for (var i = 0; i < this._graph.operatorsLength(); i++) {
-            var node = this._graph.operators(i);
-            results.push(new TensorFlowLiteNode(this, node));
-        } 
-        return results;
+        return this._nodes;
     }
 
     getInitializer(tensorIndex) {
