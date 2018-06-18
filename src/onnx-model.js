@@ -202,7 +202,13 @@ class OnnxGraph {
                     inputs = this._metadata.getInputs(node.opType, node.input);
                     inputs.forEach((input) => {
                         input.connections = input.connections.map((connection) => {
-                            return this._connection(connection.id);
+                            connection = this._connection(connection.id);
+                            var initializer = this._initializerMap[connection.id];
+                            if (initializer) {
+                                connection.initializer = initializer;
+                                connection.type = initializer.type;
+                            }
+                            return connection;
                         });
                     });          
                 }
@@ -260,11 +266,6 @@ class OnnxGraph {
         if (!connection) {
             connection = {};
             connection.id = name;
-            var initializer = this._initializerMap[name];
-            if (initializer) {
-                connection.initializer = initializer;
-                connection.type = initializer.type;
-            }
             if (type) {
                 connection.type = OnnxTensor.formatType(type);
             }
