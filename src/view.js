@@ -788,7 +788,7 @@ class View {
         if (node) {
             var view = new NodeView(node);
             view.on('show-documentation', (sender, e) => {
-                this.showDocumentation(node);
+                this.showOperatorDocumentation(node);
             });
             if (input) {
                 view.toggleInput(input.name);
@@ -797,94 +797,14 @@ class View {
         }
     }
 
-    showDocumentation(node) {
+    showOperatorDocumentation(node) {
         var documentation = node.documentation;
         if (documentation) {
-            this._sidebar.open(documentation, 'Documentation');
-    
-            var documentationElement = document.getElementById('documentation');
-            if (documentationElement) {
-                documentationElement.addEventListener('click', (e) => {
-                    if (e.target && e.target.href) {
-                        var link = e.target.href;
-                        if (link.startsWith('http://') || link.startsWith('https://')) {
-                            this._host.openURL(link);
-                            e.preventDefault();
-                        }
-                    }
-                });
-            }
-        }
-    }
-}
-
-class Sidebar {
-    
-    constructor() {
-        this._closeSidebarHandler = (e) => {
-            this.close();
-        };
-        this._closeSidebarKeyDownHandler = (e) => {
-            if (e.keyCode == 27) {
-                e.preventDefault();
-                this.close();
-            }
-        };
-        this._resizeSidebarHandler = (e) => {
-            var contentElement = document.getElementById('sidebar-content');
-            if (contentElement) {
-                contentElement.style.height = window.innerHeight - 60;
-            }
-        };
-    
-    }
-
-    open(content, title, width) {
-        var sidebarElement = document.getElementById('sidebar');
-        var titleElement = document.getElementById('sidebar-title');
-        var contentElement = document.getElementById('sidebar-content');
-        var closeButtonElement = document.getElementById('sidebar-closebutton');
-        if (sidebarElement && contentElement && closeButtonElement && titleElement) {
-            titleElement.innerHTML = title ? title.toUpperCase() : '';
-            window.addEventListener('resize', this._resizeSidebarHandler);
-            document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
-            closeButtonElement.addEventListener('click', this._closeSidebarHandler);
-            closeButtonElement.style.color = '#818181';
-            contentElement.style.height = window.innerHeight - 60;
-            while (contentElement.firstChild) {
-                contentElement.removeChild(contentElement.firstChild);
-            }
-            if (typeof content == 'string') {
-                contentElement.innerHTML = content;
-            }
-            else if (content instanceof Array) {
-                content.forEach((element) => {
-                    contentElement.appendChild(element);
-                });
-            }
-            else {
-                contentElement.appendChild(content);
-            }
-            sidebarElement.style.width = width ? width : '500px';    
-            if (width && width.endsWith('%')) {
-                contentElement.style.width = '100%';
-            }
-            else {
-                contentElement.style.width = 'calc(' + sidebarElement.style.width + ' - 40px)';
-            }
-        }
-    }
-    
-    close() {
-        var sidebarElement = document.getElementById('sidebar');
-        var contentElement = document.getElementById('sidebar-content');
-        var closeButtonElement = document.getElementById('sidebar-closebutton');
-        if (sidebarElement && contentElement && closeButtonElement) {
-            document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
-            sidebarElement.removeEventListener('resize', this._resizeSidebarHandler);
-            closeButtonElement.removeEventListener('click', this._closeSidebarHandler);
-            closeButtonElement.style.color = '#f8f8f8';
-            sidebarElement.style.width = '0';
+            var view = new OperatorDocumentationView(documentation);
+            view.on('navigate', (sender, e) => {
+                this._host.openURL(e.link);
+            });
+            this._sidebar.open(view.elements, 'Documentation');
         }
     }
 }

@@ -538,8 +538,7 @@ class MXNetOperatorMetadata {
                     }
                 });
             }
-            var template = Handlebars.compile(operatorTemplate, 'utf-8');
-            return template(schema);
+            return schema;
         }
         return '';
     }

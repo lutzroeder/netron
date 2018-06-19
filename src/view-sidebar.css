@@ -1,0 +1,44 @@
+
+.sidebar { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 12px; height: 100%; width: 0; position: fixed; transition: 0.2s; z-index: 1; top: 0; right: 0; background-color: #f8f8f8; overflow: hidden; border-left: 1px solid #ccc; }
+.sidebar-title { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-weight: 600; font-size: 12px; letter-spacing: 0.5px; height: 20px; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-closebutton { padding: 8px 8px 8px 32px; text-decoration: none; font-size: 25px; color: #818181; opacity: 1.0; display: block; transition: 0.2s; position: absolute; top: 0; right: 15px; margin-left: 50px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-closebutton:hover { color: #f1f1f1; }
+.sidebar-content { padding-left: 20px; padding-right: 20px; overflow-y: auto; }
+
+.sidebar-view-title { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; color: #333; user-select: none; -webkit-user-select: none; -moz-user-select: none; cursor: default; }
+.sidebar-view-title-button { display: inline-block; color: #888; text-align: center; vertical-align: middle; font-weight: 600; width: 12px; height: 12px; font-size: 10px; line-height: 12px; border-radius: 50%; transform: translateY(-1px); padding: 1px; background: transparent; border: 1px solid #aaa; text-decoration: none; cursor: hand; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-view-title-button:hover { color: #333; border: 1px solid #333; }
+.sidebar-view-header { font-weight: 600; font-size: 12px; line-height: 1.25; margin-top: 16px; margin-bottom: 16px; border-bottom: 1px solid #eaecef; display: block; color: #333; user-select: none; -webkit-user-select: none; -moz-user-select: none; cursor: default; }
+.sidebar-view-item { margin-bottom: 6px; display: block; }
+.sidebar-view-item-name { float: left; font-size: 10px; min-width: 95px; max-width: 95px; padding-right: 5px; padding-top: 7px; display: block; }
+.sidebar-view-item-name input { font-family: inherit; font-size: inherit; color: inherit; background-color: inherit; width: 100%; text-align: right; margin: 0; padding: 0; border: 0; outline: none; text-overflow: ellipsis; }
+.sidebar-view-item-value-list { margin: 0; margin-left: 105px; overflow: hidden; display: block; padding: 0; }
+.sidebar-view-item-value { font-size: 10px; background-color: rgba(27, 31, 35, 0.05); border-radius: 8px; border: 1px solid rgba(27, 31, 35, 0.05); margin-top: 3px; margin-bottom: 3px; overflow: auto; }
+.sidebar-view-item-value b { font-weight: 600; }
+.sidebar-view-item-value code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow: auto; white-space: pre-wrap; word-wrap: break-word; }
+.sidebar-view-item-value pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; margin: 0; overflow: auto; white-space: pre; word-wrap: normal; display: block; }
+.sidebar-view-item-value-line { padding: 4px 6px 4px 6px; }
+.sidebar-view-item-value-line-border { padding: 4px 6px 4px 6px; border-top: 1px solid rgba(27, 31, 35, 0.05); }
+.sidebar-view-item-value-line-content { white-space: pre; word-wrap: normal; overflow: auto; display: block; }
+.sidebar-view-item-value-expander { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; float: right; color: #aaa; cursor: hand; user-select: none; -webkit-user-select: none; -moz-user-select: none; padding: 4px 6px 4px 6px; }
+.sidebar-view-item-value-expander:hover { color: #000; }
+
+.sidebar-view-find input[type=text] { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 12px; padding: 4px 6px 4px 6px; background: #fff; border-radius: 4px; border: 1px solid #ccc; outline: 0; }
+.sidebar-view-find ol { list-style-type: none; overflow-y: auto; margin: 8px 0 20px 0; padding: 0; }
+.sidebar-view-find li { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; margin: 0; padding: 5px 8px 5px 8px; outline: 0; white-space: nowrap; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.sidebar-view-find li:not(:first-child) { border-top: 1px solid #f0f0f0; }
+.sidebar-view-find li:hover { background: #eee; }
+
+.sidebar-view-documentation { font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; font-size: 12px; line-height: 1.5; margin: 0; }
+.sidebar-view-documentation h1 { font-weight: 600; font-size: 14px; line-height: 1.25; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
+.sidebar-view-documentation h2 { font-weight: 600; font-size: 12px; line-height: 1.25; margin-bottom: 16px; border-bottom: 1px solid #eaecef; }
+.sidebar-view-documentation h3 { font-weight: 600; font-size: 12px; line-height: 1.25; }
+.sidebar-view-documentation p { margin-top: 2px; margin-bottom: 2px; }
+.sidebar-view-documentation a { color: #237; }
+.sidebar-view-documentation code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px }
+.sidebar-view-documentation pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 11px; padding: 16px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; }
+.sidebar-view-documentation pre code { font-size: 11px; padding: 16px; line-height: 1.45; background-color: transparent; padding: 0; border-radius: 0; }
+.sidebar-view-documentation tt { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 85%; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
+.sidebar-view-documentation dl dt { font-size: 12px; font-weight: 600; padding: 0; margin-top: 16px; }
+.sidebar-view-documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
+.sidebar-view-documentation ul { margin-top: 6px; margin-bottom: 6px; padding-left: 20px; }
