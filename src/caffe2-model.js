@@ -156,7 +156,7 @@ class Caffe2Node {
 
         this._attributes = [];
         op.arg.forEach((arg) => {
-            this._attributes.push(new Caffe2Attribute(arg));
+            this._attributes.push(new Caffe2Attribute(this, arg));
         });
 
         this._initializers = {};
@@ -216,7 +216,8 @@ class Caffe2Node {
 
 class Caffe2Attribute {
 
-    constructor(arg) {
+    constructor(node, arg) {
+        this._node = node;
         this._name = arg.name;
         if (arg.floats && arg.floats.length > 0) {
             this._value = JSON.stringify(arg.floats);
@@ -247,7 +248,7 @@ class Caffe2Attribute {
     }
 
     get visible() {
-        return true;
+        return Caffe2OperatorMetadata.operatorMetadata.getAttributeVisible(this._node.operator, this._name, this._value)
     }
 }
 
@@ -411,7 +412,7 @@ class Caffe2OperatorMetadata
         return results;
     }
 
-    getAttributeHidden(operator, name, value) {
+    getAttributeVisible(operator, name, value) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributesMap) {
@@ -422,15 +423,15 @@ class Caffe2OperatorMetadata
             }
             var attribute = schema.attributesMap[name];
             if (attribute) {
-                if (attribute.hasOwnProperty('hidden')) {
-                    return attribute.hidden;
+                if (attribute.hasOwnProperty('visible')) {
+                    return attribute.visible;
                 }
                 if (attribute.hasOwnProperty('default')) {
-                    return Caffe2OperatorMetadata.isEquivalent(attribute.default, value);
+                    return value != attribute.default.toString();
                 }
             }
         }
-        return false;
+        return true;
     }
     
     static isEquivalent(a, b) {
