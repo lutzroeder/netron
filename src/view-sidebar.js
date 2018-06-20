@@ -97,19 +97,19 @@ class NodeView {
         }
 
         if (node.name) {
-            this.addProperty('name', new ValueContentView(node.name));
+            this.addProperty('name', new ValueCodeView(node.name));
         }
 
         if (node.domain) {
-            this.addProperty('domain', new ValueContentView(node.domain));
+            this.addProperty('domain', new ValueCodeView(node.domain));
         }
 
         if (node.description) {
-            this.addProperty('description', new ValueContentView(node.description));
+            this.addProperty('description', new ValueCodeView(node.description));
         }
 
         if (node.device) {
-            this.addProperty('device', new ValueContentView(node.device));
+            this.addProperty('device', new ValueCodeView(node.device));
         }
 
         var attributes = node.attributes;
@@ -158,7 +158,7 @@ class NodeView {
     }
 
     addAttribute(name, attribute) {
-        var item = new NameValueView(name, new NodeAttributeValueView(attribute));
+        var item = new NameValueView(name, new NodeAttributeView(attribute));
         this._attributes.push(item);
         this._elements.push(item.element);
     }
@@ -243,15 +243,17 @@ class NameValueView {
     }
 }
 
-class ValueContentView {
+class ValueCodeView {
+
     constructor(value) {
+        this._elements = [];
+        var element = document.createElement('div');
+        element.className = 'sidebar-view-item-value';
+        this._elements.push(element);
         var line = document.createElement('div');
         line.className = 'sidebar-view-item-value-line';
         line.innerHTML = '<code>' + value + '</code>';
-        var element = document.createElement('div');
-        element.className = 'sidebar-view-item-value';
         element.appendChild(line);
-        this._elements = [ element ];
     }
 
     get elements() {
@@ -262,7 +264,28 @@ class ValueContentView {
     }
 }
 
-class NodeAttributeValueView {
+class ValueTextView {
+
+    constructor(value) {
+        this._elements = [];
+        var element = document.createElement('div');
+        element.className = 'sidebar-view-item-value';
+        this._elements.push(element);
+        var line = document.createElement('div');
+        line.className = 'sidebar-view-item-value-line';
+        line.innerHTML = value;
+        element.appendChild(line);
+    }
+
+    get elements() {
+        return this._elements;
+    }
+
+    toggle() {
+    }
+}
+
+class NodeAttributeView {
 
     constructor(attribute) {
         this._attribute = attribute;
@@ -301,6 +324,14 @@ class NodeAttributeValueView {
             typeLine.className = 'sidebar-view-item-value-line-border';
             typeLine.innerHTML = 'type: ' + '<code><b>' + this._attribute.type + '</b></code>';
             this._element.appendChild(typeLine);
+
+            var description = this._attribute.description;
+            if (description) {
+                var descriptionLine = document.createElement('div');
+                descriptionLine.className = 'sidebar-view-item-value-line-border';
+                descriptionLine.innerHTML = description;
+                this._element.appendChild(descriptionLine);
+            }
         }
         else {
             this._expander.innerText = '+';
@@ -403,6 +434,14 @@ class NodeConnectionView {
                     this._element.appendChild(typeLine);
                 }
     
+                var description = this._connection.description;
+                if (description) {
+                    var descriptionLine = document.createElement('div');
+                    descriptionLine.className = 'sidebar-view-item-value-line-border';
+                    descriptionLine.innerHTML = description;
+                    this._element.appendChild(descriptionLine);
+                }
+    
                 if (initializer) {
                     var quantization = initializer.quantization;
                     if (quantization) {
@@ -444,7 +483,7 @@ class ModelView {
         this._elements = [];
 
         this._model.properties.forEach((property) => {
-            this.addProperty(property.name, new ValueContentView(property.value));
+            this.addProperty(property.name, new ValueTextView(property.value));
         });
 
         var graphs = this._model.graphs;
@@ -471,19 +510,19 @@ class ModelView {
             this._elements.push(graphTitleElement);
     
             if (graph.name) {
-                this.addProperty('name', new ValueContentView(graph.name));
+                this.addProperty('name', new ValueTextView(graph.name));
             }
             if (graph.version) {
-                this.addProperty('version', new ValueContentView(graph.version));
+                this.addProperty('version', new ValueTextView(graph.version));
             }
             if (graph.type) {
-                this.addProperty('type', new ValueContentView(graph.type));                
+                this.addProperty('type', new ValueTextView(graph.type));                
             }
             if (graph.tags) {
-                this.addProperty('tags', new ValueContentView(graph.tags));
+                this.addProperty('tags', new ValueTextView(graph.tags));
             }
             if (graph.description) {
-                this.addProperty('description', new ValueContentView(graph.description));                
+                this.addProperty('description', new ValueTextView(graph.description));                
             }
 
             if (graph.operators) {
@@ -570,7 +609,7 @@ class GraphOperatorListView {
 
         var countLine = document.createElement('div');
         countLine.className = 'sidebar-view-item-value-line';
-        countLine.innerHTML = '<code>' + 'Total: ' + count.toString() + '<code>';
+        countLine.innerHTML = 'Total: ' + count.toString();
         this._element.appendChild(countLine);
     }
 
@@ -618,7 +657,7 @@ class GraphArgumentView {
         var type = this._argument.type || '?';
         var typeLine = document.createElement('div');
         typeLine.className = 'sidebar-view-item-value-line';
-        typeLine.innerHTML = '<code>' + type.replace('<', '&lt;').replace('>', '&gt;') + '</code>';
+        typeLine.innerHTML = '<code><b>' + type.replace('<', '&lt;').replace('>', '&gt;') + '</b></code>';
         this._element.appendChild(typeLine);
 
         if (argument.description) {
@@ -634,10 +673,10 @@ class GraphArgumentView {
         if (this._expander.innerText == '+') {
             this._expander.innerText = '-';
 
-            var typeLine = document.createElement('div');
-            typeLine.className = 'sidebar-view-item-value-line-border';
-            typeLine.innerHTML = '<code>' + this._argument.description + '<code>';
-            this._element.appendChild(typeLine);
+            var descriptionLine = document.createElement('div');
+            descriptionLine.className = 'sidebar-view-item-value-line-border';
+            descriptionLine.innerHTML = this._argument.description;
+            this._element.appendChild(descriptionLine);
         }
         else {
             this._expander.innerText = '+';
