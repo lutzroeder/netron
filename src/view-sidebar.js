@@ -97,19 +97,19 @@ class NodeView {
         }
 
         if (node.name) {
-            this.addProperty('name', new ValueCodeView(node.name));
+            this.addProperty('name', new ValueTextView(node.name));
         }
 
         if (node.domain) {
-            this.addProperty('domain', new ValueCodeView(node.domain));
+            this.addProperty('domain', new ValueTextView(node.domain));
         }
 
         if (node.description) {
-            this.addProperty('description', new ValueCodeView(node.description));
+            this.addProperty('description', new ValueTextView(node.description));
         }
 
         if (node.device) {
-            this.addProperty('device', new ValueCodeView(node.device));
+            this.addProperty('device', new ValueTextView(node.device));
         }
 
         var attributes = node.attributes;
@@ -240,27 +240,6 @@ class NameValueView {
 
     toggle() {
         this._value.toggle();
-    }
-}
-
-class ValueCodeView {
-
-    constructor(value) {
-        this._elements = [];
-        var element = document.createElement('div');
-        element.className = 'sidebar-view-item-value';
-        this._elements.push(element);
-        var line = document.createElement('div');
-        line.className = 'sidebar-view-item-value-line';
-        line.innerHTML = '<code>' + value + '</code>';
-        element.appendChild(line);
-    }
-
-    get elements() {
-        return this._elements;
-    }
-
-    toggle() {
     }
 }
 
