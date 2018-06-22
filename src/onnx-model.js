@@ -184,8 +184,8 @@ class OnnxGraph {
             });
 
             graph.input.forEach((valueInfo) => {
+                var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.docString);
                 if (!this._initializerMap[valueInfo.name]) {
-                    var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.docString);
                     connection.name = valueInfo.name;
                     this._inputs.push(connection);
                 }
@@ -206,11 +206,11 @@ class OnnxGraph {
                             var initializer = this._initializerMap[connection.id];
                             if (initializer) {
                                 connection.initializer = initializer;
-                                connection.type = initializer.type;
+                                connection.type = connection.type || initializer.type;
                             }
                             return connection;
                         });
-                    });          
+                    });
                 }
                 var outputs = [];
                 if (node.output) {
@@ -267,7 +267,7 @@ class OnnxGraph {
             connection = {};
             connection.id = name;
             if (type) {
-                connection.type = OnnxTensor.formatType(type);
+                connection.type = OnnxTensor._formatType(type);
             }
             if (docString) {
                 connection.description = docString;
@@ -367,18 +367,28 @@ class OnnxAttribute {
     }
 
     get type() {
-        if (this._attribute.hasOwnProperty('type')) { 
-            var type = OnnxTensor.formatElementType(this._attribute.type);
-            if ((this._attribute.ints && this._attribute.ints.length > 0) ||
-                (this._attribute.floats && this._attribute.floats.length > 0) ||
-                (this._attribute.strings && this._attribute.strings.length > 0)) {
-                return type + '[]';
-            }
+        if (!this._attribute.hasOwnProperty('type')) { 
+            return this._node.graph.metadata.getAttributeType(this._node.operator, this._attribute.name);
         }
-        else if (this._attribute.hasOwnProperty('t')) {
-            return OnnxTensor.formatTensorType(this._attribute.t);
+        if (!OnnxAttribute._attributeTypeMap) {
+            OnnxAttribute._attributeTypeMap = {};
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED] = 'UNDEFINED';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.FLOAT] = 'float';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.INT] = 'int';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.STRING] = 'string';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.TENSOR] = 'tensor';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.GRAPH] = 'graph';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.FLOATS] = 'float';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.INTS] = 'int[]';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.STRINGS] = 'string[]';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.TENSORS] = 'tensor[]';
+            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.GRAPHS] = 'graph[]';
         }
-        return this._node.graph.metadata.getAttributeType(this._node.operator, this._attribute.name);
+        var attributeType = OnnxAttribute._attributeTypeMap[this._attribute.type];
+        if (attributeType) {
+            return attributeType;
+        }
+        return OnnxTensor._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED];
     }
 
     get value() {
@@ -458,7 +468,14 @@ class OnnxTensor {
     }
 
     get type() {
-        return OnnxTensor.formatTensorType(this._tensor);
+        var result = '';
+        if (this._tensor.hasOwnProperty('dataType')) {
+            result = OnnxTensor._formatElementType(this._tensor.dataType);
+            if (this._tensor.dims) { 
+                result += '[' + this._tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
+            }
+        }
+        return result;
     }
 
     get value() { 
@@ -614,18 +631,7 @@ class OnnxTensor {
         return results;
     }
 
-    static formatTensorType(tensor) {
-        var result = '';
-        if (tensor.hasOwnProperty('dataType')) {
-            result = OnnxTensor.formatElementType(tensor.dataType);
-            if (tensor.dims) { 
-                result += '[' + tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
-            }
-        }
-        return result;
-    }
-
-    static formatElementType(elementType) {
+    static _formatElementType(elementType) {
         if (!OnnxTensor._elementTypeMap) {
             var map = {};
             OnnxTensor._elementTypeMap = map;
@@ -653,31 +659,51 @@ class OnnxTensor {
         return OnnxTensor._elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
     }
 
-    static formatType(type) {
-        if (type) {
-            switch (type.value) {
-                case 'tensorType':
-                    var tensorType = type.tensorType;
-                    var text = OnnxTensor.formatElementType(tensorType.elemType); 
-                    if (tensorType.shape && tensorType.shape.dim) {
-                        text += '[' + tensorType.shape.dim.map((dimension) => {
-                            if (dimension.dimParam) {
-                                return dimension.dimParam;
-                            }
-                            return dimension.dimValue.toString();
-                        }).join(',') + ']';
-                    }
-                    return text;
-                case 'mapType':
-                    var mapType = type.mapType;
-                    return '<' + OnnxTensor.formatElementType(mapType.keyType) + ',' + OnnxTensor.formatType(mapType.valueType) + '>';                    
-                default:
-                    // debugger;
-                    return '?';
-            }
+    static _formatType(type) {
+        if (!type) {
+            return '?';
         }
-        // debugger;
-        return '?';
+        var result = [];
+        switch (type.denotation) {
+            case 'TENSOR':
+                result.push('Tensor');
+                break;
+            case 'IMAGE':
+                result.push('Image');
+                break;
+            case 'AUDIO':
+                result.push('Audio');
+                break;
+            case 'TEXT':
+                result.push('Text');
+                break;
+        }
+        switch (type.value) {
+            case 'tensorType':
+                var tensorType = type.tensorType;
+                var text = OnnxTensor._formatElementType(tensorType.elemType); 
+                if (tensorType.shape && tensorType.shape.dim) {
+                    text += '[' + tensorType.shape.dim.map((dimension) => {
+                        if (dimension.dimParam) {
+                            return dimension.dimParam;
+                        }
+                        return dimension.dimValue.toString();
+                    }).join(',') + ']';
+                }
+                result.push(text);
+                break;
+            case 'mapType':
+                var mapType = type.mapType;
+                result.push('<' + OnnxTensor._formatElementType(mapType.keyType) + ',' + OnnxTensor._formatType(mapType.valueType) + '>');
+                break;
+            case 'sequenceType':
+                result.push('[?]');
+                break;
+            default:
+                // debugger;
+                return '?';
+        }
+        return result.join(' ');
     }
 }
 
