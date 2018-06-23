@@ -11391,11 +11391,11 @@
         {
           "description": "List of positive integers, indicate the dimensions to squeeze.",
           "name": "axes",
-          "required": true,
+          "required": false,
           "type": "int[]"
         }
       ],
-      "description": "Remove single-dimensional entries from the shape of a tensor.\nTakes a  parameter `axes` with a list of axes to squeeze.\nIf an axis is selected with shape entry not equal to one, an error is raised.\n",
+      "description": "Remove single-dimensional entries from the shape of a tensor.\nTakes a  parameter `axes` with a list of axes to squeeze.\nIf `axes` is not provided, all the single dimensions will be removed from\nthe shape. If an axis is selected with shape entry not equal to one, an error is raised.\n",
       "domain": "ai.onnx",
       "examples": [
         {
