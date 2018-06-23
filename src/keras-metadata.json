@@ -2750,6 +2750,10 @@
         {
           "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
+        },
+        {
+          "description": "An integer or tuple/list of 2 integers,\nspecifying the amount of padding along the height and width\nof the output tensor.\nCan be a single integer to specify the same value for all\nspatial dimensions.\nThe amount of output padding along a given dimension must be\nlower than the stride along that same dimension.\nIf set to `None` (default), the output shape is inferred.",
+          "name": "output_padding"
         }
       ],
       "category": "Layer",
@@ -2768,7 +2772,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\nIf `output_padding` is specified:\n\n```\nnew_rows = (rows - 1) * strides[0] + kernel_size[0] - 2 * padding[0] + output_padding[0]\nnew_cols = (cols - 1) * strides[1] + kernel_size[1] - 2 * padding[1] + output_padding[1]\n```\n",
           "name": "output"
         }
       ],
@@ -3340,7 +3344,7 @@
       "description": "Flattens the input. Does not affect the batch size.\n",
       "examples": [
         {
-          "code": "model = Sequential()\nmodel.add(Conv2D(64, 3, 3,\n                 border_mode='same',\n                 input_shape=(3, 32, 32)))\n# now: model.output_shape == (None, 64, 32, 32)\n\nmodel.add(Flatten())\n# now: model.output_shape == (None, 65536)"
+          "code": "model = Sequential()\nmodel.add(Conv2D(64, 3, 3,\n                 padding='same',\n                 input_shape=(3, 32, 32)))\n# now: model.output_shape == (None, 64, 32, 32)\n\nmodel.add(Flatten())\n# now: model.output_shape == (None, 65536)"
         }
       ],
       "inputs": [
