@@ -3723,6 +3723,14 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
               "value": 3
             },
             {
@@ -3744,10 +3752,6 @@
             {
               "type": "type",
               "value": 10
-            },
-            {
-              "type": "type",
-              "value": 6
             }
           ],
           "name": "T",
@@ -18720,6 +18724,44 @@
     }
   },
   {
+    "name": "IgammaGradA",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "typeAttr": "T"
+        },
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the gradient of `igamma(a, x)` wrt `a`."
+    }
+  },
+  {
     "name": "Igammac",
     "schema": {
       "attributes": [
@@ -30856,6 +30898,44 @@
     }
   },
   {
+    "name": "RandomGammaGrad",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "alpha",
+          "typeAttr": "T"
+        },
+        {
+          "name": "sample",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes the derivative of a Gamma random sample w.r.t. `alpha`."
+    }
+  },
+  {
     "name": "RandomPoisson",
     "schema": {
       "attributes": [
@@ -38865,7 +38945,7 @@
             0.05,
             1.0
           ],
-          "description": "The cropped area of the image must contain a fraction of the\nsupplied image within in this range.",
+          "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
           "name": "area_range",
           "type": "list(float)"
         },
@@ -38971,7 +39051,7 @@
             0.05,
             1.0
           ],
-          "description": "The cropped area of the image must contain a fraction of the\nsupplied image within in this range.",
+          "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
           "name": "area_range",
           "type": "list(float)"
         },
@@ -42444,7 +42524,7 @@
           "type": 9
         },
         {
-          "description": "A scalar representing the steps moving the sliding window\nforward in one iteration. It must be in `[1, window_size)`.",
+          "description": "A scalar representing the steps moving the sliding window\nforward in one iteration. It must be positive.",
           "name": "stride",
           "type": 9
         }
@@ -49564,6 +49644,47 @@
     }
   },
   {
+    "name": "StringSplitV2",
+    "schema": {
+      "attributes": [
+        {
+          "defaultValue": -1,
+          "description": "An `int`. If `maxsplit > 0`, limit of the split of the result.",
+          "name": "maxsplit",
+          "type": "int"
+        }
+      ],
+      "description": "Let N be the size of source (typically N will be the batch size). Split each\nelement of `source` based on `sep` and return a `SparseTensor`\ncontaining the split tokens. Empty tokens are ignored.\n\nFor example, N = 2, source[0] is 'hello world' and source[1] is 'a b c',\nthen the output will be\n```\nst.indices = [0, 0;\n              0, 1;\n              1, 0;\n              1, 1;\n              1, 2]\nst.shape = [2, 3]\nst.values = ['hello', 'world', 'a', 'b', 'c']\n```\n\nIf `sep` is given, consecutive delimiters are not grouped together and are\ndeemed to delimit empty strings. For example, source of `\"1<>2<><>3\"` and\nsep of `\"<>\"` returns `[\"1\", \"2\", \"\", \"3\"]`. If `sep` is None or an empty\nstring, consecutive whitespace are regarded as a single separator, and the\nresult will contain no empty strings at the startor end if the string has\nleading or trailing whitespace.\n\nNote that the above mentioned behavior matches python's str.split.",
+      "inputs": [
+        {
+          "description": "`1-D` string `Tensor`, the strings to split.",
+          "name": "input",
+          "type": 7
+        },
+        {
+          "description": "`0-D` string `Tensor`, the delimiter character.",
+          "name": "sep",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "indices",
+          "type": 9
+        },
+        {
+          "name": "values",
+          "type": 7
+        },
+        {
+          "name": "shape",
+          "type": 9
+        }
+      ],
+      "summary": "Split elements of `source` based on `sep` into a `SparseTensor`."
+    }
+  },
+  {
     "name": "StringStrip",
     "schema": {
       "inputs": [
@@ -53714,7 +53835,23 @@
             },
             {
               "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
               "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
             },
             {
               "type": "type",
@@ -53723,6 +53860,10 @@
             {
               "type": "type",
               "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
             },
             {
               "type": "type",
