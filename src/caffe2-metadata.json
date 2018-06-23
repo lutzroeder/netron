@@ -526,22 +526,22 @@
           "option": "optional"
         },
         {
+          "default": 0,
           "description": "*(type: float; default: 0)* Multiplicative (scaling) factor.",
           "name": "alpha",
-          "option": "optional",
-          "default": 0
+          "option": "optional"
         },
         {
+          "default": 0,
           "description": "*(type: float; default: 0)* Exponent.",
           "name": "beta",
-          "option": "optional",
-          "default": 0
+          "option": "optional"
         },
         {
+          "default": 1.0,
           "description": "*(type: float; default: 1.0)* Additive factor.",
           "name": "bias",
-          "option": "optional",
-          "default": 1.0
+          "option": "optional"
         },
         {
           "description": "*(type: float; default: 'NCHW')* Order of blob dimensions.",
