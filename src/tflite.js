@@ -17,7 +17,8 @@ tflite.TensorType = {
   INT64: 4,
   STRING: 5,
   BOOL: 6,
-  INT16: 7
+  INT16: 7,
+  COMPLEX64: 8
 };
 
 /**
@@ -100,7 +101,8 @@ tflite.BuiltinOperator = {
   SUM: 74,
   SQRT: 75,
   RSQRT: 76,
-  SHAPE: 77
+  SHAPE: 77,
+  POW: 78
 };
 
 /**
@@ -162,7 +164,8 @@ tflite.BuiltinOptions = {
   ExpandDimsOptions: 52,
   EqualOptions: 53,
   NotEqualOptions: 54,
-  ShapeOptions: 55
+  ShapeOptions: 55,
+  PowOptions: 56
 };
 
 /**
@@ -192,6 +195,14 @@ tflite.LSHProjectionType = {
   UNKNOWN: 0,
   SPARSE: 1,
   DENSE: 2
+};
+
+/**
+ * @enum
+ */
+tflite.FullyConnectedOptionsWeightsFormat = {
+  DEFAULT: 0,
+  SHUFFLED4x16INT8: 1
 };
 
 /**
@@ -1691,10 +1702,18 @@ tflite.FullyConnectedOptions.prototype.fusedActivationFunction = function() {
 };
 
 /**
+ * @returns {tflite.FullyConnectedOptionsWeightsFormat}
+ */
+tflite.FullyConnectedOptions.prototype.weightsFormat = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? /** @type {tflite.FullyConnectedOptionsWeightsFormat} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.FullyConnectedOptionsWeightsFormat.DEFAULT;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.FullyConnectedOptions.startFullyConnectedOptions = function(builder) {
-  builder.startObject(1);
+  builder.startObject(2);
 };
 
 /**
@@ -1703,6 +1722,14 @@ tflite.FullyConnectedOptions.startFullyConnectedOptions = function(builder) {
  */
 tflite.FullyConnectedOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
   builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite.FullyConnectedOptionsWeightsFormat} weightsFormat
+ */
+tflite.FullyConnectedOptions.addWeightsFormat = function(builder, weightsFormat) {
+  builder.addFieldInt8(1, weightsFormat, tflite.FullyConnectedOptionsWeightsFormat.DEFAULT);
 };
 
 /**
@@ -4788,6 +4815,57 @@ tflite.ShapeOptions.addOutType = function(builder, outType) {
  * @returns {flatbuffers.Offset}
  */
 tflite.ShapeOptions.endShapeOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.PowOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.PowOptions}
+ */
+tflite.PowOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.PowOptions=} obj
+ * @returns {tflite.PowOptions}
+ */
+tflite.PowOptions.getRootAsPowOptions = function(bb, obj) {
+  return (obj || new tflite.PowOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.PowOptions.startPowOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.PowOptions.endPowOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
