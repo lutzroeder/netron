@@ -6981,6 +6981,51 @@
     }
   },
   {
+    "name": "Max",
+    "schema": {
+      "description": "Element-wise max of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 3]).astype(np.float32)\nresult = np.array([3, 5, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_max_example')\n\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_max_one_input')\n\nresult = np.maximum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_max_two_inputs')",
+          "summary": "max"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for max.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "max",
+          "type": "T"
+        }
+      ],
+      "since_version": 8,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "MaxPool",
     "schema": {
       "attributes": [
@@ -7246,6 +7291,51 @@
     }
   },
   {
+    "name": "Mean",
+    "schema": {
+      "description": "Element-wise mean of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 0, 2]).astype(np.float32)\ndata_1 = np.array([1, 3, 4]).astype(np.float32)\ndata_2 = np.array([2, 6, 6]).astype(np.float32)\nresult = np.array([2, 3, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_mean_example')\n\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_mean_one_input')\n\nresult = np.divide(np.add(data_0, data_1), 2.)\nnode = onnx.helper.make_node(\n    'Mean',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_mean_two_inputs')",
+          "summary": "mean"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for mean.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "mean",
+          "type": "T"
+        }
+      ],
+      "since_version": 8,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "MeanVarianceNormalization",
     "schema": {
       "attributes": [
@@ -7382,6 +7472,51 @@
         }
       ],
       "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Min",
+    "schema": {
+      "description": "Element-wise min of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 0]).astype(np.float32)\nresult = np.array([1, 2, 0]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_min_example')\n\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_min_one_input')\n\nresult = np.minimum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_min_two_inputs')",
+          "summary": "min"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for min.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "min",
+          "type": "T"
+        }
+      ],
+      "since_version": 8,
       "support_level": "common",
       "type_constraints": [
         {
@@ -11731,6 +11866,51 @@
         }
       ],
       "since_version": 6,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sum",
+    "schema": {
+      "description": "Element-wise sum of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 0, 2]).astype(np.float32)\ndata_1 = np.array([1, 3, 4]).astype(np.float32)\ndata_2 = np.array([2, 6, 6]).astype(np.float32)\nresult = np.array([6, 9, 12]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_sum_example')\n\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_sum_one_input')\n\nresult = np.add(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Sum',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_sum_two_inputs')",
+          "summary": "sum"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for sum.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "sum",
+          "type": "T"
+        }
+      ],
+      "since_version": 8,
       "support_level": "common",
       "type_constraints": [
         {
