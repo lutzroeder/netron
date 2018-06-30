@@ -4591,7 +4591,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -4823,7 +4825,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -6639,7 +6643,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the bias tensor will be added to the last dimension\nof the value tensor.\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].\nThe tensor will be added to \"in_channels\", the third-to-the-last\n    dimension.",
@@ -6752,7 +6758,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the bias tensor will be added to the last dimension\nof the value tensor.\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].\nThe tensor will be added to \"in_channels\", the third-to-the-last\n    dimension.",
@@ -7443,6 +7451,45 @@
         }
       ],
       "summary": "Creates a handle to a BoostedTreesEnsembleResource"
+    }
+  },
+  {
+    "name": "BoostedTreesExampleDebugOutputs",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Inferred.",
+          "minimum": 1,
+          "name": "num_bucketized_features",
+          "type": "int"
+        },
+        {
+          "description": "scalar, dimension of the logits, to be used for constructing the protos in\nexamples_debug_outputs_serialized.",
+          "name": "logits_dimension",
+          "type": "int"
+        }
+      ],
+      "description": "It traverses all the trees and computes debug metrics for individual examples, \nsuch as getting split feature ids and logits after each split along the decision\npath used to compute directional feature contributions.",
+      "inputs": [
+        {
+          "name": "tree_ensemble_handle",
+          "type": 20
+        },
+        {
+          "description": "A list of rank 1 Tensors containing bucket id for each\nfeature.",
+          "name": "bucketized_features",
+          "numberAttr": "num_bucketized_features",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Output rank 1 Tensor containing a proto serialized as a string for each example.",
+          "name": "examples_debug_outputs_serialized",
+          "type": 7
+        }
+      ],
+      "summary": "Debugging/model interpretability outputs for each example."
     }
   },
   {
@@ -9383,7 +9430,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -9474,7 +9523,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -9568,7 +9619,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -12981,7 +13034,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -13064,7 +13119,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -13153,7 +13210,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -17363,7 +17422,7 @@
           "type": "type"
         }
       ],
-      "description": "`indices` is an K-dimensional integer tensor, best thought of as a\n(K-1)-dimensional tensor of indices into `params`, where each element defines a\nslice of `params`:\n\n    output[i_0, ..., i_{K-2}] = params[indices[i0, ..., i_{K-2}]]\n\nWhereas in @{tf.gather} `indices` defines slices into the first\ndimension of `params`, in `tf.gather_nd`, `indices` defines slices into the\nfirst `N` dimensions of `params`, where `N = indices.shape[-1]`.\n\nThe last dimension of `indices` can be at most the rank of\n`params`:\n\n    indices.shape[-1] <= params.rank\n\nThe last dimension of `indices` corresponds to elements\n(if `indices.shape[-1] == params.rank`) or slices\n(if `indices.shape[-1] < params.rank`) along dimension `indices.shape[-1]`\nof `params`.  The output tensor has shape\n\n    indices.shape[:-1] + params.shape[indices.shape[-1]:]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSome examples below.\n\nSimple indexing into a matrix:\n\n```python\n    indices = [[0, 0], [1, 1]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = ['a', 'd']\n```\n\nSlice indexing into a matrix:\n\n```python\n    indices = [[1], [0]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['c', 'd'], ['a', 'b']]\n```\n\nIndexing into a 3-tensor:\n\n```python\n    indices = [[1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['a1', 'b1'], ['c1', 'd1']]]\n\n\n    indices = [[0, 1], [1, 0]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['c0', 'd0'], ['a1', 'b1']]\n\n\n    indices = [[0, 0, 1], [1, 0, 1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = ['b0', 'b1']\n```\n\nBatched indexing into a matrix:\n\n```python\n    indices = [[[0, 0]], [[0, 1]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['a'], ['b']]\n```\n\nBatched slice indexing into a matrix:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [[['c', 'd']], [['a', 'b']]]\n```\n\nBatched indexing into a 3-tensor:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[[['a1', 'b1'], ['c1', 'd1']]],\n              [[['a0', 'b0'], ['c0', 'd0']]]]\n\n    indices = [[[0, 1], [1, 0]], [[0, 0], [1, 1]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['c0', 'd0'], ['a1', 'b1']],\n              [['a0', 'b0'], ['c1', 'd1']]]\n\n\n    indices = [[[0, 0, 1], [1, 0, 1]], [[0, 1, 1], [1, 1, 0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['b0', 'b1'], ['d0', 'c1']]\n```",
+      "description": "`indices` is an K-dimensional integer tensor, best thought of as a\n(K-1)-dimensional tensor of indices into `params`, where each element defines a\nslice of `params`:\n\n    output[\\\\(i_0, ..., i_{K-2}\\\\)] = params[indices[\\\\(i_0, ..., i_{K-2}\\\\)]]\n\nWhereas in @{tf.gather} `indices` defines slices into the first\ndimension of `params`, in `tf.gather_nd`, `indices` defines slices into the\nfirst `N` dimensions of `params`, where `N = indices.shape[-1]`.\n\nThe last dimension of `indices` can be at most the rank of\n`params`:\n\n    indices.shape[-1] <= params.rank\n\nThe last dimension of `indices` corresponds to elements\n(if `indices.shape[-1] == params.rank`) or slices\n(if `indices.shape[-1] < params.rank`) along dimension `indices.shape[-1]`\nof `params`.  The output tensor has shape\n\n    indices.shape[:-1] + params.shape[indices.shape[-1]:]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSome examples below.\n\nSimple indexing into a matrix:\n\n```python\n    indices = [[0, 0], [1, 1]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = ['a', 'd']\n```\n\nSlice indexing into a matrix:\n\n```python\n    indices = [[1], [0]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['c', 'd'], ['a', 'b']]\n```\n\nIndexing into a 3-tensor:\n\n```python\n    indices = [[1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['a1', 'b1'], ['c1', 'd1']]]\n\n\n    indices = [[0, 1], [1, 0]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['c0', 'd0'], ['a1', 'b1']]\n\n\n    indices = [[0, 0, 1], [1, 0, 1]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = ['b0', 'b1']\n```\n\nBatched indexing into a matrix:\n\n```python\n    indices = [[[0, 0]], [[0, 1]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [['a'], ['b']]\n```\n\nBatched slice indexing into a matrix:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [['a', 'b'], ['c', 'd']]\n    output = [[['c', 'd']], [['a', 'b']]]\n```\n\nBatched indexing into a 3-tensor:\n\n```python\n    indices = [[[1]], [[0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[[['a1', 'b1'], ['c1', 'd1']]],\n              [[['a0', 'b0'], ['c0', 'd0']]]]\n\n    indices = [[[0, 1], [1, 0]], [[0, 0], [1, 1]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [[['c0', 'd0'], ['a1', 'b1']],\n              [['a0', 'b0'], ['c1', 'd1']]]\n\n\n    indices = [[[0, 0, 1], [1, 0, 1]], [[0, 1, 1], [1, 1, 0]]]\n    params = [[['a0', 'b0'], ['c0', 'd0']],\n              [['a1', 'b1'], ['c1', 'd1']]]\n    output = [['b0', 'b1'], ['d0', 'c1']]\n```",
       "inputs": [
         {
           "description": "The tensor from which to gather values.",
@@ -20565,17 +20624,17 @@
       "description": "A sequence of `num` evenly-spaced values are generated beginning at `start`.\nIf `num > 1`, the values in the sequence increase by `stop - start / num - 1`,\nso that the last one is exactly `stop`.\n\nFor example:\n\n```\ntf.linspace(10.0, 12.0, 3, name=\"linspace\") => [ 10.0  11.0  12.0]\n```",
       "inputs": [
         {
-          "description": "First entry in the range.",
+          "description": "0-D tensor. First entry in the range.",
           "name": "start",
           "typeAttr": "T"
         },
         {
-          "description": "Last entry in the range.",
+          "description": "0-D tensor. Last entry in the range.",
           "name": "stop",
           "typeAttr": "T"
         },
         {
-          "description": "Number of values to generate.",
+          "description": "0-D tensor. Number of values to generate.",
           "name": "num",
           "typeAttr": "Tidx"
         }
@@ -22172,7 +22231,7 @@
           "type": "type"
         }
       ],
-      "description": "exp(A) = \\sum_{n=0}^\\infty A^n/n!\n\nThe exponential is computed using a combination of the scaling and squaring\nmethod and the Pade approximation. Details can be founds in:\nNicholas J. Higham, \"The scaling and squaring method for the matrix exponential\nrevisited,\" SIAM J. Matrix Anal. Applic., 26:1179-1193, 2005.\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the exponential for all input submatrices `[..., :, :]`.",
+      "description": "\\\\(exp(A) = \\sum_{n=0}^\\infty A^n/n!\\\\)\n\nThe exponential is computed using a combination of the scaling and squaring\nmethod and the Pade approximation. Details can be founds in:\nNicholas J. Higham, \"The scaling and squaring method for the matrix exponential\nrevisited,\" SIAM J. Matrix Anal. Applic., 26:1179-1193, 2005.\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the exponential for all input submatrices `[..., :, :]`.",
       "inputs": [
         {
           "description": "Shape is `[..., M, M]`.",
@@ -22259,7 +22318,7 @@
           "type": "type"
         }
       ],
-      "description": "\nlog(exp(A)) = A\n\nThis op is only defined for complex matrices. If A is positive-definite and\nreal, then casting to a complex matrix, taking the logarithm and casting back\nto a real matrix will give the correct result.\n\nThis function computes the matrix logarithm using the Schur-Parlett algorithm.\nDetails of the algorithm can be found in Section 11.6.2 of:\nNicholas J. Higham, Functions of Matrices: Theory and Computation, SIAM 2008.\nISBN 978-0-898716-46-7.\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the exponential for all input submatrices `[..., :, :]`.",
+      "description": "\n\\\\(log(exp(A)) = A\\\\)\n\nThis op is only defined for complex matrices. If A is positive-definite and\nreal, then casting to a complex matrix, taking the logarithm and casting back\nto a real matrix will give the correct result.\n\nThis function computes the matrix logarithm using the Schur-Parlett algorithm.\nDetails of the algorithm can be found in Section 11.6.2 of:\nNicholas J. Higham, Functions of Matrices: Theory and Computation, SIAM 2008.\nISBN 978-0-898716-46-7.\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the exponential for all input submatrices `[..., :, :]`.",
       "inputs": [
         {
           "description": "Shape is `[..., M, M]`.",
@@ -22939,6 +22998,50 @@
             {
               "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
             }
           ],
           "name": "T",
@@ -23000,7 +23103,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -23121,7 +23226,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -23226,7 +23333,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -23462,7 +23571,9 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW"
+            "NCHW",
+            "HWNC",
+            "HWCN"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -32322,7 +32433,7 @@
           "type": "string"
         }
       ],
-      "description": "Computes the string join across dimensions in the given string Tensor of shape\n`[d_0, d_1, ..., d_n-1]`.  Returns a new Tensor created by joining the input\nstrings with the given separator (default: empty string).  Negative indices are\ncounted backwards from the end, with `-1` being equivalent to `n - 1`.  If\nindices are not specified, joins across all dimensions beginning from `n - 1`\nthrough `0`.\n\nFor example:\n\n```python\n# tensor `a` is [[\"a\", \"b\"], [\"c\", \"d\"]]\ntf.reduce_join(a, 0) ==> [\"ac\", \"bd\"]\ntf.reduce_join(a, 1) ==> [\"ab\", \"cd\"]\ntf.reduce_join(a, -2) = tf.reduce_join(a, 0) ==> [\"ac\", \"bd\"]\ntf.reduce_join(a, -1) = tf.reduce_join(a, 1) ==> [\"ab\", \"cd\"]\ntf.reduce_join(a, 0, keep_dims=True) ==> [[\"ac\", \"bd\"]]\ntf.reduce_join(a, 1, keep_dims=True) ==> [[\"ab\"], [\"cd\"]]\ntf.reduce_join(a, 0, separator=\".\") ==> [\"a.c\", \"b.d\"]\ntf.reduce_join(a, [0, 1]) ==> \"acbd\"\ntf.reduce_join(a, [1, 0]) ==> \"abcd\"\ntf.reduce_join(a, []) ==> [[\"a\", \"b\"], [\"c\", \"d\"]]\ntf.reduce_join(a) = tf.reduce_join(a, [1, 0]) ==> \"abcd\"\n```",
+      "description": "Computes the string join across dimensions in the given string Tensor of shape\n`[\\\\(d_0, d_1, ..., d_{n-1}\\\\)]`.  Returns a new Tensor created by joining the input\nstrings with the given separator (default: empty string).  Negative indices are\ncounted backwards from the end, with `-1` being equivalent to `n - 1`.  If\nindices are not specified, joins across all dimensions beginning from `n - 1`\nthrough `0`.\n\nFor example:\n\n```python\n# tensor `a` is [[\"a\", \"b\"], [\"c\", \"d\"]]\ntf.reduce_join(a, 0) ==> [\"ac\", \"bd\"]\ntf.reduce_join(a, 1) ==> [\"ab\", \"cd\"]\ntf.reduce_join(a, -2) = tf.reduce_join(a, 0) ==> [\"ac\", \"bd\"]\ntf.reduce_join(a, -1) = tf.reduce_join(a, 1) ==> [\"ab\", \"cd\"]\ntf.reduce_join(a, 0, keep_dims=True) ==> [[\"ac\", \"bd\"]]\ntf.reduce_join(a, 1, keep_dims=True) ==> [[\"ab\"], [\"cd\"]]\ntf.reduce_join(a, 0, separator=\".\") ==> [\"a.c\", \"b.d\"]\ntf.reduce_join(a, [0, 1]) ==> \"acbd\"\ntf.reduce_join(a, [1, 0]) ==> \"abcd\"\ntf.reduce_join(a, []) ==> [[\"a\", \"b\"], [\"c\", \"d\"]]\ntf.reduce_join(a) = tf.reduce_join(a, [1, 0]) ==> \"abcd\"\n```",
       "inputs": [
         {
           "description": "The input to be joined.  All reduced indices must have non-zero size.",
@@ -40050,7 +40161,7 @@
           "type": "bool"
         }
       ],
-      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to 8\nelements. In Python, that addition would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    add = tf.scatter_nd_add(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(add)\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
+      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `\\\\([d_0, ..., d_{Q-2}, K]\\\\)` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].$$\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to 8\nelements. In Python, that addition would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    add = tf.scatter_nd_add(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(add)\n\nThe resulting update to ref would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A mutable Tensor. Should be from a Variable node.",
@@ -40173,7 +40284,7 @@
           "type": "type"
         }
       ],
-      "description": "from `updates` according to indices `indices`.  The updates are non-aliasing:\n`input` is only modified in-place if no other operations will use it.\nOtherwise, a copy of `input` is made.  This operation has a gradient with\nrespect to both `input` and `updates`.\n\n`input` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `input`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or `(P-K)`-dimensional slices\n(if `K < P`) along the `K`th dimension of `input`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, input.shape[K], ..., input.shape[P-1]].\n```\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to 8\nelements. In Python, that addition would look like this:\n\n    input = tf.constant([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    output = tf.scatter_nd_non_aliasing_add(input, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(output))\n\nThe resulting value `output` would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee @{tf.scatter_nd} for more details about how to make updates to slices.",
+      "description": "from `updates` according to indices `indices`.  The updates are non-aliasing:\n`input` is only modified in-place if no other operations will use it.\nOtherwise, a copy of `input` is made.  This operation has a gradient with\nrespect to both `input` and `updates`.\n\n`input` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `input`.\nIt must be shape \\\\([d_0, ..., d_{Q-2}, K]\\\\) where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or `(P-K)`-dimensional slices\n(if `K < P`) along the `K`th dimension of `input`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, input.shape[K], ..., input.shape[P-1]].$$\n\nFor example, say we want to add 4 scattered elements to a rank-1 tensor to 8\nelements. In Python, that addition would look like this:\n\n    input = tf.constant([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    output = tf.scatter_nd_non_aliasing_add(input, indices, updates)\n    with tf.Session() as sess:\n      print(sess.run(output))\n\nThe resulting value `output` would look like this:\n\n    [1, 13, 3, 14, 14, 6, 7, 20]\n\nSee @{tf.scatter_nd} for more details about how to make updates to slices.",
       "inputs": [
         {
           "description": "A Tensor.",
@@ -40300,7 +40411,7 @@
           "type": "bool"
         }
       ],
-      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    sub = tf.scatter_nd_sub(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(sub)\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
+      "description": "within a given variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape \\\\([d_0, ..., d_{Q-2}, K]\\\\) where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].$$\n\nFor example, say we want to subtract 4 scattered elements from a rank-1 tensor\nwith 8 elements. In Python, that subtraction would look like this:\n\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    sub = tf.scatter_nd_sub(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(sub)\n\nThe resulting update to ref would look like this:\n\n    [1, -9, 3, -6, -4, 6, 7, -4]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A mutable Tensor. Should be from a Variable node.",
@@ -40359,7 +40470,7 @@
           "type": "bool"
         }
       ],
-      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_update(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 11, 3, 10, 9, 6, 7, 12]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
+      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape \\\\([d_0, ..., d_{Q-2}, K]\\\\) where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n$$[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].$$\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_update(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 11, 3, 10, 9, 6, 7, 12]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A mutable Tensor. Should be from a Variable node.",
@@ -42590,7 +42701,7 @@
         }
       ],
       "category": "Activation",
-      "description": "For each batch `i` and class `j` we have\n\n    softmax[i, j] = exp(logits[i, j]) / sum_j(exp(logits[i, j]))",
+      "description": "For each batch `i` and class `j` we have\n\n    $$softmax[i, j] = exp(logits[i, j]) / sum_j(exp(logits[i, j]))$$",
       "inputs": [
         {
           "description": "2-D with shape `[batch_size, num_classes]`.",
@@ -43934,7 +44045,7 @@
           "type": "bool"
         }
       ],
-      "description": "That is for rows we have grad for, we update var and accum as follows:\naccum += grad * grad\nvar -= lr * grad * (1 / sqrt(accum))",
+      "description": "That is for rows we have grad for, we update var and accum as follows:\n$$accum += grad * grad$$\n$$var -= lr * grad * (1 / sqrt(accum))$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -44234,7 +44345,7 @@
           "type": "bool"
         }
       ],
-      "description": "The centered RMSProp algorithm uses an estimate of the centered second moment\n(i.e., the variance) for normalization, as opposed to regular RMSProp, which\nuses the (uncentered) second moment. This often helps with training, but is\nslightly more expensive in terms of computation and memory.\n\nNote that in dense implementation of this algorithm, mg, ms, and mom will\nupdate even if the grad is zero, but in this sparse implementation, mg, ms,\nand mom will not update in iterations during which the grad is zero.\n\nmean_square = decay * mean_square + (1-decay) * gradient ** 2\nmean_grad = decay * mean_grad + (1-decay) * gradient\nDelta = learning_rate * gradient / sqrt(mean_square + epsilon - mean_grad ** 2)\n\nms <- rho * ms_{t-1} + (1-rho) * grad * grad\nmom <- momentum * mom_{t-1} + lr * grad / sqrt(ms + epsilon)\nvar <- var - mom",
+      "description": "The centered RMSProp algorithm uses an estimate of the centered second moment\n(i.e., the variance) for normalization, as opposed to regular RMSProp, which\nuses the (uncentered) second moment. This often helps with training, but is\nslightly more expensive in terms of computation and memory.\n\nNote that in dense implementation of this algorithm, mg, ms, and mom will\nupdate even if the grad is zero, but in this sparse implementation, mg, ms,\nand mom will not update in iterations during which the grad is zero.\n\nmean_square = decay * mean_square + (1-decay) * gradient ** 2\nmean_grad = decay * mean_grad + (1-decay) * gradient\nDelta = learning_rate * gradient / sqrt(mean_square + epsilon - mean_grad ** 2)\n\n$$ms <- rho * ms_{t-1} + (1-rho) * grad * grad$$\n$$mom <- momentum * mom_{t-1} + lr * grad / sqrt(ms + epsilon)$$\n$$var <- var - mom$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -44400,7 +44511,7 @@
           "type": "bool"
         }
       ],
-      "description": "That is for rows we have grad for, we update var, accum and linear as follows:\naccum_new = accum + grad * grad\nlinear += grad + (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
+      "description": "That is for rows we have grad for, we update var, accum and linear as follows:\n$$accum_new = accum + grad * grad$$\n$$linear += grad + (accum_{new}^{-lr_{power}} - accum^{-lr_{power}} / lr * var$$\n$$quadratic = 1.0 / (accum_{new}^{lr_{power}} * lr) + 2 * l2$$\n$$var = (sign(linear) * l1 - linear) / quadratic\\ if\\ |linear| > l1\\ else\\ 0.0$$\n$$accum = accum_{new}$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -44732,7 +44843,7 @@
           "type": "bool"
         }
       ],
-      "description": "Set use_nesterov = True if you want to use Nesterov momentum.\n\nThat is for rows we have grad for, we update var and accum as follows:\n\naccum = accum * momentum + grad\nvar -= lr * accum",
+      "description": "Set use_nesterov = True if you want to use Nesterov momentum.\n\nThat is for rows we have grad for, we update var and accum as follows:\n\n$$accum = accum * momentum + grad$$\n$$var -= lr * accum$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -44877,7 +44988,7 @@
           "type": "bool"
         }
       ],
-      "description": "That is for rows we have grad for, we update var and accum as follows:\naccum += grad * grad\nprox_v = var\nprox_v -= lr * grad * (1 / sqrt(accum))\nvar = sign(prox_v)/(1+lr*l2) * max{|prox_v|-lr*l1,0}",
+      "description": "That is for rows we have grad for, we update var and accum as follows:\n$$accum += grad * grad$$\n$$prox_v = var$$\n$$prox_v -= lr * grad * (1 / sqrt(accum))$$\n$$var = sign(prox_v)/(1+lr*l2) * max{|prox_v|-lr*l1,0}$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -45027,7 +45138,7 @@
           "type": "bool"
         }
       ],
-      "description": "That is for rows we have grad for, we update var as follows:\nprox_v = var - alpha * grad\nvar = sign(prox_v)/(1+alpha*l2) * max{|prox_v|-alpha*l1,0}",
+      "description": "That is for rows we have grad for, we update var as follows:\n$$prox_v = var - alpha * grad$$\n$$var = sign(prox_v)/(1+alpha*l2) * max{|prox_v|-alpha*l1,0}$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -45171,7 +45282,7 @@
           "type": "bool"
         }
       ],
-      "description": "Note that in dense implementation of this algorithm, ms and mom will\nupdate even if the grad is zero, but in this sparse implementation, ms\nand mom will not update in iterations during which the grad is zero.\n\nmean_square = decay * mean_square + (1-decay) * gradient ** 2\nDelta = learning_rate * gradient / sqrt(mean_square + epsilon)\n\nms <- rho * ms_{t-1} + (1-rho) * grad * grad\nmom <- momentum * mom_{t-1} + lr * grad / sqrt(ms + epsilon)\nvar <- var - mom",
+      "description": "Note that in dense implementation of this algorithm, ms and mom will\nupdate even if the grad is zero, but in this sparse implementation, ms\nand mom will not update in iterations during which the grad is zero.\n\nmean_square = decay * mean_square + (1-decay) * gradient ** 2\nDelta = learning_rate * gradient / sqrt(mean_square + epsilon)\n\n$$ms <- rho * ms_{t-1} + (1-rho) * grad * grad$$\n$$mom <- momentum * mom_{t-1} + lr * grad / sqrt(ms + epsilon)$$\n$$var <- var - mom$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -54051,7 +54162,7 @@
           "type": "type"
         }
       ],
-      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n`(output[i] = sum_{j...} data[j...]` where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
+      "description": "Read @{$math_ops#Segmentation$the section on segmentation} for an explanation of\nsegments.\n\nComputes a tensor such that\n\\\\(output[i] = sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
