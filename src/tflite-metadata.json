@@ -355,6 +355,21 @@
     }
   },
   {
+    "name": "Sub",
+    "schema": {
+      "inputs": [
+        { "name": "A", "type": "T" },
+        { "name": "B", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "C", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+      ]
+    }
+  },
+  {
     "name": "Mul",
     "schema": {
       "inputs": [
