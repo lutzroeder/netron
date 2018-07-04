@@ -3419,7 +3419,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 1e-05,
+          "defaultValue": 9.999999747378752e-06,
           "name": "tolerance",
           "type": "float"
         }
@@ -7380,6 +7380,46 @@
         }
       ],
       "summary": "Calculates gains for each feature and returns the best possible split information for the feature."
+    }
+  },
+  {
+    "name": "BoostedTreesCenterBias",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Handle to the tree ensemble.",
+          "name": "tree_ensemble_handle",
+          "type": 20
+        },
+        {
+          "description": "A tensor with shape=[logits_dimension] with mean of gradients for a first node.",
+          "name": "mean_gradients",
+          "type": 1
+        },
+        {
+          "description": "A tensor with shape=[logits_dimension] mean of hessians for a first node.",
+          "name": "mean_hessians",
+          "type": 1
+        },
+        {
+          "description": "l1 regularization factor on leaf weights, per instance based.",
+          "name": "l1",
+          "type": 1
+        },
+        {
+          "description": "l2 regularization factor on leaf weights, per instance based.",
+          "name": "l2",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Bool, whether to continue bias centering.",
+          "name": "continue_centering",
+          "type": 10
+        }
+      ],
+      "summary": "Calculates the prior from the training data (the bias) and fills in the first node with the logits' prior. Returns a boolean indicating whether to continue centering."
     }
   },
   {
@@ -16821,7 +16861,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 0.0001,
+          "defaultValue": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -16914,7 +16954,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 0.0001,
+          "defaultValue": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17025,7 +17065,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 0.0001,
+          "defaultValue": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17136,7 +17176,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 0.0001,
+          "defaultValue": 9.999999747378752e-05,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17220,7 +17260,15 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
             }
           ],
           "name": "T",
@@ -17284,7 +17332,15 @@
           "allowedValues": [
             {
               "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
               "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
             }
           ],
           "name": "T",
@@ -18706,7 +18762,7 @@
         },
         {
           "description": "A list of output types.",
-          "minimum": 1,
+          "minimum": 0,
           "name": "Tout",
           "type": "list(type)"
         },
@@ -24946,7 +25002,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.8,
+          "defaultValue": 0.800000011920929,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float"
@@ -25018,7 +25074,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.8,
+          "defaultValue": 0.800000011920929,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float"
@@ -29325,13 +29381,13 @@
           "type": "float"
         },
         {
-          "defaultValue": 1e-05,
+          "defaultValue": 9.999999747378752e-06,
           "description": "A small float number to avoid dividing by 0.",
           "name": "variance_epsilon",
           "type": "float"
         },
         {
-          "defaultValue": 0.001,
+          "defaultValue": 0.0010000000474974513,
           "description": "Minimum value of `y_max - y_min`",
           "name": "min_separation",
           "type": "float"
@@ -39037,7 +39093,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.1,
+          "defaultValue": 0.10000000149011612,
           "description": "The cropped area of the image must contain at least this\nfraction of any bounding box supplied. The value of this parameter should be\nnon-negative. In the case of 0, the cropped area does not need to overlap\nany of the bounding boxes supplied.",
           "name": "min_object_covered",
           "type": "float"
@@ -39045,7 +39101,7 @@
         {
           "defaultValue": [
             0.75,
-            1.33
+            1.3300000429153442
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -39053,7 +39109,7 @@
         },
         {
           "defaultValue": [
-            0.05,
+            0.05000000074505806,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -39151,7 +39207,7 @@
         {
           "defaultValue": [
             0.75,
-            1.33
+            1.3300000429153442
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -39159,7 +39215,7 @@
         },
         {
           "defaultValue": [
-            0.05,
+            0.05000000074505806,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -42514,7 +42570,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.001,
+          "defaultValue": 0.0010000000474974513,
           "description": "Threshold for word occurrence. Words that appear with higher\nfrequency will be randomly down-sampled. Set to 0 to disable.",
           "name": "subsample",
           "type": "float"
@@ -47403,6 +47459,118 @@
     }
   },
   {
+    "name": "SparseSliceGrad",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 11
+            },
+            {
+              "type": "type",
+              "value": 12
+            },
+            {
+              "type": "type",
+              "value": 13
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "This op takes in the upstream gradient w.r.t. non-empty values of\nthe sliced `SparseTensor`, and outputs the gradients w.r.t.\nthe non-empty values of input `SparseTensor`.",
+      "inputs": [
+        {
+          "description": "1-D. The gradient with respect to\nthe non-empty values of the sliced `SparseTensor`.",
+          "name": "backprop_val_grad",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2-D.  The `indices` of the input `SparseTensor`.",
+          "name": "input_indices",
+          "type": 9
+        },
+        {
+          "description": "1-D. tensor represents the start of the slice.",
+          "name": "input_start",
+          "type": 9
+        },
+        {
+          "description": "2-D.  The `indices` of the sliced `SparseTensor`.",
+          "name": "output_indices",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1-D. The gradient with respect to the non-empty values of input `SparseTensor`.",
+          "name": "val_grad",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "The gradient operator for the SparseSlice op."
+    }
+  },
+  {
     "name": "SparseSoftmax",
     "schema": {
       "attributes": [
@@ -48978,6 +49146,45 @@
         }
       ],
       "summary": "Op returns the number of elements in the underlying container."
+    }
+  },
+  {
+    "name": "StatefulPartitionedCall",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of input types.",
+          "minimum": 0,
+          "name": "Tin",
+          "type": "list(type)"
+        },
+        {
+          "description": "A list of output types.",
+          "minimum": 0,
+          "name": "Tout",
+          "type": "list(type)"
+        },
+        {
+          "description": "      A function that takes 'args', a list of tensors, and returns 'output',\n      another list of tensors. Input and output types are specified by 'Tin'\n      and 'Tout'. The function body of f will be placed and partitioned across\n      devices, setting this op apart from the regular Call op. This op is\n      stateful.",
+          "name": "f",
+          "type": "func"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of input tensors.",
+          "name": "args",
+          "typeListAttr": "Tin"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of return values.",
+          "name": "output",
+          "typeListAttr": "Tout"
+        }
+      ],
+      "summary": "returns `f(inputs)`, where `f`'s body is placed and partitioned."
     }
   },
   {
@@ -54595,6 +54802,41 @@
         }
       ],
       "summary": "A Reader that outputs the entire contents of a file as a value."
+    }
+  },
+  {
+    "name": "WindowDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A scalar representing the number of elements to accumulate in a window.",
+          "name": "window_size",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "A dataset that creates window datasets from the input dataset."
     }
   },
   {
