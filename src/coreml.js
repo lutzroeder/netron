@@ -1503,11 +1503,13 @@
                  * @property {CoreML.Specification.ISupportVectorRegressor|null} [supportVectorRegressor] Model supportVectorRegressor
                  * @property {CoreML.Specification.ITreeEnsembleRegressor|null} [treeEnsembleRegressor] Model treeEnsembleRegressor
                  * @property {CoreML.Specification.INeuralNetworkRegressor|null} [neuralNetworkRegressor] Model neuralNetworkRegressor
+                 * @property {CoreML.Specification.IBayesianProbitRegressor|null} [bayesianProbitRegressor] Model bayesianProbitRegressor
                  * @property {CoreML.Specification.IGLMClassifier|null} [glmClassifier] Model glmClassifier
                  * @property {CoreML.Specification.ISupportVectorClassifier|null} [supportVectorClassifier] Model supportVectorClassifier
                  * @property {CoreML.Specification.ITreeEnsembleClassifier|null} [treeEnsembleClassifier] Model treeEnsembleClassifier
                  * @property {CoreML.Specification.INeuralNetworkClassifier|null} [neuralNetworkClassifier] Model neuralNetworkClassifier
                  * @property {CoreML.Specification.INeuralNetwork|null} [neuralNetwork] Model neuralNetwork
+                 * @property {CoreML.Specification.ICustomModel|null} [customModel] Model customModel
                  * @property {CoreML.Specification.IOneHotEncoder|null} [oneHotEncoder] Model oneHotEncoder
                  * @property {CoreML.Specification.IImputer|null} [imputer] Model imputer
                  * @property {CoreML.Specification.IFeatureVectorizer|null} [featureVectorizer] Model featureVectorizer
@@ -1516,7 +1518,11 @@
                  * @property {CoreML.Specification.ICategoricalMapping|null} [categoricalMapping] Model categoricalMapping
                  * @property {CoreML.Specification.INormalizer|null} [normalizer] Model normalizer
                  * @property {CoreML.Specification.IArrayFeatureExtractor|null} [arrayFeatureExtractor] Model arrayFeatureExtractor
+                 * @property {CoreML.Specification.INonMaximumSuppression|null} [nonMaximumSuppression] Model nonMaximumSuppression
                  * @property {CoreML.Specification.IIdentity|null} [identity] Model identity
+                 * @property {CoreML.Specification.CoreMLModels.ITextClassifier|null} [textClassifier] Model textClassifier
+                 * @property {CoreML.Specification.CoreMLModels.IWordTagger|null} [wordTagger] Model wordTagger
+                 * @property {CoreML.Specification.CoreMLModels.IVisionFeaturePrint|null} [visionFeaturePrint] Model visionFeaturePrint
                  */
     
                 /**
@@ -1616,6 +1622,14 @@
                 Model.prototype.neuralNetworkRegressor = null;
     
                 /**
+                 * Model bayesianProbitRegressor.
+                 * @member {CoreML.Specification.IBayesianProbitRegressor|null|undefined} bayesianProbitRegressor
+                 * @memberof CoreML.Specification.Model
+                 * @instance
+                 */
+                Model.prototype.bayesianProbitRegressor = null;
+    
+                /**
                  * Model glmClassifier.
                  * @member {CoreML.Specification.IGLMClassifier|null|undefined} glmClassifier
                  * @memberof CoreML.Specification.Model
@@ -1654,6 +1668,14 @@
                  * @instance
                  */
                 Model.prototype.neuralNetwork = null;
+    
+                /**
+                 * Model customModel.
+                 * @member {CoreML.Specification.ICustomModel|null|undefined} customModel
+                 * @memberof CoreML.Specification.Model
+                 * @instance
+                 */
+                Model.prototype.customModel = null;
     
                 /**
                  * Model oneHotEncoder.
@@ -1720,6 +1742,14 @@
                 Model.prototype.arrayFeatureExtractor = null;
     
                 /**
+                 * Model nonMaximumSuppression.
+                 * @member {CoreML.Specification.INonMaximumSuppression|null|undefined} nonMaximumSuppression
+                 * @memberof CoreML.Specification.Model
+                 * @instance
+                 */
+                Model.prototype.nonMaximumSuppression = null;
+    
+                /**
                  * Model identity.
                  * @member {CoreML.Specification.IIdentity|null|undefined} identity
                  * @memberof CoreML.Specification.Model
@@ -1727,17 +1757,41 @@
                  */
                 Model.prototype.identity = null;
     
+                /**
+                 * Model textClassifier.
+                 * @member {CoreML.Specification.CoreMLModels.ITextClassifier|null|undefined} textClassifier
+                 * @memberof CoreML.Specification.Model
+                 * @instance
+                 */
+                Model.prototype.textClassifier = null;
+    
+                /**
+                 * Model wordTagger.
+                 * @member {CoreML.Specification.CoreMLModels.IWordTagger|null|undefined} wordTagger
+                 * @memberof CoreML.Specification.Model
+                 * @instance
+                 */
+                Model.prototype.wordTagger = null;
+    
+                /**
+                 * Model visionFeaturePrint.
+                 * @member {CoreML.Specification.CoreMLModels.IVisionFeaturePrint|null|undefined} visionFeaturePrint
+                 * @memberof CoreML.Specification.Model
+                 * @instance
+                 */
+                Model.prototype.visionFeaturePrint = null;
+    
                 // OneOf field names bound to virtual getters and setters
                 var $oneOfFields;
     
                 /**
                  * Model Type.
-                 * @member {"pipelineClassifier"|"pipelineRegressor"|"pipeline"|"glmRegressor"|"supportVectorRegressor"|"treeEnsembleRegressor"|"neuralNetworkRegressor"|"glmClassifier"|"supportVectorClassifier"|"treeEnsembleClassifier"|"neuralNetworkClassifier"|"neuralNetwork"|"oneHotEncoder"|"imputer"|"featureVectorizer"|"dictVectorizer"|"scaler"|"categoricalMapping"|"normalizer"|"arrayFeatureExtractor"|"identity"|undefined} Type
+                 * @member {"pipelineClassifier"|"pipelineRegressor"|"pipeline"|"glmRegressor"|"supportVectorRegressor"|"treeEnsembleRegressor"|"neuralNetworkRegressor"|"bayesianProbitRegressor"|"glmClassifier"|"supportVectorClassifier"|"treeEnsembleClassifier"|"neuralNetworkClassifier"|"neuralNetwork"|"customModel"|"oneHotEncoder"|"imputer"|"featureVectorizer"|"dictVectorizer"|"scaler"|"categoricalMapping"|"normalizer"|"arrayFeatureExtractor"|"nonMaximumSuppression"|"identity"|"textClassifier"|"wordTagger"|"visionFeaturePrint"|undefined} Type
                  * @memberof CoreML.Specification.Model
                  * @instance
                  */
                 Object.defineProperty(Model.prototype, "Type", {
-                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "neuralNetwork", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "identity"]),
+                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "neuralNetwork", "customModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -1783,6 +1837,8 @@
                         $root.CoreML.Specification.TreeEnsembleRegressor.encode(message.treeEnsembleRegressor, writer.uint32(/* id 302, wireType 2 =*/2418).fork()).ldelim();
                     if (message.neuralNetworkRegressor != null && message.hasOwnProperty("neuralNetworkRegressor"))
                         $root.CoreML.Specification.NeuralNetworkRegressor.encode(message.neuralNetworkRegressor, writer.uint32(/* id 303, wireType 2 =*/2426).fork()).ldelim();
+                    if (message.bayesianProbitRegressor != null && message.hasOwnProperty("bayesianProbitRegressor"))
+                        $root.CoreML.Specification.BayesianProbitRegressor.encode(message.bayesianProbitRegressor, writer.uint32(/* id 304, wireType 2 =*/2434).fork()).ldelim();
                     if (message.glmClassifier != null && message.hasOwnProperty("glmClassifier"))
                         $root.CoreML.Specification.GLMClassifier.encode(message.glmClassifier, writer.uint32(/* id 400, wireType 2 =*/3202).fork()).ldelim();
                     if (message.supportVectorClassifier != null && message.hasOwnProperty("supportVectorClassifier"))
@@ -1793,6 +1849,8 @@
                         $root.CoreML.Specification.NeuralNetworkClassifier.encode(message.neuralNetworkClassifier, writer.uint32(/* id 403, wireType 2 =*/3226).fork()).ldelim();
                     if (message.neuralNetwork != null && message.hasOwnProperty("neuralNetwork"))
                         $root.CoreML.Specification.NeuralNetwork.encode(message.neuralNetwork, writer.uint32(/* id 500, wireType 2 =*/4002).fork()).ldelim();
+                    if (message.customModel != null && message.hasOwnProperty("customModel"))
+                        $root.CoreML.Specification.CustomModel.encode(message.customModel, writer.uint32(/* id 555, wireType 2 =*/4442).fork()).ldelim();
                     if (message.oneHotEncoder != null && message.hasOwnProperty("oneHotEncoder"))
                         $root.CoreML.Specification.OneHotEncoder.encode(message.oneHotEncoder, writer.uint32(/* id 600, wireType 2 =*/4802).fork()).ldelim();
                     if (message.imputer != null && message.hasOwnProperty("imputer"))
@@ -1809,8 +1867,16 @@
                         $root.CoreML.Specification.Normalizer.encode(message.normalizer, writer.uint32(/* id 607, wireType 2 =*/4858).fork()).ldelim();
                     if (message.arrayFeatureExtractor != null && message.hasOwnProperty("arrayFeatureExtractor"))
                         $root.CoreML.Specification.ArrayFeatureExtractor.encode(message.arrayFeatureExtractor, writer.uint32(/* id 609, wireType 2 =*/4874).fork()).ldelim();
+                    if (message.nonMaximumSuppression != null && message.hasOwnProperty("nonMaximumSuppression"))
+                        $root.CoreML.Specification.NonMaximumSuppression.encode(message.nonMaximumSuppression, writer.uint32(/* id 610, wireType 2 =*/4882).fork()).ldelim();
                     if (message.identity != null && message.hasOwnProperty("identity"))
                         $root.CoreML.Specification.Identity.encode(message.identity, writer.uint32(/* id 900, wireType 2 =*/7202).fork()).ldelim();
+                    if (message.textClassifier != null && message.hasOwnProperty("textClassifier"))
+                        $root.CoreML.Specification.CoreMLModels.TextClassifier.encode(message.textClassifier, writer.uint32(/* id 2000, wireType 2 =*/16002).fork()).ldelim();
+                    if (message.wordTagger != null && message.hasOwnProperty("wordTagger"))
+                        $root.CoreML.Specification.CoreMLModels.WordTagger.encode(message.wordTagger, writer.uint32(/* id 2001, wireType 2 =*/16010).fork()).ldelim();
+                    if (message.visionFeaturePrint != null && message.hasOwnProperty("visionFeaturePrint"))
+                        $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.encode(message.visionFeaturePrint, writer.uint32(/* id 2002, wireType 2 =*/16018).fork()).ldelim();
                     return writer;
                 };
     
@@ -1872,6 +1938,9 @@
                         case 303:
                             message.neuralNetworkRegressor = $root.CoreML.Specification.NeuralNetworkRegressor.decode(reader, reader.uint32());
                             break;
+                        case 304:
+                            message.bayesianProbitRegressor = $root.CoreML.Specification.BayesianProbitRegressor.decode(reader, reader.uint32());
+                            break;
                         case 400:
                             message.glmClassifier = $root.CoreML.Specification.GLMClassifier.decode(reader, reader.uint32());
                             break;
@@ -1886,6 +1955,9 @@
                             break;
                         case 500:
                             message.neuralNetwork = $root.CoreML.Specification.NeuralNetwork.decode(reader, reader.uint32());
+                            break;
+                        case 555:
+                            message.customModel = $root.CoreML.Specification.CustomModel.decode(reader, reader.uint32());
                             break;
                         case 600:
                             message.oneHotEncoder = $root.CoreML.Specification.OneHotEncoder.decode(reader, reader.uint32());
@@ -1911,8 +1983,20 @@
                         case 609:
                             message.arrayFeatureExtractor = $root.CoreML.Specification.ArrayFeatureExtractor.decode(reader, reader.uint32());
                             break;
+                        case 610:
+                            message.nonMaximumSuppression = $root.CoreML.Specification.NonMaximumSuppression.decode(reader, reader.uint32());
+                            break;
                         case 900:
                             message.identity = $root.CoreML.Specification.Identity.decode(reader, reader.uint32());
+                            break;
+                        case 2000:
+                            message.textClassifier = $root.CoreML.Specification.CoreMLModels.TextClassifier.decode(reader, reader.uint32());
+                            break;
+                        case 2001:
+                            message.wordTagger = $root.CoreML.Specification.CoreMLModels.WordTagger.decode(reader, reader.uint32());
+                            break;
+                        case 2002:
+                            message.visionFeaturePrint = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2026,6 +2110,16 @@
                                 return "neuralNetworkRegressor." + error;
                         }
                     }
+                    if (message.bayesianProbitRegressor != null && message.hasOwnProperty("bayesianProbitRegressor")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.BayesianProbitRegressor.verify(message.bayesianProbitRegressor);
+                            if (error)
+                                return "bayesianProbitRegressor." + error;
+                        }
+                    }
                     if (message.glmClassifier != null && message.hasOwnProperty("glmClassifier")) {
                         if (properties.Type === 1)
                             return "Type: multiple values";
@@ -2074,6 +2168,16 @@
                             var error = $root.CoreML.Specification.NeuralNetwork.verify(message.neuralNetwork);
                             if (error)
                                 return "neuralNetwork." + error;
+                        }
+                    }
+                    if (message.customModel != null && message.hasOwnProperty("customModel")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.CustomModel.verify(message.customModel);
+                            if (error)
+                                return "customModel." + error;
                         }
                     }
                     if (message.oneHotEncoder != null && message.hasOwnProperty("oneHotEncoder")) {
@@ -2156,6 +2260,16 @@
                                 return "arrayFeatureExtractor." + error;
                         }
                     }
+                    if (message.nonMaximumSuppression != null && message.hasOwnProperty("nonMaximumSuppression")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.NonMaximumSuppression.verify(message.nonMaximumSuppression);
+                            if (error)
+                                return "nonMaximumSuppression." + error;
+                        }
+                    }
                     if (message.identity != null && message.hasOwnProperty("identity")) {
                         if (properties.Type === 1)
                             return "Type: multiple values";
@@ -2164,6 +2278,36 @@
                             var error = $root.CoreML.Specification.Identity.verify(message.identity);
                             if (error)
                                 return "identity." + error;
+                        }
+                    }
+                    if (message.textClassifier != null && message.hasOwnProperty("textClassifier")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.CoreMLModels.TextClassifier.verify(message.textClassifier);
+                            if (error)
+                                return "textClassifier." + error;
+                        }
+                    }
+                    if (message.wordTagger != null && message.hasOwnProperty("wordTagger")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.CoreMLModels.WordTagger.verify(message.wordTagger);
+                            if (error)
+                                return "wordTagger." + error;
+                        }
+                    }
+                    if (message.visionFeaturePrint != null && message.hasOwnProperty("visionFeaturePrint")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.verify(message.visionFeaturePrint);
+                            if (error)
+                                return "visionFeaturePrint." + error;
                         }
                     }
                     return null;
@@ -2223,6 +2367,11 @@
                             throw TypeError(".CoreML.Specification.Model.neuralNetworkRegressor: object expected");
                         message.neuralNetworkRegressor = $root.CoreML.Specification.NeuralNetworkRegressor.fromObject(object.neuralNetworkRegressor);
                     }
+                    if (object.bayesianProbitRegressor != null) {
+                        if (typeof object.bayesianProbitRegressor !== "object")
+                            throw TypeError(".CoreML.Specification.Model.bayesianProbitRegressor: object expected");
+                        message.bayesianProbitRegressor = $root.CoreML.Specification.BayesianProbitRegressor.fromObject(object.bayesianProbitRegressor);
+                    }
                     if (object.glmClassifier != null) {
                         if (typeof object.glmClassifier !== "object")
                             throw TypeError(".CoreML.Specification.Model.glmClassifier: object expected");
@@ -2247,6 +2396,11 @@
                         if (typeof object.neuralNetwork !== "object")
                             throw TypeError(".CoreML.Specification.Model.neuralNetwork: object expected");
                         message.neuralNetwork = $root.CoreML.Specification.NeuralNetwork.fromObject(object.neuralNetwork);
+                    }
+                    if (object.customModel != null) {
+                        if (typeof object.customModel !== "object")
+                            throw TypeError(".CoreML.Specification.Model.customModel: object expected");
+                        message.customModel = $root.CoreML.Specification.CustomModel.fromObject(object.customModel);
                     }
                     if (object.oneHotEncoder != null) {
                         if (typeof object.oneHotEncoder !== "object")
@@ -2288,10 +2442,30 @@
                             throw TypeError(".CoreML.Specification.Model.arrayFeatureExtractor: object expected");
                         message.arrayFeatureExtractor = $root.CoreML.Specification.ArrayFeatureExtractor.fromObject(object.arrayFeatureExtractor);
                     }
+                    if (object.nonMaximumSuppression != null) {
+                        if (typeof object.nonMaximumSuppression !== "object")
+                            throw TypeError(".CoreML.Specification.Model.nonMaximumSuppression: object expected");
+                        message.nonMaximumSuppression = $root.CoreML.Specification.NonMaximumSuppression.fromObject(object.nonMaximumSuppression);
+                    }
                     if (object.identity != null) {
                         if (typeof object.identity !== "object")
                             throw TypeError(".CoreML.Specification.Model.identity: object expected");
                         message.identity = $root.CoreML.Specification.Identity.fromObject(object.identity);
+                    }
+                    if (object.textClassifier != null) {
+                        if (typeof object.textClassifier !== "object")
+                            throw TypeError(".CoreML.Specification.Model.textClassifier: object expected");
+                        message.textClassifier = $root.CoreML.Specification.CoreMLModels.TextClassifier.fromObject(object.textClassifier);
+                    }
+                    if (object.wordTagger != null) {
+                        if (typeof object.wordTagger !== "object")
+                            throw TypeError(".CoreML.Specification.Model.wordTagger: object expected");
+                        message.wordTagger = $root.CoreML.Specification.CoreMLModels.WordTagger.fromObject(object.wordTagger);
+                    }
+                    if (object.visionFeaturePrint != null) {
+                        if (typeof object.visionFeaturePrint !== "object")
+                            throw TypeError(".CoreML.Specification.Model.visionFeaturePrint: object expected");
+                        message.visionFeaturePrint = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.fromObject(object.visionFeaturePrint);
                     }
                     return message;
                 };
@@ -2352,6 +2526,11 @@
                         if (options.oneofs)
                             object.Type = "neuralNetworkRegressor";
                     }
+                    if (message.bayesianProbitRegressor != null && message.hasOwnProperty("bayesianProbitRegressor")) {
+                        object.bayesianProbitRegressor = $root.CoreML.Specification.BayesianProbitRegressor.toObject(message.bayesianProbitRegressor, options);
+                        if (options.oneofs)
+                            object.Type = "bayesianProbitRegressor";
+                    }
                     if (message.glmClassifier != null && message.hasOwnProperty("glmClassifier")) {
                         object.glmClassifier = $root.CoreML.Specification.GLMClassifier.toObject(message.glmClassifier, options);
                         if (options.oneofs)
@@ -2376,6 +2555,11 @@
                         object.neuralNetwork = $root.CoreML.Specification.NeuralNetwork.toObject(message.neuralNetwork, options);
                         if (options.oneofs)
                             object.Type = "neuralNetwork";
+                    }
+                    if (message.customModel != null && message.hasOwnProperty("customModel")) {
+                        object.customModel = $root.CoreML.Specification.CustomModel.toObject(message.customModel, options);
+                        if (options.oneofs)
+                            object.Type = "customModel";
                     }
                     if (message.oneHotEncoder != null && message.hasOwnProperty("oneHotEncoder")) {
                         object.oneHotEncoder = $root.CoreML.Specification.OneHotEncoder.toObject(message.oneHotEncoder, options);
@@ -2417,10 +2601,30 @@
                         if (options.oneofs)
                             object.Type = "arrayFeatureExtractor";
                     }
+                    if (message.nonMaximumSuppression != null && message.hasOwnProperty("nonMaximumSuppression")) {
+                        object.nonMaximumSuppression = $root.CoreML.Specification.NonMaximumSuppression.toObject(message.nonMaximumSuppression, options);
+                        if (options.oneofs)
+                            object.Type = "nonMaximumSuppression";
+                    }
                     if (message.identity != null && message.hasOwnProperty("identity")) {
                         object.identity = $root.CoreML.Specification.Identity.toObject(message.identity, options);
                         if (options.oneofs)
                             object.Type = "identity";
+                    }
+                    if (message.textClassifier != null && message.hasOwnProperty("textClassifier")) {
+                        object.textClassifier = $root.CoreML.Specification.CoreMLModels.TextClassifier.toObject(message.textClassifier, options);
+                        if (options.oneofs)
+                            object.Type = "textClassifier";
+                    }
+                    if (message.wordTagger != null && message.hasOwnProperty("wordTagger")) {
+                        object.wordTagger = $root.CoreML.Specification.CoreMLModels.WordTagger.toObject(message.wordTagger, options);
+                        if (options.oneofs)
+                            object.Type = "wordTagger";
+                    }
+                    if (message.visionFeaturePrint != null && message.hasOwnProperty("visionFeaturePrint")) {
+                        object.visionFeaturePrint = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.toObject(message.visionFeaturePrint, options);
+                        if (options.oneofs)
+                            object.Type = "visionFeaturePrint";
                     }
                     return object;
                 };
@@ -2439,551 +2643,1097 @@
                 return Model;
             })();
     
-            Specification.ArrayFeatureExtractor = (function() {
+            Specification.CoreMLModels = (function() {
     
                 /**
-                 * Properties of an ArrayFeatureExtractor.
+                 * Namespace CoreMLModels.
                  * @memberof CoreML.Specification
-                 * @interface IArrayFeatureExtractor
-                 * @property {Array.<number|Long>|null} [extractIndex] ArrayFeatureExtractor extractIndex
+                 * @namespace
                  */
+                var CoreMLModels = {};
     
-                /**
-                 * Constructs a new ArrayFeatureExtractor.
-                 * @memberof CoreML.Specification
-                 * @classdesc An array feature extractor.
-                 * 
-                 * Given an index, extracts the value at that index from its array input.
-                 * Indexes are zero-based.
-                 * @implements IArrayFeatureExtractor
-                 * @constructor
-                 * @param {CoreML.Specification.IArrayFeatureExtractor=} [properties] Properties to set
-                 */
-                function ArrayFeatureExtractor(properties) {
-                    this.extractIndex = [];
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
+                CoreMLModels.VisionFeaturePrint = (function() {
     
-                /**
-                 * ArrayFeatureExtractor extractIndex.
-                 * @member {Array.<number|Long>} extractIndex
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @instance
-                 */
-                ArrayFeatureExtractor.prototype.extractIndex = $util.emptyArray;
+                    /**
+                     * Properties of a VisionFeaturePrint.
+                     * @memberof CoreML.Specification.CoreMLModels
+                     * @interface IVisionFeaturePrint
+                     * @property {CoreML.Specification.CoreMLModels.VisionFeaturePrint.IScene|null} [scene] VisionFeaturePrint scene
+                     */
     
-                /**
-                 * Creates a new ArrayFeatureExtractor instance using the specified properties.
-                 * @function create
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {CoreML.Specification.IArrayFeatureExtractor=} [properties] Properties to set
-                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor instance
-                 */
-                ArrayFeatureExtractor.create = function create(properties) {
-                    return new ArrayFeatureExtractor(properties);
-                };
-    
-                /**
-                 * Encodes the specified ArrayFeatureExtractor message. Does not implicitly {@link CoreML.Specification.ArrayFeatureExtractor.verify|verify} messages.
-                 * @function encode
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {CoreML.Specification.IArrayFeatureExtractor} message ArrayFeatureExtractor message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ArrayFeatureExtractor.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.extractIndex != null && message.extractIndex.length) {
-                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
-                        for (var i = 0; i < message.extractIndex.length; ++i)
-                            writer.uint64(message.extractIndex[i]);
-                        writer.ldelim();
+                    /**
+                     * Constructs a new VisionFeaturePrint.
+                     * @memberof CoreML.Specification.CoreMLModels
+                     * @classdesc A model which takes an input image and outputs an array of features
+                     * according to the specified feature types
+                     * @implements IVisionFeaturePrint
+                     * @constructor
+                     * @param {CoreML.Specification.CoreMLModels.IVisionFeaturePrint=} [properties] Properties to set
+                     */
+                    function VisionFeaturePrint(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
                     }
-                    return writer;
-                };
     
-                /**
-                 * Encodes the specified ArrayFeatureExtractor message, length delimited. Does not implicitly {@link CoreML.Specification.ArrayFeatureExtractor.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {CoreML.Specification.IArrayFeatureExtractor} message ArrayFeatureExtractor message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ArrayFeatureExtractor.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
+                    /**
+                     * VisionFeaturePrint scene.
+                     * @member {CoreML.Specification.CoreMLModels.VisionFeaturePrint.IScene|null|undefined} scene
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @instance
+                     */
+                    VisionFeaturePrint.prototype.scene = null;
     
-                /**
-                 * Decodes an ArrayFeatureExtractor message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                ArrayFeatureExtractor.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArrayFeatureExtractor();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            if (!(message.extractIndex && message.extractIndex.length))
-                                message.extractIndex = [];
-                            if ((tag & 7) === 2) {
-                                var end2 = reader.uint32() + reader.pos;
-                                while (reader.pos < end2)
-                                    message.extractIndex.push(reader.uint64());
-                            } else
-                                message.extractIndex.push(reader.uint64());
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
+                    // OneOf field names bound to virtual getters and setters
+                    var $oneOfFields;
+    
+                    /**
+                     * VisionFeaturePrint VisionFeaturePrintType.
+                     * @member {"scene"|undefined} VisionFeaturePrintType
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @instance
+                     */
+                    Object.defineProperty(VisionFeaturePrint.prototype, "VisionFeaturePrintType", {
+                        get: $util.oneOfGetter($oneOfFields = ["scene"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+    
+                    /**
+                     * Creates a new VisionFeaturePrint instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.IVisionFeaturePrint=} [properties] Properties to set
+                     * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint} VisionFeaturePrint instance
+                     */
+                    VisionFeaturePrint.create = function create(properties) {
+                        return new VisionFeaturePrint(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified VisionFeaturePrint message. Does not implicitly {@link CoreML.Specification.CoreMLModels.VisionFeaturePrint.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.IVisionFeaturePrint} message VisionFeaturePrint message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    VisionFeaturePrint.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.scene != null && message.hasOwnProperty("scene"))
+                            $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.encode(message.scene, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified VisionFeaturePrint message, length delimited. Does not implicitly {@link CoreML.Specification.CoreMLModels.VisionFeaturePrint.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.IVisionFeaturePrint} message VisionFeaturePrint message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    VisionFeaturePrint.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a VisionFeaturePrint message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint} VisionFeaturePrint
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    VisionFeaturePrint.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 20:
+                                message.scene = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
                         }
-                    }
-                    return message;
-                };
+                        return message;
+                    };
     
-                /**
-                 * Decodes an ArrayFeatureExtractor message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                ArrayFeatureExtractor.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
+                    /**
+                     * Decodes a VisionFeaturePrint message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint} VisionFeaturePrint
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    VisionFeaturePrint.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
     
-                /**
-                 * Verifies an ArrayFeatureExtractor message.
-                 * @function verify
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                ArrayFeatureExtractor.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    if (message.extractIndex != null && message.hasOwnProperty("extractIndex")) {
-                        if (!Array.isArray(message.extractIndex))
-                            return "extractIndex: array expected";
-                        for (var i = 0; i < message.extractIndex.length; ++i)
-                            if (!$util.isInteger(message.extractIndex[i]) && !(message.extractIndex[i] && $util.isInteger(message.extractIndex[i].low) && $util.isInteger(message.extractIndex[i].high)))
-                                return "extractIndex: integer|Long[] expected";
-                    }
-                    return null;
-                };
+                    /**
+                     * Verifies a VisionFeaturePrint message.
+                     * @function verify
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    VisionFeaturePrint.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        var properties = {};
+                        if (message.scene != null && message.hasOwnProperty("scene")) {
+                            properties.VisionFeaturePrintType = 1;
+                            {
+                                var error = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.verify(message.scene);
+                                if (error)
+                                    return "scene." + error;
+                            }
+                        }
+                        return null;
+                    };
     
-                /**
-                 * Creates an ArrayFeatureExtractor message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor
-                 */
-                ArrayFeatureExtractor.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CoreML.Specification.ArrayFeatureExtractor)
+                    /**
+                     * Creates a VisionFeaturePrint message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint} VisionFeaturePrint
+                     */
+                    VisionFeaturePrint.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint)
+                            return object;
+                        var message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint();
+                        if (object.scene != null) {
+                            if (typeof object.scene !== "object")
+                                throw TypeError(".CoreML.Specification.CoreMLModels.VisionFeaturePrint.scene: object expected");
+                            message.scene = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.fromObject(object.scene);
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a VisionFeaturePrint message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.VisionFeaturePrint} message VisionFeaturePrint
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    VisionFeaturePrint.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (message.scene != null && message.hasOwnProperty("scene")) {
+                            object.scene = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.toObject(message.scene, options);
+                            if (options.oneofs)
+                                object.VisionFeaturePrintType = "scene";
+                        }
                         return object;
-                    var message = new $root.CoreML.Specification.ArrayFeatureExtractor();
-                    if (object.extractIndex) {
-                        if (!Array.isArray(object.extractIndex))
-                            throw TypeError(".CoreML.Specification.ArrayFeatureExtractor.extractIndex: array expected");
-                        message.extractIndex = [];
-                        for (var i = 0; i < object.extractIndex.length; ++i)
-                            if ($util.Long)
-                                (message.extractIndex[i] = $util.Long.fromValue(object.extractIndex[i])).unsigned = true;
-                            else if (typeof object.extractIndex[i] === "string")
-                                message.extractIndex[i] = parseInt(object.extractIndex[i], 10);
-                            else if (typeof object.extractIndex[i] === "number")
-                                message.extractIndex[i] = object.extractIndex[i];
-                            else if (typeof object.extractIndex[i] === "object")
-                                message.extractIndex[i] = new $util.LongBits(object.extractIndex[i].low >>> 0, object.extractIndex[i].high >>> 0).toNumber(true);
-                    }
-                    return message;
-                };
+                    };
     
-                /**
-                 * Creates a plain object from an ArrayFeatureExtractor message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @static
-                 * @param {CoreML.Specification.ArrayFeatureExtractor} message ArrayFeatureExtractor
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                ArrayFeatureExtractor.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (options.arrays || options.defaults)
-                        object.extractIndex = [];
-                    if (message.extractIndex && message.extractIndex.length) {
-                        object.extractIndex = [];
-                        for (var j = 0; j < message.extractIndex.length; ++j)
-                            if (typeof message.extractIndex[j] === "number")
-                                object.extractIndex[j] = options.longs === String ? String(message.extractIndex[j]) : message.extractIndex[j];
-                            else
-                                object.extractIndex[j] = options.longs === String ? $util.Long.prototype.toString.call(message.extractIndex[j]) : options.longs === Number ? new $util.LongBits(message.extractIndex[j].low >>> 0, message.extractIndex[j].high >>> 0).toNumber(true) : message.extractIndex[j];
-                    }
-                    return object;
-                };
+                    /**
+                     * Converts this VisionFeaturePrint to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    VisionFeaturePrint.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
     
-                /**
-                 * Converts this ArrayFeatureExtractor to JSON.
-                 * @function toJSON
-                 * @memberof CoreML.Specification.ArrayFeatureExtractor
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                ArrayFeatureExtractor.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
+                    VisionFeaturePrint.Scene = (function() {
     
-                return ArrayFeatureExtractor;
-            })();
+                        /**
+                         * Properties of a Scene.
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                         * @interface IScene
+                         * @property {CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.SceneVersion|null} [version] Scene version
+                         */
     
-            Specification.CategoricalMapping = (function() {
-    
-                /**
-                 * Properties of a CategoricalMapping.
-                 * @memberof CoreML.Specification
-                 * @interface ICategoricalMapping
-                 * @property {CoreML.Specification.IStringToInt64Map|null} [stringToInt64Map] CategoricalMapping stringToInt64Map
-                 * @property {CoreML.Specification.IInt64ToStringMap|null} [int64ToStringMap] CategoricalMapping int64ToStringMap
-                 * @property {string|null} [strValue] CategoricalMapping strValue
-                 * @property {number|Long|null} [int64Value] CategoricalMapping int64Value
-                 */
-    
-                /**
-                 * Constructs a new CategoricalMapping.
-                 * @memberof CoreML.Specification
-                 * @classdesc A categorical mapping.
-                 * 
-                 * This allows conversion from integers to strings, or from strings to integers.
-                 * @implements ICategoricalMapping
-                 * @constructor
-                 * @param {CoreML.Specification.ICategoricalMapping=} [properties] Properties to set
-                 */
-                function CategoricalMapping(properties) {
-                    if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
-                                this[keys[i]] = properties[keys[i]];
-                }
-    
-                /**
-                 * CategoricalMapping stringToInt64Map.
-                 * @member {CoreML.Specification.IStringToInt64Map|null|undefined} stringToInt64Map
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @instance
-                 */
-                CategoricalMapping.prototype.stringToInt64Map = null;
-    
-                /**
-                 * CategoricalMapping int64ToStringMap.
-                 * @member {CoreML.Specification.IInt64ToStringMap|null|undefined} int64ToStringMap
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @instance
-                 */
-                CategoricalMapping.prototype.int64ToStringMap = null;
-    
-                /**
-                 * CategoricalMapping strValue.
-                 * @member {string} strValue
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @instance
-                 */
-                CategoricalMapping.prototype.strValue = "";
-    
-                /**
-                 * CategoricalMapping int64Value.
-                 * @member {number|Long} int64Value
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @instance
-                 */
-                CategoricalMapping.prototype.int64Value = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-                // OneOf field names bound to virtual getters and setters
-                var $oneOfFields;
-    
-                /**
-                 * CategoricalMapping MappingType.
-                 * @member {"stringToInt64Map"|"int64ToStringMap"|undefined} MappingType
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @instance
-                 */
-                Object.defineProperty(CategoricalMapping.prototype, "MappingType", {
-                    get: $util.oneOfGetter($oneOfFields = ["stringToInt64Map", "int64ToStringMap"]),
-                    set: $util.oneOfSetter($oneOfFields)
-                });
-    
-                /**
-                 * The value returned if an input is not contained in the map above.
-                 * If one of these is not set, then an error is raised on an unknown input.
-                 * @member {"strValue"|"int64Value"|undefined} ValueOnUnknown
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @instance
-                 */
-                Object.defineProperty(CategoricalMapping.prototype, "ValueOnUnknown", {
-                    get: $util.oneOfGetter($oneOfFields = ["strValue", "int64Value"]),
-                    set: $util.oneOfSetter($oneOfFields)
-                });
-    
-                /**
-                 * Creates a new CategoricalMapping instance using the specified properties.
-                 * @function create
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {CoreML.Specification.ICategoricalMapping=} [properties] Properties to set
-                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping instance
-                 */
-                CategoricalMapping.create = function create(properties) {
-                    return new CategoricalMapping(properties);
-                };
-    
-                /**
-                 * Encodes the specified CategoricalMapping message. Does not implicitly {@link CoreML.Specification.CategoricalMapping.verify|verify} messages.
-                 * @function encode
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {CoreML.Specification.ICategoricalMapping} message CategoricalMapping message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                CategoricalMapping.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.stringToInt64Map != null && message.hasOwnProperty("stringToInt64Map"))
-                        $root.CoreML.Specification.StringToInt64Map.encode(message.stringToInt64Map, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    if (message.int64ToStringMap != null && message.hasOwnProperty("int64ToStringMap"))
-                        $root.CoreML.Specification.Int64ToStringMap.encode(message.int64ToStringMap, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    if (message.strValue != null && message.hasOwnProperty("strValue"))
-                        writer.uint32(/* id 101, wireType 2 =*/810).string(message.strValue);
-                    if (message.int64Value != null && message.hasOwnProperty("int64Value"))
-                        writer.uint32(/* id 102, wireType 0 =*/816).int64(message.int64Value);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified CategoricalMapping message, length delimited. Does not implicitly {@link CoreML.Specification.CategoricalMapping.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {CoreML.Specification.ICategoricalMapping} message CategoricalMapping message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                CategoricalMapping.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a CategoricalMapping message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                CategoricalMapping.decode = function decode(reader, length) {
-                    if (!(reader instanceof $Reader))
-                        reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CategoricalMapping();
-                    while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        switch (tag >>> 3) {
-                        case 1:
-                            message.stringToInt64Map = $root.CoreML.Specification.StringToInt64Map.decode(reader, reader.uint32());
-                            break;
-                        case 2:
-                            message.int64ToStringMap = $root.CoreML.Specification.Int64ToStringMap.decode(reader, reader.uint32());
-                            break;
-                        case 101:
-                            message.strValue = reader.string();
-                            break;
-                        case 102:
-                            message.int64Value = reader.int64();
-                            break;
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
+                        /**
+                         * Constructs a new Scene.
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint
+                         * @classdesc Represents a Scene.
+                         * @implements IScene
+                         * @constructor
+                         * @param {CoreML.Specification.CoreMLModels.VisionFeaturePrint.IScene=} [properties] Properties to set
+                         */
+                        function Scene(properties) {
+                            if (properties)
+                                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                    if (properties[keys[i]] != null)
+                                        this[keys[i]] = properties[keys[i]];
                         }
+    
+                        /**
+                         * Scene version.
+                         * @member {CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.SceneVersion} version
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @instance
+                         */
+                        Scene.prototype.version = 0;
+    
+                        /**
+                         * Creates a new Scene instance using the specified properties.
+                         * @function create
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {CoreML.Specification.CoreMLModels.VisionFeaturePrint.IScene=} [properties] Properties to set
+                         * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene} Scene instance
+                         */
+                        Scene.create = function create(properties) {
+                            return new Scene(properties);
+                        };
+    
+                        /**
+                         * Encodes the specified Scene message. Does not implicitly {@link CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.verify|verify} messages.
+                         * @function encode
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {CoreML.Specification.CoreMLModels.VisionFeaturePrint.IScene} message Scene message or plain object to encode
+                         * @param {$protobuf.Writer} [writer] Writer to encode to
+                         * @returns {$protobuf.Writer} Writer
+                         */
+                        Scene.encode = function encode(message, writer) {
+                            if (!writer)
+                                writer = $Writer.create();
+                            if (message.version != null && message.hasOwnProperty("version"))
+                                writer.uint32(/* id 1, wireType 0 =*/8).int32(message.version);
+                            return writer;
+                        };
+    
+                        /**
+                         * Encodes the specified Scene message, length delimited. Does not implicitly {@link CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.verify|verify} messages.
+                         * @function encodeDelimited
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {CoreML.Specification.CoreMLModels.VisionFeaturePrint.IScene} message Scene message or plain object to encode
+                         * @param {$protobuf.Writer} [writer] Writer to encode to
+                         * @returns {$protobuf.Writer} Writer
+                         */
+                        Scene.encodeDelimited = function encodeDelimited(message, writer) {
+                            return this.encode(message, writer).ldelim();
+                        };
+    
+                        /**
+                         * Decodes a Scene message from the specified reader or buffer.
+                         * @function decode
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                         * @param {number} [length] Message length if known beforehand
+                         * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene} Scene
+                         * @throws {Error} If the payload is not a reader or valid buffer
+                         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                         */
+                        Scene.decode = function decode(reader, length) {
+                            if (!(reader instanceof $Reader))
+                                reader = $Reader.create(reader);
+                            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene();
+                            while (reader.pos < end) {
+                                var tag = reader.uint32();
+                                switch (tag >>> 3) {
+                                case 1:
+                                    message.version = reader.int32();
+                                    break;
+                                default:
+                                    reader.skipType(tag & 7);
+                                    break;
+                                }
+                            }
+                            return message;
+                        };
+    
+                        /**
+                         * Decodes a Scene message from the specified reader or buffer, length delimited.
+                         * @function decodeDelimited
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                         * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene} Scene
+                         * @throws {Error} If the payload is not a reader or valid buffer
+                         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                         */
+                        Scene.decodeDelimited = function decodeDelimited(reader) {
+                            if (!(reader instanceof $Reader))
+                                reader = new $Reader(reader);
+                            return this.decode(reader, reader.uint32());
+                        };
+    
+                        /**
+                         * Verifies a Scene message.
+                         * @function verify
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {Object.<string,*>} message Plain object to verify
+                         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                         */
+                        Scene.verify = function verify(message) {
+                            if (typeof message !== "object" || message === null)
+                                return "object expected";
+                            if (message.version != null && message.hasOwnProperty("version"))
+                                switch (message.version) {
+                                default:
+                                    return "version: enum value expected";
+                                case 0:
+                                case 1:
+                                    break;
+                                }
+                            return null;
+                        };
+    
+                        /**
+                         * Creates a Scene message from a plain object. Also converts values to their respective internal types.
+                         * @function fromObject
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {Object.<string,*>} object Plain object
+                         * @returns {CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene} Scene
+                         */
+                        Scene.fromObject = function fromObject(object) {
+                            if (object instanceof $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene)
+                                return object;
+                            var message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene();
+                            switch (object.version) {
+                            case "SCENE_VERSION_INVALID":
+                            case 0:
+                                message.version = 0;
+                                break;
+                            case "SCENE_VERSION_1":
+                            case 1:
+                                message.version = 1;
+                                break;
+                            }
+                            return message;
+                        };
+    
+                        /**
+                         * Creates a plain object from a Scene message. Also converts values to other types if specified.
+                         * @function toObject
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @static
+                         * @param {CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene} message Scene
+                         * @param {$protobuf.IConversionOptions} [options] Conversion options
+                         * @returns {Object.<string,*>} Plain object
+                         */
+                        Scene.toObject = function toObject(message, options) {
+                            if (!options)
+                                options = {};
+                            var object = {};
+                            if (options.defaults)
+                                object.version = options.enums === String ? "SCENE_VERSION_INVALID" : 0;
+                            if (message.version != null && message.hasOwnProperty("version"))
+                                object.version = options.enums === String ? $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.SceneVersion[message.version] : message.version;
+                            return object;
+                        };
+    
+                        /**
+                         * Converts this Scene to JSON.
+                         * @function toJSON
+                         * @memberof CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene
+                         * @instance
+                         * @returns {Object.<string,*>} JSON object
+                         */
+                        Scene.prototype.toJSON = function toJSON() {
+                            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                        };
+    
+                        /**
+                         * SceneVersion enum.
+                         * @name CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.SceneVersion
+                         * @enum {string}
+                         * @property {number} SCENE_VERSION_INVALID=0 SCENE_VERSION_INVALID value
+                         * @property {number} SCENE_VERSION_1=1 SCENE_VERSION_1 value
+                         */
+                        Scene.SceneVersion = (function() {
+                            var valuesById = {}, values = Object.create(valuesById);
+                            values[valuesById[0] = "SCENE_VERSION_INVALID"] = 0;
+                            values[valuesById[1] = "SCENE_VERSION_1"] = 1;
+                            return values;
+                        })();
+    
+                        return Scene;
+                    })();
+    
+                    return VisionFeaturePrint;
+                })();
+    
+                CoreMLModels.TextClassifier = (function() {
+    
+                    /**
+                     * Properties of a TextClassifier.
+                     * @memberof CoreML.Specification.CoreMLModels
+                     * @interface ITextClassifier
+                     * @property {number|null} [revision] TextClassifier revision
+                     * @property {string|null} [language] TextClassifier language
+                     * @property {Uint8Array|null} [modelParameterData] TextClassifier modelParameterData
+                     * @property {CoreML.Specification.IStringVector|null} [stringClassLabels] TextClassifier stringClassLabels
+                     */
+    
+                    /**
+                     * Constructs a new TextClassifier.
+                     * @memberof CoreML.Specification.CoreMLModels
+                     * @classdesc A model which takes a single input string and outputs a
+                     * label for the input.
+                     * @implements ITextClassifier
+                     * @constructor
+                     * @param {CoreML.Specification.CoreMLModels.ITextClassifier=} [properties] Properties to set
+                     */
+                    function TextClassifier(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
                     }
-                    return message;
-                };
     
-                /**
-                 * Decodes a CategoricalMapping message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                CategoricalMapping.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
+                    /**
+                     * TextClassifier revision.
+                     * @member {number} revision
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @instance
+                     */
+                    TextClassifier.prototype.revision = 0;
     
-                /**
-                 * Verifies a CategoricalMapping message.
-                 * @function verify
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
-                CategoricalMapping.verify = function verify(message) {
-                    if (typeof message !== "object" || message === null)
-                        return "object expected";
-                    var properties = {};
-                    if (message.stringToInt64Map != null && message.hasOwnProperty("stringToInt64Map")) {
-                        properties.MappingType = 1;
-                        {
-                            var error = $root.CoreML.Specification.StringToInt64Map.verify(message.stringToInt64Map);
-                            if (error)
-                                return "stringToInt64Map." + error;
+                    /**
+                     * TextClassifier language.
+                     * @member {string} language
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @instance
+                     */
+                    TextClassifier.prototype.language = "";
+    
+                    /**
+                     * TextClassifier modelParameterData.
+                     * @member {Uint8Array} modelParameterData
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @instance
+                     */
+                    TextClassifier.prototype.modelParameterData = $util.newBuffer([]);
+    
+                    /**
+                     * TextClassifier stringClassLabels.
+                     * @member {CoreML.Specification.IStringVector|null|undefined} stringClassLabels
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @instance
+                     */
+                    TextClassifier.prototype.stringClassLabels = null;
+    
+                    // OneOf field names bound to virtual getters and setters
+                    var $oneOfFields;
+    
+                    /**
+                     * TextClassifier ClassLabels.
+                     * @member {"stringClassLabels"|undefined} ClassLabels
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @instance
+                     */
+                    Object.defineProperty(TextClassifier.prototype, "ClassLabels", {
+                        get: $util.oneOfGetter($oneOfFields = ["stringClassLabels"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+    
+                    /**
+                     * Creates a new TextClassifier instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.ITextClassifier=} [properties] Properties to set
+                     * @returns {CoreML.Specification.CoreMLModels.TextClassifier} TextClassifier instance
+                     */
+                    TextClassifier.create = function create(properties) {
+                        return new TextClassifier(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified TextClassifier message. Does not implicitly {@link CoreML.Specification.CoreMLModels.TextClassifier.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.ITextClassifier} message TextClassifier message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    TextClassifier.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.revision != null && message.hasOwnProperty("revision"))
+                            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.revision);
+                        if (message.language != null && message.hasOwnProperty("language"))
+                            writer.uint32(/* id 10, wireType 2 =*/82).string(message.language);
+                        if (message.modelParameterData != null && message.hasOwnProperty("modelParameterData"))
+                            writer.uint32(/* id 100, wireType 2 =*/802).bytes(message.modelParameterData);
+                        if (message.stringClassLabels != null && message.hasOwnProperty("stringClassLabels"))
+                            $root.CoreML.Specification.StringVector.encode(message.stringClassLabels, writer.uint32(/* id 200, wireType 2 =*/1602).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified TextClassifier message, length delimited. Does not implicitly {@link CoreML.Specification.CoreMLModels.TextClassifier.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.ITextClassifier} message TextClassifier message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    TextClassifier.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a TextClassifier message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.CoreMLModels.TextClassifier} TextClassifier
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    TextClassifier.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.TextClassifier();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.revision = reader.uint32();
+                                break;
+                            case 10:
+                                message.language = reader.string();
+                                break;
+                            case 100:
+                                message.modelParameterData = reader.bytes();
+                                break;
+                            case 200:
+                                message.stringClassLabels = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
                         }
-                    }
-                    if (message.int64ToStringMap != null && message.hasOwnProperty("int64ToStringMap")) {
-                        if (properties.MappingType === 1)
-                            return "MappingType: multiple values";
-                        properties.MappingType = 1;
-                        {
-                            var error = $root.CoreML.Specification.Int64ToStringMap.verify(message.int64ToStringMap);
-                            if (error)
-                                return "int64ToStringMap." + error;
-                        }
-                    }
-                    if (message.strValue != null && message.hasOwnProperty("strValue")) {
-                        properties.ValueOnUnknown = 1;
-                        if (!$util.isString(message.strValue))
-                            return "strValue: string expected";
-                    }
-                    if (message.int64Value != null && message.hasOwnProperty("int64Value")) {
-                        if (properties.ValueOnUnknown === 1)
-                            return "ValueOnUnknown: multiple values";
-                        properties.ValueOnUnknown = 1;
-                        if (!$util.isInteger(message.int64Value) && !(message.int64Value && $util.isInteger(message.int64Value.low) && $util.isInteger(message.int64Value.high)))
-                            return "int64Value: integer|Long expected";
-                    }
-                    return null;
-                };
+                        return message;
+                    };
     
-                /**
-                 * Creates a CategoricalMapping message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping
-                 */
-                CategoricalMapping.fromObject = function fromObject(object) {
-                    if (object instanceof $root.CoreML.Specification.CategoricalMapping)
+                    /**
+                     * Decodes a TextClassifier message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.CoreMLModels.TextClassifier} TextClassifier
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    TextClassifier.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a TextClassifier message.
+                     * @function verify
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    TextClassifier.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        var properties = {};
+                        if (message.revision != null && message.hasOwnProperty("revision"))
+                            if (!$util.isInteger(message.revision))
+                                return "revision: integer expected";
+                        if (message.language != null && message.hasOwnProperty("language"))
+                            if (!$util.isString(message.language))
+                                return "language: string expected";
+                        if (message.modelParameterData != null && message.hasOwnProperty("modelParameterData"))
+                            if (!(message.modelParameterData && typeof message.modelParameterData.length === "number" || $util.isString(message.modelParameterData)))
+                                return "modelParameterData: buffer expected";
+                        if (message.stringClassLabels != null && message.hasOwnProperty("stringClassLabels")) {
+                            properties.ClassLabels = 1;
+                            {
+                                var error = $root.CoreML.Specification.StringVector.verify(message.stringClassLabels);
+                                if (error)
+                                    return "stringClassLabels." + error;
+                            }
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a TextClassifier message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.CoreMLModels.TextClassifier} TextClassifier
+                     */
+                    TextClassifier.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.CoreMLModels.TextClassifier)
+                            return object;
+                        var message = new $root.CoreML.Specification.CoreMLModels.TextClassifier();
+                        if (object.revision != null)
+                            message.revision = object.revision >>> 0;
+                        if (object.language != null)
+                            message.language = String(object.language);
+                        if (object.modelParameterData != null)
+                            if (typeof object.modelParameterData === "string")
+                                $util.base64.decode(object.modelParameterData, message.modelParameterData = $util.newBuffer($util.base64.length(object.modelParameterData)), 0);
+                            else if (object.modelParameterData.length)
+                                message.modelParameterData = object.modelParameterData;
+                        if (object.stringClassLabels != null) {
+                            if (typeof object.stringClassLabels !== "object")
+                                throw TypeError(".CoreML.Specification.CoreMLModels.TextClassifier.stringClassLabels: object expected");
+                            message.stringClassLabels = $root.CoreML.Specification.StringVector.fromObject(object.stringClassLabels);
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a TextClassifier message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.TextClassifier} message TextClassifier
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    TextClassifier.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.revision = 0;
+                            object.language = "";
+                            object.modelParameterData = options.bytes === String ? "" : [];
+                        }
+                        if (message.revision != null && message.hasOwnProperty("revision"))
+                            object.revision = message.revision;
+                        if (message.language != null && message.hasOwnProperty("language"))
+                            object.language = message.language;
+                        if (message.modelParameterData != null && message.hasOwnProperty("modelParameterData"))
+                            object.modelParameterData = options.bytes === String ? $util.base64.encode(message.modelParameterData, 0, message.modelParameterData.length) : options.bytes === Array ? Array.prototype.slice.call(message.modelParameterData) : message.modelParameterData;
+                        if (message.stringClassLabels != null && message.hasOwnProperty("stringClassLabels")) {
+                            object.stringClassLabels = $root.CoreML.Specification.StringVector.toObject(message.stringClassLabels, options);
+                            if (options.oneofs)
+                                object.ClassLabels = "stringClassLabels";
+                        }
                         return object;
-                    var message = new $root.CoreML.Specification.CategoricalMapping();
-                    if (object.stringToInt64Map != null) {
-                        if (typeof object.stringToInt64Map !== "object")
-                            throw TypeError(".CoreML.Specification.CategoricalMapping.stringToInt64Map: object expected");
-                        message.stringToInt64Map = $root.CoreML.Specification.StringToInt64Map.fromObject(object.stringToInt64Map);
-                    }
-                    if (object.int64ToStringMap != null) {
-                        if (typeof object.int64ToStringMap !== "object")
-                            throw TypeError(".CoreML.Specification.CategoricalMapping.int64ToStringMap: object expected");
-                        message.int64ToStringMap = $root.CoreML.Specification.Int64ToStringMap.fromObject(object.int64ToStringMap);
-                    }
-                    if (object.strValue != null)
-                        message.strValue = String(object.strValue);
-                    if (object.int64Value != null)
-                        if ($util.Long)
-                            (message.int64Value = $util.Long.fromValue(object.int64Value)).unsigned = false;
-                        else if (typeof object.int64Value === "string")
-                            message.int64Value = parseInt(object.int64Value, 10);
-                        else if (typeof object.int64Value === "number")
-                            message.int64Value = object.int64Value;
-                        else if (typeof object.int64Value === "object")
-                            message.int64Value = new $util.LongBits(object.int64Value.low >>> 0, object.int64Value.high >>> 0).toNumber();
-                    return message;
-                };
+                    };
     
-                /**
-                 * Creates a plain object from a CategoricalMapping message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @static
-                 * @param {CoreML.Specification.CategoricalMapping} message CategoricalMapping
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
-                CategoricalMapping.toObject = function toObject(message, options) {
-                    if (!options)
-                        options = {};
-                    var object = {};
-                    if (message.stringToInt64Map != null && message.hasOwnProperty("stringToInt64Map")) {
-                        object.stringToInt64Map = $root.CoreML.Specification.StringToInt64Map.toObject(message.stringToInt64Map, options);
-                        if (options.oneofs)
-                            object.MappingType = "stringToInt64Map";
-                    }
-                    if (message.int64ToStringMap != null && message.hasOwnProperty("int64ToStringMap")) {
-                        object.int64ToStringMap = $root.CoreML.Specification.Int64ToStringMap.toObject(message.int64ToStringMap, options);
-                        if (options.oneofs)
-                            object.MappingType = "int64ToStringMap";
-                    }
-                    if (message.strValue != null && message.hasOwnProperty("strValue")) {
-                        object.strValue = message.strValue;
-                        if (options.oneofs)
-                            object.ValueOnUnknown = "strValue";
-                    }
-                    if (message.int64Value != null && message.hasOwnProperty("int64Value")) {
-                        if (typeof message.int64Value === "number")
-                            object.int64Value = options.longs === String ? String(message.int64Value) : message.int64Value;
-                        else
-                            object.int64Value = options.longs === String ? $util.Long.prototype.toString.call(message.int64Value) : options.longs === Number ? new $util.LongBits(message.int64Value.low >>> 0, message.int64Value.high >>> 0).toNumber() : message.int64Value;
-                        if (options.oneofs)
-                            object.ValueOnUnknown = "int64Value";
-                    }
-                    return object;
-                };
+                    /**
+                     * Converts this TextClassifier to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.CoreMLModels.TextClassifier
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    TextClassifier.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
     
-                /**
-                 * Converts this CategoricalMapping to JSON.
-                 * @function toJSON
-                 * @memberof CoreML.Specification.CategoricalMapping
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
-                CategoricalMapping.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
-                };
+                    return TextClassifier;
+                })();
     
-                return CategoricalMapping;
+                CoreMLModels.WordTagger = (function() {
+    
+                    /**
+                     * Properties of a WordTagger.
+                     * @memberof CoreML.Specification.CoreMLModels
+                     * @interface IWordTagger
+                     * @property {number|null} [revision] WordTagger revision
+                     * @property {string|null} [language] WordTagger language
+                     * @property {string|null} [tokensOutputFeatureName] WordTagger tokensOutputFeatureName
+                     * @property {string|null} [tokenTagsOutputFeatureName] WordTagger tokenTagsOutputFeatureName
+                     * @property {string|null} [tokenLocationsOutputFeatureName] WordTagger tokenLocationsOutputFeatureName
+                     * @property {string|null} [tokenLengthsOutputFeatureName] WordTagger tokenLengthsOutputFeatureName
+                     * @property {Uint8Array|null} [modelParameterData] WordTagger modelParameterData
+                     * @property {CoreML.Specification.IStringVector|null} [stringTags] WordTagger stringTags
+                     */
+    
+                    /**
+                     * Constructs a new WordTagger.
+                     * @memberof CoreML.Specification.CoreMLModels
+                     * @classdesc A model which takes a single input string and outputs a
+                     * sequence of tokens, tags for tokens, along with their
+                     * locations and lengths, in the original string.
+                     * @implements IWordTagger
+                     * @constructor
+                     * @param {CoreML.Specification.CoreMLModels.IWordTagger=} [properties] Properties to set
+                     */
+                    function WordTagger(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * WordTagger revision.
+                     * @member {number} revision
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.revision = 0;
+    
+                    /**
+                     * WordTagger language.
+                     * @member {string} language
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.language = "";
+    
+                    /**
+                     * WordTagger tokensOutputFeatureName.
+                     * @member {string} tokensOutputFeatureName
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.tokensOutputFeatureName = "";
+    
+                    /**
+                     * WordTagger tokenTagsOutputFeatureName.
+                     * @member {string} tokenTagsOutputFeatureName
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.tokenTagsOutputFeatureName = "";
+    
+                    /**
+                     * WordTagger tokenLocationsOutputFeatureName.
+                     * @member {string} tokenLocationsOutputFeatureName
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.tokenLocationsOutputFeatureName = "";
+    
+                    /**
+                     * WordTagger tokenLengthsOutputFeatureName.
+                     * @member {string} tokenLengthsOutputFeatureName
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.tokenLengthsOutputFeatureName = "";
+    
+                    /**
+                     * WordTagger modelParameterData.
+                     * @member {Uint8Array} modelParameterData
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.modelParameterData = $util.newBuffer([]);
+    
+                    /**
+                     * WordTagger stringTags.
+                     * @member {CoreML.Specification.IStringVector|null|undefined} stringTags
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    WordTagger.prototype.stringTags = null;
+    
+                    // OneOf field names bound to virtual getters and setters
+                    var $oneOfFields;
+    
+                    /**
+                     * WordTagger Tags.
+                     * @member {"stringTags"|undefined} Tags
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     */
+                    Object.defineProperty(WordTagger.prototype, "Tags", {
+                        get: $util.oneOfGetter($oneOfFields = ["stringTags"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+    
+                    /**
+                     * Creates a new WordTagger instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.IWordTagger=} [properties] Properties to set
+                     * @returns {CoreML.Specification.CoreMLModels.WordTagger} WordTagger instance
+                     */
+                    WordTagger.create = function create(properties) {
+                        return new WordTagger(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified WordTagger message. Does not implicitly {@link CoreML.Specification.CoreMLModels.WordTagger.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.IWordTagger} message WordTagger message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    WordTagger.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.revision != null && message.hasOwnProperty("revision"))
+                            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.revision);
+                        if (message.language != null && message.hasOwnProperty("language"))
+                            writer.uint32(/* id 10, wireType 2 =*/82).string(message.language);
+                        if (message.tokensOutputFeatureName != null && message.hasOwnProperty("tokensOutputFeatureName"))
+                            writer.uint32(/* id 20, wireType 2 =*/162).string(message.tokensOutputFeatureName);
+                        if (message.tokenTagsOutputFeatureName != null && message.hasOwnProperty("tokenTagsOutputFeatureName"))
+                            writer.uint32(/* id 21, wireType 2 =*/170).string(message.tokenTagsOutputFeatureName);
+                        if (message.tokenLocationsOutputFeatureName != null && message.hasOwnProperty("tokenLocationsOutputFeatureName"))
+                            writer.uint32(/* id 22, wireType 2 =*/178).string(message.tokenLocationsOutputFeatureName);
+                        if (message.tokenLengthsOutputFeatureName != null && message.hasOwnProperty("tokenLengthsOutputFeatureName"))
+                            writer.uint32(/* id 23, wireType 2 =*/186).string(message.tokenLengthsOutputFeatureName);
+                        if (message.modelParameterData != null && message.hasOwnProperty("modelParameterData"))
+                            writer.uint32(/* id 100, wireType 2 =*/802).bytes(message.modelParameterData);
+                        if (message.stringTags != null && message.hasOwnProperty("stringTags"))
+                            $root.CoreML.Specification.StringVector.encode(message.stringTags, writer.uint32(/* id 200, wireType 2 =*/1602).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified WordTagger message, length delimited. Does not implicitly {@link CoreML.Specification.CoreMLModels.WordTagger.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.IWordTagger} message WordTagger message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    WordTagger.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a WordTagger message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.CoreMLModels.WordTagger} WordTagger
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    WordTagger.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.WordTagger();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.revision = reader.uint32();
+                                break;
+                            case 10:
+                                message.language = reader.string();
+                                break;
+                            case 20:
+                                message.tokensOutputFeatureName = reader.string();
+                                break;
+                            case 21:
+                                message.tokenTagsOutputFeatureName = reader.string();
+                                break;
+                            case 22:
+                                message.tokenLocationsOutputFeatureName = reader.string();
+                                break;
+                            case 23:
+                                message.tokenLengthsOutputFeatureName = reader.string();
+                                break;
+                            case 100:
+                                message.modelParameterData = reader.bytes();
+                                break;
+                            case 200:
+                                message.stringTags = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a WordTagger message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.CoreMLModels.WordTagger} WordTagger
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    WordTagger.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a WordTagger message.
+                     * @function verify
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    WordTagger.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        var properties = {};
+                        if (message.revision != null && message.hasOwnProperty("revision"))
+                            if (!$util.isInteger(message.revision))
+                                return "revision: integer expected";
+                        if (message.language != null && message.hasOwnProperty("language"))
+                            if (!$util.isString(message.language))
+                                return "language: string expected";
+                        if (message.tokensOutputFeatureName != null && message.hasOwnProperty("tokensOutputFeatureName"))
+                            if (!$util.isString(message.tokensOutputFeatureName))
+                                return "tokensOutputFeatureName: string expected";
+                        if (message.tokenTagsOutputFeatureName != null && message.hasOwnProperty("tokenTagsOutputFeatureName"))
+                            if (!$util.isString(message.tokenTagsOutputFeatureName))
+                                return "tokenTagsOutputFeatureName: string expected";
+                        if (message.tokenLocationsOutputFeatureName != null && message.hasOwnProperty("tokenLocationsOutputFeatureName"))
+                            if (!$util.isString(message.tokenLocationsOutputFeatureName))
+                                return "tokenLocationsOutputFeatureName: string expected";
+                        if (message.tokenLengthsOutputFeatureName != null && message.hasOwnProperty("tokenLengthsOutputFeatureName"))
+                            if (!$util.isString(message.tokenLengthsOutputFeatureName))
+                                return "tokenLengthsOutputFeatureName: string expected";
+                        if (message.modelParameterData != null && message.hasOwnProperty("modelParameterData"))
+                            if (!(message.modelParameterData && typeof message.modelParameterData.length === "number" || $util.isString(message.modelParameterData)))
+                                return "modelParameterData: buffer expected";
+                        if (message.stringTags != null && message.hasOwnProperty("stringTags")) {
+                            properties.Tags = 1;
+                            {
+                                var error = $root.CoreML.Specification.StringVector.verify(message.stringTags);
+                                if (error)
+                                    return "stringTags." + error;
+                            }
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a WordTagger message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.CoreMLModels.WordTagger} WordTagger
+                     */
+                    WordTagger.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.CoreMLModels.WordTagger)
+                            return object;
+                        var message = new $root.CoreML.Specification.CoreMLModels.WordTagger();
+                        if (object.revision != null)
+                            message.revision = object.revision >>> 0;
+                        if (object.language != null)
+                            message.language = String(object.language);
+                        if (object.tokensOutputFeatureName != null)
+                            message.tokensOutputFeatureName = String(object.tokensOutputFeatureName);
+                        if (object.tokenTagsOutputFeatureName != null)
+                            message.tokenTagsOutputFeatureName = String(object.tokenTagsOutputFeatureName);
+                        if (object.tokenLocationsOutputFeatureName != null)
+                            message.tokenLocationsOutputFeatureName = String(object.tokenLocationsOutputFeatureName);
+                        if (object.tokenLengthsOutputFeatureName != null)
+                            message.tokenLengthsOutputFeatureName = String(object.tokenLengthsOutputFeatureName);
+                        if (object.modelParameterData != null)
+                            if (typeof object.modelParameterData === "string")
+                                $util.base64.decode(object.modelParameterData, message.modelParameterData = $util.newBuffer($util.base64.length(object.modelParameterData)), 0);
+                            else if (object.modelParameterData.length)
+                                message.modelParameterData = object.modelParameterData;
+                        if (object.stringTags != null) {
+                            if (typeof object.stringTags !== "object")
+                                throw TypeError(".CoreML.Specification.CoreMLModels.WordTagger.stringTags: object expected");
+                            message.stringTags = $root.CoreML.Specification.StringVector.fromObject(object.stringTags);
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a WordTagger message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @static
+                     * @param {CoreML.Specification.CoreMLModels.WordTagger} message WordTagger
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    WordTagger.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.revision = 0;
+                            object.language = "";
+                            object.tokensOutputFeatureName = "";
+                            object.tokenTagsOutputFeatureName = "";
+                            object.tokenLocationsOutputFeatureName = "";
+                            object.tokenLengthsOutputFeatureName = "";
+                            object.modelParameterData = options.bytes === String ? "" : [];
+                        }
+                        if (message.revision != null && message.hasOwnProperty("revision"))
+                            object.revision = message.revision;
+                        if (message.language != null && message.hasOwnProperty("language"))
+                            object.language = message.language;
+                        if (message.tokensOutputFeatureName != null && message.hasOwnProperty("tokensOutputFeatureName"))
+                            object.tokensOutputFeatureName = message.tokensOutputFeatureName;
+                        if (message.tokenTagsOutputFeatureName != null && message.hasOwnProperty("tokenTagsOutputFeatureName"))
+                            object.tokenTagsOutputFeatureName = message.tokenTagsOutputFeatureName;
+                        if (message.tokenLocationsOutputFeatureName != null && message.hasOwnProperty("tokenLocationsOutputFeatureName"))
+                            object.tokenLocationsOutputFeatureName = message.tokenLocationsOutputFeatureName;
+                        if (message.tokenLengthsOutputFeatureName != null && message.hasOwnProperty("tokenLengthsOutputFeatureName"))
+                            object.tokenLengthsOutputFeatureName = message.tokenLengthsOutputFeatureName;
+                        if (message.modelParameterData != null && message.hasOwnProperty("modelParameterData"))
+                            object.modelParameterData = options.bytes === String ? $util.base64.encode(message.modelParameterData, 0, message.modelParameterData.length) : options.bytes === Array ? Array.prototype.slice.call(message.modelParameterData) : message.modelParameterData;
+                        if (message.stringTags != null && message.hasOwnProperty("stringTags")) {
+                            object.stringTags = $root.CoreML.Specification.StringVector.toObject(message.stringTags, options);
+                            if (options.oneofs)
+                                object.Tags = "stringTags";
+                        }
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this WordTagger to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.CoreMLModels.WordTagger
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    WordTagger.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return WordTagger;
+                })();
+    
+                return CoreMLModels;
             })();
     
             Specification.StringToInt64Map = (function() {
@@ -4953,6 +5703,244 @@
                 return StringFeatureType;
             })();
     
+            Specification.SizeRange = (function() {
+    
+                /**
+                 * Properties of a SizeRange.
+                 * @memberof CoreML.Specification
+                 * @interface ISizeRange
+                 * @property {number|Long|null} [lowerBound] SizeRange lowerBound
+                 * @property {number|Long|null} [upperBound] SizeRange upperBound
+                 */
+    
+                /**
+                 * Constructs a new SizeRange.
+                 * @memberof CoreML.Specification
+                 * @classdesc Represents a SizeRange.
+                 * @implements ISizeRange
+                 * @constructor
+                 * @param {CoreML.Specification.ISizeRange=} [properties] Properties to set
+                 */
+                function SizeRange(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * SizeRange lowerBound.
+                 * @member {number|Long} lowerBound
+                 * @memberof CoreML.Specification.SizeRange
+                 * @instance
+                 */
+                SizeRange.prototype.lowerBound = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    
+                /**
+                 * SizeRange upperBound.
+                 * @member {number|Long} upperBound
+                 * @memberof CoreML.Specification.SizeRange
+                 * @instance
+                 */
+                SizeRange.prototype.upperBound = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                /**
+                 * Creates a new SizeRange instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {CoreML.Specification.ISizeRange=} [properties] Properties to set
+                 * @returns {CoreML.Specification.SizeRange} SizeRange instance
+                 */
+                SizeRange.create = function create(properties) {
+                    return new SizeRange(properties);
+                };
+    
+                /**
+                 * Encodes the specified SizeRange message. Does not implicitly {@link CoreML.Specification.SizeRange.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {CoreML.Specification.ISizeRange} message SizeRange message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                SizeRange.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.lowerBound != null && message.hasOwnProperty("lowerBound"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.lowerBound);
+                    if (message.upperBound != null && message.hasOwnProperty("upperBound"))
+                        writer.uint32(/* id 2, wireType 0 =*/16).int64(message.upperBound);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified SizeRange message, length delimited. Does not implicitly {@link CoreML.Specification.SizeRange.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {CoreML.Specification.ISizeRange} message SizeRange message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                SizeRange.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a SizeRange message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.SizeRange} SizeRange
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                SizeRange.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SizeRange();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.lowerBound = reader.uint64();
+                            break;
+                        case 2:
+                            message.upperBound = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a SizeRange message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.SizeRange} SizeRange
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                SizeRange.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a SizeRange message.
+                 * @function verify
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                SizeRange.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.lowerBound != null && message.hasOwnProperty("lowerBound"))
+                        if (!$util.isInteger(message.lowerBound) && !(message.lowerBound && $util.isInteger(message.lowerBound.low) && $util.isInteger(message.lowerBound.high)))
+                            return "lowerBound: integer|Long expected";
+                    if (message.upperBound != null && message.hasOwnProperty("upperBound"))
+                        if (!$util.isInteger(message.upperBound) && !(message.upperBound && $util.isInteger(message.upperBound.low) && $util.isInteger(message.upperBound.high)))
+                            return "upperBound: integer|Long expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a SizeRange message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.SizeRange} SizeRange
+                 */
+                SizeRange.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.SizeRange)
+                        return object;
+                    var message = new $root.CoreML.Specification.SizeRange();
+                    if (object.lowerBound != null)
+                        if ($util.Long)
+                            (message.lowerBound = $util.Long.fromValue(object.lowerBound)).unsigned = true;
+                        else if (typeof object.lowerBound === "string")
+                            message.lowerBound = parseInt(object.lowerBound, 10);
+                        else if (typeof object.lowerBound === "number")
+                            message.lowerBound = object.lowerBound;
+                        else if (typeof object.lowerBound === "object")
+                            message.lowerBound = new $util.LongBits(object.lowerBound.low >>> 0, object.lowerBound.high >>> 0).toNumber(true);
+                    if (object.upperBound != null)
+                        if ($util.Long)
+                            (message.upperBound = $util.Long.fromValue(object.upperBound)).unsigned = false;
+                        else if (typeof object.upperBound === "string")
+                            message.upperBound = parseInt(object.upperBound, 10);
+                        else if (typeof object.upperBound === "number")
+                            message.upperBound = object.upperBound;
+                        else if (typeof object.upperBound === "object")
+                            message.upperBound = new $util.LongBits(object.upperBound.low >>> 0, object.upperBound.high >>> 0).toNumber();
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a SizeRange message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.SizeRange
+                 * @static
+                 * @param {CoreML.Specification.SizeRange} message SizeRange
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                SizeRange.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        if ($util.Long) {
+                            var long = new $util.Long(0, 0, true);
+                            object.lowerBound = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        } else
+                            object.lowerBound = options.longs === String ? "0" : 0;
+                        if ($util.Long) {
+                            var long = new $util.Long(0, 0, false);
+                            object.upperBound = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        } else
+                            object.upperBound = options.longs === String ? "0" : 0;
+                    }
+                    if (message.lowerBound != null && message.hasOwnProperty("lowerBound"))
+                        if (typeof message.lowerBound === "number")
+                            object.lowerBound = options.longs === String ? String(message.lowerBound) : message.lowerBound;
+                        else
+                            object.lowerBound = options.longs === String ? $util.Long.prototype.toString.call(message.lowerBound) : options.longs === Number ? new $util.LongBits(message.lowerBound.low >>> 0, message.lowerBound.high >>> 0).toNumber(true) : message.lowerBound;
+                    if (message.upperBound != null && message.hasOwnProperty("upperBound"))
+                        if (typeof message.upperBound === "number")
+                            object.upperBound = options.longs === String ? String(message.upperBound) : message.upperBound;
+                        else
+                            object.upperBound = options.longs === String ? $util.Long.prototype.toString.call(message.upperBound) : options.longs === Number ? new $util.LongBits(message.upperBound.low >>> 0, message.upperBound.high >>> 0).toNumber() : message.upperBound;
+                    return object;
+                };
+    
+                /**
+                 * Converts this SizeRange to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.SizeRange
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                SizeRange.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return SizeRange;
+            })();
+    
             Specification.ImageFeatureType = (function() {
     
                 /**
@@ -4961,6 +5949,8 @@
                  * @interface IImageFeatureType
                  * @property {number|Long|null} [width] ImageFeatureType width
                  * @property {number|Long|null} [height] ImageFeatureType height
+                 * @property {CoreML.Specification.ImageFeatureType.IEnumeratedImageSizes|null} [enumeratedSizes] ImageFeatureType enumeratedSizes
+                 * @property {CoreML.Specification.ImageFeatureType.IImageSizeRange|null} [imageSizeRange] ImageFeatureType imageSizeRange
                  * @property {CoreML.Specification.ImageFeatureType.ColorSpace|null} [colorSpace] ImageFeatureType colorSpace
                  */
     
@@ -4996,12 +5986,42 @@
                 ImageFeatureType.prototype.height = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
                 /**
+                 * ImageFeatureType enumeratedSizes.
+                 * @member {CoreML.Specification.ImageFeatureType.IEnumeratedImageSizes|null|undefined} enumeratedSizes
+                 * @memberof CoreML.Specification.ImageFeatureType
+                 * @instance
+                 */
+                ImageFeatureType.prototype.enumeratedSizes = null;
+    
+                /**
+                 * ImageFeatureType imageSizeRange.
+                 * @member {CoreML.Specification.ImageFeatureType.IImageSizeRange|null|undefined} imageSizeRange
+                 * @memberof CoreML.Specification.ImageFeatureType
+                 * @instance
+                 */
+                ImageFeatureType.prototype.imageSizeRange = null;
+    
+                /**
                  * ImageFeatureType colorSpace.
                  * @member {CoreML.Specification.ImageFeatureType.ColorSpace} colorSpace
                  * @memberof CoreML.Specification.ImageFeatureType
                  * @instance
                  */
                 ImageFeatureType.prototype.colorSpace = 0;
+    
+                // OneOf field names bound to virtual getters and setters
+                var $oneOfFields;
+    
+                /**
+                 * ImageFeatureType SizeFlexibility.
+                 * @member {"enumeratedSizes"|"imageSizeRange"|undefined} SizeFlexibility
+                 * @memberof CoreML.Specification.ImageFeatureType
+                 * @instance
+                 */
+                Object.defineProperty(ImageFeatureType.prototype, "SizeFlexibility", {
+                    get: $util.oneOfGetter($oneOfFields = ["enumeratedSizes", "imageSizeRange"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
     
                 /**
                  * Creates a new ImageFeatureType instance using the specified properties.
@@ -5033,6 +6053,10 @@
                         writer.uint32(/* id 2, wireType 0 =*/16).int64(message.height);
                     if (message.colorSpace != null && message.hasOwnProperty("colorSpace"))
                         writer.uint32(/* id 3, wireType 0 =*/24).int32(message.colorSpace);
+                    if (message.enumeratedSizes != null && message.hasOwnProperty("enumeratedSizes"))
+                        $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.encode(message.enumeratedSizes, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
+                    if (message.imageSizeRange != null && message.hasOwnProperty("imageSizeRange"))
+                        $root.CoreML.Specification.ImageFeatureType.ImageSizeRange.encode(message.imageSizeRange, writer.uint32(/* id 31, wireType 2 =*/250).fork()).ldelim();
                     return writer;
                 };
     
@@ -5073,6 +6097,12 @@
                         case 2:
                             message.height = reader.int64();
                             break;
+                        case 21:
+                            message.enumeratedSizes = $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.decode(reader, reader.uint32());
+                            break;
+                        case 31:
+                            message.imageSizeRange = $root.CoreML.Specification.ImageFeatureType.ImageSizeRange.decode(reader, reader.uint32());
+                            break;
                         case 3:
                             message.colorSpace = reader.int32();
                             break;
@@ -5111,12 +6141,31 @@
                 ImageFeatureType.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    var properties = {};
                     if (message.width != null && message.hasOwnProperty("width"))
                         if (!$util.isInteger(message.width) && !(message.width && $util.isInteger(message.width.low) && $util.isInteger(message.width.high)))
                             return "width: integer|Long expected";
                     if (message.height != null && message.hasOwnProperty("height"))
                         if (!$util.isInteger(message.height) && !(message.height && $util.isInteger(message.height.low) && $util.isInteger(message.height.high)))
                             return "height: integer|Long expected";
+                    if (message.enumeratedSizes != null && message.hasOwnProperty("enumeratedSizes")) {
+                        properties.SizeFlexibility = 1;
+                        {
+                            var error = $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.verify(message.enumeratedSizes);
+                            if (error)
+                                return "enumeratedSizes." + error;
+                        }
+                    }
+                    if (message.imageSizeRange != null && message.hasOwnProperty("imageSizeRange")) {
+                        if (properties.SizeFlexibility === 1)
+                            return "SizeFlexibility: multiple values";
+                        properties.SizeFlexibility = 1;
+                        {
+                            var error = $root.CoreML.Specification.ImageFeatureType.ImageSizeRange.verify(message.imageSizeRange);
+                            if (error)
+                                return "imageSizeRange." + error;
+                        }
+                    }
                     if (message.colorSpace != null && message.hasOwnProperty("colorSpace"))
                         switch (message.colorSpace) {
                         default:
@@ -5160,6 +6209,16 @@
                             message.height = object.height;
                         else if (typeof object.height === "object")
                             message.height = new $util.LongBits(object.height.low >>> 0, object.height.high >>> 0).toNumber();
+                    if (object.enumeratedSizes != null) {
+                        if (typeof object.enumeratedSizes !== "object")
+                            throw TypeError(".CoreML.Specification.ImageFeatureType.enumeratedSizes: object expected");
+                        message.enumeratedSizes = $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.fromObject(object.enumeratedSizes);
+                    }
+                    if (object.imageSizeRange != null) {
+                        if (typeof object.imageSizeRange !== "object")
+                            throw TypeError(".CoreML.Specification.ImageFeatureType.imageSizeRange: object expected");
+                        message.imageSizeRange = $root.CoreML.Specification.ImageFeatureType.ImageSizeRange.fromObject(object.imageSizeRange);
+                    }
                     switch (object.colorSpace) {
                     case "INVALID_COLOR_SPACE":
                     case 0:
@@ -5219,6 +6278,16 @@
                             object.height = options.longs === String ? $util.Long.prototype.toString.call(message.height) : options.longs === Number ? new $util.LongBits(message.height.low >>> 0, message.height.high >>> 0).toNumber() : message.height;
                     if (message.colorSpace != null && message.hasOwnProperty("colorSpace"))
                         object.colorSpace = options.enums === String ? $root.CoreML.Specification.ImageFeatureType.ColorSpace[message.colorSpace] : message.colorSpace;
+                    if (message.enumeratedSizes != null && message.hasOwnProperty("enumeratedSizes")) {
+                        object.enumeratedSizes = $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.toObject(message.enumeratedSizes, options);
+                        if (options.oneofs)
+                            object.SizeFlexibility = "enumeratedSizes";
+                    }
+                    if (message.imageSizeRange != null && message.hasOwnProperty("imageSizeRange")) {
+                        object.imageSizeRange = $root.CoreML.Specification.ImageFeatureType.ImageSizeRange.toObject(message.imageSizeRange, options);
+                        if (options.oneofs)
+                            object.SizeFlexibility = "imageSizeRange";
+                    }
                     return object;
                 };
     
@@ -5251,6 +6320,672 @@
                     return values;
                 })();
     
+                ImageFeatureType.ImageSize = (function() {
+    
+                    /**
+                     * Properties of an ImageSize.
+                     * @memberof CoreML.Specification.ImageFeatureType
+                     * @interface IImageSize
+                     * @property {number|Long|null} [width] ImageSize width
+                     * @property {number|Long|null} [height] ImageSize height
+                     */
+    
+                    /**
+                     * Constructs a new ImageSize.
+                     * @memberof CoreML.Specification.ImageFeatureType
+                     * @classdesc Represents an ImageSize.
+                     * @implements IImageSize
+                     * @constructor
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSize=} [properties] Properties to set
+                     */
+                    function ImageSize(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * ImageSize width.
+                     * @member {number|Long} width
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @instance
+                     */
+                    ImageSize.prototype.width = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    
+                    /**
+                     * ImageSize height.
+                     * @member {number|Long} height
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @instance
+                     */
+                    ImageSize.prototype.height = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    
+                    /**
+                     * Creates a new ImageSize instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSize=} [properties] Properties to set
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSize} ImageSize instance
+                     */
+                    ImageSize.create = function create(properties) {
+                        return new ImageSize(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified ImageSize message. Does not implicitly {@link CoreML.Specification.ImageFeatureType.ImageSize.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSize} message ImageSize message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ImageSize.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.width != null && message.hasOwnProperty("width"))
+                            writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.width);
+                        if (message.height != null && message.hasOwnProperty("height"))
+                            writer.uint32(/* id 2, wireType 0 =*/16).uint64(message.height);
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified ImageSize message, length delimited. Does not implicitly {@link CoreML.Specification.ImageFeatureType.ImageSize.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSize} message ImageSize message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ImageSize.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes an ImageSize message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSize} ImageSize
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ImageSize.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ImageFeatureType.ImageSize();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.width = reader.uint64();
+                                break;
+                            case 2:
+                                message.height = reader.uint64();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes an ImageSize message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSize} ImageSize
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ImageSize.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies an ImageSize message.
+                     * @function verify
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    ImageSize.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.width != null && message.hasOwnProperty("width"))
+                            if (!$util.isInteger(message.width) && !(message.width && $util.isInteger(message.width.low) && $util.isInteger(message.width.high)))
+                                return "width: integer|Long expected";
+                        if (message.height != null && message.hasOwnProperty("height"))
+                            if (!$util.isInteger(message.height) && !(message.height && $util.isInteger(message.height.low) && $util.isInteger(message.height.high)))
+                                return "height: integer|Long expected";
+                        return null;
+                    };
+    
+                    /**
+                     * Creates an ImageSize message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSize} ImageSize
+                     */
+                    ImageSize.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.ImageFeatureType.ImageSize)
+                            return object;
+                        var message = new $root.CoreML.Specification.ImageFeatureType.ImageSize();
+                        if (object.width != null)
+                            if ($util.Long)
+                                (message.width = $util.Long.fromValue(object.width)).unsigned = true;
+                            else if (typeof object.width === "string")
+                                message.width = parseInt(object.width, 10);
+                            else if (typeof object.width === "number")
+                                message.width = object.width;
+                            else if (typeof object.width === "object")
+                                message.width = new $util.LongBits(object.width.low >>> 0, object.width.high >>> 0).toNumber(true);
+                        if (object.height != null)
+                            if ($util.Long)
+                                (message.height = $util.Long.fromValue(object.height)).unsigned = true;
+                            else if (typeof object.height === "string")
+                                message.height = parseInt(object.height, 10);
+                            else if (typeof object.height === "number")
+                                message.height = object.height;
+                            else if (typeof object.height === "object")
+                                message.height = new $util.LongBits(object.height.low >>> 0, object.height.high >>> 0).toNumber(true);
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from an ImageSize message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.ImageSize} message ImageSize
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    ImageSize.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            if ($util.Long) {
+                                var long = new $util.Long(0, 0, true);
+                                object.width = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                            } else
+                                object.width = options.longs === String ? "0" : 0;
+                            if ($util.Long) {
+                                var long = new $util.Long(0, 0, true);
+                                object.height = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                            } else
+                                object.height = options.longs === String ? "0" : 0;
+                        }
+                        if (message.width != null && message.hasOwnProperty("width"))
+                            if (typeof message.width === "number")
+                                object.width = options.longs === String ? String(message.width) : message.width;
+                            else
+                                object.width = options.longs === String ? $util.Long.prototype.toString.call(message.width) : options.longs === Number ? new $util.LongBits(message.width.low >>> 0, message.width.high >>> 0).toNumber(true) : message.width;
+                        if (message.height != null && message.hasOwnProperty("height"))
+                            if (typeof message.height === "number")
+                                object.height = options.longs === String ? String(message.height) : message.height;
+                            else
+                                object.height = options.longs === String ? $util.Long.prototype.toString.call(message.height) : options.longs === Number ? new $util.LongBits(message.height.low >>> 0, message.height.high >>> 0).toNumber(true) : message.height;
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this ImageSize to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSize
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    ImageSize.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return ImageSize;
+                })();
+    
+                ImageFeatureType.EnumeratedImageSizes = (function() {
+    
+                    /**
+                     * Properties of an EnumeratedImageSizes.
+                     * @memberof CoreML.Specification.ImageFeatureType
+                     * @interface IEnumeratedImageSizes
+                     * @property {Array.<CoreML.Specification.ImageFeatureType.IImageSize>|null} [sizes] EnumeratedImageSizes sizes
+                     */
+    
+                    /**
+                     * Constructs a new EnumeratedImageSizes.
+                     * @memberof CoreML.Specification.ImageFeatureType
+                     * @classdesc Represents an EnumeratedImageSizes.
+                     * @implements IEnumeratedImageSizes
+                     * @constructor
+                     * @param {CoreML.Specification.ImageFeatureType.IEnumeratedImageSizes=} [properties] Properties to set
+                     */
+                    function EnumeratedImageSizes(properties) {
+                        this.sizes = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * EnumeratedImageSizes sizes.
+                     * @member {Array.<CoreML.Specification.ImageFeatureType.IImageSize>} sizes
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @instance
+                     */
+                    EnumeratedImageSizes.prototype.sizes = $util.emptyArray;
+    
+                    /**
+                     * Creates a new EnumeratedImageSizes instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IEnumeratedImageSizes=} [properties] Properties to set
+                     * @returns {CoreML.Specification.ImageFeatureType.EnumeratedImageSizes} EnumeratedImageSizes instance
+                     */
+                    EnumeratedImageSizes.create = function create(properties) {
+                        return new EnumeratedImageSizes(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified EnumeratedImageSizes message. Does not implicitly {@link CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IEnumeratedImageSizes} message EnumeratedImageSizes message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    EnumeratedImageSizes.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.sizes != null && message.sizes.length)
+                            for (var i = 0; i < message.sizes.length; ++i)
+                                $root.CoreML.Specification.ImageFeatureType.ImageSize.encode(message.sizes[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified EnumeratedImageSizes message, length delimited. Does not implicitly {@link CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IEnumeratedImageSizes} message EnumeratedImageSizes message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    EnumeratedImageSizes.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes an EnumeratedImageSizes message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.ImageFeatureType.EnumeratedImageSizes} EnumeratedImageSizes
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    EnumeratedImageSizes.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.sizes && message.sizes.length))
+                                    message.sizes = [];
+                                message.sizes.push($root.CoreML.Specification.ImageFeatureType.ImageSize.decode(reader, reader.uint32()));
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes an EnumeratedImageSizes message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.ImageFeatureType.EnumeratedImageSizes} EnumeratedImageSizes
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    EnumeratedImageSizes.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies an EnumeratedImageSizes message.
+                     * @function verify
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    EnumeratedImageSizes.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.sizes != null && message.hasOwnProperty("sizes")) {
+                            if (!Array.isArray(message.sizes))
+                                return "sizes: array expected";
+                            for (var i = 0; i < message.sizes.length; ++i) {
+                                var error = $root.CoreML.Specification.ImageFeatureType.ImageSize.verify(message.sizes[i]);
+                                if (error)
+                                    return "sizes." + error;
+                            }
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates an EnumeratedImageSizes message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.ImageFeatureType.EnumeratedImageSizes} EnumeratedImageSizes
+                     */
+                    EnumeratedImageSizes.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes)
+                            return object;
+                        var message = new $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes();
+                        if (object.sizes) {
+                            if (!Array.isArray(object.sizes))
+                                throw TypeError(".CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.sizes: array expected");
+                            message.sizes = [];
+                            for (var i = 0; i < object.sizes.length; ++i) {
+                                if (typeof object.sizes[i] !== "object")
+                                    throw TypeError(".CoreML.Specification.ImageFeatureType.EnumeratedImageSizes.sizes: object expected");
+                                message.sizes[i] = $root.CoreML.Specification.ImageFeatureType.ImageSize.fromObject(object.sizes[i]);
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from an EnumeratedImageSizes message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.EnumeratedImageSizes} message EnumeratedImageSizes
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    EnumeratedImageSizes.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.sizes = [];
+                        if (message.sizes && message.sizes.length) {
+                            object.sizes = [];
+                            for (var j = 0; j < message.sizes.length; ++j)
+                                object.sizes[j] = $root.CoreML.Specification.ImageFeatureType.ImageSize.toObject(message.sizes[j], options);
+                        }
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this EnumeratedImageSizes to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.ImageFeatureType.EnumeratedImageSizes
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    EnumeratedImageSizes.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return EnumeratedImageSizes;
+                })();
+    
+                ImageFeatureType.ImageSizeRange = (function() {
+    
+                    /**
+                     * Properties of an ImageSizeRange.
+                     * @memberof CoreML.Specification.ImageFeatureType
+                     * @interface IImageSizeRange
+                     * @property {CoreML.Specification.ISizeRange|null} [widthRange] ImageSizeRange widthRange
+                     * @property {CoreML.Specification.ISizeRange|null} [heightRange] ImageSizeRange heightRange
+                     */
+    
+                    /**
+                     * Constructs a new ImageSizeRange.
+                     * @memberof CoreML.Specification.ImageFeatureType
+                     * @classdesc Represents an ImageSizeRange.
+                     * @implements IImageSizeRange
+                     * @constructor
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSizeRange=} [properties] Properties to set
+                     */
+                    function ImageSizeRange(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * ImageSizeRange widthRange.
+                     * @member {CoreML.Specification.ISizeRange|null|undefined} widthRange
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @instance
+                     */
+                    ImageSizeRange.prototype.widthRange = null;
+    
+                    /**
+                     * ImageSizeRange heightRange.
+                     * @member {CoreML.Specification.ISizeRange|null|undefined} heightRange
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @instance
+                     */
+                    ImageSizeRange.prototype.heightRange = null;
+    
+                    /**
+                     * Creates a new ImageSizeRange instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSizeRange=} [properties] Properties to set
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSizeRange} ImageSizeRange instance
+                     */
+                    ImageSizeRange.create = function create(properties) {
+                        return new ImageSizeRange(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified ImageSizeRange message. Does not implicitly {@link CoreML.Specification.ImageFeatureType.ImageSizeRange.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSizeRange} message ImageSizeRange message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ImageSizeRange.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.widthRange != null && message.hasOwnProperty("widthRange"))
+                            $root.CoreML.Specification.SizeRange.encode(message.widthRange, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        if (message.heightRange != null && message.hasOwnProperty("heightRange"))
+                            $root.CoreML.Specification.SizeRange.encode(message.heightRange, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified ImageSizeRange message, length delimited. Does not implicitly {@link CoreML.Specification.ImageFeatureType.ImageSizeRange.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.IImageSizeRange} message ImageSizeRange message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ImageSizeRange.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes an ImageSizeRange message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSizeRange} ImageSizeRange
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ImageSizeRange.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ImageFeatureType.ImageSizeRange();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.widthRange = $root.CoreML.Specification.SizeRange.decode(reader, reader.uint32());
+                                break;
+                            case 2:
+                                message.heightRange = $root.CoreML.Specification.SizeRange.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes an ImageSizeRange message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSizeRange} ImageSizeRange
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ImageSizeRange.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies an ImageSizeRange message.
+                     * @function verify
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    ImageSizeRange.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.widthRange != null && message.hasOwnProperty("widthRange")) {
+                            var error = $root.CoreML.Specification.SizeRange.verify(message.widthRange);
+                            if (error)
+                                return "widthRange." + error;
+                        }
+                        if (message.heightRange != null && message.hasOwnProperty("heightRange")) {
+                            var error = $root.CoreML.Specification.SizeRange.verify(message.heightRange);
+                            if (error)
+                                return "heightRange." + error;
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates an ImageSizeRange message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.ImageFeatureType.ImageSizeRange} ImageSizeRange
+                     */
+                    ImageSizeRange.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.ImageFeatureType.ImageSizeRange)
+                            return object;
+                        var message = new $root.CoreML.Specification.ImageFeatureType.ImageSizeRange();
+                        if (object.widthRange != null) {
+                            if (typeof object.widthRange !== "object")
+                                throw TypeError(".CoreML.Specification.ImageFeatureType.ImageSizeRange.widthRange: object expected");
+                            message.widthRange = $root.CoreML.Specification.SizeRange.fromObject(object.widthRange);
+                        }
+                        if (object.heightRange != null) {
+                            if (typeof object.heightRange !== "object")
+                                throw TypeError(".CoreML.Specification.ImageFeatureType.ImageSizeRange.heightRange: object expected");
+                            message.heightRange = $root.CoreML.Specification.SizeRange.fromObject(object.heightRange);
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from an ImageSizeRange message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @static
+                     * @param {CoreML.Specification.ImageFeatureType.ImageSizeRange} message ImageSizeRange
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    ImageSizeRange.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.widthRange = null;
+                            object.heightRange = null;
+                        }
+                        if (message.widthRange != null && message.hasOwnProperty("widthRange"))
+                            object.widthRange = $root.CoreML.Specification.SizeRange.toObject(message.widthRange, options);
+                        if (message.heightRange != null && message.hasOwnProperty("heightRange"))
+                            object.heightRange = $root.CoreML.Specification.SizeRange.toObject(message.heightRange, options);
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this ImageSizeRange to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.ImageFeatureType.ImageSizeRange
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    ImageSizeRange.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return ImageSizeRange;
+                })();
+    
                 return ImageFeatureType;
             })();
     
@@ -5260,8 +6995,10 @@
                  * Properties of an ArrayFeatureType.
                  * @memberof CoreML.Specification
                  * @interface IArrayFeatureType
-                 * @property {Array.<number|Long>|null} [shape] For neural networks, must be of length 1 or 3, representing input shape [C] or [C,H,W], respectively.
+                 * @property {Array.<number|Long>|null} [shape] ArrayFeatureType shape
                  * @property {CoreML.Specification.ArrayFeatureType.ArrayDataType|null} [dataType] ArrayFeatureType dataType
+                 * @property {CoreML.Specification.ArrayFeatureType.IEnumeratedShapes|null} [enumeratedShapes] ArrayFeatureType enumeratedShapes
+                 * @property {CoreML.Specification.ArrayFeatureType.IShapeRange|null} [shapeRange] ArrayFeatureType shapeRange
                  */
     
                 /**
@@ -5281,7 +7018,7 @@
                 }
     
                 /**
-                 * For neural networks, must be of length 1 or 3, representing input shape [C] or [C,H,W], respectively.
+                 * ArrayFeatureType shape.
                  * @member {Array.<number|Long>} shape
                  * @memberof CoreML.Specification.ArrayFeatureType
                  * @instance
@@ -5295,6 +7032,36 @@
                  * @instance
                  */
                 ArrayFeatureType.prototype.dataType = 0;
+    
+                /**
+                 * ArrayFeatureType enumeratedShapes.
+                 * @member {CoreML.Specification.ArrayFeatureType.IEnumeratedShapes|null|undefined} enumeratedShapes
+                 * @memberof CoreML.Specification.ArrayFeatureType
+                 * @instance
+                 */
+                ArrayFeatureType.prototype.enumeratedShapes = null;
+    
+                /**
+                 * ArrayFeatureType shapeRange.
+                 * @member {CoreML.Specification.ArrayFeatureType.IShapeRange|null|undefined} shapeRange
+                 * @memberof CoreML.Specification.ArrayFeatureType
+                 * @instance
+                 */
+                ArrayFeatureType.prototype.shapeRange = null;
+    
+                // OneOf field names bound to virtual getters and setters
+                var $oneOfFields;
+    
+                /**
+                 * ArrayFeatureType ShapeFlexibility.
+                 * @member {"enumeratedShapes"|"shapeRange"|undefined} ShapeFlexibility
+                 * @memberof CoreML.Specification.ArrayFeatureType
+                 * @instance
+                 */
+                Object.defineProperty(ArrayFeatureType.prototype, "ShapeFlexibility", {
+                    get: $util.oneOfGetter($oneOfFields = ["enumeratedShapes", "shapeRange"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
     
                 /**
                  * Creates a new ArrayFeatureType instance using the specified properties.
@@ -5328,6 +7095,10 @@
                     }
                     if (message.dataType != null && message.hasOwnProperty("dataType"))
                         writer.uint32(/* id 2, wireType 0 =*/16).int32(message.dataType);
+                    if (message.enumeratedShapes != null && message.hasOwnProperty("enumeratedShapes"))
+                        $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes.encode(message.enumeratedShapes, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
+                    if (message.shapeRange != null && message.hasOwnProperty("shapeRange"))
+                        $root.CoreML.Specification.ArrayFeatureType.ShapeRange.encode(message.shapeRange, writer.uint32(/* id 31, wireType 2 =*/250).fork()).ldelim();
                     return writer;
                 };
     
@@ -5375,6 +7146,12 @@
                         case 2:
                             message.dataType = reader.int32();
                             break;
+                        case 21:
+                            message.enumeratedShapes = $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes.decode(reader, reader.uint32());
+                            break;
+                        case 31:
+                            message.shapeRange = $root.CoreML.Specification.ArrayFeatureType.ShapeRange.decode(reader, reader.uint32());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -5410,6 +7187,7 @@
                 ArrayFeatureType.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    var properties = {};
                     if (message.shape != null && message.hasOwnProperty("shape")) {
                         if (!Array.isArray(message.shape))
                             return "shape: array expected";
@@ -5427,6 +7205,24 @@
                         case 131104:
                             break;
                         }
+                    if (message.enumeratedShapes != null && message.hasOwnProperty("enumeratedShapes")) {
+                        properties.ShapeFlexibility = 1;
+                        {
+                            var error = $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes.verify(message.enumeratedShapes);
+                            if (error)
+                                return "enumeratedShapes." + error;
+                        }
+                    }
+                    if (message.shapeRange != null && message.hasOwnProperty("shapeRange")) {
+                        if (properties.ShapeFlexibility === 1)
+                            return "ShapeFlexibility: multiple values";
+                        properties.ShapeFlexibility = 1;
+                        {
+                            var error = $root.CoreML.Specification.ArrayFeatureType.ShapeRange.verify(message.shapeRange);
+                            if (error)
+                                return "shapeRange." + error;
+                        }
+                    }
                     return null;
                 };
     
@@ -5474,6 +7270,16 @@
                         message.dataType = 131104;
                         break;
                     }
+                    if (object.enumeratedShapes != null) {
+                        if (typeof object.enumeratedShapes !== "object")
+                            throw TypeError(".CoreML.Specification.ArrayFeatureType.enumeratedShapes: object expected");
+                        message.enumeratedShapes = $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes.fromObject(object.enumeratedShapes);
+                    }
+                    if (object.shapeRange != null) {
+                        if (typeof object.shapeRange !== "object")
+                            throw TypeError(".CoreML.Specification.ArrayFeatureType.shapeRange: object expected");
+                        message.shapeRange = $root.CoreML.Specification.ArrayFeatureType.ShapeRange.fromObject(object.shapeRange);
+                    }
                     return message;
                 };
     
@@ -5504,6 +7310,16 @@
                     }
                     if (message.dataType != null && message.hasOwnProperty("dataType"))
                         object.dataType = options.enums === String ? $root.CoreML.Specification.ArrayFeatureType.ArrayDataType[message.dataType] : message.dataType;
+                    if (message.enumeratedShapes != null && message.hasOwnProperty("enumeratedShapes")) {
+                        object.enumeratedShapes = $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes.toObject(message.enumeratedShapes, options);
+                        if (options.oneofs)
+                            object.ShapeFlexibility = "enumeratedShapes";
+                    }
+                    if (message.shapeRange != null && message.hasOwnProperty("shapeRange")) {
+                        object.shapeRange = $root.CoreML.Specification.ArrayFeatureType.ShapeRange.toObject(message.shapeRange, options);
+                        if (options.oneofs)
+                            object.ShapeFlexibility = "shapeRange";
+                    }
                     return object;
                 };
     
@@ -5534,6 +7350,643 @@
                     values[valuesById[65600] = "DOUBLE"] = 65600;
                     values[valuesById[131104] = "INT32"] = 131104;
                     return values;
+                })();
+    
+                ArrayFeatureType.Shape = (function() {
+    
+                    /**
+                     * Properties of a Shape.
+                     * @memberof CoreML.Specification.ArrayFeatureType
+                     * @interface IShape
+                     * @property {Array.<number|Long>|null} [shape] Shape shape
+                     */
+    
+                    /**
+                     * Constructs a new Shape.
+                     * @memberof CoreML.Specification.ArrayFeatureType
+                     * @classdesc Represents a Shape.
+                     * @implements IShape
+                     * @constructor
+                     * @param {CoreML.Specification.ArrayFeatureType.IShape=} [properties] Properties to set
+                     */
+                    function Shape(properties) {
+                        this.shape = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * Shape shape.
+                     * @member {Array.<number|Long>} shape
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @instance
+                     */
+                    Shape.prototype.shape = $util.emptyArray;
+    
+                    /**
+                     * Creates a new Shape instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IShape=} [properties] Properties to set
+                     * @returns {CoreML.Specification.ArrayFeatureType.Shape} Shape instance
+                     */
+                    Shape.create = function create(properties) {
+                        return new Shape(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified Shape message. Does not implicitly {@link CoreML.Specification.ArrayFeatureType.Shape.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IShape} message Shape message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Shape.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.shape != null && message.shape.length) {
+                            writer.uint32(/* id 1, wireType 2 =*/10).fork();
+                            for (var i = 0; i < message.shape.length; ++i)
+                                writer.int64(message.shape[i]);
+                            writer.ldelim();
+                        }
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified Shape message, length delimited. Does not implicitly {@link CoreML.Specification.ArrayFeatureType.Shape.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IShape} message Shape message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Shape.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a Shape message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.ArrayFeatureType.Shape} Shape
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Shape.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArrayFeatureType.Shape();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.shape && message.shape.length))
+                                    message.shape = [];
+                                if ((tag & 7) === 2) {
+                                    var end2 = reader.uint32() + reader.pos;
+                                    while (reader.pos < end2)
+                                        message.shape.push(reader.int64());
+                                } else
+                                    message.shape.push(reader.int64());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a Shape message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.ArrayFeatureType.Shape} Shape
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Shape.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a Shape message.
+                     * @function verify
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Shape.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.shape != null && message.hasOwnProperty("shape")) {
+                            if (!Array.isArray(message.shape))
+                                return "shape: array expected";
+                            for (var i = 0; i < message.shape.length; ++i)
+                                if (!$util.isInteger(message.shape[i]) && !(message.shape[i] && $util.isInteger(message.shape[i].low) && $util.isInteger(message.shape[i].high)))
+                                    return "shape: integer|Long[] expected";
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a Shape message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.ArrayFeatureType.Shape} Shape
+                     */
+                    Shape.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.ArrayFeatureType.Shape)
+                            return object;
+                        var message = new $root.CoreML.Specification.ArrayFeatureType.Shape();
+                        if (object.shape) {
+                            if (!Array.isArray(object.shape))
+                                throw TypeError(".CoreML.Specification.ArrayFeatureType.Shape.shape: array expected");
+                            message.shape = [];
+                            for (var i = 0; i < object.shape.length; ++i)
+                                if ($util.Long)
+                                    (message.shape[i] = $util.Long.fromValue(object.shape[i])).unsigned = false;
+                                else if (typeof object.shape[i] === "string")
+                                    message.shape[i] = parseInt(object.shape[i], 10);
+                                else if (typeof object.shape[i] === "number")
+                                    message.shape[i] = object.shape[i];
+                                else if (typeof object.shape[i] === "object")
+                                    message.shape[i] = new $util.LongBits(object.shape[i].low >>> 0, object.shape[i].high >>> 0).toNumber();
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a Shape message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.Shape} message Shape
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Shape.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.shape = [];
+                        if (message.shape && message.shape.length) {
+                            object.shape = [];
+                            for (var j = 0; j < message.shape.length; ++j)
+                                if (typeof message.shape[j] === "number")
+                                    object.shape[j] = options.longs === String ? String(message.shape[j]) : message.shape[j];
+                                else
+                                    object.shape[j] = options.longs === String ? $util.Long.prototype.toString.call(message.shape[j]) : options.longs === Number ? new $util.LongBits(message.shape[j].low >>> 0, message.shape[j].high >>> 0).toNumber() : message.shape[j];
+                        }
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this Shape to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.ArrayFeatureType.Shape
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Shape.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return Shape;
+                })();
+    
+                ArrayFeatureType.EnumeratedShapes = (function() {
+    
+                    /**
+                     * Properties of an EnumeratedShapes.
+                     * @memberof CoreML.Specification.ArrayFeatureType
+                     * @interface IEnumeratedShapes
+                     * @property {Array.<CoreML.Specification.ArrayFeatureType.IShape>|null} [shapes] EnumeratedShapes shapes
+                     */
+    
+                    /**
+                     * Constructs a new EnumeratedShapes.
+                     * @memberof CoreML.Specification.ArrayFeatureType
+                     * @classdesc Represents an EnumeratedShapes.
+                     * @implements IEnumeratedShapes
+                     * @constructor
+                     * @param {CoreML.Specification.ArrayFeatureType.IEnumeratedShapes=} [properties] Properties to set
+                     */
+                    function EnumeratedShapes(properties) {
+                        this.shapes = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * EnumeratedShapes shapes.
+                     * @member {Array.<CoreML.Specification.ArrayFeatureType.IShape>} shapes
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @instance
+                     */
+                    EnumeratedShapes.prototype.shapes = $util.emptyArray;
+    
+                    /**
+                     * Creates a new EnumeratedShapes instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IEnumeratedShapes=} [properties] Properties to set
+                     * @returns {CoreML.Specification.ArrayFeatureType.EnumeratedShapes} EnumeratedShapes instance
+                     */
+                    EnumeratedShapes.create = function create(properties) {
+                        return new EnumeratedShapes(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified EnumeratedShapes message. Does not implicitly {@link CoreML.Specification.ArrayFeatureType.EnumeratedShapes.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IEnumeratedShapes} message EnumeratedShapes message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    EnumeratedShapes.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.shapes != null && message.shapes.length)
+                            for (var i = 0; i < message.shapes.length; ++i)
+                                $root.CoreML.Specification.ArrayFeatureType.Shape.encode(message.shapes[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified EnumeratedShapes message, length delimited. Does not implicitly {@link CoreML.Specification.ArrayFeatureType.EnumeratedShapes.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IEnumeratedShapes} message EnumeratedShapes message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    EnumeratedShapes.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes an EnumeratedShapes message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.ArrayFeatureType.EnumeratedShapes} EnumeratedShapes
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    EnumeratedShapes.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.shapes && message.shapes.length))
+                                    message.shapes = [];
+                                message.shapes.push($root.CoreML.Specification.ArrayFeatureType.Shape.decode(reader, reader.uint32()));
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes an EnumeratedShapes message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.ArrayFeatureType.EnumeratedShapes} EnumeratedShapes
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    EnumeratedShapes.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies an EnumeratedShapes message.
+                     * @function verify
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    EnumeratedShapes.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.shapes != null && message.hasOwnProperty("shapes")) {
+                            if (!Array.isArray(message.shapes))
+                                return "shapes: array expected";
+                            for (var i = 0; i < message.shapes.length; ++i) {
+                                var error = $root.CoreML.Specification.ArrayFeatureType.Shape.verify(message.shapes[i]);
+                                if (error)
+                                    return "shapes." + error;
+                            }
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates an EnumeratedShapes message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.ArrayFeatureType.EnumeratedShapes} EnumeratedShapes
+                     */
+                    EnumeratedShapes.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes)
+                            return object;
+                        var message = new $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes();
+                        if (object.shapes) {
+                            if (!Array.isArray(object.shapes))
+                                throw TypeError(".CoreML.Specification.ArrayFeatureType.EnumeratedShapes.shapes: array expected");
+                            message.shapes = [];
+                            for (var i = 0; i < object.shapes.length; ++i) {
+                                if (typeof object.shapes[i] !== "object")
+                                    throw TypeError(".CoreML.Specification.ArrayFeatureType.EnumeratedShapes.shapes: object expected");
+                                message.shapes[i] = $root.CoreML.Specification.ArrayFeatureType.Shape.fromObject(object.shapes[i]);
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from an EnumeratedShapes message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.EnumeratedShapes} message EnumeratedShapes
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    EnumeratedShapes.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.shapes = [];
+                        if (message.shapes && message.shapes.length) {
+                            object.shapes = [];
+                            for (var j = 0; j < message.shapes.length; ++j)
+                                object.shapes[j] = $root.CoreML.Specification.ArrayFeatureType.Shape.toObject(message.shapes[j], options);
+                        }
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this EnumeratedShapes to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.ArrayFeatureType.EnumeratedShapes
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    EnumeratedShapes.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return EnumeratedShapes;
+                })();
+    
+                ArrayFeatureType.ShapeRange = (function() {
+    
+                    /**
+                     * Properties of a ShapeRange.
+                     * @memberof CoreML.Specification.ArrayFeatureType
+                     * @interface IShapeRange
+                     * @property {Array.<CoreML.Specification.ISizeRange>|null} [sizeRanges] ShapeRange sizeRanges
+                     */
+    
+                    /**
+                     * Constructs a new ShapeRange.
+                     * @memberof CoreML.Specification.ArrayFeatureType
+                     * @classdesc Represents a ShapeRange.
+                     * @implements IShapeRange
+                     * @constructor
+                     * @param {CoreML.Specification.ArrayFeatureType.IShapeRange=} [properties] Properties to set
+                     */
+                    function ShapeRange(properties) {
+                        this.sizeRanges = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * ShapeRange sizeRanges.
+                     * @member {Array.<CoreML.Specification.ISizeRange>} sizeRanges
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @instance
+                     */
+                    ShapeRange.prototype.sizeRanges = $util.emptyArray;
+    
+                    /**
+                     * Creates a new ShapeRange instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IShapeRange=} [properties] Properties to set
+                     * @returns {CoreML.Specification.ArrayFeatureType.ShapeRange} ShapeRange instance
+                     */
+                    ShapeRange.create = function create(properties) {
+                        return new ShapeRange(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified ShapeRange message. Does not implicitly {@link CoreML.Specification.ArrayFeatureType.ShapeRange.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IShapeRange} message ShapeRange message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ShapeRange.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.sizeRanges != null && message.sizeRanges.length)
+                            for (var i = 0; i < message.sizeRanges.length; ++i)
+                                $root.CoreML.Specification.SizeRange.encode(message.sizeRanges[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified ShapeRange message, length delimited. Does not implicitly {@link CoreML.Specification.ArrayFeatureType.ShapeRange.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.IShapeRange} message ShapeRange message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    ShapeRange.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a ShapeRange message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.ArrayFeatureType.ShapeRange} ShapeRange
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ShapeRange.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArrayFeatureType.ShapeRange();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                if (!(message.sizeRanges && message.sizeRanges.length))
+                                    message.sizeRanges = [];
+                                message.sizeRanges.push($root.CoreML.Specification.SizeRange.decode(reader, reader.uint32()));
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a ShapeRange message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.ArrayFeatureType.ShapeRange} ShapeRange
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    ShapeRange.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a ShapeRange message.
+                     * @function verify
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    ShapeRange.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.sizeRanges != null && message.hasOwnProperty("sizeRanges")) {
+                            if (!Array.isArray(message.sizeRanges))
+                                return "sizeRanges: array expected";
+                            for (var i = 0; i < message.sizeRanges.length; ++i) {
+                                var error = $root.CoreML.Specification.SizeRange.verify(message.sizeRanges[i]);
+                                if (error)
+                                    return "sizeRanges." + error;
+                            }
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a ShapeRange message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.ArrayFeatureType.ShapeRange} ShapeRange
+                     */
+                    ShapeRange.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.ArrayFeatureType.ShapeRange)
+                            return object;
+                        var message = new $root.CoreML.Specification.ArrayFeatureType.ShapeRange();
+                        if (object.sizeRanges) {
+                            if (!Array.isArray(object.sizeRanges))
+                                throw TypeError(".CoreML.Specification.ArrayFeatureType.ShapeRange.sizeRanges: array expected");
+                            message.sizeRanges = [];
+                            for (var i = 0; i < object.sizeRanges.length; ++i) {
+                                if (typeof object.sizeRanges[i] !== "object")
+                                    throw TypeError(".CoreML.Specification.ArrayFeatureType.ShapeRange.sizeRanges: object expected");
+                                message.sizeRanges[i] = $root.CoreML.Specification.SizeRange.fromObject(object.sizeRanges[i]);
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a ShapeRange message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @static
+                     * @param {CoreML.Specification.ArrayFeatureType.ShapeRange} message ShapeRange
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    ShapeRange.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.sizeRanges = [];
+                        if (message.sizeRanges && message.sizeRanges.length) {
+                            object.sizeRanges = [];
+                            for (var j = 0; j < message.sizeRanges.length; ++j)
+                                object.sizeRanges[j] = $root.CoreML.Specification.SizeRange.toObject(message.sizeRanges[j], options);
+                        }
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this ShapeRange to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.ArrayFeatureType.ShapeRange
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    ShapeRange.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return ShapeRange;
                 })();
     
                 return ArrayFeatureType;
@@ -5786,6 +8239,279 @@
                 return DictionaryFeatureType;
             })();
     
+            Specification.SequenceFeatureType = (function() {
+    
+                /**
+                 * Properties of a SequenceFeatureType.
+                 * @memberof CoreML.Specification
+                 * @interface ISequenceFeatureType
+                 * @property {CoreML.Specification.IInt64FeatureType|null} [int64Type] SequenceFeatureType int64Type
+                 * @property {CoreML.Specification.IStringFeatureType|null} [stringType] SequenceFeatureType stringType
+                 * @property {CoreML.Specification.ISizeRange|null} [sizeRange] SequenceFeatureType sizeRange
+                 */
+    
+                /**
+                 * Constructs a new SequenceFeatureType.
+                 * @memberof CoreML.Specification
+                 * @classdesc The Sequence feature type.
+                 * @implements ISequenceFeatureType
+                 * @constructor
+                 * @param {CoreML.Specification.ISequenceFeatureType=} [properties] Properties to set
+                 */
+                function SequenceFeatureType(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * SequenceFeatureType int64Type.
+                 * @member {CoreML.Specification.IInt64FeatureType|null|undefined} int64Type
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @instance
+                 */
+                SequenceFeatureType.prototype.int64Type = null;
+    
+                /**
+                 * SequenceFeatureType stringType.
+                 * @member {CoreML.Specification.IStringFeatureType|null|undefined} stringType
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @instance
+                 */
+                SequenceFeatureType.prototype.stringType = null;
+    
+                /**
+                 * SequenceFeatureType sizeRange.
+                 * @member {CoreML.Specification.ISizeRange|null|undefined} sizeRange
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @instance
+                 */
+                SequenceFeatureType.prototype.sizeRange = null;
+    
+                // OneOf field names bound to virtual getters and setters
+                var $oneOfFields;
+    
+                /**
+                 * Currently only categorical int64 and String sequences are supported
+                 * @member {"int64Type"|"stringType"|undefined} Type
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @instance
+                 */
+                Object.defineProperty(SequenceFeatureType.prototype, "Type", {
+                    get: $util.oneOfGetter($oneOfFields = ["int64Type", "stringType"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                /**
+                 * Creates a new SequenceFeatureType instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {CoreML.Specification.ISequenceFeatureType=} [properties] Properties to set
+                 * @returns {CoreML.Specification.SequenceFeatureType} SequenceFeatureType instance
+                 */
+                SequenceFeatureType.create = function create(properties) {
+                    return new SequenceFeatureType(properties);
+                };
+    
+                /**
+                 * Encodes the specified SequenceFeatureType message. Does not implicitly {@link CoreML.Specification.SequenceFeatureType.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {CoreML.Specification.ISequenceFeatureType} message SequenceFeatureType message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                SequenceFeatureType.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.int64Type != null && message.hasOwnProperty("int64Type"))
+                        $root.CoreML.Specification.Int64FeatureType.encode(message.int64Type, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    if (message.stringType != null && message.hasOwnProperty("stringType"))
+                        $root.CoreML.Specification.StringFeatureType.encode(message.stringType, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                    if (message.sizeRange != null && message.hasOwnProperty("sizeRange"))
+                        $root.CoreML.Specification.SizeRange.encode(message.sizeRange, writer.uint32(/* id 101, wireType 2 =*/810).fork()).ldelim();
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified SequenceFeatureType message, length delimited. Does not implicitly {@link CoreML.Specification.SequenceFeatureType.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {CoreML.Specification.ISequenceFeatureType} message SequenceFeatureType message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                SequenceFeatureType.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a SequenceFeatureType message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.SequenceFeatureType} SequenceFeatureType
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                SequenceFeatureType.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SequenceFeatureType();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.int64Type = $root.CoreML.Specification.Int64FeatureType.decode(reader, reader.uint32());
+                            break;
+                        case 3:
+                            message.stringType = $root.CoreML.Specification.StringFeatureType.decode(reader, reader.uint32());
+                            break;
+                        case 101:
+                            message.sizeRange = $root.CoreML.Specification.SizeRange.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a SequenceFeatureType message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.SequenceFeatureType} SequenceFeatureType
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                SequenceFeatureType.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a SequenceFeatureType message.
+                 * @function verify
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                SequenceFeatureType.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    var properties = {};
+                    if (message.int64Type != null && message.hasOwnProperty("int64Type")) {
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.Int64FeatureType.verify(message.int64Type);
+                            if (error)
+                                return "int64Type." + error;
+                        }
+                    }
+                    if (message.stringType != null && message.hasOwnProperty("stringType")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.StringFeatureType.verify(message.stringType);
+                            if (error)
+                                return "stringType." + error;
+                        }
+                    }
+                    if (message.sizeRange != null && message.hasOwnProperty("sizeRange")) {
+                        var error = $root.CoreML.Specification.SizeRange.verify(message.sizeRange);
+                        if (error)
+                            return "sizeRange." + error;
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a SequenceFeatureType message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.SequenceFeatureType} SequenceFeatureType
+                 */
+                SequenceFeatureType.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.SequenceFeatureType)
+                        return object;
+                    var message = new $root.CoreML.Specification.SequenceFeatureType();
+                    if (object.int64Type != null) {
+                        if (typeof object.int64Type !== "object")
+                            throw TypeError(".CoreML.Specification.SequenceFeatureType.int64Type: object expected");
+                        message.int64Type = $root.CoreML.Specification.Int64FeatureType.fromObject(object.int64Type);
+                    }
+                    if (object.stringType != null) {
+                        if (typeof object.stringType !== "object")
+                            throw TypeError(".CoreML.Specification.SequenceFeatureType.stringType: object expected");
+                        message.stringType = $root.CoreML.Specification.StringFeatureType.fromObject(object.stringType);
+                    }
+                    if (object.sizeRange != null) {
+                        if (typeof object.sizeRange !== "object")
+                            throw TypeError(".CoreML.Specification.SequenceFeatureType.sizeRange: object expected");
+                        message.sizeRange = $root.CoreML.Specification.SizeRange.fromObject(object.sizeRange);
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a SequenceFeatureType message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @static
+                 * @param {CoreML.Specification.SequenceFeatureType} message SequenceFeatureType
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                SequenceFeatureType.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults)
+                        object.sizeRange = null;
+                    if (message.int64Type != null && message.hasOwnProperty("int64Type")) {
+                        object.int64Type = $root.CoreML.Specification.Int64FeatureType.toObject(message.int64Type, options);
+                        if (options.oneofs)
+                            object.Type = "int64Type";
+                    }
+                    if (message.stringType != null && message.hasOwnProperty("stringType")) {
+                        object.stringType = $root.CoreML.Specification.StringFeatureType.toObject(message.stringType, options);
+                        if (options.oneofs)
+                            object.Type = "stringType";
+                    }
+                    if (message.sizeRange != null && message.hasOwnProperty("sizeRange"))
+                        object.sizeRange = $root.CoreML.Specification.SizeRange.toObject(message.sizeRange, options);
+                    return object;
+                };
+    
+                /**
+                 * Converts this SequenceFeatureType to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.SequenceFeatureType
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                SequenceFeatureType.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return SequenceFeatureType;
+            })();
+    
             Specification.FeatureType = (function() {
     
                 /**
@@ -5798,6 +8524,7 @@
                  * @property {CoreML.Specification.IImageFeatureType|null} [imageType] FeatureType imageType
                  * @property {CoreML.Specification.IArrayFeatureType|null} [multiArrayType] FeatureType multiArrayType
                  * @property {CoreML.Specification.IDictionaryFeatureType|null} [dictionaryType] FeatureType dictionaryType
+                 * @property {CoreML.Specification.ISequenceFeatureType|null} [sequenceType] FeatureType sequenceType
                  * @property {boolean|null} [isOptional] FeatureType isOptional
                  */
     
@@ -5865,6 +8592,14 @@
                 FeatureType.prototype.dictionaryType = null;
     
                 /**
+                 * FeatureType sequenceType.
+                 * @member {CoreML.Specification.ISequenceFeatureType|null|undefined} sequenceType
+                 * @memberof CoreML.Specification.FeatureType
+                 * @instance
+                 */
+                FeatureType.prototype.sequenceType = null;
+    
+                /**
                  * FeatureType isOptional.
                  * @member {boolean} isOptional
                  * @memberof CoreML.Specification.FeatureType
@@ -5877,12 +8612,12 @@
     
                 /**
                  * FeatureType Type.
-                 * @member {"int64Type"|"doubleType"|"stringType"|"imageType"|"multiArrayType"|"dictionaryType"|undefined} Type
+                 * @member {"int64Type"|"doubleType"|"stringType"|"imageType"|"multiArrayType"|"dictionaryType"|"sequenceType"|undefined} Type
                  * @memberof CoreML.Specification.FeatureType
                  * @instance
                  */
                 Object.defineProperty(FeatureType.prototype, "Type", {
-                    get: $util.oneOfGetter($oneOfFields = ["int64Type", "doubleType", "stringType", "imageType", "multiArrayType", "dictionaryType"]),
+                    get: $util.oneOfGetter($oneOfFields = ["int64Type", "doubleType", "stringType", "imageType", "multiArrayType", "dictionaryType", "sequenceType"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -5922,6 +8657,8 @@
                         $root.CoreML.Specification.ArrayFeatureType.encode(message.multiArrayType, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                     if (message.dictionaryType != null && message.hasOwnProperty("dictionaryType"))
                         $root.CoreML.Specification.DictionaryFeatureType.encode(message.dictionaryType, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+                    if (message.sequenceType != null && message.hasOwnProperty("sequenceType"))
+                        $root.CoreML.Specification.SequenceFeatureType.encode(message.sequenceType, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                     if (message.isOptional != null && message.hasOwnProperty("isOptional"))
                         writer.uint32(/* id 1000, wireType 0 =*/8000).bool(message.isOptional);
                     return writer;
@@ -5975,6 +8712,9 @@
                             break;
                         case 6:
                             message.dictionaryType = $root.CoreML.Specification.DictionaryFeatureType.decode(reader, reader.uint32());
+                            break;
+                        case 7:
+                            message.sequenceType = $root.CoreML.Specification.SequenceFeatureType.decode(reader, reader.uint32());
                             break;
                         case 1000:
                             message.isOptional = reader.bool();
@@ -6073,6 +8813,16 @@
                                 return "dictionaryType." + error;
                         }
                     }
+                    if (message.sequenceType != null && message.hasOwnProperty("sequenceType")) {
+                        if (properties.Type === 1)
+                            return "Type: multiple values";
+                        properties.Type = 1;
+                        {
+                            var error = $root.CoreML.Specification.SequenceFeatureType.verify(message.sequenceType);
+                            if (error)
+                                return "sequenceType." + error;
+                        }
+                    }
                     if (message.isOptional != null && message.hasOwnProperty("isOptional"))
                         if (typeof message.isOptional !== "boolean")
                             return "isOptional: boolean expected";
@@ -6120,6 +8870,11 @@
                         if (typeof object.dictionaryType !== "object")
                             throw TypeError(".CoreML.Specification.FeatureType.dictionaryType: object expected");
                         message.dictionaryType = $root.CoreML.Specification.DictionaryFeatureType.fromObject(object.dictionaryType);
+                    }
+                    if (object.sequenceType != null) {
+                        if (typeof object.sequenceType !== "object")
+                            throw TypeError(".CoreML.Specification.FeatureType.sequenceType: object expected");
+                        message.sequenceType = $root.CoreML.Specification.SequenceFeatureType.fromObject(object.sequenceType);
                     }
                     if (object.isOptional != null)
                         message.isOptional = Boolean(object.isOptional);
@@ -6171,6 +8926,11 @@
                         if (options.oneofs)
                             object.Type = "dictionaryType";
                     }
+                    if (message.sequenceType != null && message.hasOwnProperty("sequenceType")) {
+                        object.sequenceType = $root.CoreML.Specification.SequenceFeatureType.toObject(message.sequenceType, options);
+                        if (options.oneofs)
+                            object.Type = "sequenceType";
+                    }
                     if (message.isOptional != null && message.hasOwnProperty("isOptional"))
                         object.isOptional = message.isOptional;
                     return object;
@@ -6188,6 +8948,2263 @@
                 };
     
                 return FeatureType;
+            })();
+    
+            Specification.ArrayFeatureExtractor = (function() {
+    
+                /**
+                 * Properties of an ArrayFeatureExtractor.
+                 * @memberof CoreML.Specification
+                 * @interface IArrayFeatureExtractor
+                 * @property {Array.<number|Long>|null} [extractIndex] ArrayFeatureExtractor extractIndex
+                 */
+    
+                /**
+                 * Constructs a new ArrayFeatureExtractor.
+                 * @memberof CoreML.Specification
+                 * @classdesc An array feature extractor.
+                 * 
+                 * Given an index, extracts the value at that index from its array input.
+                 * Indexes are zero-based.
+                 * @implements IArrayFeatureExtractor
+                 * @constructor
+                 * @param {CoreML.Specification.IArrayFeatureExtractor=} [properties] Properties to set
+                 */
+                function ArrayFeatureExtractor(properties) {
+                    this.extractIndex = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * ArrayFeatureExtractor extractIndex.
+                 * @member {Array.<number|Long>} extractIndex
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @instance
+                 */
+                ArrayFeatureExtractor.prototype.extractIndex = $util.emptyArray;
+    
+                /**
+                 * Creates a new ArrayFeatureExtractor instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {CoreML.Specification.IArrayFeatureExtractor=} [properties] Properties to set
+                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor instance
+                 */
+                ArrayFeatureExtractor.create = function create(properties) {
+                    return new ArrayFeatureExtractor(properties);
+                };
+    
+                /**
+                 * Encodes the specified ArrayFeatureExtractor message. Does not implicitly {@link CoreML.Specification.ArrayFeatureExtractor.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {CoreML.Specification.IArrayFeatureExtractor} message ArrayFeatureExtractor message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                ArrayFeatureExtractor.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.extractIndex != null && message.extractIndex.length) {
+                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
+                        for (var i = 0; i < message.extractIndex.length; ++i)
+                            writer.uint64(message.extractIndex[i]);
+                        writer.ldelim();
+                    }
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified ArrayFeatureExtractor message, length delimited. Does not implicitly {@link CoreML.Specification.ArrayFeatureExtractor.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {CoreML.Specification.IArrayFeatureExtractor} message ArrayFeatureExtractor message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                ArrayFeatureExtractor.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes an ArrayFeatureExtractor message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                ArrayFeatureExtractor.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArrayFeatureExtractor();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.extractIndex && message.extractIndex.length))
+                                message.extractIndex = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.extractIndex.push(reader.uint64());
+                            } else
+                                message.extractIndex.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes an ArrayFeatureExtractor message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                ArrayFeatureExtractor.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies an ArrayFeatureExtractor message.
+                 * @function verify
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                ArrayFeatureExtractor.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.extractIndex != null && message.hasOwnProperty("extractIndex")) {
+                        if (!Array.isArray(message.extractIndex))
+                            return "extractIndex: array expected";
+                        for (var i = 0; i < message.extractIndex.length; ++i)
+                            if (!$util.isInteger(message.extractIndex[i]) && !(message.extractIndex[i] && $util.isInteger(message.extractIndex[i].low) && $util.isInteger(message.extractIndex[i].high)))
+                                return "extractIndex: integer|Long[] expected";
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates an ArrayFeatureExtractor message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.ArrayFeatureExtractor} ArrayFeatureExtractor
+                 */
+                ArrayFeatureExtractor.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.ArrayFeatureExtractor)
+                        return object;
+                    var message = new $root.CoreML.Specification.ArrayFeatureExtractor();
+                    if (object.extractIndex) {
+                        if (!Array.isArray(object.extractIndex))
+                            throw TypeError(".CoreML.Specification.ArrayFeatureExtractor.extractIndex: array expected");
+                        message.extractIndex = [];
+                        for (var i = 0; i < object.extractIndex.length; ++i)
+                            if ($util.Long)
+                                (message.extractIndex[i] = $util.Long.fromValue(object.extractIndex[i])).unsigned = true;
+                            else if (typeof object.extractIndex[i] === "string")
+                                message.extractIndex[i] = parseInt(object.extractIndex[i], 10);
+                            else if (typeof object.extractIndex[i] === "number")
+                                message.extractIndex[i] = object.extractIndex[i];
+                            else if (typeof object.extractIndex[i] === "object")
+                                message.extractIndex[i] = new $util.LongBits(object.extractIndex[i].low >>> 0, object.extractIndex[i].high >>> 0).toNumber(true);
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from an ArrayFeatureExtractor message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @static
+                 * @param {CoreML.Specification.ArrayFeatureExtractor} message ArrayFeatureExtractor
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                ArrayFeatureExtractor.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.extractIndex = [];
+                    if (message.extractIndex && message.extractIndex.length) {
+                        object.extractIndex = [];
+                        for (var j = 0; j < message.extractIndex.length; ++j)
+                            if (typeof message.extractIndex[j] === "number")
+                                object.extractIndex[j] = options.longs === String ? String(message.extractIndex[j]) : message.extractIndex[j];
+                            else
+                                object.extractIndex[j] = options.longs === String ? $util.Long.prototype.toString.call(message.extractIndex[j]) : options.longs === Number ? new $util.LongBits(message.extractIndex[j].low >>> 0, message.extractIndex[j].high >>> 0).toNumber(true) : message.extractIndex[j];
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this ArrayFeatureExtractor to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.ArrayFeatureExtractor
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                ArrayFeatureExtractor.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return ArrayFeatureExtractor;
+            })();
+    
+            Specification.BayesianProbitRegressor = (function() {
+    
+                /**
+                 * Properties of a BayesianProbitRegressor.
+                 * @memberof CoreML.Specification
+                 * @interface IBayesianProbitRegressor
+                 * @property {number|null} [numberOfFeatures] BayesianProbitRegressor numberOfFeatures
+                 * @property {CoreML.Specification.BayesianProbitRegressor.IGaussian|null} [bias] BayesianProbitRegressor bias
+                 * @property {Array.<CoreML.Specification.BayesianProbitRegressor.IFeatureWeight>|null} [features] BayesianProbitRegressor features
+                 * @property {string|null} [regressionInputFeatureName] BayesianProbitRegressor regressionInputFeatureName
+                 * @property {string|null} [optimismInputFeatureName] BayesianProbitRegressor optimismInputFeatureName
+                 * @property {string|null} [samplingScaleInputFeatureName] BayesianProbitRegressor samplingScaleInputFeatureName
+                 * @property {string|null} [samplingTruncationInputFeatureName] BayesianProbitRegressor samplingTruncationInputFeatureName
+                 * @property {string|null} [meanOutputFeatureName] BayesianProbitRegressor meanOutputFeatureName
+                 * @property {string|null} [varianceOutputFeatureName] BayesianProbitRegressor varianceOutputFeatureName
+                 * @property {string|null} [pessimisticProbabilityOutputFeatureName] BayesianProbitRegressor pessimisticProbabilityOutputFeatureName
+                 * @property {string|null} [sampledProbabilityOutputFeatureName] BayesianProbitRegressor sampledProbabilityOutputFeatureName
+                 */
+    
+                /**
+                 * Constructs a new BayesianProbitRegressor.
+                 * @memberof CoreML.Specification
+                 * @classdesc Represents a BayesianProbitRegressor.
+                 * @implements IBayesianProbitRegressor
+                 * @constructor
+                 * @param {CoreML.Specification.IBayesianProbitRegressor=} [properties] Properties to set
+                 */
+                function BayesianProbitRegressor(properties) {
+                    this.features = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * BayesianProbitRegressor numberOfFeatures.
+                 * @member {number} numberOfFeatures
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.numberOfFeatures = 0;
+    
+                /**
+                 * BayesianProbitRegressor bias.
+                 * @member {CoreML.Specification.BayesianProbitRegressor.IGaussian|null|undefined} bias
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.bias = null;
+    
+                /**
+                 * BayesianProbitRegressor features.
+                 * @member {Array.<CoreML.Specification.BayesianProbitRegressor.IFeatureWeight>} features
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.features = $util.emptyArray;
+    
+                /**
+                 * BayesianProbitRegressor regressionInputFeatureName.
+                 * @member {string} regressionInputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.regressionInputFeatureName = "";
+    
+                /**
+                 * BayesianProbitRegressor optimismInputFeatureName.
+                 * @member {string} optimismInputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.optimismInputFeatureName = "";
+    
+                /**
+                 * BayesianProbitRegressor samplingScaleInputFeatureName.
+                 * @member {string} samplingScaleInputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.samplingScaleInputFeatureName = "";
+    
+                /**
+                 * BayesianProbitRegressor samplingTruncationInputFeatureName.
+                 * @member {string} samplingTruncationInputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.samplingTruncationInputFeatureName = "";
+    
+                /**
+                 * BayesianProbitRegressor meanOutputFeatureName.
+                 * @member {string} meanOutputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.meanOutputFeatureName = "";
+    
+                /**
+                 * BayesianProbitRegressor varianceOutputFeatureName.
+                 * @member {string} varianceOutputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.varianceOutputFeatureName = "";
+    
+                /**
+                 * BayesianProbitRegressor pessimisticProbabilityOutputFeatureName.
+                 * @member {string} pessimisticProbabilityOutputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.pessimisticProbabilityOutputFeatureName = "";
+    
+                /**
+                 * BayesianProbitRegressor sampledProbabilityOutputFeatureName.
+                 * @member {string} sampledProbabilityOutputFeatureName
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 */
+                BayesianProbitRegressor.prototype.sampledProbabilityOutputFeatureName = "";
+    
+                /**
+                 * Creates a new BayesianProbitRegressor instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {CoreML.Specification.IBayesianProbitRegressor=} [properties] Properties to set
+                 * @returns {CoreML.Specification.BayesianProbitRegressor} BayesianProbitRegressor instance
+                 */
+                BayesianProbitRegressor.create = function create(properties) {
+                    return new BayesianProbitRegressor(properties);
+                };
+    
+                /**
+                 * Encodes the specified BayesianProbitRegressor message. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {CoreML.Specification.IBayesianProbitRegressor} message BayesianProbitRegressor message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                BayesianProbitRegressor.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.numberOfFeatures != null && message.hasOwnProperty("numberOfFeatures"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.numberOfFeatures);
+                    if (message.bias != null && message.hasOwnProperty("bias"))
+                        $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.encode(message.bias, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    if (message.features != null && message.features.length)
+                        for (var i = 0; i < message.features.length; ++i)
+                            $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight.encode(message.features[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                    if (message.regressionInputFeatureName != null && message.hasOwnProperty("regressionInputFeatureName"))
+                        writer.uint32(/* id 10, wireType 2 =*/82).string(message.regressionInputFeatureName);
+                    if (message.optimismInputFeatureName != null && message.hasOwnProperty("optimismInputFeatureName"))
+                        writer.uint32(/* id 11, wireType 2 =*/90).string(message.optimismInputFeatureName);
+                    if (message.samplingScaleInputFeatureName != null && message.hasOwnProperty("samplingScaleInputFeatureName"))
+                        writer.uint32(/* id 12, wireType 2 =*/98).string(message.samplingScaleInputFeatureName);
+                    if (message.samplingTruncationInputFeatureName != null && message.hasOwnProperty("samplingTruncationInputFeatureName"))
+                        writer.uint32(/* id 13, wireType 2 =*/106).string(message.samplingTruncationInputFeatureName);
+                    if (message.meanOutputFeatureName != null && message.hasOwnProperty("meanOutputFeatureName"))
+                        writer.uint32(/* id 20, wireType 2 =*/162).string(message.meanOutputFeatureName);
+                    if (message.varianceOutputFeatureName != null && message.hasOwnProperty("varianceOutputFeatureName"))
+                        writer.uint32(/* id 21, wireType 2 =*/170).string(message.varianceOutputFeatureName);
+                    if (message.pessimisticProbabilityOutputFeatureName != null && message.hasOwnProperty("pessimisticProbabilityOutputFeatureName"))
+                        writer.uint32(/* id 22, wireType 2 =*/178).string(message.pessimisticProbabilityOutputFeatureName);
+                    if (message.sampledProbabilityOutputFeatureName != null && message.hasOwnProperty("sampledProbabilityOutputFeatureName"))
+                        writer.uint32(/* id 23, wireType 2 =*/186).string(message.sampledProbabilityOutputFeatureName);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified BayesianProbitRegressor message, length delimited. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {CoreML.Specification.IBayesianProbitRegressor} message BayesianProbitRegressor message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                BayesianProbitRegressor.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a BayesianProbitRegressor message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.BayesianProbitRegressor} BayesianProbitRegressor
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                BayesianProbitRegressor.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BayesianProbitRegressor();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.numberOfFeatures = reader.uint32();
+                            break;
+                        case 2:
+                            message.bias = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.decode(reader, reader.uint32());
+                            break;
+                        case 3:
+                            if (!(message.features && message.features.length))
+                                message.features = [];
+                            message.features.push($root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight.decode(reader, reader.uint32()));
+                            break;
+                        case 10:
+                            message.regressionInputFeatureName = reader.string();
+                            break;
+                        case 11:
+                            message.optimismInputFeatureName = reader.string();
+                            break;
+                        case 12:
+                            message.samplingScaleInputFeatureName = reader.string();
+                            break;
+                        case 13:
+                            message.samplingTruncationInputFeatureName = reader.string();
+                            break;
+                        case 20:
+                            message.meanOutputFeatureName = reader.string();
+                            break;
+                        case 21:
+                            message.varianceOutputFeatureName = reader.string();
+                            break;
+                        case 22:
+                            message.pessimisticProbabilityOutputFeatureName = reader.string();
+                            break;
+                        case 23:
+                            message.sampledProbabilityOutputFeatureName = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a BayesianProbitRegressor message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.BayesianProbitRegressor} BayesianProbitRegressor
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                BayesianProbitRegressor.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a BayesianProbitRegressor message.
+                 * @function verify
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                BayesianProbitRegressor.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.numberOfFeatures != null && message.hasOwnProperty("numberOfFeatures"))
+                        if (!$util.isInteger(message.numberOfFeatures))
+                            return "numberOfFeatures: integer expected";
+                    if (message.bias != null && message.hasOwnProperty("bias")) {
+                        var error = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.verify(message.bias);
+                        if (error)
+                            return "bias." + error;
+                    }
+                    if (message.features != null && message.hasOwnProperty("features")) {
+                        if (!Array.isArray(message.features))
+                            return "features: array expected";
+                        for (var i = 0; i < message.features.length; ++i) {
+                            var error = $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight.verify(message.features[i]);
+                            if (error)
+                                return "features." + error;
+                        }
+                    }
+                    if (message.regressionInputFeatureName != null && message.hasOwnProperty("regressionInputFeatureName"))
+                        if (!$util.isString(message.regressionInputFeatureName))
+                            return "regressionInputFeatureName: string expected";
+                    if (message.optimismInputFeatureName != null && message.hasOwnProperty("optimismInputFeatureName"))
+                        if (!$util.isString(message.optimismInputFeatureName))
+                            return "optimismInputFeatureName: string expected";
+                    if (message.samplingScaleInputFeatureName != null && message.hasOwnProperty("samplingScaleInputFeatureName"))
+                        if (!$util.isString(message.samplingScaleInputFeatureName))
+                            return "samplingScaleInputFeatureName: string expected";
+                    if (message.samplingTruncationInputFeatureName != null && message.hasOwnProperty("samplingTruncationInputFeatureName"))
+                        if (!$util.isString(message.samplingTruncationInputFeatureName))
+                            return "samplingTruncationInputFeatureName: string expected";
+                    if (message.meanOutputFeatureName != null && message.hasOwnProperty("meanOutputFeatureName"))
+                        if (!$util.isString(message.meanOutputFeatureName))
+                            return "meanOutputFeatureName: string expected";
+                    if (message.varianceOutputFeatureName != null && message.hasOwnProperty("varianceOutputFeatureName"))
+                        if (!$util.isString(message.varianceOutputFeatureName))
+                            return "varianceOutputFeatureName: string expected";
+                    if (message.pessimisticProbabilityOutputFeatureName != null && message.hasOwnProperty("pessimisticProbabilityOutputFeatureName"))
+                        if (!$util.isString(message.pessimisticProbabilityOutputFeatureName))
+                            return "pessimisticProbabilityOutputFeatureName: string expected";
+                    if (message.sampledProbabilityOutputFeatureName != null && message.hasOwnProperty("sampledProbabilityOutputFeatureName"))
+                        if (!$util.isString(message.sampledProbabilityOutputFeatureName))
+                            return "sampledProbabilityOutputFeatureName: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a BayesianProbitRegressor message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.BayesianProbitRegressor} BayesianProbitRegressor
+                 */
+                BayesianProbitRegressor.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.BayesianProbitRegressor)
+                        return object;
+                    var message = new $root.CoreML.Specification.BayesianProbitRegressor();
+                    if (object.numberOfFeatures != null)
+                        message.numberOfFeatures = object.numberOfFeatures >>> 0;
+                    if (object.bias != null) {
+                        if (typeof object.bias !== "object")
+                            throw TypeError(".CoreML.Specification.BayesianProbitRegressor.bias: object expected");
+                        message.bias = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.fromObject(object.bias);
+                    }
+                    if (object.features) {
+                        if (!Array.isArray(object.features))
+                            throw TypeError(".CoreML.Specification.BayesianProbitRegressor.features: array expected");
+                        message.features = [];
+                        for (var i = 0; i < object.features.length; ++i) {
+                            if (typeof object.features[i] !== "object")
+                                throw TypeError(".CoreML.Specification.BayesianProbitRegressor.features: object expected");
+                            message.features[i] = $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight.fromObject(object.features[i]);
+                        }
+                    }
+                    if (object.regressionInputFeatureName != null)
+                        message.regressionInputFeatureName = String(object.regressionInputFeatureName);
+                    if (object.optimismInputFeatureName != null)
+                        message.optimismInputFeatureName = String(object.optimismInputFeatureName);
+                    if (object.samplingScaleInputFeatureName != null)
+                        message.samplingScaleInputFeatureName = String(object.samplingScaleInputFeatureName);
+                    if (object.samplingTruncationInputFeatureName != null)
+                        message.samplingTruncationInputFeatureName = String(object.samplingTruncationInputFeatureName);
+                    if (object.meanOutputFeatureName != null)
+                        message.meanOutputFeatureName = String(object.meanOutputFeatureName);
+                    if (object.varianceOutputFeatureName != null)
+                        message.varianceOutputFeatureName = String(object.varianceOutputFeatureName);
+                    if (object.pessimisticProbabilityOutputFeatureName != null)
+                        message.pessimisticProbabilityOutputFeatureName = String(object.pessimisticProbabilityOutputFeatureName);
+                    if (object.sampledProbabilityOutputFeatureName != null)
+                        message.sampledProbabilityOutputFeatureName = String(object.sampledProbabilityOutputFeatureName);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a BayesianProbitRegressor message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @static
+                 * @param {CoreML.Specification.BayesianProbitRegressor} message BayesianProbitRegressor
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                BayesianProbitRegressor.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.features = [];
+                    if (options.defaults) {
+                        object.numberOfFeatures = 0;
+                        object.bias = null;
+                        object.regressionInputFeatureName = "";
+                        object.optimismInputFeatureName = "";
+                        object.samplingScaleInputFeatureName = "";
+                        object.samplingTruncationInputFeatureName = "";
+                        object.meanOutputFeatureName = "";
+                        object.varianceOutputFeatureName = "";
+                        object.pessimisticProbabilityOutputFeatureName = "";
+                        object.sampledProbabilityOutputFeatureName = "";
+                    }
+                    if (message.numberOfFeatures != null && message.hasOwnProperty("numberOfFeatures"))
+                        object.numberOfFeatures = message.numberOfFeatures;
+                    if (message.bias != null && message.hasOwnProperty("bias"))
+                        object.bias = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.toObject(message.bias, options);
+                    if (message.features && message.features.length) {
+                        object.features = [];
+                        for (var j = 0; j < message.features.length; ++j)
+                            object.features[j] = $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight.toObject(message.features[j], options);
+                    }
+                    if (message.regressionInputFeatureName != null && message.hasOwnProperty("regressionInputFeatureName"))
+                        object.regressionInputFeatureName = message.regressionInputFeatureName;
+                    if (message.optimismInputFeatureName != null && message.hasOwnProperty("optimismInputFeatureName"))
+                        object.optimismInputFeatureName = message.optimismInputFeatureName;
+                    if (message.samplingScaleInputFeatureName != null && message.hasOwnProperty("samplingScaleInputFeatureName"))
+                        object.samplingScaleInputFeatureName = message.samplingScaleInputFeatureName;
+                    if (message.samplingTruncationInputFeatureName != null && message.hasOwnProperty("samplingTruncationInputFeatureName"))
+                        object.samplingTruncationInputFeatureName = message.samplingTruncationInputFeatureName;
+                    if (message.meanOutputFeatureName != null && message.hasOwnProperty("meanOutputFeatureName"))
+                        object.meanOutputFeatureName = message.meanOutputFeatureName;
+                    if (message.varianceOutputFeatureName != null && message.hasOwnProperty("varianceOutputFeatureName"))
+                        object.varianceOutputFeatureName = message.varianceOutputFeatureName;
+                    if (message.pessimisticProbabilityOutputFeatureName != null && message.hasOwnProperty("pessimisticProbabilityOutputFeatureName"))
+                        object.pessimisticProbabilityOutputFeatureName = message.pessimisticProbabilityOutputFeatureName;
+                    if (message.sampledProbabilityOutputFeatureName != null && message.hasOwnProperty("sampledProbabilityOutputFeatureName"))
+                        object.sampledProbabilityOutputFeatureName = message.sampledProbabilityOutputFeatureName;
+                    return object;
+                };
+    
+                /**
+                 * Converts this BayesianProbitRegressor to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.BayesianProbitRegressor
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                BayesianProbitRegressor.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                BayesianProbitRegressor.Gaussian = (function() {
+    
+                    /**
+                     * Properties of a Gaussian.
+                     * @memberof CoreML.Specification.BayesianProbitRegressor
+                     * @interface IGaussian
+                     * @property {number|null} [mean] Gaussian mean
+                     * @property {number|null} [precision] Gaussian precision
+                     */
+    
+                    /**
+                     * Constructs a new Gaussian.
+                     * @memberof CoreML.Specification.BayesianProbitRegressor
+                     * @classdesc Represents a Gaussian.
+                     * @implements IGaussian
+                     * @constructor
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IGaussian=} [properties] Properties to set
+                     */
+                    function Gaussian(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * Gaussian mean.
+                     * @member {number} mean
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @instance
+                     */
+                    Gaussian.prototype.mean = 0;
+    
+                    /**
+                     * Gaussian precision.
+                     * @member {number} precision
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @instance
+                     */
+                    Gaussian.prototype.precision = 0;
+    
+                    /**
+                     * Creates a new Gaussian instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IGaussian=} [properties] Properties to set
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.Gaussian} Gaussian instance
+                     */
+                    Gaussian.create = function create(properties) {
+                        return new Gaussian(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified Gaussian message. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.Gaussian.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IGaussian} message Gaussian message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Gaussian.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.mean != null && message.hasOwnProperty("mean"))
+                            writer.uint32(/* id 1, wireType 1 =*/9).double(message.mean);
+                        if (message.precision != null && message.hasOwnProperty("precision"))
+                            writer.uint32(/* id 2, wireType 1 =*/17).double(message.precision);
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified Gaussian message, length delimited. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.Gaussian.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IGaussian} message Gaussian message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    Gaussian.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a Gaussian message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.Gaussian} Gaussian
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Gaussian.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BayesianProbitRegressor.Gaussian();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.mean = reader.double();
+                                break;
+                            case 2:
+                                message.precision = reader.double();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a Gaussian message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.Gaussian} Gaussian
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    Gaussian.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a Gaussian message.
+                     * @function verify
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    Gaussian.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.mean != null && message.hasOwnProperty("mean"))
+                            if (typeof message.mean !== "number")
+                                return "mean: number expected";
+                        if (message.precision != null && message.hasOwnProperty("precision"))
+                            if (typeof message.precision !== "number")
+                                return "precision: number expected";
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a Gaussian message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.Gaussian} Gaussian
+                     */
+                    Gaussian.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.BayesianProbitRegressor.Gaussian)
+                            return object;
+                        var message = new $root.CoreML.Specification.BayesianProbitRegressor.Gaussian();
+                        if (object.mean != null)
+                            message.mean = Number(object.mean);
+                        if (object.precision != null)
+                            message.precision = Number(object.precision);
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a Gaussian message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.Gaussian} message Gaussian
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    Gaussian.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.mean = 0;
+                            object.precision = 0;
+                        }
+                        if (message.mean != null && message.hasOwnProperty("mean"))
+                            object.mean = options.json && !isFinite(message.mean) ? String(message.mean) : message.mean;
+                        if (message.precision != null && message.hasOwnProperty("precision"))
+                            object.precision = options.json && !isFinite(message.precision) ? String(message.precision) : message.precision;
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this Gaussian to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.Gaussian
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    Gaussian.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return Gaussian;
+                })();
+    
+                BayesianProbitRegressor.FeatureValueWeight = (function() {
+    
+                    /**
+                     * Properties of a FeatureValueWeight.
+                     * @memberof CoreML.Specification.BayesianProbitRegressor
+                     * @interface IFeatureValueWeight
+                     * @property {number|null} [featureValue] FeatureValueWeight featureValue
+                     * @property {CoreML.Specification.BayesianProbitRegressor.IGaussian|null} [featureWeight] FeatureValueWeight featureWeight
+                     */
+    
+                    /**
+                     * Constructs a new FeatureValueWeight.
+                     * @memberof CoreML.Specification.BayesianProbitRegressor
+                     * @classdesc Represents a FeatureValueWeight.
+                     * @implements IFeatureValueWeight
+                     * @constructor
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureValueWeight=} [properties] Properties to set
+                     */
+                    function FeatureValueWeight(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * FeatureValueWeight featureValue.
+                     * @member {number} featureValue
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @instance
+                     */
+                    FeatureValueWeight.prototype.featureValue = 0;
+    
+                    /**
+                     * FeatureValueWeight featureWeight.
+                     * @member {CoreML.Specification.BayesianProbitRegressor.IGaussian|null|undefined} featureWeight
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @instance
+                     */
+                    FeatureValueWeight.prototype.featureWeight = null;
+    
+                    /**
+                     * Creates a new FeatureValueWeight instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureValueWeight=} [properties] Properties to set
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight} FeatureValueWeight instance
+                     */
+                    FeatureValueWeight.create = function create(properties) {
+                        return new FeatureValueWeight(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified FeatureValueWeight message. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureValueWeight} message FeatureValueWeight message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    FeatureValueWeight.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.featureValue != null && message.hasOwnProperty("featureValue"))
+                            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.featureValue);
+                        if (message.featureWeight != null && message.hasOwnProperty("featureWeight"))
+                            $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.encode(message.featureWeight, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified FeatureValueWeight message, length delimited. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureValueWeight} message FeatureValueWeight message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    FeatureValueWeight.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a FeatureValueWeight message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight} FeatureValueWeight
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    FeatureValueWeight.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.featureValue = reader.uint32();
+                                break;
+                            case 2:
+                                message.featureWeight = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.decode(reader, reader.uint32());
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a FeatureValueWeight message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight} FeatureValueWeight
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    FeatureValueWeight.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a FeatureValueWeight message.
+                     * @function verify
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    FeatureValueWeight.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.featureValue != null && message.hasOwnProperty("featureValue"))
+                            if (!$util.isInteger(message.featureValue))
+                                return "featureValue: integer expected";
+                        if (message.featureWeight != null && message.hasOwnProperty("featureWeight")) {
+                            var error = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.verify(message.featureWeight);
+                            if (error)
+                                return "featureWeight." + error;
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a FeatureValueWeight message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight} FeatureValueWeight
+                     */
+                    FeatureValueWeight.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight)
+                            return object;
+                        var message = new $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight();
+                        if (object.featureValue != null)
+                            message.featureValue = object.featureValue >>> 0;
+                        if (object.featureWeight != null) {
+                            if (typeof object.featureWeight !== "object")
+                                throw TypeError(".CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.featureWeight: object expected");
+                            message.featureWeight = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.fromObject(object.featureWeight);
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a FeatureValueWeight message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight} message FeatureValueWeight
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    FeatureValueWeight.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults) {
+                            object.featureValue = 0;
+                            object.featureWeight = null;
+                        }
+                        if (message.featureValue != null && message.hasOwnProperty("featureValue"))
+                            object.featureValue = message.featureValue;
+                        if (message.featureWeight != null && message.hasOwnProperty("featureWeight"))
+                            object.featureWeight = $root.CoreML.Specification.BayesianProbitRegressor.Gaussian.toObject(message.featureWeight, options);
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this FeatureValueWeight to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    FeatureValueWeight.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return FeatureValueWeight;
+                })();
+    
+                BayesianProbitRegressor.FeatureWeight = (function() {
+    
+                    /**
+                     * Properties of a FeatureWeight.
+                     * @memberof CoreML.Specification.BayesianProbitRegressor
+                     * @interface IFeatureWeight
+                     * @property {number|null} [featureId] FeatureWeight featureId
+                     * @property {Array.<CoreML.Specification.BayesianProbitRegressor.IFeatureValueWeight>|null} [weights] FeatureWeight weights
+                     */
+    
+                    /**
+                     * Constructs a new FeatureWeight.
+                     * @memberof CoreML.Specification.BayesianProbitRegressor
+                     * @classdesc Represents a FeatureWeight.
+                     * @implements IFeatureWeight
+                     * @constructor
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureWeight=} [properties] Properties to set
+                     */
+                    function FeatureWeight(properties) {
+                        this.weights = [];
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * FeatureWeight featureId.
+                     * @member {number} featureId
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @instance
+                     */
+                    FeatureWeight.prototype.featureId = 0;
+    
+                    /**
+                     * FeatureWeight weights.
+                     * @member {Array.<CoreML.Specification.BayesianProbitRegressor.IFeatureValueWeight>} weights
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @instance
+                     */
+                    FeatureWeight.prototype.weights = $util.emptyArray;
+    
+                    /**
+                     * Creates a new FeatureWeight instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureWeight=} [properties] Properties to set
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureWeight} FeatureWeight instance
+                     */
+                    FeatureWeight.create = function create(properties) {
+                        return new FeatureWeight(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified FeatureWeight message. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.FeatureWeight.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureWeight} message FeatureWeight message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    FeatureWeight.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.featureId != null && message.hasOwnProperty("featureId"))
+                            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.featureId);
+                        if (message.weights != null && message.weights.length)
+                            for (var i = 0; i < message.weights.length; ++i)
+                                $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.encode(message.weights[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified FeatureWeight message, length delimited. Does not implicitly {@link CoreML.Specification.BayesianProbitRegressor.FeatureWeight.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.IFeatureWeight} message FeatureWeight message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    FeatureWeight.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a FeatureWeight message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureWeight} FeatureWeight
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    FeatureWeight.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.featureId = reader.uint32();
+                                break;
+                            case 2:
+                                if (!(message.weights && message.weights.length))
+                                    message.weights = [];
+                                message.weights.push($root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.decode(reader, reader.uint32()));
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a FeatureWeight message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureWeight} FeatureWeight
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    FeatureWeight.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a FeatureWeight message.
+                     * @function verify
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    FeatureWeight.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.featureId != null && message.hasOwnProperty("featureId"))
+                            if (!$util.isInteger(message.featureId))
+                                return "featureId: integer expected";
+                        if (message.weights != null && message.hasOwnProperty("weights")) {
+                            if (!Array.isArray(message.weights))
+                                return "weights: array expected";
+                            for (var i = 0; i < message.weights.length; ++i) {
+                                var error = $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.verify(message.weights[i]);
+                                if (error)
+                                    return "weights." + error;
+                            }
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a FeatureWeight message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.BayesianProbitRegressor.FeatureWeight} FeatureWeight
+                     */
+                    FeatureWeight.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight)
+                            return object;
+                        var message = new $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight();
+                        if (object.featureId != null)
+                            message.featureId = object.featureId >>> 0;
+                        if (object.weights) {
+                            if (!Array.isArray(object.weights))
+                                throw TypeError(".CoreML.Specification.BayesianProbitRegressor.FeatureWeight.weights: array expected");
+                            message.weights = [];
+                            for (var i = 0; i < object.weights.length; ++i) {
+                                if (typeof object.weights[i] !== "object")
+                                    throw TypeError(".CoreML.Specification.BayesianProbitRegressor.FeatureWeight.weights: object expected");
+                                message.weights[i] = $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.fromObject(object.weights[i]);
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a FeatureWeight message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @static
+                     * @param {CoreML.Specification.BayesianProbitRegressor.FeatureWeight} message FeatureWeight
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    FeatureWeight.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.arrays || options.defaults)
+                            object.weights = [];
+                        if (options.defaults)
+                            object.featureId = 0;
+                        if (message.featureId != null && message.hasOwnProperty("featureId"))
+                            object.featureId = message.featureId;
+                        if (message.weights && message.weights.length) {
+                            object.weights = [];
+                            for (var j = 0; j < message.weights.length; ++j)
+                                object.weights[j] = $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight.toObject(message.weights[j], options);
+                        }
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this FeatureWeight to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.BayesianProbitRegressor.FeatureWeight
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    FeatureWeight.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return FeatureWeight;
+                })();
+    
+                return BayesianProbitRegressor;
+            })();
+    
+            Specification.CategoricalMapping = (function() {
+    
+                /**
+                 * Properties of a CategoricalMapping.
+                 * @memberof CoreML.Specification
+                 * @interface ICategoricalMapping
+                 * @property {CoreML.Specification.IStringToInt64Map|null} [stringToInt64Map] CategoricalMapping stringToInt64Map
+                 * @property {CoreML.Specification.IInt64ToStringMap|null} [int64ToStringMap] CategoricalMapping int64ToStringMap
+                 * @property {string|null} [strValue] CategoricalMapping strValue
+                 * @property {number|Long|null} [int64Value] CategoricalMapping int64Value
+                 */
+    
+                /**
+                 * Constructs a new CategoricalMapping.
+                 * @memberof CoreML.Specification
+                 * @classdesc A categorical mapping.
+                 * 
+                 * This allows conversion from integers to strings, or from strings to integers.
+                 * @implements ICategoricalMapping
+                 * @constructor
+                 * @param {CoreML.Specification.ICategoricalMapping=} [properties] Properties to set
+                 */
+                function CategoricalMapping(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * CategoricalMapping stringToInt64Map.
+                 * @member {CoreML.Specification.IStringToInt64Map|null|undefined} stringToInt64Map
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @instance
+                 */
+                CategoricalMapping.prototype.stringToInt64Map = null;
+    
+                /**
+                 * CategoricalMapping int64ToStringMap.
+                 * @member {CoreML.Specification.IInt64ToStringMap|null|undefined} int64ToStringMap
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @instance
+                 */
+                CategoricalMapping.prototype.int64ToStringMap = null;
+    
+                /**
+                 * CategoricalMapping strValue.
+                 * @member {string} strValue
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @instance
+                 */
+                CategoricalMapping.prototype.strValue = "";
+    
+                /**
+                 * CategoricalMapping int64Value.
+                 * @member {number|Long} int64Value
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @instance
+                 */
+                CategoricalMapping.prototype.int64Value = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                // OneOf field names bound to virtual getters and setters
+                var $oneOfFields;
+    
+                /**
+                 * CategoricalMapping MappingType.
+                 * @member {"stringToInt64Map"|"int64ToStringMap"|undefined} MappingType
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @instance
+                 */
+                Object.defineProperty(CategoricalMapping.prototype, "MappingType", {
+                    get: $util.oneOfGetter($oneOfFields = ["stringToInt64Map", "int64ToStringMap"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                /**
+                 * The value returned if an input is not contained in the map above.
+                 * If one of these is not set, then an error is raised on an unknown input.
+                 * @member {"strValue"|"int64Value"|undefined} ValueOnUnknown
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @instance
+                 */
+                Object.defineProperty(CategoricalMapping.prototype, "ValueOnUnknown", {
+                    get: $util.oneOfGetter($oneOfFields = ["strValue", "int64Value"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                /**
+                 * Creates a new CategoricalMapping instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {CoreML.Specification.ICategoricalMapping=} [properties] Properties to set
+                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping instance
+                 */
+                CategoricalMapping.create = function create(properties) {
+                    return new CategoricalMapping(properties);
+                };
+    
+                /**
+                 * Encodes the specified CategoricalMapping message. Does not implicitly {@link CoreML.Specification.CategoricalMapping.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {CoreML.Specification.ICategoricalMapping} message CategoricalMapping message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                CategoricalMapping.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.stringToInt64Map != null && message.hasOwnProperty("stringToInt64Map"))
+                        $root.CoreML.Specification.StringToInt64Map.encode(message.stringToInt64Map, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    if (message.int64ToStringMap != null && message.hasOwnProperty("int64ToStringMap"))
+                        $root.CoreML.Specification.Int64ToStringMap.encode(message.int64ToStringMap, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    if (message.strValue != null && message.hasOwnProperty("strValue"))
+                        writer.uint32(/* id 101, wireType 2 =*/810).string(message.strValue);
+                    if (message.int64Value != null && message.hasOwnProperty("int64Value"))
+                        writer.uint32(/* id 102, wireType 0 =*/816).int64(message.int64Value);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified CategoricalMapping message, length delimited. Does not implicitly {@link CoreML.Specification.CategoricalMapping.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {CoreML.Specification.ICategoricalMapping} message CategoricalMapping message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                CategoricalMapping.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a CategoricalMapping message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                CategoricalMapping.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CategoricalMapping();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.stringToInt64Map = $root.CoreML.Specification.StringToInt64Map.decode(reader, reader.uint32());
+                            break;
+                        case 2:
+                            message.int64ToStringMap = $root.CoreML.Specification.Int64ToStringMap.decode(reader, reader.uint32());
+                            break;
+                        case 101:
+                            message.strValue = reader.string();
+                            break;
+                        case 102:
+                            message.int64Value = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a CategoricalMapping message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                CategoricalMapping.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a CategoricalMapping message.
+                 * @function verify
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                CategoricalMapping.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    var properties = {};
+                    if (message.stringToInt64Map != null && message.hasOwnProperty("stringToInt64Map")) {
+                        properties.MappingType = 1;
+                        {
+                            var error = $root.CoreML.Specification.StringToInt64Map.verify(message.stringToInt64Map);
+                            if (error)
+                                return "stringToInt64Map." + error;
+                        }
+                    }
+                    if (message.int64ToStringMap != null && message.hasOwnProperty("int64ToStringMap")) {
+                        if (properties.MappingType === 1)
+                            return "MappingType: multiple values";
+                        properties.MappingType = 1;
+                        {
+                            var error = $root.CoreML.Specification.Int64ToStringMap.verify(message.int64ToStringMap);
+                            if (error)
+                                return "int64ToStringMap." + error;
+                        }
+                    }
+                    if (message.strValue != null && message.hasOwnProperty("strValue")) {
+                        properties.ValueOnUnknown = 1;
+                        if (!$util.isString(message.strValue))
+                            return "strValue: string expected";
+                    }
+                    if (message.int64Value != null && message.hasOwnProperty("int64Value")) {
+                        if (properties.ValueOnUnknown === 1)
+                            return "ValueOnUnknown: multiple values";
+                        properties.ValueOnUnknown = 1;
+                        if (!$util.isInteger(message.int64Value) && !(message.int64Value && $util.isInteger(message.int64Value.low) && $util.isInteger(message.int64Value.high)))
+                            return "int64Value: integer|Long expected";
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a CategoricalMapping message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.CategoricalMapping} CategoricalMapping
+                 */
+                CategoricalMapping.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.CategoricalMapping)
+                        return object;
+                    var message = new $root.CoreML.Specification.CategoricalMapping();
+                    if (object.stringToInt64Map != null) {
+                        if (typeof object.stringToInt64Map !== "object")
+                            throw TypeError(".CoreML.Specification.CategoricalMapping.stringToInt64Map: object expected");
+                        message.stringToInt64Map = $root.CoreML.Specification.StringToInt64Map.fromObject(object.stringToInt64Map);
+                    }
+                    if (object.int64ToStringMap != null) {
+                        if (typeof object.int64ToStringMap !== "object")
+                            throw TypeError(".CoreML.Specification.CategoricalMapping.int64ToStringMap: object expected");
+                        message.int64ToStringMap = $root.CoreML.Specification.Int64ToStringMap.fromObject(object.int64ToStringMap);
+                    }
+                    if (object.strValue != null)
+                        message.strValue = String(object.strValue);
+                    if (object.int64Value != null)
+                        if ($util.Long)
+                            (message.int64Value = $util.Long.fromValue(object.int64Value)).unsigned = false;
+                        else if (typeof object.int64Value === "string")
+                            message.int64Value = parseInt(object.int64Value, 10);
+                        else if (typeof object.int64Value === "number")
+                            message.int64Value = object.int64Value;
+                        else if (typeof object.int64Value === "object")
+                            message.int64Value = new $util.LongBits(object.int64Value.low >>> 0, object.int64Value.high >>> 0).toNumber();
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a CategoricalMapping message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @static
+                 * @param {CoreML.Specification.CategoricalMapping} message CategoricalMapping
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                CategoricalMapping.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (message.stringToInt64Map != null && message.hasOwnProperty("stringToInt64Map")) {
+                        object.stringToInt64Map = $root.CoreML.Specification.StringToInt64Map.toObject(message.stringToInt64Map, options);
+                        if (options.oneofs)
+                            object.MappingType = "stringToInt64Map";
+                    }
+                    if (message.int64ToStringMap != null && message.hasOwnProperty("int64ToStringMap")) {
+                        object.int64ToStringMap = $root.CoreML.Specification.Int64ToStringMap.toObject(message.int64ToStringMap, options);
+                        if (options.oneofs)
+                            object.MappingType = "int64ToStringMap";
+                    }
+                    if (message.strValue != null && message.hasOwnProperty("strValue")) {
+                        object.strValue = message.strValue;
+                        if (options.oneofs)
+                            object.ValueOnUnknown = "strValue";
+                    }
+                    if (message.int64Value != null && message.hasOwnProperty("int64Value")) {
+                        if (typeof message.int64Value === "number")
+                            object.int64Value = options.longs === String ? String(message.int64Value) : message.int64Value;
+                        else
+                            object.int64Value = options.longs === String ? $util.Long.prototype.toString.call(message.int64Value) : options.longs === Number ? new $util.LongBits(message.int64Value.low >>> 0, message.int64Value.high >>> 0).toNumber() : message.int64Value;
+                        if (options.oneofs)
+                            object.ValueOnUnknown = "int64Value";
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this CategoricalMapping to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.CategoricalMapping
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                CategoricalMapping.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return CategoricalMapping;
+            })();
+    
+            Specification.CustomModel = (function() {
+    
+                /**
+                 * Properties of a CustomModel.
+                 * @memberof CoreML.Specification
+                 * @interface ICustomModel
+                 * @property {string|null} [className] CustomModel className
+                 * @property {Object.<string,CoreML.Specification.CustomModel.ICustomModelParamValue>|null} [parameters] CustomModel parameters
+                 * @property {string|null} [description] CustomModel description
+                 */
+    
+                /**
+                 * Constructs a new CustomModel.
+                 * @memberof CoreML.Specification
+                 * @classdesc A parameterized model whose function is defined in code
+                 * @implements ICustomModel
+                 * @constructor
+                 * @param {CoreML.Specification.ICustomModel=} [properties] Properties to set
+                 */
+                function CustomModel(properties) {
+                    this.parameters = {};
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * CustomModel className.
+                 * @member {string} className
+                 * @memberof CoreML.Specification.CustomModel
+                 * @instance
+                 */
+                CustomModel.prototype.className = "";
+    
+                /**
+                 * CustomModel parameters.
+                 * @member {Object.<string,CoreML.Specification.CustomModel.ICustomModelParamValue>} parameters
+                 * @memberof CoreML.Specification.CustomModel
+                 * @instance
+                 */
+                CustomModel.prototype.parameters = $util.emptyObject;
+    
+                /**
+                 * CustomModel description.
+                 * @member {string} description
+                 * @memberof CoreML.Specification.CustomModel
+                 * @instance
+                 */
+                CustomModel.prototype.description = "";
+    
+                /**
+                 * Creates a new CustomModel instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {CoreML.Specification.ICustomModel=} [properties] Properties to set
+                 * @returns {CoreML.Specification.CustomModel} CustomModel instance
+                 */
+                CustomModel.create = function create(properties) {
+                    return new CustomModel(properties);
+                };
+    
+                /**
+                 * Encodes the specified CustomModel message. Does not implicitly {@link CoreML.Specification.CustomModel.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {CoreML.Specification.ICustomModel} message CustomModel message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                CustomModel.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.className != null && message.hasOwnProperty("className"))
+                        writer.uint32(/* id 10, wireType 2 =*/82).string(message.className);
+                    if (message.parameters != null && message.hasOwnProperty("parameters"))
+                        for (var keys = Object.keys(message.parameters), i = 0; i < keys.length; ++i) {
+                            writer.uint32(/* id 30, wireType 2 =*/242).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
+                            $root.CoreML.Specification.CustomModel.CustomModelParamValue.encode(message.parameters[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
+                        }
+                    if (message.description != null && message.hasOwnProperty("description"))
+                        writer.uint32(/* id 40, wireType 2 =*/322).string(message.description);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified CustomModel message, length delimited. Does not implicitly {@link CoreML.Specification.CustomModel.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {CoreML.Specification.ICustomModel} message CustomModel message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                CustomModel.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a CustomModel message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.CustomModel} CustomModel
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                CustomModel.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CustomModel(), key;
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 10:
+                            message.className = reader.string();
+                            break;
+                        case 30:
+                            reader.skip().pos++;
+                            if (message.parameters === $util.emptyObject)
+                                message.parameters = {};
+                            key = reader.string();
+                            reader.pos++;
+                            message.parameters[key] = $root.CoreML.Specification.CustomModel.CustomModelParamValue.decode(reader, reader.uint32());
+                            break;
+                        case 40:
+                            message.description = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a CustomModel message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.CustomModel} CustomModel
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                CustomModel.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a CustomModel message.
+                 * @function verify
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                CustomModel.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.className != null && message.hasOwnProperty("className"))
+                        if (!$util.isString(message.className))
+                            return "className: string expected";
+                    if (message.parameters != null && message.hasOwnProperty("parameters")) {
+                        if (!$util.isObject(message.parameters))
+                            return "parameters: object expected";
+                        var key = Object.keys(message.parameters);
+                        for (var i = 0; i < key.length; ++i) {
+                            var error = $root.CoreML.Specification.CustomModel.CustomModelParamValue.verify(message.parameters[key[i]]);
+                            if (error)
+                                return "parameters." + error;
+                        }
+                    }
+                    if (message.description != null && message.hasOwnProperty("description"))
+                        if (!$util.isString(message.description))
+                            return "description: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a CustomModel message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.CustomModel} CustomModel
+                 */
+                CustomModel.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.CustomModel)
+                        return object;
+                    var message = new $root.CoreML.Specification.CustomModel();
+                    if (object.className != null)
+                        message.className = String(object.className);
+                    if (object.parameters) {
+                        if (typeof object.parameters !== "object")
+                            throw TypeError(".CoreML.Specification.CustomModel.parameters: object expected");
+                        message.parameters = {};
+                        for (var keys = Object.keys(object.parameters), i = 0; i < keys.length; ++i) {
+                            if (typeof object.parameters[keys[i]] !== "object")
+                                throw TypeError(".CoreML.Specification.CustomModel.parameters: object expected");
+                            message.parameters[keys[i]] = $root.CoreML.Specification.CustomModel.CustomModelParamValue.fromObject(object.parameters[keys[i]]);
+                        }
+                    }
+                    if (object.description != null)
+                        message.description = String(object.description);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a CustomModel message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.CustomModel
+                 * @static
+                 * @param {CoreML.Specification.CustomModel} message CustomModel
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                CustomModel.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.objects || options.defaults)
+                        object.parameters = {};
+                    if (options.defaults) {
+                        object.className = "";
+                        object.description = "";
+                    }
+                    if (message.className != null && message.hasOwnProperty("className"))
+                        object.className = message.className;
+                    var keys2;
+                    if (message.parameters && (keys2 = Object.keys(message.parameters)).length) {
+                        object.parameters = {};
+                        for (var j = 0; j < keys2.length; ++j)
+                            object.parameters[keys2[j]] = $root.CoreML.Specification.CustomModel.CustomModelParamValue.toObject(message.parameters[keys2[j]], options);
+                    }
+                    if (message.description != null && message.hasOwnProperty("description"))
+                        object.description = message.description;
+                    return object;
+                };
+    
+                /**
+                 * Converts this CustomModel to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.CustomModel
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                CustomModel.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                CustomModel.CustomModelParamValue = (function() {
+    
+                    /**
+                     * Properties of a CustomModelParamValue.
+                     * @memberof CoreML.Specification.CustomModel
+                     * @interface ICustomModelParamValue
+                     * @property {number|null} [doubleValue] CustomModelParamValue doubleValue
+                     * @property {string|null} [stringValue] CustomModelParamValue stringValue
+                     * @property {number|null} [intValue] CustomModelParamValue intValue
+                     * @property {number|Long|null} [longValue] CustomModelParamValue longValue
+                     * @property {boolean|null} [boolValue] CustomModelParamValue boolValue
+                     * @property {Uint8Array|null} [bytesValue] CustomModelParamValue bytesValue
+                     */
+    
+                    /**
+                     * Constructs a new CustomModelParamValue.
+                     * @memberof CoreML.Specification.CustomModel
+                     * @classdesc Represents a CustomModelParamValue.
+                     * @implements ICustomModelParamValue
+                     * @constructor
+                     * @param {CoreML.Specification.CustomModel.ICustomModelParamValue=} [properties] Properties to set
+                     */
+                    function CustomModelParamValue(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * CustomModelParamValue doubleValue.
+                     * @member {number} doubleValue
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     */
+                    CustomModelParamValue.prototype.doubleValue = 0;
+    
+                    /**
+                     * CustomModelParamValue stringValue.
+                     * @member {string} stringValue
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     */
+                    CustomModelParamValue.prototype.stringValue = "";
+    
+                    /**
+                     * CustomModelParamValue intValue.
+                     * @member {number} intValue
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     */
+                    CustomModelParamValue.prototype.intValue = 0;
+    
+                    /**
+                     * CustomModelParamValue longValue.
+                     * @member {number|Long} longValue
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     */
+                    CustomModelParamValue.prototype.longValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                    /**
+                     * CustomModelParamValue boolValue.
+                     * @member {boolean} boolValue
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     */
+                    CustomModelParamValue.prototype.boolValue = false;
+    
+                    /**
+                     * CustomModelParamValue bytesValue.
+                     * @member {Uint8Array} bytesValue
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     */
+                    CustomModelParamValue.prototype.bytesValue = $util.newBuffer([]);
+    
+                    // OneOf field names bound to virtual getters and setters
+                    var $oneOfFields;
+    
+                    /**
+                     * CustomModelParamValue value.
+                     * @member {"doubleValue"|"stringValue"|"intValue"|"longValue"|"boolValue"|"bytesValue"|undefined} value
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     */
+                    Object.defineProperty(CustomModelParamValue.prototype, "value", {
+                        get: $util.oneOfGetter($oneOfFields = ["doubleValue", "stringValue", "intValue", "longValue", "boolValue", "bytesValue"]),
+                        set: $util.oneOfSetter($oneOfFields)
+                    });
+    
+                    /**
+                     * Creates a new CustomModelParamValue instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {CoreML.Specification.CustomModel.ICustomModelParamValue=} [properties] Properties to set
+                     * @returns {CoreML.Specification.CustomModel.CustomModelParamValue} CustomModelParamValue instance
+                     */
+                    CustomModelParamValue.create = function create(properties) {
+                        return new CustomModelParamValue(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified CustomModelParamValue message. Does not implicitly {@link CoreML.Specification.CustomModel.CustomModelParamValue.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {CoreML.Specification.CustomModel.ICustomModelParamValue} message CustomModelParamValue message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    CustomModelParamValue.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.doubleValue != null && message.hasOwnProperty("doubleValue"))
+                            writer.uint32(/* id 10, wireType 1 =*/81).double(message.doubleValue);
+                        if (message.stringValue != null && message.hasOwnProperty("stringValue"))
+                            writer.uint32(/* id 20, wireType 2 =*/162).string(message.stringValue);
+                        if (message.intValue != null && message.hasOwnProperty("intValue"))
+                            writer.uint32(/* id 30, wireType 0 =*/240).int32(message.intValue);
+                        if (message.longValue != null && message.hasOwnProperty("longValue"))
+                            writer.uint32(/* id 40, wireType 0 =*/320).int64(message.longValue);
+                        if (message.boolValue != null && message.hasOwnProperty("boolValue"))
+                            writer.uint32(/* id 50, wireType 0 =*/400).bool(message.boolValue);
+                        if (message.bytesValue != null && message.hasOwnProperty("bytesValue"))
+                            writer.uint32(/* id 60, wireType 2 =*/482).bytes(message.bytesValue);
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified CustomModelParamValue message, length delimited. Does not implicitly {@link CoreML.Specification.CustomModel.CustomModelParamValue.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {CoreML.Specification.CustomModel.ICustomModelParamValue} message CustomModelParamValue message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    CustomModelParamValue.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a CustomModelParamValue message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.CustomModel.CustomModelParamValue} CustomModelParamValue
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    CustomModelParamValue.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CustomModel.CustomModelParamValue();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 10:
+                                message.doubleValue = reader.double();
+                                break;
+                            case 20:
+                                message.stringValue = reader.string();
+                                break;
+                            case 30:
+                                message.intValue = reader.int32();
+                                break;
+                            case 40:
+                                message.longValue = reader.int64();
+                                break;
+                            case 50:
+                                message.boolValue = reader.bool();
+                                break;
+                            case 60:
+                                message.bytesValue = reader.bytes();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a CustomModelParamValue message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.CustomModel.CustomModelParamValue} CustomModelParamValue
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    CustomModelParamValue.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a CustomModelParamValue message.
+                     * @function verify
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    CustomModelParamValue.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        var properties = {};
+                        if (message.doubleValue != null && message.hasOwnProperty("doubleValue")) {
+                            properties.value = 1;
+                            if (typeof message.doubleValue !== "number")
+                                return "doubleValue: number expected";
+                        }
+                        if (message.stringValue != null && message.hasOwnProperty("stringValue")) {
+                            if (properties.value === 1)
+                                return "value: multiple values";
+                            properties.value = 1;
+                            if (!$util.isString(message.stringValue))
+                                return "stringValue: string expected";
+                        }
+                        if (message.intValue != null && message.hasOwnProperty("intValue")) {
+                            if (properties.value === 1)
+                                return "value: multiple values";
+                            properties.value = 1;
+                            if (!$util.isInteger(message.intValue))
+                                return "intValue: integer expected";
+                        }
+                        if (message.longValue != null && message.hasOwnProperty("longValue")) {
+                            if (properties.value === 1)
+                                return "value: multiple values";
+                            properties.value = 1;
+                            if (!$util.isInteger(message.longValue) && !(message.longValue && $util.isInteger(message.longValue.low) && $util.isInteger(message.longValue.high)))
+                                return "longValue: integer|Long expected";
+                        }
+                        if (message.boolValue != null && message.hasOwnProperty("boolValue")) {
+                            if (properties.value === 1)
+                                return "value: multiple values";
+                            properties.value = 1;
+                            if (typeof message.boolValue !== "boolean")
+                                return "boolValue: boolean expected";
+                        }
+                        if (message.bytesValue != null && message.hasOwnProperty("bytesValue")) {
+                            if (properties.value === 1)
+                                return "value: multiple values";
+                            properties.value = 1;
+                            if (!(message.bytesValue && typeof message.bytesValue.length === "number" || $util.isString(message.bytesValue)))
+                                return "bytesValue: buffer expected";
+                        }
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a CustomModelParamValue message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.CustomModel.CustomModelParamValue} CustomModelParamValue
+                     */
+                    CustomModelParamValue.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.CustomModel.CustomModelParamValue)
+                            return object;
+                        var message = new $root.CoreML.Specification.CustomModel.CustomModelParamValue();
+                        if (object.doubleValue != null)
+                            message.doubleValue = Number(object.doubleValue);
+                        if (object.stringValue != null)
+                            message.stringValue = String(object.stringValue);
+                        if (object.intValue != null)
+                            message.intValue = object.intValue | 0;
+                        if (object.longValue != null)
+                            if ($util.Long)
+                                (message.longValue = $util.Long.fromValue(object.longValue)).unsigned = false;
+                            else if (typeof object.longValue === "string")
+                                message.longValue = parseInt(object.longValue, 10);
+                            else if (typeof object.longValue === "number")
+                                message.longValue = object.longValue;
+                            else if (typeof object.longValue === "object")
+                                message.longValue = new $util.LongBits(object.longValue.low >>> 0, object.longValue.high >>> 0).toNumber();
+                        if (object.boolValue != null)
+                            message.boolValue = Boolean(object.boolValue);
+                        if (object.bytesValue != null)
+                            if (typeof object.bytesValue === "string")
+                                $util.base64.decode(object.bytesValue, message.bytesValue = $util.newBuffer($util.base64.length(object.bytesValue)), 0);
+                            else if (object.bytesValue.length)
+                                message.bytesValue = object.bytesValue;
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a CustomModelParamValue message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @static
+                     * @param {CoreML.Specification.CustomModel.CustomModelParamValue} message CustomModelParamValue
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    CustomModelParamValue.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (message.doubleValue != null && message.hasOwnProperty("doubleValue")) {
+                            object.doubleValue = options.json && !isFinite(message.doubleValue) ? String(message.doubleValue) : message.doubleValue;
+                            if (options.oneofs)
+                                object.value = "doubleValue";
+                        }
+                        if (message.stringValue != null && message.hasOwnProperty("stringValue")) {
+                            object.stringValue = message.stringValue;
+                            if (options.oneofs)
+                                object.value = "stringValue";
+                        }
+                        if (message.intValue != null && message.hasOwnProperty("intValue")) {
+                            object.intValue = message.intValue;
+                            if (options.oneofs)
+                                object.value = "intValue";
+                        }
+                        if (message.longValue != null && message.hasOwnProperty("longValue")) {
+                            if (typeof message.longValue === "number")
+                                object.longValue = options.longs === String ? String(message.longValue) : message.longValue;
+                            else
+                                object.longValue = options.longs === String ? $util.Long.prototype.toString.call(message.longValue) : options.longs === Number ? new $util.LongBits(message.longValue.low >>> 0, message.longValue.high >>> 0).toNumber() : message.longValue;
+                            if (options.oneofs)
+                                object.value = "longValue";
+                        }
+                        if (message.boolValue != null && message.hasOwnProperty("boolValue")) {
+                            object.boolValue = message.boolValue;
+                            if (options.oneofs)
+                                object.value = "boolValue";
+                        }
+                        if (message.bytesValue != null && message.hasOwnProperty("bytesValue")) {
+                            object.bytesValue = options.bytes === String ? $util.base64.encode(message.bytesValue, 0, message.bytesValue.length) : options.bytes === Array ? Array.prototype.slice.call(message.bytesValue) : message.bytesValue;
+                            if (options.oneofs)
+                                object.value = "bytesValue";
+                        }
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this CustomModelParamValue to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.CustomModel.CustomModelParamValue
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    CustomModelParamValue.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return CustomModelParamValue;
+                })();
+    
+                return CustomModel;
             })();
     
             Specification.DictVectorizer = (function() {
@@ -15386,7 +20403,8 @@
                  * @interface IWeightParams
                  * @property {Array.<number>|null} [floatValue] Values specified in single / float / FP32 precision.
                  * @property {Uint8Array|null} [float16Value] Values in 16-bit half precision floating point.
-                 * @property {Uint8Array|null} [rawValue] Raw value specification for smaller types. Currently only supported by custom layer implementations.
+                 * @property {Uint8Array|null} [rawValue] Raw value specification for custom layers and quantized lower precisions.
+                 * @property {CoreML.Specification.IQuantizationParams|null} [quantization] Quantization related parameters.
                  */
     
                 /**
@@ -15425,12 +20443,20 @@
                 WeightParams.prototype.float16Value = $util.newBuffer([]);
     
                 /**
-                 * Raw value specification for smaller types. Currently only supported by custom layer implementations.
+                 * Raw value specification for custom layers and quantized lower precisions.
                  * @member {Uint8Array} rawValue
                  * @memberof CoreML.Specification.WeightParams
                  * @instance
                  */
                 WeightParams.prototype.rawValue = $util.newBuffer([]);
+    
+                /**
+                 * Quantization related parameters.
+                 * @member {CoreML.Specification.IQuantizationParams|null|undefined} quantization
+                 * @memberof CoreML.Specification.WeightParams
+                 * @instance
+                 */
+                WeightParams.prototype.quantization = null;
     
                 /**
                  * Creates a new WeightParams instance using the specified properties.
@@ -15466,6 +20492,8 @@
                         writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.float16Value);
                     if (message.rawValue != null && message.hasOwnProperty("rawValue"))
                         writer.uint32(/* id 30, wireType 2 =*/242).bytes(message.rawValue);
+                    if (message.quantization != null && message.hasOwnProperty("quantization"))
+                        $root.CoreML.Specification.QuantizationParams.encode(message.quantization, writer.uint32(/* id 40, wireType 2 =*/322).fork()).ldelim();
                     return writer;
                 };
     
@@ -15516,6 +20544,9 @@
                         case 30:
                             message.rawValue = reader.bytes();
                             break;
+                        case 40:
+                            message.quantization = $root.CoreML.Specification.QuantizationParams.decode(reader, reader.uint32());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -15564,6 +20595,11 @@
                     if (message.rawValue != null && message.hasOwnProperty("rawValue"))
                         if (!(message.rawValue && typeof message.rawValue.length === "number" || $util.isString(message.rawValue)))
                             return "rawValue: buffer expected";
+                    if (message.quantization != null && message.hasOwnProperty("quantization")) {
+                        var error = $root.CoreML.Specification.QuantizationParams.verify(message.quantization);
+                        if (error)
+                            return "quantization." + error;
+                    }
                     return null;
                 };
     
@@ -15596,6 +20632,11 @@
                             $util.base64.decode(object.rawValue, message.rawValue = $util.newBuffer($util.base64.length(object.rawValue)), 0);
                         else if (object.rawValue.length)
                             message.rawValue = object.rawValue;
+                    if (object.quantization != null) {
+                        if (typeof object.quantization !== "object")
+                            throw TypeError(".CoreML.Specification.WeightParams.quantization: object expected");
+                        message.quantization = $root.CoreML.Specification.QuantizationParams.fromObject(object.quantization);
+                    }
                     return message;
                 };
     
@@ -15617,6 +20658,7 @@
                     if (options.defaults) {
                         object.float16Value = options.bytes === String ? "" : [];
                         object.rawValue = options.bytes === String ? "" : [];
+                        object.quantization = null;
                     }
                     if (message.floatValue && message.floatValue.length) {
                         object.floatValue = [];
@@ -15627,6 +20669,8 @@
                         object.float16Value = options.bytes === String ? $util.base64.encode(message.float16Value, 0, message.float16Value.length) : options.bytes === Array ? Array.prototype.slice.call(message.float16Value) : message.float16Value;
                     if (message.rawValue != null && message.hasOwnProperty("rawValue"))
                         object.rawValue = options.bytes === String ? $util.base64.encode(message.rawValue, 0, message.rawValue.length) : options.bytes === Array ? Array.prototype.slice.call(message.rawValue) : message.rawValue;
+                    if (message.quantization != null && message.hasOwnProperty("quantization"))
+                        object.quantization = $root.CoreML.Specification.QuantizationParams.toObject(message.quantization, options);
                     return object;
                 };
     
@@ -15642,6 +20686,763 @@
                 };
     
                 return WeightParams;
+            })();
+    
+            Specification.QuantizationParams = (function() {
+    
+                /**
+                 * Properties of a QuantizationParams.
+                 * @memberof CoreML.Specification
+                 * @interface IQuantizationParams
+                 * @property {number|Long|null} [numberOfBits] QuantizationParams numberOfBits
+                 * @property {CoreML.Specification.ILinearQuantizationParams|null} [linearQuantization] QuantizationParams linearQuantization
+                 * @property {CoreML.Specification.ILookUpTableQuantizationParams|null} [lookupTableQuantization] QuantizationParams lookupTableQuantization
+                 */
+    
+                /**
+                 * Constructs a new QuantizationParams.
+                 * @memberof CoreML.Specification
+                 * @classdesc Quantization parameters.
+                 * @implements IQuantizationParams
+                 * @constructor
+                 * @param {CoreML.Specification.IQuantizationParams=} [properties] Properties to set
+                 */
+                function QuantizationParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * QuantizationParams numberOfBits.
+                 * @member {number|Long} numberOfBits
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @instance
+                 */
+                QuantizationParams.prototype.numberOfBits = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+    
+                /**
+                 * QuantizationParams linearQuantization.
+                 * @member {CoreML.Specification.ILinearQuantizationParams|null|undefined} linearQuantization
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @instance
+                 */
+                QuantizationParams.prototype.linearQuantization = null;
+    
+                /**
+                 * QuantizationParams lookupTableQuantization.
+                 * @member {CoreML.Specification.ILookUpTableQuantizationParams|null|undefined} lookupTableQuantization
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @instance
+                 */
+                QuantizationParams.prototype.lookupTableQuantization = null;
+    
+                // OneOf field names bound to virtual getters and setters
+                var $oneOfFields;
+    
+                /**
+                 * QuantizationParams QuantizationType.
+                 * @member {"linearQuantization"|"lookupTableQuantization"|undefined} QuantizationType
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @instance
+                 */
+                Object.defineProperty(QuantizationParams.prototype, "QuantizationType", {
+                    get: $util.oneOfGetter($oneOfFields = ["linearQuantization", "lookupTableQuantization"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                /**
+                 * Creates a new QuantizationParams instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.IQuantizationParams=} [properties] Properties to set
+                 * @returns {CoreML.Specification.QuantizationParams} QuantizationParams instance
+                 */
+                QuantizationParams.create = function create(properties) {
+                    return new QuantizationParams(properties);
+                };
+    
+                /**
+                 * Encodes the specified QuantizationParams message. Does not implicitly {@link CoreML.Specification.QuantizationParams.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.IQuantizationParams} message QuantizationParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                QuantizationParams.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.numberOfBits != null && message.hasOwnProperty("numberOfBits"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.numberOfBits);
+                    if (message.linearQuantization != null && message.hasOwnProperty("linearQuantization"))
+                        $root.CoreML.Specification.LinearQuantizationParams.encode(message.linearQuantization, writer.uint32(/* id 101, wireType 2 =*/810).fork()).ldelim();
+                    if (message.lookupTableQuantization != null && message.hasOwnProperty("lookupTableQuantization"))
+                        $root.CoreML.Specification.LookUpTableQuantizationParams.encode(message.lookupTableQuantization, writer.uint32(/* id 102, wireType 2 =*/818).fork()).ldelim();
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified QuantizationParams message, length delimited. Does not implicitly {@link CoreML.Specification.QuantizationParams.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.IQuantizationParams} message QuantizationParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                QuantizationParams.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a QuantizationParams message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.QuantizationParams} QuantizationParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                QuantizationParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.QuantizationParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.numberOfBits = reader.uint64();
+                            break;
+                        case 101:
+                            message.linearQuantization = $root.CoreML.Specification.LinearQuantizationParams.decode(reader, reader.uint32());
+                            break;
+                        case 102:
+                            message.lookupTableQuantization = $root.CoreML.Specification.LookUpTableQuantizationParams.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a QuantizationParams message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.QuantizationParams} QuantizationParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                QuantizationParams.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a QuantizationParams message.
+                 * @function verify
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                QuantizationParams.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    var properties = {};
+                    if (message.numberOfBits != null && message.hasOwnProperty("numberOfBits"))
+                        if (!$util.isInteger(message.numberOfBits) && !(message.numberOfBits && $util.isInteger(message.numberOfBits.low) && $util.isInteger(message.numberOfBits.high)))
+                            return "numberOfBits: integer|Long expected";
+                    if (message.linearQuantization != null && message.hasOwnProperty("linearQuantization")) {
+                        properties.QuantizationType = 1;
+                        {
+                            var error = $root.CoreML.Specification.LinearQuantizationParams.verify(message.linearQuantization);
+                            if (error)
+                                return "linearQuantization." + error;
+                        }
+                    }
+                    if (message.lookupTableQuantization != null && message.hasOwnProperty("lookupTableQuantization")) {
+                        if (properties.QuantizationType === 1)
+                            return "QuantizationType: multiple values";
+                        properties.QuantizationType = 1;
+                        {
+                            var error = $root.CoreML.Specification.LookUpTableQuantizationParams.verify(message.lookupTableQuantization);
+                            if (error)
+                                return "lookupTableQuantization." + error;
+                        }
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a QuantizationParams message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.QuantizationParams} QuantizationParams
+                 */
+                QuantizationParams.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.QuantizationParams)
+                        return object;
+                    var message = new $root.CoreML.Specification.QuantizationParams();
+                    if (object.numberOfBits != null)
+                        if ($util.Long)
+                            (message.numberOfBits = $util.Long.fromValue(object.numberOfBits)).unsigned = true;
+                        else if (typeof object.numberOfBits === "string")
+                            message.numberOfBits = parseInt(object.numberOfBits, 10);
+                        else if (typeof object.numberOfBits === "number")
+                            message.numberOfBits = object.numberOfBits;
+                        else if (typeof object.numberOfBits === "object")
+                            message.numberOfBits = new $util.LongBits(object.numberOfBits.low >>> 0, object.numberOfBits.high >>> 0).toNumber(true);
+                    if (object.linearQuantization != null) {
+                        if (typeof object.linearQuantization !== "object")
+                            throw TypeError(".CoreML.Specification.QuantizationParams.linearQuantization: object expected");
+                        message.linearQuantization = $root.CoreML.Specification.LinearQuantizationParams.fromObject(object.linearQuantization);
+                    }
+                    if (object.lookupTableQuantization != null) {
+                        if (typeof object.lookupTableQuantization !== "object")
+                            throw TypeError(".CoreML.Specification.QuantizationParams.lookupTableQuantization: object expected");
+                        message.lookupTableQuantization = $root.CoreML.Specification.LookUpTableQuantizationParams.fromObject(object.lookupTableQuantization);
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a QuantizationParams message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.QuantizationParams} message QuantizationParams
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                QuantizationParams.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults)
+                        if ($util.Long) {
+                            var long = new $util.Long(0, 0, true);
+                            object.numberOfBits = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        } else
+                            object.numberOfBits = options.longs === String ? "0" : 0;
+                    if (message.numberOfBits != null && message.hasOwnProperty("numberOfBits"))
+                        if (typeof message.numberOfBits === "number")
+                            object.numberOfBits = options.longs === String ? String(message.numberOfBits) : message.numberOfBits;
+                        else
+                            object.numberOfBits = options.longs === String ? $util.Long.prototype.toString.call(message.numberOfBits) : options.longs === Number ? new $util.LongBits(message.numberOfBits.low >>> 0, message.numberOfBits.high >>> 0).toNumber(true) : message.numberOfBits;
+                    if (message.linearQuantization != null && message.hasOwnProperty("linearQuantization")) {
+                        object.linearQuantization = $root.CoreML.Specification.LinearQuantizationParams.toObject(message.linearQuantization, options);
+                        if (options.oneofs)
+                            object.QuantizationType = "linearQuantization";
+                    }
+                    if (message.lookupTableQuantization != null && message.hasOwnProperty("lookupTableQuantization")) {
+                        object.lookupTableQuantization = $root.CoreML.Specification.LookUpTableQuantizationParams.toObject(message.lookupTableQuantization, options);
+                        if (options.oneofs)
+                            object.QuantizationType = "lookupTableQuantization";
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this QuantizationParams to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.QuantizationParams
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                QuantizationParams.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return QuantizationParams;
+            })();
+    
+            Specification.LinearQuantizationParams = (function() {
+    
+                /**
+                 * Properties of a LinearQuantizationParams.
+                 * @memberof CoreML.Specification
+                 * @interface ILinearQuantizationParams
+                 * @property {Array.<number>|null} [scale] Stores scale and bias values corresponding to the quantized weights.
+                 * Must be an array of 1 element, or an array of C elements, where C
+                 * is number of output channels. For recurrent layers it is equal to
+                 * the output vector size.
+                 * @property {Array.<number>|null} [bias] LinearQuantizationParams bias
+                 */
+    
+                /**
+                 * Constructs a new LinearQuantizationParams.
+                 * @memberof CoreML.Specification
+                 * @classdesc Represents a LinearQuantizationParams.
+                 * @implements ILinearQuantizationParams
+                 * @constructor
+                 * @param {CoreML.Specification.ILinearQuantizationParams=} [properties] Properties to set
+                 */
+                function LinearQuantizationParams(properties) {
+                    this.scale = [];
+                    this.bias = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * Stores scale and bias values corresponding to the quantized weights.
+                 * Must be an array of 1 element, or an array of C elements, where C
+                 * is number of output channels. For recurrent layers it is equal to
+                 * the output vector size.
+                 * @member {Array.<number>} scale
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @instance
+                 */
+                LinearQuantizationParams.prototype.scale = $util.emptyArray;
+    
+                /**
+                 * LinearQuantizationParams bias.
+                 * @member {Array.<number>} bias
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @instance
+                 */
+                LinearQuantizationParams.prototype.bias = $util.emptyArray;
+    
+                /**
+                 * Creates a new LinearQuantizationParams instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.ILinearQuantizationParams=} [properties] Properties to set
+                 * @returns {CoreML.Specification.LinearQuantizationParams} LinearQuantizationParams instance
+                 */
+                LinearQuantizationParams.create = function create(properties) {
+                    return new LinearQuantizationParams(properties);
+                };
+    
+                /**
+                 * Encodes the specified LinearQuantizationParams message. Does not implicitly {@link CoreML.Specification.LinearQuantizationParams.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.ILinearQuantizationParams} message LinearQuantizationParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                LinearQuantizationParams.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.scale != null && message.scale.length) {
+                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
+                        for (var i = 0; i < message.scale.length; ++i)
+                            writer.float(message.scale[i]);
+                        writer.ldelim();
+                    }
+                    if (message.bias != null && message.bias.length) {
+                        writer.uint32(/* id 2, wireType 2 =*/18).fork();
+                        for (var i = 0; i < message.bias.length; ++i)
+                            writer.float(message.bias[i]);
+                        writer.ldelim();
+                    }
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified LinearQuantizationParams message, length delimited. Does not implicitly {@link CoreML.Specification.LinearQuantizationParams.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.ILinearQuantizationParams} message LinearQuantizationParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                LinearQuantizationParams.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a LinearQuantizationParams message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.LinearQuantizationParams} LinearQuantizationParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                LinearQuantizationParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LinearQuantizationParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.scale && message.scale.length))
+                                message.scale = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.scale.push(reader.float());
+                            } else
+                                message.scale.push(reader.float());
+                            break;
+                        case 2:
+                            if (!(message.bias && message.bias.length))
+                                message.bias = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.bias.push(reader.float());
+                            } else
+                                message.bias.push(reader.float());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a LinearQuantizationParams message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.LinearQuantizationParams} LinearQuantizationParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                LinearQuantizationParams.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a LinearQuantizationParams message.
+                 * @function verify
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                LinearQuantizationParams.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.scale != null && message.hasOwnProperty("scale")) {
+                        if (!Array.isArray(message.scale))
+                            return "scale: array expected";
+                        for (var i = 0; i < message.scale.length; ++i)
+                            if (typeof message.scale[i] !== "number")
+                                return "scale: number[] expected";
+                    }
+                    if (message.bias != null && message.hasOwnProperty("bias")) {
+                        if (!Array.isArray(message.bias))
+                            return "bias: array expected";
+                        for (var i = 0; i < message.bias.length; ++i)
+                            if (typeof message.bias[i] !== "number")
+                                return "bias: number[] expected";
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a LinearQuantizationParams message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.LinearQuantizationParams} LinearQuantizationParams
+                 */
+                LinearQuantizationParams.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.LinearQuantizationParams)
+                        return object;
+                    var message = new $root.CoreML.Specification.LinearQuantizationParams();
+                    if (object.scale) {
+                        if (!Array.isArray(object.scale))
+                            throw TypeError(".CoreML.Specification.LinearQuantizationParams.scale: array expected");
+                        message.scale = [];
+                        for (var i = 0; i < object.scale.length; ++i)
+                            message.scale[i] = Number(object.scale[i]);
+                    }
+                    if (object.bias) {
+                        if (!Array.isArray(object.bias))
+                            throw TypeError(".CoreML.Specification.LinearQuantizationParams.bias: array expected");
+                        message.bias = [];
+                        for (var i = 0; i < object.bias.length; ++i)
+                            message.bias[i] = Number(object.bias[i]);
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a LinearQuantizationParams message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.LinearQuantizationParams} message LinearQuantizationParams
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                LinearQuantizationParams.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults) {
+                        object.scale = [];
+                        object.bias = [];
+                    }
+                    if (message.scale && message.scale.length) {
+                        object.scale = [];
+                        for (var j = 0; j < message.scale.length; ++j)
+                            object.scale[j] = options.json && !isFinite(message.scale[j]) ? String(message.scale[j]) : message.scale[j];
+                    }
+                    if (message.bias && message.bias.length) {
+                        object.bias = [];
+                        for (var j = 0; j < message.bias.length; ++j)
+                            object.bias[j] = options.json && !isFinite(message.bias[j]) ? String(message.bias[j]) : message.bias[j];
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this LinearQuantizationParams to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.LinearQuantizationParams
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                LinearQuantizationParams.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return LinearQuantizationParams;
+            })();
+    
+            Specification.LookUpTableQuantizationParams = (function() {
+    
+                /**
+                 * Properties of a LookUpTableQuantizationParams.
+                 * @memberof CoreML.Specification
+                 * @interface ILookUpTableQuantizationParams
+                 * @property {Array.<number>|null} [floatValue] LookUpTableQuantizationParams floatValue
+                 */
+    
+                /**
+                 * Constructs a new LookUpTableQuantizationParams.
+                 * @memberof CoreML.Specification
+                 * @classdesc Represents a LookUpTableQuantizationParams.
+                 * @implements ILookUpTableQuantizationParams
+                 * @constructor
+                 * @param {CoreML.Specification.ILookUpTableQuantizationParams=} [properties] Properties to set
+                 */
+                function LookUpTableQuantizationParams(properties) {
+                    this.floatValue = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * LookUpTableQuantizationParams floatValue.
+                 * @member {Array.<number>} floatValue
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @instance
+                 */
+                LookUpTableQuantizationParams.prototype.floatValue = $util.emptyArray;
+    
+                /**
+                 * Creates a new LookUpTableQuantizationParams instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.ILookUpTableQuantizationParams=} [properties] Properties to set
+                 * @returns {CoreML.Specification.LookUpTableQuantizationParams} LookUpTableQuantizationParams instance
+                 */
+                LookUpTableQuantizationParams.create = function create(properties) {
+                    return new LookUpTableQuantizationParams(properties);
+                };
+    
+                /**
+                 * Encodes the specified LookUpTableQuantizationParams message. Does not implicitly {@link CoreML.Specification.LookUpTableQuantizationParams.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.ILookUpTableQuantizationParams} message LookUpTableQuantizationParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                LookUpTableQuantizationParams.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.floatValue != null && message.floatValue.length) {
+                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
+                        for (var i = 0; i < message.floatValue.length; ++i)
+                            writer.float(message.floatValue[i]);
+                        writer.ldelim();
+                    }
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified LookUpTableQuantizationParams message, length delimited. Does not implicitly {@link CoreML.Specification.LookUpTableQuantizationParams.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.ILookUpTableQuantizationParams} message LookUpTableQuantizationParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                LookUpTableQuantizationParams.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a LookUpTableQuantizationParams message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.LookUpTableQuantizationParams} LookUpTableQuantizationParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                LookUpTableQuantizationParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.LookUpTableQuantizationParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.floatValue && message.floatValue.length))
+                                message.floatValue = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.floatValue.push(reader.float());
+                            } else
+                                message.floatValue.push(reader.float());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a LookUpTableQuantizationParams message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.LookUpTableQuantizationParams} LookUpTableQuantizationParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                LookUpTableQuantizationParams.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a LookUpTableQuantizationParams message.
+                 * @function verify
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                LookUpTableQuantizationParams.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.floatValue != null && message.hasOwnProperty("floatValue")) {
+                        if (!Array.isArray(message.floatValue))
+                            return "floatValue: array expected";
+                        for (var i = 0; i < message.floatValue.length; ++i)
+                            if (typeof message.floatValue[i] !== "number")
+                                return "floatValue: number[] expected";
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a LookUpTableQuantizationParams message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.LookUpTableQuantizationParams} LookUpTableQuantizationParams
+                 */
+                LookUpTableQuantizationParams.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.LookUpTableQuantizationParams)
+                        return object;
+                    var message = new $root.CoreML.Specification.LookUpTableQuantizationParams();
+                    if (object.floatValue) {
+                        if (!Array.isArray(object.floatValue))
+                            throw TypeError(".CoreML.Specification.LookUpTableQuantizationParams.floatValue: array expected");
+                        message.floatValue = [];
+                        for (var i = 0; i < object.floatValue.length; ++i)
+                            message.floatValue[i] = Number(object.floatValue[i]);
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a LookUpTableQuantizationParams message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @static
+                 * @param {CoreML.Specification.LookUpTableQuantizationParams} message LookUpTableQuantizationParams
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                LookUpTableQuantizationParams.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.floatValue = [];
+                    if (message.floatValue && message.floatValue.length) {
+                        object.floatValue = [];
+                        for (var j = 0; j < message.floatValue.length; ++j)
+                            object.floatValue[j] = options.json && !isFinite(message.floatValue[j]) ? String(message.floatValue[j]) : message.floatValue[j];
+                    }
+                    return object;
+                };
+    
+                /**
+                 * Converts this LookUpTableQuantizationParams to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.LookUpTableQuantizationParams
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                LookUpTableQuantizationParams.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return LookUpTableQuantizationParams;
             })();
     
             Specification.ConvolutionLayerParams = (function() {
@@ -23295,7 +29096,7 @@
                  * @memberof CoreML.Specification.SliceLayerParams
                  * @instance
                  */
-                SliceLayerParams.prototype.startIndex = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                SliceLayerParams.prototype.startIndex = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
                 /**
                  * end of sliced section. Exclusive.
@@ -23346,7 +29147,7 @@
                     if (!writer)
                         writer = $Writer.create();
                     if (message.startIndex != null && message.hasOwnProperty("startIndex"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).uint64(message.startIndex);
+                        writer.uint32(/* id 1, wireType 0 =*/8).int64(message.startIndex);
                     if (message.endIndex != null && message.hasOwnProperty("endIndex"))
                         writer.uint32(/* id 2, wireType 0 =*/16).int64(message.endIndex);
                     if (message.stride != null && message.hasOwnProperty("stride"))
@@ -23388,7 +29189,7 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.startIndex = reader.uint64();
+                            message.startIndex = reader.int64();
                             break;
                         case 2:
                             message.endIndex = reader.int64();
@@ -23469,13 +29270,13 @@
                     var message = new $root.CoreML.Specification.SliceLayerParams();
                     if (object.startIndex != null)
                         if ($util.Long)
-                            (message.startIndex = $util.Long.fromValue(object.startIndex)).unsigned = true;
+                            (message.startIndex = $util.Long.fromValue(object.startIndex)).unsigned = false;
                         else if (typeof object.startIndex === "string")
                             message.startIndex = parseInt(object.startIndex, 10);
                         else if (typeof object.startIndex === "number")
                             message.startIndex = object.startIndex;
                         else if (typeof object.startIndex === "object")
-                            message.startIndex = new $util.LongBits(object.startIndex.low >>> 0, object.startIndex.high >>> 0).toNumber(true);
+                            message.startIndex = new $util.LongBits(object.startIndex.low >>> 0, object.startIndex.high >>> 0).toNumber();
                     if (object.endIndex != null)
                         if ($util.Long)
                             (message.endIndex = $util.Long.fromValue(object.endIndex)).unsigned = false;
@@ -23526,7 +29327,7 @@
                     var object = {};
                     if (options.defaults) {
                         if ($util.Long) {
-                            var long = new $util.Long(0, 0, true);
+                            var long = new $util.Long(0, 0, false);
                             object.startIndex = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                         } else
                             object.startIndex = options.longs === String ? "0" : 0;
@@ -23546,7 +29347,7 @@
                         if (typeof message.startIndex === "number")
                             object.startIndex = options.longs === String ? String(message.startIndex) : message.startIndex;
                         else
-                            object.startIndex = options.longs === String ? $util.Long.prototype.toString.call(message.startIndex) : options.longs === Number ? new $util.LongBits(message.startIndex.low >>> 0, message.startIndex.high >>> 0).toNumber(true) : message.startIndex;
+                            object.startIndex = options.longs === String ? $util.Long.prototype.toString.call(message.startIndex) : options.longs === Number ? new $util.LongBits(message.startIndex.low >>> 0, message.startIndex.high >>> 0).toNumber() : message.startIndex;
                     if (message.endIndex != null && message.hasOwnProperty("endIndex"))
                         if (typeof message.endIndex === "number")
                             object.endIndex = options.longs === String ? String(message.endIndex) : message.endIndex;
@@ -30373,6 +36174,659 @@
                 };
     
                 return Scaler;
+            })();
+    
+            Specification.NonMaximumSuppression = (function() {
+    
+                /**
+                 * Properties of a NonMaximumSuppression.
+                 * @memberof CoreML.Specification
+                 * @interface INonMaximumSuppression
+                 * @property {CoreML.Specification.NonMaximumSuppression.IPickTop|null} [pickTop] NonMaximumSuppression pickTop
+                 * @property {CoreML.Specification.IStringVector|null} [stringClassLabels] NonMaximumSuppression stringClassLabels
+                 * @property {CoreML.Specification.IInt64Vector|null} [int64ClassLabels] NonMaximumSuppression int64ClassLabels
+                 * @property {number|null} [iouThreshold] NonMaximumSuppression iouThreshold
+                 * @property {number|null} [confidenceThreshold] NonMaximumSuppression confidenceThreshold
+                 * @property {string|null} [confidenceInputFeatureName] NonMaximumSuppression confidenceInputFeatureName
+                 * @property {string|null} [coordinatesInputFeatureName] NonMaximumSuppression coordinatesInputFeatureName
+                 * @property {string|null} [iouThresholdInputFeatureName] NonMaximumSuppression iouThresholdInputFeatureName
+                 * @property {string|null} [confidenceThresholdInputFeatureName] NonMaximumSuppression confidenceThresholdInputFeatureName
+                 * @property {string|null} [confidenceOutputFeatureName] NonMaximumSuppression confidenceOutputFeatureName
+                 * @property {string|null} [coordinatesOutputFeatureName] NonMaximumSuppression coordinatesOutputFeatureName
+                 */
+    
+                /**
+                 * Constructs a new NonMaximumSuppression.
+                 * @memberof CoreML.Specification
+                 * @classdesc Represents a NonMaximumSuppression.
+                 * @implements INonMaximumSuppression
+                 * @constructor
+                 * @param {CoreML.Specification.INonMaximumSuppression=} [properties] Properties to set
+                 */
+                function NonMaximumSuppression(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * NonMaximumSuppression pickTop.
+                 * @member {CoreML.Specification.NonMaximumSuppression.IPickTop|null|undefined} pickTop
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.pickTop = null;
+    
+                /**
+                 * NonMaximumSuppression stringClassLabels.
+                 * @member {CoreML.Specification.IStringVector|null|undefined} stringClassLabels
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.stringClassLabels = null;
+    
+                /**
+                 * NonMaximumSuppression int64ClassLabels.
+                 * @member {CoreML.Specification.IInt64Vector|null|undefined} int64ClassLabels
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.int64ClassLabels = null;
+    
+                /**
+                 * NonMaximumSuppression iouThreshold.
+                 * @member {number} iouThreshold
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.iouThreshold = 0;
+    
+                /**
+                 * NonMaximumSuppression confidenceThreshold.
+                 * @member {number} confidenceThreshold
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.confidenceThreshold = 0;
+    
+                /**
+                 * NonMaximumSuppression confidenceInputFeatureName.
+                 * @member {string} confidenceInputFeatureName
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.confidenceInputFeatureName = "";
+    
+                /**
+                 * NonMaximumSuppression coordinatesInputFeatureName.
+                 * @member {string} coordinatesInputFeatureName
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.coordinatesInputFeatureName = "";
+    
+                /**
+                 * NonMaximumSuppression iouThresholdInputFeatureName.
+                 * @member {string} iouThresholdInputFeatureName
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.iouThresholdInputFeatureName = "";
+    
+                /**
+                 * NonMaximumSuppression confidenceThresholdInputFeatureName.
+                 * @member {string} confidenceThresholdInputFeatureName
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.confidenceThresholdInputFeatureName = "";
+    
+                /**
+                 * NonMaximumSuppression confidenceOutputFeatureName.
+                 * @member {string} confidenceOutputFeatureName
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.confidenceOutputFeatureName = "";
+    
+                /**
+                 * NonMaximumSuppression coordinatesOutputFeatureName.
+                 * @member {string} coordinatesOutputFeatureName
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                NonMaximumSuppression.prototype.coordinatesOutputFeatureName = "";
+    
+                // OneOf field names bound to virtual getters and setters
+                var $oneOfFields;
+    
+                /**
+                 * NonMaximumSuppression SuppressionMethod.
+                 * @member {"pickTop"|undefined} SuppressionMethod
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                Object.defineProperty(NonMaximumSuppression.prototype, "SuppressionMethod", {
+                    get: $util.oneOfGetter($oneOfFields = ["pickTop"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                /**
+                 * NonMaximumSuppression ClassLabels.
+                 * @member {"stringClassLabels"|"int64ClassLabels"|undefined} ClassLabels
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 */
+                Object.defineProperty(NonMaximumSuppression.prototype, "ClassLabels", {
+                    get: $util.oneOfGetter($oneOfFields = ["stringClassLabels", "int64ClassLabels"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                /**
+                 * Creates a new NonMaximumSuppression instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {CoreML.Specification.INonMaximumSuppression=} [properties] Properties to set
+                 * @returns {CoreML.Specification.NonMaximumSuppression} NonMaximumSuppression instance
+                 */
+                NonMaximumSuppression.create = function create(properties) {
+                    return new NonMaximumSuppression(properties);
+                };
+    
+                /**
+                 * Encodes the specified NonMaximumSuppression message. Does not implicitly {@link CoreML.Specification.NonMaximumSuppression.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {CoreML.Specification.INonMaximumSuppression} message NonMaximumSuppression message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                NonMaximumSuppression.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.pickTop != null && message.hasOwnProperty("pickTop"))
+                        $root.CoreML.Specification.NonMaximumSuppression.PickTop.encode(message.pickTop, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                    if (message.stringClassLabels != null && message.hasOwnProperty("stringClassLabels"))
+                        $root.CoreML.Specification.StringVector.encode(message.stringClassLabels, writer.uint32(/* id 100, wireType 2 =*/802).fork()).ldelim();
+                    if (message.int64ClassLabels != null && message.hasOwnProperty("int64ClassLabels"))
+                        $root.CoreML.Specification.Int64Vector.encode(message.int64ClassLabels, writer.uint32(/* id 101, wireType 2 =*/810).fork()).ldelim();
+                    if (message.iouThreshold != null && message.hasOwnProperty("iouThreshold"))
+                        writer.uint32(/* id 110, wireType 1 =*/881).double(message.iouThreshold);
+                    if (message.confidenceThreshold != null && message.hasOwnProperty("confidenceThreshold"))
+                        writer.uint32(/* id 111, wireType 1 =*/889).double(message.confidenceThreshold);
+                    if (message.confidenceInputFeatureName != null && message.hasOwnProperty("confidenceInputFeatureName"))
+                        writer.uint32(/* id 200, wireType 2 =*/1602).string(message.confidenceInputFeatureName);
+                    if (message.coordinatesInputFeatureName != null && message.hasOwnProperty("coordinatesInputFeatureName"))
+                        writer.uint32(/* id 201, wireType 2 =*/1610).string(message.coordinatesInputFeatureName);
+                    if (message.iouThresholdInputFeatureName != null && message.hasOwnProperty("iouThresholdInputFeatureName"))
+                        writer.uint32(/* id 202, wireType 2 =*/1618).string(message.iouThresholdInputFeatureName);
+                    if (message.confidenceThresholdInputFeatureName != null && message.hasOwnProperty("confidenceThresholdInputFeatureName"))
+                        writer.uint32(/* id 203, wireType 2 =*/1626).string(message.confidenceThresholdInputFeatureName);
+                    if (message.confidenceOutputFeatureName != null && message.hasOwnProperty("confidenceOutputFeatureName"))
+                        writer.uint32(/* id 210, wireType 2 =*/1682).string(message.confidenceOutputFeatureName);
+                    if (message.coordinatesOutputFeatureName != null && message.hasOwnProperty("coordinatesOutputFeatureName"))
+                        writer.uint32(/* id 211, wireType 2 =*/1690).string(message.coordinatesOutputFeatureName);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified NonMaximumSuppression message, length delimited. Does not implicitly {@link CoreML.Specification.NonMaximumSuppression.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {CoreML.Specification.INonMaximumSuppression} message NonMaximumSuppression message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                NonMaximumSuppression.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a NonMaximumSuppression message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.NonMaximumSuppression} NonMaximumSuppression
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                NonMaximumSuppression.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.NonMaximumSuppression();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.pickTop = $root.CoreML.Specification.NonMaximumSuppression.PickTop.decode(reader, reader.uint32());
+                            break;
+                        case 100:
+                            message.stringClassLabels = $root.CoreML.Specification.StringVector.decode(reader, reader.uint32());
+                            break;
+                        case 101:
+                            message.int64ClassLabels = $root.CoreML.Specification.Int64Vector.decode(reader, reader.uint32());
+                            break;
+                        case 110:
+                            message.iouThreshold = reader.double();
+                            break;
+                        case 111:
+                            message.confidenceThreshold = reader.double();
+                            break;
+                        case 200:
+                            message.confidenceInputFeatureName = reader.string();
+                            break;
+                        case 201:
+                            message.coordinatesInputFeatureName = reader.string();
+                            break;
+                        case 202:
+                            message.iouThresholdInputFeatureName = reader.string();
+                            break;
+                        case 203:
+                            message.confidenceThresholdInputFeatureName = reader.string();
+                            break;
+                        case 210:
+                            message.confidenceOutputFeatureName = reader.string();
+                            break;
+                        case 211:
+                            message.coordinatesOutputFeatureName = reader.string();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a NonMaximumSuppression message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.NonMaximumSuppression} NonMaximumSuppression
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                NonMaximumSuppression.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a NonMaximumSuppression message.
+                 * @function verify
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                NonMaximumSuppression.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    var properties = {};
+                    if (message.pickTop != null && message.hasOwnProperty("pickTop")) {
+                        properties.SuppressionMethod = 1;
+                        {
+                            var error = $root.CoreML.Specification.NonMaximumSuppression.PickTop.verify(message.pickTop);
+                            if (error)
+                                return "pickTop." + error;
+                        }
+                    }
+                    if (message.stringClassLabels != null && message.hasOwnProperty("stringClassLabels")) {
+                        properties.ClassLabels = 1;
+                        {
+                            var error = $root.CoreML.Specification.StringVector.verify(message.stringClassLabels);
+                            if (error)
+                                return "stringClassLabels." + error;
+                        }
+                    }
+                    if (message.int64ClassLabels != null && message.hasOwnProperty("int64ClassLabels")) {
+                        if (properties.ClassLabels === 1)
+                            return "ClassLabels: multiple values";
+                        properties.ClassLabels = 1;
+                        {
+                            var error = $root.CoreML.Specification.Int64Vector.verify(message.int64ClassLabels);
+                            if (error)
+                                return "int64ClassLabels." + error;
+                        }
+                    }
+                    if (message.iouThreshold != null && message.hasOwnProperty("iouThreshold"))
+                        if (typeof message.iouThreshold !== "number")
+                            return "iouThreshold: number expected";
+                    if (message.confidenceThreshold != null && message.hasOwnProperty("confidenceThreshold"))
+                        if (typeof message.confidenceThreshold !== "number")
+                            return "confidenceThreshold: number expected";
+                    if (message.confidenceInputFeatureName != null && message.hasOwnProperty("confidenceInputFeatureName"))
+                        if (!$util.isString(message.confidenceInputFeatureName))
+                            return "confidenceInputFeatureName: string expected";
+                    if (message.coordinatesInputFeatureName != null && message.hasOwnProperty("coordinatesInputFeatureName"))
+                        if (!$util.isString(message.coordinatesInputFeatureName))
+                            return "coordinatesInputFeatureName: string expected";
+                    if (message.iouThresholdInputFeatureName != null && message.hasOwnProperty("iouThresholdInputFeatureName"))
+                        if (!$util.isString(message.iouThresholdInputFeatureName))
+                            return "iouThresholdInputFeatureName: string expected";
+                    if (message.confidenceThresholdInputFeatureName != null && message.hasOwnProperty("confidenceThresholdInputFeatureName"))
+                        if (!$util.isString(message.confidenceThresholdInputFeatureName))
+                            return "confidenceThresholdInputFeatureName: string expected";
+                    if (message.confidenceOutputFeatureName != null && message.hasOwnProperty("confidenceOutputFeatureName"))
+                        if (!$util.isString(message.confidenceOutputFeatureName))
+                            return "confidenceOutputFeatureName: string expected";
+                    if (message.coordinatesOutputFeatureName != null && message.hasOwnProperty("coordinatesOutputFeatureName"))
+                        if (!$util.isString(message.coordinatesOutputFeatureName))
+                            return "coordinatesOutputFeatureName: string expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a NonMaximumSuppression message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.NonMaximumSuppression} NonMaximumSuppression
+                 */
+                NonMaximumSuppression.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.NonMaximumSuppression)
+                        return object;
+                    var message = new $root.CoreML.Specification.NonMaximumSuppression();
+                    if (object.pickTop != null) {
+                        if (typeof object.pickTop !== "object")
+                            throw TypeError(".CoreML.Specification.NonMaximumSuppression.pickTop: object expected");
+                        message.pickTop = $root.CoreML.Specification.NonMaximumSuppression.PickTop.fromObject(object.pickTop);
+                    }
+                    if (object.stringClassLabels != null) {
+                        if (typeof object.stringClassLabels !== "object")
+                            throw TypeError(".CoreML.Specification.NonMaximumSuppression.stringClassLabels: object expected");
+                        message.stringClassLabels = $root.CoreML.Specification.StringVector.fromObject(object.stringClassLabels);
+                    }
+                    if (object.int64ClassLabels != null) {
+                        if (typeof object.int64ClassLabels !== "object")
+                            throw TypeError(".CoreML.Specification.NonMaximumSuppression.int64ClassLabels: object expected");
+                        message.int64ClassLabels = $root.CoreML.Specification.Int64Vector.fromObject(object.int64ClassLabels);
+                    }
+                    if (object.iouThreshold != null)
+                        message.iouThreshold = Number(object.iouThreshold);
+                    if (object.confidenceThreshold != null)
+                        message.confidenceThreshold = Number(object.confidenceThreshold);
+                    if (object.confidenceInputFeatureName != null)
+                        message.confidenceInputFeatureName = String(object.confidenceInputFeatureName);
+                    if (object.coordinatesInputFeatureName != null)
+                        message.coordinatesInputFeatureName = String(object.coordinatesInputFeatureName);
+                    if (object.iouThresholdInputFeatureName != null)
+                        message.iouThresholdInputFeatureName = String(object.iouThresholdInputFeatureName);
+                    if (object.confidenceThresholdInputFeatureName != null)
+                        message.confidenceThresholdInputFeatureName = String(object.confidenceThresholdInputFeatureName);
+                    if (object.confidenceOutputFeatureName != null)
+                        message.confidenceOutputFeatureName = String(object.confidenceOutputFeatureName);
+                    if (object.coordinatesOutputFeatureName != null)
+                        message.coordinatesOutputFeatureName = String(object.coordinatesOutputFeatureName);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a NonMaximumSuppression message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @static
+                 * @param {CoreML.Specification.NonMaximumSuppression} message NonMaximumSuppression
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                NonMaximumSuppression.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults) {
+                        object.iouThreshold = 0;
+                        object.confidenceThreshold = 0;
+                        object.confidenceInputFeatureName = "";
+                        object.coordinatesInputFeatureName = "";
+                        object.iouThresholdInputFeatureName = "";
+                        object.confidenceThresholdInputFeatureName = "";
+                        object.confidenceOutputFeatureName = "";
+                        object.coordinatesOutputFeatureName = "";
+                    }
+                    if (message.pickTop != null && message.hasOwnProperty("pickTop")) {
+                        object.pickTop = $root.CoreML.Specification.NonMaximumSuppression.PickTop.toObject(message.pickTop, options);
+                        if (options.oneofs)
+                            object.SuppressionMethod = "pickTop";
+                    }
+                    if (message.stringClassLabels != null && message.hasOwnProperty("stringClassLabels")) {
+                        object.stringClassLabels = $root.CoreML.Specification.StringVector.toObject(message.stringClassLabels, options);
+                        if (options.oneofs)
+                            object.ClassLabels = "stringClassLabels";
+                    }
+                    if (message.int64ClassLabels != null && message.hasOwnProperty("int64ClassLabels")) {
+                        object.int64ClassLabels = $root.CoreML.Specification.Int64Vector.toObject(message.int64ClassLabels, options);
+                        if (options.oneofs)
+                            object.ClassLabels = "int64ClassLabels";
+                    }
+                    if (message.iouThreshold != null && message.hasOwnProperty("iouThreshold"))
+                        object.iouThreshold = options.json && !isFinite(message.iouThreshold) ? String(message.iouThreshold) : message.iouThreshold;
+                    if (message.confidenceThreshold != null && message.hasOwnProperty("confidenceThreshold"))
+                        object.confidenceThreshold = options.json && !isFinite(message.confidenceThreshold) ? String(message.confidenceThreshold) : message.confidenceThreshold;
+                    if (message.confidenceInputFeatureName != null && message.hasOwnProperty("confidenceInputFeatureName"))
+                        object.confidenceInputFeatureName = message.confidenceInputFeatureName;
+                    if (message.coordinatesInputFeatureName != null && message.hasOwnProperty("coordinatesInputFeatureName"))
+                        object.coordinatesInputFeatureName = message.coordinatesInputFeatureName;
+                    if (message.iouThresholdInputFeatureName != null && message.hasOwnProperty("iouThresholdInputFeatureName"))
+                        object.iouThresholdInputFeatureName = message.iouThresholdInputFeatureName;
+                    if (message.confidenceThresholdInputFeatureName != null && message.hasOwnProperty("confidenceThresholdInputFeatureName"))
+                        object.confidenceThresholdInputFeatureName = message.confidenceThresholdInputFeatureName;
+                    if (message.confidenceOutputFeatureName != null && message.hasOwnProperty("confidenceOutputFeatureName"))
+                        object.confidenceOutputFeatureName = message.confidenceOutputFeatureName;
+                    if (message.coordinatesOutputFeatureName != null && message.hasOwnProperty("coordinatesOutputFeatureName"))
+                        object.coordinatesOutputFeatureName = message.coordinatesOutputFeatureName;
+                    return object;
+                };
+    
+                /**
+                 * Converts this NonMaximumSuppression to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.NonMaximumSuppression
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                NonMaximumSuppression.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                NonMaximumSuppression.PickTop = (function() {
+    
+                    /**
+                     * Properties of a PickTop.
+                     * @memberof CoreML.Specification.NonMaximumSuppression
+                     * @interface IPickTop
+                     * @property {boolean|null} [perClass] PickTop perClass
+                     */
+    
+                    /**
+                     * Constructs a new PickTop.
+                     * @memberof CoreML.Specification.NonMaximumSuppression
+                     * @classdesc Represents a PickTop.
+                     * @implements IPickTop
+                     * @constructor
+                     * @param {CoreML.Specification.NonMaximumSuppression.IPickTop=} [properties] Properties to set
+                     */
+                    function PickTop(properties) {
+                        if (properties)
+                            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                if (properties[keys[i]] != null)
+                                    this[keys[i]] = properties[keys[i]];
+                    }
+    
+                    /**
+                     * PickTop perClass.
+                     * @member {boolean} perClass
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @instance
+                     */
+                    PickTop.prototype.perClass = false;
+    
+                    /**
+                     * Creates a new PickTop instance using the specified properties.
+                     * @function create
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {CoreML.Specification.NonMaximumSuppression.IPickTop=} [properties] Properties to set
+                     * @returns {CoreML.Specification.NonMaximumSuppression.PickTop} PickTop instance
+                     */
+                    PickTop.create = function create(properties) {
+                        return new PickTop(properties);
+                    };
+    
+                    /**
+                     * Encodes the specified PickTop message. Does not implicitly {@link CoreML.Specification.NonMaximumSuppression.PickTop.verify|verify} messages.
+                     * @function encode
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {CoreML.Specification.NonMaximumSuppression.IPickTop} message PickTop message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    PickTop.encode = function encode(message, writer) {
+                        if (!writer)
+                            writer = $Writer.create();
+                        if (message.perClass != null && message.hasOwnProperty("perClass"))
+                            writer.uint32(/* id 1, wireType 0 =*/8).bool(message.perClass);
+                        return writer;
+                    };
+    
+                    /**
+                     * Encodes the specified PickTop message, length delimited. Does not implicitly {@link CoreML.Specification.NonMaximumSuppression.PickTop.verify|verify} messages.
+                     * @function encodeDelimited
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {CoreML.Specification.NonMaximumSuppression.IPickTop} message PickTop message or plain object to encode
+                     * @param {$protobuf.Writer} [writer] Writer to encode to
+                     * @returns {$protobuf.Writer} Writer
+                     */
+                    PickTop.encodeDelimited = function encodeDelimited(message, writer) {
+                        return this.encode(message, writer).ldelim();
+                    };
+    
+                    /**
+                     * Decodes a PickTop message from the specified reader or buffer.
+                     * @function decode
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @param {number} [length] Message length if known beforehand
+                     * @returns {CoreML.Specification.NonMaximumSuppression.PickTop} PickTop
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    PickTop.decode = function decode(reader, length) {
+                        if (!(reader instanceof $Reader))
+                            reader = $Reader.create(reader);
+                        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.NonMaximumSuppression.PickTop();
+                        while (reader.pos < end) {
+                            var tag = reader.uint32();
+                            switch (tag >>> 3) {
+                            case 1:
+                                message.perClass = reader.bool();
+                                break;
+                            default:
+                                reader.skipType(tag & 7);
+                                break;
+                            }
+                        }
+                        return message;
+                    };
+    
+                    /**
+                     * Decodes a PickTop message from the specified reader or buffer, length delimited.
+                     * @function decodeDelimited
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                     * @returns {CoreML.Specification.NonMaximumSuppression.PickTop} PickTop
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    PickTop.decodeDelimited = function decodeDelimited(reader) {
+                        if (!(reader instanceof $Reader))
+                            reader = new $Reader(reader);
+                        return this.decode(reader, reader.uint32());
+                    };
+    
+                    /**
+                     * Verifies a PickTop message.
+                     * @function verify
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {Object.<string,*>} message Plain object to verify
+                     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                     */
+                    PickTop.verify = function verify(message) {
+                        if (typeof message !== "object" || message === null)
+                            return "object expected";
+                        if (message.perClass != null && message.hasOwnProperty("perClass"))
+                            if (typeof message.perClass !== "boolean")
+                                return "perClass: boolean expected";
+                        return null;
+                    };
+    
+                    /**
+                     * Creates a PickTop message from a plain object. Also converts values to their respective internal types.
+                     * @function fromObject
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {Object.<string,*>} object Plain object
+                     * @returns {CoreML.Specification.NonMaximumSuppression.PickTop} PickTop
+                     */
+                    PickTop.fromObject = function fromObject(object) {
+                        if (object instanceof $root.CoreML.Specification.NonMaximumSuppression.PickTop)
+                            return object;
+                        var message = new $root.CoreML.Specification.NonMaximumSuppression.PickTop();
+                        if (object.perClass != null)
+                            message.perClass = Boolean(object.perClass);
+                        return message;
+                    };
+    
+                    /**
+                     * Creates a plain object from a PickTop message. Also converts values to other types if specified.
+                     * @function toObject
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @static
+                     * @param {CoreML.Specification.NonMaximumSuppression.PickTop} message PickTop
+                     * @param {$protobuf.IConversionOptions} [options] Conversion options
+                     * @returns {Object.<string,*>} Plain object
+                     */
+                    PickTop.toObject = function toObject(message, options) {
+                        if (!options)
+                            options = {};
+                        var object = {};
+                        if (options.defaults)
+                            object.perClass = false;
+                        if (message.perClass != null && message.hasOwnProperty("perClass"))
+                            object.perClass = message.perClass;
+                        return object;
+                    };
+    
+                    /**
+                     * Converts this PickTop to JSON.
+                     * @function toJSON
+                     * @memberof CoreML.Specification.NonMaximumSuppression.PickTop
+                     * @instance
+                     * @returns {Object.<string,*>} JSON object
+                     */
+                    PickTop.prototype.toJSON = function toJSON() {
+                        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                    };
+    
+                    return PickTop;
+                })();
+    
+                return NonMaximumSuppression;
             })();
     
             Specification.LinearKernel = (function() {
