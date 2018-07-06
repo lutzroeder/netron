@@ -5212,6 +5212,1163 @@
             return OperatorSetIdProto;
         })();
     
+        /**
+         * OperatorStatus enum.
+         * @name onnx.OperatorStatus
+         * @enum {string}
+         * @property {number} EXPERIMENTAL=0 EXPERIMENTAL value
+         * @property {number} STABLE=1 STABLE value
+         */
+        onnx.OperatorStatus = (function() {
+            var valuesById = {}, values = Object.create(valuesById);
+            values[valuesById[0] = "EXPERIMENTAL"] = 0;
+            values[valuesById[1] = "STABLE"] = 1;
+            return values;
+        })();
+    
+        onnx.FunctionProto = (function() {
+    
+            /**
+             * Properties of a FunctionProto.
+             * @memberof onnx
+             * @interface IFunctionProto
+             * @property {string|null} [name] FunctionProto name
+             * @property {number|Long|null} [sinceVersion] FunctionProto sinceVersion
+             * @property {onnx.OperatorStatus|null} [status] FunctionProto status
+             * @property {Array.<string>|null} [input] FunctionProto input
+             * @property {Array.<string>|null} [output] FunctionProto output
+             * @property {Array.<string>|null} [attribute] FunctionProto attribute
+             * @property {Array.<onnx.INodeProto>|null} [node] FunctionProto node
+             * @property {string|null} [docString] FunctionProto docString
+             */
+    
+            /**
+             * Constructs a new FunctionProto.
+             * @memberof onnx
+             * @classdesc Represents a FunctionProto.
+             * @implements IFunctionProto
+             * @constructor
+             * @param {onnx.IFunctionProto=} [properties] Properties to set
+             */
+            function FunctionProto(properties) {
+                this.input = [];
+                this.output = [];
+                this.attribute = [];
+                this.node = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * FunctionProto name.
+             * @member {string} name
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.name = "";
+    
+            /**
+             * FunctionProto sinceVersion.
+             * @member {number|Long} sinceVersion
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.sinceVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+            /**
+             * FunctionProto status.
+             * @member {onnx.OperatorStatus} status
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.status = 0;
+    
+            /**
+             * FunctionProto input.
+             * @member {Array.<string>} input
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.input = $util.emptyArray;
+    
+            /**
+             * FunctionProto output.
+             * @member {Array.<string>} output
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.output = $util.emptyArray;
+    
+            /**
+             * FunctionProto attribute.
+             * @member {Array.<string>} attribute
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.attribute = $util.emptyArray;
+    
+            /**
+             * FunctionProto node.
+             * @member {Array.<onnx.INodeProto>} node
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.node = $util.emptyArray;
+    
+            /**
+             * FunctionProto docString.
+             * @member {string} docString
+             * @memberof onnx.FunctionProto
+             * @instance
+             */
+            FunctionProto.prototype.docString = "";
+    
+            /**
+             * Creates a new FunctionProto instance using the specified properties.
+             * @function create
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {onnx.IFunctionProto=} [properties] Properties to set
+             * @returns {onnx.FunctionProto} FunctionProto instance
+             */
+            FunctionProto.create = function create(properties) {
+                return new FunctionProto(properties);
+            };
+    
+            /**
+             * Encodes the specified FunctionProto message. Does not implicitly {@link onnx.FunctionProto.verify|verify} messages.
+             * @function encode
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {onnx.IFunctionProto} message FunctionProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            FunctionProto.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.name != null && message.hasOwnProperty("name"))
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
+                    writer.uint32(/* id 2, wireType 0 =*/16).int64(message.sinceVersion);
+                if (message.status != null && message.hasOwnProperty("status"))
+                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.status);
+                if (message.input != null && message.input.length)
+                    for (var i = 0; i < message.input.length; ++i)
+                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.input[i]);
+                if (message.output != null && message.output.length)
+                    for (var i = 0; i < message.output.length; ++i)
+                        writer.uint32(/* id 5, wireType 2 =*/42).string(message.output[i]);
+                if (message.attribute != null && message.attribute.length)
+                    for (var i = 0; i < message.attribute.length; ++i)
+                        writer.uint32(/* id 6, wireType 2 =*/50).string(message.attribute[i]);
+                if (message.node != null && message.node.length)
+                    for (var i = 0; i < message.node.length; ++i)
+                        $root.onnx.NodeProto.encode(message.node[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    writer.uint32(/* id 8, wireType 2 =*/66).string(message.docString);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified FunctionProto message, length delimited. Does not implicitly {@link onnx.FunctionProto.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {onnx.IFunctionProto} message FunctionProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            FunctionProto.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a FunctionProto message from the specified reader or buffer.
+             * @function decode
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {onnx.FunctionProto} FunctionProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            FunctionProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.FunctionProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.name = reader.string();
+                        break;
+                    case 2:
+                        message.sinceVersion = reader.int64();
+                        break;
+                    case 3:
+                        message.status = reader.int32();
+                        break;
+                    case 4:
+                        if (!(message.input && message.input.length))
+                            message.input = [];
+                        message.input.push(reader.string());
+                        break;
+                    case 5:
+                        if (!(message.output && message.output.length))
+                            message.output = [];
+                        message.output.push(reader.string());
+                        break;
+                    case 6:
+                        if (!(message.attribute && message.attribute.length))
+                            message.attribute = [];
+                        message.attribute.push(reader.string());
+                        break;
+                    case 7:
+                        if (!(message.node && message.node.length))
+                            message.node = [];
+                        message.node.push($root.onnx.NodeProto.decode(reader, reader.uint32()));
+                        break;
+                    case 8:
+                        message.docString = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes a FunctionProto message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {onnx.FunctionProto} FunctionProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            FunctionProto.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a FunctionProto message.
+             * @function verify
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            FunctionProto.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.name != null && message.hasOwnProperty("name"))
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
+                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
+                    if (!$util.isInteger(message.sinceVersion) && !(message.sinceVersion && $util.isInteger(message.sinceVersion.low) && $util.isInteger(message.sinceVersion.high)))
+                        return "sinceVersion: integer|Long expected";
+                if (message.status != null && message.hasOwnProperty("status"))
+                    switch (message.status) {
+                    default:
+                        return "status: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
+                if (message.input != null && message.hasOwnProperty("input")) {
+                    if (!Array.isArray(message.input))
+                        return "input: array expected";
+                    for (var i = 0; i < message.input.length; ++i)
+                        if (!$util.isString(message.input[i]))
+                            return "input: string[] expected";
+                }
+                if (message.output != null && message.hasOwnProperty("output")) {
+                    if (!Array.isArray(message.output))
+                        return "output: array expected";
+                    for (var i = 0; i < message.output.length; ++i)
+                        if (!$util.isString(message.output[i]))
+                            return "output: string[] expected";
+                }
+                if (message.attribute != null && message.hasOwnProperty("attribute")) {
+                    if (!Array.isArray(message.attribute))
+                        return "attribute: array expected";
+                    for (var i = 0; i < message.attribute.length; ++i)
+                        if (!$util.isString(message.attribute[i]))
+                            return "attribute: string[] expected";
+                }
+                if (message.node != null && message.hasOwnProperty("node")) {
+                    if (!Array.isArray(message.node))
+                        return "node: array expected";
+                    for (var i = 0; i < message.node.length; ++i) {
+                        var error = $root.onnx.NodeProto.verify(message.node[i]);
+                        if (error)
+                            return "node." + error;
+                    }
+                }
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    if (!$util.isString(message.docString))
+                        return "docString: string expected";
+                return null;
+            };
+    
+            /**
+             * Creates a FunctionProto message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {onnx.FunctionProto} FunctionProto
+             */
+            FunctionProto.fromObject = function fromObject(object) {
+                if (object instanceof $root.onnx.FunctionProto)
+                    return object;
+                var message = new $root.onnx.FunctionProto();
+                if (object.name != null)
+                    message.name = String(object.name);
+                if (object.sinceVersion != null)
+                    if ($util.Long)
+                        (message.sinceVersion = $util.Long.fromValue(object.sinceVersion)).unsigned = false;
+                    else if (typeof object.sinceVersion === "string")
+                        message.sinceVersion = parseInt(object.sinceVersion, 10);
+                    else if (typeof object.sinceVersion === "number")
+                        message.sinceVersion = object.sinceVersion;
+                    else if (typeof object.sinceVersion === "object")
+                        message.sinceVersion = new $util.LongBits(object.sinceVersion.low >>> 0, object.sinceVersion.high >>> 0).toNumber();
+                switch (object.status) {
+                case "EXPERIMENTAL":
+                case 0:
+                    message.status = 0;
+                    break;
+                case "STABLE":
+                case 1:
+                    message.status = 1;
+                    break;
+                }
+                if (object.input) {
+                    if (!Array.isArray(object.input))
+                        throw TypeError(".onnx.FunctionProto.input: array expected");
+                    message.input = [];
+                    for (var i = 0; i < object.input.length; ++i)
+                        message.input[i] = String(object.input[i]);
+                }
+                if (object.output) {
+                    if (!Array.isArray(object.output))
+                        throw TypeError(".onnx.FunctionProto.output: array expected");
+                    message.output = [];
+                    for (var i = 0; i < object.output.length; ++i)
+                        message.output[i] = String(object.output[i]);
+                }
+                if (object.attribute) {
+                    if (!Array.isArray(object.attribute))
+                        throw TypeError(".onnx.FunctionProto.attribute: array expected");
+                    message.attribute = [];
+                    for (var i = 0; i < object.attribute.length; ++i)
+                        message.attribute[i] = String(object.attribute[i]);
+                }
+                if (object.node) {
+                    if (!Array.isArray(object.node))
+                        throw TypeError(".onnx.FunctionProto.node: array expected");
+                    message.node = [];
+                    for (var i = 0; i < object.node.length; ++i) {
+                        if (typeof object.node[i] !== "object")
+                            throw TypeError(".onnx.FunctionProto.node: object expected");
+                        message.node[i] = $root.onnx.NodeProto.fromObject(object.node[i]);
+                    }
+                }
+                if (object.docString != null)
+                    message.docString = String(object.docString);
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a FunctionProto message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof onnx.FunctionProto
+             * @static
+             * @param {onnx.FunctionProto} message FunctionProto
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            FunctionProto.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.input = [];
+                    object.output = [];
+                    object.attribute = [];
+                    object.node = [];
+                }
+                if (options.defaults) {
+                    object.name = "";
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, false);
+                        object.sinceVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.sinceVersion = options.longs === String ? "0" : 0;
+                    object.status = options.enums === String ? "EXPERIMENTAL" : 0;
+                    object.docString = "";
+                }
+                if (message.name != null && message.hasOwnProperty("name"))
+                    object.name = message.name;
+                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
+                    if (typeof message.sinceVersion === "number")
+                        object.sinceVersion = options.longs === String ? String(message.sinceVersion) : message.sinceVersion;
+                    else
+                        object.sinceVersion = options.longs === String ? $util.Long.prototype.toString.call(message.sinceVersion) : options.longs === Number ? new $util.LongBits(message.sinceVersion.low >>> 0, message.sinceVersion.high >>> 0).toNumber() : message.sinceVersion;
+                if (message.status != null && message.hasOwnProperty("status"))
+                    object.status = options.enums === String ? $root.onnx.OperatorStatus[message.status] : message.status;
+                if (message.input && message.input.length) {
+                    object.input = [];
+                    for (var j = 0; j < message.input.length; ++j)
+                        object.input[j] = message.input[j];
+                }
+                if (message.output && message.output.length) {
+                    object.output = [];
+                    for (var j = 0; j < message.output.length; ++j)
+                        object.output[j] = message.output[j];
+                }
+                if (message.attribute && message.attribute.length) {
+                    object.attribute = [];
+                    for (var j = 0; j < message.attribute.length; ++j)
+                        object.attribute[j] = message.attribute[j];
+                }
+                if (message.node && message.node.length) {
+                    object.node = [];
+                    for (var j = 0; j < message.node.length; ++j)
+                        object.node[j] = $root.onnx.NodeProto.toObject(message.node[j], options);
+                }
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    object.docString = message.docString;
+                return object;
+            };
+    
+            /**
+             * Converts this FunctionProto to JSON.
+             * @function toJSON
+             * @memberof onnx.FunctionProto
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            FunctionProto.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return FunctionProto;
+        })();
+    
+        onnx.OperatorProto = (function() {
+    
+            /**
+             * Properties of an OperatorProto.
+             * @memberof onnx
+             * @interface IOperatorProto
+             * @property {string|null} [opType] OperatorProto opType
+             * @property {number|Long|null} [sinceVersion] OperatorProto sinceVersion
+             * @property {onnx.OperatorStatus|null} [status] OperatorProto status
+             * @property {string|null} [docString] OperatorProto docString
+             */
+    
+            /**
+             * Constructs a new OperatorProto.
+             * @memberof onnx
+             * @classdesc Represents an OperatorProto.
+             * @implements IOperatorProto
+             * @constructor
+             * @param {onnx.IOperatorProto=} [properties] Properties to set
+             */
+            function OperatorProto(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * OperatorProto opType.
+             * @member {string} opType
+             * @memberof onnx.OperatorProto
+             * @instance
+             */
+            OperatorProto.prototype.opType = "";
+    
+            /**
+             * OperatorProto sinceVersion.
+             * @member {number|Long} sinceVersion
+             * @memberof onnx.OperatorProto
+             * @instance
+             */
+            OperatorProto.prototype.sinceVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+            /**
+             * OperatorProto status.
+             * @member {onnx.OperatorStatus} status
+             * @memberof onnx.OperatorProto
+             * @instance
+             */
+            OperatorProto.prototype.status = 0;
+    
+            /**
+             * OperatorProto docString.
+             * @member {string} docString
+             * @memberof onnx.OperatorProto
+             * @instance
+             */
+            OperatorProto.prototype.docString = "";
+    
+            /**
+             * Creates a new OperatorProto instance using the specified properties.
+             * @function create
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {onnx.IOperatorProto=} [properties] Properties to set
+             * @returns {onnx.OperatorProto} OperatorProto instance
+             */
+            OperatorProto.create = function create(properties) {
+                return new OperatorProto(properties);
+            };
+    
+            /**
+             * Encodes the specified OperatorProto message. Does not implicitly {@link onnx.OperatorProto.verify|verify} messages.
+             * @function encode
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {onnx.IOperatorProto} message OperatorProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            OperatorProto.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.opType != null && message.hasOwnProperty("opType"))
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.opType);
+                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
+                    writer.uint32(/* id 2, wireType 0 =*/16).int64(message.sinceVersion);
+                if (message.status != null && message.hasOwnProperty("status"))
+                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.status);
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    writer.uint32(/* id 10, wireType 2 =*/82).string(message.docString);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified OperatorProto message, length delimited. Does not implicitly {@link onnx.OperatorProto.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {onnx.IOperatorProto} message OperatorProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            OperatorProto.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes an OperatorProto message from the specified reader or buffer.
+             * @function decode
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {onnx.OperatorProto} OperatorProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            OperatorProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.OperatorProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.opType = reader.string();
+                        break;
+                    case 2:
+                        message.sinceVersion = reader.int64();
+                        break;
+                    case 3:
+                        message.status = reader.int32();
+                        break;
+                    case 10:
+                        message.docString = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes an OperatorProto message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {onnx.OperatorProto} OperatorProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            OperatorProto.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies an OperatorProto message.
+             * @function verify
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            OperatorProto.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.opType != null && message.hasOwnProperty("opType"))
+                    if (!$util.isString(message.opType))
+                        return "opType: string expected";
+                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
+                    if (!$util.isInteger(message.sinceVersion) && !(message.sinceVersion && $util.isInteger(message.sinceVersion.low) && $util.isInteger(message.sinceVersion.high)))
+                        return "sinceVersion: integer|Long expected";
+                if (message.status != null && message.hasOwnProperty("status"))
+                    switch (message.status) {
+                    default:
+                        return "status: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    if (!$util.isString(message.docString))
+                        return "docString: string expected";
+                return null;
+            };
+    
+            /**
+             * Creates an OperatorProto message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {onnx.OperatorProto} OperatorProto
+             */
+            OperatorProto.fromObject = function fromObject(object) {
+                if (object instanceof $root.onnx.OperatorProto)
+                    return object;
+                var message = new $root.onnx.OperatorProto();
+                if (object.opType != null)
+                    message.opType = String(object.opType);
+                if (object.sinceVersion != null)
+                    if ($util.Long)
+                        (message.sinceVersion = $util.Long.fromValue(object.sinceVersion)).unsigned = false;
+                    else if (typeof object.sinceVersion === "string")
+                        message.sinceVersion = parseInt(object.sinceVersion, 10);
+                    else if (typeof object.sinceVersion === "number")
+                        message.sinceVersion = object.sinceVersion;
+                    else if (typeof object.sinceVersion === "object")
+                        message.sinceVersion = new $util.LongBits(object.sinceVersion.low >>> 0, object.sinceVersion.high >>> 0).toNumber();
+                switch (object.status) {
+                case "EXPERIMENTAL":
+                case 0:
+                    message.status = 0;
+                    break;
+                case "STABLE":
+                case 1:
+                    message.status = 1;
+                    break;
+                }
+                if (object.docString != null)
+                    message.docString = String(object.docString);
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from an OperatorProto message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof onnx.OperatorProto
+             * @static
+             * @param {onnx.OperatorProto} message OperatorProto
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            OperatorProto.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.opType = "";
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, false);
+                        object.sinceVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.sinceVersion = options.longs === String ? "0" : 0;
+                    object.status = options.enums === String ? "EXPERIMENTAL" : 0;
+                    object.docString = "";
+                }
+                if (message.opType != null && message.hasOwnProperty("opType"))
+                    object.opType = message.opType;
+                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
+                    if (typeof message.sinceVersion === "number")
+                        object.sinceVersion = options.longs === String ? String(message.sinceVersion) : message.sinceVersion;
+                    else
+                        object.sinceVersion = options.longs === String ? $util.Long.prototype.toString.call(message.sinceVersion) : options.longs === Number ? new $util.LongBits(message.sinceVersion.low >>> 0, message.sinceVersion.high >>> 0).toNumber() : message.sinceVersion;
+                if (message.status != null && message.hasOwnProperty("status"))
+                    object.status = options.enums === String ? $root.onnx.OperatorStatus[message.status] : message.status;
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    object.docString = message.docString;
+                return object;
+            };
+    
+            /**
+             * Converts this OperatorProto to JSON.
+             * @function toJSON
+             * @memberof onnx.OperatorProto
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            OperatorProto.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return OperatorProto;
+        })();
+    
+        onnx.OperatorSetProto = (function() {
+    
+            /**
+             * Properties of an OperatorSetProto.
+             * @memberof onnx
+             * @interface IOperatorSetProto
+             * @property {string|null} [magic] OperatorSetProto magic
+             * @property {number|null} [irVersion] OperatorSetProto irVersion
+             * @property {string|null} [irVersionPrerelease] OperatorSetProto irVersionPrerelease
+             * @property {string|null} [irBuildMetadata] OperatorSetProto irBuildMetadata
+             * @property {string|null} [domain] OperatorSetProto domain
+             * @property {number|Long|null} [opsetVersion] OperatorSetProto opsetVersion
+             * @property {string|null} [docString] OperatorSetProto docString
+             * @property {Array.<onnx.IOperatorProto>|null} [operator] OperatorSetProto operator
+             * @property {Array.<onnx.IFunctionProto>|null} [functions] OperatorSetProto functions
+             */
+    
+            /**
+             * Constructs a new OperatorSetProto.
+             * @memberof onnx
+             * @classdesc Represents an OperatorSetProto.
+             * @implements IOperatorSetProto
+             * @constructor
+             * @param {onnx.IOperatorSetProto=} [properties] Properties to set
+             */
+            function OperatorSetProto(properties) {
+                this.operator = [];
+                this.functions = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * OperatorSetProto magic.
+             * @member {string} magic
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.magic = "";
+    
+            /**
+             * OperatorSetProto irVersion.
+             * @member {number} irVersion
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.irVersion = 0;
+    
+            /**
+             * OperatorSetProto irVersionPrerelease.
+             * @member {string} irVersionPrerelease
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.irVersionPrerelease = "";
+    
+            /**
+             * OperatorSetProto irBuildMetadata.
+             * @member {string} irBuildMetadata
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.irBuildMetadata = "";
+    
+            /**
+             * OperatorSetProto domain.
+             * @member {string} domain
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.domain = "";
+    
+            /**
+             * OperatorSetProto opsetVersion.
+             * @member {number|Long} opsetVersion
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.opsetVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+            /**
+             * OperatorSetProto docString.
+             * @member {string} docString
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.docString = "";
+    
+            /**
+             * OperatorSetProto operator.
+             * @member {Array.<onnx.IOperatorProto>} operator
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.operator = $util.emptyArray;
+    
+            /**
+             * OperatorSetProto functions.
+             * @member {Array.<onnx.IFunctionProto>} functions
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             */
+            OperatorSetProto.prototype.functions = $util.emptyArray;
+    
+            /**
+             * Creates a new OperatorSetProto instance using the specified properties.
+             * @function create
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {onnx.IOperatorSetProto=} [properties] Properties to set
+             * @returns {onnx.OperatorSetProto} OperatorSetProto instance
+             */
+            OperatorSetProto.create = function create(properties) {
+                return new OperatorSetProto(properties);
+            };
+    
+            /**
+             * Encodes the specified OperatorSetProto message. Does not implicitly {@link onnx.OperatorSetProto.verify|verify} messages.
+             * @function encode
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {onnx.IOperatorSetProto} message OperatorSetProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            OperatorSetProto.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                if (message.magic != null && message.hasOwnProperty("magic"))
+                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.magic);
+                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
+                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.irVersion);
+                if (message.irVersionPrerelease != null && message.hasOwnProperty("irVersionPrerelease"))
+                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.irVersionPrerelease);
+                if (message.domain != null && message.hasOwnProperty("domain"))
+                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.domain);
+                if (message.opsetVersion != null && message.hasOwnProperty("opsetVersion"))
+                    writer.uint32(/* id 5, wireType 0 =*/40).int64(message.opsetVersion);
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.docString);
+                if (message.irBuildMetadata != null && message.hasOwnProperty("irBuildMetadata"))
+                    writer.uint32(/* id 7, wireType 2 =*/58).string(message.irBuildMetadata);
+                if (message.operator != null && message.operator.length)
+                    for (var i = 0; i < message.operator.length; ++i)
+                        $root.onnx.OperatorProto.encode(message.operator[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+                if (message.functions != null && message.functions.length)
+                    for (var i = 0; i < message.functions.length; ++i)
+                        $root.onnx.FunctionProto.encode(message.functions[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified OperatorSetProto message, length delimited. Does not implicitly {@link onnx.OperatorSetProto.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {onnx.IOperatorSetProto} message OperatorSetProto message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            OperatorSetProto.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes an OperatorSetProto message from the specified reader or buffer.
+             * @function decode
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {onnx.OperatorSetProto} OperatorSetProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            OperatorSetProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.OperatorSetProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.magic = reader.string();
+                        break;
+                    case 2:
+                        message.irVersion = reader.int32();
+                        break;
+                    case 3:
+                        message.irVersionPrerelease = reader.string();
+                        break;
+                    case 7:
+                        message.irBuildMetadata = reader.string();
+                        break;
+                    case 4:
+                        message.domain = reader.string();
+                        break;
+                    case 5:
+                        message.opsetVersion = reader.int64();
+                        break;
+                    case 6:
+                        message.docString = reader.string();
+                        break;
+                    case 8:
+                        if (!(message.operator && message.operator.length))
+                            message.operator = [];
+                        message.operator.push($root.onnx.OperatorProto.decode(reader, reader.uint32()));
+                        break;
+                    case 9:
+                        if (!(message.functions && message.functions.length))
+                            message.functions = [];
+                        message.functions.push($root.onnx.FunctionProto.decode(reader, reader.uint32()));
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Decodes an OperatorSetProto message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {onnx.OperatorSetProto} OperatorSetProto
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            OperatorSetProto.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies an OperatorSetProto message.
+             * @function verify
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            OperatorSetProto.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.magic != null && message.hasOwnProperty("magic"))
+                    if (!$util.isString(message.magic))
+                        return "magic: string expected";
+                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
+                    if (!$util.isInteger(message.irVersion))
+                        return "irVersion: integer expected";
+                if (message.irVersionPrerelease != null && message.hasOwnProperty("irVersionPrerelease"))
+                    if (!$util.isString(message.irVersionPrerelease))
+                        return "irVersionPrerelease: string expected";
+                if (message.irBuildMetadata != null && message.hasOwnProperty("irBuildMetadata"))
+                    if (!$util.isString(message.irBuildMetadata))
+                        return "irBuildMetadata: string expected";
+                if (message.domain != null && message.hasOwnProperty("domain"))
+                    if (!$util.isString(message.domain))
+                        return "domain: string expected";
+                if (message.opsetVersion != null && message.hasOwnProperty("opsetVersion"))
+                    if (!$util.isInteger(message.opsetVersion) && !(message.opsetVersion && $util.isInteger(message.opsetVersion.low) && $util.isInteger(message.opsetVersion.high)))
+                        return "opsetVersion: integer|Long expected";
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    if (!$util.isString(message.docString))
+                        return "docString: string expected";
+                if (message.operator != null && message.hasOwnProperty("operator")) {
+                    if (!Array.isArray(message.operator))
+                        return "operator: array expected";
+                    for (var i = 0; i < message.operator.length; ++i) {
+                        var error = $root.onnx.OperatorProto.verify(message.operator[i]);
+                        if (error)
+                            return "operator." + error;
+                    }
+                }
+                if (message.functions != null && message.hasOwnProperty("functions")) {
+                    if (!Array.isArray(message.functions))
+                        return "functions: array expected";
+                    for (var i = 0; i < message.functions.length; ++i) {
+                        var error = $root.onnx.FunctionProto.verify(message.functions[i]);
+                        if (error)
+                            return "functions." + error;
+                    }
+                }
+                return null;
+            };
+    
+            /**
+             * Creates an OperatorSetProto message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {onnx.OperatorSetProto} OperatorSetProto
+             */
+            OperatorSetProto.fromObject = function fromObject(object) {
+                if (object instanceof $root.onnx.OperatorSetProto)
+                    return object;
+                var message = new $root.onnx.OperatorSetProto();
+                if (object.magic != null)
+                    message.magic = String(object.magic);
+                if (object.irVersion != null)
+                    message.irVersion = object.irVersion | 0;
+                if (object.irVersionPrerelease != null)
+                    message.irVersionPrerelease = String(object.irVersionPrerelease);
+                if (object.irBuildMetadata != null)
+                    message.irBuildMetadata = String(object.irBuildMetadata);
+                if (object.domain != null)
+                    message.domain = String(object.domain);
+                if (object.opsetVersion != null)
+                    if ($util.Long)
+                        (message.opsetVersion = $util.Long.fromValue(object.opsetVersion)).unsigned = false;
+                    else if (typeof object.opsetVersion === "string")
+                        message.opsetVersion = parseInt(object.opsetVersion, 10);
+                    else if (typeof object.opsetVersion === "number")
+                        message.opsetVersion = object.opsetVersion;
+                    else if (typeof object.opsetVersion === "object")
+                        message.opsetVersion = new $util.LongBits(object.opsetVersion.low >>> 0, object.opsetVersion.high >>> 0).toNumber();
+                if (object.docString != null)
+                    message.docString = String(object.docString);
+                if (object.operator) {
+                    if (!Array.isArray(object.operator))
+                        throw TypeError(".onnx.OperatorSetProto.operator: array expected");
+                    message.operator = [];
+                    for (var i = 0; i < object.operator.length; ++i) {
+                        if (typeof object.operator[i] !== "object")
+                            throw TypeError(".onnx.OperatorSetProto.operator: object expected");
+                        message.operator[i] = $root.onnx.OperatorProto.fromObject(object.operator[i]);
+                    }
+                }
+                if (object.functions) {
+                    if (!Array.isArray(object.functions))
+                        throw TypeError(".onnx.OperatorSetProto.functions: array expected");
+                    message.functions = [];
+                    for (var i = 0; i < object.functions.length; ++i) {
+                        if (typeof object.functions[i] !== "object")
+                            throw TypeError(".onnx.OperatorSetProto.functions: object expected");
+                        message.functions[i] = $root.onnx.FunctionProto.fromObject(object.functions[i]);
+                    }
+                }
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from an OperatorSetProto message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof onnx.OperatorSetProto
+             * @static
+             * @param {onnx.OperatorSetProto} message OperatorSetProto
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            OperatorSetProto.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.operator = [];
+                    object.functions = [];
+                }
+                if (options.defaults) {
+                    object.magic = "";
+                    object.irVersion = 0;
+                    object.irVersionPrerelease = "";
+                    object.domain = "";
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, false);
+                        object.opsetVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.opsetVersion = options.longs === String ? "0" : 0;
+                    object.docString = "";
+                    object.irBuildMetadata = "";
+                }
+                if (message.magic != null && message.hasOwnProperty("magic"))
+                    object.magic = message.magic;
+                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
+                    object.irVersion = message.irVersion;
+                if (message.irVersionPrerelease != null && message.hasOwnProperty("irVersionPrerelease"))
+                    object.irVersionPrerelease = message.irVersionPrerelease;
+                if (message.domain != null && message.hasOwnProperty("domain"))
+                    object.domain = message.domain;
+                if (message.opsetVersion != null && message.hasOwnProperty("opsetVersion"))
+                    if (typeof message.opsetVersion === "number")
+                        object.opsetVersion = options.longs === String ? String(message.opsetVersion) : message.opsetVersion;
+                    else
+                        object.opsetVersion = options.longs === String ? $util.Long.prototype.toString.call(message.opsetVersion) : options.longs === Number ? new $util.LongBits(message.opsetVersion.low >>> 0, message.opsetVersion.high >>> 0).toNumber() : message.opsetVersion;
+                if (message.docString != null && message.hasOwnProperty("docString"))
+                    object.docString = message.docString;
+                if (message.irBuildMetadata != null && message.hasOwnProperty("irBuildMetadata"))
+                    object.irBuildMetadata = message.irBuildMetadata;
+                if (message.operator && message.operator.length) {
+                    object.operator = [];
+                    for (var j = 0; j < message.operator.length; ++j)
+                        object.operator[j] = $root.onnx.OperatorProto.toObject(message.operator[j], options);
+                }
+                if (message.functions && message.functions.length) {
+                    object.functions = [];
+                    for (var j = 0; j < message.functions.length; ++j)
+                        object.functions[j] = $root.onnx.FunctionProto.toObject(message.functions[j], options);
+                }
+                return object;
+            };
+    
+            /**
+             * Converts this OperatorSetProto to JSON.
+             * @function toJSON
+             * @memberof onnx.OperatorSetProto
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            OperatorSetProto.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return OperatorSetProto;
+        })();
+    
         return onnx;
     })();
 
