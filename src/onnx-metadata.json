@@ -596,6 +596,20 @@
       ],
       "description": "Computes the indices of the max elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# result: [[1], [1]]\nresult = argmax_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmax_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_default_axis_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0], [1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_keepdims_random')",
+          "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMax',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[0, 1]]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmax_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmax_no_keepdims_random')",
+          "summary": "no_keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
@@ -657,6 +671,20 @@
       ],
       "description": "Computes the indices of the min elements of the input tensor's element along the \nprovided axis. The resulted tensor has the same rank as the input if keepdims equal 1.\nIf keepdims equal 0, then the resulted tensor have the reduced dimension pruned. \nThe type of the output tensor is integer.",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    keepdims=keepdims)\n\n# result: [[0], [0]]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [1, 3, 4]\nresult = argmin_use_numpy(data, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_default_axis_random')",
+          "summary": "default_axes_keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 1\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1], [0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 1, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_keepdims_random')",
+          "summary": "keepdims"
+        },
+        {
+          "code": "data = np.array([[2, 1], [3, 10]], dtype=np.float32)\naxis = 1\nkeepdims = 0\nnode = onnx.helper.make_node(\n    'ArgMin',\n    inputs=['data'],\n    outputs=['result'],\n    axis=axis,\n    keepdims=keepdims)\n# result: [[1, 0]]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_example')\n\ndata = np.random.uniform(-10, 10, [2, 3, 4]).astype(np.float32)\n# result's shape: [2, 4]\nresult = argmin_use_numpy(data, axis=axis, keepdims=keepdims)\nexpect(node, inputs=[data], outputs=[result], name='test_argmin_no_keepdims_random')",
+          "summary": "no_keepdims"
+        }
+      ],
       "inputs": [
         {
           "description": "An input tensor.",
