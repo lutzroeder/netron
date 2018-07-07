@@ -74,6 +74,8 @@ categories = {
     'Crop': 'Data',
 
     'Gather': 'Transform',
+    'Unsqueeze': 'Transform',
+    'Squeeze': 'Transform',
 }
 
 def generate_json_attr_type(type):
