@@ -97,7 +97,7 @@ class CaffeGraph {
             layer.bottom = layer.bottom.map((input) => scope[input] ? scope[input] : input);
             layer.top = layer.top.map((output) => {
                 if (scope[output]) {
-                    var next = output + '@' + index.toString();
+                    var next = output + '\n' + index.toString(); // custom connection id
                     scope[output] = next;
                     return next;
                 }

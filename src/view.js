@@ -590,7 +590,7 @@ class View {
                             }
             
                             if (this._showNames) {
-                                text = edge.split('@').shift();
+                                text = edge.split('\n').shift(); // custom connection id
                             }
                             if (!this._showDetails) {
                                 text = '';

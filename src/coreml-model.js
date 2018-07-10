@@ -338,7 +338,7 @@ class CoreMLGraph {
         outputs = outputs.map((output) => {
             if (scope[output]) {
                 scope[output].counter++;
-                var next = output + '@' + scope[output].counter.toString();
+                var next = output + '\n' + scope[output].counter.toString(); // custom connection id
                 scope[output].connection = next;
                 return next;
             }

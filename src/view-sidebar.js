@@ -378,7 +378,7 @@ class NodeConnectionView {
         else {
             var idLine = document.createElement('div');
             idLine.className = 'sidebar-view-item-value-line';
-            id = this._connection.id.split('@').shift();
+            id = this._connection.id.split('\n').shift(); // custom connection id
             id = id || ' ';
             idLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>id: <b>' + id + '</b></span>';
             this._element.appendChild(idLine);
@@ -871,7 +871,7 @@ class FindView {
                     if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
                         var item = document.createElement('li');
                         if (!connection.initializer) {
-                            item.innerText = '\u2192 ' + connection.id.split('@').shift();
+                            item.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
                             item.id = 'edge-' + connection.id;
                             this._resultElement.appendChild(item);
                             edgeMatches[connection.id] = true;
@@ -895,7 +895,7 @@ class FindView {
                 output.connections.forEach((connection) => {
                     if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
                         var item = document.createElement('li');
-                        item.innerText = '\u2192 ' + connection.id.split('@').shift();
+                        item.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
                         item.id = 'edge-' + connection.id;
                         this._resultElement.appendChild(item);
                         edgeMatches[connection.id] = true;

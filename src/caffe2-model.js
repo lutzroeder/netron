@@ -75,7 +75,7 @@ class Caffe2Graph {
             op.input = op.input.map((input) => scope[input] ? scope[input] : input);
             op.output = op.output.map((output) => {
                 if (scope[output]) {
-                    var next = output + '@' + index.toString();
+                    var next = output + '\n' + index.toString(); // custom connection id
                     scope[output] = next;
                     return next;
                 }
