@@ -890,7 +890,7 @@
         }
       ],
       "category": "Pool",
-      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements exclude pad.\n ",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements exclude pad.\n ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -1004,7 +1004,7 @@
         }
       ],
       "category": "Pool",
-      "description": "AveragePool consumes an input tensor X and applies average pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
+      "description": "AveragePool consumes an input tensor X and applies average pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n average pooling consisting of computing the average on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is divided by the number of elements (exclude pad when attribute count_include_pad is zero).\n ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -1905,11 +1905,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-5.0,\n    max=5.0,\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_inbounds')\n\nx = np.array([-6, 0, 6]).astype(np.float32)\ny = np.array([-5, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_outbounds')\n\nx = np.array([-1, 0, 6]).astype(np.float32)\ny = np.array([-1, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_splitbounds')",
           "summary": "clip"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_inbounds')",
           "summary": "clip_default"
         }
       ],
@@ -1969,11 +1969,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-1.0,\n    max=1.0\n)\n\nx = np.array([-2, 0, 2]).astype(np.float32)\ny = np.clip(x, -1, 1)  # expected output [-1., 0., 1.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -1.0, 1.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=-5.0,\n    max=5.0,\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_inbounds')\n\nx = np.array([-6, 0, 6]).astype(np.float32)\ny = np.array([-5, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_outbounds')\n\nx = np.array([-1, 0, 6]).astype(np.float32)\ny = np.array([-1, 0, 5]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_splitbounds')",
           "summary": "clip"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')",
+          "code": "node = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    min=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0.0, np.inf)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_min')\n\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n    max=0.0\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, -np.inf, 0.0)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_max')\nnode = onnx.helper.make_node(\n    'Clip',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.array([-1, 0, 1]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_clip_default_inbounds')",
           "summary": "clip_default"
         }
       ],
@@ -4573,7 +4573,7 @@
     "name": "GlobalAveragePool",
     "schema": {
       "category": "Pool",
-      "description": "GlobalAveragePool consumes an input tensor X and applies average pooling across the\n the values in the same channel. This is equivalent to AveragePool with kernel size\n equal to the spatial dimension of input tensor.",
+      "description": "GlobalAveragePool consumes an input tensor X and applies average pooling across\n the values in the same channel. This is equivalent to AveragePool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -4679,7 +4679,7 @@
         }
       ],
       "category": "Pool",
-      "description": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across the\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
+      "description": "GlobalLpPool consumes an input tensor X and applies lp pool pooling across\n the values in the same channel. This is equivalent to LpPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -4718,7 +4718,7 @@
     "name": "GlobalMaxPool",
     "schema": {
       "category": "Pool",
-      "description": "GlobalMaxPool consumes an input tensor X and applies max pooling across the\n the values in the same channel. This is equivalent to MaxPool with kernel size\n equal to the spatial dimension of input tensor.",
+      "description": "GlobalMaxPool consumes an input tensor X and applies max pooling across\n the values in the same channel. This is equivalent to MaxPool with kernel size\n equal to the spatial dimension of input tensor.",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -6822,7 +6822,7 @@
         }
       ],
       "category": "Pool",
-      "description": "LpPool consumes an input tensor X and applies Lp pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
+      "description": "LpPool consumes an input tensor X and applies Lp pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n Lp pooling consisting of computing the Lp norm on all values of a subset\n of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing.",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -7080,7 +7080,7 @@
         }
       ],
       "category": "Pool",
-      "description": "MaxPool consumes an input tensor X and applies max pooling across the\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -10548,7 +10548,7 @@
           "type": "float"
         }
       ],
-      "description": "Calculates the scaled hyperbolic tangent of the given input tensor element-wise,\nalpha * tanh(beta * x). This operation can be done in an in-place fashion too,\nby providing the same input and output blobs.\n    ",
+      "description": "Calculates the scaled hyperbolic tangent of the given input tensor element-wise,\nalpha * tanh(beta * x). \n    ",
       "domain": "ai.onnx",
       "inputs": [
         {
