@@ -102,7 +102,9 @@ tflite.BuiltinOperator = {
   SQRT: 75,
   RSQRT: 76,
   SHAPE: 77,
-  POW: 78
+  POW: 78,
+  ARG_MIN: 79,
+  FAKE_QUANT: 80
 };
 
 /**
@@ -165,7 +167,9 @@ tflite.BuiltinOptions = {
   EqualOptions: 53,
   NotEqualOptions: 54,
   ShapeOptions: 55,
-  PowOptions: 56
+  PowOptions: 56,
+  ArgMinOptions: 57,
+  FakeQuantOptions: 58
 };
 
 /**
@@ -4079,6 +4083,73 @@ tflite.ArgMaxOptions.endArgMaxOptions = function(builder) {
 /**
  * @constructor
  */
+tflite.ArgMinOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.ArgMinOptions}
+ */
+tflite.ArgMinOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.ArgMinOptions=} obj
+ * @returns {tflite.ArgMinOptions}
+ */
+tflite.ArgMinOptions.getRootAsArgMinOptions = function(bb, obj) {
+  return (obj || new tflite.ArgMinOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {tflite.TensorType}
+ */
+tflite.ArgMinOptions.prototype.outputType = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.ArgMinOptions.startArgMinOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite.TensorType} outputType
+ */
+tflite.ArgMinOptions.addOutputType = function(builder, outputType) {
+  builder.addFieldInt8(0, outputType, tflite.TensorType.FLOAT32);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.ArgMinOptions.endArgMinOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 tflite.GreaterOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -4866,6 +4937,105 @@ tflite.PowOptions.startPowOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite.PowOptions.endPowOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.FakeQuantOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.FakeQuantOptions}
+ */
+tflite.FakeQuantOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.FakeQuantOptions=} obj
+ * @returns {tflite.FakeQuantOptions}
+ */
+tflite.FakeQuantOptions.getRootAsFakeQuantOptions = function(bb, obj) {
+  return (obj || new tflite.FakeQuantOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite.FakeQuantOptions.prototype.min = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.FakeQuantOptions.prototype.max = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.FakeQuantOptions.prototype.numBits = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.FakeQuantOptions.startFakeQuantOptions = function(builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} min
+ */
+tflite.FakeQuantOptions.addMin = function(builder, min) {
+  builder.addFieldFloat32(0, min, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} max
+ */
+tflite.FakeQuantOptions.addMax = function(builder, max) {
+  builder.addFieldFloat32(1, max, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numBits
+ */
+tflite.FakeQuantOptions.addNumBits = function(builder, numBits) {
+  builder.addFieldInt32(2, numBits, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.FakeQuantOptions.endFakeQuantOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
