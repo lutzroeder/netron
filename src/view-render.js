@@ -116,15 +116,15 @@ class GraphRenderer {
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            var points = GraphRenderer.calcPoints(edge, graph.node(edgeId.v), graph.node(edgeId.w));
-            var element = this.createElement('path');
-            element.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
-            element.setAttribute('d', points);
-            element.setAttribute('marker-end', 'url(#arrowhead-vee)');
+            var edgePath = GraphRenderer.computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
+            var edgeElement = this.createElement('path');
+            edgeElement.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
+            edgeElement.setAttribute('d', edgePath);
+            edgeElement.setAttribute('marker-end', 'url(#arrowhead-vee)');
             if (edge.id) {
-                element.setAttribute('id', edge.id);
+                edgeElement.setAttribute('id', edge.id);
             }
-            svgEdgePathGroup.appendChild(element);
+            svgEdgePathGroup.appendChild(edgeElement);
         });
 
         graph.nodes().forEach((nodeId) => {
@@ -154,17 +154,26 @@ class GraphRenderer {
         return document.createElementNS('http://www.w3.org/2000/svg', name);
     }
 
-    static calcPoints(edge, tail, head) {
-        const points = edge.points.slice(1, edge.points.length - 1);
+    static computeCurvePath(edge, tail, head) {
+        var points = edge.points.slice(1, edge.points.length - 1);
         points.unshift(GraphRenderer.intersectRect(tail, points[0]));
         points.push(GraphRenderer.intersectRect(head, points[points.length - 1]));
-        var line = d3.line().x(d => d.x).y(d => d.y);
-        if (edge.hasOwnProperty('curve')) {
-            line.curve(edge.curve);
-        }
-        return line(points);
-      }
-      
+
+        var path = new Path();
+        var curve = new Curve(path);
+        points.forEach((point, index) => {
+            if (index == 0) {
+                curve.lineStart();
+            }
+            curve.point(point.x, point.y);
+            if (index == points.length - 1) {
+                curve.lineEnd();
+            }
+        });
+
+        return path.data;
+    }
+    
     static intersectRect(node, point) {
         var x = node.x;
         var y = node.y;
@@ -228,8 +237,9 @@ class NodeFormatter {
         this._controlDependencies = true;
     }
 
-    format(context) {
-        var root = d3.select(context).append('g');
+    format(contextElement) {
+        var rootElement = this.createElement('g');
+        contextElement.appendChild(rootElement);
         var hasAttributes = this._attributes && this._attributes.length > 0;
         var x = 0;
         var y = 0;
@@ -239,31 +249,38 @@ class NodeFormatter {
         this._items.forEach((item, index) => {
             var yPadding = 4;
             var xPadding = 7;
-            var itemGroup = root.append('g').classed('node-item', true);
-            var path = itemGroup.append('path');
-            var text = itemGroup.append('text');
+            var itemGroupElement = this.createElement('g');
+            var itemGroupClassList = [ 'node-item' ];
+            rootElement.appendChild(itemGroupElement);
+            var pathElement = this.createElement('path');
+            var textElement = this.createElement('text');
+            itemGroupElement.appendChild(pathElement);
+            itemGroupElement.appendChild(textElement);
             var content = item.content;
             var handler = item.handler;
             var title = item.title;
             if (item.classes) {
                 item.classes.forEach((className) => {
-                    itemGroup.classed(className, true);
+                    itemGroupClassList.push(className);
                 });
             }
+            itemGroupElement.setAttribute('class', itemGroupClassList.join(' '));
             if (handler) {
-                itemGroup.on('click', handler);
+                itemGroupElement.addEventListener('click', handler);
             }
             if (title) {
-                itemGroup.append('title').text(title);
+                var titleElement = this.createElement('title');
+                titleElement.textContent = title;
+                itemGroupElement.appendChild(titleElement);
             }
             if (content) {
-                text.text(content);
+                textElement.textContent = content;
             }
-            var boundingBox = text.node().getBBox();
+            var boundingBox = textElement.getBBox();
             var width = boundingBox.width + xPadding + xPadding;
             var height = boundingBox.height + yPadding + yPadding;
             itemBoxes.push({
-                'group': itemGroup, 'text': text, 'path': path,
+                'group': itemGroupElement, 'text': textElement, 'path': pathElement,
                 'x': x, 'y': y,
                 'width': width, 'height': height,
                 'tx': xPadding, 'ty': yPadding - boundingBox.y
@@ -283,32 +300,44 @@ class NodeFormatter {
         y += itemHeight;
 
         var attributesHeight = 0;
-        var attributesPath = null;
+        var attributesPathElement = null;
         if (hasAttributes)
         {
-            var attributeGroup = root.append('g').classed('node-attribute', true);
+            var attributeGroupElement = this.createElement('g');
+            attributeGroupElement.setAttribute('class', 'node-attribute');
+            rootElement.appendChild(attributeGroupElement);
             if (this._attributeHandler) {
-                attributeGroup.on('click', this._attributeHandler);
+                attributeGroupElement.addEventListener('click', this._attributeHandler);
             }
-            attributesPath = attributeGroup.append('path');
-            attributeGroup.attr('transform', 'translate(' + x + ',' + y + ')');
+            attributesPathElement = this.createElement('path');
+            attributeGroupElement.appendChild(attributesPathElement);
+            attributeGroupElement.setAttribute('transform', 'translate(' + x + ',' + y + ')');
             attributesHeight += 4;
             this._attributes.forEach((attribute) => {
                 var yPadding = 1;
                 var xPadding = 4;
-                var text = attributeGroup.append('text').attr('xml:space', 'preserve');
+                var textElement = this.createElement('text');
+                textElement.setAttribute('xml:space', 'preserve');
+                attributeGroupElement.appendChild(textElement);
                 if (attribute.title) {
-                    text.append('title').text(attribute.title);
+                    var titleElement = this.createElement('title');
+                    titleElement.textContent = attribute.title;
+                    textElement.appendChild(titleElement);
                 }
-                var text_name = text.append('tspan').style('font-weight', 'bold').text(attribute.name);
-                var text_value = text.append('tspan').text(' = ' + attribute.value);
-                var size = text.node().getBBox();
+                var textNameElement = this.createElement('tspan');
+                textNameElement.textContent = attribute.name;
+                textNameElement.style.fontWeight = 'bold';
+                textElement.appendChild(textNameElement);
+                var textValueElement = this.createElement('tspan');
+                textValueElement.textContent = ' = ' + attribute.value;
+                textElement.appendChild(textValueElement);
+                var size = textElement.getBBox();
                 var width = xPadding + size.width + xPadding;
                 if (maxWidth < width) {
                     maxWidth = width;
                 }
-                text.attr('x', x + xPadding);
-                text.attr('y', attributesHeight + yPadding - size.y);
+                textElement.setAttribute('x', x + xPadding);
+                textElement.setAttribute('y', attributesHeight + yPadding - size.y);
                 attributesHeight += yPadding + size.height + yPadding;
             });
             attributesHeight += 4;
@@ -324,35 +353,51 @@ class NodeFormatter {
         }
 
         itemBoxes.forEach((itemBox, index) => {
-            itemBox.group.attr('transform', 'translate(' + itemBox.x + ',' + itemBox.y + ')');        
+            itemBox.group.setAttribute('transform', 'translate(' + itemBox.x + ',' + itemBox.y + ')');        
             var r1 = index == 0;
             var r2 = index == itemBoxes.length - 1;
             var r3 = !hasAttributes && r2;
             var r4 = !hasAttributes && r1;
-            itemBox.path.attr('d', this.roundedRect(0, 0, itemBox.width, itemBox.height, r1, r2, r3, r4));
-            itemBox.text.attr('x', itemBox.tx).attr('y', itemBox.ty);
+            itemBox.path.setAttribute('d', this.roundedRect(0, 0, itemBox.width, itemBox.height, r1, r2, r3, r4));
+            itemBox.text.setAttribute('x', itemBox.tx);
+            itemBox.text.setAttribute('y', itemBox.ty);
         });
 
         if (hasAttributes) {
-            attributesPath.attr('d', this.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
+            attributesPathElement.setAttribute('d', this.roundedRect(0, 0, maxWidth, attributesHeight, false, false, true, true));
         }
 
         itemBoxes.forEach((itemBox, index) => {
             if (index != 0) {
-                root.append('line').classed('node', true).attr('x1', itemBox.x).attr('y1', 0).attr('x2', itemBox.x).attr('y2', itemHeight);
+                var lineElement = this.createElement('line');
+                lineElement.setAttribute('class', 'node');
+                lineElement.setAttribute('x1', itemBox.x);
+                lineElement.setAttribute('y1', 0);
+                lineElement.setAttribute('x2', itemBox.x);
+                lineElement.setAttribute('y2', itemHeight);
+                rootElement.appendChild(lineElement);
             }
         });
         if (hasAttributes) {
-            root.append('line').classed('node', true).attr('x1', 0).attr('y1', itemHeight).attr('x2', maxWidth).attr('y2', itemHeight);
+            var lineElement = this.createElement('line');
+            lineElement.setAttribute('class', 'node');
+            lineElement.setAttribute('x1', 0);
+            lineElement.setAttribute('y1', itemHeight);
+            lineElement.setAttribute('x2', maxWidth);
+            lineElement.setAttribute('y2', itemHeight);
+            rootElement.appendChild(lineElement);
         }
-        var border = root.append('path').classed('node border', true).attr('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
-
+        var borderElement = this.createElement('path');
+        var borderClassList = [ 'node', 'border' ];
         if (this._controlDependencies) {
-            border.classed('node-control-dependency', true);
+            borderClassList.push('node-control-dependency');
         }
+        borderElement.setAttribute('class', borderClassList.join(' '));
+        borderElement.setAttribute('d', this.roundedRect(0, 0, maxWidth, itemHeight + attributesHeight, true, true, true, true));
+        rootElement.appendChild(borderElement);
 
-        context.innerHTML = '';
-        return root.node();
+        contextElement.innerHTML = '';
+        return rootElement;
     }
 
     roundedRect(x, y, width, height, r1, r2, r3, r4) {
@@ -362,14 +407,126 @@ class NodeFormatter {
         r3 = r3 ? radius : 0;
         r4 = r4 ? radius : 0;
         return "M" + (x + r1) + "," + y +
-        "h" + (width - r1 - r2) +
-        "a" + r2 + "," + r2 + " 0 0 1 " + r2 + "," + r2 +
-        "v" + (height - r2 - r3) +
-        "a" + r3 + "," + r3 + " 0 0 1 " + -r3 + "," + r3 +
-        "h" + (r3 + r4 - width) +
-        "a" + r4 + "," + r4 + " 0 0 1 " + -r4 + "," + -r4 +
-        'v' + (-height + r4 + r1) +
-        "a" + r1 + "," + r1 + " 0 0 1 " + r1 + "," + -r1 +
-        "z";
+            "h" + (width - r1 - r2) +
+            "a" + r2 + "," + r2 + " 0 0 1 " + r2 + "," + r2 +
+            "v" + (height - r2 - r3) +
+            "a" + r3 + "," + r3 + " 0 0 1 " + -r3 + "," + r3 +
+            "h" + (r3 + r4 - width) +
+            "a" + r4 + "," + r4 + " 0 0 1 " + -r4 + "," + -r4 +
+            'v' + (-height + r4 + r1) +
+            "a" + r1 + "," + r1 + " 0 0 1 " + r1 + "," + -r1 +
+            "z";
+    }
+
+    createElement(name) {
+        return document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+}
+
+class Path {
+
+    constructor() {
+        this._x0 = null;
+        this._y0 = null;
+        this._x1 = null;
+        this._y1 = null;
+        this._data = '';
+    }
+
+    moveTo(x, y) {
+        this._data += "M" + (this._x0 = this._x1 = +x) + "," + (this._y0 = this._y1 = +y);
+    }
+
+    lineTo(x, y) {
+        this._data += "L" + (this._x1 = +x) + "," + (this._y1 = +y);
+    }
+
+    bezierCurveTo(x1, y1, x2, y2, x, y) {
+        this._data += "C" + (+x1) + "," + (+y1) + "," + (+x2) + "," + (+y2) + "," + (this._x1 = +x) + "," + (this._y1 = +y);
+    }
+
+    closePath() {
+        if (this._x1 !== null) {
+            this._x1 = this._x0; 
+            this._y1 = this._y0;
+            this._data += "Z";
+        }
+    }
+
+    get data() {
+        return this._data;
+    }
+}
+
+class Curve {
+
+    constructor(context) {
+        this._context = context;
+    }    
+
+    lineStart() {
+        this._x0 = NaN;
+        this._x1 = NaN;
+        this._y0 = NaN;
+        this._y1 = NaN;
+        this._point = 0;
+    }
+
+    lineEnd() {
+        switch (this._point) {
+          case 3: 
+                this.curve(this._x1, this._y1);
+                this._context.lineTo(this._x1, this._y1);
+                break;
+            case 2:
+                this._context.lineTo(this._x1, this._y1);
+                break;
+        }
+        if (this._line || (this._line !== 0 && this._point === 1)) {
+            this._context.closePath();
+        }
+        this._line = 1 - this._line;
+    }
+    
+    point(x, y) {
+        x = +x;
+        y = +y;
+        switch (this._point) {
+            case 0: 
+                this._point = 1;
+                if (this._line) {
+                    this._context.lineTo(x, y);
+                }
+                else {
+                    this._context.moveTo(x, y);
+                }
+                break;
+            case 1:
+                this._point = 2;
+                break;
+            case 2:
+                this._point = 3;
+                this._context.lineTo((5 * this._x0 + this._x1) / 6, (5 * this._y0 + this._y1) / 6);
+                this.curve(x, y);
+                break;
+            default:
+                this.curve(x, y);
+                break;
+        }
+        this._x0 = this._x1;
+        this._x1 = x;
+        this._y0 = this._y1;
+        this._y1 = y;
+    }
+
+    curve(x, y) {
+        this._context.bezierCurveTo(
+            (2 * this._x0 + this._x1) / 3,
+            (2 * this._y0 + this._y1) / 3,
+            (this._x0 + 2 * this._x1) / 3,
+            (this._y0 + 2 * this._y1) / 3,
+            (this._x0 + 4 * this._x1 + x) / 6,
+            (this._y0 + 4 * this._y1 + y) / 6
+        );
     }
 }

@@ -142,22 +142,19 @@ class View {
 
     zoomIn() {
         if (this._zoom) {
-            var svgElement = document.getElementById('graph');
-            d3.select(svgElement).call(this._zoom.scaleBy, 1.2);
+            this._zoom.scaleBy(d3.select(document.getElementById('graph')), 1.2);
         }
     }
 
     zoomOut() {
         if (this._zoom) {
-            var svgElement = document.getElementById('graph');
-            d3.select(svgElement).call(this._zoom.scaleBy, 0.8);
+            this._zoom.scaleBy(d3.select(document.getElementById('graph')), 0.8);
         }
     }
 
     resetZoom() { 
         if (this._zoom) {
-            var svgElement = document.getElementById('graph');
-            d3.select(svgElement).call(this._zoom.scaleTo, 1);
+            this._zoom.scaleTo(d3.select(document.getElementById('graph')), 1);
         }
     }
 
@@ -318,9 +315,9 @@ class View {
                 callback(null);
             }
             else {
-                var svgElement = document.getElementById('graph');
-                while (svgElement.lastChild) {
-                    svgElement.removeChild(svgElement.lastChild);
+                var graphElement = document.getElementById('graph');
+                while (graphElement.lastChild) {
+                    graphElement.removeChild(graphElement.lastChild);
                 }
     
                 this._zoom = null;
@@ -494,10 +491,10 @@ class View {
     
                     var name = node.name;
                     if (name) {
-                        g.setNode(nodeId, { id: 'node-' + name, label: formatter.format(svgElement) });
+                        g.setNode(nodeId, { label: formatter.format(graphElement), id: 'node-' + name });
                     }
                     else {
-                        g.setNode(nodeId, { label: formatter.format(svgElement) });
+                        g.setNode(nodeId, { label: formatter.format(graphElement) });
                     }
             
                     function createCluster(name) {
@@ -551,7 +548,7 @@ class View {
                     formatter.addItem(input.name, [ 'graph-item-input' ], input.type, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: formatter.format(svgElement), class: 'graph-input' } ); 
+                    g.setNode(nodeId++, { label: formatter.format(graphElement), class: 'graph-input' } ); 
                 });
             
                 graph.outputs.forEach((output) => {
@@ -571,7 +568,7 @@ class View {
                     formatter.addItem(output.name, [ 'graph-item-output' ], output.type, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: formatter.format(svgElement) } ); 
+                    g.setNode(nodeId++, { label: formatter.format(graphElement) } ); 
                 });
             
                 Object.keys(edgeMap).forEach((edge) => {
@@ -597,10 +594,10 @@ class View {
                             }
     
                             if (to.dependency) { 
-                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis, class: 'edge-path-control' } );
+                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', class: 'edge-path-control' } );
                             }
                             else {
-                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', curve: d3.curveBasis } );
+                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee' } );
                             }
                         });
                     }
@@ -614,31 +611,30 @@ class View {
                 backgroundElement.setAttribute('height', '100%');
                 backgroundElement.setAttribute('fill', 'none');
                 backgroundElement.setAttribute('pointer-events', 'all');
-                svgElement.appendChild(backgroundElement);
+                graphElement.appendChild(backgroundElement);
             
                 var originElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
-                svgElement.appendChild(originElement);
+                graphElement.appendChild(originElement);
             
                 // Set up zoom support
+                var svg = d3.select(graphElement);
                 this._zoom = d3.zoom();
+                this._zoom(svg);
                 this._zoom.scaleExtent([0.1, 2]);
                 this._zoom.on('zoom', (e) => {
                     d3.select(originElement).attr('transform', d3.event.transform);
                 });
-                var svg = d3.select(svgElement);
-                this._zoom(svg);
                 this._zoom.transform(svg, d3.zoomIdentity);
-                this._svg = svg;
-            
+
                 setTimeout(() => {
                     try {
                         var graphRenderer = new GraphRenderer(originElement);
                         graphRenderer.render(g);
             
-                        var svgSize = svgElement.getBoundingClientRect();
+                        var svgSize = graphElement.getBoundingClientRect();
             
-                        var inputElements = svgElement.getElementsByClassName('graph-input');
+                        var inputElements = graphElement.getElementsByClassName('graph-input');
                         if (inputElements && inputElements.length > 0) {
                             // Center view based on input elements
                             var xs = [];
@@ -715,62 +711,60 @@ class View {
         if (lastIndex != -1) {
             extension = file.substring(lastIndex + 1);
         }
-        if (extension != 'png' && extension != 'svg') {
-            return;
-        }
-
-        var svgElement = document.getElementById('graph');
-        var exportElement = svgElement.cloneNode(true);
-        this.transferStyleSheet(exportElement, 'view-render.css');
-        exportElement.setAttribute('id', 'export');
-        exportElement.removeAttribute('width');
-        exportElement.removeAttribute('height');
-        exportElement.style.removeProperty('opacity');
-        exportElement.style.removeProperty('display');
-        var originElement = exportElement.getElementById('origin');
-        originElement.setAttribute('transform', 'translate(0,0) scale(1)');
-        var backgroundElement = exportElement.getElementById('background');
-        backgroundElement.removeAttribute('width');
-        backgroundElement.removeAttribute('height');
-
-        var parentElement = svgElement.parentElement;
-        parentElement.insertBefore(exportElement, svgElement);
-        var size = exportElement.getBBox();
-        parentElement.removeChild(exportElement);
-
-        var delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
-        var width = Math.ceil(delta + size.width + delta);
-        var height = Math.ceil(delta + size.height + delta);
-        originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
-        exportElement.setAttribute('width', width);
-        exportElement.setAttribute('height', height);
-        backgroundElement.setAttribute('width', width);
-        backgroundElement.setAttribute('height', height);
-        backgroundElement.setAttribute('fill', '#fff');
-
-        var data = new XMLSerializer().serializeToString(exportElement);
-
-        if (extension == 'svg') {
-            this._host.export(file, data, 'image/svg');
-        }
-
-        if (extension == 'png') {
-            var imageElement = new Image();
-            document.body.insertBefore(imageElement, document.body.firstChild);
-            imageElement.onload = () => {
-                var max = Math.max(width, height);
-                var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
-                var canvas = document.createElement('canvas');
-                canvas.width = Math.ceil(width * scale);
-                canvas.height = Math.ceil(height * scale);    
-                var context = canvas.getContext('2d');
-                context.scale(scale, scale);
-                context.drawImage(imageElement, 0, 0);
-                document.body.removeChild(imageElement);
-                var pngBase64 = canvas.toDataURL('image/png');
-                this._host.export(file, pngBase64, 'image/png');
-            };
-            imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+        if (extension == 'png' || extension == 'svg') {
+            var graphElement = document.getElementById('graph');
+            var exportElement = graphElement.cloneNode(true);
+            this.transferStyleSheet(exportElement, 'view-render.css');
+            exportElement.setAttribute('id', 'export');
+            exportElement.removeAttribute('width');
+            exportElement.removeAttribute('height');
+            exportElement.style.removeProperty('opacity');
+            exportElement.style.removeProperty('display');
+            var originElement = exportElement.getElementById('origin');
+            originElement.setAttribute('transform', 'translate(0,0) scale(1)');
+            var backgroundElement = exportElement.getElementById('background');
+            backgroundElement.removeAttribute('width');
+            backgroundElement.removeAttribute('height');
+    
+            var parentElement = graphElement.parentElement;
+            parentElement.insertBefore(exportElement, graphElement);
+            var size = exportElement.getBBox();
+            parentElement.removeChild(exportElement);
+    
+            var delta = (Math.min(size.width, size.height) / 2.0) * 0.1;
+            var width = Math.ceil(delta + size.width + delta);
+            var height = Math.ceil(delta + size.height + delta);
+            originElement.setAttribute('transform', 'translate(' + delta.toString() + ', ' + delta.toString() + ') scale(1)');
+            exportElement.setAttribute('width', width);
+            exportElement.setAttribute('height', height);
+            backgroundElement.setAttribute('width', width);
+            backgroundElement.setAttribute('height', height);
+            backgroundElement.setAttribute('fill', '#fff');
+    
+            var data = new XMLSerializer().serializeToString(exportElement);
+    
+            if (extension == 'svg') {
+                this._host.export(file, data, 'image/svg');
+            }
+    
+            if (extension == 'png') {
+                var imageElement = new Image();
+                document.body.insertBefore(imageElement, document.body.firstChild);
+                imageElement.onload = () => {
+                    var max = Math.max(width, height);
+                    var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
+                    var canvas = document.createElement('canvas');
+                    canvas.width = Math.ceil(width * scale);
+                    canvas.height = Math.ceil(height * scale);    
+                    var context = canvas.getContext('2d');
+                    context.scale(scale, scale);
+                    context.drawImage(imageElement, 0, 0);
+                    document.body.removeChild(imageElement);
+                    var pngBase64 = canvas.toDataURL('image/png');
+                    this._host.export(file, pngBase64, 'image/png');
+                };
+                imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+            }
         }
     }
 
