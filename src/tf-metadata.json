@@ -18632,38 +18632,6 @@
     }
   },
   {
-    "name": "IdentityDataset",
-    "schema": {
-      "attributes": [
-        {
-          "minimum": 1,
-          "name": "output_types",
-          "type": "list(type)"
-        },
-        {
-          "minimum": 1,
-          "name": "output_shapes",
-          "type": "list(shape)"
-        }
-      ],
-      "description": "A placeholder for input pipeline graph optimizations.",
-      "inputs": [
-        {
-          "description": "A variant tensor representing the input dataset.",
-          "name": "input_dataset",
-          "type": 21
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ],
-      "summary": "A placeholder for input pipeline graph optimizations."
-    }
-  },
-  {
     "name": "IdentityN",
     "schema": {
       "attributes": [
@@ -19971,6 +19939,37 @@
     }
   },
   {
+    "name": "IteratorFromStringHandleV2",
+    "schema": {
+      "attributes": [
+        {
+          "defaultValue": [],
+          "minimum": 0,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "defaultValue": [],
+          "minimum": 0,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "string_handle",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "resource_handle",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
     "name": "IteratorGetNext",
     "schema": {
       "attributes": [
@@ -20049,6 +20048,37 @@
         }
       ],
       "summary": "Converts the given `resource_handle` representing an iterator to a string."
+    }
+  },
+  {
+    "name": "IteratorV2",
+    "schema": {
+      "attributes": [
+        {
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
     }
   },
   {
@@ -42463,6 +42493,26 @@
         }
       ],
       "summary": "Computes hyperbolic sine of x element-wise."
+    }
+  },
+  {
+    "name": "SinkDataset",
+    "schema": {
+      "description": "A placeholder for input pipeline graph optimizations.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "A placeholder for input pipeline graph optimizations."
     }
   },
   {
