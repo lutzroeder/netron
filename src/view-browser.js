@@ -24,7 +24,8 @@ class BrowserHost {
 
         var urlParam = this._getQueryParameter('url');
         if (urlParam && urlParam.length > 0) {
-            this._openModel(urlParam, urlParam.split('/').pop());
+            var filename = this._getQueryParameter('filename');
+            this._openModel(urlParam, filename || urlParam.split('/').pop());
             return;
         }
 
