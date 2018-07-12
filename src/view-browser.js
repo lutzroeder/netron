@@ -23,17 +23,11 @@ class BrowserHost {
         }
 
         var urlParam = this._getQueryParameter('url');
-        if (urlParam && urlParam.length > 0) {
-            this._openModel(urlParam, urlParam.split('/').pop());
+        if (urlParam) {
+            this._openModel(urlParam, this._getQueryParameter('identifier') || urlParam.split('/').pop());
             return;
         }
 
-        var modelParam = this._getQueryParameter('model');
-        if (modelParam && modelParam.length > 0) {
-            this._openModel(modelParam, modelParam.split('/').pop());
-            return;
-        }
-        
         this._view.show('welcome');
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
