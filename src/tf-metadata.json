@@ -3419,7 +3419,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 9.999999747378752e-06,
+          "defaultValue": 1e-05,
           "name": "tolerance",
           "type": "float"
         }
@@ -4591,9 +4591,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -4825,9 +4823,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -6643,9 +6639,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the bias tensor will be added to the last dimension\nof the value tensor.\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].\nThe tensor will be added to \"in_channels\", the third-to-the-last\n    dimension.",
@@ -6758,9 +6752,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the bias tensor will be added to the last dimension\nof the value tensor.\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].\nThe tensor will be added to \"in_channels\", the third-to-the-last\n    dimension.",
@@ -9470,9 +9462,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -9563,9 +9553,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -9659,9 +9647,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -13074,9 +13060,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -13159,9 +13143,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -13250,9 +13232,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width].",
@@ -16861,7 +16841,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 9.999999747378752e-05,
+          "defaultValue": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -16954,7 +16934,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 9.999999747378752e-05,
+          "defaultValue": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17065,7 +17045,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 9.999999747378752e-05,
+          "defaultValue": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -17176,7 +17156,7 @@
           "type": "type"
         },
         {
-          "defaultValue": 9.999999747378752e-05,
+          "defaultValue": 0.0001,
           "description": "A small float number added to the variance of x.",
           "name": "epsilon",
           "type": "float"
@@ -23189,9 +23169,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -23312,9 +23290,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -23419,9 +23395,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -23657,9 +23631,7 @@
         {
           "allowedValues": [
             "NHWC",
-            "NCHW",
-            "HWNC",
-            "HWCN"
+            "NCHW"
           ],
           "defaultValue": "NHWC",
           "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, in_height, in_width, in_channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, in_channels, in_height, in_width].",
@@ -25032,7 +25004,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.800000011920929,
+          "defaultValue": 0.8,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float"
@@ -25104,7 +25076,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.800000011920929,
+          "defaultValue": 0.8,
           "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
           "name": "max_load_factor",
           "type": "float"
@@ -25603,6 +25575,47 @@
         {
           "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too much with respect to IOU.",
           "name": "iou_threshold",
+          "type": 1
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding when to remove\nboxes based on score.",
+          "name": "score_threshold",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A 1-D integer tensor of shape `[M]` representing the selected\nindices from the boxes tensor, where `M <= max_output_size`.",
+          "name": "selected_indices",
+          "type": 3
+        }
+      ],
+      "summary": "Greedily selects a subset of bounding boxes in descending order of score,"
+    }
+  },
+  {
+    "name": "NonMaxSuppressionWithOverlaps",
+    "schema": {
+      "description": "pruning away boxes that have high overlaps\nwith previously selected boxes.  Bounding boxes with score less than\n`score_threshold` are removed. N-by-n overlap values are supplied as square matrix,\nwhich allows for defining a custom overlap criterium (eg. intersection over union,\nintersection over area, etc.).\n\nThe output of this operation is a set of integers indexing into the input\ncollection of bounding boxes representing the selected boxes.  The bounding\nbox coordinates corresponding to the selected indices can then be obtained\nusing the `tf.gather operation`.  For example:\n\n  selected_indices = tf.image.non_max_suppression_with_overlaps(\n      overlaps, scores, max_output_size, overlap_threshold, score_threshold)\n  selected_boxes = tf.gather(boxes, selected_indices)",
+      "inputs": [
+        {
+          "description": "A 2-D float tensor of shape `[num_boxes, num_boxes]` representing\nthe n-by-n box overlap values.",
+          "name": "overlaps",
+          "type": 1
+        },
+        {
+          "description": "A 1-D float tensor of shape `[num_boxes]` representing a single\nscore corresponding to each box (each row of boxes).",
+          "name": "scores",
+          "type": 1
+        },
+        {
+          "description": "A scalar integer tensor representing the maximum number of\nboxes to be selected by non max suppression.",
+          "name": "max_output_size",
+          "type": 3
+        },
+        {
+          "description": "A 0-D float tensor representing the threshold for deciding whether\nboxes overlap too.",
+          "name": "overlap_threshold",
           "type": 1
         },
         {
@@ -29411,13 +29424,13 @@
           "type": "float"
         },
         {
-          "defaultValue": 9.999999747378752e-06,
+          "defaultValue": 1e-05,
           "description": "A small float number to avoid dividing by 0.",
           "name": "variance_epsilon",
           "type": "float"
         },
         {
-          "defaultValue": 0.0010000000474974513,
+          "defaultValue": 0.001,
           "description": "Minimum value of `y_max - y_min`",
           "name": "min_separation",
           "type": "float"
@@ -39123,7 +39136,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.10000000149011612,
+          "defaultValue": 0.1,
           "description": "The cropped area of the image must contain at least this\nfraction of any bounding box supplied. The value of this parameter should be\nnon-negative. In the case of 0, the cropped area does not need to overlap\nany of the bounding boxes supplied.",
           "name": "min_object_covered",
           "type": "float"
@@ -39131,7 +39144,7 @@
         {
           "defaultValue": [
             0.75,
-            1.3300000429153442
+            1.33
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -39139,7 +39152,7 @@
         },
         {
           "defaultValue": [
-            0.05000000074505806,
+            0.05,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -39237,7 +39250,7 @@
         {
           "defaultValue": [
             0.75,
-            1.3300000429153442
+            1.33
           ],
           "description": "The cropped area of the image must have an aspect ratio =\nwidth / height within this range.",
           "name": "aspect_ratio_range",
@@ -39245,7 +39258,7 @@
         },
         {
           "defaultValue": [
-            0.05000000074505806,
+            0.05,
             1.0
           ],
           "description": "The cropped area of the image must contain a fraction of the\nsupplied image within this range.",
@@ -42620,7 +42633,7 @@
           "type": "int"
         },
         {
-          "defaultValue": 0.0010000000474974513,
+          "defaultValue": 0.001,
           "description": "Threshold for word occurrence. Words that appear with higher\nfrequency will be randomly down-sampled. Set to 0 to disable.",
           "name": "subsample",
           "type": "float"
