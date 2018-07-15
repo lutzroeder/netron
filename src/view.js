@@ -623,7 +623,7 @@ class View {
                 this._zoom(svg);
                 this._zoom.scaleExtent([0.1, 2]);
                 this._zoom.on('zoom', (e) => {
-                    d3.select(originElement).attr('transform', d3.event.transform);
+                    originElement.setAttribute('transform', d3.event.transform.toString());
                 });
                 this._zoom.transform(svg, d3.zoomIdentity);
 
@@ -648,7 +648,7 @@ class View {
                             var y = ys[0];
                             if (ys.every(y => y == ys[0])) {
                                 x = xs.reduce((a,b) => { return a + b; }) / xs.length;
-                            }            
+                            }
                             this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
                         }
                         else {

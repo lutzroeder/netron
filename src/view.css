@@ -114,6 +114,8 @@ body {
     fill: None;
     stroke: #777;
     cursor: hand;
+    width: 24px;
+    height: 24px;
 }
 
 .toolbar button:hover {
@@ -123,4 +125,11 @@ body {
 
 .toolbar button:focus {
     outline: 0;
+}
+
+@media only screen and (max-device-width: 1024px) {
+    .toolbar button {
+        width: 32px;
+        height: 32px;
+    }
 }
