@@ -478,14 +478,26 @@ class OnnxTensor {
         return result;
     }
 
-    get value() { 
+    get value() {
+        var result = this._decode(true);
+        if (typeof result == 'string') {
+            return result;
+        }
+        switch (this._tensor.dataType) {
+            case onnx.TensorProto.DataType.INT64:
+            case onnx.TensorProto.DataType.UINT64:
+                return OnnxTensor._stringify(result, '', '    ');
+        }
+        return JSON.stringify(result, null, 4);
+    }
+
+    _decode(limit) {
         if (!this._tensor.dataType) {
             return 'Tensor has no data type.';
         }
         if (!this._tensor.dims) {
             return 'Tensor has no dimensions.';
         }
-
         switch (this._tensor.dataType) {
             case onnx.TensorProto.DataType.FLOAT:
                 if (this._tensor.floatData && this._tensor.floatData.length > 0) {
@@ -500,7 +512,7 @@ class OnnxTensor {
                 break;
             case onnx.TensorProto.DataType.DOUBLE:
                 if (this._tensor.doubleData && this._tensor.doubleData.length > 0) {
-                    this._data = tensor.doubleData;
+                    this._data = this._tensor.doubleData;
                 }
                 else if (this._tensor.rawData && this._tensor.rawData.length > 0) {
                     this._rawData = new DataView(this._tensor.rawData.buffer, this._tensor.rawData.byteOffset, this._tensor.rawData.byteLength);
@@ -560,21 +572,23 @@ class OnnxTensor {
 
         this._index = 0;
         this._count = 0;
-        var result = this.read(0);
+
+        var result = this._decodeDimension(true, 0);
+
         delete this._index;
         delete this._count;
         delete this._data;
         delete this._rawData;
 
-        return JSON.stringify(result, null, 4);
+        return result;
     }
 
-    read(dimension) {
+    _decodeDimension(limit, dimension) {
         var results = [];
         var size = this._tensor.dims[dimension];
         if (dimension == this._tensor.dims.length - 1) {
             for (var i = 0; i < size; i++) {
-                if (this._count > 10000) {
+                if (limit && this._count > 10000) {
                     results.push('...');
                     return results;
                 }
@@ -606,12 +620,12 @@ class OnnxTensor {
                             this._count++;
                             break;
                         case onnx.TensorProto.DataType.INT64:
-                            results.push(new Int64(this._rawData.subarray(this._index, 8)));
+                            results.push(new Int64(this._rawData.subarray(this._index, this._index + 8)));
                             this._index += 8;
                             this._count++;
                             break;
                         case onnx.TensorProto.DataType.UINT64:
-                            results.push(new Uint64(this._rawData.subarray(this._index, 8)));
+                            results.push(new Uint64(this._rawData.subarray(this._index, this._index + 8)));
                             this._index += 8;
                             this._count++;
                             break;
@@ -621,14 +635,25 @@ class OnnxTensor {
         }
         else {
             for (var j = 0; j < size; j++) {
-                if (this._count > 10000) {
+                if (limit && this._count > 10000) {
                     results.push('...');
                     return results;
                 }
-                results.push(this.read(dimension + 1));
+                results.push(this._decodeDimension(limit, dimension + 1));
             }
         }
         return results;
+    }
+
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            var result = [];
+            value.forEach((item) => {
+                result.push(OnnxTensor._stringify(item, indentation + indent, indent));
+            });
+            return [ '[', result.join(',\n'), ']' ].join('\n');
+        }
+        return indentation + value.toString();
     }
 
     static _formatElementType(elementType) {
