@@ -686,6 +686,31 @@
           "description": "(float) RPN_MIN_SIZE",
           "name": "min_size",
           "option": "optional"
+        },
+        {
+          "description": "bool (default false), Correct bounding box transform coordates, see bbox_transform() in boxes.py Set to true to match the detectron code, set to false for backward compatibility",
+          "name": "correct_transform_coords",
+          "option": "optional"
+        },
+        {
+          "description": "bool (default true). If set, for rotated boxes, angle is normalized to be within [angle_bound_lo, angle_bound_hi].",
+          "name": "angle_bound_on",
+          "option": "optional"
+        },
+        {
+          "description": "int (default -90 degrees). If set, for rotated boxes, angle is normalized to be within [angle_bound_lo, angle_bound_hi].",
+          "name": "angle_bound_lo",
+          "option": "optional"
+        },
+        {
+          "description": "int (default 90 degrees). If set, for rotated boxes, angle is normalized to be within [angle_bound_lo, angle_bound_hi].",
+          "name": "angle_bound_hi",
+          "option": "optional"
+        },
+        {
+          "description": "float (default 1.0 degrees). For RRPN, clip almost horizontal boxes within this threshold of tolerance for backward compatibility. Set to negative value for no clipping.",
+          "name": "clip_angle_thresh",
+          "option": "optional"
         }
       ],
       "description": "\nGenerate bounding box proposals for Faster RCNN. The propoasls are generated for\na list of images based on image score 'score', bounding box regression result\n'deltas' as well as predefined bounding box shapes 'anchors'. Greedy\nnon-maximum suppression is applied to generate the final bounding boxes.\n",
@@ -783,16 +808,41 @@
           "description": "bool (default false), Correct bounding box transform coordates, see bbox_transform() in boxes.py Set to true to match the detectron code, set to false for backward compatibility",
           "name": "correct_transform_coords",
           "option": "optional"
+        },
+        {
+          "description": "bool (default false). If true, then boxes (rois and deltas) include angle info to handle rotation. The format will be [ctr_x, ctr_y, width, height, angle (in degrees)].",
+          "name": "rotated",
+          "option": "optional"
+        },
+        {
+          "description": "bool (default true). If set, for rotated boxes, angle is normalized to be within [angle_bound_lo, angle_bound_hi].",
+          "name": "angle_bound_on",
+          "option": "optional"
+        },
+        {
+          "description": "int (default -90 degrees). If set, for rotated boxes, angle is normalized to be within [angle_bound_lo, angle_bound_hi].",
+          "name": "angle_bound_lo",
+          "option": "optional"
+        },
+        {
+          "description": "int (default 90 degrees). If set, for rotated boxes, angle is normalized to be within [angle_bound_lo, angle_bound_hi].",
+          "name": "angle_bound_hi",
+          "option": "optional"
+        },
+        {
+          "description": "float (default 1.0 degrees). For RRPN, clip almost horizontal boxes within this threshold of tolerance for backward compatibility. Set to negative value for no clipping.",
+          "name": "clip_angle_thresh",
+          "option": "optional"
         }
       ],
       "description": "\nTransform proposal bounding boxes to target bounding box using bounding box\n    regression deltas.\n",
       "inputs": [
         {
-          "description": "Bounding box proposals in pixel coordinates, Size (M, 4), format [x1, y1, x2, y2], orSize (M, 5), format [batch_index, x1, y1, x2, y2]. If proposals from multiple images in a batch are present, they should be grouped sequentially and in incremental order.",
+          "description": "Bounding box proposals in pixel coordinates, Size (M, 4), format [x1, y1, x2, y2], orSize (M, 5), format [batch_index, x1, y1, x2, y2]. If proposals from multiple images in a batch are present, they should be grouped sequentially and in incremental order.For rotated boxes, this would have an additional angle (in degrees) in the format [<optionaal_batch_id>, ctr_x, ctr_y, w, h, angle].",
           "name": "rois"
         },
         {
-          "description": "bounding box translations and scales,size (M, 4*K), format [dx, dy, dw, dh], K = # classes",
+          "description": "bounding box translations and scales,size (M, 4*K), format [dx, dy, dw, dh], K = # classes. For rotated boxes, size (M, 5*K, format [dx, dy, dw, dh, da].",
           "name": "deltas"
         },
         {
@@ -802,7 +852,7 @@
       ],
       "outputs": [
         {
-          "description": "Pixel coordinates of the transformed bounding boxes,Size (M, 4*K), format [x1, y1, x2, y2]",
+          "description": "Pixel coordinates of the transformed bounding boxes,Size (M, 4*K), format [x1, y1, x2, y2]. For rotated boxes, size (M, 5*K), format [ctr_x, ctr_y, w, h, angle].",
           "name": "box_out"
         },
         {
@@ -851,6 +901,11 @@
           "description": "(float) Lower bound on updated scores to discard boxes",
           "name": "soft_nms_min_score_thres",
           "option": "optional"
+        },
+        {
+          "description": "bool (default false). If true, then boxes (rois and deltas) include angle info to handle rotation. The format will be [ctr_x, ctr_y, width, height, angle (in degrees)].",
+          "name": "rotated",
+          "option": "optional"
         }
       ],
       "description": "\nApply NMS to each class (except background) and limit the number of\nreturned boxes.\n",
@@ -860,7 +915,7 @@
           "name": "scores"
         },
         {
-          "description": "Bounding box for each class, size (count, num_classes * 4)",
+          "description": "Bounding box for each class, size (count, num_classes * 4). For rotated boxes, this would have an additional angle (in degrees) in the format [<optionaal_batch_id>, ctr_x, ctr_y, w, h, angle]. Size: (count, num_classes * 5).",
           "name": "boxes"
         },
         {
@@ -874,7 +929,7 @@
           "name": "scores"
         },
         {
-          "description": "Filtered boxes, size (n, 4)",
+          "description": "Filtered boxes, size (n, 4). For rotated boxes, size (n, 5), format [ctr_x, ctr_y, w, h, angle].",
           "name": "boxes"
         },
         {
