@@ -104,7 +104,9 @@ tflite.BuiltinOperator = {
   SHAPE: 77,
   POW: 78,
   ARG_MIN: 79,
-  FAKE_QUANT: 80
+  FAKE_QUANT: 80,
+  REDUCE_PROD: 81,
+  REDUCE_MAX: 82
 };
 
 /**
@@ -5001,10 +5003,18 @@ tflite.FakeQuantOptions.prototype.numBits = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+tflite.FakeQuantOptions.prototype.narrowRange = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.FakeQuantOptions.startFakeQuantOptions = function(builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -5029,6 +5039,14 @@ tflite.FakeQuantOptions.addMax = function(builder, max) {
  */
 tflite.FakeQuantOptions.addNumBits = function(builder, numBits) {
   builder.addFieldInt32(2, numBits, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} narrowRange
+ */
+tflite.FakeQuantOptions.addNarrowRange = function(builder, narrowRange) {
+  builder.addFieldInt8(3, +narrowRange, +false);
 };
 
 /**
