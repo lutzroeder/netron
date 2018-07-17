@@ -42755,7 +42755,12 @@
         },
         {
           "description": "A scalar representing the steps moving the sliding window\nforward in one iteration. It must be positive.",
-          "name": "stride",
+          "name": "window_shift",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing the stride of the input elements of the sliding window.\nIt must be positive.",
+          "name": "window_stride",
           "type": 9
         }
       ],
