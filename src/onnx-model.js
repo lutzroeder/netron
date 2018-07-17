@@ -884,38 +884,8 @@ class OnnxGraphOperatorMetadata {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = operator;
             if (schema.description) {
-                var input = schema.description.split('\n');
-                var output = [];
-                var lines = [];
-                var code = true;
-                while (input.length > 0) {
-                    var line = input.shift();
-                    if (line.length > 0)
-                    {
-                        code = code && line.startsWith('  ');
-                        lines.push(line + "\n");
-                    }
-                    if (line.length == 0 || input.length == 0) {
-                        if (lines.length > 0) {
-                            if (code) {
-                                lines = lines.map((text) => { return text.substring(2); });
-                                output.push('<pre>' + lines.join('') + '</pre>');
-                            }
-                            else {
-                                var text = lines.join('');
-                                text = this.markdown(text);
-                                output.push('<p>' + text + '</p>');
-                            }
-                        }
-                        lines = [];
-                        code = true;
-                    }
-                }
-                schema.description = output.join('');
+                schema.description = this.markdown(schema.description);
             }
-            var formatRange = (value) => {
-                return (value == 2147483647) ? '&#8734;' : value.toString();
-            };
             if (schema.attributes) {
                 schema.attributes.forEach((attribute) => {
                     if (attribute.description) {
@@ -937,6 +907,9 @@ class OnnxGraphOperatorMetadata {
                     }
                 });
             }
+            var formatRange = (value) => {
+                return (value == 2147483647) ? '&#8734;' : value.toString();
+            };
             if (schema.min_input != schema.max_input) {
                 schema.inputs_range = formatRange(schema.min_input) + ' - ' + formatRange(schema.max_input);
             }
@@ -956,9 +929,8 @@ class OnnxGraphOperatorMetadata {
     }
 
     markdown(text) {
-        text = text.replace(/\`\`(.*?)\`\`/gm, (match, content) => '<code>' + content + '</code>');
-        text = text.replace(/\`(.*?)\`/gm, (match, content) => '<code>' + content + '</code>');
-        return text;
+        var options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
+        return marked(text, options);
     }
 }
 
