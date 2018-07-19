@@ -268,7 +268,8 @@ class TensorFlowGraph {
                     if (tensor) {
                         var output = node.output[0];
                         this._initializerMap[input] = "-";
-                        this._initializerMap[output] = new TensorFlowIdentityTensor(tensor, output, node.name, 'Identity Constant');
+                        tensor.kind = 'Identity Constant';
+                        this._initializerMap[output] = tensor;
                     }
                 }
             });
@@ -441,7 +442,7 @@ class TensorFlowAttribute {
 
     get type() {
         if (this._value.hasOwnProperty('tensor')) {
-            return TensorFlowTensor.formatTensorType(this._value.tensor);
+            return new TensorFlowTensor(this._value.tensor).type;
         }
         var graphMetadata = this._node.graph.metadata;
         if (graphMetadata) {
@@ -541,38 +542,6 @@ class TensorFlowAttribute {
     }
 }
 
-class TensorFlowIdentityTensor {
-    
-    constructor(tensor, id, name, kind) {
-        this._tensor = tensor;
-        this._id = id;
-        this._name = name;
-        if (kind) {
-            this._kind = kind;
-        }
-    }
-
-    get id() {
-        return this._id;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get kind() {
-        return this._kind;
-    }
-
-    get type() {
-        return this._tensor.type;
-    }
-
-    get value() {
-        return this._tensor.value;
-    }
-}
-
 class TensorFlowTensor {
 
     constructor(tensor, id, name, kind) {
@@ -593,111 +562,142 @@ class TensorFlowTensor {
     }
 
     get type() {
-        return TensorFlowTensor.formatTensorType(this._tensor);
+        if (this._tensor.dtype) {
+            var type = TensorFlowTensor.formatDataType(this._tensor.dtype);
+            if (this._tensor.tensorShape) {
+                type += TensorFlowTensor.formatTensorShape(this._tensor.tensorShape);
+            }
+            return type;
+        }
+        return '?';
     }
 
     get kind() {
         return this._kind;
     }
 
+    set kind(value) {
+        this._kind = value;
+    }
+
     get value() {
+        var result = this._decode(Number.MAX_SAFE_INTEGER);
+        if (result.error) {
+            return null;
+        }
+        return result.value;
+    }
+
+    toString() {
+        var result = this._decode(10000);
+        if (result.error) {
+            return result.error;
+        }
+        return JSON.stringify(result.value, null, 4);
+    }
+
+    _decode(limit) {
+        var result = {};
         if (!this._tensor.dtype) {
-            return 'Tensor has no data type.';
+            result.error = 'Tensor has no data type.';
+            return result;
         }
         if (!this._tensor.tensorShape || !this._tensor.tensorShape.dim) {
-            return 'Tensor has no dimensions.';
+            result.error = 'Tensor has no dimensions.';
+            return result;
         }
 
-        this._size = 1;
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.limit = limit;
+        context.utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
+        context.size = 1;
         this._tensor.tensorShape.dim.forEach((dim) => {
-            this._size = this._size * (dim.size ? dim.size : 0);
+            context.size = context.size * (dim.size ? dim.size : 0);
         });
 
         switch (this._tensor.dtype) {
             case tensorflow.DataType.DT_FLOAT:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
+                    context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
                 }
-                else if (this._tensor.floatVal && this._tensor.floatVal.length == this._size) {
-                    this._data = this._tensor.floatVal;
+                else if (this._tensor.floatVal && this._tensor.floatVal.length == context.size) {
+                    context.data = this._tensor.floatVal;
                 }
                 else {
-                    return 'Tensor data is empty.';
+                    result.error = 'Tensor data is empty.';
+                    return result;
                 }
                 break;
             case tensorflow.DataType.DT_INT32:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    this._rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
+                    context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
                 }
-                else if (this._tensor.intVal && this._tensor.intVal.length == this._size) {
-                    this._data = this._tensor.intVal;
+                else if (this._tensor.intVal && this._tensor.intVal.length == context.size) {
+                    context.data = this._tensor.intVal;
                 }
                 else {
-                    return 'Tensor data is empty.';
+                    result.error = 'Tensor data is empty.';
+                    return result;
                 }
                 break;
             case tensorflow.DataType.DT_STRING:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    return 'Tensor data type is not implemented.';
+                    result.error = 'Tensor data type is not implemented.';
+                    return result;
                 }
-                else if (this._tensor.stringVal && this._tensor.stringVal.length == this._size) {
-                    this._data = this._tensor.stringVal;
+                else if (this._tensor.stringVal && this._tensor.stringVal.length == context.size) {
+                    context.data = this._tensor.stringVal;
                 }
                 else {
-                    return 'Tensor data is empty.';
+                    result.error = 'Tensor data is empty.';
+                    return result;
                 }
                 break;
             case tensorflow.DataType.DT_BOOL:
-                return 'Tensor data type is not implemented.';
+                result.error = 'Tensor data type is not implemented.';
+                return result;
             default:
-                return 'Tensor data type is not implemented.';
+                result.error = 'Tensor data type is not implemented.';
+                return result;
         }
 
-        this._index = 0;
-        this._count = 0;
-        this._utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
-        var result = this.read(0);
-        delete this._size;
-        delete this._index;
-        delete this._count;
-        delete this._data;
-        delete this._rawData;
-        delete this._utf8Decoder;
-
-        return JSON.stringify(result, null, 4);
+        result.value = this._decodeDimension(context, 0);
+        return result;
     }
 
-    read(dimension) {
+    _decodeDimension(context, dimension) {
         var results = [];
         var dimensions = this._tensor.tensorShape.dim;
-        if (dimensions.length == 0 && this._data.length == 1) {
-            return this.readDataValue();
+        if (dimensions.length == 0 && context.data.length == 1) {
+            return this._decodeDataValue(context);
         }
         var dim = dimensions[dimension];
         var size = dim.size;
         if (dimension == dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                if (this._data) {
-                    results.push(this.readDataValue());
-                    this._count++;
+                if (context.data) {
+                    results.push(this._decodeDataValue(context));
+                    context.count++;
                 }
                 else {
-                    if (this._rawData) {
+                    if (context.rawData) {
                         switch (this._tensor.dtype)
                         {
                             case tensorflow.DataType.DT_FLOAT:
-                                results.push(this._rawData.getFloat32(this._index, true));
-                                this._index += 4;
-                                this._count++;
+                                results.push(context.rawData.getFloat32(context.index, true));
+                                context.index += 4;
+                                context.count++;
                                 break;
                             case tensorflow.DataType.DT_INT32:
-                                results.push(this._rawData.getInt32(this._index, true));
-                                this._index += 4;
-                                this._count++;
+                                results.push(context.rawData.getInt32(context.index, true));
+                                context.index += 4;
+                                context.count++;
                                 break;
                         }
                     }
@@ -706,38 +706,27 @@ class TensorFlowTensor {
         }
         else {
             for (var j = 0; j < size; j++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(this.read(dimension + 1));
+                results.push(this._decodeDimension(context, dimension + 1));
             }
         }
         return results;
     }
 
-    readDataValue() {
-        var value = this._data[this._index++];
+    _decodeDataValue(context) {
+        var value = context.data[context.index++];
         if (this._tensor.dtype == tensorflow.DataType.DT_STRING) {
-            if (this._utf8Decoder) {
-                value = this._utf8Decoder.decode(value);
+            if (context.utf8Decoder) {
+                value = context.utf8Decoder.decode(value);
             }
             else {
                 value = String.fromCharCode.apply(null, textArray);
             }
         }
         return value;
-    }
-
-    static formatTensorType(tensor) {
-        if (tensor.dtype) {
-            var type = TensorFlowTensor.formatDataType(tensor.dtype);
-            if (tensor.tensorShape) {
-                type += TensorFlowTensor.formatTensorShape(tensor.tensorShape);
-            }
-            return type;
-        }
-        return '?';
     }
 
     static formatDataType(type) {

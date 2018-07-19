@@ -436,7 +436,7 @@ class NodeConnectionView {
                         referenceLine.innerHTML = 'reference: ' + '<b>' + reference + '</b>';
                         this._element.appendChild(referenceLine);   
                     }
-                    var value = initializer.value;
+                    var value = initializer.toString();
                     if (value) {
                         var valueLine = document.createElement('div');
                         valueLine.className = 'sidebar-view-item-value-line-border';

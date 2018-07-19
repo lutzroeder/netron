@@ -426,22 +426,46 @@ class TensorFlowLiteTensor {
     }
 
     get value() {
+        var result = this._decode(Number.MAX_SAFE_INTEGER);
+        if (result.error) {
+            return null;
+        }
+        return result.value;
+    }
+
+    toString() {
+        var result = this._decode(10000);
+        if (result.error) {
+            return result.error;
+        }
+        return JSON.stringify(result.value, null, 4);
+    }
+
+    _decode(limit) {
+
+        var result = {};
 
         if (this._buffer.dataLength() == 0) {
-            return 'Tensor data is empty.';
+            result.error = 'Tensor data is empty.';
+            return result.error;
         }
 
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.limit = limit;
+ 
         var array = this._buffer.dataArray();
-        this._data = new DataView(array.buffer, array.byteOffset, array.byteLength);
+        context.data = new DataView(array.buffer, array.byteOffset, array.byteLength);
 
         if (this._tensor.type() == tflite.TensorType.STRING) {
             var utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
             var offset = 0;
-            var count = this._data.getInt32(0, true);
+            var count = context.data.getInt32(0, true);
             offset += 4;
             var offsetTable = [];
             for (var j = 0; j < count; j++) {
-                offsetTable.push(this._data.getInt32(offset, true));
+                offsetTable.push(context.data.getInt32(offset, true));
                 offset += 4;
             }
             offsetTable.push(array.length);
@@ -455,60 +479,52 @@ class TensorFlowLiteTensor {
                     stringTable.push(String.fromCharCode.apply(null, textArray));
                 }
             }
-            this._data = stringTable;
+            context.data = stringTable;
         }
 
-        this._index = 0;                
-        this._count = 0;
-        var result = this.read(0);
-
-        delete this._index;
-        delete this._count;  
-        delete this._data;
-        delete this._utf8Decoder;
-
-        return JSON.stringify(result, null, 4);
+        result.value = this._decodeDimension(context, 0);
+        return result;
     }
 
-    read(dimension) {
+    _decodeDimension(context, dimension) {
         var size = this._tensor.shape(dimension);
         var results = [];
         if (dimension == this._tensor.shapeLength() - 1) {
             for (var i = 0; i < size; i++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
                 switch (this._tensor.type())
                 {
                     case tflite.TensorType.FLOAT32:
-                        results.push(this._data.getFloat32(this._index, true));
-                        this._index += 4;
-                        this._count++;
+                        results.push(context.data.getFloat32(context.index, true));
+                        context.index += 4;
+                        context.count++;
                         break;
                     case tflite.TensorType.FLOAT16:
-                        results.push(TensorFlowLiteTensor.decodeNumberFromFloat16(this._data.getUint16(this._index, true)));
-                        this._index += 2;
-                        this._count++;
+                        results.push(TensorFlowLiteTensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
+                        context.index += 2;
+                        context.count++;
                         break;
                     case tflite.TensorType.UINT8:
-                        results.push(this._data.getUint8(this._index));
-                        this._index += 1;
-                        this._count++;
+                        results.push(context.data.getUint8(context.index));
+                        context.index += 1;
+                        context.count++;
                         break;
                     case tflite.TensorType.INT32:
-                        results.push(this._data.getInt32(this._index, true));
-                        this._index += 4;
-                        this._count++;
+                        results.push(context.data.getInt32(context.index, true));
+                        context.index += 4;
+                        context.count++;
                         break;
                     case tflite.TensorType.INT64:
-                        results.push(new Int64(this._data.getInt64(this._index, true)));
-                        this._index += 8;
-                        this._count++;
+                        results.push(new Int64(context.data.getInt64(context.index, true)));
+                        context.index += 8;
+                        context.count++;
                         break;
                     case tflite.TensorType.STRING:
-                        results.push(this._data[this._index++]);
-                        this._count++;
+                        results.push(context.data[context.index++]);
+                        context.count++;
                         break;
                     default:
                         break;
@@ -517,17 +533,17 @@ class TensorFlowLiteTensor {
         }
         else {
             for (var j = 0; j < size; j++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(this.read(dimension + 1));
+                results.push(this._decodeDimension(context, dimension + 1));
             }
         }
         return results;
     }
 
-    static decodeNumberFromFloat16(value) {
+    static _decodeNumberFromFloat16(value) {
         var s = (value & 0x8000) >> 15;
         var e = (value & 0x7C00) >> 10;
         var f = value & 0x03FF;
@@ -541,19 +557,18 @@ class TensorFlowLiteTensor {
     }
 
     static formatTensorType(tensor) {
-        if (!TensorFlowLiteTensor.tensorTypeMap)
+        if (!TensorFlowLiteTensor._tensorTypeMap)
         {
-            var map = {};
-            map[tflite.TensorType.FLOAT32] = 'float';
-            map[tflite.TensorType.FLOAT16] = 'float16';
-            map[tflite.TensorType.INT32] = 'int32';
-            map[tflite.TensorType.UINT8] = 'byte';
-            map[tflite.TensorType.INT64] = 'int64';
-            map[tflite.TensorType.STRING] = 'string';
-            map[tflite.TensorType.BOOL] = 'bool';
-            TensorFlowLiteTensor.tensorTypeMap = map;
+            TensorFlowLiteTensor._tensorTypeMap = {};
+            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.FLOAT32] = 'float';
+            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.FLOAT16] = 'float16';
+            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.INT32] = 'int32';
+            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.UINT8] = 'byte';
+            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.INT64] = 'int64';
+            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.STRING] = 'string';
+            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.BOOL] = 'bool';
         }
-        var result = TensorFlowLiteTensor.tensorTypeMap[tensor.type()]; 
+        var result = TensorFlowLiteTensor._tensorTypeMap[tensor.type()]; 
         if (!result) {
             debugger;
             result = '?';

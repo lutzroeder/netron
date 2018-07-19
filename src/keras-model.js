@@ -570,77 +570,95 @@ class KerasTensor {
     }
 
     get value() {
-        if (this._reference) { 
+        var result = this._decode(Number.MAX_SAFE_INTEGER);
+        if (result.error) {
             return null;
         }
-        if (this._data) {
-            switch (this._type) {
-                case 'float16':
-                    this._precision = 16;
-                    break;
-                case 'float32':
-                    this._precision = 32;
-                    break;
-                case 'float64':
-                    this._precision = 64;
-                    break;
-                default:
-                    return 'Tensor data type is not supported.';
-            }
-            this._rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-            this._index = 0;
-            this._count = 0;
-            var result = this.read(0);
-            delete this._index;
-            delete this._count;
-            delete this._rawData;
-            delete this._precision;
-            return JSON.stringify(result, null, 4);
-        }
-        return 'Tensor data is empty.';
+        return result.value;
     }
 
-    read(dimension) {
+    toString() {
+        var result = this._decode(10000);
+        if (result.error) {
+            return result.error;
+        }
+        return JSON.stringify(result.value, null, 4);
+    }
+
+    _decode(limit) {
+        var result = {};
+        if (this._reference) { 
+            result.value = 'Tensor reference not implemented.';
+            return result;
+        }
+        if (!this._data) {
+            result.error = 'Tensor data is empty.';
+            return result;
+        }
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.limit = limit;
+        switch (this._type) {
+            case 'float16':
+                context.precision = 16;
+                break;
+            case 'float32':
+                context.precision = 32;
+                break;
+            case 'float64':
+                context.precision = 64;
+                break;
+            default:
+                result.error = 'Tensor data type is not supported.';
+                return result.error;
+        }
+        context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+        result.value = this._decodeDimension(context, 0);
+        return result;
+    }
+
+    _decodeDimension(context, dimension) {
         var results = [];
         var size = this._shape[dimension];
         if (dimension == this._shape.length - 1) {
             for (var i = 0; i < size; i++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                if (this._rawData) {
-                    switch (this._precision) {
+                if (context.rawData) {
+                    switch (context.precision) {
                         case 16:
-                            results.push(KerasTensor.decodeNumberFromFloat16(this._rawData.getUint16(this._index, true)));
-                            this._index += 2;
+                            results.push(KerasTensor._decodeNumberFromFloat16(context.rawData.getUint16(context.index, true)));
+                            context.index += 2;
                             break;
                         case 32:
-                            results.push(this._rawData.getFloat32(this._index, true));
-                            this._index += 4;
+                            results.push(context.rawData.getFloat32(context.index, true));
+                            context.index += 4;
                             break;
                         case 64:
-                            results.push(this._rawData.getFloat64(this._index, true));
-                            this._index += 8;
+                            results.push(context.rawData.getFloat64(context.index, true));
+                            context.index += 8;
                             break;
                     }
-                    this._count++;
+                    context.count++;
                 }
             }
         }
         else {
             for (var j = 0; j < size; j++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(this.read(dimension + 1));
+                results.push(this._decodeDimension(context, dimension + 1));
             }
         }
         return results;
     }
 
-    static decodeNumberFromFloat16(value) {
+    static _decodeNumberFromFloat16(value) {
         var s = (value & 0x8000) >> 15;
         var e = (value & 0x7C00) >> 10;
         var f = value & 0x03FF;

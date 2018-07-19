@@ -306,6 +306,14 @@ class MXNetTensor {
     get type() {
         return this._type;
     }
+
+    get value() {
+        return null;
+    }
+
+    toString() {
+        return null;
+    }
 }
 
 class MXNetOperatorMetadata {

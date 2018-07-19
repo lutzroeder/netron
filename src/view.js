@@ -479,7 +479,7 @@ class View {
                                     }
                                     else {
                                         attributeValue = attribute.value;
-                                        if (attributeValue.length > 25) {
+                                        if (attributeValue && attributeValue.length > 25) {
                                             attributeValue = attributeValue.substring(0, 25) + '...';
                                         }
                                     }

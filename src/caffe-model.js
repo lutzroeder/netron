@@ -433,38 +433,57 @@ class CaffeTensor {
     }
 
     get value() {
-        if (this._data) {
-            this._index = 0;
-            this._count = 0;
-            var result = this.read(0);
-            delete this._index;
-            delete this._count;
-            return JSON.stringify(result, null, 4);
+        var result = this._decode(Number.MAX_SAFE_INTEGER);
+        if (result.error) {
+            return null;
         }
-        return '?';
+        return result.value;
     }
 
-    read(dimension) {
+    toString() {
+        var result = this._decode(10000);
+        if (result.error) {
+            return result.error;
+        }
+        return JSON.stringify(result.value, null, 4);
+    }
+
+    _decode(limit) {
+        var result = {};
+        if (!this._data) {
+            result.error = 'Tensor data is empty.';
+            return result;
+        }
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.limit = limit;
+        context.data = this._data;
+        result.value = this._decodeDimension(context, 0);
+        return result;
+    }
+
+    _decodeDimension(context, dimension) {
         var results = [];
         var size = this._shape[dimension];
         if (dimension == this._shape.length - 1) {
             for (var i = 0; i < size; i++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(this._data[this._index]);
-                this._index++;
-                this._count++;
+                results.push(context.data[context.index]);
+                context.index++;
+                context.count++;
             }
         }
         else {
             for (var j = 0; j < size; j++) {
-                if (this._count > 10000) {
+                if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(this.read(dimension + 1));
+                results.push(this._decodeDimension(context, dimension + 1));
             }
         }
         return results;

@@ -261,6 +261,14 @@ class Caffe2Tensor {
     get kind() {
         return this._kind;
     }
+
+    get value() {
+        return null;
+    }
+
+    toString() {
+        return null;
+    }
 }
 
 class Caffe2OperatorMetadata 
