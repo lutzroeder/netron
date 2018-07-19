@@ -3344,7 +3344,7 @@
       "description": "Flattens the input. Does not affect the batch size.\n",
       "examples": [
         {
-          "code": "model = Sequential()\nmodel.add(Conv2D(64, 3, 3,\n                 padding='same',\n                 input_shape=(3, 32, 32)))\n# now: model.output_shape == (None, 64, 32, 32)\n\nmodel.add(Flatten())\n# now: model.output_shape == (None, 65536)"
+          "code": "model = Sequential()\nmodel.add(Conv2D(64, (3, 3),\n                 input_shape=(3, 32, 32), padding='same',))\n# now: model.output_shape == (None, 64, 32, 32)\n\nmodel.add(Flatten())\n# now: model.output_shape == (None, 65536)"
         }
       ],
       "inputs": [
@@ -3663,7 +3663,7 @@
       ],
       "outputs": [
         {
-          "description": "\nSpecified by `output_shape` argument\n(or auto-inferred when using TensorFlow).\n",
+          "description": "\nSpecified by `output_shape` argument\n(or auto-inferred when using TensorFlow or CNTK).\n",
           "name": "output"
         }
       ],
