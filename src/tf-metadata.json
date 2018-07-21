@@ -6975,6 +6975,14 @@
             },
             {
               "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            },
+            {
+              "type": "type",
               "value": 6
             },
             {
@@ -7046,6 +7054,14 @@
             {
               "type": "type",
               "value": 17
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
             },
             {
               "type": "type",
@@ -14089,7 +14105,7 @@
           "type": "type"
         }
       ],
-      "description": "Outputs a copy of `images` but draws on top of the pixels zero or more bounding\nboxes specified by the locations in `boxes`. The coordinates of the each\nbounding box in `boxes` are encoded as `[y_min, x_min, y_max, x_max]`. The\nbounding box coordinates are floats in `[0.0, 1.0]` relative to the width and\nheight of the underlying image.\n\nFor example, if an image is 100 x 200 pixels (height x width) and the bounding\nbox is `[0.1, 0.2, 0.5, 0.9]`, the upper-left and bottom-right coordinates of\nthe bounding box will be `(40, 10)` to `(100, 50)` (in (x,y) coordinates).\n\nParts of the bounding box may fall outside the image.",
+      "description": "Outputs a copy of `images` but draws on top of the pixels zero or more bounding\nboxes specified by the locations in `boxes`. The coordinates of the each\nbounding box in `boxes` are encoded as `[y_min, x_min, y_max, x_max]`. The\nbounding box coordinates are floats in `[0.0, 1.0]` relative to the width and\nheight of the underlying image.\n\nFor example, if an image is 100 x 200 pixels (height x width) and the bounding\nbox is `[0.1, 0.2, 0.5, 0.9]`, the upper-left and bottom-right coordinates of\nthe bounding box will be `(40, 10)` to `(180, 50)` (in (x,y) coordinates).\n\nParts of the bounding box may fall outside the image.",
       "inputs": [
         {
           "description": "4-D with shape `[batch, height, width, depth]`. A batch of images.",
@@ -36627,7 +36643,7 @@
           "type": "bool"
         }
       ],
-      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tfe.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_update(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 11, 3, 10, 9, 6, 7, 12]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
+      "description": "variable according to `indices`.\n\n`ref` is a `Tensor` with rank `P` and `indices` is a `Tensor` of rank `Q`.\n\n`indices` must be integer tensor, containing indices into `ref`.\nIt must be shape `[d_0, ..., d_{Q-2}, K]` where `0 < K <= P`.\n\nThe innermost dimension of `indices` (with length `K`) corresponds to\nindices into elements (if `K = P`) or slices (if `K < P`) along the `K`th\ndimension of `ref`.\n\n`updates` is `Tensor` of rank `Q-1+P-K` with shape:\n\n```\n[d_0, ..., d_{Q-2}, ref.shape[K], ..., ref.shape[P-1]].\n```\n\nFor example, say we want to update 4 scattered elements to a rank-1 tensor to\n8 elements. In Python, that update would look like this:\n\n```python\n    ref = tf.Variable([1, 2, 3, 4, 5, 6, 7, 8])\n    indices = tf.constant([[4], [3], [1] ,[7]])\n    updates = tf.constant([9, 10, 11, 12])\n    update = tf.scatter_nd_update(ref, indices, updates)\n    with tf.Session() as sess:\n      print sess.run(update)\n```\n\nThe resulting update to ref would look like this:\n\n    [1, 11, 3, 10, 9, 6, 7, 12]\n\nSee @{tf.scatter_nd} for more details about how to make updates to\nslices.",
       "inputs": [
         {
           "description": "A resource handle. Must be from a VarHandleOp.",
@@ -40133,7 +40149,7 @@
           "type": "type"
         }
       ],
-      "description": "Creates a new tensor by applying sparse `updates` to individual values or\nslices within a tensor (initially zero for numeric, empty for string) of\nthe given `shape` according to indices.  This operator is the inverse of the\n@{tf.gather_nd} operator which extracts values or slices from a given tensor.\n\n**WARNING**: The order in which updates are applied is nondeterministic, so the\noutput will be nondeterministic if `indices` contains duplicates.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of scatter is to insert individual elements in a tensor by\nindex. For example, say we want to insert 4 scattered elements in a rank-1\ntensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    shape = tf.constant([8])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [0, 11, 0, 10, 9, 0, 0, 12]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd2.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    shape = tf.constant([4, 4, 4])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+      "description": "Creates a new tensor by applying sparse `updates` to individual values or\nslices within a tensor (initially zero for numeric, empty for string) of\nthe given `shape` according to indices.  This operator is the inverse of the\n@{tf.gather_nd} operator which extracts values or slices from a given tensor.\n\nIf `indices` contains duplicates, then their updates are accumulated (summed).\n\n**WARNING**: The order in which updates are applied is nondeterministic, so the\noutput will be nondeterministic if `indices` contains duplicates -- because\nof some numerical approximation issues, numbers summed in different order\nmay yield different results.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of scatter is to insert individual elements in a tensor by\nindex. For example, say we want to insert 4 scattered elements in a rank-1\ntensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    shape = tf.constant([8])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [0, 11, 0, 10, 9, 0, 0, 12]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd2.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    shape = tf.constant([4, 4, 4])\n    scatter = tf.scatter_nd(indices, updates, shape)\n    with tf.Session() as sess:\n      print(sess.run(scatter))\n```\n\nThe resulting tensor would look like this:\n\n    [[[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],\n     [[5, 5, 5, 5], [6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8]],\n     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
       "inputs": [
         {
           "description": "Index tensor.",
@@ -40363,6 +40379,10 @@
             {
               "type": "type",
               "value": 23
+            },
+            {
+              "type": "type",
+              "value": 10
             }
           ],
           "name": "T",
