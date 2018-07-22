@@ -106,7 +106,8 @@ tflite.BuiltinOperator = {
   ARG_MIN: 79,
   FAKE_QUANT: 80,
   REDUCE_PROD: 81,
-  REDUCE_MAX: 82
+  REDUCE_MAX: 82,
+  PACK: 83
 };
 
 /**
@@ -171,7 +172,8 @@ tflite.BuiltinOptions = {
   ShapeOptions: 55,
   PowOptions: 56,
   ArgMinOptions: 57,
-  FakeQuantOptions: 58
+  FakeQuantOptions: 58,
+  PackOptions: 59
 };
 
 /**
@@ -5054,6 +5056,89 @@ tflite.FakeQuantOptions.addNarrowRange = function(builder, narrowRange) {
  * @returns {flatbuffers.Offset}
  */
 tflite.FakeQuantOptions.endFakeQuantOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.PackOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.PackOptions}
+ */
+tflite.PackOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.PackOptions=} obj
+ * @returns {tflite.PackOptions}
+ */
+tflite.PackOptions.getRootAsPackOptions = function(bb, obj) {
+  return (obj || new tflite.PackOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite.PackOptions.prototype.valuesCount = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.PackOptions.prototype.axis = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.PackOptions.startPackOptions = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} valuesCount
+ */
+tflite.PackOptions.addValuesCount = function(builder, valuesCount) {
+  builder.addFieldInt32(0, valuesCount, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ */
+tflite.PackOptions.addAxis = function(builder, axis) {
+  builder.addFieldInt32(1, axis, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.PackOptions.endPackOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
