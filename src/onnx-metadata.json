@@ -4016,7 +4016,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*(Rz^T) + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*(Rr^T) + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*(Rh^T) + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*(Rh^T) + Rbh) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*(Rz^T) + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*(Rr^T) + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*(Rh^T) + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*(Rh^T) + Rbh)) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7169,6 +7169,133 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "MaxPool",
+    "schema": {
+      "attributes": [
+        {
+          "default": "NOTSET",
+          "description": "auto_pad must be either SAME_UPPER, SAME_LOWER or VALID. Where SAME_UPPER or SAME_LOWER mean pad the input so that the output size match the input.In case of odd number add the extra padding at the end for SAME_UPPER and at the beginning for SAME_LOWER. VALID mean no padding. DEPRECATION NOTE: auto_pad is only intended to support legacy uses, and for framework authors, one is explicitly encouraged to use explicit padding specified in the pads attribute.",
+          "name": "auto_pad",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "The size of the kernel along each axis.",
+          "name": "kernel_shape",
+          "required": true,
+          "type": "int[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "The storage order of the tensor. 0 is row major, and 1 is column major. Default is 0.",
+          "name": "storage_order",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "category": "Pool",
+      "description": "MaxPool consumes an input tensor X and applies max pooling across\n the tensor according to kernel sizes, stride sizes, and pad lengths.\n max pooling consisting of computing the max on all values of a\n subset of the input tensor according to the kernel size and downsampling the\n data into the output tensor Y for further processing. The output spatial shape will be following:\n ```\n output_spatial_shape[i] = floor((input_spatial_shape[i] + pad_shape[i] - kernel_spatial_shape[i]) / strides_spatial_shape[i] + 1)\n\n * pad_shape[i] is sum of pads along axis i\n ```\n\n `auto_pad` is a DEPRECATED attribute. If you are using them currently, the output spatial shape will be following:\n ```\n VALID: output_spatial_shape[i] = ceil((input_spatial_shape[i] - kernel_spatial_shape[i] + 1) / strides_spatial_shape[i])\n SAME_UPPER or SAME_LOWER: output_spatial_shape[i] = ceil(input_spatial_shape[i] / strides_spatial_shape[i])\n ```\n And pad shape will be following if `SAME_UPPER` or `SAME_LOWER`:\n ```\n pad_shape[i] = (output_spatial_shape[i] - 1) * strides_spatial_shape[i] + kernel_spatial_shape[i] - input_spatial_shape[i]\n ```\n The output of each pooling window is maximum number of elements exclude pad.\n ",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32]\noutput_shape: [1, 3, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2],\n)\nx = np.random.randn(1, 3, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2]\nstrides = [1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_1d_default')",
+          "summary": "maxpool_1d_default"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_default')",
+          "summary": "maxpool_2d_default"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "summary": "maxpool_2d_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[\n    [13, 14, 15, 15, 15],\n    [18, 19, 20, 20, 20],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_pads')",
+          "summary": "maxpool_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 3, 3]\npad_shape: [2, 2] -> [1, 1, 1, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    strides=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9, 10],\n                [17, 19, 20],\n                [22, 24, 25]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_same_upper')",
+          "summary": "maxpool_2d_precomputed_same_upper"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9],\n                [17, 19]]]]).astype(np.float32)\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_precomputed_strides')",
+          "summary": "maxpool_2d_precomputed_strides"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [1, 0, 1, 0] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_LOWER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_LOWER', x_shape[2:], kernel_shape, strides, out_shape)\npad_bottom = pad_shape[0] // 2\npad_top = pad_shape[0] - pad_bottom\npad_right = pad_shape[1] // 2\npad_left = pad_shape[1] - pad_right\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_lower')",
+          "summary": "maxpool_2d_same_lower"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 32, 32]\npad_shape: [1, 1] -> [0, 1, 0, 1] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    auto_pad='SAME_UPPER'\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (2, 2)\nstrides = (1, 1)\nout_shape = get_output_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides)\npad_shape = get_pad_shape('SAME_UPPER', x_shape[2:], kernel_shape, strides, out_shape)\npad_top = pad_shape[0] // 2\npad_bottom = pad_shape[0] - pad_top\npad_left = pad_shape[1] // 2\npad_right = pad_shape[1] - pad_left\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_same_upper')",
+          "summary": "maxpool_2d_same_upper"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32]\noutput_shape: [1, 3, 10, 10]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[5, 5],\n    strides=[3, 3]\n)\nx = np.random.randn(1, 3, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (5, 5)\nstrides = (3, 3)\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, (0, 0), 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_strides')",
+          "summary": "maxpool_2d_strides"
+        },
+        {
+          "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
+          "summary": "maxpool_3d_default"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor from the previous operator; dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 2,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor from average or max pooling across the input tensor. Dimensions will vary based on various kernel, stride, and pad sizes. Floor value of the dimension is used",
+          "name": "Y",
+          "type": "T"
+        },
+        {
+          "description": "Indices tensor from max pooling across the input tensor. The dimensions of indices are the same as output tensor. The values in indices of are the indices of the selected values during pooling. The indices are computed as flatten 1-D tensor, and the indices do not consider padding. So the values in indices are in [0, N x C x D1 x ... x Dn).",
+          "name": "Indices",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "since_version": 8,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain index tensor to int64",
+          "type_param_str": "I"
         }
       ]
     }
