@@ -345,5 +345,27 @@
         }
       ]
     }
+  },
+  {
+    "name": "Embedding",
+    "schema": {
+      "category": "Transform",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weight" }
+      ]
+    }
+  },
+  {
+    "name": "RNN",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "category": "Shape"
+    }
   }
 ]
