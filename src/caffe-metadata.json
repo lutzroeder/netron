@@ -156,6 +156,16 @@
     }
   },
   {
+    "name": "PReLU",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }, 
+        { "name": "slope" }
+      ]
+    }
+  },
+  {
     "name": "Concat",
     "schema": {
       "category": "Tensor",
