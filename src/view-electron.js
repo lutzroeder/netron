@@ -173,6 +173,10 @@ class ElectronHost {
         electron.shell.openExternal(url);
     }
 
+    inflate(data) {
+        return require('zlib').inflateRawSync(data);
+    }
+
     _openFile(file) {
         if (file) {
             this._view.show('spinner');

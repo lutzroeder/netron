@@ -118,7 +118,7 @@ class Application {
                 { name: 'CoreML Model', extension: [ 'mlmodel' ] },
                 { name: 'Caffe Model', extension: [ 'caffemodel' ] },
                 { name: 'Caffe2 Model', extension: [ 'pb' ] },
-                { name: 'MXNet Model', extension: [ 'json' ] },
+                { name: 'MXNet Model', extension: [ 'model', 'json' ] },
                 { name: 'TensorFlow Graph', extension: [ 'pb', 'meta' ] },
                 { name: 'TensorFlow Saved Model', extension: [ 'saved_model.pb' ] },
                 { name: 'TensorFlow Lite Model', extension: [ 'tflite' ] }

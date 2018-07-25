@@ -9,6 +9,9 @@ class MXNetModelFactory {
             return true;
         }
         var extension = identifier.split('.').pop();
+        if (extension == 'model') {
+            return true;
+        }
         if (extension == 'json') {
             var decoder = new TextDecoder('utf-8');
             var json = decoder.decode(buffer);
@@ -20,10 +23,31 @@ class MXNetModelFactory {
     }
 
     open(buffer, identifier, host, callback) {
+        var extension = identifier.split('.').pop();
+        switch (extension) {
+            case 'json':
+                this._openSymbol(buffer, callback);
+                break;
+            case 'model':
+                host.import('/unzip.js', (err) => {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    }
+                    this._openModel(buffer, host, callback);
+                });
+                break;
+            default:
+                callback(new MXNetError('Unsupported file extension.'));
+                break;
+        }
+    }
+
+    _openSymbol(buffer, callback) {
         try {
             var decoder = new TextDecoder('utf-8');
-            var json = decoder.decode(buffer);
-            var model = new MXNetModel(json);
+            var symbol = JSON.parse(decoder.decode(buffer));
+            var model = new MXNetModel(null, symbol, null, null);
             MXNetOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
             });
@@ -33,12 +57,107 @@ class MXNetModelFactory {
         }
     }
 
+    _openModel(buffer, host, callback) {
+        var entries = {};
+        try {
+            var archive = new zip.Archive(buffer, host.inflate);
+            archive.entries.forEach((entry) => {
+                entries[entry.name] = entry;
+            });
+        }
+        catch (err) {
+            callback(new MXNetError('Failed to decompress ZIP archive. ' + err.message), null);
+            return;
+        }
+
+        var manifestEntry = entries['MANIFEST.json'];
+        var rootFolder = '';
+        if (!manifestEntry) {
+            var folders = Object.keys(entries).filter((name) => name.endsWith('/')).filter((name) => entries[name + 'MANIFEST.json']);
+            if (folders.length != 1) {
+                callback(new MXNetError('Manifest not found.'), null);
+                return;
+            }
+            rootFolder = folders[0];
+            manifestEntry = entries[rootFolder + 'MANIFEST.json'];
+        }
+
+        var decoder = new TextDecoder('utf-8');
+        var manifest = null;
+        try {
+            manifest = JSON.parse(decoder.decode(manifestEntry.data));
+        }
+        catch (err) {
+            callback(new MXNetError('Failed to read manifest. ' + err.message), null);
+            return;
+        }
+
+        if (!manifest.Model) {
+            callback(new MXNetError('Manifest does not contain model.'), null);
+            return;
+        }
+
+        var modelFormat = manifest.Model['Model-Format'];
+        if (modelFormat && modelFormat != 'MXNet-Symbolic') {
+            callback(new MXNetError('Model format \'' + modelFormat + '\' not supported.'), null);
+            return;
+        }
+
+        if (!manifest.Model.Symbol) {
+            callback(new MXNetError('Manifest does not contain symbol entry.'), null);
+            return;
+        }
+
+        var symbol = null;
+        try {
+            var symbolEntry = entries[rootFolder + manifest.Model.Symbol];
+            symbol = JSON.parse(decoder.decode(symbolEntry.data));
+        }
+        catch (err) {
+            callback(new MXNetError('Failed to load symbol entry. ' + err.message), null);
+            return;
+        }
+
+        var signature = null;
+        try {
+            if (manifest.Model.Signature) {
+                var signatureEntry = entries[rootFolder + manifest.Model.Signature];
+                if (signatureEntry) {
+                    signature = JSON.parse(decoder.decode(signatureEntry.data));
+                }
+            }
+        }
+        catch (err) {
+        }
+
+        var parameters = null;
+        try {
+            if (manifest.Model.Parameters) {
+                var parametersEntry = entries[rootFolder + manifest.Model.Parameters];
+                if (parametersEntry) {
+                    parameters = parametersEntry.data;
+                }
+            }
+        }
+        catch (err) {
+        }
+
+        try {
+            var model = new MXNetModel(manifest, symbol, signature, parameters);
+            MXNetOperatorMetadata.open(host, (err, metadata) => {
+                callback(null, model);
+            });
+        } 
+        catch (err) {
+            callback(new MXNetError(err.message), null);
+        }
+    }
 }
 
 class MXNetModel {
 
-    constructor(json) {
-        var model = JSON.parse(json);
+    constructor(manifest, symbol, signature, parameters) {
+        var model = symbol;
         if (!model) {
             throw new MXNetError('JSON file does not contain MXNet data.');
         }

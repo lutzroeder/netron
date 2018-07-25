@@ -27,6 +27,9 @@ fileAssociations:
   - name: "CoreML Model"
     ext:
     - mlmodel
+  - name: "MXNet Model"
+    ext:
+    - model
   - name: "Caffe Model"
     ext:
     - caffemodel
