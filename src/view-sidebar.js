@@ -405,14 +405,24 @@ class NodeConnectionView {
                     }
                 }
     
-                var type = this._connection.type;
-                if (type) {
+                var type = this._connection.type || '?';
+                if (typeof type == 'string') {
+                    type = { value: type };
+                }
+        
+                if (type.value) {
                     var typeLine = document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
-                    typeLine.innerHTML = 'type: ' + '<code><b>' + type + '</b></code>';
+                    typeLine.innerHTML = 'type: <code><b>' + type.value + '</b></code>';
                     this._element.appendChild(typeLine);
                 }
-    
+                if (type.denotation) {
+                    var denotationLine = document.createElement('div');
+                    denotationLine.className = 'sidebar-view-item-value-line-border';
+                    denotationLine.innerHTML = 'denotation: <code><b>' + type.denotation + '</b></code>';
+                    this._element.appendChild(denotationLine);
+                }
+
                 var description = this._connection.description;
                 if (description) {
                     var descriptionLine = document.createElement('div');
@@ -623,7 +633,12 @@ class GraphArgumentView {
         this._element = document.createElement('div');
         this._element.className = 'sidebar-view-item-value';
 
-        if (argument.description) {
+        var type = this._argument.type || '?';
+        if (typeof type == 'string') {
+            type = { value: type };
+        }
+
+        if (argument.description || type.denotation) {
             this._expander = document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
@@ -633,13 +648,12 @@ class GraphArgumentView {
             this._element.appendChild(this._expander);
         }
 
-        var type = this._argument.type || '?';
         var typeLine = document.createElement('div');
         typeLine.className = 'sidebar-view-item-value-line';
-        typeLine.innerHTML = '<code><b>' + type.replace('<', '&lt;').replace('>', '&gt;') + '</b></code>';
+        typeLine.innerHTML = 'type: <code><b>' + type.value.replace('<', '&lt;').replace('>', '&gt;') + '</b></code>';
         this._element.appendChild(typeLine);
 
-        if (argument.description) {
+        if (argument.description || type.denotation) {
             this.toggle();
         }
     }
@@ -652,10 +666,24 @@ class GraphArgumentView {
         if (this._expander.innerText == '+') {
             this._expander.innerText = '-';
 
-            var descriptionLine = document.createElement('div');
-            descriptionLine.className = 'sidebar-view-item-value-line-border';
-            descriptionLine.innerHTML = this._argument.description;
-            this._element.appendChild(descriptionLine);
+            var type = this._argument.type || '?';
+            if (typeof type == 'string') {
+                type = { value: type };
+            }
+
+            if (type.denotation) {
+                var denotationLine = document.createElement('div');
+                denotationLine.className = 'sidebar-view-item-value-line-border';
+                denotationLine.innerHTML = 'denotation: <code><b>' + type.denotation + '</b></code>';
+                this._element.appendChild(denotationLine);
+            }
+
+            if (this._argument.description) {
+                var descriptionLine = document.createElement('div');
+                descriptionLine.className = 'sidebar-view-item-value-line-border';
+                descriptionLine.innerHTML = this._argument.description;
+                this._element.appendChild(descriptionLine);
+            }
         }
         else {
             this._expander.innerText = '+';

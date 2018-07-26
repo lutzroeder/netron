@@ -50,7 +50,16 @@ class OnnxModel {
         this._domain = model.domain;
         this._modelVersion = model.modelVersion;
         this._docString = model.docString;
-        this._metadataProps = model.metadataProps;
+        this._metadata = {};
+        this._imageFormat = '';
+        if (model.metadataProps)
+        {
+            model.metadataProps.forEach((metadataProp) => {
+                this._metadata[metadataProp.key] = metadataProp.value;
+            });
+            var imageMetadata = [ this._metadata['Image.BitmapPixelFormat'], this._metadata['Image.ColorSpaceGamma'], this._metadata['Image.NominalPixelRange'] ];
+            this._imageFormat = imageMetadata.filter((item) => item);
+        }
     }
 
     get properties() {
@@ -90,27 +99,20 @@ class OnnxModel {
         if (this._docString) {
             results.push({ name: 'description', value: this._docString });
         }
-        var metadata = {};
-        if (this._metadataProps)
-        {
-            this._metadataProps.forEach((metadataProp) => {
-                metadata[metadataProp.key] = metadataProp.value;
-            });
-        }
-        if (metadata.author) {
+        if (this._metadata.author) {
             results.push({ name: 'author', value: metadata.author });
         }
-        if (metadata.company) {
+        if (this._metadata.company) {
             results.push({ name: 'company', value: metadata.company });
         }
-        if (metadata.converted_from) {
+        if (this._metadata.converted_from) {
             results.push({ name: 'source', value: metadata.converted_from });
         }
         var license = [];
-        if (metadata.license && metadata.license.length > 0) {
+        if (this._metadata.license && metadata.license.length > 0) {
             license.push(metadata.license);
         }
-        if (metadata.license_url && metadata.license_url.length > 0) {
+        if (this._metadata.license_url && metadata.license_url.length > 0) {
             license.push('<a href=\'' + metadata.license_url + '\'>' + metadata.license_url + '</a>');
         }
         if (license.length > 0) {
@@ -125,7 +127,7 @@ class OnnxModel {
             this._graphs = [];
             if (this._model.graph) {
                 var metadata = new OnnxGraphOperatorMetadata(this._opsetImport);
-                var graph = new OnnxGraph(metadata, this._model.graph, 0);
+                var graph = new OnnxGraph(metadata, this._model.graph, 0, this._imageFormat);
                 this._graphs.push(graph);
             }
             delete this._model;
@@ -136,7 +138,7 @@ class OnnxModel {
 
 class OnnxGraph {
 
-    constructor(metadata, graph, index) {
+    constructor(metadata, graph, index, imageFormat) {
         this._metadata = metadata;
         this._node = '';
         this._description = '';
@@ -144,6 +146,7 @@ class OnnxGraph {
         this._inputs = [];
         this._outputs = [];
         this._operators = {};
+        this._imageFormat = imageFormat;
 
         if (graph) {
             this._name = graph.name || ('(' + index.toString() + ')');
@@ -267,7 +270,7 @@ class OnnxGraph {
             connection = {};
             connection.id = name;
             if (type) {
-                connection.type = OnnxTensor._formatType(type);
+                connection.type = OnnxTensor._formatType(type, this._imageFormat);
             }
             if (docString) {
                 connection.description = docString;
@@ -703,25 +706,11 @@ class OnnxTensor {
         return OnnxTensor._elementTypeMap[onnx.TensorProto.DataType.UNDEFINED];
     }
 
-    static _formatType(type) {
+    static _formatType(type, imageFormat) {
         if (!type) {
-            return '?';
+            return { value: '?' };
         }
-        var result = [];
-        switch (type.denotation) {
-            case 'TENSOR':
-                result.push('Tensor');
-                break;
-            case 'IMAGE':
-                result.push('Image');
-                break;
-            case 'AUDIO':
-                result.push('Audio');
-                break;
-            case 'TEXT':
-                result.push('Text');
-                break;
-        }
+        var value = {};
         switch (type.value) {
             case 'tensorType':
                 var tensorType = type.tensorType;
@@ -734,20 +723,35 @@ class OnnxTensor {
                         return dimension.dimValue.toString();
                     }).join(',') + ']';
                 }
-                result.push(text);
+                value = text;
                 break;
             case 'mapType':
                 var mapType = type.mapType;
-                result.push('<' + OnnxTensor._formatElementType(mapType.keyType) + ',' + OnnxTensor._formatType(mapType.valueType) + '>');
+                value = '<' + OnnxTensor._formatElementType(mapType.keyType) + ',' + OnnxTensor._formatType(mapType.valueType) + '>';
                 break;
             case 'sequenceType':
-                result.push('[?]');
+                value = '[?]';
                 break;
             default:
                 // debugger;
                 return '?';
         }
-        return result.join(' ');
+        var denotation = '';
+        switch (type.denotation) {
+            case 'TENSOR':
+                denotation = 'Tensor';
+                break;
+            case 'IMAGE':
+                denotation = 'Image' + (imageFormat ? '(' + imageFormat.join(',') + ')' : '');
+                break;
+            case 'AUDIO':
+                denotation = 'Audio';
+                break;
+            case 'TEXT':
+                denotation = 'Text';
+                break;
+        }
+        return { value: value, denotation: denotation };
     }
 }
 
