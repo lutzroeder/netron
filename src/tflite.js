@@ -107,7 +107,9 @@ tflite.BuiltinOperator = {
   FAKE_QUANT: 80,
   REDUCE_PROD: 81,
   REDUCE_MAX: 82,
-  PACK: 83
+  PACK: 83,
+  LOGICAL_OR: 84,
+  ONE_HOT: 85
 };
 
 /**
@@ -173,7 +175,9 @@ tflite.BuiltinOptions = {
   PowOptions: 56,
   ArgMinOptions: 57,
   FakeQuantOptions: 58,
-  PackOptions: 59
+  PackOptions: 59,
+  LogicalOrOptions: 60,
+  OneHotOptions: 61
 };
 
 /**
@@ -5139,6 +5143,124 @@ tflite.PackOptions.addAxis = function(builder, axis) {
  * @returns {flatbuffers.Offset}
  */
 tflite.PackOptions.endPackOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.LogicalOrOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.LogicalOrOptions}
+ */
+tflite.LogicalOrOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.LogicalOrOptions=} obj
+ * @returns {tflite.LogicalOrOptions}
+ */
+tflite.LogicalOrOptions.getRootAsLogicalOrOptions = function(bb, obj) {
+  return (obj || new tflite.LogicalOrOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.LogicalOrOptions.startLogicalOrOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.LogicalOrOptions.endLogicalOrOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.OneHotOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.OneHotOptions}
+ */
+tflite.OneHotOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.OneHotOptions=} obj
+ * @returns {tflite.OneHotOptions}
+ */
+tflite.OneHotOptions.getRootAsOneHotOptions = function(bb, obj) {
+  return (obj || new tflite.OneHotOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite.OneHotOptions.prototype.axis = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.OneHotOptions.startOneHotOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ */
+tflite.OneHotOptions.addAxis = function(builder, axis) {
+  builder.addFieldInt32(0, axis, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.OneHotOptions.endOneHotOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
