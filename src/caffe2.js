@@ -1,4 +1,4 @@
-/*eslint-disable block-scoped-var, no-redeclare, no-control-regex, no-prototype-builtins*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 (function($protobuf) {
     "use strict";
 
@@ -596,7 +596,13 @@
                 }
                 if (options.defaults) {
                     object.dataType = options.enums === String ? "FLOAT" : 1;
-                    object.byteData = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.byteData = "";
+                    else {
+                        object.byteData = [];
+                        if (options.bytes !== Array)
+                            object.byteData = $util.newBuffer(object.byteData);
+                    }
                     object.name = "";
                     object.deviceDetail = null;
                     object.segment = null;
@@ -2643,7 +2649,13 @@
                         object.i = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
                         object.i = options.longs === String ? "0" : 0;
-                    object.s = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.s = "";
+                    else {
+                        object.s = [];
+                        if (options.bytes !== Array)
+                            object.s = $util.newBuffer(object.s);
+                    }
                     object.n = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
@@ -5040,7 +5052,13 @@
                     object.name = "";
                     object.type = "";
                     object.tensor = null;
-                    object.content = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.content = "";
+                    else {
+                        object.content = [];
+                        if (options.bytes !== Array)
+                            object.content = $util.newBuffer(object.content);
+                    }
                     object.qtensor = null;
                     object.contentNumChunks = 0;
                     object.contentChunkId = 0;
