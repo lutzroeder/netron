@@ -7108,7 +7108,7 @@
           "summary": "maxpool_2d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
           "summary": "maxpool_2d_pads"
         },
         {
@@ -7138,6 +7138,14 @@
         {
           "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
           "summary": "maxpool_3d_default"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y', 'z'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[\n    [13, 14, 15, 15, 15],\n    [18, 19, 20, 20, 20],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25]]]]).astype(np.float32)\nz = np.array([[[\n    [12, 13, 14, 14, 14],\n    [17, 18, 19, 19, 19],\n    [22, 23, 24, 24, 24],\n    [22, 23, 24, 24, 24],\n    [22, 23, 24, 24, 24]]]]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y, z], name='test_maxpool_with_argmax_2d_precomputed_pads')",
+          "summary": "maxpool_with_argmax_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y', 'z'],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n    storage_order=1\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9],\n                [17, 19]]]]).astype(np.float32)\nz = np.array([[[[6, 16],\n                [8, 18]]]]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y, z], name='test_maxpool_with_argmax_2d_precomputed_strides')",
+          "summary": "maxpool_with_argmax_2d_precomputed_strides"
         }
       ],
       "inputs": [
@@ -7222,7 +7230,7 @@
           "summary": "maxpool_2d_default"
         },
         {
-          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = 2\npad_top = 2\npad_right = 2\npad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
+          "code": "\"\"\"\niutput_shape: [1, 3, 28, 28]\noutput_shape: [1, 3, 30, 30]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[3, 3],\n    pads=[2, 2, 2, 2]\n)\nx = np.random.randn(1, 3, 28, 28).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = (3, 3)\nstrides = (1, 1)\npad_bottom = pad_top = pad_right = pad_left = 2\npad_shape = [pad_top + pad_bottom, pad_left + pad_right]\nout_shape = get_output_shape('VALID', np.add(x_shape[2:], pad_shape), kernel_shape, strides)\npadded = np.pad(x, ((0, 0), (0, 0), (pad_top, pad_bottom), (pad_left, pad_right)), mode='constant',\n                constant_values=np.nan)\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, pad_shape, 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_2d_pads')",
           "summary": "maxpool_2d_pads"
         },
         {
@@ -7252,6 +7260,14 @@
         {
           "code": "\"\"\"\niutput_shape: [1, 3, 32, 32, 32]\noutput_shape: [1, 3, 31, 31, 31]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y'],\n    kernel_shape=[2, 2, 2],\n)\nx = np.random.randn(1, 3, 32, 32, 32).astype(np.float32)\nx_shape = np.shape(x)\nkernel_shape = [2, 2, 2]\nstrides = [1, 1, 1]\nout_shape = get_output_shape('VALID', x_shape[2:], kernel_shape, strides)\npadded = x\ny = pool(padded, x_shape, kernel_shape, strides, out_shape, [0, 0, 0], 'MAX')\n\nexpect(node, inputs=[x], outputs=[y], name='test_maxpool_3d_default')",
           "summary": "maxpool_3d_default"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 5, 5]\npad_shape: [4, 4] -> [2, 2, 2, 2] by axis\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y', 'z'],\n    kernel_shape=[5, 5],\n    pads=[2, 2, 2, 2]\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[\n    [13, 14, 15, 15, 15],\n    [18, 19, 20, 20, 20],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25],\n    [23, 24, 25, 25, 25]]]]).astype(np.float32)\nz = np.array([[[\n    [12, 13, 14, 14, 14],\n    [17, 18, 19, 19, 19],\n    [22, 23, 24, 24, 24],\n    [22, 23, 24, 24, 24],\n    [22, 23, 24, 24, 24]]]]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y, z], name='test_maxpool_with_argmax_2d_precomputed_pads')",
+          "summary": "maxpool_with_argmax_2d_precomputed_pads"
+        },
+        {
+          "code": "\"\"\"\ninput_shape: [1, 1, 5, 5]\noutput_shape: [1, 1, 2, 2]\n\"\"\"\nnode = onnx.helper.make_node(\n    'MaxPool',\n    inputs=['x'],\n    outputs=['y', 'z'],\n    kernel_shape=[2, 2],\n    strides=[2, 2],\n    storage_order=1\n)\nx = np.array([[[\n    [1, 2, 3, 4, 5],\n    [6, 7, 8, 9, 10],\n    [11, 12, 13, 14, 15],\n    [16, 17, 18, 19, 20],\n    [21, 22, 23, 24, 25],\n]]]).astype(np.float32)\ny = np.array([[[[7, 9],\n                [17, 19]]]]).astype(np.float32)\nz = np.array([[[[6, 16],\n                [8, 18]]]]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y, z], name='test_maxpool_with_argmax_2d_precomputed_strides')",
+          "summary": "maxpool_with_argmax_2d_precomputed_strides"
         }
       ],
       "inputs": [
@@ -7275,7 +7291,7 @@
           "description": "Indices tensor from max pooling across the input tensor. The dimensions of indices are the same as output tensor. The values in indices of are the indices of the selected values during pooling. The indices are computed as flatten 1-D tensor, and the indices do not consider padding. So the values in indices are in [0, N x C x D1 x ... x Dn).",
           "name": "Indices",
           "option": "optional",
-          "type": "T"
+          "type": "I"
         }
       ],
       "since_version": 8,
