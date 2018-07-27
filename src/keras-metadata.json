@@ -2417,7 +2417,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` (default) or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, length, channels)`\n(default format for temporal data in Keras)\nwhile `\"channels_first\"` corresponds to inputs\nwith shape `(batch, channels, length)`.",
+          "description": "A string,\none of `\"channels_last\"` (default) or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, steps, channels)`\n(default format for temporal data in Keras)\nwhile `\"channels_first\"` corresponds to inputs\nwith shape `(batch, channels, steps)`.",
           "name": "data_format"
         },
         {
@@ -2493,7 +2493,7 @@
       "description": "1D convolution layer (e.g. temporal convolution).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input over a single spatial (or temporal) dimension\nto produce a tensor of outputs.\nIf `use_bias` is True, a bias vector is created and added to the outputs.\nFinally, if `activation` is not `None`,\nit is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide an `input_shape` argument\n(tuple of integers or `None`, e.g.\n`(10, 128)` for sequences of 10 vectors of 128-dimensional vectors,\nor `(None, 128)` for variable-length sequences of 128-dimensional vectors.\n",
       "inputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, steps, input_dim)`\n",
+          "description": "\n3D tensor with shape: `(batch, steps, channels)`\n",
           "name": "input"
         },
         {
@@ -2505,7 +2505,7 @@
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, new_steps, filters)`\n`steps` value might have changed due to padding or strides.\n",
+          "description": "\n3D tensor with shape: `(batch, new_steps, filters)`\n`steps` value might have changed due to padding or strides.\n",
           "name": "output"
         }
       ],
@@ -2614,7 +2614,7 @@
       "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
+          "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         },
         {
@@ -2626,7 +2626,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -2708,13 +2708,13 @@
       "description": "3D convolution layer (e.g. spatial convolution over volumes).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\nwith a single channel,\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
-          "description": "\n5D tensor with shape:\n`(samples, channels, conv_dim1, conv_dim2, conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(samples, conv_dim1, conv_dim2, conv_dim3, channels)`\nif `data_format` is `\"channels_last\"`.\n",
+          "description": "\n5D tensor with shape:\n`(batch, channels, conv_dim1, conv_dim2, conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(batch, conv_dim1, conv_dim2, conv_dim3, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n`(samples, filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(samples, new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)`\nif `data_format` is `\"channels_last\"`.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have changed due to padding.\n",
+          "description": "\n5D tensor with shape:\n`(batch, filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(batch, new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)`\nif `data_format` is `\"channels_last\"`.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
@@ -3198,7 +3198,7 @@
       "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
+          "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
           "name": "input"
         },
         {
@@ -3210,7 +3210,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
           "name": "output"
         }
       ],
