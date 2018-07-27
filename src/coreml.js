@@ -1,4 +1,4 @@
-/*eslint-disable block-scoped-var, no-redeclare, no-control-regex, no-prototype-builtins*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 (function($protobuf) {
     "use strict";
 
@@ -3331,7 +3331,13 @@
                         if (options.defaults) {
                             object.revision = 0;
                             object.language = "";
-                            object.modelParameterData = options.bytes === String ? "" : [];
+                            if (options.bytes === String)
+                                object.modelParameterData = "";
+                            else {
+                                object.modelParameterData = [];
+                                if (options.bytes !== Array)
+                                    object.modelParameterData = $util.newBuffer(object.modelParameterData);
+                            }
                         }
                         if (message.revision != null && message.hasOwnProperty("revision"))
                             object.revision = message.revision;
@@ -3695,7 +3701,13 @@
                             object.tokenTagsOutputFeatureName = "";
                             object.tokenLocationsOutputFeatureName = "";
                             object.tokenLengthsOutputFeatureName = "";
-                            object.modelParameterData = options.bytes === String ? "" : [];
+                            if (options.bytes === String)
+                                object.modelParameterData = "";
+                            else {
+                                object.modelParameterData = [];
+                                if (options.bytes !== Array)
+                                    object.modelParameterData = $util.newBuffer(object.modelParameterData);
+                            }
                         }
                         if (message.revision != null && message.hasOwnProperty("revision"))
                             object.revision = message.revision;
@@ -20656,8 +20668,20 @@
                     if (options.arrays || options.defaults)
                         object.floatValue = [];
                     if (options.defaults) {
-                        object.float16Value = options.bytes === String ? "" : [];
-                        object.rawValue = options.bytes === String ? "" : [];
+                        if (options.bytes === String)
+                            object.float16Value = "";
+                        else {
+                            object.float16Value = [];
+                            if (options.bytes !== Array)
+                                object.float16Value = $util.newBuffer(object.float16Value);
+                        }
+                        if (options.bytes === String)
+                            object.rawValue = "";
+                        else {
+                            object.rawValue = [];
+                            if (options.bytes !== Array)
+                                object.rawValue = $util.newBuffer(object.rawValue);
+                        }
                         object.quantization = null;
                     }
                     if (message.floatValue && message.floatValue.length) {
