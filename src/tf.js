@@ -1,4 +1,4 @@
-/*eslint-disable block-scoped-var, no-redeclare, no-control-regex, no-prototype-builtins*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 (function($protobuf) {
     "use strict";
 
@@ -10779,7 +10779,13 @@
                     object.dtype = options.enums === String ? "DT_INVALID" : 0;
                     object.tensorShape = null;
                     object.versionNumber = 0;
-                    object.tensorContent = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.tensorContent = "";
+                    else {
+                        object.tensorContent = [];
+                        if (options.bytes !== Array)
+                            object.tensorContent = $util.newBuffer(object.tensorContent);
+                    }
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
@@ -11106,7 +11112,13 @@
                     object.tensors = [];
                 if (options.defaults) {
                     object.typeName = "";
-                    object.metadata = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.metadata = "";
+                    else {
+                        object.metadata = [];
+                        if (options.bytes !== Array)
+                            object.metadata = $util.newBuffer(object.metadata);
+                    }
                 }
                 if (message.typeName != null && message.hasOwnProperty("typeName"))
                     object.typeName = message.typeName;
@@ -11635,7 +11647,13 @@
                     var object = {};
                     if (options.defaults) {
                         object.type_url = "";
-                        object.value = options.bytes === String ? "" : [];
+                        if (options.bytes === String)
+                            object.value = "";
+                        else {
+                            object.value = [];
+                            if (options.bytes !== Array)
+                                object.value = $util.newBuffer(object.value);
+                        }
                     }
                     if (message.type_url != null && message.hasOwnProperty("type_url"))
                         object.type_url = message.type_url;
