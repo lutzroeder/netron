@@ -1,4 +1,4 @@
-/*eslint-disable block-scoped-var, no-redeclare, no-control-regex, no-prototype-builtins*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 (function($protobuf) {
     "use strict";
 
@@ -1220,7 +1220,13 @@
                     object.channels = 0;
                     object.height = 0;
                     object.width = 0;
-                    object.data = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.data = "";
+                    else {
+                        object.data = [];
+                        if (options.bytes !== Array)
+                            object.data = $util.newBuffer(object.data);
+                    }
                     object.label = 0;
                     object.encoded = false;
                 }
