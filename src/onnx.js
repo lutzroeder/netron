@@ -1,4 +1,4 @@
-/*eslint-disable block-scoped-var, no-redeclare, no-control-regex, no-prototype-builtins*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
 (function($protobuf) {
     "use strict";
 
@@ -636,7 +636,13 @@
                         object.i = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
                         object.i = options.longs === String ? "0" : 0;
-                    object.s = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.s = "";
+                    else {
+                        object.s = [];
+                        if (options.bytes !== Array)
+                            object.s = $util.newBuffer(object.s);
+                    }
                     object.t = null;
                     object.g = null;
                     object.docString = "";
@@ -3070,7 +3076,13 @@
                     object.dataType = options.enums === String ? "UNDEFINED" : 0;
                     object.segment = null;
                     object.name = "";
-                    object.rawData = options.bytes === String ? "" : [];
+                    if (options.bytes === String)
+                        object.rawData = "";
+                    else {
+                        object.rawData = [];
+                        if (options.bytes !== Array)
+                            object.rawData = $util.newBuffer(object.rawData);
+                    }
                     object.docString = "";
                 }
                 if (message.dims && message.dims.length) {
