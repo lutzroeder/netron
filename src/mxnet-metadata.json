@@ -130,7 +130,7 @@
           "name": "grad_scale"
         },
         {
-          "default": "1",
+          "default": "-1",
           "name": "ignore_label"
         },
         {
@@ -359,7 +359,22 @@
   {
     "name": "RNN",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "attributes": [
+        { 
+          "name": "bidirectional", 
+          "default": "False" 
+        },
+        { 
+          "name": "lstm_parameters", 
+          "visible": false 
+        }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "state_0" },
+        { "name": "state_1" }
+      ]
     }
   },
   {

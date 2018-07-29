@@ -18,7 +18,7 @@ zip.Archive = class {
         }
         this._reader.skip(12);
         this._reader.position = this._reader.readUint32(); // central directory offset
-        while (this._reader.checkSignature(0x50, 0x4B, 0x01, 0x02)) {
+        while (this._reader.checkSignature([ 0x50, 0x4B, 0x01, 0x02 ])) {
             this._entries.push(new zip.Entry(this._reader, inflate));
         }
     }
@@ -55,7 +55,7 @@ zip.Entry = class {
         reader.read(commentLength); // comment
         var position = reader.position;
         reader.position = localHeaderOffset;
-        if (!reader.checkSignature(0x50, 0x4B, 0x03, 0x04)) {
+        if (!reader.checkSignature([ 0x50, 0x4B, 0x03, 0x04 ])) {
             throw new zip.Error('Invalid local file header signature.');
         }
         reader.skip(22);
@@ -330,14 +330,16 @@ zip.Reader = class {
         this._end = end;
     }
 
-    checkSignature(s0, s1, s2, s3) {
-        if (this._position + 4 <= this._end) {
-            if (this._buffer[this._position] === s0 && this._buffer[this._position + 1] === s1 && this._buffer[this._position + 2] === s2 && this._buffer[this._position + 3] === s3) {
-                this._position += 4;
-                return true;
+    checkSignature(signature) {
+        if (this._position + signature.length <= this._end) {
+            for (var i = 0; i < signature.length; i++) {
+                if (this._buffer[this._position + i] != signature[i]) {
+                    return false;
+                }
             }
         }
-        return false;
+        this._position += signature.length;
+        return true;
     }
 
     get position() {
