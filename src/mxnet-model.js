@@ -377,8 +377,7 @@ class MXNetNode {
                 var id = '[' + input.join(',') + ']';
                 var parameter = parameters[argument.name];
                 if (parameter) {
-                    var parameterType = parameter.dataType + '[' + parameter.shape.dimensions.join(',') + ']';
-                    this._initializers[id] = new MXNetTensor('Initializer', argument.name, parameterType);
+                    this._initializers[id] = new MXNetTensor('Initializer', argument.name, parameter.dataType, parameter.shape.dimensions, parameter.data);
                     delete argumentMap[argumentNodeIndex];
                 }
                 else {
@@ -387,17 +386,17 @@ class MXNetNode {
                         prefix = prefix.slice(0, -4);
                     }
                     if (argument.name && argument.name.startsWith(prefix)) {
-                        var type = '';
-                        if (argument.attrs) {
-                            var dtype = argument.attrs.__dtype__;
-                            var shape = argument.attrs.__shape__;
-                            if (dtype && shape) {
-                                dtype = dtype.replace('0', 'float32');
-                                shape = shape.split(' ').join('').replace('(', '[').replace(')', ']');
-                                type = dtype + shape;
+                        var dataType = '?';
+                        var shape = '';
+                        if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
+                            try {
+                                dataType = parseInt(argument.attrs.__dtype__);
+                                shape = argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('');
+                            }
+                            catch (err) {
                             }
                         }
-                        this._initializers[id] = new MXNetTensor('Initializer', argument.name, type);
+                        this._initializers[id] = new MXNetTensor('Initializer', argument.name, dataType, shape, null);
                         delete argumentMap[argumentNodeIndex];
                     }
                 }
@@ -474,30 +473,154 @@ class MXNetAttribute {
 
 class MXNetTensor {
     
-    constructor(kind, name, type) {
+    constructor(kind, name, dataType, shape, data) {
         this._kind = kind;
         this._name = name;
-        this._type = type;
-    }
-
-    get name() {
-        return this._name;
+        this._dataType = dataType;
+        this._shape = shape;
+        this._data = data;
+        MXNetTensor._dataTypeNameTable = MXNetTensor._dataTypeTable || [ 'float32', 'float64', 'float16', 'uint8', 'int32', 'int8', 'int64' ];
     }
 
     get kind() {
         return 'Initializer';
     }
 
+    get name() {
+        return this._name;
+    }
+
     get type() {
-        return this._type;
+        var dataType = '?';
+        if (this._dataType || this._dataType === 0) {
+            if (this._dataType < MXNetTensor._dataTypeNameTable.length) {
+                dataType = MXNetTensor._dataTypeNameTable[this._dataType];
+            }
+            else {
+                dataType = this._dataType.toString();
+            }
+        }
+        var shape = Array.isArray(this._shape) ? this._shape.join(',') : this._shape.toString();
+        return dataType + '[' + shape + ']';
     }
 
     get value() {
-        return null;
+        var result = this._decode(Number.MAX_SAFE_INTEGER);
+        if (result.error) {
+            return null;
+        }
+        return result.value;
     }
 
     toString() {
-        return null;
+        var result = this._decode(10000);
+        if (result.error) {
+            return result.error;
+        }
+        return JSON.stringify(result.value, null, 4);
+    }
+
+    _decode(limit) {
+
+        var result = {};
+
+        if (!this._data) {
+            return { error: 'Tensor data is empty.' };
+        }
+
+        if ((!this._dataType && this._dataType !== 0) || this._dataType == '?') {
+            return { error: 'Tensor has no data type.' };
+        }
+
+        if (this._dataType >= MXNetTensor._dataTypeNameTable.length) {
+            return { error: 'Tensor has unknown data type.' };
+        }
+
+        if (!Array.isArray(this._shape) && this._shape.length < 1) {
+            return { error: 'Tensor has unknown shape.' };
+        }
+
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.limit = limit;
+        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+
+        return { value: this._decodeDimension(context, 0) };
+    }
+
+    _decodeDimension(context, dimension) {
+        var results = [];
+        var size = this._shape[dimension];
+        if (dimension == this._shape.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                switch (this._dataType)
+                {
+                    case 0: // float32
+                        results.push(context.data.getFloat32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 1: // float64
+                        results.push(context.data.getFloat64(context.index, true));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 2: // float16:
+                        results.push(MXNetTensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 3: // uint8
+                        results.push(context.data.getUint8(context.index, true));
+                        context.index += 1;
+                        context.count++;
+                        break;
+                    case 4: // int32
+                        results.push(context.data.getInt32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 5: // int8
+                        results.push(context.data.getInt8(context.index, true));
+                        context.index += 1;
+                        context.count++;
+                        break;
+                    case 6: // int64
+                        results.push(new Int64(context.data.subarray(context.index, context.index + 8)));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                }
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decodeDimension(context, dimension + 1));
+            }
+        }
+        return results;
+    }
+
+    static _decodeNumberFromFloat16(value) {
+        var s = (value & 0x8000) >> 15;
+        var e = (value & 0x7C00) >> 10;
+        var f = value & 0x03FF;
+        if(e == 0) {
+            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+        }
+        else if (e == 0x1F) {
+            return f ? NaN : ((s ? -1 : 1) * Infinity);
+        }
+        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
 }
 
@@ -792,6 +915,8 @@ ndarray.Array = class {
 
     constructor(reader) {
 
+        ndarray.Array._dataTypeSizeTable = [ 4, 8, 2, 1, 4, 1, 8 ];
+
         if (reader.checkSignature([ 0xc9, 0xfa, 0x93, 0xF9 ])) {
             this._loadV2(reader);
         }
@@ -820,12 +945,13 @@ ndarray.Array = class {
             return;
         }
         var context = new ndarray.Context(reader);
-        var dataTypeSize = this._loadDataType(reader);
+        this._dataType = reader.readUint32();
         if (num_aux_data > 0) {
             throw new ndarray.Error('Not implemented.');
         }
+        var dataTypeSize = (this._dataType < ndarray.Array._dataTypeSizeTable.length) ? ndarray.Array._dataTypeSizeTable[this._dataType] : 0;
         var size = dataTypeSize * this._shape.size();
-        reader.read(size);
+        this._data = reader.read(size);
     }
 
     _loadV1(reader) {
@@ -834,32 +960,19 @@ ndarray.Array = class {
             return;
         }
         var context = new ndarray.Context(reader);
-        var dataTypeSize = this._loadDataType(reader);
+        this._dataType = reader.readUint32();
+        var dataTypeSize = (this._dataType < ndarray.Array._dataTypeSizeTable.length) ? ndarray.Array._dataTypeSizeTable[this._dataType] : 0;
         var size = dataTypeSize * this._shape.size();
-        reader.read(size);
+        this._data = reader.read(size);
     }
 
     _loadV0(reader) {
         this._shape = new ndarray.Shape(reader, false);
         var context = new ndarray.Context(reader);
-        var dataTypeSize = this._loadDataType(reader);
+        this._dataType = reader.readUint32();
+        var dataTypeSize = (this._dataType < ndarray.Array._dataTypeSizeTable.length) ? ndarray.Array._dataTypeSizeTable[this._dataType] : 0;
         var size = dataTypeSize * this._shape.size();
-        reader.read(size);
-    }
-
-    _loadDataType(reader) {
-        var dataTypeSize = 0;
-        var dataType = reader.readUint32();
-        switch (dataType) {
-            case 0: dataTypeSize = 4; this._dataType = 'float32'; break;
-            case 1: dataTypeSize = 8; this._dataType = 'float64'; break;
-            case 2: dataTypeSize = 2; this._dataType = 'float16'; break;
-            case 3: dataTypeSize = 1; this._dataType = 'uint8'; break;
-            case 4: dataTypeSize = 4; this._dataType = 'int32'; break;
-            case 5: dataTypeSize = 1; this._dataType = 'int8'; break;
-            case 6: dataTypeSize = 8; this._dataType = 'int64'; break;
-        }
-        return dataTypeSize;
+        this._data = reader.read(size);
     }
 
     get dataType() {
@@ -868,6 +981,10 @@ ndarray.Array = class {
 
     get shape() { 
         return this._shape;
+    }
+
+    get data() {
+        return this._data;
     }
 };
 
