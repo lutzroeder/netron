@@ -2136,7 +2136,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "Constrain output types to any tensor type.",
           "type_param_str": "T"
@@ -2640,11 +2642,23 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -4232,7 +4246,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "Constrain input and output types to any tensor type.",
           "type_param_str": "T"
@@ -5154,7 +5170,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
@@ -5217,7 +5235,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "All Tensor types",
           "type_param_str": "V"
@@ -6582,7 +6602,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "All Tensor types",
           "type_param_str": "V"
@@ -6657,7 +6679,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "All Tensor types",
           "type_param_str": "T"
@@ -9255,7 +9279,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "Constrain to any tensor type. If the dtype attribute is not provided this must be a valid output type.",
           "type_param_str": "T1"
@@ -9404,7 +9430,9 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "Constrain to any tensor type. If the dtype attribute is not provided this must be a valid output type.",
           "type_param_str": "T1"
@@ -10420,11 +10448,23 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -10965,16 +11005,21 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
             "tensor(int8)",
             "tensor(int16)",
             "tensor(int32)",
             "tensor(int64)",
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(bool)"
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "Input tensor can be of arbitrary type.",
           "type_param_str": "T"
@@ -10983,7 +11028,7 @@
           "allowed_type_strs": [
             "tensor(int64)"
           ],
-          "description": "Constrains output to int64 tensor.",
+          "description": "Constrain output to int64 tensor.",
           "type_param_str": "T1"
         }
       ]
@@ -11165,16 +11210,21 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
             "tensor(int8)",
             "tensor(int16)",
             "tensor(int32)",
             "tensor(int64)",
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(bool)"
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
           "description": "Input tensor can be of arbitrary type.",
           "type_param_str": "T"
@@ -11183,7 +11233,7 @@
           "allowed_type_strs": [
             "tensor(int64)"
           ],
-          "description": "Constrains output to int64 tensor, which should be a scalar though.",
+          "description": "Constrain output to int64 tensor, which should be a scalar though.",
           "type_param_str": "T1"
         }
       ]
@@ -11260,11 +11310,23 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -11454,11 +11516,23 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -11596,11 +11670,23 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -11757,9 +11843,11 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input and output types to any tensor type.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -12419,11 +12507,23 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input and output's types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         },
         {
@@ -12554,11 +12654,23 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
-            "tensor(double)"
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input and output types to float tensors.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -12921,9 +13033,11 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input and output types to any tensor type.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
@@ -13058,9 +13172,11 @@
             "tensor(float)",
             "tensor(double)",
             "tensor(string)",
-            "tensor(bool)"
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
           ],
-          "description": "Constrain input/output types to all tensor types.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
