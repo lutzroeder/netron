@@ -1641,7 +1641,7 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, time, ..., channels)`\nwhile `channels_first` corresponds to\ninputs with shape `(batch, time, channels, ...)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\none of `\"channels_last\"` (default) or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, time, ..., channels)`\nwhile `\"channels_first\"` corresponds to\ninputs with shape `(batch, time, channels, ...)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be `\"channels_last\"`.",
           "name": "data_format"
         },
         {
@@ -1742,7 +1742,7 @@
       ],
       "outputs": [
         {
-          "description": "\n- if `return_sequences`\n- if data_format='channels_first'\n5D tensor with shape:\n`(samples, time, filters, output_row, output_col)`\n- if data_format='channels_last'\n5D tensor with shape:\n`(samples, time, output_row, output_col, filters)`\n- else\n- if data_format ='channels_first'\n4D tensor with shape:\n`(samples, filters, output_row, output_col)`\n- if data_format='channels_last'\n4D tensor with shape:\n`(samples, output_row, output_col, filters)`\nwhere o_row and o_col depend on the shape of the filter and\nthe padding\n",
+          "description": "\n- if `return_sequences`\n- if data_format='channels_first'\n5D tensor with shape:\n`(samples, time, filters, output_row, output_col)`\n- if data_format='channels_last'\n5D tensor with shape:\n`(samples, time, output_row, output_col, filters)`\n- else\n- if data_format='channels_first'\n4D tensor with shape:\n`(samples, filters, output_row, output_col)`\n- if data_format='channels_last'\n4D tensor with shape:\n`(samples, output_row, output_col, filters)`\nwhere o_row and o_col depend on the shape of the filter and\nthe padding\n",
           "name": "output"
         }
       ],
