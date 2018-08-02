@@ -223,7 +223,7 @@ for op in ops_list.op:
         if attr.HasField('allowed_values'):
             json_attribute['allowedValues'] = convert_attr_value(attr.allowed_values)
         if attr.HasField('default_value'):
-            json_attribute['defaultValue'] = convert_attr_value(attr.default_value)
+            json_attribute['default'] = convert_attr_value(attr.default_value)
         json_schema['attributes'].append(json_attribute)
     for input_arg in op.input_arg:
         if not 'inputs' in json_schema:

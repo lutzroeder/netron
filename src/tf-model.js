@@ -908,9 +908,9 @@ class TensorFlowGraphOperatorMetadata {
                 if (attributeSchema.hasOwnProperty('visible')) {
                     return attributeSchema.visible;
                 }
-                if (attributeSchema.hasOwnProperty('defaultValue')) {
+                if (attributeSchema.hasOwnProperty('default')) {
                     var valueText = TensorFlowAttribute.formatAttributeValue(value);
-                    var defaultValueText = TensorFlowGraphOperatorMetadata.formatAttributeValue(attributeSchema.defaultValue);
+                    var defaultValueText = TensorFlowGraphOperatorMetadata.formatAttributeValue(attributeSchema.default);
                     if (valueText == defaultValueText) {
                         return false;
                     }
