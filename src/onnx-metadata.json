@@ -6855,7 +6855,7 @@
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 0 along each axis.",
+          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
