@@ -834,7 +834,7 @@ class CoreMLOperatorMetadata
         return '(' + index.toString() + ')';
     }
 
-    getAttributeVisible(operator, name) {
+    getAttributeVisible(operator, name, value) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributesMap) {
@@ -844,8 +844,14 @@ class CoreMLOperatorMetadata
                 });
             }
             var attribute = schema.attributesMap[name];
-            if (attribute && attribute.hasOwnProperty('visible')) {
-                return attribute.visible;
+
+            if (attribute) {
+                if (attribute.hasOwnProperty('visible')) {
+                    return attribute.visible;
+                }
+                if (attribute.hasOwnProperty('default')) {
+                    return JSON.stringify(attribute.default) == JSON.stringify(value);
+                 }
             }
         }
         return true;

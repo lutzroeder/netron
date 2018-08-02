@@ -746,15 +746,15 @@ class MXNetOperatorMetadata {
                     return attribute.visible;
                 }
                 if (attribute.hasOwnProperty('default')) {
-                    value = MXNetOperatorMetadata.formatTuple(value); 
-                    return !MXNetOperatorMetadata.isEquivalent(attribute.default, value);
+                    value = MXNetOperatorMetadata._formatTuple(value); 
+                    return !MXNetOperatorMetadata._isEquivalent(attribute.default, value);
                 }
             }
         }
         return true;
     }
 
-    static formatTuple(value) {
+    static _formatTuple(value) {
         if (value.startsWith('(') && value.endsWith(')')) {
             var list = value.substring(1, value.length - 1).split(',');
             list = list.map(item => item.trim());
@@ -768,7 +768,7 @@ class MXNetOperatorMetadata {
         return value;
     }
 
-    static isEquivalent(a, b) {
+    static _isEquivalent(a, b) {
         if (a === b) {
             return a !== 0 || 1 / a === 1 / b;
         }
@@ -804,7 +804,7 @@ class MXNetOperatorMetadata {
                     return false;
                 }
                 while (length--) {
-                    if (!KerasOperatorMetadata.isEquivalent(a[length], b[length])) {
+                    if (!KerasOperatorMetadata._isEquivalent(a[length], b[length])) {
                         return false;
                     }
                 }
@@ -818,7 +818,7 @@ class MXNetOperatorMetadata {
         } 
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && KerasOperatorMetadata.isEquivalent(a[key], b[key]))) {
+            if (!(b.hasOwnProperty(key) && KerasOperatorMetadata._isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }

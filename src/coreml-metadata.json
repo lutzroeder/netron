@@ -8,9 +8,13 @@
         { "name": "outputShape", "type": "tuple | None", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "visible": false },
         { "name": "outputChannels", "type": "int", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
         { "name": "kernelChannels", "type": "int", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
-        { "name": "nGroups", "type": "int", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1." },
+        { "name": "nGroups", "type": "int", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1.", "default": 1 },
         { "name": "isDeconvolution", "type": "boolean", "description": "lag to specify whether it is a deconvolution layer." },
         { "name": "valid", "visible": false },
+        { "name": "same", "visible": false },
+        { "name": "dilationFactor", "default": [ 1, 1 ] },
+        { "name": "stride", "default": [ 1, 1 ] },
+        { "name": "kernelSize", "default": [ 3, 3 ] },
         { "name": "hasBias", "type": "boolean", "description": "Whether bias is ignored.", "visible": false }
       ]
     }
@@ -150,7 +154,10 @@
     "name": "batchnorm",
     "schema": {
       "category": "Normalization",
-      "description": "A layer that performs batch normalization, which is performed along the channel axis, and repeated along the other axes, if present."
+      "description": "A layer that performs batch normalization, which is performed along the channel axis, and repeated along the other axes, if present.",
+      "attributes": [
+        { "name": "epsilon", "default": 1e-5 }
+      ]
     }
   },
   {
@@ -164,7 +171,10 @@
     "name": "lrn",
     "schema": {
       "category": "Normalization",
-      "description": "A layer that performs local response normalization (LRN)."
+      "description": "A layer that performs local response normalization (LRN).",
+      "attributes": [
+        { "name": "k", "default": 1 }
+      ]
     }
   },
   {
@@ -173,7 +183,12 @@
       "category": "Pool",
       "description": "Spatial Pooling layer to reduce dimensions of input using the specified kernel size and type.",
       "attributes": [
-        { "name": "includeLastPixel", "visible": false }
+        { "name": "includeLastPixel", "visible": false },
+        { "name": "same", "visible": false },
+        { "name": "valid", "visible": false },
+        { "name": "stride", "default": [ 1, 1 ] },
+        { "name": "kernelSize", "default": [ 3, 3 ] },
+        { "name": "avgPoolExcludePadding", "default": false }
       ]
     }
   },
@@ -215,7 +230,10 @@
     "name": "padding",
     "schema": {
       "category": "Layer",
-      "description": "Fill a constant value in the padded region."
+      "description": "Fill a constant value in the padded region.",
+      "attributes": [
+        { "name": "paddingAmounts", "visible": false }
+      ]
     }
   },
   {
@@ -308,7 +326,10 @@
     "name": "scale",
     "schema": {
       "category": "Layer",
-      "description": "A layer that performs elmentwise multiplication by a scale factor and optionally adds a bias."
+      "description": "A layer that performs elmentwise multiplication by a scale factor and optionally adds a bias.",
+      "attributes": [
+        { "name": "hasBias", "visible": false }
+      ]
     }
   },
   {
