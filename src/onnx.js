@@ -2700,8 +2700,21 @@
                             message.floatData = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
-                            while (reader.pos < end2)
-                                message.floatData.push(reader.float());
+                            if (message.floatData.length == 0 && (end2 - reader.pos) > 1048576) {
+                                var floatDataLength = end2 - reader.pos;
+                                var floatDataView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, floatDataLength);
+                                floatDataLength = floatDataLength >>> 2;
+                                var floatData = new Float32Array(floatDataLength);
+                                for (var i = 0; i < floatDataLength; i++) {
+                                    floatData[i] = floatDataView.getFloat32(i << 2, true);
+                                }
+                                message.floatData = floatData;
+                                reader.pos = end2;
+                            }
+                            else {
+                                while (reader.pos < end2)
+                                    message.floatData.push(reader.float());
+                            }
                         } else
                             message.floatData.push(reader.float());
                         break;
@@ -2744,8 +2757,21 @@
                             message.doubleData = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
-                            while (reader.pos < end2)
-                                message.doubleData.push(reader.double());
+                            if (message.doubleData.length == 0 && (end2 - reader.pos) > 1048576) {
+                                var doubleDataLength = end2 - reader.pos;
+                                var doubleDataView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, doubleDataLength);
+                                doubleDataLength = doubleDataLength >>> 3;
+                                var doubleData = new Float64Array(doubleDataLength);
+                                for (var i = 0; i < doubleDataLength; i++) {
+                                    doubleData[i] = doubleDataView.getFloat64(i << 3, true);
+                                }
+                                message.doubleData = doubleData;
+                                reader.pos = end2;
+                            }
+                            else {
+                                while (reader.pos < end2)
+                                    message.doubleData.push(reader.double());
+                            }
                         } else
                             message.doubleData.push(reader.double());
                         break;

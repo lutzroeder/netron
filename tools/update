@@ -10,7 +10,6 @@ fi
 root=$(cd $(dirname ${0})/..; pwd)
 tools=${root}/tools
 
-${tools}/keras-update
 ${tools}/tf-update
 ${tools}/coreml-update
 ${tools}/caffe-update
@@ -18,3 +17,4 @@ ${tools}/mxnet-update
 ${tools}/onnx-update
 ${tools}/tflite-update
 ${tools}/caffe2-update
+${tools}/keras-update

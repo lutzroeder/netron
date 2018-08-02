@@ -446,8 +446,21 @@
                             message.data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
-                            while (reader.pos < end2)
-                                message.data.push(reader.float());
+                            if (message.data.length == 0 && (end2 - reader.pos) > 1048576) {
+                                var dataLength = end2 - reader.pos;
+                                var dataView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, dataLength);
+                                dataLength = dataLength >>> 2;
+                                var data = new Float32Array(dataLength);
+                                for (var i = 0; i < dataLength; i++) {
+                                    data[i] = dataView.getFloat32(i << 2, true);
+                                }
+                                message.data = data;
+                                reader.pos = end2;
+                            }
+                            else {
+                                while (reader.pos < end2)
+                                    message.data.push(reader.float());
+                            }
                         } else
                             message.data.push(reader.float());
                         break;

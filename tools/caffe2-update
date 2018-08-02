@@ -40,7 +40,7 @@ fi
 export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
 export PATH=$PATH:${PYTHONUSERBASE}/bin
 rm -rf ${PYTHONUSERBASE}
-${pip} install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis
+${pip} install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
 pushd "${third_party}/pytorch" > /dev/null
 git submodule update --init
 ${python} setup_caffe2.py develop --user

@@ -20545,8 +20545,21 @@
                                 message.floatValue = [];
                             if ((tag & 7) === 2) {
                                 var end2 = reader.uint32() + reader.pos;
-                                while (reader.pos < end2)
-                                    message.floatValue.push(reader.float());
+                                if (message.floatValue.length == 0 && (end2 - reader.pos) > 1048576) {
+                                    var floatValueLength = end2 - reader.pos;
+                                    var floatValueView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, floatValueLength);
+                                    floatValueLength = floatValueLength >>> 2;
+                                    var floatValue = new Float32Array(floatValueLength);
+                                    for (var i = 0; i < floatValueLength; i++) {
+                                        floatValue[i] = floatValueView.getFloat32(i << 2, true);
+                                    }
+                                    message.floatValue = floatValue;
+                                    reader.pos = end2;
+                                }
+                                else {
+                                    while (reader.pos < end2)
+                                        message.floatValue.push(reader.float());
+                                }
                             } else
                                 message.floatValue.push(reader.float());
                             break;
@@ -21360,8 +21373,21 @@
                                 message.floatValue = [];
                             if ((tag & 7) === 2) {
                                 var end2 = reader.uint32() + reader.pos;
-                                while (reader.pos < end2)
-                                    message.floatValue.push(reader.float());
+                                if (message.floatValue.length == 0 && (end2 - reader.pos) > 1048576) {
+                                    var floatValueLength = end2 - reader.pos;
+                                    var floatValueView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, floatValueLength);
+                                    floatValueLength = floatValueLength >>> 2;
+                                    var floatValue = new Float32Array(floatValueLength);
+                                    for (var i = 0; i < floatValueLength; i++) {
+                                        floatValue[i] = floatValueView.getFloat32(i << 2, true);
+                                    }
+                                    message.floatValue = floatValue;
+                                    reader.pos = end2;
+                                }
+                                else {
+                                    while (reader.pos < end2)
+                                        message.floatValue.push(reader.float());
+                                }
                             } else
                                 message.floatValue.push(reader.float());
                             break;
