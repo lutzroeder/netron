@@ -109,7 +109,9 @@ tflite.BuiltinOperator = {
   REDUCE_MAX: 82,
   PACK: 83,
   LOGICAL_OR: 84,
-  ONE_HOT: 85
+  ONE_HOT: 85,
+  LOGICAL_AND: 86,
+  LOGICAL_NOT: 87
 };
 
 /**
@@ -177,7 +179,9 @@ tflite.BuiltinOptions = {
   FakeQuantOptions: 58,
   PackOptions: 59,
   LogicalOrOptions: 60,
-  OneHotOptions: 61
+  OneHotOptions: 61,
+  LogicalAndOptions: 62,
+  LogicalNotOptions: 63
 };
 
 /**
@@ -5261,6 +5265,108 @@ tflite.OneHotOptions.addAxis = function(builder, axis) {
  * @returns {flatbuffers.Offset}
  */
 tflite.OneHotOptions.endOneHotOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.LogicalAndOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.LogicalAndOptions}
+ */
+tflite.LogicalAndOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.LogicalAndOptions=} obj
+ * @returns {tflite.LogicalAndOptions}
+ */
+tflite.LogicalAndOptions.getRootAsLogicalAndOptions = function(bb, obj) {
+  return (obj || new tflite.LogicalAndOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.LogicalAndOptions.startLogicalAndOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.LogicalAndOptions.endLogicalAndOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.LogicalNotOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.LogicalNotOptions}
+ */
+tflite.LogicalNotOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.LogicalNotOptions=} obj
+ * @returns {tflite.LogicalNotOptions}
+ */
+tflite.LogicalNotOptions.getRootAsLogicalNotOptions = function(bb, obj) {
+  return (obj || new tflite.LogicalNotOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.LogicalNotOptions.startLogicalNotOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.LogicalNotOptions.endLogicalNotOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
