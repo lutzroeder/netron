@@ -8336,7 +8336,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Returns element-wise smallest integer in not less than x."
+      "summary": "Returns element-wise smallest integer not less than x."
     }
   },
   {
@@ -19997,7 +19997,37 @@
           "typeListAttr": "output_types"
         }
       ],
-      "summary": "Gets the next output from the given iterator."
+      "summary": "Gets the next output from the given iterator ."
+    }
+  },
+  {
+    "name": "IteratorGetNextAsOptional",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "iterator",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "optional",
+          "type": 21
+        }
+      ],
+      "summary": "Gets the next output from the given iterator as an Optional variant."
     }
   },
   {
@@ -26118,6 +26148,91 @@
         }
       ],
       "summary": "Creates a dataset by applying optimizations to `input_dataset`."
+    }
+  },
+  {
+    "name": "OptionalFromValue",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "Toutput_types",
+          "type": "list(type)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "components",
+          "typeListAttr": "Toutput_types"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "optional",
+          "type": 21
+        }
+      ],
+      "summary": "Constructs an Optional variant from a tuple of tensors."
+    }
+  },
+  {
+    "name": "OptionalGetValue",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "optional",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "components",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "Returns the value stored in an Optional variant or raises an error if none exists."
+    }
+  },
+  {
+    "name": "OptionalHasValue",
+    "schema": {
+      "inputs": [
+        {
+          "name": "optional",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "has_value",
+          "type": 10
+        }
+      ],
+      "summary": "Returns true if and only if the given Optional variant has a value."
+    }
+  },
+  {
+    "name": "OptionalNone",
+    "schema": {
+      "outputs": [
+        {
+          "name": "optional",
+          "type": 21
+        }
+      ],
+      "summary": "Creates an Optional variant with no value."
     }
   },
   {
