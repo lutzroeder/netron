@@ -3495,6 +3495,71 @@
     }
   },
   {
+    "name": "Expand",
+    "schema": {
+      "description": "Broadcast the input tensor following the given shape and the broadcast rule.\nThe broadcast rule is similar to numpy.array(input) * numpy.ones(shape):\nDimensions are right alignment;\nTwo corresponding dimension must have the same value, or one of them is equal to 1.\nAlso, this operator is similar to numpy.broadcast_to(input, shape),\nbut the major difference is numpy.broadcast_to() does not allow shape to be smaller than input.size().\nIt is possible that the output.shape is not equal to shape, when some dimensions in shape is equal to 1,\nor the shape.ndim < input.shape.ndim.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Expand',\n    inputs=['data', 'new_shape'],\n    outputs=['expanded'],\n)\nshape = [3, 1]\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float64), shape)\n#print(data)\n#[[1.], [2.], [3.]]\nnew_shape = [2, 1, 6]\nexpanded = data * np.ones(new_shape)\n#print(expanded)\n#[[[1., 1., 1., 1., 1., 1.],\n#  [2., 2., 2., 2., 2., 2.],\n#  [3., 3., 3., 3., 3., 3.]],\n#\n# [[1., 1., 1., 1., 1., 1.],\n#  [2., 2., 2., 2., 2., 2.],\n#  [3., 3., 3., 3., 3., 3.]]]\nnew_shape = np.array(new_shape)\nexpect(node, inputs=[data, new_shape], outputs=[expanded],\n       name='test_expand_dim_changed')",
+          "summary": "dim_changed"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Expand',\n    inputs=['data', 'new_shape'],\n    outputs=['expanded'],\n)\nshape = [3, 1]\nnew_shape = [3, 4]\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float64), shape)\n#print(data)\n#[[1.], [2.], [3.]]\nexpanded = np.tile(data, 4)\n#print(expanded)\n#[[1., 1., 1., 1.],\n# [2., 2., 2., 2.],\n# [3., 3., 3., 3.]]\nnew_shape = np.array(new_shape)\nexpect(node, inputs=[data, new_shape], outputs=[expanded],\n       name='test_expand_dim_unchanged')",
+          "summary": "dim_unchanged"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "description": "A 1-D tensor indicates the shape you want to expand to, following the broadcast rule",
+          "name": "shape",
+          "type": "tensor(int64)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 8,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "FeatureVectorizer",
     "schema": {
       "attributes": [
