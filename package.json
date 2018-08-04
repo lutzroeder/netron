@@ -18,10 +18,10 @@
         "marked": "latest",
         "npm-font-open-sans": "latest",
         "protobufjs": "latest",
-        "electron-updater": "^2.21.10"
+        "electron-updater": "^3.0.3"
     },
     "devDependencies": {
         "electron": "latest",
-        "electron-builder": "20.14.7"
+        "electron-builder": "latest"
     }
 }

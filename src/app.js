@@ -114,13 +114,13 @@ class Application {
             properties: [ 'openFile' ], 
             filters: [
                 { name: 'ONNX Model', extension: [ 'onnx', 'pb' ] },
-                { name: 'Keras Model', extension: [ 'json', 'keras', 'h5' ] },
+                { name: 'Keras Model', extension: [ 'h5', 'json', 'keras' ] },
                 { name: 'CoreML Model', extension: [ 'mlmodel' ] },
                 { name: 'Caffe Model', extension: [ 'caffemodel' ] },
                 { name: 'Caffe2 Model', extension: [ 'pb' ] },
                 { name: 'MXNet Model', extension: [ 'model', 'json' ] },
                 { name: 'TensorFlow Graph', extension: [ 'pb', 'meta' ] },
-                { name: 'TensorFlow Saved Model', extension: [ 'saved_model.pb' ] },
+                { name: 'TensorFlow Saved Model', extension: [ 'pb' ] },
                 { name: 'TensorFlow Lite Model', extension: [ 'tflite' ] }
             ]
         };

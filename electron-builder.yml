@@ -7,35 +7,29 @@ directories:
   output: ./build/electron
 fileAssociations:
   - name: "ONNX Model"
-    ext: 
-    - onnx
-    - pb
-  - name: "TensorFlow Saved Model"
-    ext:
-    - saved_model.pb
-  - name: "TensorFlow Graph"
-    ext:
-    - pb
-    - meta
+    ext: onnx
   - name: "TensorFlow Lite Model"
-    ext: 
-    - tflite
+    ext: tflite
   - name: "Keras Model"
-    ext:
-    - keras
-    - h5
+    ext: h5
+  - name: "Keras Model"
+    ext: keras
   - name: "CoreML Model"
-    ext:
-    - mlmodel
+    ext: mlmodel
   - name: "MXNet Model"
-    ext:
-    - model
+    ext: model
   - name: "Caffe Model"
-    ext:
-    - caffemodel
+    ext: caffemodel
+  - name: "TensorFlow Meta Graph"
+    ext: meta
+  - name: "TensorFlow Graph"
+    ext: pb
+  - name: "TensorFlow Saved Model"
+    ext: pb
+  - name: "ONNX Model"
+    ext: pb
   - name: "Caffe2 Model"
-    ext:
-    - pb
+    ext: pb
 publish:
   - provider: github
     releaseType: release
