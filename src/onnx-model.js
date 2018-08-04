@@ -100,20 +100,20 @@ class OnnxModel {
             results.push({ name: 'description', value: this._docString });
         }
         if (this._metadata.author) {
-            results.push({ name: 'author', value: metadata.author });
+            results.push({ name: 'author', value: this._metadata.author });
         }
         if (this._metadata.company) {
-            results.push({ name: 'company', value: metadata.company });
+            results.push({ name: 'company', value: this._metadata.company });
         }
         if (this._metadata.converted_from) {
-            results.push({ name: 'source', value: metadata.converted_from });
+            results.push({ name: 'source', value: this._metadata.converted_from });
         }
         var license = [];
-        if (this._metadata.license && metadata.license.length > 0) {
-            license.push(metadata.license);
+        if (this._metadata.license && this._metadata.license.length > 0) {
+            license.push(this._metadata.license);
         }
-        if (this._metadata.license_url && metadata.license_url.length > 0) {
-            license.push('<a href=\'' + metadata.license_url + '\'>' + metadata.license_url + '</a>');
+        if (this._metadata.license_url && this._metadata.license_url.length > 0) {
+            license.push('<a href=\'' + this._metadata.license_url + '\'>' + this._metadata.license_url + '</a>');
         }
         if (license.length > 0) {
             results.push({ name: 'license', value: license.join(' ') });
@@ -726,16 +726,19 @@ class OnnxTensor {
                 value = text;
                 break;
             case 'mapType':
-                var mapType = type.mapType;
-                value = '<' + OnnxTensor._formatElementType(mapType.keyType) + ',' + OnnxTensor._formatType(mapType.valueType) + '>';
+                var keyType = OnnxTensor._formatElementType(type.mapType.keyType);
+                var valueType = OnnxTensor._formatType(type.mapType.valueType);
+                value = 'map<' + keyType + ',' + valueType.value + '>';
                 break;
             case 'sequenceType':
-                value = '[?]';
+                var elemType = OnnxTensor._formatType(type.sequenceType.elemType);
+                value = 'sequence<' + elemType.value + '>';
                 break;
             default:
-                // debugger;
-                return '?';
-        }
+                // debugger
+                value = '?';
+                break;
+            }
         var denotation = '';
         switch (type.denotation) {
             case 'TENSOR':

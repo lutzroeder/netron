@@ -650,7 +650,7 @@ class GraphArgumentView {
 
         var typeLine = document.createElement('div');
         typeLine.className = 'sidebar-view-item-value-line';
-        typeLine.innerHTML = 'type: <code><b>' + type.value.replace('<', '&lt;').replace('>', '&gt;') + '</b></code>';
+        typeLine.innerHTML = 'type: <code><b>' + type.value.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
         this._element.appendChild(typeLine);
 
         if (argument.description || type.denotation) {
