@@ -468,7 +468,7 @@ class KerasNode {
             input.connections.forEach((connection) => {
                 var initializer = this._initializers[connection.id];
                 if (initializer) {
-                    connection.type = initializer.type;
+                    connection.type = initializer.type.toString();
                     connection.initializer = initializer;
                 }
             });
@@ -557,8 +557,7 @@ class KerasAttribute {
 class KerasTensor {
 
     constructor(type, shape, data, reference) {
-        this._type = type;
-        this._shape = shape;
+        this._type = new KerasTensorType(type, shape);
         this._data = data;
         this._reference = reference;
     }
@@ -572,7 +571,7 @@ class KerasTensor {
     }
 
     get type() {
-        return this._type + JSON.stringify(this._shape);
+        return this._type;
     }
 
     get reference() {
@@ -680,6 +679,27 @@ class KerasTensor {
         }
         return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
+}
+
+class KerasTensorType {
+
+    constructor(dataType, shape) {
+        this._dataType = dataType;
+        this._shape = shape;
+    }
+
+    get dataType() {
+        return this._dataType;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+    }
+
 }
 
 class KerasOperatorMetadata {

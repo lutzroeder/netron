@@ -86,6 +86,7 @@ setuptools.setup(
             'caffe-model.js', 'caffe-metadata.json', 'caffe.js',
             'caffe2-model.js', 'caffe2-metadata.json', 'caffe2.js',
             'mxnet-model.js', 'mxnet-metadata.json', 'unzip.js',
+            'numpy.js',
             'view-browser.html', 'view-browser.js',
             'view-render.css', 'view-render.js',
             'view-sidebar.css', 'view-sidebar.js',

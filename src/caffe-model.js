@@ -295,7 +295,7 @@ class CaffeNode {
             input.connections.forEach((connection) => {
                 if (connection.id instanceof CaffeTensor) {
                     connection.initializer = connection.id;
-                    connection.type = connection.initializer.type;
+                    connection.type = connection.initializer.type.toString();
                     connection.id = '';
                 }
             });
@@ -413,15 +413,17 @@ class CaffeTensor {
             this._shape = blob.shape.dim;
         }
 
-        this._type = '?';
+        var dataType = '?';
         if (blob.data.length > 0) {
-            this._type = 'float';
+            dataType = 'float32';
             this._data = blob.data;
         }
         else if (blob.doubleData.length > 0) {
-            this._type = 'double';
+            dataType = 'float64';
             this._data = blob.doubleData;
         }
+
+        this._type = new CaffeTensorType(dataType, this._shape);
     }
 
     get kind() {
@@ -429,7 +431,7 @@ class CaffeTensor {
     }
 
     get type() {
-        return this._type + JSON.stringify(this._shape);
+        return this._type;
     }
 
     get value() {
@@ -488,6 +490,27 @@ class CaffeTensor {
         }
         return results;
     }
+}
+
+class CaffeTensorType {
+
+    constructor(dataType, shape) {
+        this._dataType = dataType;
+        this._shape = shape;
+    }
+
+    get dataType() {
+        return this._dataType;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+    }
+
 }
 
 class CaffeOperatorMetadata 

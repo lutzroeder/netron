@@ -387,7 +387,7 @@ class TensorFlowNode {
                 input.connections.forEach((connection) => {
                     var initializer = this._graph._getInitializer(connection.id);
                     if (initializer) {
-                        connection.type = initializer.type;
+                        connection.type = initializer.type.toString();
                         connection.initializer = initializer;
                     }
                 });
@@ -562,14 +562,7 @@ class TensorFlowTensor {
     }
 
     get type() {
-        if (this._tensor.dtype) {
-            var type = TensorFlowTensor.formatDataType(this._tensor.dtype);
-            if (this._tensor.tensorShape) {
-                type += TensorFlowTensor.formatTensorShape(this._tensor.tensorShape);
-            }
-            return type;
-        }
-        return '?';
+        return new TensorFlowTensorType(this._tensor.dtype, this._tensor.tensorShape);
     }
 
     get kind() {
@@ -747,7 +740,7 @@ class TensorFlowTensor {
     }
 
     static formatTensorShape(shape) {
-        if (shape.dim) {
+        if (shape && shape.dim) {
             if (shape.unknownRank) {
                 return '[-]';
             }
@@ -761,6 +754,27 @@ class TensorFlowTensor {
         }
         return '?';
     }
+}
+
+class TensorFlowTensorType {
+
+    constructor(dtype, shape) {
+        this._dtype = dtype;
+        this._shape = shape;
+    }
+
+    get dataType() {
+        return this._dtype ? TensorFlowTensor.formatDataType(this._dtype) : '?';
+    }
+
+    get shape() {
+        return null;
+    }
+
+    toString() {
+        return this.dataType + TensorFlowTensor.formatTensorShape(this._shape);
+    }
+    
 }
 
 class TensorFlowGraphOperatorMetadata {

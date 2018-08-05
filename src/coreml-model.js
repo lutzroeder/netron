@@ -466,7 +466,7 @@ class CoreMLNode {
                 name: initializer.name,
                 connections: [ { 
                     id: '',
-                    type: initializer.type,
+                    type: initializer.type.toString(),
                     initializer: initializer, } ]
             };
             if (!CoreMLOperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name)) {
@@ -625,24 +625,27 @@ class CoreMLTensor {
     constructor(kind, name, shape, data) {
         this._kind = kind;
         this._name = name;
-        this._shape = shape;
-        this._type = null;
         this._data = null;
+        var dataType = '?';
         if (data) {
             if (data.floatValue && data.floatValue.length > 0) {
                 this._data = data.floatValue;
-                this._type = 'float';
+                dataType = 'float32';
+                this._shape = shape;
             }
             else if (data.float16Value && data.float16Value.length > 0) {
                 this._data = data.float16Value;
-                this._type = 'float16';
+                dataType = 'float16';
+                this._shape = shape;
             }
             else if (data.rawValue && data.rawValue.length > 0) {
                 this._data = null;
-                this._type = 'byte';
+                dataType = 'byte';
                 this._shape = [];
             }
         }
+
+        this._type = new CoreMLTensorType(dataType, shape);
     }
 
     get id() {
@@ -658,10 +661,7 @@ class CoreMLTensor {
     }
 
     get type() {
-        if (this._type && this._shape) {
-            return this._type + '[' + this._shape.join(',') + ']';
-        }
-        return '?';
+        return this._type;
     }
 
     get value() {
@@ -722,6 +722,27 @@ class CoreMLTensor {
         }
         return results;
     }
+}
+
+class CoreMLTensorType {
+
+    constructor(dataType, shape) {
+        this._dataType = dataType;
+        this._shape = shape;
+    }
+
+    get dataType() {
+        return this._dataType;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+    }
+
 }
 
 class CoreMLOperatorMetadata 

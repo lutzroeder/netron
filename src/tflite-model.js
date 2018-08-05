@@ -133,7 +133,7 @@ class TensorFlowLiteGraph {
             results.push({ 
                 id: tensorIndex.toString(),
                 name: tensor.name(),
-                type: TensorFlowLiteTensor.formatTensorType(tensor) 
+                type: new TensorFlowLiteTensorType(tensor).toString()
             });
         }
         return results;
@@ -148,7 +148,7 @@ class TensorFlowLiteGraph {
             results.push({ 
                 id: tensorIndex.toString(),
                 name: tensor.name(),
-                type: TensorFlowLiteTensor.formatTensorType(tensor) 
+                type: new TensorFlowLiteTensorType(tensor).toString()
             });
         }
         return results;
@@ -212,7 +212,7 @@ class TensorFlowLiteNode {
             input.connections.forEach((connection) => {
                 var tensorIndex = connection.id;
                 var tensor = this._graph._graph.tensors(tensorIndex);
-                connection.type = TensorFlowLiteTensor.formatTensorType(tensor);
+                connection.type = new TensorFlowLiteTensorType(tensor).toString();
                 var initializer = this._graph.getInitializer(tensorIndex);
                 if (initializer) {
                     connection.initializer = initializer;
@@ -236,7 +236,7 @@ class TensorFlowLiteNode {
             };
             var connection = {};
             connection.id = tensorIndex.toString();
-            connection.type = TensorFlowLiteTensor.formatTensorType(tensor);
+            connection.type = new TensorFlowLiteTensorType(tensor).toString();
             var initializer = this._graph.getInitializer(tensorIndex);
             if (initializer) {
                 connection.initializer = initializer;
@@ -410,7 +410,7 @@ class TensorFlowLiteTensor {
     }
 
     get type() {
-        return TensorFlowLiteTensor.formatTensorType(this._tensor);
+        return new TensorFlowLiteTensorType(this._tensor);
     }
 
     get quantization() {
@@ -555,33 +555,46 @@ class TensorFlowLiteTensor {
         }
         return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
+}
 
-    static formatTensorType(tensor) {
-        if (!TensorFlowLiteTensor._tensorTypeMap)
-        {
-            TensorFlowLiteTensor._tensorTypeMap = {};
-            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.FLOAT32] = 'float';
-            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.FLOAT16] = 'float16';
-            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.INT32] = 'int32';
-            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.UINT8] = 'byte';
-            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.INT64] = 'int64';
-            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.STRING] = 'string';
-            TensorFlowLiteTensor._tensorTypeMap[tflite.TensorType.BOOL] = 'bool';
-        }
-        var result = TensorFlowLiteTensor._tensorTypeMap[tensor.type()]; 
-        if (!result) {
-            debugger;
-            result = '?';
-        }
+class TensorFlowLiteTensorType {
+
+    constructor(tensor) {
+        this._dataType = tensor.type();
+        this._shape = [];
         var shapeLength = tensor.shapeLength();
         if (shapeLength > 0) {
-            var dimensions = [];
             for (var i = 0; i < shapeLength; i++) {
-                dimensions.push(tensor.shape(i).toString());
+                this._shape.push(tensor.shape(i));
             }
-            result += '[' + dimensions.join(',') + ']';
         }
-        return result;
+    }
+
+    get dataType() {
+        if (!TensorFlowLiteTensorType._typeMap)
+        {
+            TensorFlowLiteTensorType._typeMap = {};
+            TensorFlowLiteTensorType._typeMap[tflite.TensorType.FLOAT32] = 'float32';
+            TensorFlowLiteTensorType._typeMap[tflite.TensorType.FLOAT16] = 'float16';
+            TensorFlowLiteTensorType._typeMap[tflite.TensorType.INT32] = 'int32';
+            TensorFlowLiteTensorType._typeMap[tflite.TensorType.UINT8] = 'byte';
+            TensorFlowLiteTensorType._typeMap[tflite.TensorType.INT64] = 'int64';
+            TensorFlowLiteTensorType._typeMap[tflite.TensorType.STRING] = 'string';
+            TensorFlowLiteTensorType._typeMap[tflite.TensorType.BOOL] = 'bool';
+        }
+        var result = TensorFlowLiteTensorType._typeMap[this._dataType]; 
+        if (result) {
+            return result;
+        }
+        return '?';
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
     }
 
 }

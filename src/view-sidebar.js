@@ -73,7 +73,8 @@ class Sidebar {
 
 class NodeView {
 
-    constructor(node) {
+    constructor(node, host) {
+        this._host = host;
         this._node = node;
         this._elements = [];
         this._attributes = [];
@@ -165,7 +166,7 @@ class NodeView {
 
     addInput(name, input) {
         if (input.connections.length > 0) {
-            var item = new NameValueView(name, new NodeArgumentView(input));
+            var item = new NameValueView(name, new NodeArgumentView(input, this._host));
             this._inputs.push(item);
             this._elements.push(item.element);
         }
@@ -323,12 +324,12 @@ class NodeAttributeView {
 
 class NodeArgumentView {
 
-    constructor(list) {
+    constructor(list, host) {
         this._list = list;
         this._elements = [];
         this._items = [];
         list.connections.forEach((connection) => {
-            var item = new NodeConnectionView(connection);
+            var item = new NodeConnectionView(connection, host);
             this._items.push(item);
             this._elements.push(item.element);
         });
@@ -346,8 +347,10 @@ class NodeArgumentView {
 }
 
 class NodeConnectionView {
-    constructor(connection) {
+    constructor(connection, host) {
         this._connection = connection;
+        this._host = host;
+
         this._element = document.createElement('div');
         this._element.className = 'sidebar-view-item-value';
 

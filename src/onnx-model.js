@@ -209,7 +209,7 @@ class OnnxGraph {
                             var initializer = this._initializerMap[connection.id];
                             if (initializer) {
                                 connection.initializer = initializer;
-                                connection.type = connection.type || initializer.type;
+                                connection.type = connection.type || initializer.type.toString();
                             }
                             return connection;
                         });
@@ -471,14 +471,7 @@ class OnnxTensor {
     }
 
     get type() {
-        var result = '';
-        if (this._tensor.hasOwnProperty('dataType')) {
-            result = OnnxTensor._formatElementType(this._tensor.dataType);
-            if (this._tensor.dims) { 
-                result += '[' + this._tensor.dims.map(dimension => dimension.toString()).join(',') + ']';
-            }
-        }
-        return result;
+        return new OnnxTensorType(this._tensor);
     }
 
     get value() {
@@ -683,7 +676,7 @@ class OnnxTensor {
             var map = {};
             OnnxTensor._elementTypeMap = map;
             map[onnx.TensorProto.DataType.UNDEFINED] = 'UNDEFINED';
-            map[onnx.TensorProto.DataType.FLOAT] = 'float';
+            map[onnx.TensorProto.DataType.FLOAT] = 'float32';
             map[onnx.TensorProto.DataType.UINT8] = 'uint8';
             map[onnx.TensorProto.DataType.INT8] = 'int8';
             map[onnx.TensorProto.DataType.UINT16] = 'uint16';
@@ -693,7 +686,7 @@ class OnnxTensor {
             map[onnx.TensorProto.DataType.STRING] = 'string';
             map[onnx.TensorProto.DataType.BOOL] = 'bool';
             map[onnx.TensorProto.DataType.FLOAT16] = 'float16';
-            map[onnx.TensorProto.DataType.DOUBLE] = 'double';
+            map[onnx.TensorProto.DataType.DOUBLE] = 'float64';
             map[onnx.TensorProto.DataType.UINT32] = 'uint32';
             map[onnx.TensorProto.DataType.UINT64] = 'uint64';
             map[onnx.TensorProto.DataType.COMPLEX64] = 'complex64';
@@ -756,6 +749,33 @@ class OnnxTensor {
         }
         return { value: value, denotation: denotation };
     }
+}
+
+class OnnxTensorType {
+
+    constructor(tensor) {
+        this._dataType = '?';
+        if (tensor.hasOwnProperty('dataType')) {
+            this._dataType = OnnxTensor._formatElementType(tensor.dataType);
+        }
+        this._shape = [];
+        if (tensor.hasOwnProperty('dims')) { 
+            this._shape = tensor.dims.map((dimension) => dimension);
+        }
+    }
+
+    get dataType() {
+        return this._dataType;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+    }
+
 }
 
 class OnnxGraphOperatorMetadata {

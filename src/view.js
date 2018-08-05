@@ -780,7 +780,7 @@ class View {
     
     showNodeProperties(node, input) {
         if (node) {
-            var view = new NodeView(node);
+            var view = new NodeView(node, this._host);
             view.on('show-documentation', (sender, e) => {
                 this.showOperatorDocumentation(node);
             });

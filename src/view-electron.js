@@ -143,6 +143,9 @@ class ElectronHost {
                 return;
             }    
         }
+        if (mimeType == null) {
+            encoding = 'binary';
+        }
         fs.writeFile(file, data, encoding, (err) => {
             if (err) {
                 this.error('Export write failure.', err);

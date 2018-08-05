@@ -387,11 +387,11 @@ class MXNetNode {
                     }
                     if (argument.name && argument.name.startsWith(prefix)) {
                         var dataType = '?';
-                        var shape = '';
+                        var shape = [];
                         if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
                             try {
                                 dataType = parseInt(argument.attrs.__dtype__);
-                                shape = argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('');
+                                shape = JSON.parse('[' + argument.attrs.__shape__.replace('(', '').replace(')', '').split(' ').join('').split(',').map((dimension => dimension || '\"?\"' )).join(',') + ']');
                             }
                             catch (err) {
                             }
@@ -430,7 +430,7 @@ class MXNetNode {
                 var initializer = this._initializers[connection.id];
                 if (initializer) {
                     connection.id = initializer.name || connection.id;
-                    connection.type = initializer.type;
+                    connection.type = initializer.type.toString();
                     connection.initializer = initializer;
                 }
             });
@@ -477,9 +477,8 @@ class MXNetTensor {
         this._kind = kind;
         this._name = name;
         this._dataType = dataType;
-        this._shape = shape;
         this._data = data;
-        MXNetTensor._dataTypeNameTable = MXNetTensor._dataTypeTable || [ 'float32', 'float64', 'float16', 'uint8', 'int32', 'int8', 'int64' ];
+        this._type = new MXNetTensorType(dataType, shape);
     }
 
     get kind() {
@@ -491,17 +490,7 @@ class MXNetTensor {
     }
 
     get type() {
-        var dataType = '?';
-        if (this._dataType || this._dataType === 0) {
-            if (this._dataType < MXNetTensor._dataTypeNameTable.length) {
-                dataType = MXNetTensor._dataTypeNameTable[this._dataType];
-            }
-            else {
-                dataType = this._dataType.toString();
-            }
-        }
-        var shape = Array.isArray(this._shape) ? this._shape.join(',') : this._shape.toString();
-        return dataType + '[' + shape + ']';
+        return this._type;
     }
 
     get value() {
@@ -528,15 +517,15 @@ class MXNetTensor {
             return { error: 'Tensor data is empty.' };
         }
 
-        if ((!this._dataType && this._dataType !== 0) || this._dataType == '?') {
+        if (this._type.dataType == '?') {
             return { error: 'Tensor has no data type.' };
         }
 
-        if (this._dataType >= MXNetTensor._dataTypeNameTable.length) {
+        if (this._type.dataType.length <= 1) {
             return { error: 'Tensor has unknown data type.' };
         }
 
-        if (!Array.isArray(this._shape) && this._shape.length < 1) {
+        if (this._type.shape.length < 1) {
             return { error: 'Tensor has unknown shape.' };
         }
 
@@ -544,6 +533,7 @@ class MXNetTensor {
         context.index = 0;
         context.count = 0;
         context.limit = limit;
+        context.shape = this._type.shape;
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
 
         return { value: this._decodeDimension(context, 0) };
@@ -551,8 +541,8 @@ class MXNetTensor {
 
     _decodeDimension(context, dimension) {
         var results = [];
-        var size = this._shape[dimension];
-        if (dimension == this._shape.length - 1) {
+        var size = context.shape[dimension];
+        if (dimension == context.shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -621,6 +611,36 @@ class MXNetTensor {
             return f ? NaN : ((s ? -1 : 1) * Infinity);
         }
         return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+    }
+}
+
+class MXNetTensorType {
+
+    constructor(dataType, shape) {
+        MXNetTensorType._dataTypeNameTable = MXNetTensor._dataTypeTable || [ 'float32', 'float64', 'float16', 'uint8', 'int32', 'int8', 'int64' ];
+        this._dataType = dataType;
+        this._shape = shape;
+    }
+
+    get dataType() {
+        var dataType = '?';
+        if (this._dataType || this._dataType === 0) {
+            if (this._dataType < MXNetTensorType._dataTypeNameTable.length) {
+                dataType = MXNetTensorType._dataTypeNameTable[this._dataType];
+            }
+            else {
+                dataType = this._dataType.toString();
+            }
+        }
+        return dataType;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
     }
 }
 
