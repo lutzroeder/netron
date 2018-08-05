@@ -288,7 +288,7 @@ class NodeAttributeView {
         }
         var valueLine = document.createElement('div');
         valueLine.className = 'sidebar-view-item-value-line';
-        valueLine.innerHTML = '<code>' + (value ? value : '&nbsp;') + '</code>';
+        valueLine.innerHTML = (value ? value : '&nbsp;');
         this._element.appendChild(valueLine);
     }
 
@@ -453,7 +453,11 @@ class NodeConnectionView {
                     if (value) {
                         var valueLine = document.createElement('div');
                         valueLine.className = 'sidebar-view-item-value-line-border';
-                        valueLine.innerHTML = '<pre>' + value + '</pre>';
+
+                        var contentLine = document.createElement('pre');
+                        contentLine.innerHTML = value;
+                        valueLine.appendChild(contentLine);
+
                         this._element.appendChild(valueLine);
                     }   
                 }
@@ -588,7 +592,7 @@ class GraphOperatorListView {
             count += operators[operator];
         });
         this._list = this._list.sort((a, b) => { return (a.name > b.name) - (a.name < b.name); });
-        this._list = this._list.map((item) => { return item.name + ': ' + item.count.toString(); });
+        this._list = this._list.map((item) => { return item.name + ': <b>' + item.count.toString() + '</b>'; });
 
         this._expander = document.createElement('div');
         this._expander.className = 'sidebar-view-item-value-expander';
@@ -601,7 +605,7 @@ class GraphOperatorListView {
 
         var countLine = document.createElement('div');
         countLine.className = 'sidebar-view-item-value-line';
-        countLine.innerHTML = 'Total: ' + count.toString();
+        countLine.innerHTML = 'Total: <b>' + count.toString() + '</b>';
         this._element.appendChild(countLine);
     }
 
@@ -616,7 +620,7 @@ class GraphOperatorListView {
     
                 var valueLine = document.createElement('div');
                 valueLine.className = 'sidebar-view-item-value-line-border';
-                valueLine.innerHTML = '<pre>' + this._list.join('\n') + '</pre>';
+                valueLine.innerHTML = this._list.join('<br/>');
                 this._element.appendChild(valueLine);
             }
             else {
