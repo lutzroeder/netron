@@ -245,6 +245,27 @@
       "category": "Tensor",
       "attributes": [
         { "name": "axis", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "outputs", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "EuclideanLoss",
+    "schema": {
+      "inputs": [
+        { "name": "predictions" },
+        { "name": "targets" }
+      ]
+    }
+  },
+  {
+    "name": "Accuracy",
+    "schema": {
+      "inputs": [
+        { "name": "predictions" },
+        { "name": "labels" }
       ]
     }
   },
