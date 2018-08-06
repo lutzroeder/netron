@@ -178,16 +178,34 @@ class MXNetModel {
             throw new MXNetError('JSON file does not contain an MXNet \'heads\' property.');
         }
 
-        if (symbol.attrs && symbol.attrs.mxnet_version && symbol.attrs.mxnet_version.length == 2 && symbol.attrs.mxnet_version[0] == 'int') {
-            var version = symbol.attrs.mxnet_version[1];
-            var revision = version % 100;
-            var minor = Math.floor(version / 100) % 100;
-            var major = Math.floor(version / 10000) % 100;
-            this._version = major.toString() + '.' + minor.toString() + '.' + revision.toString(); 
+        if (manifest) {
+            this._format = 'MXNet Model Server';
+            if (manifest['Model-Archive-Version']) {
+                this._format += ' v' + manifest['Model-Archive-Version'].toString();
+            }
+            if (manifest.Model && manifest.Model['Model-Name']) {
+                this._name = manifest.Model['Model-Name'];
+            }
+            if (manifest.Model && manifest.Model.Description && this._name != manifest.Model.Description) {
+                this._description = manifest.Model.Description;
+            }
+            if (manifest.Engine && manifest.Engine.MXNet) {
+                var engineVersion = MXNetModel._convert_version(manifest.Engine.MXNet);
+                this._engine = 'MXNet v' + (engineVersion ? engineVersion : manifest.Engine.MXNet.toString());
+            }
         }
 
-        if (!this._version && manifest && manifest.Engine && manifest.Engine.MXNet) {
-            this._version = manifest.Engine.MXNet.toString();
+        if (!this._format) {
+            if (symbol.attrs && symbol.attrs.mxnet_version) {
+                var version = MXNetModel._convert_version(symbol.attrs.mxnet_version);
+                if (version) {
+                    this._format = 'MXNet v' + version;
+                }
+            }
+        }
+
+        if (!this._format) {
+            this._format = 'MXNet';
         }
 
         this._graphs = [ new MXNetGraph(manifest, symbol, signature, parameters) ];
@@ -195,7 +213,18 @@ class MXNetModel {
 
     get properties() {
         var results = [];
-        results.push({ name: 'format', value: 'MXNet' + (this._version ? (' v' + this._version) : '') });
+        if (this._format) {
+            results.push({ name: 'format', value: this._format });            
+        }
+        if (this._engine) {
+            results.push({ name: 'engine', value: this._engine });            
+        }
+        if (this._name) {
+            results.push({ name: 'name', value: this._name });
+        }
+        if (this._description) {
+            results.push({ name: 'description', value: this._description });
+        }
         return results;
     }
 
@@ -203,6 +232,17 @@ class MXNetModel {
         return this._graphs;
     }
 
+    static _convert_version(value) {
+        if (Array.isArray(value)) {
+            if (value.length == 2 && value[0] == 'int') {
+                var major = Math.floor(value[1] / 10000) % 100;
+                var minor = Math.floor(value[1] / 100) % 100;
+                var patch = Math.floor(value[1]) % 100;
+                return [ major.toString(), minor.toString(), patch.toString() ].join('.');
+            }
+        }
+        return null;
+    }
 }
 
 class MXNetGraph {
