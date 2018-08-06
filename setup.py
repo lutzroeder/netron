@@ -46,6 +46,13 @@ class build_py(setuptools.command.build_py.build_py):
             for file in files:
                 self.copy_file(file, target)
         return result
+    def build_module(self, module, module_file, package):
+        setuptools.command.build_py.build_py.build_module(self, module, module_file, package)
+        if module == '__version__':
+            package = package.split('.')
+            outfile = self.get_module_outfile(self.build_lib, package, module)
+            with open(outfile, 'w+') as f:
+                f.write("__version__ = '" + package_version() + "'\n")
 
 def package_version():
     folder = os.path.realpath(os.path.dirname(__file__))

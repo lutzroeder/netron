@@ -16,9 +16,16 @@ class BrowserHost {
             this._keyHandler(e);
         });
 
-        var fileElement = Array.from(document.getElementsByTagName('meta')).filter(e => e.name == 'file').shift();
-        if (fileElement && fileElement.content && fileElement.content.length > 0) {
-            this._openModel('/data', fileElement.content.split('/').pop());
+        var meta = {};
+        Array.from(document.getElementsByTagName('meta')).forEach((element) => {
+            if (element.content) {
+                meta[element.name] = meta[element.name] || [];
+                meta[element.name].push(element.content);
+            }
+        });
+
+        if (meta['file']) {
+            this._openModel('/data', meta['file'][0].split('/').pop());
             return;
         }
 

@@ -7,6 +7,8 @@ import sys
 import threading
 import webbrowser
 
+from .__version__ import __version__
+
 if sys.version_info[0] > 2:
     from urllib.parse import urlparse
     from http.server import HTTPServer
@@ -47,10 +49,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         buffer = None
         if status_code == 0:
             if pathname == '/':
+                meta = []
+                if __version__:
+                    meta.append("<meta name='version' content='" + __version__ + "' />")
+                if self.file:
+                    meta.append("<meta name='file' content='" + self.file + "' />")
                 with codecs.open(location + 'view-browser.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
-                if self.file:
-                    buffer = buffer.replace('<!-- meta -->', '<meta name=\'file\' content=\'' + self.file + '\'>')
+                buffer = buffer.replace('<!-- meta -->', '\n'.join(meta))
                 buffer = buffer.encode('utf-8');
                 headers['Content-Type'] = 'text/html'
                 headers['Content-Length'] = len(buffer)

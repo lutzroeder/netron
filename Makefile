@@ -45,6 +45,8 @@ publish_github_pages:
 	rm -rf ./build/gh-pages/*.pyc
 	rm -rf ./build/gh-pages/netron
 	mv ./build/gh-pages/view-browser.html ./build/gh-pages/index.html
+	@export PACKAGE_VERSION=`node -pe "require('./package.json').version"`; \
+	sed -i -e "s/<!-- meta -->/<meta name='version' content='$$PACKAGE_VERSION' \/>/g" ./build/gh-pages/index.html
 	git -C ./build/gh-pages add --all
 	git -C ./build/gh-pages commit --amend --no-edit
 	git -C ./build/gh-pages push --force origin gh-pages
