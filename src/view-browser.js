@@ -9,6 +9,10 @@ class BrowserHost {
         return 'Netron';
     }
 
+    get version() {
+        return this._version;
+    }
+
     initialize(view) {
         this._view = view;
 
@@ -24,8 +28,10 @@ class BrowserHost {
             }
         });
 
-        if (meta['file']) {
-            this._openModel('/data', meta['file'][0].split('/').pop());
+        this._version = meta.version ? meta.version[0] : '0.0.0';
+
+        if (meta.file) {
+            this._openModel('/data', meta.file[0].split('/').pop());
             return;
         }
 
@@ -35,7 +41,7 @@ class BrowserHost {
             return;
         }
 
-        this._view.show('welcome');
+        this._view.show('Welcome');
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
@@ -125,6 +131,15 @@ class BrowserHost {
         window.open(url, '_target');
     }
 
+    exception(err, fatal) {
+    }
+
+    screen(name) {
+    }
+
+    event(category, action, label) {
+    }
+
     _url(file) {
         var url = file;
         if (window && window.location && window.location.href) {
@@ -152,7 +167,7 @@ class BrowserHost {
     }
 
     _openModel(url, file) {
-        this._view.show('spinner');
+        this._view.show('Spinner');
         var request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
         request.onload = () => {
@@ -161,6 +176,7 @@ class BrowserHost {
                 this._view.openBuffer(buffer, file, (err, model) => {
                     this._view.show(null);
                     if (err) {
+                        this.exception(err, false);
                         this.error(err.name, err.message);
                     }
                     if (model) {
@@ -180,10 +196,11 @@ class BrowserHost {
     }
 
     _openFile(file) {
-        this._view.show('spinner');
+        this._view.show('Spinner');
         this._openBuffer(file, (err, model) => {
             this._view.show(null);
             if (err) {
+                this.exception(err, false);
                 this.error(err.name, err.message);
             }
             if (model) {

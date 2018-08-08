@@ -36,8 +36,10 @@ class View {
     show(page) {
 
         if (!page) {
-            page = (!this._model && !this._activeGraph) ? 'welcome' : 'graph';
+            page = (!this._model && !this._activeGraph) ? 'Welcome' : 'Graph';
         }
+
+        this._host.screen(page);
 
         this._sidebar.close();
 
@@ -47,7 +49,7 @@ class View {
         var graphElement = document.getElementById('graph');
         var toolbarElement = document.getElementById('toolbar');
     
-        if (page == 'welcome') {
+        if (page == 'Welcome') {
             document.body.style.cursor = 'default';
             welcomeElement.style.display = 'block';
             openFileButton.style.display = 'block';
@@ -58,7 +60,7 @@ class View {
             toolbarElement.style.display = 'none';
         }
 
-        if (page == 'spinner') {
+        if (page == 'Spinner') {
             document.body.style.cursor = 'wait';
             welcomeElement.style.display = 'block';
             spinnerElement.style.display = 'block';
@@ -68,7 +70,7 @@ class View {
             toolbarElement.style.display = 'none';
         }
 
-        if (page == 'graph') {
+        if (page == 'Graph') {
             welcomeElement.style.display = 'none';
             openFileButton.style.display = 'none';
             spinnerElement.style.display = 'none';
@@ -114,7 +116,7 @@ class View {
 
     toggleDetails() {
         this._showDetails = !this._showDetails;
-        this.show('spinner');
+        this.show('Spinner');
         this.updateGraph(this._model, this._activeGraph, (err) => {
             if (err) {
                 this.error('Graph update failed.', err);
@@ -128,7 +130,7 @@ class View {
 
     toggleNames() {
         this._showNames = !this._showNames;
-        this.show('spinner');
+        this.show('Spinner');
         this.updateGraph(this._model, this._activeGraph, (err) => {
             if (err) {
                 this.error('Graph update failed.', err);
@@ -236,11 +238,13 @@ class View {
 
     error(message, err) {
         this._sidebar.close();
+        this.exception(err, false);
         this._host.error(message, err.toString());
-        this.show('welcome');
+        this.show('Welcome');
     }
 
     openBuffer(buffer, identifier, callback) {
+        this._host.event('Model', 'Open', 'Size', buffer.length);
         this._sidebar.close();
         setTimeout(() => {
             this.loadBuffer(buffer, identifier, (err, model) => {
@@ -248,6 +252,11 @@ class View {
                     callback(err);
                 }
                 else {
+                    var format = model.properties.filter((p) => p.name == 'format');
+                    if (format && format.length == 1) {
+                        this._host.event('Model', 'Format', format[0].value);
+                    }
+
                     setTimeout(() => {
                         var graph = model.graphs.length > 0 ? model.graphs[0] : null;
                         this.updateGraph(model, graph, (err, model) => {
@@ -265,7 +274,7 @@ class View {
             var model = this._model;
             var graph = model.graphs.filter(graph => name == graph.name).shift();
             if (graph) {
-                this.show('spinner');
+                this.show('Spinner');
                 setTimeout(() => {
                     this.updateGraph(model, graph, (err, model) => {
                         if (err) {
@@ -279,33 +288,39 @@ class View {
 
     updateGraph(model, graph, callback) {
         setTimeout(() => {
-            if (graph && graph != this._activeGraph && graph.nodes.length > 1500 && !this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
-                this.show(null);
-                callback(null, null);
+            if (graph && graph != this._activeGraph) {
+                var nodes = graph.nodes;
+                if (nodes.length > 1500) {
+                    if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
+                        this._host.event('Graph', 'Large', 'Nodes', nodes.length);
+                        this.show(null);
+                        callback(null, null);
+                        return;
+                    }  
+                }
             }
-            else {
-                this.renderGraph(graph, (err) => {
-                    if (err) {
-                        this.renderGraph(this._activeGraph, (nestedError) => {
-                            if (nestedError) {
-                                this._model = null;
-                                this._activeGraph = null;
-                                this.show('welcome');
-                            }
-                            else {
-                                this.show('graph');
-                            }
-                            callback(err, this._model);
-                        });
-                    }
-                    else {
-                        this._model = model;
-                        this._activeGraph = graph;                            
-                        this.show('graph');
-                        callback(null, this._model);
-                    }
-                });
-            }
+
+            this.renderGraph(graph, (err) => {
+                if (err) {
+                    this.renderGraph(this._activeGraph, (nestedError) => {
+                        if (nestedError) {
+                            this._model = null;
+                            this._activeGraph = null;
+                            this.show('Welcome');
+                        }
+                        else {
+                            this.show('Graph');
+                        }
+                        callback(err, this._model);
+                    });
+                }
+                else {
+                    this._model = model;
+                    this._activeGraph = graph;
+                    this.show('Graph');
+                    callback(null, this._model);
+                }
+            });
         }, 100);
     }
 
@@ -342,6 +357,8 @@ class View {
     
                 var nodes = graph.nodes;
         
+                this._host.event('Graph', 'Render', 'Nodes', nodes.length);
+
                 if (groups) {
                     nodes.forEach((node) => {
                         if (node.group) {

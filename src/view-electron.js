@@ -2,20 +2,39 @@
 
 var electron = require('electron');
 var fs = require('fs');
+var process = require('process');
 var path = require('path');
 
 class ElectronHost {
 
     constructor() {
+        this._isDev = ('ELECTRON_IS_DEV' in process.env) ?
+            (parseInt(process.env.ELECTRON_IS_DEV, 10) === 1) :
+            (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
+
+        if (!this._isDev) {
+            this._telemetry = require('universal-analytics')('UA-54146-11');
+        }
+
+        this._name = electron.remote.app.getName();
+        this._version = electron.remote.app.getVersion();
+
+        process.on('uncaughtException', (err) => {
+            this.exception(err, true);
+        });
     }
 
     get name() {
-        return electron.remote.app.getName();
+        return this._name;
+    }
+
+    get version() {
+        return this._version;
     }
 
     initialize(view) {
         this._view = view;
-        this._view.show('welcome');
+        this._view.show('Welcome');
 
         electron.ipcRenderer.on('open', (event, data) => {
             this._openFile(data.file);
@@ -139,6 +158,7 @@ class ElectronHost {
             }
             catch (e)
             {
+                this.exception(e, false);
                 this.error('Export failure.', e);
                 return;
             }    
@@ -148,6 +168,7 @@ class ElectronHost {
         }
         fs.writeFile(file, data, encoding, (err) => {
             if (err) {
+                this.exception(err, false);
                 this.error('Export write failure.', err);
             }
         });
@@ -180,11 +201,61 @@ class ElectronHost {
         return require('zlib').inflateRawSync(data);
     }
 
+    exception(err, fatal) {
+        if (this._telemetry) {
+            try {
+                var description = (err.name ? (err.name + ': ') : '') + err.message;
+                var params = { 
+                    applicationName: this.name,
+                    applicationVersion: this.version
+                };
+                this._telemetry.exception(description, fatal, params, (err) => { });
+
+                var location = '';
+                if (err.stack) {
+                    var match = err.stack.match(/\n    at (.*)\((.*)\)/);
+                    if (match) {
+                        location = match[1] + '(' + match[2].split('/').pop() + ')';
+                    }
+                }
+
+                this.event(fatal ? 'Crash' : 'Alert', description, location);
+            }
+            catch (e) {
+            }
+        }
+    }
+
+    screen(name) {
+        if (this._telemetry) {
+            try {
+                this._telemetry.screenview(name, this.name, this.version, (err) => { });
+            }
+            catch (e) {
+            }
+        }
+    }
+
+    event(category, action, label, value) {
+        if (this._telemetry) {
+            try {
+                var params = { 
+                    applicationName: this.name,
+                    applicationVersion: this.version
+                };
+                this._telemetry.event(category, action, label, value, params, (err) => { });
+            }
+            catch (e) {
+            }
+        }
+    }
+
     _openFile(file) {
         if (file) {
-            this._view.show('spinner');
+            this._view.show('Spinner');
             this._readFile(file, (err, buffer) => {
                 if (err) {
+                    this.exception(err, false);
                     this._view.show(null);
                     this.error('Error while reading file.', err.message);
                     this._update('path', null);
@@ -193,6 +264,7 @@ class ElectronHost {
                 this._view.openBuffer(buffer, path.basename(file), (err, model) => {
                     this._view.show(null);
                     if (err) {
+                        this.exception(err, false);
                         this.error(err.name, err.message);
                         this._update('path', null);
                     }

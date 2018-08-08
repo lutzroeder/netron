@@ -13,12 +13,13 @@
     "dependencies": {
         "d3": "latest",
         "dagre": "latest",
+        "electron-updater": "^3.0.3",
         "flatbuffers": "latest",
         "handlebars": "latest",
         "marked": "latest",
         "npm-font-open-sans": "latest",
         "protobufjs": "latest",
-        "electron-updater": "^3.0.3"
+        "universal-analytics": "latest"
     },
     "devDependencies": {
         "electron": "latest",
