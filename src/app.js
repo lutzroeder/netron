@@ -18,26 +18,26 @@ class Application {
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
 
-        if (this.makeSingleInstance()) {
+        if (this._makeSingleInstance()) {
             electron.app.quit();
         }
 
         electron.ipcMain.on('open-file-dialog', (e, data) => {
-            this.openFileDialog();
+            this._openFileDialog();
         });
 
         electron.ipcMain.on('drop-files', (e, data) => {
-            this.dropFiles(e.sender, data.files);
+            this._dropFiles(e.sender, data.files);
         });
 
         electron.app.on('will-finish-launching', () => {
             electron.app.on('open-file', (e, path) => {
-                this.openFile(path);
+                this._openFile(path);
             });
         });
 
         electron.app.on('ready', () => {
-            this.ready();
+            this._ready();
         });
 
         electron.app.on('window-all-closed', () => {
@@ -50,15 +50,15 @@ class Application {
             this._configuration.save();
         });
 
-        this.parseCommandLine(process.argv);
-        this.checkForUpdates();
+        this._parseCommandLine(process.argv);
+        this._checkForUpdates();
     }
 
-    makeSingleInstance() {
+    _makeSingleInstance() {
         return electron.app.makeSingleInstance((argv, workingDirectory) => { 
             var currentDirectory = process.cwd();
             process.chdir(workingDirectory);
-            var open = this.parseCommandLine(argv);
+            var open = this._parseCommandLine(argv);
             process.chdir(currentDirectory);
             if (!open) {
                 if (this._views.count > 0) {
@@ -71,14 +71,14 @@ class Application {
         });
     }
 
-    parseCommandLine(argv) {
+    _parseCommandLine(argv) {
         var open = false;
         if (process.platform == 'win32' && argv.length > 1) {
             argv.slice(1).forEach((arg) => {
                 if (!arg.startsWith('-')) {
                     var extension = arg.split('.').pop();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg) && fs.statSync(arg).isFile()) {
-                        this.openFile(arg);
+                        this._openFile(arg);
                         open = true;
                     }
                 }
@@ -87,29 +87,29 @@ class Application {
         return open;
     }
 
-    ready() {
+    _ready() {
         this._configuration.load();
         if (this._openFileQueue) {
             var openFileQueue = this._openFileQueue;
             this._openFileQueue = null;
             while (openFileQueue.length > 0) {
                 var file = openFileQueue.shift();
-                this.openFile(file);
+                this._openFile(file);
             }
         }
         if (this._views.count == 0) {
             this._views.openView();
         }
-        this.resetMenu();
+        this._resetMenu();
         this._views.on('active-view-changed', (e) => {
-            this.updateMenu();
+            this._updateMenu();
         });
         this._views.on('active-view-updated', (e) => {
-            this.updateMenu();
+            this._updateMenu();
         });
     }
 
-    openFileDialog() {
+    _openFileDialog() {
         var showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
@@ -127,13 +127,13 @@ class Application {
         electron.dialog.showOpenDialog(showOpenDialogOptions, (selectedFiles) => {
             if (selectedFiles) {
                 selectedFiles.forEach((selectedFile) => {
-                    this.openFile(selectedFile);
+                    this._openFile(selectedFile);
                 });
             }
         });
     }
 
-    openFile(file) {
+    _openFile(file) {
         if (this._openFileQueue) {
             this._openFileQueue.push(file);
             return;
@@ -150,11 +150,11 @@ class Application {
             if (view == null) {
                 view = this._views.openView();
             }
-            this.loadFile(file, view);
+            this._loadFile(file, view);
         }
     }
 
-    loadFile(file, view) {
+    _loadFile(file, view) {
         var recents = this._configuration.get('recents');
         recents = recents.filter(recent => file != recent.path);
         view.open(file);
@@ -163,24 +163,23 @@ class Application {
             recents.splice(9);
         }
         this._configuration.set('recents', recents);
-        this.resetMenu();
+        this._resetMenu();
     }
 
-    dropFiles(sender, files) {
+    _dropFiles(sender, files) {
         var view = this._views.from(sender);
         files.forEach((file) => {
             if (view) {
-                this.loadFile(file, view);
+                this._loadFile(file, view);
                 view = null;
             }
             else {
-                this.openFile(file);
+                this._openFile(file);
             }
         });
     }
 
-
-    export() {
+    _export() {
         var view = this._views.activeView;
         if (view && view.path) {
             var defaultPath = 'Untitled';
@@ -212,27 +211,18 @@ class Application {
         if (view) {
             view.execute(command, data || {});
         }
-        this.updateMenu();
+        this._updateMenu();
     }
 
-    reload() {
+    _reload() {
         var view = this._views.activeView;
         if (view && view.path) {
-            this.loadFile(view.path, view);
+            this._loadFile(view.path, view);
         }
     }
 
-    toggleDevTools() {
-        if (this.isDev()) {
-            var window = electron.BrowserWindow.getFocusedWindow();
-            if (window) {
-                window.toggleDevTools();
-            }
-        }
-    }
-
-    checkForUpdates() {
-        if (this.isDev()) {
+    _checkForUpdates() {
+        if (this._isDev()) {
             return;
         }
         var autoUpdater = updater.autoUpdater;
@@ -268,7 +258,7 @@ class Application {
         return this._package;
     }
 
-    about() {
+    _about() {
         var owner = electron.BrowserWindow.getFocusedWindow();
         var author = this.package.author;
         var date = this.package.date;
@@ -287,13 +277,13 @@ class Application {
         electron.dialog.showMessageBox(owner, aboutDialogOptions);
     }
 
-    isDev() {
+    _isDev() {
         return ('ELECTRON_IS_DEV' in process.env) ?
             (parseInt(process.env.ELECTRON_IS_DEV, 10) === 1) :
             (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
     }
 
-    updateMenu() {
+    _updateMenu() {
         var context = {};
         context.window = electron.BrowserWindow.getFocusedWindow();
         context.webContents = context.window ? context.window.webContents : null; 
@@ -301,7 +291,7 @@ class Application {
         this._menu.update(context);
     }
 
-    resetMenu() {
+    _resetMenu() {
 
         var menuRecentsTemplate = [];
         if (this._configuration.has('recents')) {
@@ -316,7 +306,7 @@ class Application {
                 menuRecentsTemplate.push({
                     label: Application.minimizePath(recent.path),
                     accelerator: ((process.platform === 'darwin') ? 'Cmd+' : 'Ctrl+') + (index + 1).toString(),
-                    click: () => { this.openFile(file); }
+                    click: () => { this._openFile(file); }
                 });
             });
         }
@@ -344,7 +334,7 @@ class Application {
                 {
                     label: '&Open...',
                     accelerator: 'CmdOrCtrl+O',
-                    click: () => { this.openFileDialog(); }
+                    click: () => { this._openFileDialog(); }
                 },
                 {
                     label: 'Open &Recent',
@@ -355,7 +345,7 @@ class Application {
                     id: 'file.export',
                     label: '&Export...',
                     accelerator: 'CmdOrCtrl+Shift+E',
-                    click: () => this.export(),
+                    click: () => this._export(),
                 },
                 { type: 'separator' },
                 { role: 'close' },
@@ -429,7 +419,7 @@ class Application {
                     id: 'view.reload',
                     label: '&Reload',
                     accelerator: (process.platform === 'darwin') ? 'Cmd+R' : 'F5',
-                    click: () => this.reload(),
+                    click: () => this._reload(),
                 },
                 { type: 'separator' },
                 {
@@ -459,7 +449,7 @@ class Application {
                 }        
             ]
         };
-        if (this.isDev()) {
+        if (this._isDev()) {
             viewTemplate.submenu.push({ type: 'separator' });
             viewTemplate.submenu.push({ role: 'toggledevtools' });
         }
@@ -492,7 +482,7 @@ class Application {
             helpSubmenu.push({ type: 'separator' });
             helpSubmenu.push({
                 role: 'about',
-                click: () => this.about()
+                click: () => this._about()
             });
         }
 
@@ -545,7 +535,7 @@ class Application {
         };
 
         this._menu.build(menuTemplate, commandTable);
-        this.updateMenu();
+        this._updateMenu();
     }
 
     static minimizePath(file) {
@@ -599,7 +589,7 @@ class View {
         this._updateCallback = (e, data) => { 
             if (e.sender == this._window.webContents) {
                 this.update(data.name, data.value); 
-                this.raise('updated');
+                this._raise('updated');
             }
         };
         electron.ipcMain.on('update', this._updateCallback);
@@ -608,10 +598,10 @@ class View {
             this._owner.closeView(this);
         });
         this._window.on('focus', (e) => {
-            this.raise('activated');
+            this._raise('activated');
         });
         this._window.on('blur', (e) => {
-            this.raise('deactivated');
+            this._raise('deactivated');
         });
         this._window.webContents.on('dom-ready', () => {
             this._ready = true;
@@ -707,7 +697,7 @@ class View {
         this._events[event].push(callback);
     }
 
-    raise(event, data) {
+    _raise(event, data) {
         if (this._events && this._events[event]) {
             this._events[event].forEach((callback) => {
                 callback(this, data);
@@ -733,14 +723,14 @@ class ViewCollection {
         var view = new View(this);
         view.on('activated', (sender) => {
             this._activeView = sender;
-            this.raise('active-view-changed', { activeView: this._activeView });
+            this._raise('active-view-changed', { activeView: this._activeView });
         });
         view.on('updated', (sender) => {
-            this.raise('active-view-updated', { activeView: this._activeView });            
+            this._raise('active-view-updated', { activeView: this._activeView });            
         });
         view.on('deactivated', (sender) => {
             this._activeView = null;
-            this.raise('active-view-changed', { activeView: this._activeView });
+            this._raise('active-view-changed', { activeView: this._activeView });
         });
         this._views.push(view);
         this._updateActiveView();
@@ -774,7 +764,7 @@ class ViewCollection {
         this._events[event].push(callback);
     }
 
-    raise(event, data) {
+    _raise(event, data) {
         if (this._events && this._events[event]) {
             this._events[event].forEach((callback) => {
                 callback(this, data);
@@ -787,7 +777,7 @@ class ViewCollection {
         var view = this._views.find(view => view.window == window) || null;
         if (view != this._activeView) {
             this._activeView = view;
-            this.raise('active-view-changed', { activeView: this._activeView });        
+            this._raise('active-view-changed', { activeView: this._activeView });        
         }
     }
 }

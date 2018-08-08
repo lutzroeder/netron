@@ -4,10 +4,10 @@ class KerasModelFactory {
 
     match(buffer, identifier) {
         var extension = identifier.split('.').pop();
-        if (extension == 'keras' || extension == 'h5') {
+        if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
             return true;
         }
-        if (extension == 'json') {
+        if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
             var decoder = new TextDecoder('utf-8');
             var json = decoder.decode(buffer);
             if (!json.includes('\"mxnet_version\":')) {
@@ -29,7 +29,7 @@ class KerasModelFactory {
                 var rootJson = null;
                 var model_config = null;
                 var extension = identifier.split('.').pop();
-                if (extension == 'keras' || extension == 'h5') {
+                if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
                     var file = new hdf5.File(buffer);
                     rootGroup = file.rootGroup;
                     var modelConfigJson = rootGroup.attributes.model_config;
