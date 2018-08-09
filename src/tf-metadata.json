@@ -3743,6 +3743,10 @@
             },
             {
               "type": "type",
+              "value": 18
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -15951,6 +15955,36 @@
     }
   },
   {
+    "name": "FilterByLastComponentDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset containing elements of first component of `input_dataset` having true in the last component."
+    }
+  },
+  {
     "name": "FilterDataset",
     "schema": {
       "attributes": [
@@ -21779,6 +21813,50 @@
         }
       ],
       "summary": "Creates a dataset that applies `f` to the outputs of `input_dataset`."
+    }
+  },
+  {
+    "name": "MapDefun",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of types.",
+          "minimum": 1,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "description": "A list of types.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "description": "A list of shapes.",
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "name": "f",
+          "type": "func"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "    A list of tensors whose types are Targuments, corresponding to the inputs the\n    function should be mapped over.",
+          "name": "arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "    A list of output tensors whose types are output_types and whose dimensions 0\n    are the same as the dimensions 0 of the tensors in arguments, and whose\n    remaining dimensions correspond to those in output_shapes.",
+          "name": "output",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "  Maps a function on the list of tensors unpacked from inputs on dimension 0."
     }
   },
   {
@@ -49450,6 +49528,59 @@
     }
   },
   {
+    "name": "StatelessIf",
+    "schema": {
+      "attributes": [
+        {
+          "name": "Tcond",
+          "type": "type"
+        },
+        {
+          "description": "A list of input types.",
+          "minimum": 0,
+          "name": "Tin",
+          "type": "list(type)"
+        },
+        {
+          "description": "A list of output types.",
+          "minimum": 0,
+          "name": "Tout",
+          "type": "list(type)"
+        },
+        {
+          "description": "      A function that takes 'inputs' and returns a list of tensors, whose\n      types are the same as what else_branch returns.",
+          "name": "then_branch",
+          "type": "func"
+        },
+        {
+          "description": "    A function that takes 'inputs' and returns a list of tensors, whose\n    types are the same as what then_branch returns.",
+          "name": "else_branch",
+          "type": "func"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "      A Tensor. If the tensor is a scalar of non-boolean type, the\n      scalar is converted to a boolean according to the\n      following rule: if the scalar is a numerical value, non-zero means\n      `True` and zero means False; if the scalar is a string, non-empty\n      means `True` and empty means `False`. If the tensor is not a scalar,\n      being empty means False and being non-empty means True.\n\n      This should only be used when the if then/else body functions do not\n      have stateful ops.",
+          "name": "cond",
+          "typeAttr": "Tcond"
+        },
+        {
+          "description": "A list of input tensors.",
+          "name": "input",
+          "typeListAttr": "Tin"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of return values.",
+          "name": "output",
+          "typeListAttr": "Tout"
+        }
+      ],
+      "summary": "output = cond ? then_branch(input) : else_branch(input)"
+    }
+  },
+  {
     "name": "StatelessMultinomial",
     "schema": {
       "attributes": [
@@ -49830,6 +49961,44 @@
         }
       ],
       "summary": "Outputs deterministic pseudorandom values from a truncated normal distribution."
+    }
+  },
+  {
+    "name": "StatelessWhile",
+    "schema": {
+      "attributes": [
+        {
+          "description": "dtype in use.",
+          "minimum": 0,
+          "name": "T",
+          "type": "list(type)"
+        },
+        {
+          "description": "      A function takes 'input' and returns a tensor.  If the tensor is\n      a scalar of non-boolean, the scalar is converted to a boolean\n      according to the following rule: if the scalar is a numerical\n      value, non-zero means True and zero means False; if the scalar is\n      a string, non-empty means True and empty means False. If the\n      tensor is not a scalar, non-emptiness means True and False\n      otherwise.\n\n      This should only be used when the while condition and body functions\n      do not have stateful ops.",
+          "name": "cond",
+          "type": "func"
+        },
+        {
+          "description": "      A function that takes a list of tensors and returns another\n      list of tensors. Both lists have the same types as specified\n      by T.",
+          "name": "body",
+          "type": "func"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of input tensors whose types are T.",
+          "name": "input",
+          "typeListAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of output tensors whose types are T.",
+          "name": "output",
+          "typeListAttr": "T"
+        }
+      ],
+      "summary": "output = input; While (Cond(output)) { output = Body(output) }"
     }
   },
   {
