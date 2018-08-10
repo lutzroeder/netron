@@ -212,6 +212,7 @@ class View {
             new CoreMLModelFactory(),
             new CaffeModelFactory(),
             new Caffe2ModelFactory(), 
+            new PyTorchModelFactory(),
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory()
         ];

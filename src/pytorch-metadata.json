@@ -1,0 +1,60 @@
+[
+    {
+        "name": "Conv2d",
+        "schema": {
+            "category": "Layer",
+            "attributes": [
+                { "name": "output_padding", "visible": false },
+                { "name": "training", "visible": false },
+                { "name": "in_channels", "visible": false },
+                { "name": "out_channels", "visible": false },
+                { "name": "groups", "visible": false }
+            ]
+        }
+    },
+    {
+        "name": "Linear",
+        "schema": {
+            "category": "Layer",
+            "attributes": [
+                { "name": "training", "visible": false }
+            ]
+        }
+    },
+    {
+        "name": "ReLU",
+        "schema": {
+            "category": "Activation",
+            "attributes": [
+                { "name": "training", "visible": false }
+            ]
+        }
+    },
+    {
+        "name": "MaxPool2d",
+        "schema": {
+            "category": "Pool",
+            "attributes": [
+                { "name": "training", "visible": false }
+            ]
+        }
+    },
+    {
+        "name": "BatchNorm2d",
+        "schema": {
+            "category": "Normalization",
+            "attributes": [
+                { "name": "training", "visible": false }
+            ]
+        }
+    },
+    {
+        "name": "Dropout",
+        "schema": {
+            "category": "Dropout",
+            "attributes": [
+                { "name": "training", "visible": false }
+            ]
+        }
+    }
+]
