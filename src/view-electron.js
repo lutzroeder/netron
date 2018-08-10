@@ -207,7 +207,8 @@ class ElectronHost {
                 var description = (err.name ? (err.name + ': ') : '') + err.message;
                 var params = { 
                     applicationName: this.name,
-                    applicationVersion: this.version
+                    applicationVersion: this.version,
+                    userAgentOverride: navigator.userAgent
                 };
                 this._telemetry.exception(description, fatal, params, (err) => { });
 
@@ -229,7 +230,10 @@ class ElectronHost {
     screen(name) {
         if (this._telemetry) {
             try {
-                this._telemetry.screenview(name, this.name, this.version, (err) => { });
+                var params = {
+                    userAgentOverride: navigator.userAgent
+                };
+                this._telemetry.screenview(name, this.name, this.version, null, null, params, (err) => { });
             }
             catch (e) {
             }
@@ -241,7 +245,8 @@ class ElectronHost {
             try {
                 var params = { 
                     applicationName: this.name,
-                    applicationVersion: this.version
+                    applicationVersion: this.version,
+                    userAgentOverride: navigator.userAgent
                 };
                 this._telemetry.event(category, action, label, value, params, (err) => { });
             }
