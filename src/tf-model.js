@@ -476,8 +476,11 @@ class TensorFlowAttribute {
             return TensorFlowTensor.formatTensorShape(value.shape);
         }
         else if (value.hasOwnProperty('s')) {
+            if (value.s.length == 0) {
+                return '';
+            }
             if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
-                return '"' + String.fromCharCode.apply(null, value.s) + '"';
+                return '"' + TensorFlowOperatorMetadata.textDecoder.decode(value.s) + '"';
             }
             return value.s.map(v => v.toString()).join(', ');           
         }
@@ -492,7 +495,7 @@ class TensorFlowAttribute {
                 }
                 return list.s.map((s) => {
                     if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                        return '"' + String.fromCharCode.apply(null, s) + '"';
+                        return '"' + TensorFlowOperatorMetadata.textDecoder.decode(value.s) + '"';
                     }
                     return s.map(v => v.toString()).join(', ');    
                 });
@@ -604,7 +607,6 @@ class TensorFlowTensor {
         context.index = 0;
         context.count = 0;
         context.limit = limit;
-        context.utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
         context.size = 1;
         this._tensor.tensorShape.dim.forEach((dim) => {
             context.size = context.size * (dim.size ? dim.size : 0);
@@ -712,12 +714,7 @@ class TensorFlowTensor {
     _decodeDataValue(context) {
         var value = context.data[context.index++];
         if (this._tensor.dtype == tensorflow.DataType.DT_STRING) {
-            if (context.utf8Decoder) {
-                value = context.utf8Decoder.decode(value);
-            }
-            else {
-                value = String.fromCharCode.apply(null, textArray);
-            }
+            return TensorFlowOperatorMetadata.textDecoder.decode(value);
         }
         return value;
     }
@@ -1073,6 +1070,9 @@ class TensorFlowGraphOperatorMetadata {
 class TensorFlowOperatorMetadata {
 
     static open(host, callback) {
+
+        TensorFlowOperatorMetadata.textDecoder = TensorFlowOperatorMetadata.textDecoder || new TextDecoder('utf-8');
+
         if (TensorFlowOperatorMetadata.operatorMetadata) {
             callback(null, TensorFlowOperatorMetadata.operatorMetadata);
         }
