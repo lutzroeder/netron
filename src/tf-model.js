@@ -59,6 +59,7 @@ class TensorFlowModelFactory {
                     });
                 }
                 catch (error) {
+                    host.exception(error, false);
                     callback(new TensorFlowError(error.message), null);
                 }    
             }
@@ -78,10 +79,12 @@ class TensorFlowModel {
         this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
     }
 
-    get properties() {
-        var results = [];
-        results.push({ name: 'format', value: this._format });
-        return results;
+    get format() {
+        return this._format;
+    }
+
+    get description() {
+        return null;
     }
 
     get graphs() {
@@ -97,9 +100,12 @@ class TensorFlowGraph {
         this._metadata = new TensorFlowGraphOperatorMetadata(graph.metaInfoDef);
         this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
         this._operators = {};
-        this._graph.graphDef.node.forEach((node) => {
-            this._operators[node.op] = (this._operators[node.op] || 0) + 1;
-        });
+        this._inputMap = {};
+        if (this._graph.graphDef) {
+            this._graph.graphDef.node.forEach((node) => {
+                this._operators[node.op] = (this._operators[node.op] || 0) + 1;
+            });
+        }
     }
 
     get operators() {
@@ -150,15 +156,17 @@ class TensorFlowGraph {
     get nodes() {
         this._update();
         var results = [];
-        this._graph.graphDef.node.forEach((node) => {
-            if (node.output.filter(output => !output.startsWith('^')) != 0 ||
-                node.input.filter(input => !input.startsWith('^')).length > 0) {
-                var id = node.name;
-                if (!this._initializerMap[id] && !this._inputMap[id] /* && node.op != 'NoOp' */) {
-                    results.push(new TensorFlowNode(this, node));
+        if (this._graph.graphDef) {
+            this._graph.graphDef.node.forEach((node) => {
+                if (node.output.filter(output => !output.startsWith('^')) != 0 ||
+                    node.input.filter(input => !input.startsWith('^')).length > 0) {
+                    var id = node.name;
+                    if (!this._initializerMap[id] && !this._inputMap[id] /* && node.op != 'NoOp' */) {
+                        results.push(new TensorFlowNode(this, node));
+                    }
                 }
-            }
-        });
+            });
+        }
         return results;
     }
 
@@ -171,7 +179,7 @@ class TensorFlowGraph {
     }
 
     _update() {
-        if (!this._nodeMap) {
+        if (!this._nodeMap && this._graph.graphDef.node) {
             this._nodeMap = {};
             this._namespaces = {};
             var nodes = this._graph.graphDef.node;

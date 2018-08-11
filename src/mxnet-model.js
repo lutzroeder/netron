@@ -29,7 +29,7 @@ class MXNetModelFactory {
                 this._openSymbol(buffer, callback);
                 break;
             case 'model':
-                host.import('/unzip.js', (err) => {
+                host.import('/zip.js', (err) => {
                     if (err) {
                         callback(err, null);
                         return;
@@ -52,8 +52,9 @@ class MXNetModelFactory {
                 callback(null, model);
             });
         }
-        catch (err) {
-            callback(new MXNetError(err.message), null);
+        catch (error) {
+            host.exception(error, false);
+            callback(new MXNetError(error.message), null);
         }
     }
 
@@ -211,21 +212,20 @@ class MXNetModel {
         this._graphs = [ new MXNetGraph(manifest, symbol, signature, parameters) ];
     }
 
-    get properties() {
-        var results = [];
-        if (this._format) {
-            results.push({ name: 'format', value: this._format });            
-        }
-        if (this._engine) {
-            results.push({ name: 'engine', value: this._engine });            
-        }
-        if (this._name) {
-            results.push({ name: 'name', value: this._name });
-        }
-        if (this._description) {
-            results.push({ name: 'description', value: this._description });
-        }
-        return results;
+    get name() {
+        return this._name;
+    }
+
+    get format() {
+        return this._format;
+    }
+
+    get description() {
+        return this._description;
+    }
+
+    get runtime() {
+        return this._engine;
     }
 
     get graphs() {

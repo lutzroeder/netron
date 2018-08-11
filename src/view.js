@@ -253,9 +253,10 @@ class View {
                     callback(err);
                 }
                 else {
-                    var format = model.properties.filter((p) => p.name == 'format');
-                    if (format && format.length == 1) {
-                        this._host.event('Model', 'Format', format[0].value);
+                    var format = model.format;
+                    if (format) {
+                        format = format + (model.producer ? ' (' + model.producer + ')' : '');
+                        this._host.event('Model', 'Format', format);
                     }
 
                     setTimeout(() => {
@@ -376,7 +377,7 @@ class View {
                 nodes.forEach((node) => {
     
                     var formatter = new NodeFormatter();
-            
+
                     function addOperator(view, formatter, node) {
                         if (node) {
                             var styles = [ 'node-item-operator' ];

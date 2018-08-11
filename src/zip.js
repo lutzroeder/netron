@@ -7,6 +7,9 @@ zip.Archive = class {
     constructor(buffer, inflate) {
         this._inflate = inflate; // (optional) optimized inflater like require('zlib').inflateRawSync or pako.inflateRaw
         this._entries = [];
+        if (buffer.length < 4 || buffer[0] != 0x50 || buffer[1] != 0x4B) {
+            throw new zip.Error('Invalid ZIP archive.');
+        }
         for (var i = buffer.length - 4; i >= 0; i--) {
             if (buffer[i] === 0x50 && buffer[i + 1] === 0x4B && buffer[i + 2] === 0x05 && buffer[i + 3] === 0x06) {
                 this._reader = new zip.Reader(buffer, i + 4, buffer.length);

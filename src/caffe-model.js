@@ -31,6 +31,7 @@ class CaffeModelFactory {
                 model = new CaffeModel(netParameter);
             }
             catch (error) {
+                host.exception(error, false);
                 callback(new CaffeError(error.message), null);
                 return;
             }
@@ -44,6 +45,7 @@ class CaffeModelFactory {
 class CaffeModel {
 
     constructor(netParameter) {
+        this._name = netParameter.name;
         if (netParameter.layers && netParameter.layers.length > 0) {
             if (netParameter.layers.every((layer) => layer.hasOwnProperty('layer'))) {
                 this._version = 0;
@@ -59,10 +61,8 @@ class CaffeModel {
         this._graphs = [ graph ];
     }
 
-    get properties() {
-        var results = [];
-        results.push({ name: 'format', value: 'Caffe' + (this.hasOwnProperty('_version') ? ' v' + this._version.toString() : '') });
-        return results;
+    get format() {
+        return 'Caffe' + (this.hasOwnProperty('_version') ? ' v' + this._version.toString() : '');
     }
 
     get graphs() {
@@ -75,7 +75,6 @@ class CaffeGraph {
 
     constructor(netParameter, version)
     {
-        this._name = netParameter.name;
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];

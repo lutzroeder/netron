@@ -29,6 +29,7 @@ class TensorFlowLiteModelFactory {
                     }
                 }
                 catch (error) {
+                    host.exception(error, false);
                     callback(new TensorFlowLiteError(error.message), null);
                 }
             }
@@ -62,18 +63,13 @@ class TensorFlowLiteModel {
         }
     }
 
-    get properties() {
-        var results = [];
+    get format() {
+        return 'TensorFlow Lite v' + this._model.version().toString();
+    }
 
-        var format = 'TensorFlow Lite v' + this._model.version().toString();
-        results.push({ name: 'format', value: format });
-
+    get description() {
         var description = this._model.description();
-        if (description && description.length > 0) {
-            results.push({ name: 'description', value: description });
-        }
-
-        return results;
+        return (description && description.length > 0) ? description : null;
     }
 
     get graphs() {

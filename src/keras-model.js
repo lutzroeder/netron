@@ -63,6 +63,7 @@ class KerasModelFactory {
                 });
             }
             catch (error) {
+                host.exception(error, false);
                 callback(new KerasError(error.message), null);
             }
         });
@@ -119,17 +120,20 @@ class KerasModel {
         this._graphs.push(this._activeGraph);
     }
 
-    get properties() {
-        var results = [];
+    get name() {
+        return null;
+    }
 
-        var format = this._format + (this._version ? (' v' + this._version) : '');
-        results.push({ name: 'format', value: format });
+    get description() {
+        return null;
+    }
 
-        if (this._backend) {
-            results.push({ name: 'backend', value: this._backend });
-        }
+    get format() {
+        return this._format + (this._version ? (' v' + this._version) : '');
+    }
 
-        return results;
+    get runtime() {
+        return this._backend;
     }
 
     get graphs() {

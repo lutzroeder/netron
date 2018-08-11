@@ -8,7 +8,11 @@
                 { "name": "training", "visible": false },
                 { "name": "in_channels", "visible": false },
                 { "name": "out_channels", "visible": false },
-                { "name": "groups", "visible": false }
+                { "name": "groups", "default": 1 },
+                { "name": "transposed", "default": false },
+                { "name": "padding", "default": [0, 0] },
+                { "name": "dilation", "default": [1, 1] },
+                { "name": "stride", "default": [1, 1] }
             ]
         }
     },
@@ -26,6 +30,9 @@
         "schema": {
             "category": "Activation",
             "attributes": [
+                { "name": "inplace", "default": true },
+                { "name": "threshold", "default": 0 },
+                { "name": "value", "default": 0 },
                 { "name": "training", "visible": false }
             ]
         }
@@ -35,7 +42,23 @@
         "schema": {
             "category": "Pool",
             "attributes": [
-                { "name": "training", "visible": false }
+                { "name": "training", "visible": false },
+                { "name": "padding", "default": 0 },
+                { "name": "dilation", "default": 1 },
+                { "name": "return_indices", "default": false },
+                { "name": "ceil_mode", "visible": false }
+            ]
+        }
+    },
+    {
+        "name": "AvgPool2d",
+        "schema": {
+            "category": "Pool",
+            "attributes": [
+                { "name": "training", "visible": false },
+                { "name": "padding", "default": 0 },
+                { "name": "count_include_pad", "default": true },
+                { "name": "ceil_mode", "visible": false }
             ]
         }
     },
@@ -44,7 +67,11 @@
         "schema": {
             "category": "Normalization",
             "attributes": [
-                { "name": "training", "visible": false }
+                { "name": "training", "visible": false },
+                { "name": "eps", "default": 1e-05 },
+                { "name": "momentum", "default": 0.1 },
+                { "name": "affine", "default": true },
+                { "name": "track_running_stats", "default": true }
             ]
         }
     },
@@ -53,6 +80,8 @@
         "schema": {
             "category": "Dropout",
             "attributes": [
+                { "name": "inplace", "default": false },
+                { "name": "p", "default": 0.5 },
                 { "name": "training", "visible": false }
             ]
         }

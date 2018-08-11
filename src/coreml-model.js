@@ -29,6 +29,7 @@ class CoreMLModelFactory {
                 model = new CoreMLModel(decodedBuffer);
             }
             catch (error) {
+                host.exception(error, false);
                 callback(new CoreMLError(error.message), null);
                 return;
             }
@@ -43,35 +44,45 @@ class CoreMLModel {
 
     constructor(model) {
         this._specificationVersion = model.specificationVersion;
-        this._description = model.description;
         this._graphs = [ new CoreMLGraph(model) ];
-    }
-
-    get properties() {
-        var results = [];
-
-        results.push({ name: 'format', value: 'CoreML v' + this._specificationVersion.toString() });
-
-        if (this._description && this._description.metadata) {
-            var metadata = this._description.metadata;
+        if (model.description && model.description.metadata) {
+            var metadata = model.description.metadata;
             if (metadata.versionString) {
-                results.push({ name: 'version', value: metadata.versionString });
+                this._version = metadata.versionString;
             }
             if (metadata.author) {
-                results.push({ name: 'author', value: metadata.author });
+                this._author = metadata.author;
             }
             if (metadata.shortDescription) {
-                results.push({ name: 'description', value: metadata.shortDescription });
+                this._description = metadata.shortDescription;
             }
             if (metadata.license) {
-                results.push({ name: 'license', value: metadata.license });
+                this._license = metadata.license;
             }
             if (metadata.userDefined && Object.keys(metadata.userDefined).length > 0) {
                 debugger;
             }
         }
+    }
 
-        return results;
+    get format() {
+        return 'CoreML v' + this._specificationVersion.toString();
+    }
+
+    get version() {
+        return this._version || null;
+    }
+
+    get description() {
+        return this._description || null;
+    }
+
+    get author() {
+        return this._author || null;
+    }
+
+    get license() {
+        return this._license || null;
     }
 
     get graphs() {

@@ -30,6 +30,7 @@ class Caffe2ModelFactory {
                 model = new Caffe2Model(netDef);
             }
             catch (error) {
+                host.exception(error, false);
                 callback(new Caffe2Error(error.message), null);
                 return;
             }
@@ -48,10 +49,8 @@ class Caffe2Model {
         this._graphs = [ graph ];
     }
 
-    get properties() {
-        var results = [];
-        results.push({ name: 'format', value: 'Caffe2' });
-        return results;
+    get format() {
+        return 'Caffe2';
     }
 
     get graphs() {

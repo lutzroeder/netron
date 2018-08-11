@@ -478,9 +478,49 @@ class ModelView {
         this._model = model;
         this._elements = [];
 
-        this._model.properties.forEach((property) => {
-            this.addProperty(property.name, new ValueTextView(property.value));
-        });
+        if (this._model.format) {
+            this.addProperty('format', new ValueTextView(this._model.format));
+        }
+        if (this._model.producer) {
+            this.addProperty('producer', new ValueTextView(this._model.producer));
+        }
+        if (this._model.source) {
+            this.addProperty('source', new ValueTextView(this._model.source));
+        }
+        if (this._model.name) {
+            this.addProperty('name', new ValueTextView(this._model.name));
+        }
+        if (this._model.version) {
+            this.addProperty('version', new ValueTextView(this._model.version));
+        }
+        if (this._model.description) {
+            this.addProperty('description', new ValueTextView(this._model.description));
+        }
+        if (this._model.author) {
+            this.addProperty('author', new ValueTextView(this._model.author));
+        }
+        if (this._model.company) {
+            this.addProperty('company', new ValueTextView(this._model.company));
+        }    
+        if (this._model.license) {
+            this.addProperty('license', new ValueTextView(this._model.license));
+        }
+        if (this._model.domain) {
+            this.addProperty('domain', new ValueTextView(this._model.domain));
+        }
+        if (this._model.imports) {
+            this.addProperty('imports', new ValueTextView(this._model.imports));
+        }
+        if (this._model.runtime) {
+            this.addProperty('runtime', new ValueTextView(this._model.runtime));
+        }
+
+        var metadata = this._model.metadata;
+        if (metadata) {
+            this._model.metadata.forEach((property) => {
+                this.addProperty(property.name, new ValueTextView(property.value));
+            });
+        }
 
         var graphs = this._model.graphs;
         graphs.forEach((graph, index) => {

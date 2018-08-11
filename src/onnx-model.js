@@ -29,6 +29,7 @@ class OnnxModelFactory {
                 result = new OnnxModel(model);
             }
             catch (error) {
+                host.exception(error, false);
                 callback(new OnnxError(error.message), null);
                 return;
             }
@@ -50,25 +51,51 @@ class OnnxModel {
         this._domain = model.domain;
         this._modelVersion = model.modelVersion;
         this._docString = model.docString;
-        this._metadata = {};
+        this._metadata = [];
         this._imageFormat = '';
         if (model.metadataProps)
         {
+            var imageMetadata = {};
             model.metadataProps.forEach((metadataProp) => {
-                this._metadata[metadataProp.key] = metadataProp.value;
+                switch (metadataProp.key) {
+                    case 'author':
+                        this._author = metadataProp.value;
+                        break;
+                    case 'company':
+                        this._company = metadataProp.value;
+                        break;
+                    case 'converted_from':
+                        this._converted_from = metadataProp.value;
+                        break;
+                    case 'license':
+                        this._license = metadataProp.value;
+                        break;
+                    case 'license_url':
+                        this._licenseUrl = metadataProp.value;
+                        break;
+                    case 'Image.BitmapPixelFormat':
+                    case 'Image.ColorSpaceGamma':
+                    case 'Image.NominalPixelRange':
+                        imageMetadata[metadataProp.key] = metadataProp.value;
+                        break;
+                    default:
+                        this._metadata.push({ name: metadataProp.key, value: metadataProp.value});
+                        break;
+                }
             });
-            var imageMetadata = [ this._metadata['Image.BitmapPixelFormat'], this._metadata['Image.ColorSpaceGamma'], this._metadata['Image.NominalPixelRange'] ];
-            this._imageFormat = imageMetadata.filter((item) => item);
+            this._imageFormat = [ imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange'] ].filter((item) => item);
         }
     }
 
-    get properties() {
-        var results = [];
+    get format() {
         var format = 'ONNX';
         if (this._irVersion) {
             format = format + ' v' + this._irVersion.toString();
         }
-        results.push({ name: 'format', value: format });
+        return format;
+    }
+
+    get imports() {
         if (this._opsetImport && this._opsetImport.length > 0) {
             var opsetImports = [];
             this._opsetImport.forEach((opsetImport) => {
@@ -78,8 +105,12 @@ class OnnxModel {
                     opsetImports.push(result);
                 }
             });
-            results.push({ name: 'imports', value: opsetImports.join(', ') });
+            return opsetImports.join(', ');
         }
+        return null;
+    }
+
+    get producer() {
         var producer = [];
         if (this._producerName) {
             producer.push(this._producerName);
@@ -88,38 +119,47 @@ class OnnxModel {
             producer.push(this._producerVersion);
         }
         if (producer.length > 0) {
-            results.push({ 'name': 'producer', 'value': producer.join(' ') });
+            return producer.join(' ');
         }
-        if (this._domain) {
-            results.push({ name: 'domain', value: this._domain });
-        }
-        if (this._modelVersion) {
-            results.push({ name: 'version', value: this._modelVersion });
-        }
-        if (this._docString) {
-            results.push({ name: 'description', value: this._docString });
-        }
-        if (this._metadata.author) {
-            results.push({ name: 'author', value: this._metadata.author });
-        }
-        if (this._metadata.company) {
-            results.push({ name: 'company', value: this._metadata.company });
-        }
-        if (this._metadata.converted_from) {
-            results.push({ name: 'source', value: this._metadata.converted_from });
-        }
+        return null;
+    }
+
+    get domain() {
+        return this._domain || null;        
+    }
+
+    get description() {
+        return this._docString || null;        
+    }
+
+    get author() {
+        return this._author || null;   
+    }
+
+    get company() {
+        return this._company || null;   
+    }
+
+    get source() {
+        return this._converted_from || null;
+    }
+
+    get license() {
         var license = [];
-        if (this._metadata.license && this._metadata.license.length > 0) {
-            license.push(this._metadata.license);
+        if (this._license && this._license.length > 0) {
+            license.push(this._license);
         }
-        if (this._metadata.license_url && this._metadata.license_url.length > 0) {
-            license.push('<a href=\'' + this._metadata.license_url + '\'>' + this._metadata.license_url + '</a>');
+        if (this._licenseUrl && this._licenseUrl.length > 0) {
+            license.push('<a href=\'' + this._licenseUrl + '\'>' + this._licenseUrl + '</a>');
         }
         if (license.length > 0) {
-            results.push({ name: 'license', value: license.join(' ') });
+            return license;
         }
+        return null;
+    }
 
-        return results;
+    get metadata() {
+        return this._metadata;
     }
 
     get graphs() {
@@ -876,7 +916,7 @@ class OnnxGraphOperatorMetadata {
                 if (index < outputs.length || outputDef.option != 'optional') {
                     var output = {};
                     output.name = outputDef.name;
-                    var count = (outputDef.option == 'variadic') ? (data.output.length - index) : 1;
+                    var count = (outputDef.option == 'variadic') ? (outputs.length - index) : 1;
                     output.connections = outputs.slice(index, index + count).map((id) => {
                         return { id: id };
                     });
