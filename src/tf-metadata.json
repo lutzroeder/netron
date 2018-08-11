@@ -18838,7 +18838,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Compute the lower regularized incomplete Gamma function `Q(a, x)`."
+      "summary": "Compute the lower regularized incomplete Gamma function `P(a, x)`."
     }
   },
   {
