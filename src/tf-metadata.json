@@ -54319,6 +54319,84 @@
     }
   },
   {
+    "name": "UnsafeDiv",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns 0 if the denominator is zero."
+    }
+  },
+  {
     "name": "UnsortedSegmentMax",
     "schema": {
       "attributes": [
