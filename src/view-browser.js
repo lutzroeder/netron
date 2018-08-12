@@ -149,6 +149,10 @@ class BrowserHost {
         window.open(url, '_target');
     }
 
+    inflateRaw(data) {
+        return null;
+    }
+
     exception(err, fatal) {
         if (window.ga) {
             var description = [];

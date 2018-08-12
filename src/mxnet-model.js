@@ -61,7 +61,7 @@ class MXNetModelFactory {
     _openModel(buffer, host, callback) {
         var entries = {};
         try {
-            var archive = new zip.Archive(buffer, host.inflate);
+            var archive = new zip.Archive(buffer, host.inflateRaw);
             archive.entries.forEach((entry) => {
                 entries[entry.name] = entry;
             });

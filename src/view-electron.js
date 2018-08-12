@@ -201,7 +201,7 @@ class ElectronHost {
         electron.shell.openExternal(url);
     }
 
-    inflate(data) {
+    inflateRaw(data) {
         return require('zlib').inflateRawSync(data);
     }
 
