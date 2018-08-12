@@ -32,6 +32,10 @@ class ElectronHost {
         return this._version;
     }
 
+    get type() {
+        return 'Electron';
+    }
+
     initialize(view) {
         this._view = view;
         this._view.show('Welcome');
@@ -204,23 +208,21 @@ class ElectronHost {
     exception(err, fatal) {
         if (this._telemetry) {
             try {
-                var description = (err.name ? (err.name + ': ') : '') + err.message;
-                var params = { 
-                    applicationName: this.name,
-                    applicationVersion: this.version,
-                    userAgentOverride: navigator.userAgent
-                };
-                this._telemetry.exception(description, fatal, params, (err) => { });
-
-                var location = '';
+                var description = [];
+                description.push((err.name ? (err.name + ': ') : '') + err.message);
                 if (err.stack) {
                     var match = err.stack.match(/\n    at (.*)\((.*)\)/);
                     if (match) {
-                        location = match[1] + '(' + match[2].split('/').pop() + ')';
+                        description.push(match[1] + '(' + match[2].split('/').pop() + ')');
                     }
                 }
-
-                this.event(fatal ? 'Crash' : 'Alert', description, location);
+    
+                var params = { 
+                    applicationName: this.type,
+                    applicationVersion: this.version,
+                    userAgentOverride: navigator.userAgent
+                };
+                this._telemetry.exception(description.join(' @ '), fatal, params, (err) => { });
             }
             catch (e) {
             }
@@ -233,7 +235,7 @@ class ElectronHost {
                 var params = {
                     userAgentOverride: navigator.userAgent
                 };
-                this._telemetry.screenview(name, this.name, this.version, null, null, params, (err) => { });
+                this._telemetry.screenview(name, this.type, this.version, null, null, params, (err) => { });
             }
             catch (e) {
             }
@@ -244,7 +246,7 @@ class ElectronHost {
         if (this._telemetry) {
             try {
                 var params = { 
-                    applicationName: this.name,
+                    applicationName: this.type,
                     applicationVersion: this.version,
                     userAgentOverride: navigator.userAgent
                 };

@@ -3,6 +3,19 @@
 class BrowserHost {
 
     constructor() {
+        if (!window.ga) {
+            window.GoogleAnalyticsObject = 'ga';
+            window.ga = window.ga || function() {
+                window.ga.q = window.ga.q || [];
+                window.ga.q.push(arguments);
+            };
+            window.ga.l = 1 * new Date();
+        }
+        window.ga('create', 'UA-54146-11', 'auto');
+
+        window.addEventListener('error', (e) => {
+            this.exception(e.error, true);
+        });
     }
 
     get name() {
@@ -11,6 +24,10 @@ class BrowserHost {
 
     get version() {
         return this._version;
+    }
+
+    get type() {
+        return this._type;
     }
 
     initialize(view) {
@@ -29,6 +46,7 @@ class BrowserHost {
         });
 
         this._version = meta.version ? meta.version[0] : '0.0.0';
+        this._type = meta.type ? meta.type[0] : 'Browser';
 
         if (meta.file) {
             this._openModel('/data', meta.file[0].split('/').pop());
@@ -69,11 +87,11 @@ class BrowserHost {
             return false;
         });
     }
-    
+
     error(message, detail) {
         alert(message + ' ' + detail);
     }
-    
+
     confirm(message, detail) {
         return confirm(message + ' ' + detail);
     }
@@ -132,12 +150,48 @@ class BrowserHost {
     }
 
     exception(err, fatal) {
+        if (window.ga) {
+            var description = [];
+            description.push((err.name ? (err.name + ': ') : '') + err.message);
+            if (err.stack) {
+                var match = err.stack.match(/\n    at (.*)\((.*)\)/);
+                if (match) {
+                    description.push(match[1] + '(' + match[2].split('/').pop() + ')');
+                }
+                else {
+                    description.push(err.stack.split('\n').shift());
+                }
+            }
+            window.ga('send', 'exception', {
+                exDescription: description.join(' @ '),
+                exFatal: fatal,
+                appName: this.type,
+                appVersion: this.version
+            });
+        }
     }
 
     screen(name) {
+        if (window.ga) {
+            window.ga('send', 'screenview', {
+                screenName: name,
+                appName: this.type,
+                appVersion: this.version
+            });
+        }
     }
 
-    event(category, action, label) {
+    event(category, action, label, value) {
+        if (window.ga) {
+            window.ga('send', 'event', {
+                eventCategory: category,
+                eventAction: action,
+                eventLabel: label,
+                eventValue: value,
+                appName: this.type,
+                appVersion: this.version
+            });
+        }
     }
 
     _url(file) {

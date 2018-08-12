@@ -50,6 +50,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if status_code == 0:
             if pathname == '/':
                 meta = []
+                meta.append("<meta name='type' content='Python' />")
                 if __version__:
                     meta.append("<meta name='version' content='" + __version__ + "' />")
                 if self.file:
