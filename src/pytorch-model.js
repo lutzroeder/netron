@@ -27,15 +27,18 @@ class PyTorchModelFactory {
                 signature.length != magic_number.length ||
                 !signature.every((value, index) => value == magic_number[index])) 
             {
-                throw new pickle.Error('Invalid signature.');
+                callback(new PyTorchError('Invalid signature.', null));
+                return;
             }
             var protocol_version = unpickler.load();
             if (protocol_version != 1001) {
-                throw new pickle.Error("Unsupported protocol version '" + protocol_version + "'.");
+                callback(new PyTorchError("Unsupported protocol version '" + protocol_version + "'.", null));
+                return;
             }
             var sysInfo = unpickler.load();
             if (!sysInfo.little_endian) {
-                throw new pickle.Error("Unsupported system.");
+                callback(new PyTorchError('Unsupported system information.'));
+                return;
             }
 
             var functionTable = {};
