@@ -216,6 +216,79 @@ class View {
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory()
         ];
+
+        try {
+            var extension;
+            var archive;
+            var entry;
+    
+            extension = identifier.split('.').pop();
+            if (extension == 'gz' || extension == 'tgz') {
+                archive = new gzip.Archive(buffer);
+                if (archive.entries.length == 1) {
+                    entry = archive.entries[0];
+                    if (entry.name) {
+                        identifier = entry.name;
+                    }
+                    else {
+                        identifier = identifier.substring(0, identifier.lastIndexOf('.'));
+                        if (extension == 'tgz') {
+                            identifier += '.tar';
+                        }
+                    }
+                    buffer = entry.data;
+                    archive = null;
+                }
+            }
+    
+            switch (identifier.split('.').pop()) {
+                case 'tar':
+                    archive = new tar.Archive(buffer);
+                    break;
+                case 'zip':
+                    archive = new zip.Archive(buffer);
+                    break;           
+            }
+    
+            if (archive) {
+                var folders = {};
+                archive.entries.forEach((entry) => {
+                    if (entry.name.indexOf('/') != -1) {
+                        folders[entry.name.split('/').shift() + '/'] = true;
+                    }
+                    else {
+                        folders['/'] = true;    
+                    }
+                });
+                var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
+                rootFolder = rootFolder == '/' ? '' : rootFolder;
+                var entries = archive.entries.filter((entry) => {
+                    var identifier = entry.name.substring(rootFolder.length);
+                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                        return modelFactoryRegistry.some((factory) => factory.match(entry.data, identifier));
+                    }
+                    return false;
+                });
+                if (entries.length == 0) {
+                    callback(new ArchiveError('Root does not contain model file.'), null);
+                    return;
+                }
+                if (entries.length > 1) {
+                    callback(new ArchiveError('Root contains multiple model files.'), null);
+                    return;
+                }
+                if (entries.length == 1) {
+                    entry = entries[0];
+                    identifier = entry.name;
+                    buffer = entry.data;
+                }
+            }
+        }
+        catch (err) {
+            callback(new ArchiveError(err.message), null);
+            return;
+        }
+
         var matches = modelFactoryRegistry.filter((factory) => factory.match(buffer, identifier));
         var next = () => {
             if (matches.length > 0) {
@@ -887,5 +960,12 @@ class Uint64 {
 
     readInt32(offset) {
         return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
+    }
+}
+
+class ArchiveError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "Error loading archive";
     }
 }

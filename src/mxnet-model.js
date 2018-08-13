@@ -29,13 +29,7 @@ class MXNetModelFactory {
                 this._openSymbol(buffer, callback);
                 break;
             case 'model':
-                host.import('/zip.js', (err) => {
-                    if (err) {
-                        callback(err, null);
-                        return;
-                    }
-                    this._openModel(buffer, host, callback);
-                });
+                this._openModel(buffer, host, callback);
                 break;
             default:
                 callback(new MXNetError('Unsupported file extension.'));
