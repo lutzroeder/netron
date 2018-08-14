@@ -462,7 +462,7 @@ class TensorFlowAttribute {
     get value() {
         var item = TensorFlowAttribute.formatAttributeValue(this._value);
         if (Array.isArray(item)) {
-            return item.join(', ');
+            return '[' + item.join(', ') + ']';
         }
         return item;
     }
@@ -633,7 +633,18 @@ class TensorFlowTensor {
                     return result;
                 }
                 break;
+            case tensorflow.DataType.DT_QINT8:
+            case tensorflow.DataType.DT_QUINT8:
+                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
+                    context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
+                }
+                else {
+                    result.error = 'Tensor data is empty.';
+                    return result;
+                }
+                break;                
             case tensorflow.DataType.DT_INT32:
+            case tensorflow.DataType.DT_UINT32:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
                     context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
                 }
@@ -666,19 +677,19 @@ class TensorFlowTensor {
                 return result;
         }
 
-        result.value = this._decodeDimension(context, 0);
-        return result;
+        var shape = this._tensor.tensorShape.dim.map((dim) => dim.size);
+        if (shape.length == 0) {
+            var value = this._decodeDimension(context, 0, [1]);
+            return { value: value[0] };
+        }
+
+        return { value: this._decodeDimension(context, 0, shape) };
     }
 
-    _decodeDimension(context, dimension) {
+    _decodeDimension(context, dimension, shape) {
         var results = [];
-        var dimensions = this._tensor.tensorShape.dim;
-        if (dimensions.length == 0 && context.data.length == 1) {
-            return this._decodeDataValue(context);
-        }
-        var dim = dimensions[dimension];
-        var size = dim.size;
-        if (dimension == dimensions.length - 1) {
+        var size = shape[dimension];
+        if (dimension == shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -702,6 +713,21 @@ class TensorFlowTensor {
                                 context.index += 4;
                                 context.count++;
                                 break;
+                            case tensorflow.DataType.DT_UINT32:
+                                results.push(context.rawData.getUInt32(context.index, true));
+                                context.index += 4;
+                                context.count++;
+                                break;
+                            case tensorflow.DataType.DT_QINT8:
+                                results.push(context.rawData.getInt8(context.index, true));
+                                context.index += 1;
+                                context.count++;
+                                break;
+                            case tensorflow.DataType.DT_QUINT8:
+                                results.push(context.rawData.getUint8(context.index, true));
+                                context.index += 1;
+                                context.count++;
+                                break;
                         }
                     }
                 }
@@ -713,7 +739,7 @@ class TensorFlowTensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1));
+                results.push(this._decodeDimension(context, dimension + 1, shape));
             }
         }
         return results;
