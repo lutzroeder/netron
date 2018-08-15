@@ -1,7 +1,5 @@
 /*jshint esversion: 6 */
 
-/*jshint esversion: 6 */
-
 var zip = zip || {};
 
 zip.Archive = class {
