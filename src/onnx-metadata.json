@@ -3501,11 +3501,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Expand',\n    inputs=['data', 'new_shape'],\n    outputs=['expanded'],\n)\nshape = [3, 1]\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float64), shape)\n#print(data)\n#[[1.], [2.], [3.]]\nnew_shape = [2, 1, 6]\nexpanded = data * np.ones(new_shape)\n#print(expanded)\n#[[[1., 1., 1., 1., 1., 1.],\n#  [2., 2., 2., 2., 2., 2.],\n#  [3., 3., 3., 3., 3., 3.]],\n#\n# [[1., 1., 1., 1., 1., 1.],\n#  [2., 2., 2., 2., 2., 2.],\n#  [3., 3., 3., 3., 3., 3.]]]\nnew_shape = np.array(new_shape)\nexpect(node, inputs=[data, new_shape], outputs=[expanded],\n       name='test_expand_dim_changed')",
+          "code": "node = onnx.helper.make_node(\n    'Expand',\n    inputs=['data', 'new_shape'],\n    outputs=['expanded'],\n)\nshape = [3, 1]\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[1.], [2.], [3.]]\nnew_shape = [2, 1, 6]\nexpanded = data * np.ones(new_shape, dtype=np.float32)\n#print(expanded)\n#[[[1., 1., 1., 1., 1., 1.],\n#  [2., 2., 2., 2., 2., 2.],\n#  [3., 3., 3., 3., 3., 3.]],\n#\n# [[1., 1., 1., 1., 1., 1.],\n#  [2., 2., 2., 2., 2., 2.],\n#  [3., 3., 3., 3., 3., 3.]]]\nnew_shape = np.array(new_shape, dtype=np.int64)\nexpect(node, inputs=[data, new_shape], outputs=[expanded],\n       name='test_expand_dim_changed')",
           "summary": "dim_changed"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Expand',\n    inputs=['data', 'new_shape'],\n    outputs=['expanded'],\n)\nshape = [3, 1]\nnew_shape = [3, 4]\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float64), shape)\n#print(data)\n#[[1.], [2.], [3.]]\nexpanded = np.tile(data, 4)\n#print(expanded)\n#[[1., 1., 1., 1.],\n# [2., 2., 2., 2.],\n# [3., 3., 3., 3.]]\nnew_shape = np.array(new_shape)\nexpect(node, inputs=[data, new_shape], outputs=[expanded],\n       name='test_expand_dim_unchanged')",
+          "code": "node = onnx.helper.make_node(\n    'Expand',\n    inputs=['data', 'new_shape'],\n    outputs=['expanded'],\n)\nshape = [3, 1]\nnew_shape = [3, 4]\ndata = np.reshape(np.arange(1, np.prod(shape) + 1, dtype=np.float32), shape)\n#print(data)\n#[[1.], [2.], [3.]]\nexpanded = np.tile(data, 4)\n#print(expanded)\n#[[1., 1., 1., 1.],\n# [2., 2., 2., 2.],\n# [3., 3., 3., 3.]]\nnew_shape = np.array(new_shape, dtype=np.int64)\nexpect(node, inputs=[data, new_shape], outputs=[expanded],\n       name='test_expand_dim_unchanged')",
           "summary": "dim_unchanged"
         }
       ],
