@@ -212,6 +212,7 @@ class TensorFlowLiteNode {
                 var initializer = this._graph.getInitializer(tensorIndex);
                 if (initializer) {
                     connection.initializer = initializer;
+                    connection.id = initializer.name;
                 }
                 connection.id = connection.id.toString();
             });
