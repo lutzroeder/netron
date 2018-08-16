@@ -430,6 +430,7 @@ class View {
                 var clusterMap = {};
                 var clusterParentMap = {};
     
+                var id = new Date().getTime();
                 var nodes = graph.nodes;
         
                 this._host.event('Graph', 'Render', 'Nodes', nodes.length);
@@ -460,7 +461,7 @@ class View {
                             }
                             var text = view.showNames && node.name ? node.name : (node.primitive ? node.primitive : node.operator);
                             var title = view.showNames && node.name ? node.operator : node.name;
-                            formatter.addItem(text, styles, title, () => { 
+                            formatter.addItem(text, null, styles, title, () => { 
                                 view.showNodeProperties(node, null);
                             });
                         }
@@ -478,6 +479,7 @@ class View {
                         // TODO what about mixed input & initializer
                         if (input.connections.length > 0) {
                             var initializers = input.connections.filter(connection => connection.initializer);
+                            var inputId = null;
                             var inputClass = 'node-item-input';
                             if (initializers.length == 0) {
                                 inputClass = 'node-item-input';
@@ -486,6 +488,9 @@ class View {
                                 }
                             }
                             else {
+                                if (initializers.length == 1) {
+                                    inputId = 'initializer-' + initializers[0].initializer.name;
+                                }
                                 if (initializers.length == input.connections.length) {
                                     inputClass = 'node-item-constant';
                                     if (input.hidden) {
@@ -503,7 +508,7 @@ class View {
                             if (this._showDetails) {
                                 if (!input.hidden) {
                                     var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
-                                    formatter.addItem(input.name, [ inputClass ], types, () => {
+                                    formatter.addItem(input.name, inputId, [ inputClass ], types, () => {
                                         this.showNodeProperties(node, input);
                                     });    
                                 }
@@ -527,12 +532,12 @@ class View {
             
                     if (this._showDetails) {
                         if (hiddenInputs) {
-                            formatter.addItem('...', [ 'node-item-input' ], '', () => {
+                            formatter.addItem('...', null, [ 'node-item-input' ], '', () => {
                                 this.showNodeProperties(node, null);
                             });    
                         }
                         if (hiddenInitializers) {
-                            formatter.addItem('...', [ 'node-item-constant' ], '', () => {
+                            formatter.addItem('...', null, [ 'node-item-constant' ], '', () => {
                                 this.showNodeProperties(node, null);
                             });    
                         }
@@ -586,7 +591,8 @@ class View {
                         g.setNode(nodeId, { label: formatter.format(graphElement), id: 'node-' + name });
                     }
                     else {
-                        g.setNode(nodeId, { label: formatter.format(graphElement) });
+                        g.setNode(nodeId, { label: formatter.format(graphElement), id: 'node-' + id.toString() });
+                        id++;
                     }
             
                     function createCluster(name) {
@@ -637,7 +643,7 @@ class View {
                     };
     
                     var formatter = new NodeFormatter();
-                    formatter.addItem(input.name, [ 'graph-item-input' ], input.type, () => {
+                    formatter.addItem(input.name, null, [ 'graph-item-input' ], input.type, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: formatter.format(graphElement), class: 'graph-input' } ); 
@@ -657,7 +663,7 @@ class View {
                     });
             
                     var formatter = new NodeFormatter();
-                    formatter.addItem(output.name, [ 'graph-item-output' ], output.type, () => {
+                    formatter.addItem(output.name, null, [ 'graph-item-output' ], output.type, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: formatter.format(graphElement) } ); 

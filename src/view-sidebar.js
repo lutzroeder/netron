@@ -918,6 +918,17 @@ class FindView {
             edgePathElement = edgePathElement.nextSibling;
         }
 
+        var initializerElement = this._graphElement.getElementById(id);
+        if (initializerElement) {
+            while (initializerElement.parentElement) {
+                initializerElement = initializerElement.parentElement;
+                if (initializerElement.id && initializerElement.id.startsWith('node-')) {
+                    selection.push(initializerElement);
+                    break;
+                }
+            }
+        }
+
         if (selection.length > 0) {
             this.raise('select', selection);
         }
@@ -941,15 +952,21 @@ class FindView {
         var edgeMatches = {};
 
         this._graph.nodes.forEach((node) => {
+
+            var initializers = [];
+
             node.inputs.forEach((input) => {
                 input.connections.forEach((connection) => {
                     if (connection.id && connection.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[connection.id]) {
-                        var item = document.createElement('li');
                         if (!connection.initializer) {
+                            var item = document.createElement('li');
                             item.innerText = '\u2192 ' + connection.id.split('\n').shift(); // custom connection id
                             item.id = 'edge-' + connection.id;
                             this._resultElement.appendChild(item);
                             edgeMatches[connection.id] = true;
+                        }
+                        else {
+                            initializers.push(connection.initializer);
                         }
                     }    
                 });
@@ -963,6 +980,13 @@ class FindView {
                 this._resultElement.appendChild(item);
                 nodeMatches[node.name] = true;
             }
+
+            initializers.forEach((initializer) => {
+                var item = document.createElement('li');
+                item.innerText = '\u25A0 ' + initializer.name;
+                item.id = 'initializer-' + initializer.name;
+                this._resultElement.appendChild(item);
+            });
         });
 
         this._graph.nodes.forEach((node) => {

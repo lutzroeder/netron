@@ -208,10 +208,13 @@ class NodeFormatter {
         this._attributes = [];
     }
 
-    addItem(content, classes, title, handler) {
+    addItem(content, identifier, classes, title, handler) {
         var item = {};
         if (content) {
             item.content = content;
+        }
+        if (identifier) {
+            item.identifier = identifier;
         }
         if (classes) {
             item.classes = classes;
@@ -265,6 +268,9 @@ class NodeFormatter {
                 });
             }
             itemGroupElement.setAttribute('class', itemGroupClassList.join(' '));
+            if (item.identifier) {
+                itemGroupElement.setAttribute('id', item.identifier);
+            }
             if (handler) {
                 itemGroupElement.addEventListener('click', handler);
             }
