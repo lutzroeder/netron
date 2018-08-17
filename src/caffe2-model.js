@@ -164,7 +164,7 @@ class Caffe2Node {
                 var initializer = initializerMap[input];
                 if (initializer) {
                     delete initializerMap[input];
-                    this._initializers[input] = new Caffe2Tensor('Initializer');
+                    this._initializers[input] = new Caffe2Tensor(input, 'Initializer');
                 }
             }
         });
@@ -253,8 +253,13 @@ class Caffe2Attribute {
 
 class Caffe2Tensor {
 
-    constructor(kind) {
+    constructor(name, kind) {
+        this._name = name;
         this._kind = kind;
+    }
+
+    get name() {
+        return this._name;
     }
 
     get kind() {
