@@ -11,7 +11,7 @@ class BrowserHost {
             };
             window.ga.l = 1 * new Date();
         }
-        window.ga('create', 'UA-54146-11', 'auto');
+        window.ga('create', 'UA-54146-12', 'auto');
 
         window.addEventListener('error', (e) => {
             this.exception(e.error, true);

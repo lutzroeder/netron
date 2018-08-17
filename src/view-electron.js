@@ -13,7 +13,7 @@ class ElectronHost {
             (process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath));
 
         if (!this._isDev) {
-            this._telemetry = require('universal-analytics')('UA-54146-11');
+            this._telemetry = require('universal-analytics')('UA-54146-12');
         }
 
         this._name = electron.remote.app.getName();
