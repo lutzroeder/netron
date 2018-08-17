@@ -22,7 +22,7 @@ class Caffe2ModelFactory {
                 netDef = caffe2.NetDef.decode(context.buffer);
             }
             catch (error) {
-                callback(new Caffe2Error('Protocol Buffer loader failed to decode caffe2.NetDef input stream (' + error.message + ').'), null);
+                callback(new Caffe2Error('File format is not caffe2.NetDef (' + error.message + ').'), null);
                 return;
             }
             context.request('init_net.pb', null, (err, data) => {
@@ -286,7 +286,7 @@ class Caffe2Tensor {
         }
         if (args.values) {
             this._values = args.values;
-            if (this._values.floats) {
+            if (this._values.floats || this._values.floats == -1) {
                 this._dataType = 'float32';
             }
             else {
@@ -330,6 +330,9 @@ class Caffe2Tensor {
         }
         if (!this._dataType) {
             return { error: 'Unknown data type.' };
+        }
+        if (this._values.floats == -1) {
+            return { error: 'Tensor data is too large to load in Chrome.' };
         }
         var context = {};
         context.index = 0;

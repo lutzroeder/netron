@@ -2429,14 +2429,36 @@
                         message.n = $root.caffe2.NetDef.decode(reader, reader.uint32());
                         break;
                     case 5:
-                        if (!(message.floats && message.floats.length))
-                            message.floats = [];
-                        if ((tag & 7) === 2) {
-                            var end2 = reader.uint32() + reader.pos;
-                            while (reader.pos < end2)
+                        if (!(message.floats && message.floats.length)) {
+                            if (message.floats != -1) {
+                                message.floats = [];
+                                message.floatsCount = 0;
+                            }
+                        }
+                        if (message.floatsCount < 1000000) {
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2) {
+                                    message.floats.push(reader.float());
+                                    message.floatsCount++;
+                                }
+                            }
+                            else {
                                 message.floats.push(reader.float());
-                        } else
-                            message.floats.push(reader.float());
+                                message.floatsCount++;
+                            }
+                        }
+                        else {
+                            message.floats = -1;
+                            if ((tag & 7) === 2) {
+                                var endx = reader.uint32() + reader.pos;
+                                while (reader.pos < endx)
+                                    reader.float();
+                            }
+                            else {
+                                reader.float();
+                            }
+                        }
                         break;
                     case 6:
                         if (!(message.ints && message.ints.length))

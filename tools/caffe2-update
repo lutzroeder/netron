@@ -25,9 +25,6 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-echo "Generate '../src/caffe2.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
-
 echo "Install Caffe2"
 if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
 brew bundle --file=- <<-EOS
@@ -50,3 +47,7 @@ echo "Generate '../src/caffe2-metadata.json'"
 pushd ${tools} > /dev/null
 ${python} caffe2-metadata.py
 popd > /dev/null
+
+echo "Generate '../src/caffe2.js'"
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
+
