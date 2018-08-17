@@ -3,19 +3,19 @@
 class TensorFlowLiteModelFactory {
 
 
-    match(buffer, identifier) {
-        var extension = identifier.split('.').pop();
+    match(context) {
+        var extension = context.identifier.split('.').pop();
         return extension == 'tflite';
     }
 
-    open(buffer, identifier, host, callback) {
-        host.import('/tflite.js', (err) => {
+    open(context, host, callback) {
+        host.import('tflite.js', (err) => {
             if (err) {
                 callback(err, null);
             }
             else {
                 try {
-                    var byteBuffer = new flatbuffers.ByteBuffer(buffer);
+                    var byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
                     if (!tflite.Model.bufferHasIdentifier(byteBuffer))
                     {
                         callback(new TensorFlowLiteError('Invalid FlatBuffers identifier.'));
@@ -603,7 +603,7 @@ class TensorFlowLiteOperatorMetadata {
             callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/tflite-metadata.json', (err, data) => {
+            host.request(null, 'tflite-metadata.json', 'utf-8', (err, data) => {
                 TensorFlowLiteOperatorMetadata.operatorMetadata = new TensorFlowLiteOperatorMetadata(data);
                 callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
             });    

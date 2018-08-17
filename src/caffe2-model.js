@@ -6,12 +6,12 @@ var caffe2 = null;
 
 class Caffe2ModelFactory {
 
-    match(buffer, identifier) {
-        return identifier.endsWith('predict_net.pb');
+    match(context) {
+        return context.identifier.endsWith('predict_net.pb');
     }    
 
-    open(buffer, identifier, host, callback) {
-        host.import('/caffe2.js', (err) => {
+    open(context, host, callback) {
+        host.import('caffe2.js', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -19,24 +19,36 @@ class Caffe2ModelFactory {
             var netDef = null;
             try {
                 caffe2 = protobuf.roots.caffe2.caffe2;
-                netDef = caffe2.NetDef.decode(buffer);
+                netDef = caffe2.NetDef.decode(context.buffer);
             }
             catch (error) {
                 callback(new Caffe2Error('Protocol Buffer loader failed to decode caffe2.NetDef input stream (' + error.message + ').'), null);
                 return;
             }
-            var model = null;
-            try {
-                model = new Caffe2Model(netDef);
-            }
-            catch (error) {
-                host.exception(error, false);
-                callback(new Caffe2Error(error.message), null);
-                return;
-            }
-            Caffe2OperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
-            }); 
+            context.request('init_net.pb', null, (err, data) => {
+
+                var init = null;
+                if (!err && data) {
+                    try {
+                        init = caffe2.NetDef.decode(data);
+                    }
+                    catch (error) {
+                    }
+                }
+
+                var model = null;
+                try {
+                    model = new Caffe2Model(netDef, init);
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new Caffe2Error(error.message), null);
+                    return;
+                }
+                Caffe2OperatorMetadata.open(host, (err, metadata) => {
+                    callback(null, model);
+                }); 
+            });
         });
     }
 
@@ -44,8 +56,8 @@ class Caffe2ModelFactory {
 
 class Caffe2Model {
 
-    constructor(netDef) {
-        var graph = new Caffe2Graph(netDef);
+    constructor(netDef, init) {
+        var graph = new Caffe2Graph(netDef, init);
         this._graphs = [ graph ];
     }
 
@@ -60,14 +72,24 @@ class Caffe2Model {
 
 class Caffe2Graph {
 
-    constructor(netDef) {
+    constructor(netDef, init) {
         this._name = netDef.name ? netDef.name : '';
         this._type = netDef.type ? netDef.type : '';
         this._nodes = [];
         this._operators = {};
 
-        var inplaceIndices = [];
-        var inplaceMap = {};
+        var initializers = {};
+        netDef.externalInput.forEach((input) => {
+            initializers[input] = {};
+        });
+        if (init) {
+            init.op.forEach((op) => {
+                if (op.type == 'GivenTensorFill' && op.output && op.output.length == 1) {
+                    var name = op.output[0];
+                    initializers[name] = op;
+                }
+            });
+        }
 
         var scope = {};
         netDef.op.forEach((op, index) => {
@@ -83,18 +105,13 @@ class Caffe2Graph {
             });
         });
 
-        var initializerMap = {};
-        netDef.externalInput.forEach((input) => {
-            initializerMap[input] = true;
-        });
-
         netDef.op.forEach((op) => {
             this._operators[op.type] = (this._operators[op.type] || 0) + 1;
-            this._nodes.push(new Caffe2Node(op, initializerMap));
+            this._nodes.push(new Caffe2Node(op, initializers));
         });
 
         this._inputs = [];
-        var inputs = Object.keys(initializerMap);
+        var inputs = Object.keys(initializers);
         inputs.forEach((input) => {
             if (inputs.length == 1 || !input.startsWith('caffe.')) {
                 this._inputs.push({
@@ -142,7 +159,7 @@ class Caffe2Graph {
 
 class Caffe2Node {
 
-    constructor(op, initializerMap) {
+    constructor(op, initializers) {
         if (op.name) {
             this._name = op.name;
         }
@@ -161,10 +178,10 @@ class Caffe2Node {
         this._initializers = {};
         this._inputs.forEach((input, index) => {
             if (index > 0) {
-                var initializer = initializerMap[input];
-                if (initializer) {
-                    delete initializerMap[input];
-                    this._initializers[input] = new Caffe2Tensor(input, 'Initializer');
+                var tensor = initializers[input];
+                if (tensor) {
+                    this._initializers[input] = new Caffe2Tensor(input, tensor, 'Initializer');
+                    delete initializers[input];
                 }
             }
         });
@@ -197,6 +214,7 @@ class Caffe2Node {
                 var initializer = this._initializers[connection.id];
                 if (initializer) {
                     connection.initializer = initializer;
+                    connection.type = initializer.type.toString();
                 }
             });
         });
@@ -253,13 +271,36 @@ class Caffe2Attribute {
 
 class Caffe2Tensor {
 
-    constructor(name, kind) {
+    constructor(name, tensor, kind) {
         this._name = name;
         this._kind = kind;
+
+        var args = {};
+        if (tensor && tensor.arg) {
+            tensor.arg.forEach((arg) => {
+                args[arg.name] = arg;
+            });
+        }
+        if (args.shape && args.shape.ints) {
+            this._shape = args.shape.ints;
+        }
+        if (args.values) {
+            this._values = args.values;
+            if (this._values.floats) {
+                this._dataType = 'float32';
+            }
+            else {
+                debugger;
+            }
+        }
     }
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return new Caffe2TensorType(this._dataType, this._shape);
     }
 
     get kind() {
@@ -267,12 +308,88 @@ class Caffe2Tensor {
     }
 
     get value() {
-        return null;
+        var result = this._decode(Number.MAX_SAFE_INTEGER);
+        if (result.error) {
+            return null;
+        }
+        return result.value;
     }
 
     toString() {
-        return null;
+        var result = this._decode(10000);
+        if (result.error) {
+            return result.error;
+        }
+        return JSON.stringify(result.value, null, 4);
     }
+
+    _decode(limit) {
+        var result = {};
+        if (!this._values) {
+            return { error: 'Tensor data is empty.' };
+        }
+        if (!this._dataType) {
+            return { error: 'Unknown data type.' };
+        }
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.limit = limit;
+        if (this._values.floats) {
+            context.data = this._values.floats;
+        }
+        else {
+            debugger;
+        }
+        return { value: this._decodeDimension(context, 0) };
+    }
+
+    _decodeDimension(context, dimension) {
+        var results = [];
+        var size = this._shape[dimension];
+        if (dimension == this._shape.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(context.data[context.index]);
+                context.index++;
+                context.count++;
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decodeDimension(context, dimension + 1));
+            }
+        }
+        return results;
+    }
+}
+
+class Caffe2TensorType {
+
+    constructor(dataType, shape) {
+        this._dataType = dataType;
+        this._shape = shape;
+    }
+
+    get dataType() {
+        return this._dataType || '?';
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+    }
+
 }
 
 class Caffe2OperatorMetadata 
@@ -283,7 +400,7 @@ class Caffe2OperatorMetadata
             callback(null, Caffe2OperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/caffe2-metadata.json', (err, data) => {
+            host.request(null, 'caffe2-metadata.json', 'utf-8', (err, data) => {
                 Caffe2OperatorMetadata.operatorMetadata = new Caffe2OperatorMetadata(data);
                 callback(null, Caffe2OperatorMetadata.operatorMetadata);
             });

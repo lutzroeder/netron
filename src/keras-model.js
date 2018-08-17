@@ -2,14 +2,14 @@
 
 class KerasModelFactory {
 
-    match(buffer, identifier) {
-        var extension = identifier.split('.').pop();
+    match(context) {
+        var extension = context.identifier.split('.').pop();
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
             return true;
         }
-        if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
+        if (extension == 'json' && !context.identifier.endsWith('-symbol.json')) {
             var decoder = new TextDecoder('utf-8');
-            var json = decoder.decode(buffer);
+            var json = decoder.decode(context.buffer);
             if (!json.includes('\"mxnet_version\":')) {
                 return true;
             }
@@ -17,8 +17,8 @@ class KerasModelFactory {
         return false;
     }
 
-    open(buffer, identifier, host, callback) {
-        host.import('/hdf5.js', (err) => {
+    open(context, host, callback) {
+        host.import('hdf5.js', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -28,9 +28,9 @@ class KerasModelFactory {
                 var rootGroup = null;
                 var rootJson = null;
                 var model_config = null;
-                var extension = identifier.split('.').pop();
+                var extension = context.identifier.split('.').pop();
                 if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
-                    var file = new hdf5.File(buffer);
+                    var file = new hdf5.File(context.buffer);
                     rootGroup = file.rootGroup;
                     if (!rootGroup.attributes.model_config) {
                         callback(new KerasError('HDF5 file does not contain a \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
@@ -40,7 +40,7 @@ class KerasModelFactory {
                 }
                 else if (extension == 'json') {
                     var decoder = new window.TextDecoder('utf-8');
-                    var json = decoder.decode(buffer);
+                    var json = decoder.decode(context.buffer);
                     model_config = JSON.parse(json);
                     if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
                         format = 'TensorFlow.js ' + format;
@@ -713,7 +713,7 @@ class KerasOperatorMetadata {
             callback(null, KerasOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/keras-metadata.json', (err, data) => {
+            host.request(null, 'keras-metadata.json', 'utf-8', (err, data) => {
                 KerasOperatorMetadata.operatorMetadata = new KerasOperatorMetadata(data);
                 callback(null, KerasOperatorMetadata.operatorMetadata);
             });    

@@ -6,13 +6,15 @@ var tensorflow = null;
 
 class TensorFlowModelFactory {
 
-    match(buffer, identifier) {
+    match(context) {
+        var identifier = context.identifier;
         var extension = identifier.split('.').pop();
-        return (identifier != 'predict_net.pb') && (extension == 'pb' || extension == 'meta');
+        return (identifier != 'predict_net.pb') && (identifier != 'init_net.pb') && 
+               (extension == 'pb' || extension == 'meta');
     }
 
-    open(buffer, identifier, host, callback) { 
-        host.import('/tf.js', (err) => {
+    open(context, host, callback) { 
+        host.import('tf.js', (err) => {
             if (err) {
                 callback(err, null);
             }
@@ -21,8 +23,8 @@ class TensorFlowModelFactory {
                 try {
                     var model = null;
                     var format = null;
-                    if (identifier == 'saved_model.pb') {
-                        model = tensorflow.SavedModel.decode(buffer);
+                    if (context.identifier == 'saved_model.pb') {
+                        model = tensorflow.SavedModel.decode(context.buffer);
                         format = 'TensorFlow Saved Model';
                         if (model.savedModelSchemaVersion) {
                             format = format + ' v' + model.savedModelSchemaVersion.toString();
@@ -30,13 +32,13 @@ class TensorFlowModelFactory {
                     }
                     else {
                         var metaGraphDef = null;
-                        var extension = identifier.split('.').pop();
+                        var extension = context.identifier.split('.').pop();
                         if (extension != 'meta') {
                             try {
-                                var graphDef = tensorflow.GraphDef.decode(buffer);
+                                var graphDef = tensorflow.GraphDef.decode(context.buffer);
                                 metaGraphDef = new tensorflow.MetaGraphDef();
                                 metaGraphDef.graphDef = graphDef;
-                                metaGraphDef.anyInfo = identifier;
+                                metaGraphDef.anyInfo = context.identifier;
                                 format = 'TensorFlow Graph';
                             }
                             catch (metaError) {
@@ -44,7 +46,7 @@ class TensorFlowModelFactory {
                         }
         
                         if (!metaGraphDef) {
-                            metaGraphDef = tensorflow.MetaGraphDef.decode(buffer);
+                            metaGraphDef = tensorflow.MetaGraphDef.decode(context.buffer);
                             format = 'TensorFlow MetaGraph';
                         }
         
@@ -1111,7 +1113,7 @@ class TensorFlowOperatorMetadata {
             callback(null, TensorFlowOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/tf-metadata.json', (err, data) => {
+            host.request(null, 'tf-metadata.json', 'utf-8', (err, data) => {
                 TensorFlowOperatorMetadata.operatorMetadata = new TensorFlowOperatorMetadata(data);
                 callback(null, TensorFlowOperatorMetadata.operatorMetadata);
             });

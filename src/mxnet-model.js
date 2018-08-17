@@ -4,17 +4,17 @@
 
 class MXNetModelFactory {
 
-    match(buffer, identifier) {
-        if (identifier.endsWith('-symbol.json')) {
+    match(context) {
+        if (context.identifier.endsWith('-symbol.json')) {
             return true;
         }
-        var extension = identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop();
         if (extension == 'model') {
             return true;
         }
         if (extension == 'json') {
             var decoder = new TextDecoder('utf-8');
-            var json = decoder.decode(buffer);
+            var json = decoder.decode(context.buffer);
             if (json.includes('\"mxnet_version\":')) {
                 return true;
             }
@@ -22,14 +22,14 @@ class MXNetModelFactory {
         return false;
     }
 
-    open(buffer, identifier, host, callback) {
-        var extension = identifier.split('.').pop();
+    open(context, host, callback) {
+        var extension = context.identifier.split('.').pop();
         switch (extension) {
             case 'json':
-                this._openSymbol(buffer, callback);
+                this._openSymbol(context, callback);
                 break;
             case 'model':
-                this._openModel(buffer, host, callback);
+                this._openModel(context, host, callback);
                 break;
             default:
                 callback(new MXNetError('Unsupported file extension.'));
@@ -37,10 +37,10 @@ class MXNetModelFactory {
         }
     }
 
-    _openSymbol(buffer, callback) {
+    _openSymbol(context, callback) {
         try {
             var decoder = new TextDecoder('utf-8');
-            var symbol = JSON.parse(decoder.decode(buffer));
+            var symbol = JSON.parse(decoder.decode(context.buffer));
             var model = new MXNetModel(null, symbol, null, {});
             MXNetOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
@@ -52,10 +52,10 @@ class MXNetModelFactory {
         }
     }
 
-    _openModel(buffer, host, callback) {
+    _openModel(context, host, callback) {
         var entries = {};
         try {
-            var archive = new zip.Archive(buffer, host.inflateRaw);
+            var archive = new zip.Archive(context.buffer, host.inflateRaw);
             archive.entries.forEach((entry) => {
                 entries[entry.name] = entry;
             });
@@ -685,11 +685,11 @@ class MXNetOperatorMetadata {
             callback(null, MXNetOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/mxnet-metadata.json', (err, data) => {
+            host.request(null, 'mxnet-metadata.json', 'utf-8', (err, data) => {
                 MXNetOperatorMetadata.operatorMetadata = new MXNetOperatorMetadata(data);
                 callback(null, MXNetOperatorMetadata.operatorMetadata);
             });
-        }    
+        }
     }
 
     constructor(data) {

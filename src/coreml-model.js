@@ -4,13 +4,13 @@ var coreml = null;
 
 class CoreMLModelFactory {
 
-    match(buffer, identifier) {
-        var extension = identifier.split('.').pop();
+    match(context) {
+        var extension = context.identifier.split('.').pop();
         return extension == 'mlmodel';
     }
 
-    open(buffer, identifier, host, callback) { 
-        host.import('/coreml.js', (err) => {
+    open(context, host, callback) { 
+        host.import('coreml.js', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -18,7 +18,7 @@ class CoreMLModelFactory {
             var decodedBuffer = null;
             try {
                 coreml = protobuf.roots.coreml.CoreML.Specification;
-                decodedBuffer = coreml.Model.decode(buffer);
+                decodedBuffer = coreml.Model.decode(context.buffer);
             }
             catch (error) {
                 callback(new CoreMLError('Protocol Buffer loader failed to decode coreml.Model input stream (' + error.message + ').'), null);
@@ -764,7 +764,7 @@ class CoreMLOperatorMetadata
             callback(null, CoreMLOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/coreml-metadata.json', (err, data) => {
+            host.request(null, 'coreml-metadata.json', 'utf-8', (err, data) => {
                 CoreMLOperatorMetadata.operatorMetadata = new CoreMLOperatorMetadata(data);
                 callback(null, CoreMLOperatorMetadata.operatorMetadata);
             });

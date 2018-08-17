@@ -4,13 +4,16 @@ var onnx = null;
 
 class OnnxModelFactory {
 
-    match(buffer, identifier) {
-        var extension = identifier.split('.').pop();
-        return (identifier != 'saved_model.pb') && (identifier != 'predict_net.pb') && (extension == 'onnx' || extension == 'pb');
+    match(context) {
+        var identifier = context.identifier;
+        var extension = context.identifier.split('.').pop();
+        return (identifier != 'saved_model.pb') && 
+               (identifier != 'predict_net.pb') && (identifier != 'init_net.pb') && 
+               (extension == 'onnx' || extension == 'pb');
     }
 
-    open(buffer, identifier, host, callback) { 
-        host.import('/onnx.js', (err) => {
+    open(context, host, callback) { 
+        host.import('onnx.js', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -18,7 +21,7 @@ class OnnxModelFactory {
             var model = null;
             try {
                 onnx = protobuf.roots.onnx.onnx;
-                model = onnx.ModelProto.decode(buffer);
+                model = onnx.ModelProto.decode(context.buffer);
             }
             catch (error) {
                 callback(new OnnxError('Protocol Buffer loader failed to decode ModelProto input stream (' + error.message + ').'), null);
@@ -1027,7 +1030,7 @@ class OnnxOperatorMetadata {
             callback(null, OnnxOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/onnx-metadata.json', (err, data) => {
+            host.request(null, 'onnx-metadata.json', 'utf-8', (err, data) => {
                 OnnxOperatorMetadata.operatorMetadata = new OnnxOperatorMetadata(data);
                 callback(null, OnnxOperatorMetadata.operatorMetadata);
             });

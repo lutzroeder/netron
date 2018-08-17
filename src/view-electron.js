@@ -178,14 +178,14 @@ class ElectronHost {
         });
     }
 
-    request(file, callback) {
-        var pathname = path.join(__dirname, file);
+    request(base, file, encoding, callback) {
+        var pathname = path.join(base || __dirname, file);
         fs.exists(pathname, (exists) => {
             if (!exists) {
                 callback('File not found.', null);
             }
             else {
-                fs.readFile(pathname, (err, data) => {
+                fs.readFile(pathname, encoding, (err, data) => {
                     if (err) {
                         callback(err, null);
                     }
@@ -268,7 +268,8 @@ class ElectronHost {
                     this._update('path', null);
                     return;
                 }
-                this._view.openBuffer(buffer, path.basename(file), (err, model) => {
+                var context = new ElectonContext(this, path.dirname(file), path.basename(file), buffer);
+                this._view.openContext(context, (err, model) => {
                     this._view.show(null);
                     if (err) {
                         this.exception(err, false);
@@ -323,6 +324,30 @@ class ElectronHost {
 
     _update(name, value) {
         electron.ipcRenderer.send('update', { name: name, value: value });
+    }
+}
+
+class ElectonContext {
+
+    constructor(host, folder, identifier, buffer) {
+        this._host = host;
+        this._folder = folder;
+        this._identifier = identifier;
+        this._buffer = buffer;
+    }
+
+    request(file, encoding, callback) {
+        this._host.request(this._folder, file, encoding, (err, buffer) => {
+            callback(err, buffer);
+        });
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get buffer() {
+        return this._buffer;
     }
 }
 

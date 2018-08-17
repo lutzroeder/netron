@@ -47,6 +47,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         status_code = 0
         headers = {}
         buffer = None
+        data = '/data/'
         if status_code == 0:
             if pathname == '/':
                 meta = []
@@ -54,7 +55,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if __version__:
                     meta.append("<meta name='version' content='" + __version__ + "' />")
                 if self.file:
-                    meta.append("<meta name='file' content='" + self.file + "' />")
+                    meta.append("<meta name='file' content='/data/" + self.file + "' />")
                 with codecs.open(location + 'view-browser.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
                 buffer = buffer.replace('<!-- meta -->', '\n'.join(meta))
@@ -62,11 +63,20 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 headers['Content-Type'] = 'text/html'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
-            elif pathname == '/data' and self.data:
-                buffer = self.data
-                headers['Content-Type'] = 'application/octet-stream'
-                headers['Content-Length'] = len(buffer)
-                status_code = 200
+            elif pathname.startswith(data):
+                file = pathname[len(data):]
+                if file == self.file:
+                    buffer = self.data
+                else:
+                    file = self.folder + '/' + file;
+                    status_code = 404
+                    if os.path.exists(file):
+                        with open(file, 'rb') as binary:
+                            buffer = binary.read()
+                if buffer:
+                    headers['Content-Type'] = 'application/octet-stream'
+                    headers['Content-Length'] = len(buffer)
+                    status_code = 200
             else:
                 if os.path.exists(location) and not os.path.isdir(location):
                     extension = os.path.splitext(location)[1]
@@ -103,7 +113,8 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
 
 def serve_data(data, file, verbose=False, browse=False, port=8080, host='localhost'):
     server = ThreadedHTTPServer((host, port), HTTPRequestHandler)
-    server.RequestHandlerClass.file = file
+    server.RequestHandlerClass.folder = os.path.dirname(file) if file else ''
+    server.RequestHandlerClass.file = os.path.basename(file) if file else ''
     server.RequestHandlerClass.data = data
     server.RequestHandlerClass.verbose = verbose
     url = 'http://' + host + ':' + str(port)

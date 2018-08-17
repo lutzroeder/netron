@@ -2,24 +2,24 @@
 
 class PyTorchModelFactory {
 
-    match(buffer, identifier) {
-        var extension = identifier.split('.').pop();
+    match(context) {
+        var extension = context.identifier.split('.').pop();
         return extension == 'pt' || extension == 'pth';
     }
 
-    open(buffer, identifier, host, callback) { 
-        host.import('/pickle.js', (err) => {
+    open(context, host, callback) { 
+        host.import('pickle.js', (err) => {
             if (err) {
                 callback(err, null);
                 return;
             }
-            this._openModel(buffer, host, callback);
+            this._openModel(context, host, callback);
         });
     }
 
-    _openModel(buffer, host, callback) {
+    _openModel(context, host, callback) {
         try {
-            var unpickler = new pickle.Unpickler(buffer);
+            var unpickler = new pickle.Unpickler(context.buffer);
 
             var signature = [ 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             var magic_number = unpickler.load();
@@ -515,7 +515,7 @@ class PyTorchOperatorMetadata {
             callback(null, PyTorchOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/pytorch-metadata.json', (err, data) => {
+            host.request(null, 'pytorch-metadata.json', 'utf-8', (err, data) => {
                 PyTorchOperatorMetadata.operatorMetadata = new PyTorchOperatorMetadata(data);
                 callback(null, PyTorchOperatorMetadata.operatorMetadata);
             });

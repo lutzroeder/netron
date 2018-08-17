@@ -49,13 +49,13 @@ class BrowserHost {
         this._type = meta.type ? meta.type[0] : 'Browser';
 
         if (meta.file) {
-            this._openModel('/data', meta.file[0].split('/').pop());
+            this._openModel(meta.file[0], null);
             return;
         }
 
         var urlParam = this._getQueryParameter('url');
         if (urlParam) {
-            this._openModel(urlParam, this._getQueryParameter('identifier') || urlParam.split('/').pop());
+            this._openModel(urlParam, this._getQueryParameter('identifier') || null);
             return;
         }
 
@@ -119,10 +119,10 @@ class BrowserHost {
     export(file, data, mimeType) {
     }
 
-    request(file, callback) {
-        var url = this._url(file);
+    request(base, file, encoding, callback) {
+        var url = base ? (base + '/' + file) : this._url(file);
         var request = new XMLHttpRequest();
-        if (file.endsWith('.pb')) {
+        if (encoding == null) {
             request.responseType = 'arraybuffer';
         }
         request.onload = () => {
@@ -201,7 +201,7 @@ class BrowserHost {
             if (location.endsWith('/')) {
                 location = location.slice(0, -1);
             }
-            url = location + file;
+            url = location + '/' + file;
         }
         return url;
     }
@@ -220,21 +220,22 @@ class BrowserHost {
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    _openModel(url, file) {
+    _openModel(url, identifier) {
         this._view.show('Spinner');
         var request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
         request.onload = () => {
             if (request.status == 200) {
                 var buffer = new Uint8Array(request.response);
-                this._view.openBuffer(buffer, file, (err, model) => {
+                var context = new BrowserContext(this, url, identifier, buffer);
+                this._view.openContext(context, (err, model) => {
                     this._view.show(null);
                     if (err) {
                         this.exception(err, false);
                         this.error(err.name, err.message);
                     }
                     if (model) {
-                        document.title = file;
+                        document.title = identifier || url.split('/').pop();
                     }
                 });
             }
@@ -272,7 +273,8 @@ class BrowserHost {
                 return;
             }
             var buffer = new Uint8Array(reader.result);
-            this._view.openBuffer(buffer, file.name, (err, model) => {
+            var context = new BrowserContext(this, '', file.name, buffer);
+            this._view.openContext(context, (err, model) => {
                 callback(err, model);
             });
         };
@@ -353,5 +355,36 @@ window.TextDecoder = window.TextDecoder || class {
         return result;
     }
 };
+
+class BrowserContext {
+
+    constructor(host, url, identifier, buffer) {
+        this._host = host;
+        this._buffer = buffer;
+        if (identifier) {
+            this._identifier = identifier;
+            this._base = url.trimEnd('/');
+        }
+        else {
+            url = url.split('/');
+            this._identifier = url.pop();
+            this._base = url.join('/');
+        }
+    }
+
+    request(file, encoding, callback) {
+        this._host.request(this._base, file, encoding, (err, buffer) => {
+            callback(err, buffer);
+        });
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get buffer() {
+        return this._buffer;
+    }
+}
 
 window.host = new BrowserHost();

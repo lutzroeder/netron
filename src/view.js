@@ -204,7 +204,7 @@ class View {
         }
     }
 
-    loadBuffer(buffer, identifier, callback) {
+    loadContext(context, callback) {
         var modelFactoryRegistry = [
             new OnnxModelFactory(),
             new MXNetModelFactory(),
@@ -222,6 +222,9 @@ class View {
             var archive;
             var entry;
     
+            var identifier = context.identifier;
+            var buffer = context.buffer;
+
             extension = identifier.split('.').pop();
             if (extension == 'gz' || extension == 'tgz') {
                 archive = new gzip.Archive(buffer);
@@ -263,9 +266,11 @@ class View {
                 var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
                 rootFolder = rootFolder == '/' ? '' : rootFolder;
                 var entries = archive.entries.filter((entry) => {
-                    var identifier = entry.name.substring(rootFolder.length);
-                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                        return modelFactoryRegistry.some((factory) => factory.match(entry.data, identifier));
+                    if (entry.name.startsWith(rootFolder)) {
+                        var identifier = entry.name.substring(rootFolder.length);
+                        if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                            return modelFactoryRegistry.some((factory) => factory.match(new ArchiveContext(null, rootFolder, identifier, entry.data)));
+                        }
                     }
                     return false;
                 });
@@ -273,14 +278,13 @@ class View {
                     callback(new ArchiveError('Root does not contain model file.'), null);
                     return;
                 }
-                if (entries.length > 1) {
+                else if (entries.length > 1) {
                     callback(new ArchiveError('Root contains multiple model files.'), null);
                     return;
                 }
-                if (entries.length == 1) {
+                else {
                     entry = entries[0];
-                    identifier = entry.name;
-                    buffer = entry.data;
+                    context = new ArchiveContext(entries, rootFolder, entry.name, entry.data);
                 }
             }
         }
@@ -289,11 +293,11 @@ class View {
             return;
         }
 
-        var matches = modelFactoryRegistry.filter((factory) => factory.match(buffer, identifier));
+        var matches = modelFactoryRegistry.filter((factory) => factory.match(context));
         var next = () => {
             if (matches.length > 0) {
                 var modelFactory = matches.shift();
-                modelFactory.open(buffer, identifier, this._host, (err, model) => {
+                modelFactory.open(context, this._host, (err, model) => {
                     if (model || matches.length == 0) {
                         callback(err, model);
                     }
@@ -303,7 +307,7 @@ class View {
                 });
             }
             else {
-                var extension = identifier.split('.').pop();
+                var extension = context.identifier.split('.').pop();
                 callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
             }
         };
@@ -317,11 +321,11 @@ class View {
         this.show('Welcome');
     }
 
-    openBuffer(buffer, identifier, callback) {
-        this._host.event('Model', 'Open', 'Size', buffer.length);
+    openContext(context, callback) {
+        this._host.event('Model', 'Open', 'Size', context.buffer.length);
         this._sidebar.close();
         setTimeout(() => {
-            this.loadBuffer(buffer, identifier, (err, model) => {
+            this.loadContext(context, (err, model) => {
                 if (err) {
                     callback(err);
                 }
@@ -967,6 +971,45 @@ class Uint64 {
     readInt32(offset) {
         return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
     }
+}
+
+class ArchiveContext {
+
+    constructor(entries, rootFolder, identifier, buffer) {
+        this._entries = {};
+        entries.forEach((entry) => {
+            if (entry.name.startsWith(rootFolder)) {
+                var name = entry.name.substring(rootFolder.length);
+                if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                    this._entries[name] = entry;
+                }
+            }
+        });
+        this._identifier = identifier;
+        this._buffer = buffer;
+    }
+
+    request(file, encoding, callback) {
+        var entry = this._entries[file];
+        if (!entry) {
+            callback(new Error('File not found.'), null);
+            return;
+        }
+        var data = entry.data;
+        if (type != null) {
+            data = new TextDecoder(encoding).decode(data);
+        }
+        callback(null, data);
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get buffer() {
+        return this._buffer;
+    }
+
 }
 
 class ArchiveError extends Error {

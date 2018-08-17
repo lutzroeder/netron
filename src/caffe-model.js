@@ -6,13 +6,13 @@ var caffe = null;
 
 class CaffeModelFactory {
 
-    match(buffer, identifier) {
-        var extension = identifier.split('.').pop();
+    match(context) {
+        var extension = context.identifier.split('.').pop();
         return extension == 'caffemodel';
     }
 
-    open(buffer, identifier, host, callback) { 
-        host.import('/caffe.js', (err) => {
+    open(context, host, callback) { 
+        host.import('caffe.js', (err) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -20,7 +20,7 @@ class CaffeModelFactory {
             var netParameter = null;
             try {
                 caffe = protobuf.roots.caffe.caffe;
-                netParameter = caffe.NetParameter.decode(buffer);
+                netParameter = caffe.NetParameter.decode(context.buffer);
             }
             catch (error) {
                 callback(new CaffeError('Protocol Buffer loader failed to decode caffe.NetParameter input stream (' + error.message + ').'), null);
@@ -520,11 +520,11 @@ class CaffeOperatorMetadata
             callback(null, CaffeOperatorMetadata.operatorMetadata);
         }
         else {
-            host.request('/caffe-metadata.json', (err, data) => {
+            host.request(null, 'caffe-metadata.json', 'utf-8', (err, data) => {
                 CaffeOperatorMetadata.operatorMetadata = new CaffeOperatorMetadata(data);
                 callback(null, CaffeOperatorMetadata.operatorMetadata);
             });
-        }    
+        }
     }
 
     constructor(data) {
