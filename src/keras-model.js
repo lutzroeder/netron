@@ -32,12 +32,11 @@ class KerasModelFactory {
                 if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
                     var file = new hdf5.File(buffer);
                     rootGroup = file.rootGroup;
-                    var modelConfigJson = rootGroup.attributes.model_config;
-                    if (!modelConfigJson) {
+                    if (!rootGroup.attributes.model_config) {
                         callback(new KerasError('HDF5 file does not contain a \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
                         return;
                     }
-                    model_config = JSON.parse(modelConfigJson);
+                    model_config = JSON.parse(rootGroup.attributes.model_config);
                 }
                 else if (extension == 'json') {
                     var decoder = new window.TextDecoder('utf-8');
@@ -422,7 +421,7 @@ class KerasNode {
                             var variable = weight_variable.value;
                             if (variable) {
                                 this._inputs.push(weight_name);
-                                this._initializers[weight_name] = new KerasTensor(variable.type, variable.shape, variable.rawData, '');
+                                this._initializers[weight_name] = new KerasTensor(weight_name, variable.type, variable.shape, variable.rawData, '');
                             }
                         }
                     });
@@ -435,7 +434,7 @@ class KerasNode {
                 manifest.weights.forEach((weights) => {
                     if (weights.name) {
                         this._inputs.push(weights.name);
-                        this._initializers[weights.name] = new KerasTensor(weights.dtype, weights.shape, null, manifest.paths.join(';'));
+                        this._initializers[weights.name] = new KerasTensor(weights.name, weights.dtype, weights.shape, null, manifest.paths.join(';'));
                     }
                 });
             } 
@@ -560,7 +559,8 @@ class KerasAttribute {
 
 class KerasTensor {
 
-    constructor(type, shape, data, reference) {
+    constructor(name, type, shape, data, reference) {
+        this._name = name;
         this._type = new KerasTensorType(type, shape);
         this._data = data;
         this._reference = reference;
