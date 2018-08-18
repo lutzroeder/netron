@@ -133,7 +133,7 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
         print("\nStopping")
         server.server_close()
 
-def serve(file, verbose=False, browse=False, port=8080, host='localhost'):
+def serve_file(file, verbose=False, browse=False, port=8080, host='localhost'):
     data = None
     if file and os.path.exists(file):
         print("Reading '" + file + "'")
@@ -144,4 +144,4 @@ def serve(file, verbose=False, browse=False, port=8080, host='localhost'):
     serve_data(data, file, verbose=verbose, browse=browse, port=port, host=host)
 
 def browse(file, verbose=False, port=8080, host='localhost'):
-    serve(file, verbose, True, port, host)
+    serve_file(file, verbose, True, port, host)
