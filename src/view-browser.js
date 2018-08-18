@@ -367,7 +367,10 @@ class BrowserContext {
         this._buffer = buffer;
         if (identifier) {
             this._identifier = identifier;
-            this._base = url.trimEnd('/');
+            this._base = url;
+            if (this._base.endsWith('/')) {
+                this._base.substring(0, this._base.length - 1);
+            }
         }
         else {
             url = url.split('/');
