@@ -14697,6 +14697,7 @@
              * @property {number|null} [strideW] PoolingParameter strideW
              * @property {caffe.PoolingParameter.Engine|null} [engine] PoolingParameter engine
              * @property {boolean|null} [globalPooling] PoolingParameter globalPooling
+             * @property {caffe.PoolingParameter.RoundMode|null} [roundMode] PoolingParameter roundMode
              */
     
             /**
@@ -14811,6 +14812,14 @@
             PoolingParameter.prototype.globalPooling = false;
     
             /**
+             * PoolingParameter roundMode.
+             * @member {caffe.PoolingParameter.RoundMode} roundMode
+             * @memberof caffe.PoolingParameter
+             * @instance
+             */
+            PoolingParameter.prototype.roundMode = 0;
+    
+            /**
              * Creates a new PoolingParameter instance using the specified properties.
              * @function create
              * @memberof caffe.PoolingParameter
@@ -14858,6 +14867,8 @@
                     writer.uint32(/* id 11, wireType 0 =*/88).int32(message.engine);
                 if (message.globalPooling != null && message.hasOwnProperty("globalPooling"))
                     writer.uint32(/* id 12, wireType 0 =*/96).bool(message.globalPooling);
+                if (message.roundMode != null && message.hasOwnProperty("roundMode"))
+                    writer.uint32(/* id 13, wireType 0 =*/104).int32(message.roundMode);
                 return writer;
             };
     
@@ -14927,6 +14938,9 @@
                         break;
                     case 12:
                         message.globalPooling = reader.bool();
+                        break;
+                    case 13:
+                        message.roundMode = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -15011,6 +15025,14 @@
                 if (message.globalPooling != null && message.hasOwnProperty("globalPooling"))
                     if (typeof message.globalPooling !== "boolean")
                         return "globalPooling: boolean expected";
+                if (message.roundMode != null && message.hasOwnProperty("roundMode"))
+                    switch (message.roundMode) {
+                    default:
+                        return "roundMode: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
                 return null;
             };
     
@@ -15074,6 +15096,16 @@
                 }
                 if (object.globalPooling != null)
                     message.globalPooling = Boolean(object.globalPooling);
+                switch (object.roundMode) {
+                case "CEIL":
+                case 0:
+                    message.roundMode = 0;
+                    break;
+                case "FLOOR":
+                case 1:
+                    message.roundMode = 1;
+                    break;
+                }
                 return message;
             };
     
@@ -15103,6 +15135,7 @@
                     object.padW = 0;
                     object.engine = options.enums === String ? "DEFAULT" : 0;
                     object.globalPooling = false;
+                    object.roundMode = options.enums === String ? "CEIL" : 0;
                 }
                 if (message.pool != null && message.hasOwnProperty("pool"))
                     object.pool = options.enums === String ? $root.caffe.PoolingParameter.PoolMethod[message.pool] : message.pool;
@@ -15128,6 +15161,8 @@
                     object.engine = options.enums === String ? $root.caffe.PoolingParameter.Engine[message.engine] : message.engine;
                 if (message.globalPooling != null && message.hasOwnProperty("globalPooling"))
                     object.globalPooling = message.globalPooling;
+                if (message.roundMode != null && message.hasOwnProperty("roundMode"))
+                    object.roundMode = options.enums === String ? $root.caffe.PoolingParameter.RoundMode[message.roundMode] : message.roundMode;
                 return object;
             };
     
@@ -15171,6 +15206,20 @@
                 values[valuesById[0] = "DEFAULT"] = 0;
                 values[valuesById[1] = "CAFFE"] = 1;
                 values[valuesById[2] = "CUDNN"] = 2;
+                return values;
+            })();
+    
+            /**
+             * RoundMode enum.
+             * @name caffe.PoolingParameter.RoundMode
+             * @enum {string}
+             * @property {number} CEIL=0 CEIL value
+             * @property {number} FLOOR=1 FLOOR value
+             */
+            PoolingParameter.RoundMode = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "CEIL"] = 0;
+                values[valuesById[1] = "FLOOR"] = 1;
                 return values;
             })();
     
