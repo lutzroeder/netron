@@ -40,6 +40,19 @@ class PyTorchModelFactory {
                 callback(new PyTorchError('Unsupported system information.'));
                 return;
             }
+            if (sysInfo.protocol_version != 1001) {
+                callback(new PyTorchError("Unsupported protocol version '" + sysInfo.protocol_version + "'.", null));
+                return;
+            }
+            if (sysInfo.type_sizes) {
+                if ((sysInfo.type_sizes.int && sysInfo.type_sizes.int != 4) ||
+                    (sysInfo.type_sizes.long && sysInfo.type_sizes.long != 4) ||
+                    (sysInfo.type_sizes.short && sysInfo.type_sizes.short != 2))
+                {
+                    callback(new PyTorchError('Unsupported type sizes.'));
+                    return;
+                }
+            }
 
             var functionTable = {};
             functionTable['argparse.Namespace'] = function (args) { this.args = args; };
@@ -298,12 +311,24 @@ class PyTorchNode {
         });
         this._inputs = [ input ];
 
-        module._parameters.forEach((parameter) => {
-            var input = {};
-            input.name = parameter.__id__;
-            input.connections = [];
-            this._inputs.push(input);
-            if (parameter) {
+        var initializers = [];
+        if (module._parameters) {
+            module._parameters.forEach((parameter) => {
+                initializers.push(parameter);
+            });
+        }
+        if (module._buffers) {
+            module._buffers.forEach((buffer) => {
+                initializers.push(buffer);
+            });
+        }
+
+        initializers.forEach((parameter) => {
+            if (parameter && (parameter.data || parameter.storage)) {
+                var input = {};
+                input.name = parameter.__id__;
+                input.connections = [];
+                this._inputs.push(input);
                 var connection = {};
                 if (parameter.data) {
                     connection.initializer = new PyTorchTensor(parameter.data);
