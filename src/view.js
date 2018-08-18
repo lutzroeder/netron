@@ -371,7 +371,7 @@ class View {
                 var nodes = graph.nodes;
                 if (nodes.length > 1500) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
-                        this._host.event('Graph', 'Large', 'Nodes', nodes.length);
+                        this._host.event('Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);
                         callback(null, null);
                         return;
@@ -437,7 +437,7 @@ class View {
                 var id = new Date().getTime();
                 var nodes = graph.nodes;
         
-                this._host.event('Graph', 'Render', 'Nodes', nodes.length);
+                this._host.event('Graph', 'Render', 'Size', nodes.length);
 
                 if (groups) {
                     nodes.forEach((node) => {

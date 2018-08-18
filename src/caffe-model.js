@@ -23,7 +23,7 @@ class CaffeModelFactory {
                 netParameter = caffe.NetParameter.decode(context.buffer);
             }
             catch (error) {
-                callback(new CaffeError('Protocol Buffer loader failed to decode caffe.NetParameter input stream (' + error.message + ').'), null);
+                callback(new CaffeError('File format is not caffe.NetParameter (' + error.message + ').'), null);
                 return;
             }
             var model = null;

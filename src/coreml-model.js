@@ -21,7 +21,7 @@ class CoreMLModelFactory {
                 decodedBuffer = coreml.Model.decode(context.buffer);
             }
             catch (error) {
-                callback(new CoreMLError('Protocol Buffer loader failed to decode coreml.Model input stream (' + error.message + ').'), null);
+                callback(new CoreMLError('File format is not coreml.Model (' + error.message + ').'), null);
                 return;
             }
             var model = null;
