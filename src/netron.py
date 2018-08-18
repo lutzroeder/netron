@@ -34,16 +34,15 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 '.json': 'application/json',
                 '.pb': 'application/octet-stream',
                 '.ttf': 'font/truetype',
-                '.woff': 'font/woff',
                 '.otf': 'font/opentype',
                 '.eot': 'application/vnd.ms-fontobject',
-                '.woff': 'application/font-woff',
+                '.woff': 'font/woff',
                 '.woff2': 'application/font-woff2',
                 '.svg': 'image/svg+xml'
             }
         pathname = urlparse(self.path).path
         folder = os.path.dirname(os.path.realpath(__file__))
-        location = folder + pathname;
+        location = folder + pathname
         status_code = 0
         headers = {}
         buffer = None
@@ -59,7 +58,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 with codecs.open(location + 'view-browser.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
                 buffer = buffer.replace('<!-- meta -->', '\n'.join(meta))
-                buffer = buffer.encode('utf-8');
+                buffer = buffer.encode('utf-8')
                 headers['Content-Type'] = 'text/html'
                 headers['Content-Length'] = len(buffer)
                 status_code = 200
@@ -68,7 +67,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if file == self.file:
                     buffer = self.data
                 else:
-                    file = self.folder + '/' + file;
+                    file = self.folder + '/' + file
                     status_code = 404
                     if os.path.exists(file):
                         with open(file, 'rb') as binary:

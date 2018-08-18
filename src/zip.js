@@ -534,13 +534,13 @@ var gzip = gzip || {};
 gzip.Archive = class {
 
     // inflate (optional): optimized inflater callback like require('zlib').inflateRawSync or pako.inflateRa
-    constructor(buffer, inflate) {
+    constructor(buffer, inflateRaw) {
         this._entries = [];
         if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {
             throw new zip.Error('Invalid GZIP archive.');
         }
         var reader = new zip.Reader(buffer, 0, buffer.length);
-        this._entries.push(new gzip.Entry(reader, inflate));
+        this._entries.push(new gzip.Entry(reader, inflateRaw));
     }
 
     get entries() {

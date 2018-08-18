@@ -149,6 +149,10 @@ class BrowserHost {
         window.open(url, '_target');
     }
 
+    inflateRaw(data) {
+        return pako.inflateRaw(data);
+    }
+
     exception(err, fatal) {
         if (window.ga) {
             var description = [];

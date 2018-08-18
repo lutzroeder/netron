@@ -227,7 +227,7 @@ class View {
 
             extension = identifier.split('.').pop();
             if (extension == 'gz' || extension == 'tgz') {
-                archive = new gzip.Archive(buffer);
+                archive = new gzip.Archive(buffer, this._host.inflateRaw);
                 if (archive.entries.length == 1) {
                     entry = archive.entries[0];
                     if (entry.name) {

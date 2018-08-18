@@ -14,7 +14,7 @@ numpy.Array = class {
 
         var writer = new numpy.Writer();
 
-        writer.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); '\\x93NUMPY'
+        writer.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); // '\\x93NUMPY'
         writer.writeByte(1); // major
         writer.writeByte(0); // minor
 

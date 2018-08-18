@@ -18,6 +18,7 @@
         "handlebars": "latest",
         "marked": "latest",
         "npm-font-open-sans": "latest",
+        "pako": "latest",
         "protobufjs": "latest",
         "universal-analytics": "latest"
     },
