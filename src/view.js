@@ -977,14 +977,16 @@ class ArchiveContext {
 
     constructor(entries, rootFolder, identifier, buffer) {
         this._entries = {};
-        entries.forEach((entry) => {
-            if (entry.name.startsWith(rootFolder)) {
-                var name = entry.name.substring(rootFolder.length);
-                if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                    this._entries[name] = entry;
+        if (entries) {
+            entries.forEach((entry) => {
+                if (entry.name.startsWith(rootFolder)) {
+                    var name = entry.name.substring(rootFolder.length);
+                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                        this._entries[name] = entry;
+                    }
                 }
-            }
-        });
+            });
+        }
         this._identifier = identifier;
         this._buffer = buffer;
     }
