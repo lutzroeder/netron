@@ -50025,6 +50025,45 @@
     }
   },
   {
+    "name": "StaticRegexReplace",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The regular expression to match the input.",
+          "name": "pattern",
+          "type": "string"
+        },
+        {
+          "description": "The rewrite to be applied to the matched expresion.",
+          "name": "rewrite",
+          "type": "string"
+        },
+        {
+          "default": true,
+          "description": "If True, the replacement is global, otherwise the replacement\nis done only on the first match.",
+          "name": "replace_global",
+          "type": "bool"
+        }
+      ],
+      "description": "It follows the re2 syntax (https://github.com/google/re2/wiki/Syntax)",
+      "inputs": [
+        {
+          "description": "The text to be processed.",
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The text after applying pattern and rewrite.",
+          "name": "output",
+          "type": 7
+        }
+      ],
+      "summary": "Replaces the match of pattern in input with rewrite."
+    }
+  },
+  {
     "name": "StatsAggregatorHandle",
     "schema": {
       "attributes": [
