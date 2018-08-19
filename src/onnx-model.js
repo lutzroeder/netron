@@ -252,7 +252,7 @@ class OnnxGraph {
                             var initializer = this._initializerMap[connection.id];
                             if (initializer) {
                                 connection.initializer = initializer;
-                                connection.type = connection.type || initializer.type.toString();
+                                connection.type = connection.type || initializer.type;
                             }
                             return connection;
                         });
@@ -499,6 +499,7 @@ class OnnxTensor {
         this._tensor = tensor;
         this._id = id;
         this._kind = kind || null;
+        this._type = new OnnxTensorType(this._tensor.dataType, this._tensor.dims.map((dim) => dim), null);
     }
 
     get id() {
@@ -514,7 +515,7 @@ class OnnxTensor {
     }
 
     get type() {
-        return new OnnxTensorType(this._tensor);
+        return this._type;
     }
 
     get value() {
@@ -744,37 +745,8 @@ class OnnxTensor {
 
     static _formatType(type, imageFormat) {
         if (!type) {
-            return { value: '?' };
+            return null;
         }
-        var value = {};
-        switch (type.value) {
-            case 'tensorType':
-                var tensorType = type.tensorType;
-                var text = OnnxTensor._formatElementType(tensorType.elemType); 
-                if (tensorType.shape && tensorType.shape.dim) {
-                    text += '[' + tensorType.shape.dim.map((dimension) => {
-                        if (dimension.dimParam) {
-                            return dimension.dimParam;
-                        }
-                        return dimension.dimValue.toString();
-                    }).join(',') + ']';
-                }
-                value = text;
-                break;
-            case 'mapType':
-                var keyType = OnnxTensor._formatElementType(type.mapType.keyType);
-                var valueType = OnnxTensor._formatType(type.mapType.valueType);
-                value = 'map<' + keyType + ',' + valueType.value + '>';
-                break;
-            case 'sequenceType':
-                var elemType = OnnxTensor._formatType(type.sequenceType.elemType);
-                value = 'sequence<' + elemType.value + '>';
-                break;
-            default:
-                // debugger
-                value = '?';
-                break;
-            }
         var denotation = '';
         switch (type.denotation) {
             case 'TENSOR':
@@ -790,21 +762,30 @@ class OnnxTensor {
                 denotation = 'Text';
                 break;
         }
-        return { value: value, denotation: denotation };
+        switch (type.value) {
+            case 'tensorType':
+                var shape = [];
+                if (type.tensorType.shape && type.tensorType.shape.dim) {
+                    shape = type.tensorType.shape.dim.map((dim) => {
+                        return dim.dimParam ? dim.dimParam : dim.dimValue;
+                    });
+                }                
+                return new OnnxTensorType(type.tensorType.elemType, shape, denotation);
+            case 'mapType':
+                return new OnnxMapType(type.mapType.keyType, OnnxTensor._formatType(type.mapType.valueType, imageFormat), denotation);
+            case 'sequenceType':
+                return new OnnxSequenceType(OnnxTensor._formatType(type.sequenceType.elemType, imageFormat), denotation);
+        }
+        return null;
     }
 }
 
 class OnnxTensorType {
 
-    constructor(tensor) {
-        this._dataType = '?';
-        if (tensor.hasOwnProperty('dataType')) {
-            this._dataType = OnnxTensor._formatElementType(tensor.dataType);
-        }
-        this._shape = [];
-        if (tensor.hasOwnProperty('dims')) { 
-            this._shape = tensor.dims.map((dimension) => dimension);
-        }
+    constructor(dataType, shape, denotation) {
+        this._dataType = OnnxTensor._formatElementType(dataType);
+        this._shape = shape;
+        this._denotation = denotation || null;
     }
 
     get dataType() {
@@ -815,10 +796,58 @@ class OnnxTensorType {
         return this._shape;
     }
 
-    toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+    get denotation() { 
+        return this._denotation;
     }
 
+    toString() {
+        return this.dataType + ((this._shape && this._shape.length) ? ('[' + this._shape.join(',') + ']') : '');
+    }
+}
+
+class OnnxSequenceType {
+
+    constructor(elementType, denotation) {
+        this._elementType = elementType;
+        this._denotation = denotation;
+    }
+
+    get elementType() {
+        return this._elementType;
+    }
+
+    get dennotation() {
+        return this._dennotation;
+    }
+
+    toString() {
+        return 'sequence<' + this._elementType.toString() + '>';
+    }
+}
+
+class OnnxMapType {
+
+    constructor(keyType, valueType, denotation) {
+        this._keyType = OnnxTensor._formatElementType(keyType);
+        this._valueType = valueType;
+        this._denotation = denotation;
+    }
+
+    get keyType() {
+        return this._keyType;
+    }
+
+    get valueType() {
+        return this._valueType;
+    }
+
+    get denotation() {
+        return this._denotation;
+    }
+
+    toString() {
+        return 'map<' + this._keyType + ',' + this._valueType.toString() + '>';
+    }
 }
 
 class OnnxGraphOperatorMetadata {

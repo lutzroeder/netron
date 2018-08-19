@@ -511,7 +511,7 @@ class View {
             
                             if (this._showDetails) {
                                 if (!input.hidden) {
-                                    var types = input.connections.map(connection => connection.type ? connection.type : '').join('\n');
+                                    var types = input.connections.map(connection => connection.type || '').join('\n');
                                     formatter.addItem(input.name, inputId, [ inputClass ], types, () => {
                                         this.showNodeProperties(node, input);
                                     });    

@@ -293,10 +293,10 @@ class MXNetGraph {
             var output = {};
             output.id = MXNetGraph._updateOutput(nodes, head);
             output.name = nodes[output.id[0]] ? nodes[output.id[0]].name : ('output' + ((index == 0) ? '' : (index + 1).toString()));
-            output.type = 'T';
+            output.type = null;
             var outputSignature = outputs[output.name];
             if (outputSignature && outputSignature.data_shape) {
-                output.type = '?' + '[' + outputSignature.data_shape.toString() + ']';
+                output.type = new MXNetTensorType(null, outputSignature.data_shape);
             }
             this._outputs.push(output);
         });
@@ -315,10 +315,10 @@ class MXNetGraph {
                 var input = {};
                 input.id = argument.outputs[0];
                 input.name = argument.name;
-                input.type = 'T';
+                input.type = null;
                 var inputSignature = inputs[input.name];
                 if (inputSignature && inputSignature.data_shape) {
-                    input.type = '?' + '[' + inputSignature.data_shape.toString() + ']';
+                    input.type = new MXNetTensorType(null, inputSignature.data_shape);
                 }
                 this._inputs.push(input);
             }
@@ -464,7 +464,7 @@ class MXNetNode {
                 var initializer = this._initializers[connection.id];
                 if (initializer) {
                     connection.id = initializer.name || connection.id;
-                    connection.type = initializer.type.toString();
+                    connection.type = initializer.type;
                     connection.initializer = initializer;
                 }
             });
@@ -674,7 +674,7 @@ class MXNetTensorType {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return (this.dataType || '?') + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
     }
 }
 

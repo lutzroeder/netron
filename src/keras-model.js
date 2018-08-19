@@ -281,7 +281,7 @@ class KerasGraph {
                 if (addGraphOutput) {
                     this._outputs.push({
                         id: inputName,
-                        type: 'T',
+                        type: null,
                         name: inputName
                     });
                 }
@@ -340,7 +340,7 @@ class KerasGraph {
         if (connection) {
             this._outputs.push({ 
                 id: connection,
-                type: 'T',
+                type: null,
                 name: connection
             });
         }
@@ -363,19 +363,20 @@ class KerasGraph {
     }
 
     _loadInput(layer, input) {
-        input.type = '';
+        input.type = null;
         if (layer && layer.config) {
+            var dataType = '?';
+            var shape = [];
             var config = layer.config;
             if (config.dtype) {
-                input.type = config.dtype;
+                dataType = config.dtype;
                 delete config.dtype;
             }
             if (config.batch_input_shape) {
-                var shape = config.batch_input_shape;
-                shape = shape.map(s => s == null ? '?' : s).join(',');
-                input.type = input.type + '[' + shape + ']';
+                shape = config.batch_input_shape.map(s => s == null ? '?' : s);
                 delete config.batch_input_shape;
             }
+            input.type = new KerasTensorType(dataType, shape);
         }
     }
 }
@@ -471,7 +472,7 @@ class KerasNode {
             input.connections.forEach((connection) => {
                 var initializer = this._initializers[connection.id];
                 if (initializer) {
-                    connection.type = initializer.type.toString();
+                    connection.type = initializer.type;
                     connection.initializer = initializer;
                 }
             });

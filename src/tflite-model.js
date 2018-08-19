@@ -129,7 +129,7 @@ class TensorFlowLiteGraph {
             results.push({ 
                 id: tensorIndex.toString(),
                 name: tensor.name(),
-                type: new TensorFlowLiteTensorType(tensor).toString()
+                type: new TensorFlowLiteTensorType(tensor)
             });
         }
         return results;
@@ -144,7 +144,7 @@ class TensorFlowLiteGraph {
             results.push({ 
                 id: tensorIndex.toString(),
                 name: tensor.name(),
-                type: new TensorFlowLiteTensorType(tensor).toString()
+                type: new TensorFlowLiteTensorType(tensor)
             });
         }
         return results;
@@ -208,7 +208,7 @@ class TensorFlowLiteNode {
             input.connections.forEach((connection) => {
                 var tensorIndex = connection.id;
                 var tensor = this._graph._graph.tensors(tensorIndex);
-                connection.type = new TensorFlowLiteTensorType(tensor).toString();
+                connection.type = new TensorFlowLiteTensorType(tensor);
                 var initializer = this._graph.getInitializer(tensorIndex);
                 if (initializer) {
                     connection.initializer = initializer;

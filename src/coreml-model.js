@@ -378,13 +378,13 @@ class CoreMLGraph {
                 result = 'image(' + CoreMLGraph.formatColorSpace(type.imageType.colorSpace) + ',' + type.imageType.width.toString() + 'x' + type.imageType.height.toString() + ')';
                 break;
             case 'dictionaryType':
-                result = 'map<' + type.dictionaryType.KeyType.replace('KeyType', '') + ',double>';
+                result = 'map<' + type.dictionaryType.KeyType.replace('KeyType', '') + ',float64>';
                 break;
             case 'stringType':
                 result = 'string';
                 break;
             case 'doubleType':
-                result = 'double';
+                result = 'float64';
                 break;
             case 'int64Type':
                 result = 'int64';
@@ -477,7 +477,7 @@ class CoreMLNode {
                 name: initializer.name,
                 connections: [ { 
                     id: '',
-                    type: initializer.type.toString(),
+                    type: initializer.type,
                     initializer: initializer, } ]
             };
             if (!CoreMLOperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name)) {

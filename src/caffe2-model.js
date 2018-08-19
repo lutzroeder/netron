@@ -117,7 +117,7 @@ class Caffe2Graph {
                 this._inputs.push({
                     id: input,
                     name: input,
-                    type: 'T'
+                    type: null
                 });
             }
         });
@@ -127,7 +127,7 @@ class Caffe2Graph {
             this._outputs.push({ 
                 id: output,
                 name: output,
-                type: 'T'
+                type: null
             });
         });
     }
@@ -214,7 +214,7 @@ class Caffe2Node {
                 var initializer = this._initializers[connection.id];
                 if (initializer) {
                     connection.initializer = initializer;
-                    connection.type = initializer.type.toString();
+                    connection.type = initializer.type;
                 }
             });
         });

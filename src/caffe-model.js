@@ -118,7 +118,7 @@ class CaffeGraph {
                 this._inputs.push({
                     id: input,
                     name: input,
-                    type: 'T'
+                    type: null
                 });
             });
         }
@@ -155,7 +155,7 @@ class CaffeGraph {
                 this._outputs.push({
                     id: keys[0],
                     name: keys[0],
-                    type: 'T'
+                    type: null
                 });
             }
             else if (outputs.length == 1) {
@@ -163,7 +163,7 @@ class CaffeGraph {
                 this._outputs.push({
                     id: 'output',
                     name: 'output',
-                    type: 'T'
+                    type: null
                 });
             }
         }
@@ -294,7 +294,7 @@ class CaffeNode {
             input.connections.forEach((connection) => {
                 if (connection.id instanceof CaffeTensor) {
                     connection.initializer = connection.id;
-                    connection.type = connection.initializer.type.toString();
+                    connection.type = connection.initializer.type;
                     connection.id = '';
                 }
             });

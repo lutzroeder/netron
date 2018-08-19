@@ -281,9 +281,14 @@ class NodeAttributeView {
             });
             this._element.appendChild(this._expander);
         }
-
         var value = this._attribute.value;
-        if (value.length > 1000) {
+        if (this._attribute.tensor) {
+            value = '[...]';
+        }
+        if (value && typeof value !== 'string') {
+            value = value.toString();
+        }
+        if (value && value.length > 1000) {
             value = value.substring(0, 1000) + '...';
         }
         var valueLine = document.createElement('div');
@@ -408,21 +413,26 @@ class NodeConnectionView {
                     }
                 }
     
-                var type = this._connection.type || '?';
-                if (typeof type == 'string') {
-                    type = { value: type };
+                var type = '?';
+                var denotation = null;
+                if (this._connection.type) {
+                    if (typeof this._connection.type == 'string') {
+                        debugger;
+                    }
+                    type = this._connection.type.toString();
+                    denotation = this._connection.type.denotation || null;
                 }
-        
-                if (type.value) {
+                
+                if (type) {
                     var typeLine = document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
-                    typeLine.innerHTML = 'type: <code><b>' + type.value + '</b></code>';
+                    typeLine.innerHTML = 'type: <code><b>' + type + '</b></code>';
                     this._element.appendChild(typeLine);
                 }
-                if (type.denotation) {
+                if (denotation) {
                     var denotationLine = document.createElement('div');
                     denotationLine.className = 'sidebar-view-item-value-line-border';
-                    denotationLine.innerHTML = 'denotation: <code><b>' + type.denotation + '</b></code>';
+                    denotationLine.innerHTML = 'denotation: <code><b>' + denotation + '</b></code>';
                     this._element.appendChild(denotationLine);
                 }
 
@@ -680,12 +690,17 @@ class GraphArgumentView {
         this._element = document.createElement('div');
         this._element.className = 'sidebar-view-item-value';
 
-        var type = this._argument.type || '?';
-        if (typeof type == 'string') {
-            type = { value: type };
+        var type = '?';
+        var denotation = null;
+        if (this._argument.type) {
+            if (typeof this._argument.type == 'string') {
+                debugger;
+            }
+            type = this._argument.type.toString();
+            denotation = this._argument.type.denotation || null;
         }
 
-        if (argument.description || type.denotation) {
+        if (argument.description || denotation) {
             this._expander = document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
@@ -697,10 +712,10 @@ class GraphArgumentView {
 
         var typeLine = document.createElement('div');
         typeLine.className = 'sidebar-view-item-value-line';
-        typeLine.innerHTML = 'type: <code><b>' + type.value.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
+        typeLine.innerHTML = 'type: <code><b>' + type.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
         this._element.appendChild(typeLine);
 
-        if (argument.description || type.denotation) {
+        if (argument.description || denotation) {
             this.toggle();
         }
     }
@@ -713,15 +728,13 @@ class GraphArgumentView {
         if (this._expander.innerText == '+') {
             this._expander.innerText = '-';
 
-            var type = this._argument.type || '?';
-            if (typeof type == 'string') {
-                type = { value: type };
-            }
+            var type = this._argument.type;
+            var denotation = (type && type.denotation) ? type.denotation : null; 
 
-            if (type.denotation) {
+            if (denotation) {
                 var denotationLine = document.createElement('div');
                 denotationLine.className = 'sidebar-view-item-value-line-border';
-                denotationLine.innerHTML = 'denotation: <code><b>' + type.denotation + '</b></code>';
+                denotationLine.innerHTML = 'denotation: <code><b>' + denotation + '</b></code>';
                 this._element.appendChild(denotationLine);
             }
 

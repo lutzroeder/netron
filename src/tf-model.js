@@ -414,7 +414,7 @@ class TensorFlowNode {
                 input.connections.forEach((connection) => {
                     var initializer = this._graph._getInitializer(connection.id);
                     if (initializer) {
-                        connection.type = initializer.type.toString();
+                        connection.type = initializer.type;
                         connection.initializer = initializer;
                     }
                 });
@@ -503,9 +503,6 @@ class TensorFlowAttribute {
             return TensorFlowTensor.formatTensorShape(value.shape);
         }
         else if (value.hasOwnProperty('s')) {
-            if (value.s.length == 0) {
-                return '';
-            }
             if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
                 return '"' + TensorFlowOperatorMetadata.textDecoder.decode(value.s) + '"';
             }
@@ -581,6 +578,7 @@ class TensorFlowTensor {
         if (kind) {
             this._kind = kind;
         }
+        this._type = new TensorFlowTensorType(this._tensor.dtype, this._tensor.tensorShape);
     }
 
     get id() {
@@ -592,7 +590,7 @@ class TensorFlowTensor {
     }
 
     get type() {
-        return new TensorFlowTensorType(this._tensor.dtype, this._tensor.tensorShape);
+        return this._type;
     }
 
     get kind() {
