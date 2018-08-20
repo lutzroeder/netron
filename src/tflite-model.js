@@ -9,7 +9,7 @@ class TensorFlowLiteModelFactory {
     }
 
     open(context, host, callback) {
-        host.import('tflite.js', (err) => {
+        host.require('tflite', (err) => {
             if (err) {
                 callback(err, null);
             }

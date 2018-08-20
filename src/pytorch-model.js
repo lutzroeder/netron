@@ -8,7 +8,7 @@ class PyTorchModelFactory {
     }
 
     open(context, host, callback) { 
-        host.import('pickle.js', (err) => {
+        host.require('pickle', (err) => {
             if (err) {
                 callback(err, null);
                 return;

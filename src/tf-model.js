@@ -14,7 +14,7 @@ class TensorFlowModelFactory {
     }
 
     open(context, host, callback) { 
-        host.import('tf.js', (err) => {
+        host.require('tf', (err) => {
             if (err) {
                 callback(err, null);
                 return;

@@ -10,7 +10,7 @@ class CoreMLModelFactory {
     }
 
     open(context, host, callback) { 
-        host.import('coreml.js', (err) => {
+        host.require('coreml', (err) => {
             if (err) {
                 callback(err, null);
                 return;

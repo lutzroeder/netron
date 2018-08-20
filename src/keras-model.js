@@ -18,7 +18,7 @@ class KerasModelFactory {
     }
 
     open(context, host, callback) {
-        host.import('hdf5.js', (err) => {
+        host.require('hdf5', (err) => {
             if (err) {
                 callback(err, null);
                 return;

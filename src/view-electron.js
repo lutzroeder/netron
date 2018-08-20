@@ -4,6 +4,7 @@ var electron = require('electron');
 var fs = require('fs');
 var process = require('process');
 var path = require('path');
+var protobuf = require('protobufjs');
 
 class ElectronHost {
 
@@ -131,23 +132,22 @@ class ElectronHost {
         return result == 0;
     }
 
-    import(file, callback) {
-        var pathname = path.join(__dirname, file);
-        for (var i = 0; i < document.scripts.length; i++) {
-            if (pathname == document.scripts[i]) {
-                callback(null);
-                return;
-            }
+    require(id, callback) {
+        var script = document.scripts.namedItem(id);
+        if (script) {
+            callback(null);
+            return;
         }
-        var script = document.createElement('script');
+        script = document.createElement('script');
+        script.setAttribute('id', id);
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', path.join(__dirname, id + '.js'));
         script.onload = () => {
             callback(null);
         };
         script.onerror = (e) => {
             callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
         };
-        script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', pathname);
         document.head.appendChild(script);
     }
 

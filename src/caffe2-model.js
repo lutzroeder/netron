@@ -11,7 +11,7 @@ class Caffe2ModelFactory {
     }    
 
     open(context, host, callback) {
-        host.import('caffe2.js', (err) => {
+        host.require('caffe2', (err) => {
             if (err) {
                 callback(err, null);
                 return;

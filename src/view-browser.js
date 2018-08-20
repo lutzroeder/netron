@@ -96,23 +96,22 @@ class BrowserHost {
         return confirm(message + ' ' + detail);
     }
 
-    import(file, callback) {
-        var url = this._url(file);
-        for (var i = 0; i < document.scripts.length; i++) {
-            if (url == document.scripts[i]) {
-                callback(null);
-                return;
-            }
+    require(id, callback) {
+        var script = document.scripts.namedItem(id);
+        if (script) {
+            callback(null);
+            return;
         }
-        var script = document.createElement('script');
+        script = document.createElement('script');
+        script.setAttribute('id', id);
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', this._url(id + '.js'));
         script.onload = () => {
             callback(null);
         };
         script.onerror = (e) => {
             callback(new Error('The script \'' + e.target.src + '\' failed to load.'));
         };
-        script.setAttribute('type', 'text/javascript');
-        script.setAttribute('src', url);
         document.head.appendChild(script);
     }
 

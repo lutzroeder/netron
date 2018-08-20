@@ -13,7 +13,7 @@ class OnnxModelFactory {
     }
 
     open(context, host, callback) { 
-        host.import('onnx.js', (err) => {
+        host.require('onnx', (err) => {
             if (err) {
                 callback(err, null);
                 return;
