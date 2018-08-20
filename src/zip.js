@@ -494,29 +494,16 @@ zip.Reader = class {
         return this.readUint16() | (this.readUint16() << 16);
     }
 
-    readString(size) {
+    readString() {
         var result = '';
-        if (size) {
-            while (size > 0) {
-                var c = this.readByte();
-                size--;
-                if (c == 0) {
-                    break;
-                }
-                result += String.fromCharCode(c);
-            }
-            this._position += size;
+        var end = this._buffer.indexOf(0x00, this._position);
+        if (end < 0) {
+            throw new zip.Error('End of string not found.');
         }
-        else {
-            var end = this._buffer.indexOf(0x00, this._position);
-            if (end < 0) {
-                throw new zip.Error('End of string not found.');
-            }
-            while (this._position < end) {
-                result += String.fromCharCode(this._buffer[this._position++]);
-            }
-            this._position++;
+        while (this._position < end) {
+            result += String.fromCharCode(this._buffer[this._position++]);
         }
+        this._position++;
         return result;
     }
 
@@ -596,55 +583,6 @@ gzip.Entry = class {
 
     get data() {
         return this._data;
-    }
-
-};
-
-var tar = tar || {};
-
-tar.Archive = class {
-
-    constructor(buffer) {
-        var reader = new zip.Reader(buffer, 0, buffer.length);
-
-        this._entries = [];
-
-        var emptyHeader = new Uint8Array(512);
-
-        while (reader.peek() && !reader.match(emptyHeader)) {
-            this._entries.push(new tar.Entry(reader));
-        }
-    }
-
-    get entries() {
-        return this._entries;
-    }
-
-};
-
-tar.Entry = class {
-
-    constructor(reader) {
-        this._name = reader.readString(100);
-        reader.readString(8); // file mode
-        reader.readString(8); // owner
-        reader.readString(8); // group
-        var size = parseInt(reader.readString(12), 8); // size
-        reader.readString(12); // timestamp
-        reader.readString(8); // checksum
-        reader.readString(1); // link indicator
-        reader.readString(100); // name of linked file
-        reader.read(255);
-        this._data = reader.read(size);
-        reader.read(((size % 512) != 0) ? (512 - (size % 512)) : 0);
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get data() {
-        return this._data; 
     }
 
 };
