@@ -4649,6 +4649,7 @@
              * @property {caffe.IArgMaxParameter|null} [argmaxParam] LayerParameter argmaxParam
              * @property {caffe.IBatchNormParameter|null} [batchNormParam] LayerParameter batchNormParam
              * @property {caffe.IBiasParameter|null} [biasParam] LayerParameter biasParam
+             * @property {caffe.IClipParameter|null} [clipParam] LayerParameter clipParam
              * @property {caffe.IConcatParameter|null} [concatParam] LayerParameter concatParam
              * @property {caffe.IContrastiveLossParameter|null} [contrastiveLossParam] LayerParameter contrastiveLossParam
              * @property {caffe.IConvolutionParameter|null} [convolutionParam] LayerParameter convolutionParam
@@ -4851,6 +4852,14 @@
              * @instance
              */
             LayerParameter.prototype.biasParam = null;
+    
+            /**
+             * LayerParameter clipParam.
+             * @member {caffe.IClipParameter|null|undefined} clipParam
+             * @memberof caffe.LayerParameter
+             * @instance
+             */
+            LayerParameter.prototype.clipParam = null;
     
             /**
              * LayerParameter concatParam.
@@ -5338,6 +5347,8 @@
                     $root.caffe.RecurrentParameter.encode(message.recurrentParam, writer.uint32(/* id 146, wireType 2 =*/1170).fork()).ldelim();
                 if (message.swishParam != null && message.hasOwnProperty("swishParam"))
                     $root.caffe.SwishParameter.encode(message.swishParam, writer.uint32(/* id 147, wireType 2 =*/1178).fork()).ldelim();
+                if (message.clipParam != null && message.hasOwnProperty("clipParam"))
+                    $root.caffe.ClipParameter.encode(message.clipParam, writer.uint32(/* id 148, wireType 2 =*/1186).fork()).ldelim();
                 return writer;
             };
     
@@ -5448,6 +5459,9 @@
                         break;
                     case 141:
                         message.biasParam = $root.caffe.BiasParameter.decode(reader, reader.uint32());
+                        break;
+                    case 148:
+                        message.clipParam = $root.caffe.ClipParameter.decode(reader, reader.uint32());
                         break;
                     case 104:
                         message.concatParam = $root.caffe.ConcatParameter.decode(reader, reader.uint32());
@@ -5717,6 +5731,11 @@
                     var error = $root.caffe.BiasParameter.verify(message.biasParam);
                     if (error)
                         return "biasParam." + error;
+                }
+                if (message.clipParam != null && message.hasOwnProperty("clipParam")) {
+                    var error = $root.caffe.ClipParameter.verify(message.clipParam);
+                    if (error)
+                        return "clipParam." + error;
                 }
                 if (message.concatParam != null && message.hasOwnProperty("concatParam")) {
                     var error = $root.caffe.ConcatParameter.verify(message.concatParam);
@@ -6055,6 +6074,11 @@
                         throw TypeError(".caffe.LayerParameter.biasParam: object expected");
                     message.biasParam = $root.caffe.BiasParameter.fromObject(object.biasParam);
                 }
+                if (object.clipParam != null) {
+                    if (typeof object.clipParam !== "object")
+                        throw TypeError(".caffe.LayerParameter.clipParam: object expected");
+                    message.clipParam = $root.caffe.ClipParameter.fromObject(object.clipParam);
+                }
                 if (object.concatParam != null) {
                     if (typeof object.concatParam !== "object")
                         throw TypeError(".caffe.LayerParameter.concatParam: object expected");
@@ -6343,6 +6367,7 @@
                     object.parameterParam = null;
                     object.recurrentParam = null;
                     object.swishParam = null;
+                    object.clipParam = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -6486,6 +6511,8 @@
                     object.recurrentParam = $root.caffe.RecurrentParameter.toObject(message.recurrentParam, options);
                 if (message.swishParam != null && message.hasOwnProperty("swishParam"))
                     object.swishParam = $root.caffe.SwishParameter.toObject(message.swishParam, options);
+                if (message.clipParam != null && message.hasOwnProperty("clipParam"))
+                    object.clipParam = $root.caffe.ClipParameter.toObject(message.clipParam, options);
                 return object;
             };
     
@@ -7580,6 +7607,216 @@
             };
     
             return ArgMaxParameter;
+        })();
+    
+        caffe.ClipParameter = (function() {
+    
+            /**
+             * Properties of a ClipParameter.
+             * @memberof caffe
+             * @interface IClipParameter
+             * @property {number} min ClipParameter min
+             * @property {number} max ClipParameter max
+             */
+    
+            /**
+             * Constructs a new ClipParameter.
+             * @memberof caffe
+             * @classdesc Represents a ClipParameter.
+             * @implements IClipParameter
+             * @constructor
+             * @param {caffe.IClipParameter=} [properties] Properties to set
+             */
+            function ClipParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            /**
+             * ClipParameter min.
+             * @member {number} min
+             * @memberof caffe.ClipParameter
+             * @instance
+             */
+            ClipParameter.prototype.min = 0;
+    
+            /**
+             * ClipParameter max.
+             * @member {number} max
+             * @memberof caffe.ClipParameter
+             * @instance
+             */
+            ClipParameter.prototype.max = 0;
+    
+            /**
+             * Creates a new ClipParameter instance using the specified properties.
+             * @function create
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {caffe.IClipParameter=} [properties] Properties to set
+             * @returns {caffe.ClipParameter} ClipParameter instance
+             */
+            ClipParameter.create = function create(properties) {
+                return new ClipParameter(properties);
+            };
+    
+            /**
+             * Encodes the specified ClipParameter message. Does not implicitly {@link caffe.ClipParameter.verify|verify} messages.
+             * @function encode
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {caffe.IClipParameter} message ClipParameter message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            ClipParameter.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                writer.uint32(/* id 1, wireType 5 =*/13).float(message.min);
+                writer.uint32(/* id 2, wireType 5 =*/21).float(message.max);
+                return writer;
+            };
+    
+            /**
+             * Encodes the specified ClipParameter message, length delimited. Does not implicitly {@link caffe.ClipParameter.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {caffe.IClipParameter} message ClipParameter message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            ClipParameter.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+    
+            /**
+             * Decodes a ClipParameter message from the specified reader or buffer.
+             * @function decode
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {caffe.ClipParameter} ClipParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            ClipParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.ClipParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.min = reader.float();
+                        break;
+                    case 2:
+                        message.max = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("min"))
+                    throw $util.ProtocolError("missing required 'min'", { instance: message });
+                if (!message.hasOwnProperty("max"))
+                    throw $util.ProtocolError("missing required 'max'", { instance: message });
+                return message;
+            };
+    
+            /**
+             * Decodes a ClipParameter message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {caffe.ClipParameter} ClipParameter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            ClipParameter.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+    
+            /**
+             * Verifies a ClipParameter message.
+             * @function verify
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            ClipParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (typeof message.min !== "number")
+                    return "min: number expected";
+                if (typeof message.max !== "number")
+                    return "max: number expected";
+                return null;
+            };
+    
+            /**
+             * Creates a ClipParameter message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {caffe.ClipParameter} ClipParameter
+             */
+            ClipParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.ClipParameter)
+                    return object;
+                var message = new $root.caffe.ClipParameter();
+                if (object.min != null)
+                    message.min = Number(object.min);
+                if (object.max != null)
+                    message.max = Number(object.max);
+                return message;
+            };
+    
+            /**
+             * Creates a plain object from a ClipParameter message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof caffe.ClipParameter
+             * @static
+             * @param {caffe.ClipParameter} message ClipParameter
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            ClipParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.min = 0;
+                    object.max = 0;
+                }
+                if (message.min != null && message.hasOwnProperty("min"))
+                    object.min = options.json && !isFinite(message.min) ? String(message.min) : message.min;
+                if (message.max != null && message.hasOwnProperty("max"))
+                    object.max = options.json && !isFinite(message.max) ? String(message.max) : message.max;
+                return object;
+            };
+    
+            /**
+             * Converts this ClipParameter to JSON.
+             * @function toJSON
+             * @memberof caffe.ClipParameter
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            ClipParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return ClipParameter;
         })();
     
         caffe.ConcatParameter = (function() {
