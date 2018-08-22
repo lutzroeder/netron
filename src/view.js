@@ -174,9 +174,10 @@ class View {
             var x = 0;
             var y = 0;
             selection.forEach((element) => {
-                var classes = element.getAttribute('class').split(' ');
-                classes.push('select');
-                element.setAttribute('class', classes.join(' '));
+                var classAttribute = element.getAttribute('class');
+                var classList = classAttribute ? classAttribute.split(' ') : [];
+                classList.push('select');
+                element.setAttribute('class', classList.join(' '));
                 this._selection.push(element);
                 var box = element.getBBox();
                 var ex = box.x + (box.width / 2);
