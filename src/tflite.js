@@ -111,7 +111,9 @@ tflite.BuiltinOperator = {
   LOGICAL_OR: 84,
   ONE_HOT: 85,
   LOGICAL_AND: 86,
-  LOGICAL_NOT: 87
+  LOGICAL_NOT: 87,
+  UNPACK: 88,
+  REDUCE_MIN: 89
 };
 
 /**
@@ -181,7 +183,8 @@ tflite.BuiltinOptions = {
   LogicalOrOptions: 60,
   OneHotOptions: 61,
   LogicalAndOptions: 62,
-  LogicalNotOptions: 63
+  LogicalNotOptions: 63,
+  UnpackOptions: 64
 };
 
 /**
@@ -5367,6 +5370,89 @@ tflite.LogicalNotOptions.startLogicalNotOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite.LogicalNotOptions.endLogicalNotOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.UnpackOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.UnpackOptions}
+ */
+tflite.UnpackOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.UnpackOptions=} obj
+ * @returns {tflite.UnpackOptions}
+ */
+tflite.UnpackOptions.getRootAsUnpackOptions = function(bb, obj) {
+  return (obj || new tflite.UnpackOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+tflite.UnpackOptions.prototype.num = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.UnpackOptions.prototype.axis = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.UnpackOptions.startUnpackOptions = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} num
+ */
+tflite.UnpackOptions.addNum = function(builder, num) {
+  builder.addFieldInt32(0, num, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ */
+tflite.UnpackOptions.addAxis = function(builder, axis) {
+  builder.addFieldInt32(1, axis, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.UnpackOptions.endUnpackOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
