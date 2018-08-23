@@ -113,7 +113,8 @@ tflite.BuiltinOperator = {
   LOGICAL_AND: 86,
   LOGICAL_NOT: 87,
   UNPACK: 88,
-  REDUCE_MIN: 89
+  REDUCE_MIN: 89,
+  FLOOR_DIV: 90
 };
 
 /**
@@ -184,7 +185,8 @@ tflite.BuiltinOptions = {
   OneHotOptions: 61,
   LogicalAndOptions: 62,
   LogicalNotOptions: 63,
-  UnpackOptions: 64
+  UnpackOptions: 64,
+  FloorDivOptions: 65
 };
 
 /**
@@ -5453,6 +5455,57 @@ tflite.UnpackOptions.addAxis = function(builder, axis) {
  * @returns {flatbuffers.Offset}
  */
 tflite.UnpackOptions.endUnpackOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.FloorDivOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.FloorDivOptions}
+ */
+tflite.FloorDivOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.FloorDivOptions=} obj
+ * @returns {tflite.FloorDivOptions}
+ */
+tflite.FloorDivOptions.getRootAsFloorDivOptions = function(bb, obj) {
+  return (obj || new tflite.FloorDivOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.FloorDivOptions.startFloorDivOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.FloorDivOptions.endFloorDivOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
