@@ -887,6 +887,17 @@ class View {
             view.on('show-documentation', (sender, e) => {
                 this.showOperatorDocumentation(node);
             });
+            view.on('export-tensor', (sender, tensor) => {
+                this._host.require('numpy', (err) => {
+                    if (!err) {
+                        var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_') : 'tensor';
+                        this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
+                            var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape);
+                            this._host.export(file, array.toBuffer(), null);
+                        });
+                    }
+                });
+            });
             if (input) {
                 view.toggleInput(input.name);
             }

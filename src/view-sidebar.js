@@ -92,7 +92,7 @@ class NodeView {
             documentationButton.className = 'sidebar-view-title-button';
             documentationButton.innerText = '?';
             documentationButton.addEventListener('click', (e) => {
-                this.raise('show-documentation', null);
+                this._raise('show-documentation', null);
             });
             operatorElement.appendChild(documentationButton);
         }
@@ -166,7 +166,11 @@ class NodeView {
 
     addInput(name, input) {
         if (input.connections.length > 0) {
-            var item = new NameValueView(name, new NodeArgumentView(input, this._host));
+            var view = new NodeArgumentView(input, this._host);
+            view.on('export-tensor', (sender, tensor) => {
+                this._raise('export-tensor', tensor);
+            });
+            var item = new NameValueView(name, view);
             this._inputs.push(item);
             this._elements.push(item.element);
         }
@@ -194,7 +198,7 @@ class NodeView {
         this._events[event].push(callback);
     }
 
-    raise(event, data) {
+    _raise(event, data) {
         if (this._events && this._events[event]) {
             this._events[event].forEach((callback) => {
                 callback(this, data);
@@ -335,6 +339,9 @@ class NodeArgumentView {
         this._items = [];
         list.connections.forEach((connection) => {
             var item = new NodeConnectionView(connection, host);
+            item.on('export-tensor', (sender, tensor) => {
+                this._raise('export-tensor', tensor);
+            });
             this._items.push(item);
             this._elements.push(item.element);
         });
@@ -348,6 +355,20 @@ class NodeArgumentView {
         this._items.forEach((item) => {
             item.toggle();
         });
+    }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    _raise(event, data) {
+        if (this._events && this._events[event]) {
+            this._events[event].forEach((callback) => {
+                callback(this, data);
+            });
+        }
     }
 }
 
@@ -459,17 +480,25 @@ class NodeConnectionView {
                         referenceLine.innerHTML = 'reference: ' + '<b>' + reference + '</b>';
                         this._element.appendChild(referenceLine);   
                     }
-                    var value = initializer.toString();
-                    if (value) {
-                        var valueLine = document.createElement('div');
-                        valueLine.className = 'sidebar-view-item-value-line-border';
+                    var state = initializer.state;
+                    if (state === null && this._host.save && 
+                        initializer.type.dataType && initializer.type.dataType != '?' && 
+                        initializer.type.shape && initializer.type.shape.length > 0) {
+                        this._saveButton = document.createElement('div');
+                        this._saveButton.className = 'sidebar-view-item-value-expander';
+                        this._saveButton.innerHTML = '&#x1F4BE;';
+                        this._saveButton.addEventListener('click', (e) => {
+                            this._raise('export-tensor', initializer);
+                        });
+                        this._element.appendChild(this._saveButton);
+                    }
 
-                        var contentLine = document.createElement('pre');
-                        contentLine.innerHTML = value;
-                        valueLine.appendChild(contentLine);
-
-                        this._element.appendChild(valueLine);
-                    }   
+                    var valueLine = document.createElement('div');
+                    valueLine.className = 'sidebar-view-item-value-line-border';
+                    var contentLine = document.createElement('pre');
+                    contentLine.innerHTML = state || initializer.toString();
+                    valueLine.appendChild(contentLine);
+                    this._element.appendChild(valueLine);
                 }
             }
             else {
@@ -478,6 +507,20 @@ class NodeConnectionView {
                     this._element.removeChild(this._element.lastChild);
                 }
             }
+        }
+    }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    _raise(event, data) {
+        if (this._events && this._events[event]) {
+            this._events[event].forEach((callback) => {
+                callback(this, data);
+            });
         }
     }
 }
@@ -549,7 +592,7 @@ class ModelView {
                 graphButton.id = graph.name;
                 graphButton.innerText = '\u21a9';
                 graphButton.addEventListener('click', (e) => {
-                    this.raise('update-active-graph', e.target.id);
+                    this._raise('update-active-graph', e.target.id);
                 });
                 graphTitleElement.appendChild(graphButton);
             }
@@ -619,7 +662,7 @@ class ModelView {
         this._events[event].push(callback);
     }
 
-    raise(event, data) {
+    _raise(event, data) {
         if (this._events && this._events[event]) {
             this._events[event].forEach((callback) => {
                 callback(this, data);
@@ -845,7 +888,7 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
                 var link = e.target.href;
                 if (link.startsWith('http://') || link.startsWith('https://')) {
                     e.preventDefault();
-                    this.raise('navigate', { link: link });
+                    this._raise('navigate', { link: link });
                 }
             }
         });
@@ -862,7 +905,7 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
         this._events[event].push(callback);
     }
 
-    raise(event, data) {
+    _raise(event, data) {
         if (this._events && this._events[event]) {
             this._events[event].forEach((callback) => {
                 callback(this, data);
@@ -885,7 +928,7 @@ class FindView {
         this._searchElement.setAttribute('style', 'width: 100%');
         this._searchElement.addEventListener('input', (e) => {
             this.update(e.target.value);
-            this.raise('search-text-changed', e.target.value);
+            this._raise('search-text-changed', e.target.value);
         });
         this._resultElement = document.createElement('ol');
         this._resultElement.addEventListener('click', (e) => {
@@ -901,7 +944,7 @@ class FindView {
         this._events[event].push(callback);
     }
 
-    raise(event, data) {
+    _raise(event, data) {
         if (this._events && this._events[event]) {
             this._events[event].forEach((callback) => {
                 callback(this, data);
@@ -943,7 +986,7 @@ class FindView {
         }
 
         if (selection.length > 0) {
-            this.raise('select', selection);
+            this._raise('select', selection);
         }
     }
 

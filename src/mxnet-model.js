@@ -527,53 +527,62 @@ class MXNetTensor {
         return this._type;
     }
 
+    get state() {
+        return this._context().state;
+    }
+
     get value() {
-        var result = this._decode(Number.MAX_SAFE_INTEGER);
-        if (result.error) {
+        var context = this._context();
+        if (context.state) {
             return null;
         }
-        return result.value;
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        var result = this._decode(10000);
-        if (result.error) {
-            return result.error;
+        var context = this._context();
+        if (context.state) {
+            return '';
         }
-        return JSON.stringify(result.value, null, 4);
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
     }
 
-    _decode(limit) {
+    _context() {
 
-        var result = {};
+        var context = {};
+        context.state = null;
+        context.index = 0;
+        context.count = 0;
 
         if (!this._data) {
-            return { error: 'Tensor data is empty.' };
+            context.state = 'Tensor data is empty.';
+            return context;
         }
 
         if (this._type.dataType == '?') {
-            return { error: 'Tensor has no data type.' };
+            context.state = 'Tensor has no data type.';
+            return context;
         }
 
         if (this._type.dataType.length <= 1) {
-            return { error: 'Tensor has unknown data type.' };
+            context.state = 'Tensor has unknown data type.';
+            return context;
         }
 
         if (this._type.shape.length < 1) {
-            return { error: 'Tensor has unknown shape.' };
+            context.state = 'Tensor has unknown shape.';
+            return context;
         }
 
-        var context = {};
-        context.index = 0;
-        context.count = 0;
-        context.limit = limit;
         context.shape = this._type.shape;
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-
-        return { value: this._decodeDimension(context, 0) };
+        return context;
     }
 
-    _decodeDimension(context, dimension) {
+    _decode(context, dimension) {
         var results = [];
         var size = context.shape[dimension];
         if (dimension == context.shape.length - 1) {
@@ -628,7 +637,7 @@ class MXNetTensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1));
+                results.push(this._decode(context, dimension + 1));
             }
         }
         return results;

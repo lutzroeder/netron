@@ -151,6 +151,21 @@ class ElectronHost {
         document.head.appendChild(script);
     }
 
+    save(name, extension, defaultPath, callback) {
+        var owner = electron.remote.BrowserWindow.getFocusedWindow();
+        var showSaveDialogOptions = {
+            title: 'Export Tensor',
+            defaultPath: defaultPath,
+            buttonLabel: 'Export',
+            filters: [ { name: name, extensions: [ extension ] } ]
+        };
+        electron.remote.dialog.showSaveDialog(owner, showSaveDialogOptions, (filename) => {
+            if (filename) {
+                callback(filename);
+            }
+        });
+    }
+
     export(file, data, mimeType) {
         var encoding = 'utf-8';
         if (mimeType == 'image/png') {

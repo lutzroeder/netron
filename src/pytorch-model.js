@@ -332,11 +332,11 @@ class PyTorchNode {
                 var connection = {};
                 if (parameter.data) {
                     connection.initializer = new PyTorchTensor(parameter.data);
-                    connection.type = connection.initializer.type.toString();
+                    connection.type = connection.initializer.type;
                 }
                 else if (parameter.storage) {
                     connection.initializer = new PyTorchTensor(parameter);
-                    connection.type = connection.initializer.type.toString();
+                    connection.type = connection.initializer.type;
                 }
                 input.connections.push(connection);
             }
@@ -418,51 +418,58 @@ class PyTorchTensor {
         return new PyTorchTensorType(this._dataType, this._shape);
     }
 
+    get state() {
+        return this._context().state;
+    }
+
     get value() {
-        var result = this._decode(Number.MAX_SAFE_INTEGER);
-        if (result.error) {
+        var context = this._context();
+        if (context.state) {
             return null;
         }
-        return result.value;
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        var result = this._decode(10000);
-        if (result.error) {
-            return result.error;
+        var context = this._context();
+        if (context.state) {
+            return '';
         }
+        context.limit = 10000;
+        var value = this._decode(context, 0);
         switch (this.dataType) {
             case 'int64':
-                return OnnxTensor._stringify(result.value, '', '    ');
+                return OnnxTensor._stringify(value, '', '    ');
         }
-        return JSON.stringify(result.value, null, 4);
+        return JSON.stringify(value, null, 4);
     }
 
-    _decode(limit) {
-
-        var result = {};
-
-        if (!this._dataType) {
-            return { error: 'Tensor has no data type.' };
-        }
-        if (!this._shape) {
-            return { error: 'Tensor has no dimensions.' };
-        }
-        if (!this._tensor.storage || !this._tensor.storage.data) {
-            return { error: 'Tensor data is empty.' };
-        }
-
+    _context() {
         var context = {};
+        context.state = null;
         context.index = 0;
         context.count = 0;
-        context.limit = limit;
+
+        if (!this._dataType) {
+            context.state = 'Tensor has no data type.';
+            return context;
+        }
+        if (!this._shape) {
+            context.state = 'Tensor has no dimensions.';
+            return context;
+        }
+        if (!this._tensor.storage || !this._tensor.storage.data) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+
         context.data = this._tensor.storage.data;
         context.dataView = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
-
-        return { value: this._decodeDimension(context, 0) };
+        return context;
     }
 
-    _decodeDimension(context, dimension) {
+    _decode(context, dimension) {
         var results = [];
         var size = this._shape[dimension];
         if (dimension == this._shape.length - 1) {
@@ -492,7 +499,7 @@ class PyTorchTensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1));
+                results.push(this._decode(context, dimension + 1));
             }
         }
         return results;

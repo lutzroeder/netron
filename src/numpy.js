@@ -59,7 +59,7 @@ numpy.Array = class {
                 context.descr = '<u4';
                 break;
             default:
-                throw new numpy.Error('Unknown data type.');
+                throw new numpy.Error("Unknown data type '" + this._dataType + "'.");
         }
 
         var shape = '';
@@ -151,10 +151,7 @@ numpy.Writer = class {
     }
 
     writeUint16(value) {
-        var buffer = new Uint8Array(2);
-        buffer[0] = value & 0xff;
-        buffer[1] = (value >> 8) & 0xff;
-        this.write(buffer);
+        this.writeBytes([ value & 0xff, (value >> 8) & 0xff ]);
     }
 
     writeBytes(values) {

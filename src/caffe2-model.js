@@ -307,47 +307,56 @@ class Caffe2Tensor {
         return this._kind;
     }
 
+    get state() {
+        return this._context().state;
+    }
+
     get value() {
-        var result = this._decode(Number.MAX_SAFE_INTEGER);
-        if (result.error) {
+        var context = this._context();
+        if (context.state) {
             return null;
         }
-        return result.value;
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        var result = this._decode(10000);
-        if (result.error) {
-            return result.error;
+        var context = this._context();
+        if (context.state) {
+            return '';
         }
-        return JSON.stringify(result.value, null, 4);
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
     }
 
-    _decode(limit) {
-        var result = {};
-        if (!this._values) {
-            return { error: 'Tensor data is empty.' };
-        }
-        if (!this._dataType) {
-            return { error: 'Unknown data type.' };
-        }
-        if (this._values.floats == -1) {
-            return { error: 'Tensor data is too large to load in Chrome.' };
-        }
+    _context() {
         var context = {};
+        context.state = null;
         context.index = 0;
         context.count = 0;
-        context.limit = limit;
+        if (!this._values) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+        if (!this._dataType) {
+            context.state = 'Unknown data type.';
+            return context;
+        }
+        if (this._values.floats == -1) {
+            context.state = 'Tensor data is too large to load in Chrome.';
+            return context;
+        }
         if (this._values.floats) {
             context.data = this._values.floats;
         }
         else {
-            debugger;
+            context.state = 'Unknown data format.';
         }
-        return { value: this._decodeDimension(context, 0) };
+        return context;
     }
 
-    _decodeDimension(context, dimension) {
+    _decode(context, dimension) {
         var results = [];
         var size = this._shape[dimension];
         if (dimension == this._shape.length - 1) {
@@ -367,7 +376,7 @@ class Caffe2Tensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1));
+                results.push(this._decode(context, dimension + 1));
             }
         }
         return results;

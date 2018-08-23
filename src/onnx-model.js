@@ -518,43 +518,48 @@ class OnnxTensor {
         return this._type;
     }
 
+    get state() {
+        return this._context().state || null;
+    }
+
     get value() {
-        var result = this._decode(Number.MAX_SAFE_INTEGER);
-        if (result.error) {
+        var context = this._context();
+        if (context.state) {
             return null;
         }
-        return result.value;
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        var result = this._decode(10000);
-        if (result.error) {
-            return result.error;
+        var context = this._context();
+        if (context.state) {
+            return '';
         }
+        context.limit = 10000;
+        var value = this._decode(context, 0);
         switch (this._tensor.dataType) {
             case onnx.TensorProto.DataType.INT64:
             case onnx.TensorProto.DataType.UINT64:
-                return OnnxTensor._stringify(result.value, '', '    ');
+                return OnnxTensor._stringify(value, '', '    ');
         }
-        return JSON.stringify(result.value, null, 4);
+        return JSON.stringify(value, null, 4);
     }
 
-    _decode(limit) {
-
-        var result = {};
-        if (!this._tensor.dataType) {
-            result.error = 'Tensor has no data type.';
-            return result;
-        }
-        if (!this._tensor.dims) {
-            result.error =  'Tensor has no dimensions.';
-            return result;
-        }
-
+    _context() {
         var context = {};
         context.index = 0;
         context.count = 0;
-        context.limit = limit;
+        context.state = null;
+
+        if (!this._tensor.dataType) {
+            context.state = 'Tensor has no data type.';
+            return context;
+        }
+        if (!this._tensor.dims) {
+            context.state =  'Tensor has no dimensions.';
+            return context;
+        }
 
         switch (this._tensor.dataType) {
             case onnx.TensorProto.DataType.FLOAT:
@@ -565,8 +570,7 @@ class OnnxTensor {
                     context.rawData = new DataView(this._tensor.rawData.buffer, this._tensor.rawData.byteOffset, this._tensor.rawData.byteLength);
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case onnx.TensorProto.DataType.DOUBLE:
@@ -577,8 +581,7 @@ class OnnxTensor {
                     context.rawData = new DataView(this._tensor.rawData.buffer, this._tensor.rawData.byteOffset, this._tensor.rawData.byteLength);
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case onnx.TensorProto.DataType.INT32:
@@ -589,8 +592,7 @@ class OnnxTensor {
                     context.rawData = new DataView(this._tensor.rawData.buffer, this._tensor.rawData.byteOffset, this._tensor.rawData.byteLength);
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case onnx.TensorProto.DataType.UINT32:
@@ -601,8 +603,7 @@ class OnnxTensor {
                     context.rawData = this._tensor.rawData;
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case onnx.TensorProto.DataType.INT64:
@@ -613,8 +614,7 @@ class OnnxTensor {
                     context.rawData = this._tensor.rawData;
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case onnx.TensorProto.DataType.UINT64:
@@ -625,21 +625,18 @@ class OnnxTensor {
                     context.rawData = this._tensor.rawData;
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             default:
                 // debugger;
-                result.error = 'Tensor data type is not implemented.';
-                return result;
+                context.state = 'Tensor data type is not implemented.';
+                break;
         }
-
-        result.value = this._decodeDimension(context, 0);
-        return result;
+        return context;
     }
 
-    _decodeDimension(context, dimension) {
+    _decode(context, dimension) {
         var results = [];
         var size = this._tensor.dims[dimension];
         if (dimension == this._tensor.dims.length - 1) {
@@ -695,7 +692,7 @@ class OnnxTensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1));
+                results.push(this._decode(context, dimension + 1));
             }
         }
         return results;

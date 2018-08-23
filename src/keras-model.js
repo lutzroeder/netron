@@ -583,37 +583,43 @@ class KerasTensor {
         return this._reference;
     }
 
+    get state() {
+        return this._context().state;
+    }
+
     get value() {
-        var result = this._decode(Number.MAX_SAFE_INTEGER);
-        if (result.error) {
+        var context = this._context();
+        if (context.state) {
             return null;
         }
-        return result.value;
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        var result = this._decode(10000);
-        if (result.error) {
-            return result.error;
+        var context = this._context();
+        if (context.state) {
+            return '';
         }
-        return JSON.stringify(result.value, null, 4);
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
     }
 
-    _decode(limit) {
-        var result = {};
-        if (this._reference) { 
-            result.value = 'Tensor reference not implemented.';
-            return result;
-        }
-        if (!this._data) {
-            result.error = 'Tensor data is empty.';
-            return result;
-        }
+    _context() {
         var context = {};
         context.index = 0;
         context.count = 0;
-        context.limit = limit;
-        switch (this._type) {
+        context.state = null;
+        if (this._reference) { 
+            context.state = 'Tensor reference not implemented.';
+            return context;
+        }
+        if (!this._data) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+        switch (this._type.dataType) {
             case 'float16':
                 context.precision = 16;
                 break;
@@ -624,18 +630,18 @@ class KerasTensor {
                 context.precision = 64;
                 break;
             default:
-                result.error = 'Tensor data type is not supported.';
-                return result.error;
+                context.state = 'Tensor data type is not supported.';
+                break;
         }
         context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-        result.value = this._decodeDimension(context, 0);
-        return result;
+        return context;
     }
 
-    _decodeDimension(context, dimension) {
+    _decode(context, dimension) {
         var results = [];
-        var size = this._shape[dimension];
-        if (dimension == this._shape.length - 1) {
+        var shape = this._type.shape;
+        var size = shape[dimension];
+        if (dimension == shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -666,7 +672,7 @@ class KerasTensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1));
+                results.push(this._decode(context, dimension + 1));
             }
         }
         return results;

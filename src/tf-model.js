@@ -310,7 +310,7 @@ class TensorFlowGraph {
                         this._inputMap[node.output[0]] = {
                             id: node.output[0],
                             name: node.name,
-                            type: TensorFlowTensor.formatDataType(dtype.type) + TensorFlowTensor.formatTensorShape(shape.shape)
+                            type: new TensorFlowTensorType(dtype.type, shape.shape)
                         };
                     }
                 }
@@ -601,38 +601,45 @@ class TensorFlowTensor {
         this._kind = value;
     }
 
+    get state() {
+        return this._context().state;
+    }
+
     get value() {
-        var result = this._decode(Number.MAX_SAFE_INTEGER);
-        if (result.error) {
+        var context = this._context();
+        if (context.state) {
             return null;
         }
-        return result.value;
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        var result = this._decode(10000);
-        if (result.error) {
-            return result.error;
+        var context = this._context();
+        if (context.state) {
+            return '';
         }
-        return JSON.stringify(result.value, null, 4);
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
     }
 
-    _decode(limit) {
-        var result = {};
-        if (!this._tensor.dtype) {
-            result.error = 'Tensor has no data type.';
-            return result;
-        }
-        if (!this._tensor.tensorShape || !this._tensor.tensorShape.dim) {
-            result.error = 'Tensor has no dimensions.';
-            return result;
-        }
-
+    _context() {
         var context = {};
+        context.state = null;
         context.index = 0;
         context.count = 0;
-        context.limit = limit;
         context.size = 1;
+
+        if (!this._tensor.dtype) {
+            context.state = 'Tensor has no data type.';
+            return context;
+        }
+        if (!this._tensor.tensorShape || !this._tensor.tensorShape.dim) {
+            context.state = 'Tensor has no dimensions.';
+            return context;
+        }
+
         this._tensor.tensorShape.dim.forEach((dim) => {
             context.size = context.size * (dim.size ? dim.size : 0);
         });
@@ -646,8 +653,7 @@ class TensorFlowTensor {
                     context.data = this._tensor.floatVal;
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.error = 'Tensor data is empty.';
                 }
                 break;
             case tensorflow.DataType.DT_QINT8:
@@ -656,8 +662,7 @@ class TensorFlowTensor {
                     context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.error = 'Tensor data is empty.';
                 }
                 break;                
             case tensorflow.DataType.DT_INT32:
@@ -669,8 +674,7 @@ class TensorFlowTensor {
                     context.data = this._tensor.intVal;
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.error = 'Tensor data is empty.';
                 }
                 break;
             case tensorflow.DataType.DT_STRING:
@@ -682,28 +686,26 @@ class TensorFlowTensor {
                     context.data = this._tensor.stringVal;
                 }
                 else {
-                    result.error = 'Tensor data is empty.';
-                    return result;
+                    context.error = 'Tensor data is empty.';
                 }
                 break;
             case tensorflow.DataType.DT_BOOL:
-                result.error = 'Tensor data type is not implemented.';
-                return result;
+                context.error = 'Tensor data type is not implemented.';
+                break;
             default:
-                result.error = 'Tensor data type is not implemented.';
-                return result;
+                context.error = 'Tensor data type is not implemented.';
+                break;
         }
 
-        var shape = this._tensor.tensorShape.dim.map((dim) => dim.size);
-        if (shape.length == 0) {
-            var value = this._decodeDimension(context, 0, [1]);
-            return { value: value[0] };
-        }
-
-        return { value: this._decodeDimension(context, 0, shape) };
+        context.shape = this._tensor.tensorShape.dim.map((dim) => dim.size);
+        return context;
     }
 
-    _decodeDimension(context, dimension, shape) {
+    _decode(context, dimension) {
+        var shape = context.shape;
+        if (context.shape.length == 0) {
+            shape = [ 1 ];
+        }
         var results = [];
         var size = shape[dimension];
         if (dimension == shape.length - 1) {
@@ -756,8 +758,11 @@ class TensorFlowTensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1, shape));
+                results.push(this._decode(context, dimension + 1, shape));
             }
+        }
+        if (context.shape.length == 0) {
+            return results[0];
         }
         return results;
     }
@@ -779,6 +784,8 @@ class TensorFlowTensor {
                 key = key.startsWith('DT_') ? key.substring(3) : key;
                 TensorFlowTensor.dataType[value] = key.toLowerCase();
             });
+            TensorFlowTensor.dataType[tensorflow.DataType.DT_FLOAT] = 'float32';
+            TensorFlowTensor.dataType[tensorflow.DataType.DT_DOUBLE] = 'float64';
         }
         var text = TensorFlowTensor.dataType[type];
         if (text) { 
@@ -816,6 +823,18 @@ class TensorFlowTensorType {
     }
 
     get shape() {
+        if (this._shape && this._shape.dim) {
+            if (this._shape.unknownRank) {
+                return null;
+            }
+            if (this._shape.dim.length == 0) {
+                return [];
+            }
+            if (this._shape.dim.length == 1 && !this._shape.dim[0].size) {
+                return [ 0 ];
+            }
+            return this._shape.dim.map((dim) => (dim.size && dim.size != -1) ? dim.size : '?');
+        }
         return null;
     }
 

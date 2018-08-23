@@ -422,35 +422,39 @@ class TensorFlowLiteTensor {
         return null;
     }
 
+    get state() {
+        return this._context().state;
+    }
+
     get value() {
-        var result = this._decode(Number.MAX_SAFE_INTEGER);
-        if (result.error) {
+        var context = this._context();
+        if (context.state) {
             return null;
         }
-        return result.value;
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
     toString() {
-        var result = this._decode(10000);
-        if (result.error) {
-            return result.error;
+        var context = this._context();
+        if (context.state) {
+            return '';
         }
-        return JSON.stringify(result.value, null, 4);
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
     }
 
-    _decode(limit) {
-
-        var result = {};
-
-        if (this._buffer.dataLength() == 0) {
-            result.error = 'Tensor data is empty.';
-            return result.error;
-        }
-
+    _context() {
         var context = {};
+        context.state = null;
         context.index = 0;
         context.count = 0;
-        context.limit = limit;
+
+        if (this._buffer.dataLength() == 0) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
  
         var array = this._buffer.dataArray();
         context.data = new DataView(array.buffer, array.byteOffset, array.byteLength);
@@ -478,12 +482,10 @@ class TensorFlowLiteTensor {
             }
             context.data = stringTable;
         }
-
-        result.value = this._decodeDimension(context, 0);
-        return result;
+        return context;
     }
 
-    _decodeDimension(context, dimension) {
+    _decode(context, dimension) {
         var size = this._tensor.shape(dimension);
         var results = [];
         if (dimension == this._tensor.shapeLength() - 1) {
@@ -534,7 +536,7 @@ class TensorFlowLiteTensor {
                     results.push('...');
                     return results;
                 }
-                results.push(this._decodeDimension(context, dimension + 1));
+                results.push(this._decode(context, dimension + 1));
             }
         }
         return results;
