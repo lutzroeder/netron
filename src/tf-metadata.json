@@ -27434,6 +27434,105 @@
     }
   },
   {
+    "name": "ParseExampleDataset",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of string keys in the examples features.\nThe results for these keys will be returned as `SparseTensor` objects.",
+          "minimum": 0,
+          "name": "sparse_keys",
+          "type": "list(string)"
+        },
+        {
+          "description": "A list of Ndense string Tensors (scalars).\nThe keys expected in the Examples features associated with dense values.",
+          "minimum": 0,
+          "name": "dense_keys",
+          "type": "list(string)"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "description": "A list of `DTypes` of the same length as `sparse_keys`.\nOnly `tf.float32` (`FloatList`), `tf.int64` (`Int64List`),\nand `tf.string` (`BytesList`) are supported.",
+          "minimum": 0,
+          "name": "sparse_types",
+          "type": "list(type)"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "description": "A list of DTypes of the same length as `dense_keys`.\nOnly `tf.float32` (`FloatList`), `tf.int64` (`Int64List`),\nand `tf.string` (`BytesList`) are supported.\n",
+          "minimum": 0,
+          "name": "Tdense",
+          "type": "list(type)"
+        },
+        {
+          "description": "List of tuples with the same length as `dense_keys`.\nThe shape of the data for each dense feature referenced by `dense_keys`.\nRequired for any input tensors identified by `dense_keys`.  Must be\neither fully defined, or may contain an unknown first dimension.\nAn unknown first dimension means the feature is treated as having\na variable number of blocks, and the output shape along this dimension\nis considered unknown at graph build time.  Padding is applied for\nminibatch elements smaller than the maximum number of blocks for the\ngiven feature along this dimension.",
+          "minimum": 0,
+          "name": "dense_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "description": "The type list for the return values.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "description": "The list of shapes being produced.",
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "num_parallel_calls",
+          "type": 9
+        },
+        {
+          "description": "A dict mapping string keys to `Tensor`s.\nThe keys of the dict must match the dense_keys of the feature.",
+          "name": "dense_defaults",
+          "typeListAttr": "Tdense"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Transforms `input_dataset` containing `Example` protos as vectors of DT_STRING into a dataset of `Tensor` or `SparseTensor` objects representing the parsed features."
+    }
+  },
+  {
     "name": "ParseSingleExample",
     "schema": {
       "attributes": [
