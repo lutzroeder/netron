@@ -653,7 +653,7 @@ class TensorFlowTensor {
                     context.data = this._tensor.floatVal;
                 }
                 else {
-                    context.error = 'Tensor data is empty.';
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case tensorflow.DataType.DT_QINT8:
@@ -662,9 +662,9 @@ class TensorFlowTensor {
                     context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
                 }
                 else {
-                    context.error = 'Tensor data is empty.';
+                    context.state = 'Tensor data is empty.';
                 }
-                break;                
+                break;
             case tensorflow.DataType.DT_INT32:
             case tensorflow.DataType.DT_UINT32:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
@@ -674,26 +674,25 @@ class TensorFlowTensor {
                     context.data = this._tensor.intVal;
                 }
                 else {
-                    context.error = 'Tensor data is empty.';
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case tensorflow.DataType.DT_STRING:
                 if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    result.error = 'Tensor data type is not implemented.';
-                    return result;
+                    result.state = 'Tensor data type is not implemented.';
                 }
                 else if (this._tensor.stringVal && this._tensor.stringVal.length == context.size) {
                     context.data = this._tensor.stringVal;
                 }
                 else {
-                    context.error = 'Tensor data is empty.';
+                    context.state = 'Tensor data is empty.';
                 }
                 break;
             case tensorflow.DataType.DT_BOOL:
-                context.error = 'Tensor data type is not implemented.';
+                context.state = "Tensor data type 'bool' is not implemented.";
                 break;
             default:
-                context.error = 'Tensor data type is not implemented.';
+                context.state = "Tensor data type '" + this._tensor.dtype + "'is not implemented.";
                 break;
         }
 
