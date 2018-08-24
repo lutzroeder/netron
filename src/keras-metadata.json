@@ -229,11 +229,12 @@
       "attributes": [
         {
           "default": "channels_last",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
           "name": "padding"
         },
         {
@@ -257,13 +258,13 @@
       "description": "Max pooling operation for temporal data.\n",
       "inputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, steps, features)`.\n",
+          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, downsampled_steps, features)`.\n",
+          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, downsampled_steps)`\n",
           "name": "output"
         }
       ],
@@ -536,11 +537,17 @@
   {
     "name": "GlobalMaxPooling1D",
     "schema": {
+      "attributes": [
+        {
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "name": "data_format"
+        }
+      ],
       "category": "Pool",
       "description": "Global max pooling operation for temporal data.\n",
       "inputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, steps, features)`.\n",
+          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
@@ -583,12 +590,17 @@
   {
     "name": "GlobalAveragePooling1D",
     "schema": {
-      "attributes": [],
+      "attributes": [
+        {
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "name": "data_format"
+        }
+      ],
       "category": "Pool",
       "description": "Global average pooling operation for temporal data.\n",
       "inputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, steps, features)`.\n",
+          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
@@ -641,20 +653,24 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
           "name": "padding"
+        },
+        {
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "name": "data_format"
         }
       ],
       "description": "Average pooling for temporal data.\n",
       "inputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, steps, features)`.\n",
+          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, downsampled_steps, features)`.\n",
+          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, downsampled_steps)`\n",
           "name": "output"
         }
       ],
