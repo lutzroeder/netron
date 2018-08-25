@@ -114,7 +114,8 @@ tflite.BuiltinOperator = {
   LOGICAL_NOT: 87,
   UNPACK: 88,
   REDUCE_MIN: 89,
-  FLOOR_DIV: 90
+  FLOOR_DIV: 90,
+  REDUCE_ANY: 91
 };
 
 /**
