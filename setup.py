@@ -105,7 +105,7 @@ setuptools.setup(
     install_requires=[],
     author='Lutz Roeder',
     author_email='lutzroeder@users.noreply.github.com',
-    url='https://github.com/lutzroeder/Netron',
+    url='https://github.com/lutzroeder/netron',
     scripts=[
         'src/netron'
     ],

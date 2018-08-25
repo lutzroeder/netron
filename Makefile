@@ -38,7 +38,7 @@ publish_github_pages:
 	@[ -d node_modules ] || npm install
 	python ./setup.py build
 	rm -rf ./build/gh-pages
-	git clone git@github.com:lutzroeder/Netron.git ./build/gh-pages --branch gh-pages
+	git clone git@github.com:lutzroeder/netron.git ./build/gh-pages --branch gh-pages
 	rm -rf ./build/gh-pages/*
 	cp -R ./build/python/lib/netron/* ./build/gh-pages/
 	rm -rf ./build/gh-pages/*.py

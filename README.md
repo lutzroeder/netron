@@ -9,11 +9,11 @@ Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.h5`, `
 
 ## Install
 
-**macOS**: [**Download**](https://github.com/lutzroeder/Netron/releases/latest) the `.dmg` file or with [Homebrew](https://caskroom.github.io) run `brew cask install netron`
+**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or with [Homebrew](https://caskroom.github.io) run `brew cask install netron`
 
-**Linux**: [**Download**](https://github.com/lutzroeder/Netron/releases/latest) the `.AppImage` or `.deb` file. 
+**Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.AppImage` or `.deb` file. 
 
-**Windows**: [**Download**](https://github.com/lutzroeder/Netron/releases/latest) the `.exe` installer.
+**Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer.
 
 **Browser**: [**Start**](https://www.lutzroeder.com/ai/netron) the browser version.
 
