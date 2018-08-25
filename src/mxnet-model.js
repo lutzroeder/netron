@@ -15,7 +15,7 @@ class MXNetModelFactory {
         if (extension == 'json') {
             var decoder = new TextDecoder('utf-8');
             var json = decoder.decode(context.buffer);
-            if (json.includes('\"mxnet_version\":')) {
+            if (json.indexOf('\"mxnet_version\":', 0) != -1) {
                 return true;
             }
         }

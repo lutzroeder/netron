@@ -10,8 +10,18 @@ class KerasModelFactory {
         if (extension == 'json' && !context.identifier.endsWith('-symbol.json')) {
             var decoder = new TextDecoder('utf-8');
             var json = decoder.decode(context.buffer);
-            if (!json.includes('\"mxnet_version\":')) {
-                return true;
+            if (json.indexOf('\"mxnet_version\":', 0) == -1) {
+                try {
+                    var model_config = JSON.parse(json);
+                    if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
+                        model_config = model_config.modelTopology.model_config;
+                    }
+                    if (model_config && model_config.class_name) {
+                        return true;
+                    }
+                }
+                catch (err) {
+                }
             }
         }
         return false;
@@ -23,17 +33,17 @@ class KerasModelFactory {
                 callback(err, null);
                 return;
             }
+            var format = 'Keras';
+            var model_config = null;
+            var rootGroup = null;
+            var rootJson = null;
             try {
-                var format = 'Keras';
-                var rootGroup = null;
-                var rootJson = null;
-                var model_config = null;
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
                     var file = new hdf5.File(context.buffer);
                     rootGroup = file.rootGroup;
                     if (!rootGroup.attributes.model_config) {
-                        callback(new KerasError('HDF5 file does not contain a \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
+                        callback(new KerasError('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
                         return;
                     }
                     model_config = JSON.parse(rootGroup.attributes.model_config);
@@ -48,14 +58,23 @@ class KerasModelFactory {
                         model_config = model_config.modelTopology.model_config;
                     }
                 }
-                if (!model_config) {
-                    callback(new KerasError('\'model_config\' is not present.'));
-                    return;
-                }
-                if (!model_config.class_name) {
-                    callback(new KerasError('\'class_name\' is not present.'), null);
-                    return;
-                }
+            }
+            catch (error) {
+                host.exception(error, false);
+                callback(new KerasError(error.message), null);
+                return;
+            }
+
+            if (!model_config) {
+                callback(new KerasError('\'model_config\' is not present.'));
+                return;
+            }
+            if (!model_config.class_name) {
+                callback(new KerasError('\'class_name\' is not present.'), null);
+                return;
+            }
+
+            try {
                 var model = new KerasModel(format, model_config, rootGroup, rootJson);
                 KerasOperatorMetadata.open(host, (err, metadata) => {
                     callback(null, model);

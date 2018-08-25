@@ -294,12 +294,12 @@ class View {
             return;
         }
 
-        var matches = modelFactoryRegistry.filter((factory) => factory.match(context));
+        var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context));
         var next = () => {
-            if (matches.length > 0) {
-                var modelFactory = matches.shift();
+            if (factoryList.length > 0) {
+                var modelFactory = factoryList.shift();
                 modelFactory.open(context, this._host, (err, model) => {
-                    if (model || matches.length == 0) {
+                    if (model || factoryList.length == 0) {
                         callback(err, model);
                     }
                     else {
@@ -309,7 +309,15 @@ class View {
             }
             else {
                 var extension = context.identifier.split('.').pop();
-                callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
+                switch (extension) {
+                    case 'json':
+                    case 'pb':
+                        callback(new Error('Unsupported file content for extension \'.' + extension + '\'.'), null);
+                        break;
+                    default:
+                        callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
+                        break;
+                }
             }
         };
         next();
