@@ -15,7 +15,6 @@ pip="pip"
 identifier=pytorch
 repository=https://github.com/pytorch/pytorch.git
 
-: '
 mkdir -p ${third_party}
 
 if [ -d "${third_party}/${identifier}" ]; then
@@ -25,6 +24,7 @@ else
     echo "Clone ${repository}..."
     git -C "${third_party}" clone --recursive ${repository}
 fi
+git submodule update --init
 
 echo "Install Caffe2"
 if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
@@ -35,20 +35,23 @@ brew "gflags"
 brew "glog"
 EOS
 fi
-export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
-export PATH=$PATH:${PYTHONUSERBASE}/bin
-rm -rf ${PYTHONUSERBASE}
-${pip} install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
+
+virtualenv=${build}/virtualenv/${identifier}
+virtualenv -p ${python} ${virtualenv}
+source ${virtualenv}/bin/activate
+${pip} install future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
 pushd "${third_party}/pytorch" > /dev/null
-git submodule update --init
 FULL_CAFFE2=1 ${python} setup.py install
+python setup.py install
 popd > /dev/null
 
 echo "Generate '../src/caffe2-metadata.json'"
 pushd ${tools} > /dev/null
 ${python} caffe2-metadata.py
 popd > /dev/null
-'
+
+deactivate
+
 echo "Generate '../src/caffe2.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
 node ${tools}/update_pbjs.js enumeration ${src}/caffe2.js floats float 1

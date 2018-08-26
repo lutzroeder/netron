@@ -27,17 +27,19 @@ fi
 
 
 echo "Install ONNX"
-export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
-export PATH=$PATH:${PYTHONUSERBASE}/bin
-rm -rf ${PYTHONUSERBASE}
+virtualenv=${build}/virtualenv/${identifier}
+virtualenv -p ${python} ${virtualenv}
+source ${virtualenv}/bin/activate
 export ONNX_ML=1
 export ONNX_NAMESPACE=onnx
-${pip} install --user ${third_party}/${identifier}
+${pip} install ${third_party}/${identifier}
 
 echo "Generate '../src/onnx-metadata.json'"
 pushd ${tools} > /dev/null
 ${python} onnx-metadata.py
 popd > /dev/null
+
+deactivate
 
 echo "Generate '../src/onnx.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ${src}/onnx.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto

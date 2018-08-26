@@ -41,11 +41,11 @@ ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ${src}/
     ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
     ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
 
-export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
-export PATH=$PATH:${PYTHONUSERBASE}/bin
-echo $PYTHONUSERBASE
-rm -rf ${PYTHONUSERBASE}
-${pip} install --user protobuf
+echo "Install protobuf"
+virtualenv=${build}/virtualenv/${identifier}
+virtualenv -p ${python} ${virtualenv}
+source ${virtualenv}/bin/activate
+${pip} install protobuf
 
 echo "Generate '../src/tf-metadata.json'"
 protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}
@@ -62,3 +62,5 @@ pushd ${tools} > /dev/null
 ${python} tf-metadata.py
 popd > /dev/null
 rm -rf ${tools}/tensorflow
+
+deactivate
