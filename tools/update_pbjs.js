@@ -3,10 +3,11 @@
 const fs = require('fs');
 const process = require('process');
 
-var file = process.argv[2];
-var variable = process.argv[3];
-var type = process.argv[4];
-var count = parseInt(process.argv[5]);
+var pattern = process.argv[2];
+var file = process.argv[3];
+var variable = process.argv[4];
+var type = process.argv[5];
+var count = parseInt(process.argv[6]);
 
 var arrayType = '';
 var dataViewMethod = '';
@@ -31,13 +32,17 @@ switch (type) {
 
 var source = fs.readFileSync(file, 'utf-8');
 
-var search = `if ((tag & 7) === 2) {
+var search = '';
+var replace = '';
+
+switch (pattern) {
+    case 'array':
+search = `if ((tag & 7) === 2) {
     var end2 = reader.uint32() + reader.pos;
     while (reader.pos < end2)
         message.$(variable).push(reader.$(type)());
 } else`;
-
-var replace = `if ((tag & 7) === 2) {
+replace = `if ((tag & 7) === 2) {
     var end2 = reader.uint32() + reader.pos;
     if (message.$(variable).length == 0 && (end2 - reader.pos) > 1048576) {
         var $(variable)Length = end2 - reader.pos;
@@ -55,6 +60,56 @@ var replace = `if ((tag & 7) === 2) {
             message.$(variable).push(reader.$(type)());
     }
 } else`;
+        break;
+
+    case 'enumeration':
+search = `if (!(message.$(variable) && message.$(variable).length))
+    message.$(variable) = [];
+if ((tag & 7) === 2) {
+    var end2 = reader.uint32() + reader.pos;
+    while (reader.pos < end2)
+        message.$(variable).push(reader.$(type)());
+} else
+    message.$(variable).push(reader.$(type)());
+break;`;
+
+replace = `if (!(message.$(variable) && message.$(variable).length)) {
+    if (message.$(variable) != -1) {
+        message.$(variable) = [];
+        message.$(variable)Count = 0;
+    }
+}
+if (message.$(variable)Count < 1000000) {
+    if ((tag & 7) === 2) {
+        var end2 = reader.uint32() + reader.pos;
+        while (reader.pos < end2) {
+            message.$(variable).push(reader.$(type)());
+            message.$(variable)Count++;
+        }
+    }
+    else {
+        message.$(variable).push(reader.$(type)());
+        message.$(variable)Count++;
+    }
+}
+else {
+    message.$(variable) = -1;
+    if ((tag & 7) === 2) {
+        var endx = reader.uint32() + reader.pos;
+        while (reader.pos < endx)
+            reader.$(type)();
+    }
+    else {
+        reader.$(type)();
+    }
+}
+break;`;
+        break;
+
+    default:
+        console.log('ERROR: Unknown pattern.')
+        process.exit(1);
+}
 
 search = search.split('$(variable)').join(variable);
 search = search.split('$(type)').join(type);

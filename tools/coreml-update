@@ -23,4 +23,4 @@ fi
 
 echo "Generate '../src/coreml.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r coreml -o ${src}/coreml.js ${third_party}/${identifier}/mlmodel/format/Model.proto
-node ${tools}/update_pbjs_float.js ${src}/coreml.js floatValue float 2
+node ${tools}/update_pbjs.js array ${src}/coreml.js floatValue float 2

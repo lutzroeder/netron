@@ -9,12 +9,13 @@ src=${root}/src
 tools=${root}/tools
 third_party=${root}/third_party
 
-python=${python:-python}
-pip=${pip:-pip}
+python="python"
+pip="pip"
 
 identifier=pytorch
 repository=https://github.com/pytorch/pytorch.git
 
+: '
 mkdir -p ${third_party}
 
 if [ -d "${third_party}/${identifier}" ]; then
@@ -40,14 +41,14 @@ rm -rf ${PYTHONUSERBASE}
 ${pip} install --user future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
 pushd "${third_party}/pytorch" > /dev/null
 git submodule update --init
-FULL_CAFFE2=1 ${python} setup.py develop --user
+FULL_CAFFE2=1 ${python} setup.py install
 popd > /dev/null
 
 echo "Generate '../src/caffe2-metadata.json'"
 pushd ${tools} > /dev/null
 ${python} caffe2-metadata.py
 popd > /dev/null
-
+'
 echo "Generate '../src/caffe2.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
-
+node ${tools}/update_pbjs.js enumeration ${src}/caffe2.js floats float 1
