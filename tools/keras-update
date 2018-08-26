@@ -7,8 +7,8 @@ build=${root}/build
 tools=${root}/tools
 third_party=${root}/third_party
 
-python=${python:-python}
-pip=${pip:-pip}
+python="python"
+pip="pip"
 
 identifier=keras
 repository=https://github.com/keras-team/${identifier}.git
