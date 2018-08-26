@@ -124,7 +124,7 @@ class PyTorchModelFactory {
 
                     return obj;
                 }
-                throw new pickle.Error("Unknown function '" + type + "'.");
+                throw new pickle.Error("Unknown function '" + name + "'.");
             };
 
             var module_source_map = {};
