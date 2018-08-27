@@ -42,7 +42,7 @@ source ${virtualenv}/bin/activate
 ${pip} install future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
 pushd "${third_party}/pytorch" > /dev/null
 FULL_CAFFE2=1 ${python} setup.py install
-python setup.py install
+MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ ${python} setup.py install
 popd > /dev/null
 
 echo "Generate '../src/caffe2-metadata.json'"

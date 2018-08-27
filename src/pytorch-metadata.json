@@ -1,89 +1,207 @@
 [
-    {
-        "name": "Conv2d",
-        "schema": {
-            "category": "Layer",
-            "attributes": [
-                { "name": "output_padding", "visible": false },
-                { "name": "training", "visible": false },
-                { "name": "in_channels", "visible": false },
-                { "name": "out_channels", "visible": false },
-                { "name": "groups", "default": 1 },
-                { "name": "transposed", "default": false },
-                { "name": "padding", "default": [0, 0] },
-                { "name": "dilation", "default": [1, 1] },
-                { "name": "stride", "default": [1, 1] }
-            ]
+  {
+    "name": "Conv2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_padding",
+          "visible": false
+        },
+        {
+          "name": "training",
+          "visible": false
+        },
+        {
+          "name": "in_channels",
+          "visible": false
+        },
+        {
+          "name": "out_channels",
+          "visible": false
+        },
+        {
+          "default": 1,
+          "name": "groups"
+        },
+        {
+          "default": false,
+          "name": "transposed"
+        },
+        {
+          "default": [
+            0,
+            0
+          ],
+          "name": "padding"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "dilation"
+        },
+        {
+          "default": [
+            1,
+            1
+          ],
+          "name": "stride"
         }
-    },
-    {
-        "name": "Linear",
-        "schema": {
-            "category": "Layer",
-            "attributes": [
-                { "name": "training", "visible": false }
-            ]
-        }
-    },
-    {
-        "name": "ReLU",
-        "schema": {
-            "category": "Activation",
-            "attributes": [
-                { "name": "inplace", "default": true },
-                { "name": "threshold", "default": 0 },
-                { "name": "value", "default": 0 },
-                { "name": "training", "visible": false }
-            ]
-        }
-    },
-    {
-        "name": "MaxPool2d",
-        "schema": {
-            "category": "Pool",
-            "attributes": [
-                { "name": "training", "visible": false },
-                { "name": "padding", "default": 0 },
-                { "name": "dilation", "default": 1 },
-                { "name": "return_indices", "default": false },
-                { "name": "ceil_mode", "visible": false }
-            ]
-        }
-    },
-    {
-        "name": "AvgPool2d",
-        "schema": {
-            "category": "Pool",
-            "attributes": [
-                { "name": "training", "visible": false },
-                { "name": "padding", "default": 0 },
-                { "name": "count_include_pad", "default": true },
-                { "name": "ceil_mode", "visible": false }
-            ]
-        }
-    },
-    {
-        "name": "BatchNorm2d",
-        "schema": {
-            "category": "Normalization",
-            "attributes": [
-                { "name": "training", "visible": false },
-                { "name": "eps", "default": 1e-05 },
-                { "name": "momentum", "default": 0.1 },
-                { "name": "affine", "default": true },
-                { "name": "track_running_stats", "default": true }
-            ]
-        }
-    },
-    {
-        "name": "Dropout",
-        "schema": {
-            "category": "Dropout",
-            "attributes": [
-                { "name": "inplace", "default": false },
-                { "name": "p", "default": 0.5 },
-                { "name": "training", "visible": false }
-            ]
-        }
+      ],
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
     }
+  },
+  {
+    "name": "Conv3d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
+    "name": "Linear",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "visible": false
+        }
+      ],
+      "category": "Layer",
+      "package": "torch.nn.modules.linear"
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "attributes": [
+        {
+          "default": true,
+          "name": "inplace"
+        },
+        {
+          "default": 0,
+          "name": "threshold"
+        },
+        {
+          "default": 0,
+          "name": "value"
+        },
+        {
+          "name": "training",
+          "visible": false
+        }
+      ],
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "MaxPool2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "visible": false
+        },
+        {
+          "default": 0,
+          "name": "padding"
+        },
+        {
+          "default": 1,
+          "name": "dilation"
+        },
+        {
+          "default": false,
+          "name": "return_indices"
+        },
+        {
+          "name": "ceil_mode",
+          "visible": false
+        }
+      ],
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "AvgPool2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "visible": false
+        },
+        {
+          "default": 0,
+          "name": "padding"
+        },
+        {
+          "default": true,
+          "name": "count_include_pad"
+        },
+        {
+          "name": "ceil_mode",
+          "visible": false
+        }
+      ],
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "BatchNorm2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "visible": false
+        },
+        {
+          "default": 1e-05,
+          "name": "eps"
+        },
+        {
+          "default": 0.1,
+          "name": "momentum"
+        },
+        {
+          "default": true,
+          "name": "affine"
+        },
+        {
+          "default": true,
+          "name": "track_running_stats"
+        }
+      ],
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "inplace"
+        },
+        {
+          "default": 0.5,
+          "name": "p"
+        },
+        {
+          "name": "training",
+          "visible": false
+        }
+      ],
+      "category": "Dropout"
+    }
+  },
+  {
+    "name": "LSTM",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn"
+    }
+  }
 ]

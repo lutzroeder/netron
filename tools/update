@@ -11,10 +11,10 @@ root=$(cd $(dirname ${0})/..; pwd)
 tools=${root}/tools
 
 ${tools}/tf-update
+${tools}/keras-update
 ${tools}/coreml-update
 ${tools}/caffe-update
 ${tools}/mxnet-update
 ${tools}/onnx-update
 ${tools}/tflite-update
-${tools}/caffe2-update
-${tools}/keras-update
+${tools}/pytorch-update
