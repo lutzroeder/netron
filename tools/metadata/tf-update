@@ -2,7 +2,7 @@
 
 set -e
 
-root=$(cd $(dirname ${0})/..; pwd)
+root=$(cd $(dirname ${0})/../..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
@@ -25,7 +25,7 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-echo "Generate '../src/tf.js'"
+echo "Generate 'tf.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ${src}/tf.js \
     ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
     ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
@@ -45,22 +45,22 @@ echo "Install protobuf"
 virtualenv=${build}/virtualenv/${identifier}
 virtualenv -p ${python} ${virtualenv}
 source ${virtualenv}/bin/activate
-${pip} install protobuf
+${pip} install --quiet protobuf
 
-echo "Generate '../src/tf-metadata.json'"
-protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}
-protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor.proto --python_out=${tools}
-protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/types.proto --python_out=${tools}
-protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor_shape.proto --python_out=${tools}
-protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/resource_handle.proto --python_out=${tools}
-protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/api_def.proto --python_out=${tools}
-protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/op_def.proto --python_out=${tools}
-touch ${tools}/tensorflow/__init__.py
-touch ${tools}/tensorflow/core/__init__.py
-touch ${tools}/tensorflow/core/framework/__init__.py
-pushd ${tools} > /dev/null
+echo "Generate 'tf-metadata.json'"
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}/metadata
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor.proto --python_out=${tools}/metadata
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/types.proto --python_out=${tools}/metadata
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor_shape.proto --python_out=${tools}/metadata
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/resource_handle.proto --python_out=${tools}/metadata
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/api_def.proto --python_out=${tools}/metadata
+protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/op_def.proto --python_out=${tools}/metadata
+touch ${tools}/metadata/tensorflow/__init__.py
+touch ${tools}/metadata/tensorflow/core/__init__.py
+touch ${tools}/metadata/tensorflow/core/framework/__init__.py
+pushd ${tools}/metadata > /dev/null
 ${python} tf-metadata.py
 popd > /dev/null
-rm -rf ${tools}/tensorflow
+rm -rf ${tools}/metadata/tensorflow
 
 deactivate

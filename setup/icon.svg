@@ -1,71 +1,113 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024' viewBox='0 0 1024 1024'>
 
-  <filter id='blur'>
-    <feGaussianBlur in='SourceGraphic' stdDeviation='10' />
-  </filter>
+    <filter id='dropshadow'>
+        <feGaussianBlur in='SourceAlpha' stdDeviation='20' />
+    </filter>
 
-    <linearGradient id='border' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='0' y2='1024'>
+    <filter id='shadow'>
+        <feGaussianBlur in='SourceGraphic' stdDeviation='5' />
+    </filter>
+
+    <linearGradient id='border' gradientUnits='userSpaceOnUse' x1='0' y1='62' x2='0' y2='962'>
         <stop offset='0' stop-color='#fefefe'/>
         <stop offset='1' stop-color='#cacaca'/>
     </linearGradient>
 
-    <linearGradient id='background' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='0' y2='1024'>
-        <stop offset='0' stop-color='#B5EAF7'/>
-        <stop offset='1' stop-color='#A2D2DE'/>
+    <radialGradient id="node" cx="0.5" cy="0.5">
+      <stop offset="0%" stop-color="#578691"/>
+      <stop offset="90%" stop-color="#55838D"/>
+      <stop offset="100%" stop-color="#44777a"/>
+    </radialGradient>
+
+    <linearGradient id='background' gradientUnits='userSpaceOnUse' x1='0' y1='100' x2='0' y2='814'>
+        <stop offset='0' stop-color='#A2D2DE'/>
+        <stop offset='1' stop-color='#b4e4f2'/>
     </linearGradient>
 
-    <circle cx='512' cy='512' r='450' fill='#aaaaaa' style='filter: url(#blur);' /> 
-    <circle cx='512' cy='512' r='450' stroke='#b1b1b1' style='filter: url(#dropshadow);' /> 
-    <circle cx='512' cy='512' r='450' fill='url(#border)'/> 
-    <circle cx='512' cy='512' r='412' fill='url(#background)'/> 
+    <circle cx='512' cy='522' r='438' style='filter: url(#dropshadow);' /> 
+    <circle cx='512' cy='512' r='456' fill='url(#border)'/> 
+    <circle cx='512' cy='512' r='417' fill='url(#background)'/> 
 
-    <line x1='296' y1='392' x2='540' y2='280' stroke-width='12' stroke='#55838D' />
-    <line x1='296' y1='632' x2='540' y2='280' stroke-width='12' stroke='#55838D' />
+    <line x1='296' y1='392' x2='540' y2='280' stroke-width='12' stroke='#000000' opacity='0.3' />
+    <line x1='296' y1='632' x2='540' y2='280' stroke-width='12' stroke='#000000' opacity='0.3' />
 
-    <line x1='296' y1='392' x2='540' y2='435' stroke-width='12' stroke='#55838D' />
-    <line x1='296' y1='632' x2='540' y2='435' stroke-width='12' stroke='#55838D' />
+    <line x1='296' y1='392' x2='540' y2='435' stroke-width='12' stroke='#000000' opacity='0.3' />
+    <line x1='296' y1='632' x2='540' y2='435' stroke-width='12' stroke='#000000' opacity='0.3' />
 
-    <line x1='296' y1='392' x2='540' y2='590' stroke-width='12' stroke='#55838D' />
-    <line x1='296' y1='632' x2='540' y2='590' stroke-width='12' stroke='#55838D' />
+    <line x1='296' y1='392' x2='540' y2='590' stroke-width='12' stroke='#000000' opacity='0.3' />
+    <line x1='296' y1='632' x2='540' y2='590' stroke-width='12' stroke='#000000' opacity='0.3' />
 
-    <line x1='296' y1='392' x2='540' y2='744' stroke-width='12' stroke='#55838D' />
-    <line x1='296' y1='632' x2='540' y2='744' stroke-width='12' stroke='#55838D' />
+    <line x1='296' y1='392' x2='540' y2='744' stroke-width='12' stroke='#000000' opacity='0.3' />
+    <line x1='296' y1='632' x2='540' y2='744' stroke-width='12' stroke='#000000' opacity='0.3' />
 
-    <line x1='540' y1='280' x2='785' y2='512' stroke-width='12' stroke='#55838D' />
-    <line x1='540' y1='435' x2='785' y2='512' stroke-width='12' stroke='#55838D' />
-    <line x1='540' y1='590' x2='785' y2='512' stroke-width='12' stroke='#55838D' />
-    <line x1='540' y1='744' x2='785' y2='512' stroke-width='12' stroke='#55838D' />
+    <line x1='540' y1='280' x2='785' y2='512' stroke-width='12' stroke='#000000' opacity='0.3' />
+    <line x1='540' y1='435' x2='785' y2='512' stroke-width='12' stroke='#000000' opacity='0.3' />
+    <line x1='540' y1='590' x2='785' y2='512' stroke-width='12' stroke='#000000' opacity='0.3' />
+    <line x1='540' y1='744' x2='785' y2='512' stroke-width='12' stroke='#000000' opacity='0.3' />
+
+    <line x1='296' y1='392' x2='540' y2='280' stroke-width='10' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='280' stroke-width='10' stroke='#55838D' opacity='1' />
+
+    <line x1='296' y1='392' x2='540' y2='435' stroke-width='10' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='435' stroke-width='10' stroke='#55838D' opacity='1' />
+
+    <line x1='296' y1='392' x2='540' y2='590' stroke-width='10' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='590' stroke-width='10' stroke='#55838D' opacity='1' />
+
+    <line x1='296' y1='392' x2='540' y2='744' stroke-width='10' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='744' stroke-width='10' stroke='#55838D' opacity='1' />
+
+    <line x1='540' y1='280' x2='785' y2='512' stroke-width='10' stroke='#55838D' opacity='1' />
+    <line x1='540' y1='435' x2='785' y2='512' stroke-width='10' stroke='#55838D' opacity='1' />
+    <line x1='540' y1='590' x2='785' y2='512' stroke-width='10' stroke='#55838D' opacity='1' />
+    <line x1='540' y1='744' x2='785' y2='512' stroke-width='10' stroke='#55838D' opacity='1' />
+
+    <line x1='296' y1='392' x2='540' y2='280' stroke-width='8' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='280' stroke-width='8' stroke='#55838D' opacity='1' />
+
+    <line x1='296' y1='392' x2='540' y2='435' stroke-width='8' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='435' stroke-width='8' stroke='#55838D' opacity='1' />
+
+    <line x1='296' y1='392' x2='540' y2='590' stroke-width='8' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='590' stroke-width='8' stroke='#55838D' opacity='1' />
+
+    <line x1='296' y1='392' x2='540' y2='744' stroke-width='8' stroke='#55838D' opacity='1' />
+    <line x1='296' y1='632' x2='540' y2='744' stroke-width='8' stroke='#55838D' opacity='1' />
+
+    <line x1='540' y1='280' x2='785' y2='512' stroke-width='8' stroke='#55838D' opacity='1' />
+    <line x1='540' y1='435' x2='785' y2='512' stroke-width='8' stroke='#55838D' opacity='1' />
+    <line x1='540' y1='590' x2='785' y2='512' stroke-width='8' stroke='#55838D' opacity='1' />
+    <line x1='540' y1='744' x2='785' y2='512' stroke-width='8' stroke='#55838D' opacity='1' />
 
     <g transform='translate(296, 392)'>
-        <!-- <circle cx='-2' cy='-8' r='51' fill='#CAEEF7' /> -->
-        <circle cx='0' cy='0' r='51' fill='#55838D' />
+        <circle cx='0' cy='0' r='62' fill='#A2D2DE' opacity='0.8' />
+        <circle cx='0' cy='0' r='50' fill='url(#node)' opacity='1' />
     </g>
     <g transform='translate(296, 632)'>
-        <!-- <circle cx='-2' cy='-8' r='51' fill='#CAEEF7' /> -->
-        <circle cx='0' cy='0' r='51' fill='#55838D' />
+        <circle cx='0' cy='0' r='62' fill='#A2D2DE' opacity='0.8' />
+        <circle cx='0' cy='0' r='50' fill='url(#node)' opacity='1' />
     </g>
 
     <g transform='translate(540, 280)'>
-        <!-- <circle cx='-2' cy='-8' r='51' fill='#CAEEF7' /> -->
-        <circle cx='0' cy='0' r='51' fill='#55838D' />
+        <circle cx='0' cy='0' r='62' fill='#A2D2DE' opacity='0.8' />
+        <circle cx='0' cy='0' r='50' fill='url(#node)' opacity='1' />
     </g>
     <g transform='translate(540, 435)'>
-        <!-- <circle cx='-2' cy='-8' r='51' fill='#CAEEF7' /> -->
-        <circle cx='0' cy='0' r='51' fill='#55838D' />
+        <circle cx='0' cy='0' r='62' fill='#A2D2DE' opacity='0.8' />
+        <circle cx='0' cy='0' r='50' fill='url(#node)' opacity='1' />
     </g>
     <g transform='translate(540, 590)'>
-        <!-- <circle cx='-2' cy='-8' r='51' fill='#CAEEF7' /> -->
-        <circle cx='0' cy='0' r='51' fill='#55838D' />
+        <circle cx='0' cy='0' r='62' fill='#A2D2DE' opacity='0.8' />
+        <circle cx='0' cy='0' r='50' fill='url(#node)' opacity='1' />
     </g>
     <g transform='translate(540, 744)'>
-        <!-- <circle cx='-2' cy='-8' r='51' fill='#CAEEF7' /> -->
-        <circle cx='0' cy='0' r='51' fill='#55838D' />
+        <circle cx='0' cy='0' r='62' fill='#A2D2DE' opacity='0.8' />
+        <circle cx='0' cy='0' r='50' fill='url(#node)' opacity='1' />
     </g>
 
     <g transform='translate(785, 512)'>
-        <!-- <circle cx='-2' cy='-8' r='51' fill='#CAEEF7' /> -->
-        <circle cx='0' cy='0' r='51' fill='#55838D' />
+        <circle cx='0' cy='0' r='62' fill='#A2D2DE' opacity='0.8' />
+        <circle cx='0' cy='0' r='50' fill='url(#node)' opacity='1' />
     </g>
-
 
 </svg>

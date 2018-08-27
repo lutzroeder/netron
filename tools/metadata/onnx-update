@@ -2,7 +2,7 @@
 
 set -e
 
-root=$(cd $(dirname ${0})/..; pwd)
+root=$(cd $(dirname ${0})/../..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
@@ -34,14 +34,14 @@ export ONNX_ML=1
 export ONNX_NAMESPACE=onnx
 ${pip} install ${third_party}/${identifier}
 
-echo "Generate '../src/onnx-metadata.json'"
-pushd ${tools} > /dev/null
+echo "Generate 'onnx-metadata.json'"
+pushd ${tools}/metadata > /dev/null
 ${python} onnx-metadata.py
 popd > /dev/null
 
 deactivate
 
-echo "Generate '../src/onnx.js'"
+echo "Generate 'onnx.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ${src}/onnx.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
-node ${tools}/update_pbjs.js array ${src}/onnx.js floatData float 1
-node ${tools}/update_pbjs.js array ${src}/onnx.js doubleData double 1
+node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js floatData float 1
+node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js doubleData double 1

@@ -2,7 +2,7 @@
 
 set -e
 
-root=$(cd $(dirname ${0})/..; pwd)
+root=$(cd $(dirname ${0})/../..; pwd)
 src=${root}/src
 tools=${root}/tools
 third_party=${root}/third_party

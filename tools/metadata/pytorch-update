@@ -2,7 +2,7 @@
 
 set -e
 
-root=$(cd $(dirname ${0})/..; pwd)
+root=$(cd $(dirname ${0})/../..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
@@ -39,19 +39,19 @@ fi
 virtualenv=${build}/virtualenv/${identifier}
 virtualenv -p ${python} ${virtualenv}
 source ${virtualenv}/bin/activate
-${pip} install future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
+${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
 pushd "${third_party}/pytorch" > /dev/null
 FULL_CAFFE2=1 ${python} setup.py install
 MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ ${python} setup.py install
 popd > /dev/null
 
-echo "Generate '../src/caffe2-metadata.json'"
-pushd ${tools} > /dev/null
+echo "Generate 'caffe2-metadata.json'"
+pushd ${tools}/metadata > /dev/null
 ${python} caffe2-metadata.py
 popd > /dev/null
 
 deactivate
 
-echo "Generate '../src/caffe2.js'"
+echo "Generate 'caffe2.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
-node ${tools}/update_pbjs.js enumeration ${src}/caffe2.js floats float 1
+node ${tools}/metadata/update_pbjs.js enumeration ${src}/caffe2.js floats float 1

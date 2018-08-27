@@ -2,7 +2,7 @@
 
 set -e
 
-root=$(cd $(dirname ${0})/..; pwd)
+root=$(cd $(dirname ${0})/../..; pwd)
 build=${root}/build
 tools=${root}/tools
 third_party=${root}/third_party
@@ -23,11 +23,14 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-export PYTHONUSERBASE=${build}/third_party/pypi/${identifier}
-export PATH=$PATH:${PYTHONUSERBASE}/bin
-rm -rf ${PYTHONUSERBASE}
-${pip} install --quiet --user onnx
-${pip} install --quiet --user sklearn
-${pip} install --quiet --user ${third_party}/${identifier}
+virtualenv=${build}/virtualenv/${identifier}
+virtualenv -p ${python} ${virtualenv}
+source ${virtualenv}/bin/activate
+
+${pip} install --quiet onnx
+${pip} install --quiet sklearn
+${pip} install --quiet ${third_party}/${identifier}
 
 ${python} ${tools}/coreml-converter.py $@
+
+deactivate

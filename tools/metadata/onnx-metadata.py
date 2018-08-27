@@ -194,4 +194,4 @@ def generate_json(schemas, json_file):
 if __name__ == '__main__':
     schemas = defs.get_all_schemas_with_history()
     schemas = sorted(schemas, key=lambda schema: schema.name)
-    generate_json(schemas, '../src/onnx-metadata.json')
+    generate_json(schemas, '../../src/onnx-metadata.json')

@@ -210,7 +210,7 @@ def update_output(schema, description):
     if entry:
         entry['description'] = description
 
-json_file = '../src/keras-metadata.json'
+json_file = '../../src/keras-metadata.json'
 json_data = open(json_file).read()
 json_root = json.loads(json_data)
 

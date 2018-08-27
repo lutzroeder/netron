@@ -2,7 +2,7 @@
 
 set -e
 
-root=$(cd $(dirname ${0})/..; pwd)
+root=$(cd $(dirname ${0})/../..; pwd)
 node_modules=${root}/node_modules
 src=${root}/src
 tools=${root}/tools
@@ -21,6 +21,6 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-echo "Generate '../src/coreml.js'"
+echo "Generate 'coreml.js'"
 ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r coreml -o ${src}/coreml.js ${third_party}/${identifier}/mlmodel/format/Model.proto
-node ${tools}/update_pbjs.js array ${src}/coreml.js floatValue float 2
+node ${tools}/metadata/update_pbjs.js array ${src}/coreml.js floatValue float 2
