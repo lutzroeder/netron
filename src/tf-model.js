@@ -40,14 +40,12 @@ class TensorFlowModelFactory {
             }
 
             try {
-                if (!model) {
-                    var extension = context.identifier.split('.').pop();
-                    if (extension == 'meta') {
-                        var metaGraphDef = tensorflow.MetaGraphDef.decode(context.buffer);
-                        format = 'TensorFlow MetaGraph';
-                        savedModel = new tensorflow.SavedModel();
-                        savedModel.metaGraphs.push(metaGraphDef);
-                    }
+                var extension = context.identifier.split('.').pop();
+                if (extension == 'meta') {
+                    var metaGraphDef = tensorflow.MetaGraphDef.decode(context.buffer);
+                    format = 'TensorFlow MetaGraph';
+                    savedModel = new tensorflow.SavedModel();
+                    savedModel.metaGraphs.push(metaGraphDef);
                 }
             }
             catch (error) {
