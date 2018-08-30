@@ -215,7 +215,8 @@ class View {
             new Caffe2ModelFactory(), 
             new PyTorchModelFactory(),
             new TensorFlowLiteModelFactory(),
-            new TensorFlowModelFactory()
+            new TensorFlowModelFactory(),
+            new SklearnModelFactor()
         ];
 
         try {

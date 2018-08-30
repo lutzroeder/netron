@@ -174,13 +174,15 @@ pickle.Unpickler = class {
                 case pickle.OpCode.BUILD:
                     var dict = stack.pop();
                     var obj = stack.pop();
-                    for (var p in dict) {
-                        obj[p] = dict[p];
+                    if (obj.__setstate__) {
+                        obj.__setstate__(dict, reader);
+                    }
+                    else {
+                        for (var p in dict) {
+                            obj[p] = dict[p];
+                        }
                     }
                     stack.push(obj);
-                    if (obj.unpickle) {
-                        obj.unpickle(reader);
-                    }
                     break;
                 case pickle.OpCode.MARK:
                     marker.push(stack.length);

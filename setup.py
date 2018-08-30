@@ -95,6 +95,7 @@ setuptools.setup(
             'caffe2-model.js', 'caffe2-metadata.json', 'caffe2.js',
             'mxnet-model.js', 'mxnet-metadata.json',
             'pytorch-model.js', 'pytorch-metadata.json', 'pickle.js',
+            'sklearn-model.js', 'sklearn-metadata.json',
             'numpy.js', 'zip.js', 'tar.js',
             'view-browser.html', 'view-browser.js',
             'view-render.css', 'view-render.js',

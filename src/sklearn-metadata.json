@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Binarizer",
+    "schema": {
+      "attributes": [
+        {
+          "name": "copy"
+        }
+      ]
+    }
+  }
+]
