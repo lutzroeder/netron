@@ -8,7 +8,7 @@
     "version": "2.0.9",
     "description": "Viewer neural network models",
     "license": "MIT",
-    "repository": "lutzroeder/Netron",
+    "repository": "lutzroeder/netron",
     "main": "src/app.js",
     "dependencies": {
         "d3": "latest",
