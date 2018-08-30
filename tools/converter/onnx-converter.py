@@ -18,3 +18,9 @@ elif extension == '.h5':
 	keras_model = keras.models.load_model(file)
 	onnx_model = onnxmltools.convert.convert_keras(keras_model)
 	onnxmltools.utils.save_model(onnx_model, base + '.onnx')
+elif extension == '.pkl':
+	from sklearn.externals import joblib
+	import onnxmltools
+	sklearn_model = joblib.load(file)
+	onnx_model = onnxmltools.convert.convert_sklearn(sklearn_model)
+	onnxmltools.utils.save_model(onnx_model, base + '.onnx')

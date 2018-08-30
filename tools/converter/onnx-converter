@@ -7,6 +7,9 @@ build=${root}/build
 tools=${root}/tools
 third_party=${root}/third_party
 
+python=${python:-python}
+pip=${pip:-pip}
+
 identifier=onnxmltools
 repository=https://github.com/onnx/${identifier}.git
 
@@ -27,8 +30,10 @@ source ${virtualenv}/bin/activate
 pip install --quiet coremltools
 pip install --quiet tensorflow
 pip install --quiet keras
+pip install --quiet sklearn
+pip install --quiet lightgbm
 pip install --quiet ${third_party}/${identifier}
 
-python ${tools}/onnx-converter.py $@
+python ${tools}/converter/onnx-converter.py $@
 
 deactivate
