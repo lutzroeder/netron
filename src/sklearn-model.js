@@ -45,7 +45,7 @@ class SklearnModelFactor {
                                 // &subarray, &names, &fields, &elsize, &alignment, &int_dtypeflags
                                 break;
                             default:
-                                throw new pickle.Error('Unknown dtype length');
+                                throw new pickle.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                         }
                     };
                 };
@@ -81,14 +81,18 @@ class SklearnModelFactor {
                         name = args[0];
                         args = [];
                     }
-                    if (functionTable[name]) {
-                        var obj = { __type__: name };
-                        functionTable[name].apply(obj, args);
-                        return obj;
+                    var obj = { __type__: name };
+                    var constructor = functionTable[name];
+                    if (constructor) {
+                        constructor.apply(obj, args);
                     }
-                    throw new pickle.Error("Unknown function '" + name + "'.");
+                    else {
+                        debugger;
+                        host.exception(new SklearnError("Unknown function '" + name + "'."), false);
+                    }
+                    return obj;
                 };
-    
+
                 obj = unpickler.load(function_call, null);
             }
             catch (error) {
@@ -112,7 +116,7 @@ class SklearnModel {
 
     constructor(obj) {
         this._format = 'scikit-learn';
-        if (root._sklearn_version) {
+        if (obj._sklearn_version) {
             this._format += ' ' + obj._sklearn_version.toString();
         }
 
@@ -229,7 +233,6 @@ class SklearnTensor {
 
     constructor(name, value) {
         this._name = name;
-        this._value = value;
 
         switch (value.__type__) {
             case 'joblib.numpy_pickle.NumpyArrayWrapper':
@@ -240,6 +243,10 @@ class SklearnTensor {
             case 'numpy.core.multiarray._reconstruct':
                 this._kind = 'NumPy Array';
                 this._type = new SklearnTensorType(value.typecode.name, value.shape);
+                this._data = new Uint8Array(value.rawdata.length);
+                for (var i = 0; i < this._data.length; i++) {
+                    this._data[i] = value.rawdata.charCodeAt(i);
+                }
                 break;
             default:
                 debugger;
@@ -263,15 +270,138 @@ class SklearnTensor {
     }
 
     get state() {
-        return 'Not Implemented';
+        return this._context().state || null;
     }
 
     get value() {
-        return null;
+        var context = this._context();
+        if (context.state) {
+            return null;
+        }
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
     }
 
-    get toString() {
-        return '';
+    toString() {
+        var context = this._context();
+        if (context.state) {
+            return '';
+        }
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        switch (this._type.dataType) {
+            case 'int64':
+            case 'uint64':
+                return OnnxTensor._stringify(value, '', '    ');
+        }
+        return JSON.stringify(value, null, 4);
+    }
+
+    _context() {
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.state = null;
+
+        if (!this._type) {
+            context.state = 'Tensor has no data type.';
+            return context;
+        }
+        if (!this._data) {
+            context.state = 'Tensor is data is empty.';
+            return context;
+        }
+
+        context.dataType = this._type.dataType;
+        context.shape = this._type.shape;
+
+        switch (context.dataType) {
+            case 'float32':
+            case 'float64':
+            case 'int32':
+            case 'uint32':
+                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            case 'int64':
+            case 'uint64':
+                context.rawData = this._data;
+                break;
+            default:
+                context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
+                return context;
+        }
+
+        return context;
+    }
+
+    _decode(context, dimension) {
+        var results = [];
+        var size = context.shape[dimension];
+        if (dimension == context.shape.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                switch (context.dataType)
+                {
+                    case 'float32':
+                        results.push(context.rawData.getFloat32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'float64':
+                        results.push(context.rawData.getFloat64(context.index, true));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 'int32':
+                        results.push(context.rawData.getInt32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'uint32':
+                        results.push(context.rawData.getUint32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'int64':
+                        results.push(new Int64(context.rawData.subarray(context.index, context.index + 8)));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                    case 'uint64':
+                        results.push(new Uint64(context.rawData.subarray(context.index, context.index + 8)));
+                        context.index += 8;
+                        context.count++;
+                        break;
+                }
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decode(context, dimension + 1));
+            }
+        }
+        return results;
+    }
+
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            var result = [];
+            result.push('[');
+            var items = value.map((item) => OnnxTensor._stringify(item, indentation + indent, indent));
+            if (items.length > 0) {
+                result.push(items.join(',\n'));
+            }
+            result.push(']');
+            return result.join('\n');
+        }
+        return indentation + value.toString();
     }
 }
 
