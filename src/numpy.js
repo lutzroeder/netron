@@ -19,44 +19,52 @@ numpy.Array = class {
         writer.writeByte(0); // minor
 
         var context = {};
-        context.dataTypeSize = 1;
+        context.itemSize = 1;
         context.position = 0;
         context.shape = this._shape;
         context.descr = '';
 
         switch (this._dataType) {
             case 'float32':
-                context.dataTypeSize = 4;
+                context.itemSize = 4;
                 context.descr = '<f4';
                 break;
             case 'float64':
-                context.dataTypeSize = 8;
+                context.itemSize = 8;
                 context.descr = '<f8';
                 break;
             case 'int8':
-                context.dataTypeSize = 1;
+                context.itemSize = 1;
                 context.descr = '<i1';
                 break;
             case 'int16':
-                context.dataTypeSize = 2;
+                context.itemSize = 2;
                 context.descr = '<i2';
                 break;
             case 'int32':
-                context.dataTypeSize = 4;
+                context.itemSize = 4;
                 context.descr = '<i4';
+                break;
+            case 'int64':
+                context.itemSize = 8;
+                context.descr = '<i8';
                 break;
             case 'byte':
             case 'uint8':
-                context.dataTypeSize = 1;
+                context.itemSize = 1;
                 context.descr = '<u1';
                 break;
             case 'uint16':
-                context.dataTypeSize = 2;
+                context.itemSize = 2;
                 context.descr = '<u2';
                 break;
-            case 'int32':
-                context.dataTypeSize = 4;
+            case 'uint32':
+                context.itemSize = 4;
                 context.descr = '<u4';
+                break;
+            case 'uint64':
+                context.itemSize = 8;
+                context.descr = '<u8';
                 break;
             default:
                 throw new numpy.Error("Unknown data type '" + this._dataType + "'.");
@@ -83,15 +91,15 @@ numpy.Array = class {
         writer.writeUint16(header.length); // header size
         writer.writeString(header);
 
-        var size = context.dataTypeSize;
+        var size = context.itemSize;
         this._shape.forEach((dimension) => {
             size *= dimension;
         });
 
-        var array = new Uint8Array(size);
-        context.dataView = new DataView(array.buffer, array.byteOffset, size);
+        context.data = new Uint8Array(size);
+        context.dataView = new DataView(context.data.buffer, context.data.byteOffset, size);
         numpy.Array._encodeDimension(context, this._data, 0);
-        writer.write(array);
+        writer.write(context.data);
 
         return writer.toBuffer();
     }
@@ -117,6 +125,9 @@ numpy.Array = class {
                     case '<i4':
                         context.dataView.setInt32(context.position, data[i], true);
                         break;
+                    case '<i8':
+                        context.data.set(data[i].toBuffer(), context.position);
+                        break;
                     case '<u1':
                         context.dataView.setUint8(context.position, data[i], true);
                         break;
@@ -126,8 +137,11 @@ numpy.Array = class {
                     case '<u4':
                         context.dataView.setUint32(context.position, data[i], true);
                         break;
+                    case '<u8':
+                        context.data.set(data[i].toBuffer(), context.position);
+                        break;
                 }
-                context.position += context.dataTypeSize;
+                context.position += context.itemSize;
             }
         }
         else {

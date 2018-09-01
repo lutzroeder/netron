@@ -935,8 +935,8 @@ class Int64 {
     }
 
     toString(radix) {
-        var high = this.readInt32(4);
-        var low = this.readInt32(0);
+        var high = this._readInt32(4);
+        var low = this._readInt32(0);
         var str = '';
         var sign = high & 0x80000000;
         if (sign) {
@@ -960,7 +960,11 @@ class Int64 {
         return str;
     }
 
-    readInt32(offset) {
+    toBuffer() {
+        return this._buffer;
+    }
+
+    _readInt32(offset) {
       return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
     }
 }
@@ -972,8 +976,8 @@ class Uint64 {
     }
 
     toString(radix) {
-        var high = this.readInt32(4);
-        var low = this.readInt32(0);
+        var high = this._readInt32(4);
+        var low = this._readInt32(0);
         var str = '';
         radix = radix || 10;
         while (true) {
@@ -989,7 +993,11 @@ class Uint64 {
         return str;
     }
 
-    readInt32(offset) {
+    toBuffer() {
+        return this._buffer;
+    }
+
+    _readInt32(offset) {
         return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
     }
 }
