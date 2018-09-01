@@ -114,17 +114,19 @@ class PyTorchModelFactory {
                         return arg[1];
                     });
                 }
-                if (functionTable[name]) {
-                    var obj = { __type__: name };
-                    functionTable[name].apply(obj, args);
-
+                var obj = { __type__: name };
+                var constructor = functionTable[name];
+                if (constructor) {
+                    constructor.apply(obj, args);
                     if (module_source_map[name]) {
                         obj.__source__ = module_source_map[name];
                     }
-
-                    return obj;
                 }
-                throw new pickle.Error("Unknown function '" + name + "'.");
+                else {
+                    debugger;
+                    host.exception(new PyTorchError("Unknown function '" + name + "'."), false);
+                }
+                return obj;
             };
 
             var module_source_map = {};
