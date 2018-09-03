@@ -1923,7 +1923,7 @@
           "type": "bool"
         }
       ],
-      "description": "$$lr_t := \\text{learning_rate} * \\sqrt{(1 - beta_2^t) / (1 - beta_1^t)}$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+      "description": "$$lr_t := \\text{learning\\_rate} * \\sqrt{1 - beta_2^t} / (1 - beta_1^t)$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -14764,6 +14764,38 @@
     }
   },
   {
+    "name": "EnsureShape",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The expected (possibly partially specified) shape of the input tensor.",
+          "name": "shape",
+          "type": "shape"
+        },
+        {
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "Raises an error if the input tensor's shape does not match the specified shape.\nReturns the input tensor otherwise.",
+      "inputs": [
+        {
+          "description": "A tensor, whose shape is to be validated.",
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A tensor with the same shape and contents as the input tensor or value.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Ensures that the tensor's shape matches the expected shape."
+    }
+  },
+  {
     "name": "Enter",
     "schema": {
       "attributes": [
@@ -15909,39 +15941,6 @@
         }
       ],
       "summary": "Deprecated. Do not use."
-    }
-  },
-  {
-    "name": "FeatureStatsDataset",
-    "schema": {
-      "attributes": [
-        {
-          "minimum": 1,
-          "name": "output_types",
-          "type": "list(type)"
-        },
-        {
-          "minimum": 1,
-          "name": "output_shapes",
-          "type": "list(shape)"
-        }
-      ],
-      "inputs": [
-        {
-          "name": "input_dataset",
-          "type": 21
-        },
-        {
-          "name": "tag",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "handle",
-          "type": 21
-        }
-      ]
     }
   },
   {
@@ -27530,6 +27529,219 @@
     }
   },
   {
+    "name": "ParseSequenceExample",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A vector listing the\nFeatureList keys which may be missing from the SequenceExamples.  If the\nassociated FeatureList is missing, it is treated as empty.  By default,\nany FeatureList not listed in this vector must exist in the SequenceExamples.",
+          "minimum": 0,
+          "name": "feature_list_dense_missing_assumed_empty",
+          "type": "list(string)"
+        },
+        {
+          "description": "A list of Ncontext_sparse string Tensors (scalars).\nThe keys expected in the Examples' features associated with context_sparse\nvalues.",
+          "minimum": 0,
+          "name": "context_sparse_keys",
+          "type": "list(string)"
+        },
+        {
+          "description": "A list of Ncontext_dense string Tensors (scalars).\nThe keys expected in the SequenceExamples' context features associated with\ndense values.",
+          "minimum": 0,
+          "name": "context_dense_keys",
+          "type": "list(string)"
+        },
+        {
+          "description": "A list of Nfeature_list_sparse string Tensors\n(scalars).  The keys expected in the FeatureLists associated with sparse\nvalues.",
+          "minimum": 0,
+          "name": "feature_list_sparse_keys",
+          "type": "list(string)"
+        },
+        {
+          "description": "A list of Nfeature_list_dense string Tensors (scalars).\nThe keys expected in the SequenceExamples' feature_lists associated\nwith lists of dense values.",
+          "minimum": 0,
+          "name": "feature_list_dense_keys",
+          "type": "list(string)"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Ncontext_sparse",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Ncontext_dense",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nfeature_list_sparse",
+          "type": "int"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nfeature_list_dense",
+          "type": "int"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "A list of Ncontext_sparse types; the data types of data in\neach context Feature given in context_sparse_keys.\nCurrently the ParseSingleSequenceExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "context_sparse_types",
+          "type": "list(type)"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "Tcontext_dense",
+          "type": "list(type)"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "minimum": 0,
+          "name": "feature_list_dense_types",
+          "type": "list(type)"
+        },
+        {
+          "default": [],
+          "description": "A list of Ncontext_dense shapes; the shapes of data in\neach context Feature given in context_dense_keys.\nThe number of elements in the Feature corresponding to context_dense_key[j]\nmust always equal context_dense_shapes[j].NumEntries().\nThe shape of context_dense_values[j] will match context_dense_shapes[j].",
+          "minimum": 0,
+          "name": "context_dense_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "default": [],
+          "description": "A list of Nfeature_list_sparse types; the data types\nof data in each FeatureList given in feature_list_sparse_keys.\nCurrently the ParseSingleSequenceExample supports DT_FLOAT (FloatList),\nDT_INT64 (Int64List), and DT_STRING (BytesList).",
+          "minimum": 0,
+          "name": "feature_list_sparse_types",
+          "type": "list(type)"
+        },
+        {
+          "default": [],
+          "description": "A list of Nfeature_list_dense shapes; the shapes of\ndata in each FeatureList given in feature_list_dense_keys.\nThe shape of each Feature in the FeatureList corresponding to\nfeature_list_dense_key[j] must always equal\nfeature_list_dense_shapes[j].NumEntries().",
+          "minimum": 0,
+          "name": "feature_list_dense_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A vector containing binary serialized SequenceExample protos.",
+          "name": "serialized",
+          "type": 7
+        },
+        {
+          "description": "A vector containing the names of the serialized protos.\nMay contain, for example, table key (descriptive) name for the\ncorresponding serialized proto.  This is purely useful for debugging\npurposes, and the presence of values here has no effect on the output.\nMay also be an empty vector if no name is available.",
+          "name": "debug_name",
+          "type": 7
+        },
+        {
+          "description": "A list of Ncontext_dense Tensors (some may be empty).\ncontext_dense_defaults[j] provides default values\nwhen the SequenceExample's context map lacks context_dense_key[j].\nIf an empty Tensor is provided for context_dense_defaults[j],\nthen the Feature context_dense_keys[j] is required.\nThe input type is inferred from context_dense_defaults[j], even when it's\nempty.  If context_dense_defaults[j] is not empty, its shape must match\ncontext_dense_shapes[j].",
+          "name": "context_dense_defaults",
+          "typeListAttr": "Tcontext_dense"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "context_sparse_indices",
+          "type": 9
+        },
+        {
+          "name": "context_sparse_values",
+          "typeListAttr": "context_sparse_types"
+        },
+        {
+          "name": "context_sparse_shapes",
+          "type": 9
+        },
+        {
+          "name": "context_dense_values",
+          "typeListAttr": "Tcontext_dense"
+        },
+        {
+          "name": "feature_list_sparse_indices",
+          "type": 9
+        },
+        {
+          "name": "feature_list_sparse_values",
+          "typeListAttr": "feature_list_sparse_types"
+        },
+        {
+          "name": "feature_list_sparse_shapes",
+          "type": 9
+        },
+        {
+          "name": "feature_list_dense_values",
+          "typeListAttr": "feature_list_dense_types"
+        },
+        {
+          "name": "feature_list_dense_lengths",
+          "type": 9
+        }
+      ],
+      "summary": "Transforms a vector of brain.SequenceExample protos (as strings) into typed tensors."
+    }
+  },
+  {
     "name": "ParseSingleExample",
     "schema": {
       "attributes": [
@@ -33347,6 +33559,10 @@
             {
               "type": "type",
               "value": 23
+            },
+            {
+              "type": "type",
+              "value": 11
             }
           ],
           "name": "T",
@@ -35012,7 +35228,7 @@
           "type": "bool"
         }
       ],
-      "description": "$$lr_t := \\text{learning_rate} * \\sqrt{(1 - beta_2^t) / (1 - beta_1^t)}$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+      "description": "$$lr_t := \\text{learning\\_rate} * \\sqrt{1 - beta_2^t} / (1 - beta_1^t)$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -41246,7 +41462,8 @@
             "logistic_loss",
             "squared_loss",
             "hinge_loss",
-            "smooth_hinge_loss"
+            "smooth_hinge_loss",
+            "poisson_loss"
           ],
           "description": "Type of the primal loss. Currently SdcaSolver supports logistic,\nsquared and hinge losses.",
           "name": "loss_type",
@@ -50289,7 +50506,7 @@
         },
         {
           "default": 0,
-          "description": "a bitmask where a bit i being 1 means to ignore the begin\nvalue and instead use the largest interval possible. At runtime\nbegin[i] will be replaced with `[0, n-1) if `stride[i] > 0` or\n`[-1, n-1]` if `stride[i] < 0`",
+          "description": "a bitmask where a bit i being 1 means to ignore the begin\nvalue and instead use the largest interval possible. At runtime\nbegin[i] will be replaced with `[0, n-1)` if `stride[i] > 0` or\n`[-1, n-1]` if `stride[i] < 0`",
           "name": "begin_mask",
           "type": "int"
         },
@@ -52903,6 +53120,35 @@
     }
   },
   {
+    "name": "TensorListGather",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "Each row in the produced Tensor corresponds to the element in the TensorList\nspecified by the given index (see `tf.gather`).  \n\ninput_handle: The input tensor list.\nindices: The indices used to index into the list.\nvalues: The tensor.",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "indices",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values",
+          "typeAttr": "element_dtype"
+        }
+      ],
+      "summary": "Creates a Tensor by indexing into the TensorList."
+    }
+  },
+  {
     "name": "TensorListGetItem",
     "schema": {
       "attributes": [
@@ -53074,6 +53320,53 @@
         }
       ],
       "summary": "List of the given size with empty elements."
+    }
+  },
+  {
+    "name": "TensorListScatter",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "shape_type",
+          "type": "type"
+        }
+      ],
+      "description": "Each member of the TensorList corresponds to one row of the input tensor,\nspecified by the given index (see `tf.gather`).\n\ntensor: The input tensor.\nindices: The indices used to index into the list.\nelement_shape: The shape of the elements in the list (can be less specified than\n  the shape of the tensor).  \noutput_handle: The TensorList.",
+      "inputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "element_dtype"
+        },
+        {
+          "name": "indices",
+          "type": 3
+        },
+        {
+          "name": "element_shape",
+          "typeAttr": "shape_type"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a TensorList by indexing into a Tensor."
     }
   },
   {
