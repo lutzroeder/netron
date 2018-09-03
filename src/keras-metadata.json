@@ -229,7 +229,7 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
           "name": "data_format"
         },
         {
@@ -392,12 +392,16 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
           "description": "int, or tuple of 2 integers.\nThe upsampling factors for rows and columns.",
           "name": "size"
+        },
+        {
+          "description": "A string, one of `nearest` or `bilinear`.\nNote that CNTK does not support yet the `bilinear` upscaling\nand that with Theano, only `size=(2, 2)` is possible.\n",
+          "name": "interpolation"
         }
       ],
       "category": "Layer",
@@ -539,7 +543,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
           "name": "data_format"
         }
       ],
@@ -592,7 +596,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
           "name": "data_format"
         }
       ],
@@ -657,7 +661,7 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
           "name": "data_format"
         }
       ],
@@ -2422,7 +2426,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n`\"valid\"` means \"no padding\".\n`\"same\"` results in padding the input such that\nthe output has the same length as the original input.\n`\"causal\"` results in causal (dilated) convolutions, e.g. output[t]\ndoes not depend on input[t+1:]. Useful when modeling temporal data\nwhere the model should not violate the temporal order.\nSee [WaveNet: A Generative Model for Raw Audio, section 2.1](https://arxiv.org/abs/1609.03499).",
+          "description": "One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n`\"valid\"` means \"no padding\".\n`\"same\"` results in padding the input such that\nthe output has the same length as the original input.\n`\"causal\"` results in causal (dilated) convolutions,\ne.g. `output[t]` does not depend on `input[t + 1:]`.\nA zero padding is used such that\nthe output has the same length as the original input.\nUseful when modeling temporal data where the model\nshould not violate the temporal order. See",
           "name": "padding"
         },
         {
@@ -2503,6 +2507,10 @@
         {
           "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
+        },
+        {
+          "description": "A Generative Model for Raw Audio, section 2.1](https://arxiv.org/abs/1609.03499).",
+          "name": "[WaveNet"
         }
       ],
       "category": "Layer",
