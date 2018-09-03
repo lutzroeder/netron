@@ -85,7 +85,7 @@ def split_docstring(docstring):
             current_lines = []
             current_header = line[2:-2]
             if current_header == 'Masking' or current_header.startswith('Note '):
-                headline = '**' + current_header + '**'                
+                headline = '**' + current_header + '**'
                 current_lines = headers['']
                 current_header = ''
                 current_lines.append(headline)
@@ -244,7 +244,7 @@ for entry in json_root:
             del headers['Examples']
         if 'Example' in headers:
             update_examples(schema, headers['Example'])
-            del headers['Example']            
+            del headers['Example']
         if 'References' in headers:
             update_references(schema, headers['References'])
             del headers['References']

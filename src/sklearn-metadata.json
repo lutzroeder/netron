@@ -4,9 +4,337 @@
     "schema": {
       "attributes": [
         {
-          "name": "copy"
+          "default": true,
+          "description": "set to False to perform inplace binarization and avoid a copy (if\nthe input is already a numpy array or a scipy.sparse CSR matrix).\n",
+          "name": "copy",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": 0.0,
+          "description": "Feature values below or equal to this are replaced by 0, above it by 1.\nThreshold may not be less than 0 for operations on sparse matrices.\n",
+          "name": "threshold",
+          "option": "optional",
+          "type": "float32"
         }
-      ]
+      ],
+      "description": "Binarize data (set feature values to 0 or 1) according to a threshold\n\nValues greater than the threshold map to 1, while values less than\nor equal to the threshold map to 0. With the default threshold of 0,\nonly positive values map to 1.\n\nBinarization is a common operation on text count data where the\nanalyst can decide to only consider the presence or absence of a\nfeature rather than a quantified number of occurrences for instance.\n\nIt can also be used as a pre-processing step for estimators that\nconsider boolean random variables (e.g. modelled using the Bernoulli\ndistribution in a Bayesian setting).\n\nRead more in the :ref:`User Guide <preprocessing_binarization>`.\n",
+      "package": "sklearn.preprocessing"
+    }
+  },
+  {
+    "name": "SVC",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "Penalty parameter C of the error term.\n",
+          "name": "C",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": "rbf",
+          "description": "Specifies the kernel type to be used in the algorithm.\nIt must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or\na callable.\nIf none is given, 'rbf' will be used. If a callable is given it is\nused to pre-compute the kernel matrix from data matrices; that matrix\nshould be an array of shape ``(n_samples, n_samples)``.\n",
+          "name": "kernel",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": 3,
+          "description": "Degree of the polynomial kernel function ('poly').\nIgnored by all other kernels.\n",
+          "name": "degree",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "auto",
+          "description": "Kernel coefficient for 'rbf', 'poly' and 'sigmoid'.\n\nCurrent default is 'auto' which uses 1 / n_features,\nif ``gamma='scale'`` is passed then it uses 1 / (n_features * X.std())\nas value of gamma. The current default of gamma, 'auto', will change\nto 'scale' in version 0.22. 'auto_deprecated', a deprecated version of\n'auto' is used as a default indicating that no explicit value of gamma\nwas passed.\n",
+          "name": "gamma",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": 0.0,
+          "description": "Independent term in kernel function.\nIt is only significant in 'poly' and 'sigmoid'.\n",
+          "name": "coef0",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": false,
+          "description": "Whether to enable probability estimates. This must be enabled prior\nto calling `fit`, and will slow down that method.\n",
+          "name": "probability",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "description": "Whether to use the shrinking heuristic.\n",
+          "name": "shrinking",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": 0.001,
+          "description": "Tolerance for stopping criterion.\n",
+          "name": "tol",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "description": "Specify the size of the kernel cache (in MB).\n",
+          "name": "cache_size",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
+          "name": "class_weight",
+          "option": "optional"
+        },
+        {
+          "default": false,
+          "description": "Enable verbose output. Note that this setting takes advantage of a\nper-process runtime setting in libsvm that, if enabled, may not work\nproperly in a multithreaded context.\n",
+          "name": "verbose",
+          "type": "boolean"
+        },
+        {
+          "default": -1,
+          "description": "Hard limit on iterations within solver, or -1 for no limit.\n",
+          "name": "max_iter",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "ovr",
+          "description": "Whether to return a one-vs-rest ('ovr') decision function of shape\n(n_samples, n_classes) as all other classifiers, or the original\none-vs-one ('ovo') decision function of libsvm which has shape\n(n_samples, n_classes * (n_classes - 1) / 2). However, one-vs-one\n('ovo') is always used as multi-class strategy.\n\n.. versionchanged:: 0.19\ndecision_function_shape is 'ovr' by default.\n\n.. versionadded:: 0.17\n*decision_function_shape='ovr'* is recommended.\n\n.. versionchanged:: 0.17\nDeprecated *decision_function_shape='ovo' and None*.\n",
+          "name": "decision_function_shape"
+        },
+        {
+          "default": null,
+          "description": "The seed of the pseudo random number generator used when shuffling\nthe data for probability estimates. If int, random_state is the\nseed used by the random number generator; If RandomState instance,\nrandom_state is the random number generator; If None, the random\nnumber generator is the RandomState instance used by `np.random`.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        }
+      ],
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time complexity\nis more than quadratic with the number of samples which makes it hard\nto scale to dataset with more than a couple of 10000 samples.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n",
+      "package": "sklearn.svm"
+    }
+  },
+  {
+    "name": "DecisionTreeClassifier",
+    "schema": {
+      "attributes": [
+        {
+          "default": "gini",
+          "description": "The function to measure the quality of a split. Supported criteria are\n\"gini\" for the Gini impurity and \"entropy\" for the information gain.\n",
+          "name": "criterion",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": "best",
+          "description": "The strategy used to choose the split at each node. Supported\nstrategies are \"best\" to choose the best split and \"random\" to choose\nthe best random split.\n",
+          "name": "splitter",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": "None",
+          "description": "The maximum depth of the tree. If None, then nodes are expanded until\nall leaves are pure or until all leaves contain less than\nmin_samples_split samples.\n",
+          "name": "max_depth",
+          "option": "optional"
+        },
+        {
+          "default": 2,
+          "description": "The minimum number of samples required to split an internal node:\n\n- If int, then consider ``min_samples_split`` as the minimum number.\n- If float, then ``min_samples_split`` is a fraction and\n`ceil(min_samples_split * n_samples)` are the minimum\nnumber of samples for each split.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_split",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 1,
+          "description": "The minimum number of samples required to be at a leaf node:\n\n- If int, then consider ``min_samples_leaf`` as the minimum number.\n- If float, then ``min_samples_leaf`` is a fraction and\n`ceil(min_samples_leaf * n_samples)` are the minimum\nnumber of samples for each node.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n.. deprecated:: 0.20\nThe parameter ``min_samples_leaf`` is deprecated in version 0.20 and\nwill be fixed to a value of 1 in version 0.22. It was not effective\nfor regularization and empirically, 1 is the best value.\n",
+          "name": "min_samples_leaf",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 0.0,
+          "description": "The minimum weighted fraction of the sum total of weights (of all\nthe input samples) required to be at a leaf node. Samples have\nequal weight when sample_weight is not provided.\n\n.. deprecated:: 0.20\nThe parameter ``min_weight_fraction_leaf`` is deprecated in version\n0.20. Its implementation, like ``min_samples_leaf``, is ineffective\nfor regularization.\n",
+          "name": "min_weight_fraction_leaf",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": null,
+          "description": "The number of features to consider when looking for the best split:\n\n- If int, then consider `max_features` features at each split.\n- If float, then `max_features` is a fraction and\n`int(max_features * n_features)` features are considered at each\nsplit.\n- If \"auto\", then `max_features=sqrt(n_features)`.\n- If \"sqrt\", then `max_features=sqrt(n_features)`.\n- If \"log2\", then `max_features=log2(n_features)`.\n- If None, then `max_features=n_features`.\n\nNote: the search for a split does not stop until at least one\nvalid partition of the node samples is found, even if it requires to\neffectively inspect more than ``max_features`` features.\n",
+          "name": "max_features",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "None",
+          "description": "Grow a tree with ``max_leaf_nodes`` in best-first fashion.\nBest nodes are defined as relative reduction in impurity.\nIf None then unlimited number of leaf nodes.\n",
+          "name": "max_leaf_nodes",
+          "option": "optional"
+        },
+        {
+          "default": 0.0,
+          "description": "A node will be split if this split induces a decrease of the impurity\ngreater than or equal to this value.\n\nThe weighted impurity decrease equation is the following::\n\nN_t / N * (impurity - N_t_R / N_t * right_impurity\n- N_t_L / N_t * left_impurity)\n\nwhere ``N`` is the total number of samples, ``N_t`` is the number of\nsamples at the current node, ``N_t_L`` is the number of samples in the\nleft child, and ``N_t_R`` is the number of samples in the right child.\n\n``N``, ``N_t``, ``N_t_R`` and ``N_t_L`` all refer to the weighted sum,\nif ``sample_weight`` is passed.\n\n.. versionadded:: 0.19\n",
+          "name": "min_impurity_decrease",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "name": "min_impurity_split",
+          "type": "float32"
+        },
+        {
+          "default": "None",
+          "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one. For\nmulti-output problems, a list of dicts can be provided in the same\norder as the columns of y.\n\nNote that for multioutput (including multilabel) weights should be\ndefined for each class of every column in its own dict. For example,\nfor four-class multilabel classification weights should be\n[{0: 1, 1: 1}, {0: 1, 1: 5}, {0: 1, 1: 1}, {0: 1, 1: 1}] instead of\n[{1:1}, {2:5}, {3:1}, {4:1}].\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n\nFor multi-output, the weights of each column of y will be multiplied.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n",
+          "name": "class_weight"
+        },
+        {
+          "default": false,
+          "description": "Whether to presort the data to speed up the finding of best splits in\nfitting. For the default settings of a decision tree on large\ndatasets, setting this to true may slow down the training process.\nWhen using either a smaller dataset or a restricted depth, this may\nspeed up the training.\n",
+          "name": "presort",
+          "option": "optional",
+          "type": "boolean"
+        }
+      ],
+      "description": "A decision tree classifier.\n\nRead more in the :ref:`User Guide <tree>`.\n",
+      "package": "sklearn.tree.tree"
+    }
+  },
+  {
+    "name": "RandomForestClassifier",
+    "schema": {
+      "attributes": [
+        {
+          "default": "10",
+          "description": "The number of trees in the forest.\n\n.. versionchanged:: 0.20\nThe default value of ``n_estimators`` will change from 10 in\nversion 0.20 to 100 in version 0.22.\n",
+          "name": "n_estimators",
+          "option": "optional"
+        },
+        {
+          "default": "gini",
+          "description": "The function to measure the quality of a split. Supported criteria are\n\"gini\" for the Gini impurity and \"entropy\" for the information gain.\nNote: this parameter is tree-specific.\n",
+          "name": "criterion",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": "auto",
+          "description": "The number of features to consider when looking for the best split:\n\n- If int, then consider `max_features` features at each split.\n- If float, then `max_features` is a fraction and\n`int(max_features * n_features)` features are considered at each\nsplit.\n- If \"auto\", then `max_features=sqrt(n_features)`.\n- If \"sqrt\", then `max_features=sqrt(n_features)` (same as \"auto\").\n- If \"log2\", then `max_features=log2(n_features)`.\n- If None, then `max_features=n_features`.\n\nNote: the search for a split does not stop until at least one\nvalid partition of the node samples is found, even if it requires to\neffectively inspect more than ``max_features`` features.\n",
+          "name": "max_features",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "None",
+          "description": "The maximum depth of the tree. If None, then nodes are expanded until\nall leaves are pure or until all leaves contain less than\nmin_samples_split samples.\n",
+          "name": "max_depth",
+          "option": "optional"
+        },
+        {
+          "default": 2,
+          "description": "The minimum number of samples required to split an internal node:\n\n- If int, then consider ``min_samples_split`` as the minimum number.\n- If float, then ``min_samples_split`` is a fraction and\n`ceil(min_samples_split * n_samples)` are the minimum\nnumber of samples for each split.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_split",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 1,
+          "description": "The minimum number of samples required to be at a leaf node:\n\n- If int, then consider ``min_samples_leaf`` as the minimum number.\n- If float, then ``min_samples_leaf`` is a fraction and\n`ceil(min_samples_leaf * n_samples)` are the minimum\nnumber of samples for each node.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n.. deprecated:: 0.20\nThe parameter ``min_samples_leaf`` is deprecated in version 0.20 and\nwill be fixed to a value of 1 in version 0.22. It was not effective\nfor regularization and empirically, 1 is the best value.\n",
+          "name": "min_samples_leaf",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 0.0,
+          "description": "The minimum weighted fraction of the sum total of weights (of all\nthe input samples) required to be at a leaf node. Samples have\nequal weight when sample_weight is not provided.\n\n.. deprecated:: 0.20\nThe parameter ``min_weight_fraction_leaf`` is deprecated in version\n0.20. Its implementation, like ``min_samples_leaf``, is ineffective\nfor regularization.\n",
+          "name": "min_weight_fraction_leaf",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": "None",
+          "description": "Grow trees with ``max_leaf_nodes`` in best-first fashion.\nBest nodes are defined as relative reduction in impurity.\nIf None then unlimited number of leaf nodes.\n",
+          "name": "max_leaf_nodes",
+          "option": "optional"
+        },
+        {
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "name": "min_impurity_split",
+          "type": "float32"
+        },
+        {
+          "default": 0.0,
+          "description": "A node will be split if this split induces a decrease of the impurity\ngreater than or equal to this value.\n\nThe weighted impurity decrease equation is the following::\n\nN_t / N * (impurity - N_t_R / N_t * right_impurity\n- N_t_L / N_t * left_impurity)\n\nwhere ``N`` is the total number of samples, ``N_t`` is the number of\nsamples at the current node, ``N_t_L`` is the number of samples in the\nleft child, and ``N_t_R`` is the number of samples in the right child.\n\n``N``, ``N_t``, ``N_t_R`` and ``N_t_L`` all refer to the weighted sum,\nif ``sample_weight`` is passed.\n\n.. versionadded:: 0.19\n",
+          "name": "min_impurity_decrease",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "Whether bootstrap samples are used when building trees.\n",
+          "name": "bootstrap",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "description": "Whether to use out-of-bag samples to estimate\nthe generalization accuracy.\n",
+          "name": "oob_score",
+          "type": "boolean"
+        },
+        {
+          "default": "None",
+          "description": "The number of jobs to run in parallel for both `fit` and `predict`.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+          "name": "n_jobs",
+          "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 0,
+          "description": "Controls the verbosity when fitting and predicting.\n",
+          "name": "verbose",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": false,
+          "description": "When set to ``True``, reuse the solution of the previous call to fit\nand add more estimators to the ensemble, otherwise, just fit a whole\nnew forest. See :term:`the Glossary <warm_start>`.\n",
+          "name": "warm_start",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": "None",
+          "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one. For\nmulti-output problems, a list of dicts can be provided in the same\norder as the columns of y.\n\nNote that for multioutput (including multilabel) weights should be\ndefined for each class of every column in its own dict. For example,\nfor four-class multilabel classification weights should be\n[{0: 1, 1: 1}, {0: 1, 1: 5}, {0: 1, 1: 1}, {0: 1, 1: 1}] instead of\n[{1:1}, {2:5}, {3:1}, {4:1}].\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n\nThe \"balanced_subsample\" mode is the same as \"balanced\" except that\nweights are computed based on the bootstrap sample for every tree\ngrown.\n\nFor multi-output, the weights of each column of y will be multiplied.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n",
+          "name": "class_weight",
+          "option": "optional"
+        }
+      ],
+      "description": "A random forest classifier.\n\nA random forest is a meta estimator that fits a number of decision tree\nclassifiers on various sub-samples of the dataset and uses averaging to\nimprove the predictive accuracy and control over-fitting.\nThe sub-sample size is always the same as the original\ninput sample size but the samples are drawn with replacement if\n`bootstrap=True` (default).\n\nRead more in the :ref:`User Guide <forest>`.\n",
+      "package": "sklearn.ensemble.forest"
     }
   }
 ]

@@ -31,5 +31,8 @@ ${tools}/metadata/onnx-update
 echo "Update TensorFlow Lite"
 ${tools}/metadata/tflite-update
 
+echo "Update scikit-learn"
+${tools}/metadata/sklearn-update
+
 echo "Update PyTorch"
 ${tools}/metadata/pytorch-update

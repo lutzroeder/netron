@@ -21,20 +21,23 @@ class SklearnModelFactor {
 
                 var functionTable = {};
 
-                functionTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
-                functionTable['sklearn.naive_bayes.GaussianNB'] = function() {};
-                functionTable['sklearn.preprocessing.data.Binarizer'] = function() {};
-                functionTable['sklearn.svm.classes.SVC'] = function() {};
                 functionTable['numpy.dtype'] = function(obj, align, copy) { 
                     switch (obj) {
                         case 'i4': this.name = 'int32'; this.itemsize = 4; break;
                         case 'i8': this.name = 'int64'; this.itemsize = 8; break;
                         case 'f4': this.name = 'float32'; this.itemsize = 4; break;
                         case 'f8': this.name = 'float64'; this.itemsize = 8; break;
-                        default: throw new SklearnError("Unknown dtype '" + obj.toString() + "'.");
+                        default:
+                            if (obj.startsWith('V')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'void' + (this.itemsize * 8).toString();                                      
+                            }
+                            else {
+                                debugger;
+                                throw new SklearnError("Unknown dtype '" + obj.toString() + "'.");
+                            }
+                            break;
                     }
-
-                    this.obj = obj;
                     this.align = align;
                     this.copy = copy;
                     this.__setstate__ = function(state) {
@@ -42,7 +45,12 @@ class SklearnModelFactor {
                             case 8:
                                 this.version = state[0];
                                 this.byteorder = state[1];
-                                // &subarray, &names, &fields, &elsize, &alignment, &int_dtypeflags
+                                this.subarray = state[2];
+                                this.names = state[3];
+                                this.fields = state[4];
+                                this.elsize = state[5];
+                                this.alignment = state[6];
+                                this.int_dtypeflags = state[7];
                                 break;
                             default:
                                 throw new pickle.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
@@ -61,6 +69,10 @@ class SklearnModelFactor {
                         this.rawdata = state[4];
                     };
                 };
+                functionTable['numpy.core.multiarray.scalar'] = function(dtype, obj) {
+                    this.dtype = dtype;
+                    debugger;
+                };
                 functionTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(subtype, shape, dtype) {
                     this.__setstate__ = function(state, reader) {
                         this.subclass = state.subclass;
@@ -75,6 +87,31 @@ class SklearnModelFactor {
                         this.data = reader.readBytes(size);
                     };
                 };
+                functionTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = functionTable['joblib.numpy_pickle.NumpyArrayWrapper'];
+                functionTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
+                    this.n_features = n_features;
+                    this.n_classes = n_classes;
+                    this.n_outputs = n_outputs;
+                    this.__setstate__ = function(state) {
+                        this.max_depth = state.max_depth;
+                        this.node_count = state.node_count;
+                        this.nodes = state.nodes;
+                        this.values = state.values;
+                    };
+                };
+                functionTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
+                functionTable['sklearn.naive_bayes.GaussianNB'] = function() {};
+                functionTable['sklearn.preprocessing.data.Binarizer'] = function() {};
+                functionTable['sklearn.svm.classes.SVC'] = function() {};
+                functionTable['sklearn.tree.tree.DecisionTreeClassifier'] = function() {};
+                functionTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
+                functionTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
+                functionTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {
+                    this.__setstate__ = function(dict) {
+                        debugger;
+                    };
+                };
+                functionTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
 
                 var function_call = (name, args) => {
                     if (name == 'copy_reg._reconstructor' && args[1] == '__builtin__.object') {
@@ -97,6 +134,7 @@ class SklearnModelFactor {
             }
             catch (error) {
                 callback(error);
+                return;
             }
 
             try {
@@ -107,6 +145,7 @@ class SklearnModelFactor {
             }
             catch (error) {
                 callback(new SklearnError(error.message), null);
+                return;
             }
         });
     }
@@ -169,14 +208,14 @@ class SklearnNode {
                     var name = key.substring(0, key.length - 1);
                     var value = obj[key];
                     if (Array.isArray(value) || Number.isInteger(value)) {
-                        this._attributes.push(new SklearnAttribute(name, value));
+                        this._attributes.push(new SklearnAttribute(this, name, value));
                     }
                     else {
                         this._initializers.push(new SklearnTensor(name, value));
                     }
                 }
                 else {
-                    this._attributes.push(new SklearnAttribute(key, obj[key]));
+                    this._attributes.push(new SklearnAttribute(this, key, obj[key]));
                 }
             }
         });
@@ -184,6 +223,10 @@ class SklearnNode {
 
     get operator() {
         return this._operator;
+    }
+
+    get documentation() {
+        return SklearnOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
     }
 
     get inputs() {
@@ -211,7 +254,8 @@ class SklearnNode {
 
 class SklearnAttribute {
 
-    constructor(name, value) {
+    constructor(node, name, value) {
+        this._node = node;
         this._name = name;
         this._value = value;
     }
@@ -225,7 +269,7 @@ class SklearnAttribute {
     }
 
     get visible() {
-        return true;
+        return SklearnOperatorMetadata.operatorMetadata.getAttributeVisible(this._node.operator, this._name, this._value);
     }
 }
 
@@ -236,6 +280,7 @@ class SklearnTensor {
 
         switch (value.__type__) {
             case 'joblib.numpy_pickle.NumpyArrayWrapper':
+            case 'sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper':
                 this._kind = 'NumpyArrayWrapper';
                 this._type = new SklearnTensorType(value.dtype.name, value.shape);
                 this._data = value.data;
@@ -454,6 +499,47 @@ class SklearnOperatorMetadata {
         }
     }
 
+    getOperatorDocumentation(operator) {
+        var schema = this._map[operator];
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            if (schema.references) {
+                schema.references.forEach((reference) => {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                });
+            }
+            return schema;
+        }
+        return '';
+    }
+
     getAttributeVisible(operator, attributeName, attributeValue) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
@@ -465,6 +551,11 @@ class SklearnOperatorMetadata {
             }
             var attribute = schema.attributeMap[attributeName];
             if (attribute) {
+                if (attribute.hasOwnProperty('option')) {
+                    if (attribute.option == 'optional' && attributeValue == null) {
+                        return false;
+                    }
+                }
                 if (attribute.hasOwnProperty('visible')) {
                     return attribute.visible;
                 }
