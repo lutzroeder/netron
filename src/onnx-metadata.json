@@ -729,7 +729,7 @@
   {
     "name": "ArrayFeatureExtractor",
     "schema": {
-      "description": "Select a subset of the data X based on the indices provided Y.\n",
+      "description": "Select elements of the input tensor based on the indices passed.<br>\n    The indices are applied to the last axes of the tensor.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -738,7 +738,7 @@
           "type": "T"
         },
         {
-          "description": "The index values to select as a int64 tensor",
+          "description": "The indices, based on 0 as the first index of any dimension.",
           "name": "Y",
           "type": "tensor(int64)"
         }
@@ -765,7 +765,7 @@
             "tensor(int32)",
             "tensor(string)"
           ],
-          "description": "allowed types.",
+          "description": "The input must be a tensor of a numeric type or string. The output will be of the same tensor type.",
           "type_param_str": "T"
         }
       ]
@@ -1456,13 +1456,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "Values greater than this are set to 1, else set to 0",
+          "description": "Values greater than this are mapped to 1, others to 0.<br>The default threshold is 0.0.",
           "name": "threshold",
           "required": false,
           "type": "float"
         }
       ],
-      "description": "Makes values 1 or 0 based on a single threshold.\n",
+      "description": "Maps the values of the input tensor to either 0 or 1, element-wise, based on the outcome of a comparison against a threshold value.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -1492,7 +1492,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": "allowed types.",
+          "description": "The input must be a tensor of a numeric type. The output will be of the same tensor type.",
           "type_param_str": "T"
         }
       ]
@@ -1662,31 +1662,31 @@
       "attributes": [
         {
           "default": "TO_FLOAT",
-          "description": "what type of tensor to cast the input to, enum 'TO_FLOAT','TO_STRING','TO_INT64', default is 'TO_FLOAT'",
+          "description": "A string indicating the desired element type of the output tensor, one of 'TO_FLOAT', 'TO_STRING', 'TO_INT64'; the default is 'TO_FLOAT'",
           "name": "cast_to",
           "required": false,
           "type": "string"
         },
         {
           "default": "DENSE",
-          "description": "whether to only output as many values as are in the input, or position the input based on using the key of the map as the index of the output (sparse), enum 'DENSE', 'SPARSE', default is 'DENSE'",
+          "description": "Indicates whether to only output as many values as are in the input (dense), or position the input based on using the key of the map as the index of the output (sparse).<br>One of 'DENSE', 'SPARSE', default is 'DENSE'",
           "name": "map_form",
           "required": false,
           "type": "string"
         },
         {
           "default": 1,
-          "description": "if map_form packing is SPARSE, what is the total length of each output in N (max index value)",
+          "description": "If the value of map_form is 'SPARSE,' this attribute indicates the total length of the output tensor.<br>The default value is 1.",
           "name": "max_map",
           "required": false,
           "type": "int"
         }
       ],
-      "description": "Converts a map to a tensor.  Map key must be int64 and the values will be ordered\n    in ascending order based on this key.  Supports dense packing or sparse packing.\n    If using sparse packing, the key cannot exceed the max_map-1 value.\n",
+      "description": "Converts a map to a tensor.<br>The map key must be an int64 and the values will be ordered\n    in ascending order based on this key.<br>The operator supports dense packing or sparse packing.\n    If using sparse packing, the key cannot exceed the max_map-1 value.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be encoded",
+          "description": "The input map that is to be cast to a tensor",
           "name": "X",
           "type": "T1"
         }
@@ -1697,7 +1697,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "encoded output data",
+          "description": "A tensor representing the same data as the input map, ordered by their keys",
           "name": "Y",
           "type": "T2"
         }
@@ -1710,7 +1710,7 @@
             "map(int64, string)",
             "map(int64, float)"
           ],
-          "description": " allowed input types.",
+          "description": "The input must be an integer map to either string or float.",
           "type_param_str": "T1"
         },
         {
@@ -1719,7 +1719,7 @@
             "tensor(float)",
             "tensor(int64)"
           ],
-          "description": " allowed output types.",
+          "description": "The output is a 1-D tensor of string, float, or integer.",
           "type_param_str": "T2"
         }
       ]
@@ -1730,33 +1730,33 @@
     "schema": {
       "attributes": [
         {
-          "description": "ints part of the input map, must be same size and the strings",
+          "description": "The integers of the map. This sequence must be the same length as the 'cats_strings' sequence.",
           "name": "cats_int64s",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "strings part of the input map, must be same size and the ints",
+          "description": "The strings of the map. This sequence must be the same length as the 'cats_int64s' sequence",
           "name": "cats_strings",
           "required": false,
           "type": "string[]"
         },
         {
           "default": -1,
-          "description": "int value to use if the string is not in the map",
+          "description": "An integer to use when an input string value is not found in the map.<br>One and only one of the 'default_*' attributes must be defined.",
           "name": "default_int64",
           "required": false,
           "type": "int"
         },
         {
           "default": "_Unused",
-          "description": "string value to use if the int is not in the map",
+          "description": "A string to use when an input integer value is not found in the map.<br>One and only one of the 'default_*' attributes must be defined.",
           "name": "default_string",
           "required": false,
           "type": "string"
         }
       ],
-      "description": "Convert strings to int64s and vice versa.\n    Takes in a map to use for the conversion.\n    The index position in the strings and ints repeated inputs\n     is used to do the mapping.\n    Each instantiated operator converts either ints to strings or strings to ints.\n    This behavior is triggered based on which default value is set.\n    If the string default value is set, it will convert ints to strings.\n    If the int default value is set, it will convert strings to ints.\n",
+      "description": "Converts strings to integers and vice versa.<br>\n    Two sequences of equal length are used to map between integers and strings,\n    with strings and integers at the same index detailing the mapping.<br>\n    Each operator converts either integers to strings or strings to integers, depending \n    on which default value attribute is provided. Only one default value attribute\n    should be defined.<br>\n    If the string default value is set, it will convert integers to strings.\n    If the int default value is set, it will convert strings to integers.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -1771,7 +1771,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output data, if strings are input, then output is int64s, and vice versa.",
+          "description": "Output data. If strings are input, the output values are integers, and vice versa.",
           "name": "Y",
           "type": "T2"
         }
@@ -1784,7 +1784,7 @@
             "tensor(string)",
             "tensor(int64)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a tensor of strings or integers, either [N,C] or [C].",
           "type_param_str": "T1"
         },
         {
@@ -1792,7 +1792,7 @@
             "tensor(string)",
             "tensor(int64)"
           ],
-          "description": " allowed types.",
+          "description": "The output is a tensor of strings or integers. Its shape will be the same as the input shape.",
           "type_param_str": "T2"
         }
       ]
@@ -2669,23 +2669,23 @@
     "schema": {
       "attributes": [
         {
-          "description": "The vocabulary vector",
+          "description": "An integer vocabulary array.<br>One and only one of the vocabularies must be defined.",
           "name": "int64_vocabulary",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "The vocabulary vector",
+          "description": "A string vocabulary array.<br>One and only one of the vocabularies must be defined.",
           "name": "string_vocabulary",
           "required": false,
           "type": "string[]"
         }
       ],
-      "description": "Uses an index mapping to convert a dictionary to an array.\n    The output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the output array.\n    The position of the insertion is determined by the position of the item's key\n    in the index mapping. Any keys not present in the input dictionary, will be\n    zero in the output array.  Use either string_vocabulary or int64_vocabulary, not both.\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
+      "description": "Uses an index mapping to convert a dictionary to an array.<br>\n    Given a dictionary, each key is looked up in the vocabulary attribute corresponding to\n    the key type. The index into the vocabulary array at which the key is found is then\n    used to index the output 1-D tensor 'Y' and insert into it the value found in the dictionary 'X'.<br>\n    The key type of the input map must correspond to the element type of the defined vocabulary attribute.\n    Therefore, the output array will be equal in length to the index mapping vector parameter.\n    All keys in the input dictionary must be present in the index mapping vector.\n    For each item in the input dictionary, insert its value in the output array.\n    Any keys not present in the input dictionary, will be zero in the output array.<br>\n    For example: if the ``string_vocabulary`` parameter is set to ``[\"a\", \"c\", \"b\", \"z\"]``,\n    then an input of ``{\"a\": 4, \"c\": 8}`` will produce an output of ``[4, 8, 0, 0]``.\n    ",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "The input dictionary",
+          "description": "A dictionary.",
           "name": "X",
           "type": "T1"
         }
@@ -2696,7 +2696,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "The tensor",
+          "description": "A 1-D tensor holding values from the input dictionary.",
           "name": "Y",
           "type": "T2"
         }
@@ -2713,7 +2713,7 @@
             "map(string, float)",
             "map(string, double)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a map from strings or integers to either strings or a numeric type. The key and value types cannot be the same.",
           "type_param_str": "T1"
         },
         {
@@ -2723,7 +2723,7 @@
             "tensor(double)",
             "tensor(string)"
           ],
-          "description": " allowed types.",
+          "description": "The output will be a tensor of the value type of the input map. It's shape will be [1,C], where C is the length of the input dictionary.",
           "type_param_str": "T2"
         }
       ]
@@ -3564,17 +3564,17 @@
     "schema": {
       "attributes": [
         {
-          "description": "the size of each input in the input list",
+          "description": "The size of each input in the input list",
           "name": "inputdimensions",
           "required": false,
           "type": "int[]"
         }
       ],
-      "description": "Concatenates input features into one continuous output of floats.\n    inputdimensions is the size of each input feature.\n    Inputs will be written to the output in the order of the input arguments.\n    If an input tensor is shorter than its matching input dimension the output will be padded with zeros.\n    If an input tensor is longer than its matching input dimension, the additional input will be ignored.\n    Input tensors must all be of the same type. Use Cast as needed.  \n    Input tensors must all be of the same batch size.\n",
+      "description": "Concatenates input tensors into one continuous output.<br>\n    All input shapes are 2-D and are concatenated along the second dimention. 1-D tensors are treated as [1,C].\n    Inputs are copied to the output maintaining the order of the input arguments.<br>\n    All inputs must be integers or floats, while the output will be all floating point values.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "ordered input tensors",
+          "description": "An ordered collection of tensors, all with the same element type.",
           "name": "X",
           "option": "variadic",
           "type": "T1"
@@ -3586,7 +3586,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output array, in same order as Input, as floats",
+          "description": "The output array, elements ordered as the inputs.",
           "name": "Y",
           "type": "tensor(float)"
         }
@@ -3601,7 +3601,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": " Allowed input types",
+          "description": "The input type must be a tensor of a numeric type.",
           "type_param_str": "T1"
         }
       ]
@@ -5376,35 +5376,35 @@
     "schema": {
       "attributes": [
         {
-          "description": "value to change to",
+          "description": "Value(s) to change to",
           "name": "imputed_value_floats",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "value to change to",
+          "description": "Value(s) to change to.",
           "name": "imputed_value_int64s",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "value that needs replacing",
+          "description": "A value that needs replacing.",
           "name": "replaced_value_float",
           "required": false,
           "type": "float"
         },
         {
-          "description": "value that needs replacing",
+          "description": "A value that needs replacing.",
           "name": "replaced_value_int64",
           "required": false,
           "type": "int"
         }
       ],
-      "description": "Replace imputs that equal replaceValue/s  with  imputeValue/s.\n    All other inputs are copied to the output unchanged.\n    This op is used to replace missing values where we know what a missing value looks like.\n    Only one of imputed_value_floats or imputed_value_int64s should be used.\n    The size can be 1 element, which will be reused, or the size of the feature set F in input N,F\n",
+      "description": "Replaces inputs that equal one value with another, leaving all other elements alone.<br>\n    This operator is typically used to replace missing values in situations where they have a canonical\n    representation, such as -1, 0, NaN, or some extreme value.<br>\n    One and only one of imputed_value_floats or imputed_value_int64s should be defined -- floats if the input tensor\n    holds floats, integers if the input tensor holds integers. The imputed values must all fit within the\n    width of the tensor element type. One and only one of the replaced_value_float or replaced_value_int64 should be defined,\n    which one depends on whether floats or integers are being processed.<br>\n    The imputed_value attribute length can be 1 element, or it can have one element per input feature.<br>In other words, if the input tensor has the shape [*,F], then the length of the attribute array may be 1 or F. If it is 1, then it is broadcast along the last dimension and applied to each feature.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be imputed",
+          "description": "Data to be processed.",
           "name": "X",
           "type": "T"
         }
@@ -5430,7 +5430,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input type must be a tensor of a numeric type, either [N,C] or [C]. The output type will be of the same tensor type and shape.",
           "type_param_str": "T"
         }
       ]
@@ -5975,31 +5975,31 @@
     "schema": {
       "attributes": [
         {
-          "description": "List of class label strings to be encoded as int64s",
+          "description": "A list of labels.",
           "name": "classes_strings",
           "required": false,
           "type": "string[]"
         },
         {
           "default": -1,
-          "description": "Default value if not in class list as int64",
+          "description": "An integer to use when an input string value is not found in the map.<br>One and only one of the 'default_*' attributes must be defined.",
           "name": "default_int64",
           "required": false,
           "type": "int"
         },
         {
           "default": "_Unused",
-          "description": "Default value if not in class list as string",
+          "description": "A string to use when an input integer value is not found in the map.<br>One and only one of the 'default_*' attributes must be defined.",
           "name": "default_string",
           "required": false,
           "type": "string"
         }
       ],
-      "description": "Convert class label to their integral type and vice versa.\n    In both cases the operator is instantiated with the list of class strings.\n    The integral value of the string is the index position in the list.\n",
+      "description": "Converts strings to integers and vice versa.<br>\n    If the string default value is set, it will convert integers to strings.\n    If the int default value is set, it will convert strings to integers.<br>\n    Each operator converts either integers to strings or strings to integers, depending \n    on which default value attribute is provided. Only one default value attribute\n    should be defined.<br>\n    When converting from integers to strings, the string is fetched from the\n    'classes_strings' list, by simple indexing.<br>\n    When converting from strings to integers, the string is looked up in the list\n    and the index at which it is found is used as the converted value.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be encoded",
+          "description": "Input data.",
           "name": "X",
           "type": "T1"
         }
@@ -6010,7 +6010,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Encoded output data",
+          "description": "Output data. If strings are input, the output values are integers, and vice versa.",
           "name": "Y",
           "type": "T2"
         }
@@ -6023,7 +6023,7 @@
             "tensor(string)",
             "tensor(int64)"
           ],
-          "description": " allowed types.",
+          "description": "The input type must be a tensor of integers or strings, of any shape.",
           "type_param_str": "T1"
         },
         {
@@ -6031,7 +6031,7 @@
             "tensor(string)",
             "tensor(int64)"
           ],
-          "description": " allowed types.",
+          "description": "The output type will be a tensor of strings or integers, and will have the same shape as the input.",
           "type_param_str": "T2"
         }
       ]
@@ -6300,48 +6300,48 @@
     "schema": {
       "attributes": [
         {
-          "description": "class labels if using int labels",
+          "description": "Class labels when using integer labels. One and only one 'classlabels' attribute must be defined.",
           "name": "classlabels_ints",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "class labels if using string labels",
+          "description": "Class labels when using string labels. One and only one 'classlabels' attribute must be defined.",
           "name": "classlabels_strings",
           "required": false,
           "type": "string[]"
         },
         {
-          "description": "weights of the model(s)",
+          "description": "A collection of weights of the model(s).",
           "name": "coefficients",
           "required": true,
           "type": "float[]"
         },
         {
-          "description": "weights of the intercepts (if used)",
+          "description": "A collection of intercepts.",
           "name": "intercepts",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "whether to do OvR or multinomial (0=OvR and is default)",
+          "description": "Indicates whether to do OvR or multinomial (0=OvR is the default).",
           "name": "multi_class",
           "required": false,
           "type": "int"
         },
         {
           "default": "NONE",
-          "description": "enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
+          "description": "Indicates the transform to apply to the scores vector.<br>One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT'",
           "name": "post_transform",
           "required": false,
           "type": "string"
         }
       ],
-      "description": "Linear classifier prediction (choose class)\n",
+      "description": "Linear classifier\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be classified",
+          "description": "Data to be classified.",
           "name": "X",
           "type": "T1"
         }
@@ -6352,12 +6352,12 @@
       "min_output": 2,
       "outputs": [
         {
-          "description": "Classification outputs (one class per example",
+          "description": "Classification outputs (one class per example).",
           "name": "Y",
           "type": "T2"
         },
         {
-          "description": "Classification scores (N,E - one score for each class, for each example",
+          "description": "Classification scores ([N,E] - one score for each class and example",
           "name": "Z",
           "type": "tensor(float)"
         }
@@ -6372,7 +6372,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a tensor of a numeric type, and of of shape [N,C] or [C]. In the latter case, it will be treated as [1,C]",
           "type_param_str": "T1"
         },
         {
@@ -6380,7 +6380,7 @@
             "tensor(string)",
             "tensor(int64)"
           ],
-          "description": " allowed types.",
+          "description": "The output will be a tensor of strings or integers.",
           "type_param_str": "T2"
         }
       ]
@@ -6391,37 +6391,37 @@
     "schema": {
       "attributes": [
         {
-          "description": "weights of the model(s)",
+          "description": "Weights of the model(s).",
           "name": "coefficients",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "weights of the intercepts (if used)",
+          "description": "Weights of the intercepts, if used.",
           "name": "intercepts",
           "required": false,
           "type": "float[]"
         },
         {
           "default": "NONE",
-          "description": "enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
+          "description": "Indicates the transform to apply to the regression output vector.<br>One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT'",
           "name": "post_transform",
           "required": false,
           "type": "string"
         },
         {
           "default": 1,
-          "description": "total number of regression targets (default is 1)",
+          "description": "The total number of regression targets, 1 if not defined.",
           "name": "targets",
           "required": false,
           "type": "int"
         }
       ],
-      "description": "Generalized linear regression evaluation.\n    If targets is set to 1 (default) then univariate regression is performed.\n    If targets is set to M then M sets of coefficients must be passed in as a sequence\n    and M results will be output for each input n in N.\n    Coefficients are of the same length as an n, and coefficients for each target are contiguous.\n    Intercepts are optional but if provided must match the number of targets.\n",
+      "description": "Generalized linear regression evaluation.<br>\n    If targets is set to 1 (default) then univariate regression is performed.<br>\n    If targets is set to M then M sets of coefficients must be passed in as a sequence\n    and M results will be output for each input n in N.<br>\n    The coefficients array is of length n, and the coefficients for each target are contiguous.\n    Intercepts are optional but if provided must match the number of targets.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be regressed",
+          "description": "Data to be regressed.",
           "name": "X",
           "type": "T"
         }
@@ -6432,7 +6432,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Regression outputs (one per target, per example",
+          "description": "Regression outputs (one per target, per example).",
           "name": "Y",
           "type": "tensor(float)"
         }
@@ -6447,7 +6447,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a tensor of a numeric type.",
           "type_param_str": "T"
         }
       ]
@@ -8108,17 +8108,17 @@
       "attributes": [
         {
           "default": "MAX",
-          "description": "enum 'MAX', 'L1', 'L2'",
+          "description": "One of 'MAX,' 'L1,' 'L2'",
           "name": "norm",
           "required": false,
           "type": "string"
         }
       ],
-      "description": "Normalize the input.  There are three normalization modes,\n    which have the corresponding formulas:\n    Max .. math::     max(x_i)\n    L1  .. math::  z = ||x||_1 = \\sum_{i=1}^{n} |x_i|\n    L2  .. math::  z = ||x||_2 = \\sqrt{\\sum_{i=1}^{n} x_i^2}\n",
+      "description": "Normalize the input.  There are three normalization modes, which have the corresponding formulas,\n    defined using element-wise infix operators '/' and '^' and tensor-wide functions 'max' and 'sum':<br>\n<br>\n    Max: Y = X / max(X)<br>\n    L1:  Y = X / sum(X)<br>\n    L2:  Y = sqrt(X^2 / sum(X^2)}<br>\n    In all modes, if the divisor is zero, Y == X.\n<br>\n    For batches, that is, [N,C] tensors, normalization is done along the C axis. In other words, each row\n    of the batch is normalized independently.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be encoded",
+          "description": "Data to be encoded, a tensor of shape [N,C] or [C]",
           "name": "X",
           "type": "T"
         }
@@ -8129,7 +8129,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "encoded output data",
+          "description": "Encoded output data",
           "name": "Y",
           "type": "tensor(float)"
         }
@@ -8144,7 +8144,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a tensor of a numeric type.",
           "type_param_str": "T"
         }
       ]
@@ -8198,30 +8198,30 @@
     "schema": {
       "attributes": [
         {
-          "description": "list of categories, ints",
+          "description": "List of categories, ints.<br>One and only one of the 'cats_*' attributes must be defined.",
           "name": "cats_int64s",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "list of categories, strings",
+          "description": "List of categories, strings.<br>One and only one of the 'cats_*' attributes must be defined.",
           "name": "cats_strings",
           "required": false,
           "type": "string[]"
         },
         {
           "default": 1,
-          "description": "if true and category is not present, will return all zeros, if false and missing category, operator will return false. Default is true (1).",
+          "description": "If true and category is not present, will return all zeros; if false and a category if not found, the operator will fail.",
           "name": "zeros",
           "required": false,
           "type": "int"
         }
       ],
-      "description": "Replace the inputs with an array of ones and zeros, where the only\n    one is the zero-based category that was passed in.  The total category count\n    will determine the length of the vector. For example if we pass a\n    tensor with a single value of 4, and a category count of 8, the\n    output will be a tensor with 0,0,0,0,1,0,0,0 .\n\n    This operator assumes every input in X is of the same category set\n    (meaning there is only one category count).\n\n    If the input is a tensor of float, int32, or double, the data will be cast\n    to int64s and the cats_int64s category list will be used for the lookups.\n",
+      "description": "Replace each input element with an array of ones and zeros, where a single\n    one is placed at the index of the category that was passed in. The total category count \n    will determine the size of the extra dimension of the output array Y.<br>\n    For example, if we pass a tensor with a single value of 4, and a category count of 8, \n    the output will be a tensor with ``[0,0,0,0,1,0,0,0]``.<br>\n    This operator assumes every input feature is from the same set of categories.<br>\n\tIf the input is a tensor of float, int32, or double, the data will be cast\n    to integers and the cats_int64s category list will be used for the lookups.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be encoded",
+          "description": "Data to be encoded.",
           "name": "X",
           "type": "T"
         }
@@ -8232,7 +8232,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "encoded output data",
+          "description": "Encoded output data, having one more dimension than X.",
           "name": "Y",
           "type": "tensor(float)"
         }
@@ -8248,7 +8248,7 @@
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a tensor of a numeric type.",
           "type_param_str": "T"
         }
       ]
@@ -10470,13 +10470,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "class labels if using int labels",
+          "description": "Class labels if using integer labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_ints",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "class labels if using string labels",
+          "description": "Class labels if using string labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_strings",
           "required": false,
           "type": "string[]"
@@ -10488,33 +10488,33 @@
           "type": "float[]"
         },
         {
-          "description": "Tensor of 3 elements containing gamma, coef0, degree in that order.  Zero if unused for the kernel.",
+          "description": "List of 3 elements containing gamma, coef0, and degree, in that order. Zero if unused for the kernel.",
           "name": "kernel_params",
           "required": false,
           "type": "float[]"
         },
         {
           "default": "LINEAR",
-          "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
+          "description": "The kernel type, one of 'LINEAR,' 'POLY,' 'RBF,' 'SIGMOID. The default is 'LINEAR.'",
           "name": "kernel_type",
           "required": false,
           "type": "string"
         },
         {
           "default": "NONE",
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
+          "description": "Indicates the transform to apply to the score. <br>One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT'",
           "name": "post_transform",
           "required": false,
           "type": "string"
         },
         {
-          "description": "First set of probability coefficients",
+          "description": "First set of probability coefficients.",
           "name": "prob_a",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "Second set of probability coefficients, must be same size as prob_a, if these are provided then output Z are probability estimates.",
+          "description": "Second set of probability coefficients. This array must be same size as prob_a.<br>If these are provided then output Z are probability estimates, otherwise they are raw scores.",
           "name": "prob_b",
           "required": false,
           "type": "float[]"
@@ -10538,11 +10538,11 @@
           "type": "int[]"
         }
       ],
-      "description": "SVM classifier prediction\n",
+      "description": "Support Vector Machine classifier\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be classified",
+          "description": "Data to be classified.",
           "name": "X",
           "type": "T1"
         }
@@ -10553,12 +10553,12 @@
       "min_output": 2,
       "outputs": [
         {
-          "description": "Classification outputs (one class per example)",
+          "description": "Classification outputs (one class per example).",
           "name": "Y",
           "type": "T2"
         },
         {
-          "description": "Class scores (one per class per example), if prob_a and prob_b are provided they are probabilities for each class otherwise they are raw scores.",
+          "description": "Class scores (one per class per example), if prob_a and prob_b are provided they are probabilities for each class, otherwise they are raw scores.",
           "name": "Z",
           "type": "tensor(float)"
         }
@@ -10573,7 +10573,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a tensor of a numeric type, either [C] or [N,C].",
           "type_param_str": "T1"
         },
         {
@@ -10581,7 +10581,7 @@
             "tensor(string)",
             "tensor(int64)"
           ],
-          "description": " allowed types.",
+          "description": "The output type will be a tensor of strings or integers, depending on which of the the classlabels_* attributes is used. Its size will match the bactch size of the input.",
           "type_param_str": "T2"
         }
       ]
@@ -10592,39 +10592,39 @@
     "schema": {
       "attributes": [
         {
-          "description": "support vector coefficients",
+          "description": "Support vector coefficients.",
           "name": "coefficients",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "Tensor of 3 elements containing gamma, coef0, degree in that order.  Zero if unused for the kernel.",
+          "description": "List of 3 elements containing gamma, coef0, and degree, in that order. Zero if unused for the kernel.",
           "name": "kernel_params",
           "required": false,
           "type": "float[]"
         },
         {
           "default": "LINEAR",
-          "description": "enum LINEAR, POLY, RBF, SIGMOID, defaults to linear",
+          "description": "The kernel type, one of 'LINEAR,' 'POLY,' 'RBF,' 'SIGMOID. The default is 'LINEAR.'",
           "name": "kernel_type",
           "required": false,
           "type": "string"
         },
         {
-          "description": "number of support vectors",
+          "description": "The number of support vectors.",
           "name": "n_supports",
           "required": false,
           "type": "int"
         },
         {
-          "description": "bool whether the regression is a one class svm or not, defaults to false",
+          "description": "Flag indicating whether the regression is a one-class SVM or not. The default is false.",
           "name": "one_class",
           "required": false,
           "type": "int"
         },
         {
           "default": "NONE",
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
+          "description": "Indicates the transform to apply to the score. <br>One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT.'",
           "name": "post_transform",
           "required": false,
           "type": "string"
@@ -10636,17 +10636,17 @@
           "type": "float[]"
         },
         {
-          "description": "chosen support vectors",
+          "description": "Chosen support vectors",
           "name": "support_vectors",
           "required": false,
           "type": "float[]"
         }
       ],
-      "description": "SVM regression prediction and one-class svm anomaly detection\n",
+      "description": "Support Vector Machine regression prediction and one-class SVM anomaly detection.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be regressed",
+          "description": "Data to be regressed.",
           "name": "X",
           "type": "T"
         }
@@ -10657,7 +10657,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Regression outputs (one score per target per example)",
+          "description": "Regression outputs (one score per target per example).",
           "name": "Y",
           "type": "tensor(float)"
         }
@@ -10672,7 +10672,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input type must be a tensor of a numeric type, either [C] or [N,C].",
           "type_param_str": "T"
         }
       ]
@@ -10782,13 +10782,13 @@
     "schema": {
       "attributes": [
         {
-          "description": "first, offset by this, must be same length as scale",
+          "description": "First, offset by this.<br>Can be length of features in an [N,F] tensor or length 1, in which case it applies to all features, regardless of dimension count.",
           "name": "offset",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "second, multiply by this, can be length of features or length 1",
+          "description": "Second, multiply by this.<br>Can be length of features in an [N,F] tensor or length 1, in which case it applies to all features, regardless of dimension count.<br>Must be same length as 'offset'",
           "name": "scale",
           "required": false,
           "type": "float[]"
@@ -10798,7 +10798,7 @@
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Data to be scaled",
+          "description": "Data to be scaled.",
           "name": "X",
           "type": "T"
         }
@@ -10809,7 +10809,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Scaled output data",
+          "description": "Scaled output data.",
           "name": "Y",
           "type": "tensor(float)"
         }
@@ -10824,7 +10824,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input must be a tensor of a numeric type.",
           "type_param_str": "T"
         }
       ]
@@ -10853,7 +10853,7 @@
           "type": "int"
         }
       ],
-      "description": "Scan can be used to iterate over (specified axes of) one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
+      "description": "Scan can be used to iterate over one or more scan_input tensors,\nconstructing zero or more scan_output tensors. It combines ideas from general recurrences,\nfunctional programming constructs such as scan, fold, map, and zip and is intended to enable\ngeneralizations of RNN-like constructs for sequence-to-sequence processing.\nOther tensors (referred to as state_variables here) can be used to carry a state\nwhen iterating from one element to another (similar to hidden-state in RNNs, also referred\nto as loop-carried dependences in the context of loops). All these tensors are required to\nhave the same shape in each iteration of the loop (a restriction imposed to enable efficient\nmemory allocation). Many common usages involve a single scan_input tensor (where functionality\nsimilar to scan, fold and map can be obtained). When more than one scan_input is used,\na behavior similar to zip is obtained.\n\nThe attribute body must be a graph, specifying the computation to be performed in\nevery iteration. It takes as input the current values of the state_variables and\nthe current iterated element of the scan_inputs. It must return the (updated) values\nof the state_variables and zero or more scan_output_element tensors. The values of the\nscan_output_element tensors are concatenated over all the iterations to produce the\nscan_output values of the scan construct (similar to the concatenated intermediate\nhidden-state values of RNN-like constructs).\n\nThe scan operation returns the final values of the state_variables as well as the\nscan_outputs.\n\nThe operation supports batching, and the batch-axis is required to be 0.\nWhen multiple scan_input tensors are used, they must all have the same batch-size,\nand they must all have the same maximum-sequence-length (the dimensionality of the\nsequence axis or scan axis). The sequence axis or scan axis is required to be 1.\n\nThe operation has an optional sequence_lens input (of shape [BATCH_SIZE]) to\nallow variable length sequences of length <= the maximum-sequence-length. If this\ninput is not specified, all sequences are assumed to be of length equal to\nmaximum-sequence-length. For variable length input sequences, the scan_outputs\nwill consist of a sequence of same length as the input, padded to the\nmaximum-sequence-length.\n\nThe optional attribute directions can be used to scan a sequence in the reverse direction.\nIf this attribute is omitted, all sequences are scanned in the forward direction.\nA bidirectional scan be performed by specifying the same tensor input twice in the\nscan_inputs, once with a forward direction, and once with a backward direction.\n\nNote that because of the ONNX restriction that only the last parameter of an operator can\nbe variadic, the initial-states and scan-inputs are listed together as one input parameter.\nSimilarly, the final-states and scan-outputs are listed together as one output parameter.\nThe attribute num_scan_inputs indicates the number M of scan-inputs.\n\nThe behavior of\n\n    Scan <\n        num_scan_inputs = m,\n        body = loop-body\n    > (sequence_lengths, init_1, ..., init_n, scan_1, ..., scan_m)\n\nis equivalent to the following pseudo-code:\n\n    // T.shape[0] denotes the batch-size of T\n    // The batch-size of scan_1, ..., scan_m are all required to be equal\n    batch_size = scan_1.shape[0];\n\n    // scan_i.shape[1] denotes the (max) sequence-length of scan_i\n    // scan_i.shape[1] is required to be equal to scan_j.shape[1] for all i,j.\n    max_sequence_length = scan_1.shape[1];\n\n    for (int batch = 0; batch < batch_size; ++batch) {\n        // initialize state-variables\n        st_1 = init_1; ... st_n = init_n;\n        // initialize scan-output variables: [] denotes an empty tensor\n        scan_out_1 = []; ...; scan_out_k = [];\n        // identify number of iterations:\n        N = (sequence_lengths specified) ? sequence_lengths[batch] : max_sequence_length;\n\n        // execute loop\n        for (int t = 0; t < N; ++t) {\n            // generate the scan-input elements: the notation T<axis=k>[t] indicates the sub-tensor\n            // of rank one less than T obtained by indexing T at position t along axis k.\n            si_1 = (scan_1<axis=0>[batch])<axis=1>[t];\n            ... ;\n            si_m = (scan_m<axis=0>[batch])<axis=1>[t];\n            // execute loop-body\n            st_1, ..., st_n, so_1, ..., so_k = loop-body(st_1, ..., st_n, si_1, ..., si_m)\n            // accumulate the scan-output elements\n            scan_out_1 = Concat<axis=0>(scan_out_1, so_1); ... ; scan_out_k = Concat<axis=0>(scan_out_k, so_k);\n        }\n        // accumulate the outputs for this batch:\n        bst_1[batch] = st_1; ..., bst_n[batch] = st_n;\n        // Note scan-outputs will have size max_sequence_length, but only first N values will be meaningful.\n        // The remaining values have an undefined value.\n        b_scan_out_1[batch] = scan_out_1; ...; b_scan_out_k[batch] = scan_out_k;\n    }\n    return bst_1, ..., bst_n, b_scan_out_1, ..., b_scan_out_k;\n\n\n\n*Sample usage: Encoding RNN using a Scan*\nThe following example shows how a simple RNN over an input tensor %X, with weight tensor %Wi,\nrecurrence weight tensor %Ri, bias tensors %Wbi and %Rbi, and initial hidden-state %H_0 can\nbe encoded as a ScanLoop. Note that the loop-body is a nested graph, and it directly computes\n%Wi, %Ri, %Wbi, and %Rbi (typically constants or initializers in the body graph). If these\nvalues are computed in the outer graph, they need to be passed in as extra state_variables.\n\n    graph rnn-encoding {\n      %H_0 = ... \n      %X = ...\n      %Y_h, %Y = Scan[body = <graph rnn-cell-1>, num_scan_inputs=1](\"\", %H_0, %X)\n      return %Y, %Y_h\n    }\n\n    graph rnn-cell-1 (\n      %H_tminus1[FLOAT, tensor]\n      %X_t[FLOAT, tensor]\n    ) {\n      %Wi = ...\n      %Ri = ...\n      %Wbi = ...\n      %Rbi = ...\n      %t1 = X_t * (Wi^T)\n      %t2 = H_tminus1*(Ri^T)\n      %t3 = Add(%t1, %t2)\n      %t4 = Add(%t3, %Wbi)\n      %t5 = Add(%t4, %Rbi)\n      %Ht = Tanh(%t5)\n      %Accumulate = Identity(%Ht)\n      return %Ht, %Accumulate\n    }\n\n",
       "domain": "ai.onnx",
       "inputs": [
         {
@@ -12761,114 +12761,114 @@
     "schema": {
       "attributes": [
         {
-          "description": "base values for classification, added to final class score, size must be the same as classes or can be left unassigned (assumed 0)",
+          "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)",
           "name": "base_values",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "index of the class list that this weight is for",
+          "description": "The index of the class list that each weight is for.",
           "name": "class_ids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "node id that this weight is for",
+          "description": "node id that this weight is for.",
           "name": "class_nodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "tree that this node is in",
+          "description": "The id of the tree that this node is in.",
           "name": "class_treeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "the weight for the class in class_id",
+          "description": "The weight for the class in class_id.",
           "name": "class_weights",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "class labels if using int labels",
+          "description": "Class labels if using integer labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_int64s",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "class labels if using string labels",
+          "description": "Class labels if using string labels.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_strings",
           "required": false,
           "type": "string[]"
         },
         {
-          "description": "child node if expression is false",
+          "description": "Child node if expression is false.",
           "name": "nodes_falsenodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "feature id for this node",
+          "description": "Feature id for each node.",
           "name": "nodes_featureids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "",
+          "description": "Popularity of each node, used for performance and may be omitted.",
           "name": "nodes_hitrates",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "for each node, decide if the value is missing (nan) then use true branch, this field can be left unset and will assume false for all nodes",
+          "description": "For each node, define what to do in the presence of a missing value: if a value is missing (NaN), use the 'true' or 'false' branch based on the value in this array.<br>This attribute may be left undefined, and the defalt value is false (0) for all nodes.",
           "name": "nodes_missing_value_tracks_true",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "enum of behavior for this node 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'",
+          "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'",
           "name": "nodes_modes",
           "required": false,
           "type": "string[]"
         },
         {
-          "description": "node id for this node, node ids may restart at zero for each tree (but not required).",
+          "description": "Node id for each node. Ids may restart at zero for each tree, but it not required to.",
           "name": "nodes_nodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "tree id for this node",
+          "description": "Tree id for each node.",
           "name": "nodes_treeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "child node if expression is true",
+          "description": "Child node if expression is true.",
           "name": "nodes_truenodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "thresholds to do the splitting on for this node.",
+          "description": "Thresholds to do the splitting on for each node.",
           "name": "nodes_values",
           "required": false,
           "type": "float[]"
         },
         {
           "default": "NONE",
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
+          "description": "Indicates the transform to apply to the score. <br> One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT.'",
           "name": "post_transform",
           "required": false,
           "type": "string"
         }
       ],
-      "description": "Tree Ensemble classifier.  Returns the top class for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.\n    All fields prefixed with class_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.\n    It is expected that either classlabels_strings or classlabels_int64s\n    will be passed and the class_ids are an index into this list.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+      "description": "Tree Ensemble classifier.  Returns the top class for each of N inputs.<br>\n    The attributes named 'nodes_X' form a sequence of tuples, associated by \n    index into the sequences, which must all be of equal length. These tuples\n    define the nodes.<br>\n    Similarly, all fields prefixed with 'class_' are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated class_weights index.<br>\n    One and only one of classlabels_strings or classlabels_int64s\n    will be defined. The class_ids are indices into this list.\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Input N,F",
+          "description": "Input of shape [N,F]",
           "name": "X",
           "type": "T1"
         }
@@ -12884,7 +12884,7 @@
           "type": "T2"
         },
         {
-          "description": "N,E the class score for each class, for each point",
+          "description": "The class score for each class, for each point, a tensor of shape [N,E].",
           "name": "Z",
           "type": "tensor(float)"
         }
@@ -12899,7 +12899,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input type must be a tensor of a numeric type.",
           "type_param_str": "T1"
         },
         {
@@ -12907,7 +12907,7 @@
             "tensor(string)",
             "tensor(int64)"
           ],
-          "description": " allowed types.",
+          "description": "The output type will be a tensor of strings or integers, depending on which of the the classlabels_* attributes is used.",
           "type_param_str": "T2"
         }
       ]
@@ -12919,114 +12919,114 @@
       "attributes": [
         {
           "default": "SUM",
-          "description": " enum, how to aggregate leaf values within a target, AVERAGE,SUM,MIN,MAX",
+          "description": "Defines how to aggregate leaf values within a target. <br>One of 'AVERAGE,' 'SUM,' 'MIN,' 'MAX.'",
           "name": "aggregate_function",
           "required": false,
           "type": "string"
         },
         {
-          "description": "base values for regression, added to final score, size must be the same as n_outputs or can be left unassigned (assumed 0)",
+          "description": "Base values for classification, added to final class score; the size must be the same as the classes or can be left unassigned (assumed 0)",
           "name": "base_values",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "total number of targets",
+          "description": "The total number of targets.",
           "name": "n_targets",
           "required": false,
           "type": "int"
         },
         {
-          "description": "child node if expression is false",
+          "description": "Child node if expression is false",
           "name": "nodes_falsenodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "feature id for this node",
+          "description": "Feature id for each node.",
           "name": "nodes_featureids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "popularity of the node, used for performance and may be omitted",
+          "description": "Popularity of each node, used for performance and may be omitted.",
           "name": "nodes_hitrates",
           "required": false,
           "type": "float[]"
         },
         {
-          "description": "for each node, decide if the value is missing (nan) then use true branch, this field can be left unset and will assume false for all nodes",
+          "description": "For each node, define what to do in the presence of a NaN: use the 'true' (if the attribute value is 1) or 'false' (if the attribute value is 0) branch based on the value in this array.<br>This attribute may be left undefined and the defalt value is false (0) for all nodes.",
           "name": "nodes_missing_value_tracks_true",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "enum of behavior for this node as enum of BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF",
+          "description": "The node kind, that is, the comparison to make at the node. There is no comparison to make at a leaf node.<br>One of 'BRANCH_LEQ', 'BRANCH_LT', 'BRANCH_GTE', 'BRANCH_GT', 'BRANCH_EQ', 'BRANCH_NEQ', 'LEAF'",
           "name": "nodes_modes",
           "required": false,
           "type": "string[]"
         },
         {
-          "description": "node id for this node, node ids must restart at zero for each tree and increase sequentially.",
+          "description": "Node id for each node. Node ids must restart at zero for each tree and increase sequentially.",
           "name": "nodes_nodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "tree id for this node",
+          "description": "Tree id for each node.",
           "name": "nodes_treeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "child node if expression is true",
+          "description": "Child node if expression is true",
           "name": "nodes_truenodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "thresholds to do the splitting on for this node.",
+          "description": "Thresholds to do the splitting on for each node.",
           "name": "nodes_values",
           "required": false,
           "type": "float[]"
         },
         {
           "default": "NONE",
-          "description": "post eval transform for score, enum NONE, SOFTMAX, LOGISTIC, SOFTMAX_ZERO, PROBIT",
+          "description": "Indicates the transform to apply to the score. <br>One of 'NONE,' 'SOFTMAX,' 'LOGISTIC,' 'SOFTMAX_ZERO,' or 'PROBIT'",
           "name": "post_transform",
           "required": false,
           "type": "string"
         },
         {
-          "description": "index of the class list that this weight is for",
+          "description": "The index of the target that each weight is for",
           "name": "target_ids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "node id that this weight is for",
+          "description": "The node id of each weight",
           "name": "target_nodeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "tree that this node is in",
+          "description": "The id of the tree that each node is in.",
           "name": "target_treeids",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "the weight for the class in target_id",
+          "description": "The weight for each target",
           "name": "target_weights",
           "required": false,
           "type": "float[]"
         }
       ],
-      "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.\n    All fields prefixed with target_ are tuples of votes at the leaves.\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.\n    All trees must have their node ids start at 0 and increment by 1.\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
+      "description": "Tree Ensemble regressor.  Returns the regressed values for each input in N.<br>\n    All args with nodes_ are fields of a tuple of tree nodes, and\n    it is assumed they are the same length, and an index i will decode the\n    tuple across these inputs.  Each node id can appear only once\n    for each tree id.<br>\n    All fields prefixed with target_ are tuples of votes at the leaves.<br>\n    A leaf may have multiple votes, where each vote is weighted by\n    the associated target_weights index.<br>\n    All trees must have their node ids start at 0 and increment by 1.<br>\n    Mode enum is BRANCH_LEQ, BRANCH_LT, BRANCH_GTE, BRANCH_GT, BRANCH_EQ, BRANCH_NEQ, LEAF\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
-          "description": "Input N,F",
+          "description": "Input of shape [N,F]",
           "name": "X",
           "type": "T"
         }
@@ -13052,7 +13052,7 @@
             "tensor(int64)",
             "tensor(int32)"
           ],
-          "description": " allowed types.",
+          "description": "The input type must be a tensor of a numeric type.",
           "type_param_str": "T"
         }
       ]
@@ -13399,19 +13399,19 @@
     "schema": {
       "attributes": [
         {
-          "description": "keys if using int keys",
+          "description": "The keys when using int keys.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_int64s",
           "required": false,
           "type": "int[]"
         },
         {
-          "description": "keys if using string keys",
+          "description": "The keys when using string keys.<br>One and only one of the 'classlabels_*' attributes must be defined.",
           "name": "classlabels_strings",
           "required": false,
           "type": "string[]"
         }
       ],
-      "description": "Makes a map from the input and the attributes.\n    Assumes input 0 are the values, and the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).\n    Input 0 may have a batch size larger than 1,\n    but each input in the batch must be the size of the keys specified by the attributes.\n    The order of the input and attributes determines the key-value mapping.\n",
+      "description": "Creates a map from the input and the attributes.<br>\n    The values are provided by the input tensor, while the keys are specified by the attributes.\n    Must provide keys in either classlabels_strings or classlabels_int64s (but not both).<br>\n    The columns of the tensor correspond one-by-one to the keys specified by the attributes. There must be as many columns as keys.<br>\n",
       "domain": "ai.onnx.ml",
       "inputs": [
         {
@@ -13439,7 +13439,7 @@
             "seq(map(string, float))",
             "seq(map(int64, float))"
           ],
-          "description": " allowed types.",
+          "description": "The output will be a sequence of string or integer maps to float.",
           "type_param_str": "T"
         }
       ]
