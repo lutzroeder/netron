@@ -2830,7 +2830,7 @@
              * @memberof caffe2.DeviceOption
              * @instance
              */
-            DeviceOption.prototype.numaNodeId = -1;
+            DeviceOption.prototype.numaNodeId = 0;
     
             /**
              * DeviceOption extraInfo.
@@ -3061,7 +3061,7 @@
                     object.cudaGpuId = 0;
                     object.randomSeed = 0;
                     object.nodeName = "";
-                    object.numaNodeId = -1;
+                    object.numaNodeId = 0;
                     object.hipGpuId = 0;
                 }
                 if (message.deviceType != null && message.hasOwnProperty("deviceType"))
