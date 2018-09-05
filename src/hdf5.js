@@ -599,7 +599,7 @@ hdf5.Dataspace = class {
             }
         }
         else {
-            throw new hdf5.Error('Unsupported dataspace message version \'' + version + '\.');
+            throw new hdf5.Error("Unsupported dataspace message version '" + version + "'.");
         }
     }
 
