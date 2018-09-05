@@ -21855,6 +21855,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "list(shape)"
+        },
+        {
+          "default": true,
+          "name": "use_inter_op_parallelism",
+          "type": "bool"
         }
       ],
       "inputs": [
