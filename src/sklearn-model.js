@@ -4,7 +4,7 @@ class SklearnModelFactor {
 
     match(context) {
         var extension = context.identifier.split('.').pop();
-        return extension == 'pkl';
+        return extension == 'pkl' || extension == 'joblib';
     }
 
     open(context, host, callback) { 
@@ -69,10 +69,6 @@ class SklearnModelFactor {
                         this.rawdata = state[4];
                     };
                 };
-                functionTable['numpy.core.multiarray.scalar'] = function(dtype, obj) {
-                    this.dtype = dtype;
-                    debugger;
-                };
                 functionTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(subtype, shape, dtype) {
                     this.__setstate__ = function(state, reader) {
                         this.subclass = state.subclass;
@@ -117,6 +113,21 @@ class SklearnModelFactor {
                     if (name == 'copy_reg._reconstructor' && args[1] == '__builtin__.object') {
                         name = args[0];
                         args = [];
+                    }
+                    if (name == 'numpy.core.multiarray.scalar') {
+                        var dtype = args[0];
+                        var rawData = args[1];
+                        var data = new Uint8Array(rawData.length);
+                        for (var i = 0; i < rawData.length; i++) {
+                            data[i] = rawData.charCodeAt(i);
+                        }
+                        var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                        switch (dtype.name) {
+                            case 'int64':
+                                return new Int64(data.subarray(0, dtype.itemsize));
+                            default:
+                                throw new SklearnError("Unknown scalar type '" + dtype.name + "'.");
+                        }
                     }
                     var obj = { __type__: name };
                     var constructor = functionTable[name];
@@ -204,18 +215,21 @@ class SklearnNode {
 
         Object.keys(obj).forEach((key) => {
             if (!key.startsWith('_')) {
-                if (key.endsWith('_')) {
-                    var name = key.substring(0, key.length - 1);
-                    var value = obj[key];
-                    if (Array.isArray(value) || Number.isInteger(value)) {
-                        this._attributes.push(new SklearnAttribute(this, name, value));
-                    }
-                    else {
-                        this._initializers.push(new SklearnTensor(name, value));
-                    }
+                var value = obj[key];
+
+                if (Array.isArray(value) || Number.isInteger(value) || value == null) {
+                    this._attributes.push(new SklearnAttribute(this, key, value));
                 }
                 else {
-                    this._attributes.push(new SklearnAttribute(this, key, obj[key]));
+                    switch (value.__type__) {
+                        case 'joblib.numpy_pickle.NumpyArrayWrapper':
+                        case 'sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper':
+                        case 'numpy.core.multiarray._reconstruct':
+                            this._initializers.push(new SklearnTensor(key, value));
+                            break;
+                        default: 
+                            this._attributes.push(new SklearnAttribute(this, key, value));
+                    }
                 }
             }
         });
@@ -265,6 +279,9 @@ class SklearnAttribute {
     }
 
     get value() {
+        if (this._value && this._value.constructor.name == 'Int64') {
+            return this._value.toString();
+        }
         return JSON.stringify(this._value);
     }
 
@@ -281,12 +298,12 @@ class SklearnTensor {
         switch (value.__type__) {
             case 'joblib.numpy_pickle.NumpyArrayWrapper':
             case 'sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper':
-                this._kind = 'NumpyArrayWrapper';
+                this._kind = 'Array Wrapper';
                 this._type = new SklearnTensorType(value.dtype.name, value.shape);
                 this._data = value.data;
                 break;
             case 'numpy.core.multiarray._reconstruct':
-                this._kind = 'NumPy Array';
+                this._kind = 'Array';
                 this._type = new SklearnTensorType(value.typecode.name, value.shape);
                 this._data = new Uint8Array(value.rawdata.length);
                 for (var i = 0; i < this._data.length; i++) {

@@ -365,14 +365,10 @@ pickle.Reader = class {
 
     readString(size, encoding) {
         var data = this.readBytes(size);
-        var text = '';
         if (encoding == 'utf-8') {
-            text = pickle.Reader._utf8Decoder.decode(data);    
+            return pickle.Reader._utf8Decoder.decode(data);    
         }
-        else {
-            text = pickle.Reader._asciiDecoder.decode(data);
-        }
-        return text.replace(/\0/g, '');
+        return pickle.Reader._asciiDecoder.decode(data);
     }
 
     readLine() {

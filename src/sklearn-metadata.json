@@ -336,5 +336,46 @@
       "description": "A random forest classifier.\n\nA random forest is a meta estimator that fits a number of decision tree\nclassifiers on various sub-samples of the dataset and uses averaging to\nimprove the predictive accuracy and control over-fitting.\nThe sub-sample size is always the same as the original\ninput sample size but the samples are drawn with replacement if\n`bootstrap=True` (default).\n\nRead more in the :ref:`User Guide <forest>`.\n",
       "package": "sklearn.ensemble.forest"
     }
+  },
+  {
+    "name": "AdaBoostClassifier",
+    "schema": {
+      "attributes": [
+        {
+          "default": "None",
+          "description": "The base estimator from which the boosted ensemble is built.\nSupport for sample weighting is required, as well as proper\n``classes_`` and ``n_classes_`` attributes. If ``None``, then\nthe base estimator is ``DecisionTreeClassifier(max_depth=1)``\n",
+          "name": "base_estimator",
+          "option": "optional"
+        },
+        {
+          "default": "50",
+          "description": "The maximum number of estimators at which boosting is terminated.\nIn case of perfect fit, the learning procedure is stopped early.\n",
+          "name": "n_estimators",
+          "option": "optional"
+        },
+        {
+          "default": 1.0,
+          "description": "Learning rate shrinks the contribution of each classifier by\n``learning_rate``. There is a trade-off between ``learning_rate`` and\n``n_estimators``.\n",
+          "name": "learning_rate",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": "SAMME.R",
+          "description": "If 'SAMME.R' then use the SAMME.R real boosting algorithm.\n``base_estimator`` must support calculation of class probabilities.\nIf 'SAMME' then use the SAMME discrete boosting algorithm.\nThe SAMME.R algorithm typically converges faster than SAMME,\nachieving a lower test error with fewer boosting iterations.\n",
+          "name": "algorithm",
+          "option": "optional"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        }
+      ],
+      "description": "An AdaBoost classifier.\n\nAn AdaBoost [1] classifier is a meta-estimator that begins by fitting a\nclassifier on the original dataset and then fits additional copies of the\nclassifier on the same dataset but where the weights of incorrectly\nclassified instances are adjusted such that subsequent classifiers focus\nmore on difficult cases.\n\nThis class implements the algorithm known as AdaBoost-SAMME [2].\n\nRead more in the :ref:`User Guide <adaboost>`.\n",
+      "package": "sklearn.ensemble.weight_boosting"
+    }
   }
 ]
