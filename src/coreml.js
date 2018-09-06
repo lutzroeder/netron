@@ -17935,6 +17935,8 @@
                  * @property {CoreML.Specification.ICropLayerParams|null} [crop] NeuralNetworkLayer crop
                  * @property {CoreML.Specification.IPaddingLayerParams|null} [padding] NeuralNetworkLayer padding
                  * @property {CoreML.Specification.IUpsampleLayerParams|null} [upsample] NeuralNetworkLayer upsample
+                 * @property {CoreML.Specification.IResizeBilinearLayerParams|null} [resizeBilinear] NeuralNetworkLayer resizeBilinear
+                 * @property {CoreML.Specification.ICropResizeLayerParams|null} [cropResize] NeuralNetworkLayer cropResize
                  * @property {CoreML.Specification.IUnaryFunctionLayerParams|null} [unary] NeuralNetworkLayer unary
                  * @property {CoreML.Specification.IAddLayerParams|null} [add] NeuralNetworkLayer add
                  * @property {CoreML.Specification.IMultiplyLayerParams|null} [multiply] NeuralNetworkLayer multiply
@@ -18105,6 +18107,22 @@
                  * @instance
                  */
                 NeuralNetworkLayer.prototype.upsample = null;
+    
+                /**
+                 * NeuralNetworkLayer resizeBilinear.
+                 * @member {CoreML.Specification.IResizeBilinearLayerParams|null|undefined} resizeBilinear
+                 * @memberof CoreML.Specification.NeuralNetworkLayer
+                 * @instance
+                 */
+                NeuralNetworkLayer.prototype.resizeBilinear = null;
+    
+                /**
+                 * NeuralNetworkLayer cropResize.
+                 * @member {CoreML.Specification.ICropResizeLayerParams|null|undefined} cropResize
+                 * @memberof CoreML.Specification.NeuralNetworkLayer
+                 * @instance
+                 */
+                NeuralNetworkLayer.prototype.cropResize = null;
     
                 /**
                  * NeuralNetworkLayer unary.
@@ -18303,12 +18321,12 @@
     
                 /**
                  * NeuralNetworkLayer layer.
-                 * @member {"convolution"|"pooling"|"activation"|"innerProduct"|"embedding"|"batchnorm"|"mvn"|"l2normalize"|"softmax"|"lrn"|"crop"|"padding"|"upsample"|"unary"|"add"|"multiply"|"average"|"scale"|"bias"|"max"|"min"|"dot"|"reduce"|"loadConstant"|"reshape"|"flatten"|"permute"|"concat"|"split"|"sequenceRepeat"|"reorganizeData"|"slice"|"simpleRecurrent"|"gru"|"uniDirectionalLSTM"|"biDirectionalLSTM"|"custom"|undefined} layer
+                 * @member {"convolution"|"pooling"|"activation"|"innerProduct"|"embedding"|"batchnorm"|"mvn"|"l2normalize"|"softmax"|"lrn"|"crop"|"padding"|"upsample"|"resizeBilinear"|"cropResize"|"unary"|"add"|"multiply"|"average"|"scale"|"bias"|"max"|"min"|"dot"|"reduce"|"loadConstant"|"reshape"|"flatten"|"permute"|"concat"|"split"|"sequenceRepeat"|"reorganizeData"|"slice"|"simpleRecurrent"|"gru"|"uniDirectionalLSTM"|"biDirectionalLSTM"|"custom"|undefined} layer
                  * @memberof CoreML.Specification.NeuralNetworkLayer
                  * @instance
                  */
                 Object.defineProperty(NeuralNetworkLayer.prototype, "layer", {
-                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom"]),
+                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -18370,6 +18388,10 @@
                         $root.CoreML.Specification.PaddingLayerParams.encode(message.padding, writer.uint32(/* id 200, wireType 2 =*/1602).fork()).ldelim();
                     if (message.upsample != null && message.hasOwnProperty("upsample"))
                         $root.CoreML.Specification.UpsampleLayerParams.encode(message.upsample, writer.uint32(/* id 210, wireType 2 =*/1682).fork()).ldelim();
+                    if (message.resizeBilinear != null && message.hasOwnProperty("resizeBilinear"))
+                        $root.CoreML.Specification.ResizeBilinearLayerParams.encode(message.resizeBilinear, writer.uint32(/* id 211, wireType 2 =*/1690).fork()).ldelim();
+                    if (message.cropResize != null && message.hasOwnProperty("cropResize"))
+                        $root.CoreML.Specification.CropResizeLayerParams.encode(message.cropResize, writer.uint32(/* id 212, wireType 2 =*/1698).fork()).ldelim();
                     if (message.unary != null && message.hasOwnProperty("unary"))
                         $root.CoreML.Specification.UnaryFunctionLayerParams.encode(message.unary, writer.uint32(/* id 220, wireType 2 =*/1762).fork()).ldelim();
                     if (message.add != null && message.hasOwnProperty("add"))
@@ -18503,6 +18525,12 @@
                             break;
                         case 210:
                             message.upsample = $root.CoreML.Specification.UpsampleLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 211:
+                            message.resizeBilinear = $root.CoreML.Specification.ResizeBilinearLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 212:
+                            message.cropResize = $root.CoreML.Specification.CropResizeLayerParams.decode(reader, reader.uint32());
                             break;
                         case 220:
                             message.unary = $root.CoreML.Specification.UnaryFunctionLayerParams.decode(reader, reader.uint32());
@@ -18755,6 +18783,26 @@
                             var error = $root.CoreML.Specification.UpsampleLayerParams.verify(message.upsample);
                             if (error)
                                 return "upsample." + error;
+                        }
+                    }
+                    if (message.resizeBilinear != null && message.hasOwnProperty("resizeBilinear")) {
+                        if (properties.layer === 1)
+                            return "layer: multiple values";
+                        properties.layer = 1;
+                        {
+                            var error = $root.CoreML.Specification.ResizeBilinearLayerParams.verify(message.resizeBilinear);
+                            if (error)
+                                return "resizeBilinear." + error;
+                        }
+                    }
+                    if (message.cropResize != null && message.hasOwnProperty("cropResize")) {
+                        if (properties.layer === 1)
+                            return "layer: multiple values";
+                        properties.layer = 1;
+                        {
+                            var error = $root.CoreML.Specification.CropResizeLayerParams.verify(message.cropResize);
+                            if (error)
+                                return "cropResize." + error;
                         }
                     }
                     if (message.unary != null && message.hasOwnProperty("unary")) {
@@ -19093,6 +19141,16 @@
                             throw TypeError(".CoreML.Specification.NeuralNetworkLayer.upsample: object expected");
                         message.upsample = $root.CoreML.Specification.UpsampleLayerParams.fromObject(object.upsample);
                     }
+                    if (object.resizeBilinear != null) {
+                        if (typeof object.resizeBilinear !== "object")
+                            throw TypeError(".CoreML.Specification.NeuralNetworkLayer.resizeBilinear: object expected");
+                        message.resizeBilinear = $root.CoreML.Specification.ResizeBilinearLayerParams.fromObject(object.resizeBilinear);
+                    }
+                    if (object.cropResize != null) {
+                        if (typeof object.cropResize !== "object")
+                            throw TypeError(".CoreML.Specification.NeuralNetworkLayer.cropResize: object expected");
+                        message.cropResize = $root.CoreML.Specification.CropResizeLayerParams.fromObject(object.cropResize);
+                    }
                     if (object.unary != null) {
                         if (typeof object.unary !== "object")
                             throw TypeError(".CoreML.Specification.NeuralNetworkLayer.unary: object expected");
@@ -19311,6 +19369,16 @@
                         object.upsample = $root.CoreML.Specification.UpsampleLayerParams.toObject(message.upsample, options);
                         if (options.oneofs)
                             object.layer = "upsample";
+                    }
+                    if (message.resizeBilinear != null && message.hasOwnProperty("resizeBilinear")) {
+                        object.resizeBilinear = $root.CoreML.Specification.ResizeBilinearLayerParams.toObject(message.resizeBilinear, options);
+                        if (options.oneofs)
+                            object.layer = "resizeBilinear";
+                    }
+                    if (message.cropResize != null && message.hasOwnProperty("cropResize")) {
+                        object.cropResize = $root.CoreML.Specification.CropResizeLayerParams.toObject(message.cropResize, options);
+                        if (options.oneofs)
+                            object.layer = "cropResize";
                     }
                     if (message.unary != null && message.hasOwnProperty("unary")) {
                         object.unary = $root.CoreML.Specification.UnaryFunctionLayerParams.toObject(message.unary, options);
@@ -20405,6 +20473,477 @@
                 })();
     
                 return SamePadding;
+            })();
+    
+            Specification.SamplingMode = (function() {
+    
+                /**
+                 * Properties of a SamplingMode.
+                 * @memberof CoreML.Specification
+                 * @interface ISamplingMode
+                 * @property {CoreML.Specification.SamplingMode.Method|null} [samplingMethod] SamplingMode samplingMethod
+                 */
+    
+                /**
+                 * Constructs a new SamplingMode.
+                 * @memberof CoreML.Specification
+                 * @classdesc Specifies how grid points are sampled from an interval.
+                 * Without the loss of generality, assume the interval to be [0, X-1] from which N points are to be sampled.
+                 * Here X may correspond to an input image's height or width.
+                 * All the methods can be expressed in terms of numpy's linspace function, along with the constraint that grid points have to lie in the interval [0, X-1].
+                 * Note: numpy.linspace(start = start, end = end, num = N, endpoint = True) corresponds to sampling
+                 * N points uniformly from the interval [start, end], endpoints included.
+                 * The methods vary in how the ``start`` and ``end`` values are computed.
+                 * @implements ISamplingMode
+                 * @constructor
+                 * @param {CoreML.Specification.ISamplingMode=} [properties] Properties to set
+                 */
+                function SamplingMode(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * SamplingMode samplingMethod.
+                 * @member {CoreML.Specification.SamplingMode.Method} samplingMethod
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @instance
+                 */
+                SamplingMode.prototype.samplingMethod = 0;
+    
+                /**
+                 * Creates a new SamplingMode instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {CoreML.Specification.ISamplingMode=} [properties] Properties to set
+                 * @returns {CoreML.Specification.SamplingMode} SamplingMode instance
+                 */
+                SamplingMode.create = function create(properties) {
+                    return new SamplingMode(properties);
+                };
+    
+                /**
+                 * Encodes the specified SamplingMode message. Does not implicitly {@link CoreML.Specification.SamplingMode.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {CoreML.Specification.ISamplingMode} message SamplingMode message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                SamplingMode.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.samplingMethod != null && message.hasOwnProperty("samplingMethod"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.samplingMethod);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified SamplingMode message, length delimited. Does not implicitly {@link CoreML.Specification.SamplingMode.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {CoreML.Specification.ISamplingMode} message SamplingMode message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                SamplingMode.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a SamplingMode message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.SamplingMode} SamplingMode
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                SamplingMode.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SamplingMode();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.samplingMethod = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a SamplingMode message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.SamplingMode} SamplingMode
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                SamplingMode.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a SamplingMode message.
+                 * @function verify
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                SamplingMode.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.samplingMethod != null && message.hasOwnProperty("samplingMethod"))
+                        switch (message.samplingMethod) {
+                        default:
+                            return "samplingMethod: enum value expected";
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            break;
+                        }
+                    return null;
+                };
+    
+                /**
+                 * Creates a SamplingMode message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.SamplingMode} SamplingMode
+                 */
+                SamplingMode.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.SamplingMode)
+                        return object;
+                    var message = new $root.CoreML.Specification.SamplingMode();
+                    switch (object.samplingMethod) {
+                    case "STRICT_ALIGN_ENDPOINTS_MODE":
+                    case 0:
+                        message.samplingMethod = 0;
+                        break;
+                    case "ALIGN_ENDPOINTS_MODE":
+                    case 1:
+                        message.samplingMethod = 1;
+                        break;
+                    case "UPSAMPLE_MODE":
+                    case 2:
+                        message.samplingMethod = 2;
+                        break;
+                    case "ROI_ALIGN_MODE":
+                    case 3:
+                        message.samplingMethod = 3;
+                        break;
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a SamplingMode message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @static
+                 * @param {CoreML.Specification.SamplingMode} message SamplingMode
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                SamplingMode.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults)
+                        object.samplingMethod = options.enums === String ? "STRICT_ALIGN_ENDPOINTS_MODE" : 0;
+                    if (message.samplingMethod != null && message.hasOwnProperty("samplingMethod"))
+                        object.samplingMethod = options.enums === String ? $root.CoreML.Specification.SamplingMode.Method[message.samplingMethod] : message.samplingMethod;
+                    return object;
+                };
+    
+                /**
+                 * Converts this SamplingMode to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.SamplingMode
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                SamplingMode.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                /**
+                 * Method enum.
+                 * @name CoreML.Specification.SamplingMode.Method
+                 * @enum {string}
+                 * @property {number} STRICT_ALIGN_ENDPOINTS_MODE=0 * start = 0, end = X-1
+                 * grid points = numpy.linspace(start, end)
+                 * @property {number} ALIGN_ENDPOINTS_MODE=1 * if N == 1: start = end = (X-1)/2
+                 * * otherwise, start = 0, end = X-1
+                 * grid points = numpy.linspace(start, end)
+                 * @property {number} UPSAMPLE_MODE=2 * start = 0, end = X - X/N
+                 * * grid points = min(X-1, numpy.linspace(start, end))
+                 * * This is same as the mode used in the upsample layer in this specification, when used with bilinear interpolation. In that case N/X = upsample ratio.
+                 * @property {number} ROI_ALIGN_MODE=3 * spacing = max(1, X-1)/N
+                 * * start = 0.5 * spacing
+                 * * end = start + (N-1) * spacing
+                 * * grid points = min(X-1, numpy.linspace(start, end))
+                 */
+                SamplingMode.Method = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "STRICT_ALIGN_ENDPOINTS_MODE"] = 0;
+                    values[valuesById[1] = "ALIGN_ENDPOINTS_MODE"] = 1;
+                    values[valuesById[2] = "UPSAMPLE_MODE"] = 2;
+                    values[valuesById[3] = "ROI_ALIGN_MODE"] = 3;
+                    return values;
+                })();
+    
+                return SamplingMode;
+            })();
+    
+            Specification.BoxCoordinatesMode = (function() {
+    
+                /**
+                 * Properties of a BoxCoordinatesMode.
+                 * @memberof CoreML.Specification
+                 * @interface IBoxCoordinatesMode
+                 * @property {CoreML.Specification.BoxCoordinatesMode.Coordinates|null} [boxMode] BoxCoordinatesMode boxMode
+                 */
+    
+                /**
+                 * Constructs a new BoxCoordinatesMode.
+                 * @memberof CoreML.Specification
+                 * @classdesc Specifies the convention used to specify four bounding box coordinates for an image of size (Height, Width).
+                 * The (0,0) coordinate corresponds to the top-left corner of the image.
+                 * @implements IBoxCoordinatesMode
+                 * @constructor
+                 * @param {CoreML.Specification.IBoxCoordinatesMode=} [properties] Properties to set
+                 */
+                function BoxCoordinatesMode(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * BoxCoordinatesMode boxMode.
+                 * @member {CoreML.Specification.BoxCoordinatesMode.Coordinates} boxMode
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @instance
+                 */
+                BoxCoordinatesMode.prototype.boxMode = 0;
+    
+                /**
+                 * Creates a new BoxCoordinatesMode instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {CoreML.Specification.IBoxCoordinatesMode=} [properties] Properties to set
+                 * @returns {CoreML.Specification.BoxCoordinatesMode} BoxCoordinatesMode instance
+                 */
+                BoxCoordinatesMode.create = function create(properties) {
+                    return new BoxCoordinatesMode(properties);
+                };
+    
+                /**
+                 * Encodes the specified BoxCoordinatesMode message. Does not implicitly {@link CoreML.Specification.BoxCoordinatesMode.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {CoreML.Specification.IBoxCoordinatesMode} message BoxCoordinatesMode message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                BoxCoordinatesMode.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.boxMode != null && message.hasOwnProperty("boxMode"))
+                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.boxMode);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified BoxCoordinatesMode message, length delimited. Does not implicitly {@link CoreML.Specification.BoxCoordinatesMode.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {CoreML.Specification.IBoxCoordinatesMode} message BoxCoordinatesMode message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                BoxCoordinatesMode.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a BoxCoordinatesMode message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.BoxCoordinatesMode} BoxCoordinatesMode
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                BoxCoordinatesMode.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.BoxCoordinatesMode();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.boxMode = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a BoxCoordinatesMode message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.BoxCoordinatesMode} BoxCoordinatesMode
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                BoxCoordinatesMode.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a BoxCoordinatesMode message.
+                 * @function verify
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                BoxCoordinatesMode.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.boxMode != null && message.hasOwnProperty("boxMode"))
+                        switch (message.boxMode) {
+                        default:
+                            return "boxMode: enum value expected";
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            break;
+                        }
+                    return null;
+                };
+    
+                /**
+                 * Creates a BoxCoordinatesMode message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.BoxCoordinatesMode} BoxCoordinatesMode
+                 */
+                BoxCoordinatesMode.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.BoxCoordinatesMode)
+                        return object;
+                    var message = new $root.CoreML.Specification.BoxCoordinatesMode();
+                    switch (object.boxMode) {
+                    case "CORNERS_HEIGHT_FIRST":
+                    case 0:
+                        message.boxMode = 0;
+                        break;
+                    case "CORNERS_WIDTH_FIRST":
+                    case 1:
+                        message.boxMode = 1;
+                        break;
+                    case "CENTER_SIZE_HEIGHT_FIRST":
+                    case 2:
+                        message.boxMode = 2;
+                        break;
+                    case "CENTER_SIZE_WIDTH_FIRST":
+                    case 3:
+                        message.boxMode = 3;
+                        break;
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a BoxCoordinatesMode message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @static
+                 * @param {CoreML.Specification.BoxCoordinatesMode} message BoxCoordinatesMode
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                BoxCoordinatesMode.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.defaults)
+                        object.boxMode = options.enums === String ? "CORNERS_HEIGHT_FIRST" : 0;
+                    if (message.boxMode != null && message.hasOwnProperty("boxMode"))
+                        object.boxMode = options.enums === String ? $root.CoreML.Specification.BoxCoordinatesMode.Coordinates[message.boxMode] : message.boxMode;
+                    return object;
+                };
+    
+                /**
+                 * Converts this BoxCoordinatesMode to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.BoxCoordinatesMode
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                BoxCoordinatesMode.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                /**
+                 * Coordinates enum.
+                 * @name CoreML.Specification.BoxCoordinatesMode.Coordinates
+                 * @enum {string}
+                 * @property {number} CORNERS_HEIGHT_FIRST=0 * [h_start, w_start, h_end, w_end]
+                 * @property {number} CORNERS_WIDTH_FIRST=1 * [w_start, h_start, w_end, h_end]
+                 * @property {number} CENTER_SIZE_HEIGHT_FIRST=2 [h_center, w_center, box_height, box_width]
+                 * @property {number} CENTER_SIZE_WIDTH_FIRST=3 [w_center, h_center, box_width, box_height]
+                 */
+                BoxCoordinatesMode.Coordinates = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "CORNERS_HEIGHT_FIRST"] = 0;
+                    values[valuesById[1] = "CORNERS_WIDTH_FIRST"] = 1;
+                    values[valuesById[2] = "CENTER_SIZE_HEIGHT_FIRST"] = 2;
+                    values[valuesById[3] = "CENTER_SIZE_WIDTH_FIRST"] = 3;
+                    return values;
+                })();
+    
+                return BoxCoordinatesMode;
             })();
     
             Specification.WeightParams = (function() {
@@ -26915,6 +27454,645 @@
                 return UpsampleLayerParams;
             })();
     
+            Specification.ResizeBilinearLayerParams = (function() {
+    
+                /**
+                 * Properties of a ResizeBilinearLayerParams.
+                 * @memberof CoreML.Specification
+                 * @interface IResizeBilinearLayerParams
+                 * @property {Array.<number|Long>|null} [targetSize] * Target Spatial Size.
+                 * * Must be length 2 in order ``[Height, Width]``, i.e. ``[H_out, W_out]``.
+                 * * If not set, default value ``[1, 1]`` is used.
+                 * @property {CoreML.Specification.ISamplingMode|null} [mode] * Mode used to compute the grid on which the spatial output values are evaluated.
+                 * * Same mode is applied to both the height and width axes.
+                 */
+    
+                /**
+                 * Constructs a new ResizeBilinearLayerParams.
+                 * @memberof CoreML.Specification
+                 * @classdesc A layer that resizes the input to a pre-specified spatial size using bilinear interpolation.
+                 * 
+                 * .. code::
+                 * 
+                 * y = ResizeBilinearLayer(x)
+                 * 
+                 * Requires 1 input and produces 1 output.
+                 * 
+                 * Input
+                 * A blob with shape ``[C, H_in, W_in]``.
+                 * 
+                 * Output
+                 * A blob with shape ``[C, H_out, W_out]``.
+                 * @implements IResizeBilinearLayerParams
+                 * @constructor
+                 * @param {CoreML.Specification.IResizeBilinearLayerParams=} [properties] Properties to set
+                 */
+                function ResizeBilinearLayerParams(properties) {
+                    this.targetSize = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * * Target Spatial Size.
+                 * * Must be length 2 in order ``[Height, Width]``, i.e. ``[H_out, W_out]``.
+                 * * If not set, default value ``[1, 1]`` is used.
+                 * @member {Array.<number|Long>} targetSize
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @instance
+                 */
+                ResizeBilinearLayerParams.prototype.targetSize = $util.emptyArray;
+    
+                /**
+                 * * Mode used to compute the grid on which the spatial output values are evaluated.
+                 * * Same mode is applied to both the height and width axes.
+                 * @member {CoreML.Specification.ISamplingMode|null|undefined} mode
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @instance
+                 */
+                ResizeBilinearLayerParams.prototype.mode = null;
+    
+                /**
+                 * Creates a new ResizeBilinearLayerParams instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {CoreML.Specification.IResizeBilinearLayerParams=} [properties] Properties to set
+                 * @returns {CoreML.Specification.ResizeBilinearLayerParams} ResizeBilinearLayerParams instance
+                 */
+                ResizeBilinearLayerParams.create = function create(properties) {
+                    return new ResizeBilinearLayerParams(properties);
+                };
+    
+                /**
+                 * Encodes the specified ResizeBilinearLayerParams message. Does not implicitly {@link CoreML.Specification.ResizeBilinearLayerParams.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {CoreML.Specification.IResizeBilinearLayerParams} message ResizeBilinearLayerParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                ResizeBilinearLayerParams.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.targetSize != null && message.targetSize.length) {
+                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
+                        for (var i = 0; i < message.targetSize.length; ++i)
+                            writer.uint64(message.targetSize[i]);
+                        writer.ldelim();
+                    }
+                    if (message.mode != null && message.hasOwnProperty("mode"))
+                        $root.CoreML.Specification.SamplingMode.encode(message.mode, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified ResizeBilinearLayerParams message, length delimited. Does not implicitly {@link CoreML.Specification.ResizeBilinearLayerParams.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {CoreML.Specification.IResizeBilinearLayerParams} message ResizeBilinearLayerParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                ResizeBilinearLayerParams.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a ResizeBilinearLayerParams message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.ResizeBilinearLayerParams} ResizeBilinearLayerParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                ResizeBilinearLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ResizeBilinearLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.targetSize && message.targetSize.length))
+                                message.targetSize = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.targetSize.push(reader.uint64());
+                            } else
+                                message.targetSize.push(reader.uint64());
+                            break;
+                        case 2:
+                            message.mode = $root.CoreML.Specification.SamplingMode.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a ResizeBilinearLayerParams message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.ResizeBilinearLayerParams} ResizeBilinearLayerParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                ResizeBilinearLayerParams.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a ResizeBilinearLayerParams message.
+                 * @function verify
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                ResizeBilinearLayerParams.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.targetSize != null && message.hasOwnProperty("targetSize")) {
+                        if (!Array.isArray(message.targetSize))
+                            return "targetSize: array expected";
+                        for (var i = 0; i < message.targetSize.length; ++i)
+                            if (!$util.isInteger(message.targetSize[i]) && !(message.targetSize[i] && $util.isInteger(message.targetSize[i].low) && $util.isInteger(message.targetSize[i].high)))
+                                return "targetSize: integer|Long[] expected";
+                    }
+                    if (message.mode != null && message.hasOwnProperty("mode")) {
+                        var error = $root.CoreML.Specification.SamplingMode.verify(message.mode);
+                        if (error)
+                            return "mode." + error;
+                    }
+                    return null;
+                };
+    
+                /**
+                 * Creates a ResizeBilinearLayerParams message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.ResizeBilinearLayerParams} ResizeBilinearLayerParams
+                 */
+                ResizeBilinearLayerParams.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.ResizeBilinearLayerParams)
+                        return object;
+                    var message = new $root.CoreML.Specification.ResizeBilinearLayerParams();
+                    if (object.targetSize) {
+                        if (!Array.isArray(object.targetSize))
+                            throw TypeError(".CoreML.Specification.ResizeBilinearLayerParams.targetSize: array expected");
+                        message.targetSize = [];
+                        for (var i = 0; i < object.targetSize.length; ++i)
+                            if ($util.Long)
+                                (message.targetSize[i] = $util.Long.fromValue(object.targetSize[i])).unsigned = true;
+                            else if (typeof object.targetSize[i] === "string")
+                                message.targetSize[i] = parseInt(object.targetSize[i], 10);
+                            else if (typeof object.targetSize[i] === "number")
+                                message.targetSize[i] = object.targetSize[i];
+                            else if (typeof object.targetSize[i] === "object")
+                                message.targetSize[i] = new $util.LongBits(object.targetSize[i].low >>> 0, object.targetSize[i].high >>> 0).toNumber(true);
+                    }
+                    if (object.mode != null) {
+                        if (typeof object.mode !== "object")
+                            throw TypeError(".CoreML.Specification.ResizeBilinearLayerParams.mode: object expected");
+                        message.mode = $root.CoreML.Specification.SamplingMode.fromObject(object.mode);
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a ResizeBilinearLayerParams message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @static
+                 * @param {CoreML.Specification.ResizeBilinearLayerParams} message ResizeBilinearLayerParams
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                ResizeBilinearLayerParams.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.targetSize = [];
+                    if (options.defaults)
+                        object.mode = null;
+                    if (message.targetSize && message.targetSize.length) {
+                        object.targetSize = [];
+                        for (var j = 0; j < message.targetSize.length; ++j)
+                            if (typeof message.targetSize[j] === "number")
+                                object.targetSize[j] = options.longs === String ? String(message.targetSize[j]) : message.targetSize[j];
+                            else
+                                object.targetSize[j] = options.longs === String ? $util.Long.prototype.toString.call(message.targetSize[j]) : options.longs === Number ? new $util.LongBits(message.targetSize[j].low >>> 0, message.targetSize[j].high >>> 0).toNumber(true) : message.targetSize[j];
+                    }
+                    if (message.mode != null && message.hasOwnProperty("mode"))
+                        object.mode = $root.CoreML.Specification.SamplingMode.toObject(message.mode, options);
+                    return object;
+                };
+    
+                /**
+                 * Converts this ResizeBilinearLayerParams to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.ResizeBilinearLayerParams
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                ResizeBilinearLayerParams.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return ResizeBilinearLayerParams;
+            })();
+    
+            Specification.CropResizeLayerParams = (function() {
+    
+                /**
+                 * Properties of a CropResizeLayerParams.
+                 * @memberof CoreML.Specification
+                 * @interface ICropResizeLayerParams
+                 * @property {Array.<number|Long>|null} [targetSize] * Target Spatial Size.
+                 * * Must be length 2 in order ``[Height, Width]``, i.e. ``[H_out, W_out]``.
+                 * * If not set, default value ``[1, 1]`` is used.
+                 * @property {boolean|null} [normalizedCoordinates] * If true the bounding box coordinates must be in the interval [0, 1].
+                 * * They are scaled by (H_in - 1), (W_in - 1), i.e. based on the input spatial dimensions.
+                 * * If false the bounding box coordinates must be in the interval
+                 * * [0, H_in -1] and [0, W_in - 1], respectively for height and width dimensions.
+                 * @property {CoreML.Specification.ISamplingMode|null} [mode] * Mode used to compute the grid on which the spatial output values are evaluated.
+                 * * Same mode is applied to both the height and width axes.
+                 * @property {CoreML.Specification.IBoxCoordinatesMode|null} [boxIndicesMode] * Representation used to express the bounding box coordinates.
+                 * * It determines how the values of the second input are interpreted.
+                 * @property {number|null} [spatialScale] * Additional spatial scale that multiplies the bounding box coordinates.
+                 * Generally used while implementing the RoI Align layer,
+                 * which uses unnormalized RoI coordinates along with a spatial scale less than or equal to 1.
+                 */
+    
+                /**
+                 * Constructs a new CropResizeLayerParams.
+                 * @memberof CoreML.Specification
+                 * @classdesc A layer that extracts cropped spatial patches or RoIs (regions of interest) from the input and resizes them to a pre-specified size using
+                 * bilinear interpolation.
+                 * Note that RoI Align layer can be implemented with this layer followed by a pooling layer.
+                 * 
+                 * .. code::
+                 * 
+                 * y = CropResizeLayer(x)
+                 * 
+                 * Requires 2 inputs and produces 1 output.
+                 * 
+                 * Input
+                 * A blob with shape ``[C, H_in, W_in]``.
+                 * This represents an image feature map.
+                 * Note that the full batched input shape is ``[Seq = 1, Batch = Batch, C, H_in, W_in]``
+                 * A second input with shape ``[N, 4, 1, 1]`` or ``[N, 5, 1, 1]``.
+                 * This represents the bounding box coordinates for N patches/RoIs.
+                 * Note that the full batched shape is ``[Seq = N, Batch = 1, C = 4 or 5, 1, 1]``
+                 * That is, sequence dimension = N, channel dimension = 4 or 5.
+                 * 
+                 * N: number of patches/RoIs to be extracted
+                 * If RoI shape = ``[N, 4, 1, 1]``
+                 * The channel axis corresponds to the four coordinates specifying the bounding box.
+                 * All the N RoIs are extracted from all the batches of the input.
+                 * If RoI shape = ``[N, 5, 1, 1]``
+                 * The first element of the channel axis specifies the input batch id from which to extract the RoI and
+                 * must be in the interval ``[0, Batch - 1]``. That is, n-th RoI is extracted from the RoI[n,0,0,0]-th input batch id.
+                 * The last four elements of the channel axis specify the bounding box coordinates.
+                 * 
+                 * Output
+                 * A blob with shape ``[N, C, H_out, W_out]``.
+                 * This represents the output image feature map for each input RoI.
+                 * Note that the full batched output shape is:
+                 * - ``[Seq = N, Batch = Batch, C, H_out, W_out]`` if input RoI shape is ``[N, 4, 1, 1]``
+                 * - ``[Seq = N, Batch = 1, C, H_out, W_out]`` if input RoI shape is ``[N, 5, 1, 1]``
+                 * @implements ICropResizeLayerParams
+                 * @constructor
+                 * @param {CoreML.Specification.ICropResizeLayerParams=} [properties] Properties to set
+                 */
+                function CropResizeLayerParams(properties) {
+                    this.targetSize = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                /**
+                 * * Target Spatial Size.
+                 * * Must be length 2 in order ``[Height, Width]``, i.e. ``[H_out, W_out]``.
+                 * * If not set, default value ``[1, 1]`` is used.
+                 * @member {Array.<number|Long>} targetSize
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @instance
+                 */
+                CropResizeLayerParams.prototype.targetSize = $util.emptyArray;
+    
+                /**
+                 * * If true the bounding box coordinates must be in the interval [0, 1].
+                 * * They are scaled by (H_in - 1), (W_in - 1), i.e. based on the input spatial dimensions.
+                 * * If false the bounding box coordinates must be in the interval
+                 * * [0, H_in -1] and [0, W_in - 1], respectively for height and width dimensions.
+                 * @member {boolean} normalizedCoordinates
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @instance
+                 */
+                CropResizeLayerParams.prototype.normalizedCoordinates = false;
+    
+                /**
+                 * * Mode used to compute the grid on which the spatial output values are evaluated.
+                 * * Same mode is applied to both the height and width axes.
+                 * @member {CoreML.Specification.ISamplingMode|null|undefined} mode
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @instance
+                 */
+                CropResizeLayerParams.prototype.mode = null;
+    
+                /**
+                 * * Representation used to express the bounding box coordinates.
+                 * * It determines how the values of the second input are interpreted.
+                 * @member {CoreML.Specification.IBoxCoordinatesMode|null|undefined} boxIndicesMode
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @instance
+                 */
+                CropResizeLayerParams.prototype.boxIndicesMode = null;
+    
+                /**
+                 * * Additional spatial scale that multiplies the bounding box coordinates.
+                 * Generally used while implementing the RoI Align layer,
+                 * which uses unnormalized RoI coordinates along with a spatial scale less than or equal to 1.
+                 * @member {number} spatialScale
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @instance
+                 */
+                CropResizeLayerParams.prototype.spatialScale = 0;
+    
+                /**
+                 * Creates a new CropResizeLayerParams instance using the specified properties.
+                 * @function create
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {CoreML.Specification.ICropResizeLayerParams=} [properties] Properties to set
+                 * @returns {CoreML.Specification.CropResizeLayerParams} CropResizeLayerParams instance
+                 */
+                CropResizeLayerParams.create = function create(properties) {
+                    return new CropResizeLayerParams(properties);
+                };
+    
+                /**
+                 * Encodes the specified CropResizeLayerParams message. Does not implicitly {@link CoreML.Specification.CropResizeLayerParams.verify|verify} messages.
+                 * @function encode
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {CoreML.Specification.ICropResizeLayerParams} message CropResizeLayerParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                CropResizeLayerParams.encode = function encode(message, writer) {
+                    if (!writer)
+                        writer = $Writer.create();
+                    if (message.targetSize != null && message.targetSize.length) {
+                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
+                        for (var i = 0; i < message.targetSize.length; ++i)
+                            writer.uint64(message.targetSize[i]);
+                        writer.ldelim();
+                    }
+                    if (message.normalizedCoordinates != null && message.hasOwnProperty("normalizedCoordinates"))
+                        writer.uint32(/* id 2, wireType 0 =*/16).bool(message.normalizedCoordinates);
+                    if (message.mode != null && message.hasOwnProperty("mode"))
+                        $root.CoreML.Specification.SamplingMode.encode(message.mode, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                    if (message.boxIndicesMode != null && message.hasOwnProperty("boxIndicesMode"))
+                        $root.CoreML.Specification.BoxCoordinatesMode.encode(message.boxIndicesMode, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                    if (message.spatialScale != null && message.hasOwnProperty("spatialScale"))
+                        writer.uint32(/* id 5, wireType 5 =*/45).float(message.spatialScale);
+                    return writer;
+                };
+    
+                /**
+                 * Encodes the specified CropResizeLayerParams message, length delimited. Does not implicitly {@link CoreML.Specification.CropResizeLayerParams.verify|verify} messages.
+                 * @function encodeDelimited
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {CoreML.Specification.ICropResizeLayerParams} message CropResizeLayerParams message or plain object to encode
+                 * @param {$protobuf.Writer} [writer] Writer to encode to
+                 * @returns {$protobuf.Writer} Writer
+                 */
+                CropResizeLayerParams.encodeDelimited = function encodeDelimited(message, writer) {
+                    return this.encode(message, writer).ldelim();
+                };
+    
+                /**
+                 * Decodes a CropResizeLayerParams message from the specified reader or buffer.
+                 * @function decode
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @param {number} [length] Message length if known beforehand
+                 * @returns {CoreML.Specification.CropResizeLayerParams} CropResizeLayerParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                CropResizeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CropResizeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            if (!(message.targetSize && message.targetSize.length))
+                                message.targetSize = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.targetSize.push(reader.uint64());
+                            } else
+                                message.targetSize.push(reader.uint64());
+                            break;
+                        case 2:
+                            message.normalizedCoordinates = reader.bool();
+                            break;
+                        case 3:
+                            message.mode = $root.CoreML.Specification.SamplingMode.decode(reader, reader.uint32());
+                            break;
+                        case 4:
+                            message.boxIndicesMode = $root.CoreML.Specification.BoxCoordinatesMode.decode(reader, reader.uint32());
+                            break;
+                        case 5:
+                            message.spatialScale = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                /**
+                 * Decodes a CropResizeLayerParams message from the specified reader or buffer, length delimited.
+                 * @function decodeDelimited
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+                 * @returns {CoreML.Specification.CropResizeLayerParams} CropResizeLayerParams
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                CropResizeLayerParams.decodeDelimited = function decodeDelimited(reader) {
+                    if (!(reader instanceof $Reader))
+                        reader = new $Reader(reader);
+                    return this.decode(reader, reader.uint32());
+                };
+    
+                /**
+                 * Verifies a CropResizeLayerParams message.
+                 * @function verify
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {Object.<string,*>} message Plain object to verify
+                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
+                 */
+                CropResizeLayerParams.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.targetSize != null && message.hasOwnProperty("targetSize")) {
+                        if (!Array.isArray(message.targetSize))
+                            return "targetSize: array expected";
+                        for (var i = 0; i < message.targetSize.length; ++i)
+                            if (!$util.isInteger(message.targetSize[i]) && !(message.targetSize[i] && $util.isInteger(message.targetSize[i].low) && $util.isInteger(message.targetSize[i].high)))
+                                return "targetSize: integer|Long[] expected";
+                    }
+                    if (message.normalizedCoordinates != null && message.hasOwnProperty("normalizedCoordinates"))
+                        if (typeof message.normalizedCoordinates !== "boolean")
+                            return "normalizedCoordinates: boolean expected";
+                    if (message.mode != null && message.hasOwnProperty("mode")) {
+                        var error = $root.CoreML.Specification.SamplingMode.verify(message.mode);
+                        if (error)
+                            return "mode." + error;
+                    }
+                    if (message.boxIndicesMode != null && message.hasOwnProperty("boxIndicesMode")) {
+                        var error = $root.CoreML.Specification.BoxCoordinatesMode.verify(message.boxIndicesMode);
+                        if (error)
+                            return "boxIndicesMode." + error;
+                    }
+                    if (message.spatialScale != null && message.hasOwnProperty("spatialScale"))
+                        if (typeof message.spatialScale !== "number")
+                            return "spatialScale: number expected";
+                    return null;
+                };
+    
+                /**
+                 * Creates a CropResizeLayerParams message from a plain object. Also converts values to their respective internal types.
+                 * @function fromObject
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {Object.<string,*>} object Plain object
+                 * @returns {CoreML.Specification.CropResizeLayerParams} CropResizeLayerParams
+                 */
+                CropResizeLayerParams.fromObject = function fromObject(object) {
+                    if (object instanceof $root.CoreML.Specification.CropResizeLayerParams)
+                        return object;
+                    var message = new $root.CoreML.Specification.CropResizeLayerParams();
+                    if (object.targetSize) {
+                        if (!Array.isArray(object.targetSize))
+                            throw TypeError(".CoreML.Specification.CropResizeLayerParams.targetSize: array expected");
+                        message.targetSize = [];
+                        for (var i = 0; i < object.targetSize.length; ++i)
+                            if ($util.Long)
+                                (message.targetSize[i] = $util.Long.fromValue(object.targetSize[i])).unsigned = true;
+                            else if (typeof object.targetSize[i] === "string")
+                                message.targetSize[i] = parseInt(object.targetSize[i], 10);
+                            else if (typeof object.targetSize[i] === "number")
+                                message.targetSize[i] = object.targetSize[i];
+                            else if (typeof object.targetSize[i] === "object")
+                                message.targetSize[i] = new $util.LongBits(object.targetSize[i].low >>> 0, object.targetSize[i].high >>> 0).toNumber(true);
+                    }
+                    if (object.normalizedCoordinates != null)
+                        message.normalizedCoordinates = Boolean(object.normalizedCoordinates);
+                    if (object.mode != null) {
+                        if (typeof object.mode !== "object")
+                            throw TypeError(".CoreML.Specification.CropResizeLayerParams.mode: object expected");
+                        message.mode = $root.CoreML.Specification.SamplingMode.fromObject(object.mode);
+                    }
+                    if (object.boxIndicesMode != null) {
+                        if (typeof object.boxIndicesMode !== "object")
+                            throw TypeError(".CoreML.Specification.CropResizeLayerParams.boxIndicesMode: object expected");
+                        message.boxIndicesMode = $root.CoreML.Specification.BoxCoordinatesMode.fromObject(object.boxIndicesMode);
+                    }
+                    if (object.spatialScale != null)
+                        message.spatialScale = Number(object.spatialScale);
+                    return message;
+                };
+    
+                /**
+                 * Creates a plain object from a CropResizeLayerParams message. Also converts values to other types if specified.
+                 * @function toObject
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @static
+                 * @param {CoreML.Specification.CropResizeLayerParams} message CropResizeLayerParams
+                 * @param {$protobuf.IConversionOptions} [options] Conversion options
+                 * @returns {Object.<string,*>} Plain object
+                 */
+                CropResizeLayerParams.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.targetSize = [];
+                    if (options.defaults) {
+                        object.normalizedCoordinates = false;
+                        object.mode = null;
+                        object.boxIndicesMode = null;
+                        object.spatialScale = 0;
+                    }
+                    if (message.targetSize && message.targetSize.length) {
+                        object.targetSize = [];
+                        for (var j = 0; j < message.targetSize.length; ++j)
+                            if (typeof message.targetSize[j] === "number")
+                                object.targetSize[j] = options.longs === String ? String(message.targetSize[j]) : message.targetSize[j];
+                            else
+                                object.targetSize[j] = options.longs === String ? $util.Long.prototype.toString.call(message.targetSize[j]) : options.longs === Number ? new $util.LongBits(message.targetSize[j].low >>> 0, message.targetSize[j].high >>> 0).toNumber(true) : message.targetSize[j];
+                    }
+                    if (message.normalizedCoordinates != null && message.hasOwnProperty("normalizedCoordinates"))
+                        object.normalizedCoordinates = message.normalizedCoordinates;
+                    if (message.mode != null && message.hasOwnProperty("mode"))
+                        object.mode = $root.CoreML.Specification.SamplingMode.toObject(message.mode, options);
+                    if (message.boxIndicesMode != null && message.hasOwnProperty("boxIndicesMode"))
+                        object.boxIndicesMode = $root.CoreML.Specification.BoxCoordinatesMode.toObject(message.boxIndicesMode, options);
+                    if (message.spatialScale != null && message.hasOwnProperty("spatialScale"))
+                        object.spatialScale = options.json && !isFinite(message.spatialScale) ? String(message.spatialScale) : message.spatialScale;
+                    return object;
+                };
+    
+                /**
+                 * Converts this CropResizeLayerParams to JSON.
+                 * @function toJSON
+                 * @memberof CoreML.Specification.CropResizeLayerParams
+                 * @instance
+                 * @returns {Object.<string,*>} JSON object
+                 */
+                CropResizeLayerParams.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return CropResizeLayerParams;
+            })();
+    
             Specification.BiasLayerParams = (function() {
     
                 /**
@@ -29127,8 +30305,8 @@
                  * Sliced section is taken from the interval ``[startIndex, endIndex)``, i.e.
                  * startIndex is inclusive while endIndex is exclusive.
                  * stride must be positive and represents the step size for slicing.
-                 * startIndex must be non-negative. Negative indexing is supported for endIndex: -1 denotes N, -2 denotes N-1
-                 * and so on, where N is the length of the dimension to be sliced.
+                 * Negative indexing is supported for startIndex and endIndex.
+                 * -1 denotes N-1, -2 denotes N-2 and so on, where N is the length of the dimension to be sliced.
                  * @implements ISliceLayerParams
                  * @constructor
                  * @param {CoreML.Specification.ISliceLayerParams=} [properties] Properties to set
