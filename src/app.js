@@ -113,7 +113,7 @@ class Application {
         var showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
-                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'pt', 'pth' ] }
+                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth' ] }
                 /* 
                 { name: 'ONNX Model', extensions: [ 'onnx', 'pb' ] },
                 { name: 'Keras Model', extensions: [ 'h5', 'hdf5', 'json', 'keras' ] },
@@ -124,7 +124,7 @@ class Application {
                 { name: 'PyTorch Model', extensions: [ 'pt', 'pth' ] },
                 { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta' ] },
                 { name: 'TensorFlow Saved Model', extensions: [ 'pb' ] },
-                { name: 'TensorFlow Lite Model', extensions: [ 'tflite' ] } 
+                { name: 'TensorFlow Lite Model', extensions: [ 'tflite', 'lite' ] } 
                 */
             ]
         };
