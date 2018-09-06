@@ -28,6 +28,7 @@ virtualenv=${build}/virtualenv/${identifier}
 virtualenv -p ${python} ${virtualenv}
 source ${virtualenv}/bin/activate
 ${pip} install Cython
+${pip} install numpy
 ${pip} install ${third_party}/${identifier}
 
 echo "Update 'sklearn-metadata.json'"

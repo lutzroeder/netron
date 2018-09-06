@@ -377,5 +377,139 @@
       "description": "An AdaBoost classifier.\n\nAn AdaBoost [1] classifier is a meta-estimator that begins by fitting a\nclassifier on the original dataset and then fits additional copies of the\nclassifier on the same dataset but where the weights of incorrectly\nclassified instances are adjusted such that subsequent classifiers focus\nmore on difficult cases.\n\nThis class implements the algorithm known as AdaBoost-SAMME [2].\n\nRead more in the :ref:`User Guide <adaboost>`.\n",
       "package": "sklearn.ensemble.weight_boosting"
     }
+  },
+  {
+    "name": "LogisticRegression",
+    "schema": {
+      "attributes": [
+        {
+          "default": "l2",
+          "description": "Used to specify the norm used in the penalization. The 'newton-cg',\n'sag' and 'lbfgs' solvers support only l2 penalties.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
+          "name": "penalty"
+        },
+        {
+          "default": false,
+          "description": "Dual or primal formulation. Dual formulation is only implemented for\nl2 penalty with liblinear solver. Prefer dual=False when\nn_samples > n_features.\n",
+          "name": "dual",
+          "type": "boolean"
+        },
+        {
+          "default": 0.0001,
+          "description": "Tolerance for stopping criteria.\n",
+          "name": "tol",
+          "type": "float32"
+        },
+        {
+          "default": 1.0,
+          "description": "Inverse of regularization strength; must be a positive float.\nLike in support vector machines, smaller values specify stronger\nregularization.\n",
+          "name": "C",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "Specifies if a constant (a.k.a. bias or intercept) should be\nadded to the decision function.\n",
+          "name": "fit_intercept",
+          "type": "boolean"
+        },
+        {
+          "default": 1.0,
+          "description": "Useful only when the solver 'liblinear' is used\nand self.fit_intercept is set to True. In this case, x becomes\n[x, self.intercept_scaling],\ni.e. a \"synthetic\" feature with constant value equal to\nintercept_scaling is appended to the instance vector.\nThe intercept becomes ``intercept_scaling * synthetic_feature_weight``.\n\nNote! the synthetic feature weight is subject to l1/l2 regularization\nas all other features.\nTo lessen the effect of regularization on synthetic feature weight\n(and therefore on the intercept) intercept_scaling has to be increased.\n",
+          "name": "intercept_scaling",
+          "type": "float32"
+        },
+        {
+          "default": "None",
+          "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one.\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n\n.. versionadded:: 0.17\n*class_weight='balanced'*\n",
+          "name": "class_weight"
+        },
+        {
+          "default": null,
+          "description": "The seed of the pseudo random number generator to use when shuffling\nthe data.  If int, random_state is the seed used by the random number\ngenerator; If RandomState instance, random_state is the random number\ngenerator; If None, the random number generator is the RandomState\ninstance used by `np.random`. Used when ``solver`` == 'sag' or\n'liblinear'.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": "liblinear'.",
+          "description": "\nAlgorithm to use in the optimization problem.\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag' and\n'saga' are faster for large ones.\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and 'lbfgs'\nhandle multinomial loss; 'liblinear' is limited to one-versus-rest\nschemes.\n- 'newton-cg', 'lbfgs' and 'sag' only handle L2 penalty, whereas\n'liblinear' and 'saga' handle L1 penalty.\n\nNote that 'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from sklearn.preprocessing.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.20\nDefault will change from 'liblinear' to 'lbfgs' in 0.22.\n",
+          "name": "solver"
+        },
+        {
+          "default": 100,
+          "description": "Useful only for the newton-cg, sag and lbfgs solvers.\nMaximum number of iterations taken for the solvers to converge.\n",
+          "name": "max_iter",
+          "type": "int32"
+        },
+        {
+          "default": "ovr",
+          "description": "If the option chosen is 'ovr', then a binary problem is fit for each\nlabel. For 'multinomial' the loss minimised is the multinomial loss fit\nacross the entire probability distribution, *even when the data is\nbinary*. 'multinomial' is unavailable when solver='liblinear'.\n'auto' selects 'ovr' if the data is binary, or if solver='liblinear',\nand otherwise selects 'multinomial'.\n\n.. versionadded:: 0.18\nStochastic Average Gradient descent solver for 'multinomial' case.\n.. versionchanged:: 0.20\nDefault will change from 'ovr' to 'auto' in 0.22.\n",
+          "name": "multi_class"
+        },
+        {
+          "default": 0,
+          "description": "For the liblinear and lbfgs solvers set verbose to any positive\nnumber for verbosity.\n",
+          "name": "verbose",
+          "type": "int32"
+        },
+        {
+          "default": false,
+          "description": "When set to True, reuse the solution of the previous call to fit as\ninitialization, otherwise, just erase the previous solution.\nUseless for liblinear solver. See :term:`the Glossary <warm_start>`.\n\n.. versionadded:: 0.17\n*warm_start* to support *lbfgs*, *newton-cg*, *sag*, *saga* solvers.\n",
+          "name": "warm_start",
+          "type": "boolean"
+        },
+        {
+          "default": "None",
+          "description": "Number of CPU cores used when parallelizing over classes if\nmulti_class='ovr'\". This parameter is ignored when the ``solver`` is\nset to 'liblinear' regardless of whether 'multi_class' is specified or\nnot. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`\ncontext. ``-1`` means using all processors.\nSee :term:`Glossary <n_jobs>` for more details.\n",
+          "name": "n_jobs",
+          "option": "optional"
+        }
+      ],
+      "description": "Logistic Regression (aka logit, MaxEnt) classifier.\n\nIn the multiclass case, the training algorithm uses the one-vs-rest (OvR)\nscheme if the 'multi_class' option is set to 'ovr', and uses the cross-\nentropy loss if the 'multi_class' option is set to 'multinomial'.\n(Currently the 'multinomial' option is supported only by the 'lbfgs',\n'sag' and 'newton-cg' solvers.)\n\nThis class implements regularized logistic regression using the\n'liblinear' library, 'newton-cg', 'sag' and 'lbfgs' solvers. It can handle\nboth dense and sparse input. Use C-ordered arrays or CSR matrices\ncontaining 64-bit floats for optimal performance; any other input format\nwill be converted (and copied).\n\nThe 'newton-cg', 'sag', and 'lbfgs' solvers support only L2 regularization\nwith primal formulation. The 'liblinear' solver supports both L1 and L2\nregularization, with a dual formulation only for the L2 penalty.\n\nRead more in the :ref:`User Guide <logistic_regression>`.\n",
+      "package": "sklearn.linear_model.logistic"
+    }
+  },
+  {
+    "name": "BernoulliRBM",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Number of binary hidden units.\n",
+          "name": "n_components",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "description": "The learning rate for weight updates. It is *highly* recommended\nto tune this hyper-parameter. Reasonable values are in the\n10**[0., -3.] range.\n",
+          "name": "learning_rate",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "description": "Number of examples per minibatch.\n",
+          "name": "batch_size",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "description": "Number of iterations/sweeps over the training dataset to perform\nduring training.\n",
+          "name": "n_iter",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "description": "The verbosity level. The default, zero, means silent mode.\n",
+          "name": "verbose",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "description": "A random number generator instance to define the state of the\nrandom permutations generator. If an integer is given, it fixes the\nseed. Defaults to the global numpy random number generator.\n",
+          "name": "random_state",
+          "option": "optional"
+        }
+      ],
+      "description": "Bernoulli Restricted Boltzmann Machine (RBM).\n\nA Restricted Boltzmann Machine with binary visible units and\nbinary hidden units. Parameters are estimated using Stochastic Maximum\nLikelihood (SML), also known as Persistent Contrastive Divergence (PCD)\n[2].\n\nThe time complexity of this implementation is ``O(d ** 2)`` assuming\nd ~ n_features ~ n_components.\n\nRead more in the :ref:`User Guide <rbm>`.\n",
+      "package": "sklearn.neural_network.rbm"
+    }
   }
 ]

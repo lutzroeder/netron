@@ -84,6 +84,16 @@ class SklearnModelFactor {
                     };
                 };
                 functionTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = functionTable['joblib.numpy_pickle.NumpyArrayWrapper'];
+                functionTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
+                functionTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
+                functionTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
+                functionTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
+                functionTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
+                functionTable['sklearn.naive_bayes.GaussianNB'] = function() {};
+                functionTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
+                functionTable['sklearn.pipeline.Pipeline'] = function() {};
+                functionTable['sklearn.preprocessing.data.Binarizer'] = function() {};
+                functionTable['sklearn.svm.classes.SVC'] = function() {};
                 functionTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
                     this.n_features = n_features;
                     this.n_classes = n_classes;
@@ -95,19 +105,12 @@ class SklearnModelFactor {
                         this.values = state.values;
                     };
                 };
-                functionTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
-                functionTable['sklearn.naive_bayes.GaussianNB'] = function() {};
-                functionTable['sklearn.preprocessing.data.Binarizer'] = function() {};
-                functionTable['sklearn.svm.classes.SVC'] = function() {};
                 functionTable['sklearn.tree.tree.DecisionTreeClassifier'] = function() {};
-                functionTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
-                functionTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
                 functionTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {
                     this.__setstate__ = function(dict) {
                         debugger;
                     };
                 };
-                functionTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
 
                 var function_call = (name, args) => {
                     if (name == 'copy_reg._reconstructor' && args[1] == '__builtin__.object') {
@@ -188,7 +191,26 @@ class SklearnGraph {
 
     constructor(obj) {
         this._nodes = [];
-        this._nodes.push(new SklearnNode(obj));
+        this._groups = false;
+
+        var input = 'data';
+        switch (obj.__type__) {
+            case 'sklearn.pipeline.Pipeline':
+                this._groups = true;
+                for (var step of obj.steps) {
+                    this._nodes.push(new SklearnNode('pipeline', step[0], step[1], [ input ], [ step[0] ]));
+                    input = step[0];
+                }
+                break;
+            default:
+                this._nodes.push(new SklearnNode(null, null, obj, [], []));
+                break;
+        }
+
+    }
+
+    get groups() { 
+        return this._groups;
     }
 
     get inputs() {
@@ -207,10 +229,17 @@ class SklearnGraph {
 
 class SklearnNode {
 
-    constructor(obj) {
-        this._operator = obj.__type__.split('.').pop(); 
+    constructor(group, name, obj, inputs, outputs) {
+        if (group) {
+            this._group = group;
+        }
+        var operator = obj.__type__.split('.');
+        this._type = operator.pop();
+        this._package = operator.join('.');
+        this._name = name;
+        this._inputs = inputs;
+        this._outputs = outputs;
         this._attributes = [];
-
         this._initializers = [];
 
         Object.keys(obj).forEach((key) => {
@@ -236,7 +265,15 @@ class SklearnNode {
     }
 
     get operator() {
-        return this._operator;
+        return this._type;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get group() {
+        return this._group ? this._group : null;
     }
 
     get documentation() {
@@ -244,7 +281,14 @@ class SklearnNode {
     }
 
     get inputs() {
-        var inputs = [];
+
+        var inputs = this._inputs.map((input) => {
+            return {
+                name: input,
+                connections: [ { id: input } ]
+            };
+        });
+
         this._initializers.forEach((initializer) => {
             var input = { connections: [] };
             input.name = initializer.name;
@@ -254,11 +298,17 @@ class SklearnNode {
             });
             inputs.push(input);
         });
+
         return inputs;
     }
 
     get outputs() {
-        return [];
+        return this._outputs.map((output) => {
+            return {
+                name: output,
+                connections: [ { id: output } ]
+            };
+        });
     }
 
     get attributes() {
