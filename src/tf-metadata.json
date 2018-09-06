@@ -9290,6 +9290,15 @@
           "description": "If non-empty, this accumulator will be shared under the\ngiven name across multiple sessions.",
           "name": "shared_name",
           "type": "string"
+        },
+        {
+          "allowedValues": [
+            "MEAN",
+            "SUM"
+          ],
+          "default": "MEAN",
+          "name": "reduction_type",
+          "type": "string"
         }
       ],
       "description": "The accumulator accepts gradients marked with local_step greater or\nequal to the most recent global_step known to the accumulator. The\naverage can be extracted from the accumulator, provided sufficient\ngradients have been accumulated. Extracting the average automatically\nresets the aggregate to 0, and increments the global_step recorded by\nthe accumulator.",
@@ -33457,7 +33466,7 @@
           "type": 7
         },
         {
-          "description": "A 1-D string tensor of the regular expression to match the input.",
+          "description": "A scalar string tensor containing the regular expression to match the input.",
           "name": "pattern",
           "type": 7
         }
@@ -41714,7 +41723,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+          "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         }
@@ -41829,7 +41838,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+          "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         }
@@ -41924,7 +41933,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+          "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         }
@@ -42039,7 +42048,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+          "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         }
@@ -42154,7 +42163,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
+          "description": "A 1-D tensor whose size is equal to the size of `data`'s\nfirst dimension.  Values should be sorted and can be repeated.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         }
@@ -46274,6 +46283,15 @@
           "description": "If non-empty, this accumulator will be shared under the given name\nacross multiple sessions.",
           "name": "shared_name",
           "type": "string"
+        },
+        {
+          "allowedValues": [
+            "MEAN",
+            "SUM"
+          ],
+          "default": "MEAN",
+          "name": "reduction_type",
+          "type": "string"
         }
       ],
       "description": "The accumulator accepts gradients marked with local_step greater or\nequal to the most recent global_step known to the accumulator. The\naverage can be extracted from the accumulator, provided sufficient\ngradients have been accumulated. Extracting the average automatically\nresets the aggregate to 0, and increments the global_step recorded by\nthe accumulator.",
@@ -50379,6 +50397,34 @@
         }
       ],
       "summary": "output = input; While (Cond(output)) { output = Body(output) }"
+    }
+  },
+  {
+    "name": "StaticRegexFullMatch",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The regular expression to match the input.",
+          "name": "pattern",
+          "type": "string"
+        }
+      ],
+      "description": "The input is a string tensor of any shape. The pattern is the\nregular expression to be matched with every element of the input tensor.\nThe boolean values (True or False) of the output tensor indicate\nif the input matches the regex pattern provided.\n\nThe pattern follows the re2 syntax (https://github.com/google/re2/wiki/Syntax)",
+      "inputs": [
+        {
+          "description": "A string tensor of the text to be processed.",
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A bool tensor with the same shape as `input`.",
+          "name": "output",
+          "type": 10
+        }
+      ],
+      "summary": "Check if the input matches the regex pattern."
     }
   },
   {
@@ -54925,14 +54971,14 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_j data_j\\\\) where max is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_{j...} data[j...]\\\\) where max is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.",
+          "description": "A tensor whose shape is a prefix of `data.shape`.END\n  }\n  out_arg {\n    name: \"output\"\n    description: <<END\nHas same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         },
@@ -54943,7 +54989,6 @@
       ],
       "outputs": [
         {
-          "description": "Has same shape as data, except for dimension 0 which\nhas size `num_segments`.",
           "name": "output",
           "typeAttr": "T"
         }
@@ -55042,14 +55087,14 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_j data_j\\\\) where min is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_{j...} data_[j...]\\\\) where min is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
       "inputs": [
         {
           "name": "data",
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.",
+          "description": "A tensor whose shape is a prefix of `data.shape`.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         },
@@ -55060,7 +55105,7 @@
       ],
       "outputs": [
         {
-          "description": "Has same shape as data, except for dimension 0 which\nhas size `num_segments`.",
+          "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
           "name": "output",
           "typeAttr": "T"
         }
@@ -55179,14 +55224,14 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_j data_j\\\\) where the product is over `j` such\nthat `segment_ids[j] == i`.\n\nIf there is no entry for a given segment ID `i`, it outputs 1.",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_{j...} data[j...]\\\\) where the product is over tuples\n`j...` such that `segment_ids[j...] == i`.\n\nIf there is no entry for a given segment ID `i`, it outputs 1.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
       "inputs": [
         {
           "name": "data",
           "typeAttr": "T"
         },
         {
-          "description": "A 1-D tensor whose rank is equal to the rank of `data`'s\nfirst dimension.",
+          "description": "A tensor whose shape is a prefix of `data.shape`.",
           "name": "segment_ids",
           "typeAttr": "Tindices"
         },
@@ -55197,7 +55242,7 @@
       ],
       "outputs": [
         {
-          "description": "Has same shape as data, except for dimension 0 which\nhas size `num_segments`.",
+          "description": "Has same shape as data, except for the first `segment_ids.rank`\ndimensions, which are replaced with a single dimension which has size\n`num_segments`.",
           "name": "output",
           "typeAttr": "T"
         }
@@ -55316,7 +55361,7 @@
           "type": "type"
         }
       ],
-      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
+      "description": "Read\n[the section on segmentation](https://tensorflow.org/api_guides/python/math_ops#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = \\sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>",
       "inputs": [
         {
           "name": "data",
