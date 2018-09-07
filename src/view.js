@@ -216,7 +216,7 @@ class View {
             new PyTorchModelFactory(),
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),
-            new SklearnModelFactor()
+            new SklearnModelFactory()
         ];
 
         try {

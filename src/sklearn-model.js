@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 
-class SklearnModelFactor {
+class SklearnModelFactory {
 
     match(context) {
         var extension = context.identifier.split('.').pop();
@@ -355,9 +355,10 @@ class SklearnTensor {
             case 'numpy.core.multiarray._reconstruct':
                 this._kind = 'Array';
                 this._type = new SklearnTensorType(value.typecode.name, value.shape);
-                this._data = new Uint8Array(value.rawdata.length);
+                var rawdata = SklearnTensor._unescape(value.rawdata);
+                this._data = new Uint8Array(rawdata.length);
                 for (var i = 0; i < this._data.length; i++) {
-                    this._data[i] = value.rawdata.charCodeAt(i);
+                    this._data[i] = rawdata.charCodeAt(i);
                 }
                 break;
             default:
@@ -515,6 +516,29 @@ class SklearnTensor {
         }
         return indentation + value.toString();
     }
+
+    static _unescape(text) {
+        if (!SklearnTensor._escapeRegex) {
+            SklearnTensor.escapeRegex = /\\(u\{([0-9A-Fa-f]+)\}|u([0-9A-Fa-f]{4})|x([0-9A-Fa-f]{2})|([1-7][0-7]{0,2}|[0-7]{2,3})|(['"tbrnfv0\\]))|\\U([0-9A-Fa-f]{8})/g;
+            SklearnTensor.escapeMap = { '0': '\0', 'b': '\b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t', 'v': '\v', '\'': '\'', '"': '"', '\\': '\\' };
+        }
+        return text.replace(SklearnTensor.escapeRegex, (_, __, varHex, longHex, shortHex, octal, specialCharacter, python) => {
+            if (varHex !== undefined) {
+                return String.fromCodePoint(parseInt(varHex, 16));
+            } else if (longHex !== undefined) {
+                return String.fromCodePoint(parseInt(longHex, 16));
+            } else if (shortHex !== undefined) {
+                return String.fromCodePoint(parseInt(shortHex, 16));
+            } else if (octal !== undefined) {
+                return String.fromCodePoint(parseInt(octal, 8));
+            } else if (python !== undefined) {
+                return String.fromCodePoint(parseInt(python, 16));
+            } else {
+                return SklearnTensor.escapeMap[specialCharacter];
+            }
+        });
+    };
+
 }
 
 class SklearnTensorType {
