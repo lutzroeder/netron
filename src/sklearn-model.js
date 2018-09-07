@@ -23,14 +23,24 @@ class SklearnModelFactory {
 
                 functionTable['numpy.dtype'] = function(obj, align, copy) { 
                     switch (obj) {
+                        case 'i1': this.name = 'int8'; this.itemsize = 1; break;
+                        case 'i2': this.name = 'int16'; this.itemsize = 2; break;
                         case 'i4': this.name = 'int32'; this.itemsize = 4; break;
                         case 'i8': this.name = 'int64'; this.itemsize = 8; break;
+                        case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
+                        case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
+                        case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
+                        case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
                         case 'f4': this.name = 'float32'; this.itemsize = 4; break;
                         case 'f8': this.name = 'float64'; this.itemsize = 8; break;
                         default:
                             if (obj.startsWith('V')) {
                                 this.itemsize = Number(obj.substring(1));
                                 this.name = 'void' + (this.itemsize * 8).toString();                                      
+                            }
+                            else if (obj.startsWith('O')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'object';
                             }
                             else {
                                 debugger;
@@ -76,23 +86,32 @@ class SklearnModelFactory {
                         this.shape = state.shape;
                         this.order = state.order;
                         this.allow_mmap = state.allow_mmap;
-                        var size = this.dtype.itemsize;
+                        var size = 1;
                         this.shape.forEach((dimension) => {
                             size *= dimension;
                         });
-                        this.data = reader.readBytes(size);
+                        if (this.dtype.name == 'object') {
+                            this._object = unpickler.load(function_call, null);
+                        }
+                        else {
+                            this.data = reader.readBytes(size * this.dtype.itemsize);
+                        }
                     };
                 };
                 functionTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = functionTable['joblib.numpy_pickle.NumpyArrayWrapper'];
+                functionTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
                 functionTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
                 functionTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
                 functionTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
+                functionTable['sklearn.impute.SimpleImputer'] = function() {};
                 functionTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
                 functionTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
                 functionTable['sklearn.naive_bayes.GaussianNB'] = function() {};
                 functionTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
                 functionTable['sklearn.pipeline.Pipeline'] = function() {};
+                functionTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
                 functionTable['sklearn.preprocessing.data.Binarizer'] = function() {};
+                functionTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
                 functionTable['sklearn.svm.classes.SVC'] = function() {};
                 functionTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
                     this.n_features = n_features;
@@ -111,7 +130,6 @@ class SklearnModelFactory {
                         debugger;
                     };
                 };
-
                 var function_call = (name, args) => {
                     if (name == 'copy_reg._reconstructor' && args[1] == '__builtin__.object') {
                         name = args[0];
@@ -120,10 +138,13 @@ class SklearnModelFactory {
                     if (name == 'numpy.core.multiarray.scalar') {
                         var dtype = args[0];
                         var rawData = args[1];
-                        var data = new Uint8Array(rawData.length);
-                        for (var i = 0; i < rawData.length; i++) {
-                            data[i] = rawData.charCodeAt(i);
-                        }
+                        var data = rawData;
+                        if (rawData.constructor !== Uint8Array) {
+                            data = new Uint8Array(rawData.length);
+                            for (var i = 0; i < rawData.length; i++) {
+                                data[i] = rawData.charCodeAt(i);
+                            }
+                        }                        
                         var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                         switch (dtype.name) {
                             case 'int64':
@@ -131,6 +152,9 @@ class SklearnModelFactory {
                             default:
                                 throw new SklearnError("Unknown scalar type '" + dtype.name + "'.");
                         }
+                    }
+                    if (name == '_codecs.encode') {
+                        return args[0];
                     }
                     var obj = { __type__: name };
                     var constructor = functionTable[name];

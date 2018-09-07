@@ -19,7 +19,7 @@ pickle.Unpickler = class {
             switch (opcode) {
                 case pickle.OpCode.PROTO:
                     var version = reader.readByte();
-                    if (version != 2) {
+                    if (version > 3) {
                         throw new pickle.Error("Unsupported protocol version '" + version + "'.");
                     }
                     break;
@@ -89,6 +89,12 @@ pickle.Unpickler = class {
                     break;
                 case pickle.OpCode.BININT2:
                     stack.push(reader.readUInt16());
+                    break;
+                case pickle.OpCode.BINBYTES:
+                    stack.push(reader.readBytes(reader.readInt32()));
+                    break;
+                case pickle.OpCode.SHORT_BINBYTES:
+                    stack.push(reader.readBytes(reader.readByte()));
                     break;
                 case pickle.OpCode.FLOAT:
                     stack.push(parseFloat(reader.readLine()));
@@ -245,6 +251,7 @@ pickle.Unpickler = class {
 };
 
 // https://svn.python.org/projects/python/trunk/Lib/pickletools.py
+// https://github.com/python/cpython/blob/master/Lib/pickle.py
 pickle.OpCode = {
     MARK: 40,            // '('
     EMPTY_TUPLE: 41,     // ')'
@@ -252,6 +259,8 @@ pickle.OpCode = {
     POP: 48,             // '0'
     POP_MARK: 49,        // '1'
     DUP: 50,             // '2'
+    BINBYTES: 66,        // 'B' (Protocol 3)
+    SHORT_BINBYTES: 67,  // 'C' (Protocol 3)
     FLOAT: 70,           // 'F'
     BINFLOAT: 71,        // 'G'
     INT: 73,             // 'I'
