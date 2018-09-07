@@ -142,7 +142,7 @@
           "type": "string"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "The maximum depth of the tree. If None, then nodes are expanded until\nall leaves are pure or until all leaves contain less than\nmin_samples_split samples.\n",
           "name": "max_depth",
           "option": "optional"
@@ -183,7 +183,7 @@
           "type": "int32"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "Grow a tree with ``max_leaf_nodes`` in best-first fashion.\nBest nodes are defined as relative reduction in impurity.\nIf None then unlimited number of leaf nodes.\n",
           "name": "max_leaf_nodes",
           "option": "optional"
@@ -201,7 +201,7 @@
           "type": "float32"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one. For\nmulti-output problems, a list of dicts can be provided in the same\norder as the columns of y.\n\nNote that for multioutput (including multilabel) weights should be\ndefined for each class of every column in its own dict. For example,\nfor four-class multilabel classification weights should be\n[{0: 1, 1: 1}, {0: 1, 1: 5}, {0: 1, 1: 1}, {0: 1, 1: 1}] instead of\n[{1:1}, {2:5}, {3:1}, {4:1}].\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n\nFor multi-output, the weights of each column of y will be multiplied.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n",
           "name": "class_weight"
         },
@@ -242,7 +242,7 @@
           "type": "int32"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "The maximum depth of the tree. If None, then nodes are expanded until\nall leaves are pure or until all leaves contain less than\nmin_samples_split samples.\n",
           "name": "max_depth",
           "option": "optional"
@@ -269,7 +269,7 @@
           "type": "float32"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "Grow trees with ``max_leaf_nodes`` in best-first fashion.\nBest nodes are defined as relative reduction in impurity.\nIf None then unlimited number of leaf nodes.\n",
           "name": "max_leaf_nodes",
           "option": "optional"
@@ -300,7 +300,7 @@
           "type": "boolean"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "The number of jobs to run in parallel for both `fit` and `predict`.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
           "name": "n_jobs",
           "option": "optional"
@@ -327,7 +327,7 @@
           "type": "boolean"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one. For\nmulti-output problems, a list of dicts can be provided in the same\norder as the columns of y.\n\nNote that for multioutput (including multilabel) weights should be\ndefined for each class of every column in its own dict. For example,\nfor four-class multilabel classification weights should be\n[{0: 1, 1: 1}, {0: 1, 1: 5}, {0: 1, 1: 1}, {0: 1, 1: 1}] instead of\n[{1:1}, {2:5}, {3:1}, {4:1}].\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n\nThe \"balanced_subsample\" mode is the same as \"balanced\" except that\nweights are computed based on the bootstrap sample for every tree\ngrown.\n\nFor multi-output, the weights of each column of y will be multiplied.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n",
           "name": "class_weight",
           "option": "optional"
@@ -342,7 +342,7 @@
     "schema": {
       "attributes": [
         {
-          "default": "None",
+          "default": null,
           "description": "The base estimator from which the boosted ensemble is built.\nSupport for sample weighting is required, as well as proper\n``classes_`` and ``n_classes_`` attributes. If ``None``, then\nthe base estimator is ``DecisionTreeClassifier(max_depth=1)``\n",
           "name": "base_estimator",
           "option": "optional"
@@ -418,7 +418,7 @@
           "type": "float32"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "Weights associated with classes in the form ``{class_label: weight}``.\nIf not given, all classes are supposed to have weight one.\n\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n\nNote that these weights will be multiplied with sample_weight (passed\nthrough the fit method) if sample_weight is specified.\n\n.. versionadded:: 0.17\n*class_weight='balanced'*\n",
           "name": "class_weight"
         },
@@ -458,7 +458,7 @@
           "type": "boolean"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "Number of CPU cores used when parallelizing over classes if\nmulti_class='ovr'\". This parameter is ignored when the ``solver`` is\nset to 'liblinear' regardless of whether 'multi_class' is specified or\nnot. ``None`` means 1 unless in a :obj:`joblib.parallel_backend`\ncontext. ``-1`` means using all processors.\nSee :term:`Glossary <n_jobs>` for more details.\n",
           "name": "n_jobs",
           "option": "optional"

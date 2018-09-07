@@ -80,7 +80,10 @@ def update_attribute(schema, name, description, type, option, default):
             if type:
                 raise Exception("Unknown default type '" + type + "'.")
             else:
-                attribute['default'] = default.strip("'")
+                if default == 'None':
+                    attribute['default'] = None
+                else:
+                    attribute['default'] = default.strip("'")
 
 def update_attributes(schema, lines):
     index = 0;
