@@ -26,7 +26,7 @@ To build and launch the Python server run:
 ```bash
 npm install
 python ./setup.py build
-PYTHONPATH=./build/python/lib python ./build/python/scripts-2.7/netron [...]
+PYTHONPATH=${source}/build/python/lib python -c "import netron; netron.main()" [...]
 ```
 
 The same can be accomplished by running the `./netron` script in the enlistment root folder.

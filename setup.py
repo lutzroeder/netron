@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import distutils
 import io
@@ -107,9 +107,9 @@ setuptools.setup(
     author='Lutz Roeder',
     author_email='lutzroeder@users.noreply.github.com',
     url='https://github.com/lutzroeder/netron',
-    scripts=[
-        'src/netron'
-    ],
+    entry_points={
+        'console_scripts': [ 'netron = netron:main' ]
+    },
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
