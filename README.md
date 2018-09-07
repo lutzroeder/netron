@@ -9,7 +9,7 @@ Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.h5`, `
 
 ## Install
 
-**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or with [Homebrew](https://caskroom.github.io) run `brew cask install netron`
+**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or run `brew cask install netron`
 
 **Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.AppImage` or `.deb` file. 
 
@@ -17,7 +17,7 @@ Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`), **Keras** (`.h5`, `
 
 **Browser**: [**Start**](https://www.lutzroeder.com/ai/netron) the browser version.
 
-**Python Server**: Run `pip install netron` and `netron [MODEL_FILE]`.  
+**Python Server**: Run `pip install netron` and `netron [MODEL_FILE]`. In Python run `import netron` and `netron.browse('model.onnx')`.
 
 ## Download Models
 
