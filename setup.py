@@ -84,7 +84,6 @@ setuptools.setup(
     ],
     package_data={
         'netron': [ 
-            'netron', 'netron.py',
             'logo.svg', 'spinner.svg', 'favicon.ico', 'icon.png',
             'onnx-model.js', 'onnx.js', 'onnx-metadata.json',
             'tf-model.js', 'tf.js', 'tf-metadata.json',
@@ -100,7 +99,8 @@ setuptools.setup(
             'view-browser.html', 'view-browser.js',
             'view-render.css', 'view-render.js',
             'view-sidebar.css', 'view-sidebar.js',
-            'view.js', 'view.css'
+            'view.js', 'view.css',
+            'server.py'
         ]
     },
     install_requires=[],

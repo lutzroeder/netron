@@ -1,7 +1,7 @@
 
-from .netron import serve_data
-from .netron import serve_file
-from .netron import browse
+from .server import serve_data
+from .server import serve_file
+from .server import browse
 from .__version__ import __version__
 
 import argparse
