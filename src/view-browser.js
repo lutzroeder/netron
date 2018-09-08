@@ -45,7 +45,7 @@ class BrowserHost {
             }
         });
 
-        this._version = meta.version ? meta.version[0] : '0.0.0';
+        this._version = meta.version ? meta.version[0] : null;
         this._type = meta.type ? meta.type[0] : 'Browser';
 
         if (meta.file) {
@@ -153,7 +153,7 @@ class BrowserHost {
     }
 
     exception(err, fatal) {
-        if (window.ga) {
+        if (window.ga && this.version) {
             var description = [];
             description.push((err.name ? (err.name + ': ') : '') + err.message);
             if (err.stack) {
@@ -175,7 +175,7 @@ class BrowserHost {
     }
 
     screen(name) {
-        if (window.ga) {
+        if (window.ga && this.version) {
             window.ga('send', 'screenview', {
                 screenName: name,
                 appName: this.type,
@@ -185,7 +185,7 @@ class BrowserHost {
     }
 
     event(category, action, label, value) {
-        if (window.ga) {
+        if (window.ga && this.version) {
             window.ga('send', 'event', {
                 eventCategory: category,
                 eventAction: action,
@@ -201,6 +201,9 @@ class BrowserHost {
         var url = file;
         if (window && window.location && window.location.href) {
             var location = window.location.href.split('?').shift();
+            if (location.endsWith('.html')) {
+                location = location.split('/').slice(0, -1).join('/');
+            }
             if (location.endsWith('/')) {
                 location = location.slice(0, -1);
             }
