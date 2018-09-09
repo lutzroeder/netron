@@ -54,53 +54,58 @@ class PyTorchModelFactory {
                 }
             }
 
+            var constructorTable = {};
             var functionTable = {};
-            functionTable['argparse.Namespace'] = function (args) { this.args = args; };
-            functionTable['torch.nn.modules.activation.ReLU'] = function () {};
-            functionTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
-            functionTable['torch.nn.modules.container.Sequential'] = function () {};
-            functionTable['torch.nn.modules.conv.Conv2d'] = function () {};
-            functionTable['torch.nn.modules.dropout.Dropout'] = function () {};
-            functionTable['torch.nn.modules.linear.Linear'] = function () {};
-            functionTable['torch.nn.modules.pooling.AvgPool2d'] = function () {};
-            functionTable['torch.nn.modules.pooling.MaxPool2d'] = function () {};
-            functionTable['torchvision.models.alexnet.AlexNet'] = function () {};
-            functionTable['torchvision.models.densenet.DenseNet'] = function () {};
-            functionTable['torchvision.models.densenet._DenseBlock'] = function () {};
-            functionTable['torchvision.models.densenet._DenseLayer'] = function () {};
-            functionTable['torchvision.models.densenet._Transition'] = function () {};
-            functionTable['torchvision.models.inception.BasicConv2d'] = function () {};
-            functionTable['torchvision.models.inception.Inception3'] = function () {};
-            functionTable['torchvision.models.inception.InceptionAux'] = function () {};
-            functionTable['torchvision.models.inception.InceptionA'] = function () {};
-            functionTable['torchvision.models.inception.InceptionB'] = function () {};
-            functionTable['torchvision.models.inception.InceptionC'] = function () {};
-            functionTable['torchvision.models.inception.InceptionD'] = function () {};
-            functionTable['torchvision.models.inception.InceptionE'] = function () {};
-            functionTable['torchvision.models.resnet.Bottleneck'] = function () {};
-            functionTable['torchvision.models.resnet.ResNet'] = function () {};
-            functionTable['torchvision.models.vgg.VGG'] = function () {};
-            functionTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
-            functionTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) { this.data = data; this.requires_grad = requires_grad; };
-            functionTable['torch.FloatStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'float32'; };
-            functionTable['torch.LongStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'int64'; };
+
+            constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
+            constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
+            constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
+            constructorTable['torch.nn.modules.container.Sequential'] = function () {};
+            constructorTable['torch.nn.modules.conv.Conv2d'] = function () {};
+            constructorTable['torch.nn.modules.dropout.Dropout'] = function () {};
+            constructorTable['torch.nn.modules.linear.Linear'] = function () {};
+            constructorTable['torch.nn.modules.pooling.AvgPool2d'] = function () {};
+            constructorTable['torch.nn.modules.pooling.MaxPool2d'] = function () {};
+            constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
+            constructorTable['torchvision.models.densenet.DenseNet'] = function () {};
+            constructorTable['torchvision.models.densenet._DenseBlock'] = function () {};
+            constructorTable['torchvision.models.densenet._DenseLayer'] = function () {};
+            constructorTable['torchvision.models.densenet._Transition'] = function () {};
+            constructorTable['torchvision.models.inception.BasicConv2d'] = function () {};
+            constructorTable['torchvision.models.inception.Inception3'] = function () {};
+            constructorTable['torchvision.models.inception.InceptionAux'] = function () {};
+            constructorTable['torchvision.models.inception.InceptionA'] = function () {};
+            constructorTable['torchvision.models.inception.InceptionB'] = function () {};
+            constructorTable['torchvision.models.inception.InceptionC'] = function () {};
+            constructorTable['torchvision.models.inception.InceptionD'] = function () {};
+            constructorTable['torchvision.models.inception.InceptionE'] = function () {};
+            constructorTable['torchvision.models.resnet.Bottleneck'] = function () {};
+            constructorTable['torchvision.models.resnet.ResNet'] = function () {};
+            constructorTable['torchvision.models.vgg.VGG'] = function () {};
+            constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
+            constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) { this.data = data; this.requires_grad = requires_grad; };
+            constructorTable['torch.FloatStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'float32'; };
+            constructorTable['torch.LongStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'int64'; };
 
             functionTable['torch._utils._rebuild_tensor'] = function (storage, storage_offset, size, stride) {
-                this.__type__ = storage.__type__.replace('Storage', 'Tensor');
-                this.storage = storage;
-                this.storage_offset = storage_offset;
-                this.size = size;
-                this.stride = stride;
+                var obj = {};
+                obj.__type__ = storage.__type__.replace('Storage', 'Tensor');
+                obj.storage = storage;
+                obj.storage_offset = storage_offset;
+                obj.size = size;
+                obj.stride = stride;
+                return obj;
             };
-
             functionTable['torch._utils._rebuild_tensor_v2'] = function (storage, storage_offset, size, stride, requires_grad, backward_hooks) {
-                this.__type__ = storage.__type__.replace('Storage', 'Tensor');
-                this.storage = storage;
-                this.storage_offset = storage_offset;
-                this.size = size;
-                this.stride = stride;
-                this.requires_grad = requires_grad;
-                this.backward_hooks =  backward_hooks;
+                var obj = {};
+                obj.__type__ = storage.__type__.replace('Storage', 'Tensor');
+                obj.storage = storage;
+                obj.storage_offset = storage_offset;
+                obj.size = size;
+                obj.stride = stride;
+                obj.requires_grad = requires_grad;
+                obj.backward_hooks =  backward_hooks;
+                return obj;
             };
 
             var function_call = (name, args) => {
@@ -108,23 +113,24 @@ class PyTorchModelFactory {
                     if (args.length == 0) {
                         return [];
                     }
-                    return args[0].map((arg) => { 
-                        arg[1] = arg[1] || {};
-                        arg[1].__id__ = arg[0];
-                        return arg[1];
+                    return args[0].map((arg) => {
+                        var item = arg[1] || {};
+                        item.__id__ = arg[0];
+                        return item;
                     });
                 }
+                var func = functionTable[name];
+                if (func) {
+                    return func.apply(null, args);
+                }
                 var obj = { __type__: name };
-                var constructor = functionTable[name];
+                var constructor = constructorTable[name];
                 if (constructor) {
                     constructor.apply(obj, args);
-                    if (module_source_map[name]) {
-                        obj.__source__ = module_source_map[name];
-                    }
                 }
                 else {
                     debugger;
-                    host.exception(new PyTorchError("Unknown function '" + name + "'."), false);
+                    host.exception(new SklearnError("Unknown function '" + name + "'."), false);
                 }
                 return obj;
             };
