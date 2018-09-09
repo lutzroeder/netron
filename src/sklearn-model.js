@@ -134,6 +134,14 @@ class SklearnModelFactory {
                 constructorTable['collections.defaultdict'] = function(default_factory) {
                 };
 
+                functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
+                    if (base == '__builtin__.object') {
+                        var obj = {};
+                        obj.__type__ = cls;
+                        return obj;
+                    }
+                    throw new pickle.Error("Unknown base type '" + base + "'.");
+                };
                 functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
                     var data = rawData;
                     if (rawData.constructor !== Uint8Array) {
@@ -141,12 +149,14 @@ class SklearnModelFactory {
                         for (var i = 0; i < rawData.length; i++) {
                             data[i] = rawData.charCodeAt(i);
                         }
-                    }                        
+                    }
                     var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.name) {
                         case 'float64':
                             return dataView.getFloat64(0, true);
                         case 'int64':
+                            // var offset = (position * dtype.itemsize) + dataView.byteOffset;
+                            // return new Int64(new Uint8Array(dataView.buffer.slice(offset, offset + dtype.itemsize)));
                             return new Int64(data.subarray(0, dtype.itemsize));
                     }
                     throw new SklearnError("Unknown scalar type '" + dtype.name + "'.");
@@ -164,10 +174,6 @@ class SklearnModelFactory {
                 };
 
                 var function_call = (name, args) => {
-                    if (name == 'copy_reg._reconstructor' && args[1] == '__builtin__.object') {
-                        name = args[0];
-                        args = [];
-                    }
                     var func = functionTable[name];
                     if (func) {
                         return func.apply(null, args);

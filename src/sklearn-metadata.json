@@ -638,7 +638,7 @@
           "type": "int32"
         },
         {
-          "default": "liblinear'.",
+          "default": "liblinear",
           "description": "\nAlgorithm to use in the optimization problem.\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag' and\n'saga' are faster for large ones.\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and 'lbfgs'\nhandle multinomial loss; 'liblinear' is limited to one-versus-rest\nschemes.\n- 'newton-cg', 'lbfgs' and 'sag' only handle L2 penalty, whereas\n'liblinear' and 'saga' handle L1 penalty.\n\nNote that 'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from sklearn.preprocessing.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.20\nDefault will change from 'liblinear' to 'lbfgs' in 0.22.\n",
           "name": "solver"
         },

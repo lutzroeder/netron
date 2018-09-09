@@ -89,6 +89,8 @@ def update_attributes(schema, lines):
     index = 0;
     while index < len(lines):
         line = lines[index]
+        if line.endswith('.'):
+            line = line[0:-1]
         colon = line.find(':')
         if colon == -1:
             raise Exception("Expected ':' in parameter.")
