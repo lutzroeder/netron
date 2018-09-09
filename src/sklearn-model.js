@@ -19,9 +19,10 @@ class SklearnModelFactory {
             try {
                 var unpickler = new pickle.Unpickler(context.buffer);
 
+                var constructorTable = {};
                 var functionTable = {};
 
-                functionTable['numpy.dtype'] = function(obj, align, copy) { 
+                constructorTable['numpy.dtype'] = function(obj, align, copy) { 
                     switch (obj) {
                         case 'i1': this.name = 'int8'; this.itemsize = 1; break;
                         case 'i2': this.name = 'int16'; this.itemsize = 2; break;
@@ -67,7 +68,7 @@ class SklearnModelFactory {
                         }
                     };
                 };
-                functionTable['numpy.core.multiarray._reconstruct'] = function(subtype, shape, dtype) {
+                constructorTable['numpy.core.multiarray._reconstruct'] = function(subtype, shape, dtype) {
                     this.subtype = subtype;
                     this.shape = shape;
                     this.dtype = dtype;
@@ -79,7 +80,7 @@ class SklearnModelFactory {
                         this.rawdata = state[4];
                     };
                 };
-                functionTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(subtype, shape, dtype) {
+                constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(subtype, shape, dtype) {
                     this.__setstate__ = function(state, reader) {
                         this.subclass = state.subclass;
                         this.dtype = state.dtype;
@@ -98,22 +99,26 @@ class SklearnModelFactory {
                         }
                     };
                 };
-                functionTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = functionTable['joblib.numpy_pickle.NumpyArrayWrapper'];
-                functionTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
-                functionTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
-                functionTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
-                functionTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
-                functionTable['sklearn.impute.SimpleImputer'] = function() {};
-                functionTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
-                functionTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
-                functionTable['sklearn.naive_bayes.GaussianNB'] = function() {};
-                functionTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
-                functionTable['sklearn.pipeline.Pipeline'] = function() {};
-                functionTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
-                functionTable['sklearn.preprocessing.data.Binarizer'] = function() {};
-                functionTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
-                functionTable['sklearn.svm.classes.SVC'] = function() {};
-                functionTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
+                constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
+                constructorTable['lightgbm.basic.Booster'] = function() {};
+                constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
+                constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
+                constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
+                constructorTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
+                constructorTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
+                constructorTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
+                constructorTable['sklearn.impute.SimpleImputer'] = function() {};
+                constructorTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
+                constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
+                constructorTable['sklearn.model_selection._search.GridSearchCV'] = function() {};
+                constructorTable['sklearn.naive_bayes.GaussianNB'] = function() {};
+                constructorTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
+                constructorTable['sklearn.pipeline.Pipeline'] = function() {};
+                constructorTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
+                constructorTable['sklearn.preprocessing.data.Binarizer'] = function() {};
+                constructorTable['sklearn.preprocessing.data.StandardScaler'] = function() {};
+                constructorTable['sklearn.svm.classes.SVC'] = function() {};
+                constructorTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
                     this.n_features = n_features;
                     this.n_classes = n_classes;
                     this.n_outputs = n_outputs;
@@ -124,40 +129,51 @@ class SklearnModelFactory {
                         this.values = state.values;
                     };
                 };
-                functionTable['sklearn.tree.tree.DecisionTreeClassifier'] = function() {};
-                functionTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {
-                    this.__setstate__ = function(dict) {
-                        debugger;
-                    };
+                constructorTable['sklearn.tree.tree.DecisionTreeClassifier'] = function() {};
+                constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() { };
+                constructorTable['collections.defaultdict'] = function(default_factory) {
                 };
+
+                functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
+                    var data = rawData;
+                    if (rawData.constructor !== Uint8Array) {
+                        data = new Uint8Array(rawData.length);
+                        for (var i = 0; i < rawData.length; i++) {
+                            data[i] = rawData.charCodeAt(i);
+                        }
+                    }                        
+                    var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    switch (dtype.name) {
+                        case 'float64':
+                            return dataView.getFloat64(0, true);
+                        case 'int64':
+                            return new Int64(data.subarray(0, dtype.itemsize));
+                    }
+                    throw new SklearnError("Unknown scalar type '" + dtype.name + "'.");
+                };
+                functionTable['numpy.ma.core._mareconstruct'] = function(subtype, baseclass, baseshape, basetype) {
+                    // _data = ndarray.__new__(baseclass, baseshape, basetype)
+                    // _mask = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
+                    // return subtype.__new__(subtype, _data, mask=_mask, dtype=basetype,)
+                    var obj = {};
+                    obj.__type__ = subtype;
+                    return obj;
+                };
+                functionTable['_codecs.encode'] = function(obj, econding) {
+                    return obj;
+                };
+
                 var function_call = (name, args) => {
                     if (name == 'copy_reg._reconstructor' && args[1] == '__builtin__.object') {
                         name = args[0];
                         args = [];
                     }
-                    if (name == 'numpy.core.multiarray.scalar') {
-                        var dtype = args[0];
-                        var rawData = args[1];
-                        var data = rawData;
-                        if (rawData.constructor !== Uint8Array) {
-                            data = new Uint8Array(rawData.length);
-                            for (var i = 0; i < rawData.length; i++) {
-                                data[i] = rawData.charCodeAt(i);
-                            }
-                        }                        
-                        var dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
-                        switch (dtype.name) {
-                            case 'int64':
-                                return new Int64(data.subarray(0, dtype.itemsize));
-                            default:
-                                throw new SklearnError("Unknown scalar type '" + dtype.name + "'.");
-                        }
-                    }
-                    if (name == '_codecs.encode') {
-                        return args[0];
+                    var func = functionTable[name];
+                    if (func) {
+                        return func.apply(null, args);
                     }
                     var obj = { __type__: name };
-                    var constructor = functionTable[name];
+                    var constructor = constructorTable[name];
                     if (constructor) {
                         constructor.apply(obj, args);
                     }
