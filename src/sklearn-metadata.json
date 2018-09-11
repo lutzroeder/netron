@@ -719,5 +719,34 @@
       "description": "Bernoulli Restricted Boltzmann Machine (RBM).\n\nA Restricted Boltzmann Machine with binary visible units and\nbinary hidden units. Parameters are estimated using Stochastic Maximum\nLikelihood (SML), also known as Persistent Contrastive Divergence (PCD)\n[2].\n\nThe time complexity of this implementation is ``O(d ** 2)`` assuming\nd ~ n_features ~ n_components.\n\nRead more in the :ref:`User Guide <rbm>`.\n",
       "package": "sklearn.neural_network.rbm"
     }
+  },
+  {
+    "name": "MultinomialNB",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
+          "name": "alpha",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "Whether to learn class prior probabilities or not.\nIf false, a uniform prior will be used.\n",
+          "name": "fit_prior",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": null,
+          "description": "Prior probabilities of the classes. If specified the priors are not\nadjusted according to the data.\n",
+          "name": "class_prior",
+          "option": "optional"
+        }
+      ],
+      "description": "\nNaive Bayes classifier for multinomial models\n\nThe multinomial Naive Bayes classifier is suitable for classification with\ndiscrete features (e.g., word counts for text classification). The\nmultinomial distribution normally requires integer feature counts. However,\nin practice, fractional counts such as tf-idf may also work.\n\nRead more in the :ref:`User Guide <multinomial_naive_bayes>`.\n",
+      "package": "sklearn.naive_bayes"
+    }
   }
 ]
