@@ -987,7 +987,7 @@
           "type": "string"
         },
         {
-          "description": "Whether include pad pixels when calculating values for the edges.",
+          "description": "Whether include pad pixels when calculating values for the edges. Default is 0, doesn't count include pad.",
           "name": "count_include_pad",
           "required": false,
           "type": "int"
