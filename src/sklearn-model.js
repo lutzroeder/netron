@@ -111,6 +111,8 @@ class SklearnModelFactory {
                 constructorTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
                 constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
                 constructorTable['sklearn.model_selection._search.GridSearchCV'] = function() {};
+                constructorTable['sklearn.naive_bayes.BernoulliNB'] = function() {};
+                constructorTable['sklearn.naive_bayes.ComplementNB'] = function() {};
                 constructorTable['sklearn.naive_bayes.GaussianNB'] = function() {};
                 constructorTable['sklearn.naive_bayes.MultinomialNB'] = function() {};
                 constructorTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};

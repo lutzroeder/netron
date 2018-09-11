@@ -721,6 +721,77 @@
     }
   },
   {
+    "name": "BernoulliNB",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "Additive (Laplace/Lidstone) smoothing parameter\n(0 for no smoothing).\n",
+          "name": "alpha",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": "0.0",
+          "description": "Threshold for binarizing (mapping to booleans) of sample features.\nIf None, input is presumed to already consist of binary vectors.\n",
+          "name": "binarize",
+          "option": "optional"
+        },
+        {
+          "default": true,
+          "description": "Whether to learn class prior probabilities or not.\nIf false, a uniform prior will be used.\n",
+          "name": "fit_prior",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": null,
+          "description": "Prior probabilities of the classes. If specified the priors are not\nadjusted according to the data.\n",
+          "name": "class_prior",
+          "option": "optional"
+        }
+      ],
+      "description": "Naive Bayes classifier for multivariate Bernoulli models.\n\nLike MultinomialNB, this classifier is suitable for discrete data. The\ndifference is that while MultinomialNB works with occurrence counts,\nBernoulliNB is designed for binary/boolean features.\n\nRead more in the :ref:`User Guide <bernoulli_naive_bayes>`.\n",
+      "package": "sklearn.naive_bayes"
+    }
+  },
+  {
+    "name": "ComplementNB",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "Additive (Laplace/Lidstone) smoothing parameter (0 for no smoothing).\n",
+          "name": "alpha",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": true,
+          "description": "Only used in edge case with a single class in the training set.\n",
+          "name": "fit_prior",
+          "option": "optional",
+          "type": "boolean"
+        },
+        {
+          "default": null,
+          "description": "Prior probabilities of the classes. Not used.\n",
+          "name": "class_prior",
+          "option": "optional"
+        },
+        {
+          "default": false,
+          "description": "Whether or not a second normalization of the weights is performed. The\ndefault behavior mirrors the implementations found in Mahout and Weka,\nwhich do not follow the full algorithm described in Table 9 of the\npaper.\n",
+          "name": "norm",
+          "option": "optional",
+          "type": "boolean"
+        }
+      ],
+      "description": "The Complement Naive Bayes classifier described in Rennie et al. (2003).\n\nThe Complement Naive Bayes classifier was designed to correct the \"severe\nassumptions\" made by the standard Multinomial Naive Bayes classifier. It is\nparticularly suited for imbalanced data sets.\n\nRead more in the :ref:`User Guide <complement_naive_bayes>`.\n",
+      "package": "sklearn.naive_bayes"
+    }
+  },
+  {
     "name": "MultinomialNB",
     "schema": {
       "attributes": [
