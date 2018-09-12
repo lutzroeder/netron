@@ -115,7 +115,8 @@ tflite.BuiltinOperator = {
   UNPACK: 88,
   REDUCE_MIN: 89,
   FLOOR_DIV: 90,
-  REDUCE_ANY: 91
+  REDUCE_ANY: 91,
+  SQUARE: 92
 };
 
 /**
@@ -187,7 +188,8 @@ tflite.BuiltinOptions = {
   LogicalAndOptions: 62,
   LogicalNotOptions: 63,
   UnpackOptions: 64,
-  FloorDivOptions: 65
+  FloorDivOptions: 65,
+  SquareOptions: 66
 };
 
 /**
@@ -5507,6 +5509,57 @@ tflite.FloorDivOptions.startFloorDivOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite.FloorDivOptions.endFloorDivOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.SquareOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.SquareOptions}
+ */
+tflite.SquareOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.SquareOptions=} obj
+ * @returns {tflite.SquareOptions}
+ */
+tflite.SquareOptions.getRootAsSquareOptions = function(bb, obj) {
+  return (obj || new tflite.SquareOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.SquareOptions.startSquareOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.SquareOptions.endSquareOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
