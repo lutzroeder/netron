@@ -7314,6 +7314,42 @@
     }
   },
   {
+    "name": "BoostedTreesBucketize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "inferred int; number of features.",
+          "minimum": 0,
+          "name": "num_features",
+          "type": "int"
+        }
+      ],
+      "description": "An op that returns a list of float tensors, where each tensor represents the\nbucketized values for a single feature.",
+      "inputs": [
+        {
+          "description": "float; List of Rank 2 Tensor each containing float values for a single feature.",
+          "name": "float_values",
+          "numberAttr": "num_features",
+          "type": 1
+        },
+        {
+          "description": "float; List of Rank 1 Tensors each containing the bucket boundaries for a single\nfeature.",
+          "name": "bucket_boundaries",
+          "numberAttr": "num_features",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "int; List of Rank 2 Tensors each containing the bucketized values for a single feature.",
+          "name": "buckets",
+          "type": 3
+        }
+      ],
+      "summary": "Bucketize each feature based on bucket boundaries."
+    }
+  },
+  {
     "name": "BoostedTreesCalculateBestGainsPerFeature",
     "schema": {
       "attributes": [
@@ -7458,6 +7494,37 @@
     }
   },
   {
+    "name": "BoostedTreesCreateQuantileStreamResource",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1099511627776,
+          "description": "int; The maximum number of data points that can be fed to the stream.",
+          "name": "max_elements",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "resource; Handle to quantile stream resource.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        },
+        {
+          "description": "float; The required approximation error of the stream resource.",
+          "name": "epsilon",
+          "type": 1
+        },
+        {
+          "description": "int; The number of streams managed by the resource that shares the same epsilon.",
+          "name": "num_streams",
+          "type": 9
+        }
+      ],
+      "summary": "Create the Resource for Quantile Streams."
+    }
+  },
+  {
     "name": "BoostedTreesDeserializeEnsemble",
     "schema": {
       "description": "ensemble.",
@@ -7585,6 +7652,46 @@
     }
   },
   {
+    "name": "BoostedTreesMakeQuantileSummaries",
+    "schema": {
+      "attributes": [
+        {
+          "description": "int; Inferred from the size of float_values.\nThe number of float features.",
+          "minimum": 0,
+          "name": "num_features",
+          "type": "int"
+        }
+      ],
+      "description": "An op that takes a list of tensors and outputs the quantile summaries for each tensor.",
+      "inputs": [
+        {
+          "description": "float; List of Rank 2 Tensors each containing values for a single feature.",
+          "name": "float_values",
+          "numberAttr": "num_features",
+          "type": 1
+        },
+        {
+          "description": "float; Rank 1 Tensor with weights per instance.",
+          "name": "example_weights",
+          "type": 1
+        },
+        {
+          "description": "float; The required maximum approximation error.",
+          "name": "epsilon",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "float; List of Rank 2 Tensors each containing the quantile summary (value, weight,\nmin_rank, max_rank) of a single feature.",
+          "name": "summaries",
+          "type": 1
+        }
+      ],
+      "summary": "Makes the summary of quantiles for the batch."
+    }
+  },
+  {
     "name": "BoostedTreesMakeStatsSummary",
     "schema": {
       "attributes": [
@@ -7678,6 +7785,113 @@
         }
       ],
       "summary": "Runs multiple additive regression ensemble predictors on input instances and"
+    }
+  },
+  {
+    "name": "BoostedTreesQuantileStreamResourceAddSummaries",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "num_features",
+          "type": "int"
+        }
+      ],
+      "description": "An op that adds a list of quantile summaries to a quantile stream resource. Each\nsummary Tensor is rank 2, containing summaries (value, weight, min_rank, max_rank)\nfor a single feature.",
+      "inputs": [
+        {
+          "description": "resource handle referring to a QuantileStreamResource.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        },
+        {
+          "description": "string; List of Rank 2 Tensor each containing the summaries for a single feature.",
+          "name": "summaries",
+          "numberAttr": "num_features",
+          "type": 1
+        }
+      ],
+      "summary": "Add the quantile summaries to each quantile stream resource."
+    }
+  },
+  {
+    "name": "BoostedTreesQuantileStreamResourceFlush",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "description": "bool; If True, the output will be the num_quantiles for each stream where the ith\nentry is the ith quantile of the input with an approximation error of epsilon.\nDuplicate values may be present.\nIf False, the output will be the points in the histogram that we got which roughly\ntranslates to 1/epsilon boundaries and without any duplicates.\nDefault to False.",
+          "name": "generate_quantiles",
+          "type": "bool"
+        }
+      ],
+      "description": "An op that flushes the summaries for a quantile stream resource.",
+      "inputs": [
+        {
+          "description": "resource handle referring to a QuantileStreamResource.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        },
+        {
+          "description": "int; approximate number of buckets unless using generate_quantiles.",
+          "name": "num_buckets",
+          "type": 9
+        }
+      ],
+      "summary": "Flush the summaries for a quantile stream resource."
+    }
+  },
+  {
+    "name": "BoostedTreesQuantileStreamResourceGetBucketBoundaries",
+    "schema": {
+      "attributes": [
+        {
+          "description": "inferred int; number of features to get bucket boundaries for.",
+          "minimum": 0,
+          "name": "num_features",
+          "type": "int"
+        }
+      ],
+      "description": "An op that returns a list of float tensors for a quantile stream resource. Each\ntensor is Rank 1 containing bucket boundaries for a single feature.",
+      "inputs": [
+        {
+          "description": "resource handle referring to a QuantileStreamResource.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "float; List of Rank 1 Tensors each containing the bucket boundaries for a feature.",
+          "name": "bucket_boundaries",
+          "type": 1
+        }
+      ],
+      "summary": "Generate the bucket boundaries for each feature based on accumulated summaries."
+    }
+  },
+  {
+    "name": "BoostedTreesQuantileStreamResourceHandleOp",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "resource",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a handle to a BoostedTreesQuantileStreamResource."
     }
   },
   {
@@ -19818,6 +20032,27 @@
     }
   },
   {
+    "name": "IsBoostedTreesQuantileStreamResourceInitialized",
+    "schema": {
+      "description": "An Op that checks if quantile stream resource is initialized.",
+      "inputs": [
+        {
+          "description": "resource; The reference to quantile stream resource handle.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "bool; True if the resource is initialized, False otherwise.",
+          "name": "is_initialized",
+          "type": 10
+        }
+      ],
+      "summary": "Checks whether a quantile stream has been initialized."
+    }
+  },
+  {
     "name": "IsFinite",
     "schema": {
       "attributes": [
@@ -24966,6 +25201,38 @@
         }
       ],
       "summary": "Returns element-wise remainder of division. This emulates C semantics in that"
+    }
+  },
+  {
+    "name": "ModelDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "description": "Identity transformation that models performance.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Identity transformation that models performance."
     }
   },
   {
