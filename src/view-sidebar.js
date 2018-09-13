@@ -465,14 +465,15 @@ class NodeConnectionView {
                     this._element.appendChild(descriptionLine);
                 }
 
+                var quantization = this._connection.quantization || (initializer ? initializer.quantization : null);
+                if (quantization) {
+                    var quantizationLine = document.createElement('div');
+                    quantizationLine.className = 'sidebar-view-item-value-line-border';
+                    quantizationLine.innerHTML = 'quantization: ' + '<code><b>' + quantization + '</b></code>';
+                    this._element.appendChild(quantizationLine);   
+                }
+
                 if (initializer) {
-                    var quantization = initializer.quantization;
-                    if (quantization) {
-                        var quantizationLine = document.createElement('div');
-                        quantizationLine.className = 'sidebar-view-item-value-line-border';
-                        quantizationLine.innerHTML = 'quantization: ' + '<code><b>' + quantization + '</b></code>';
-                        this._element.appendChild(quantizationLine);   
-                    }
                     var reference = initializer.reference;
                     if (reference) {
                         var referenceLine = document.createElement('div');
