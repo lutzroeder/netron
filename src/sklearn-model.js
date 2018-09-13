@@ -37,7 +37,7 @@ class SklearnModelFactory {
                         default:
                             if (obj.startsWith('V')) {
                                 this.itemsize = Number(obj.substring(1));
-                                this.name = 'void' + (this.itemsize * 8).toString();                                      
+                                this.name = 'void' + (this.itemsize * 8).toString();
                             }
                             else if (obj.startsWith('O')) {
                                 this.itemsize = Number(obj.substring(1));
@@ -64,7 +64,7 @@ class SklearnModelFactory {
                                 this.int_dtypeflags = state[7];
                                 break;
                             default:
-                                throw new pickle.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                                throw new SklearnError("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                         }
                     };
                 };
@@ -143,7 +143,7 @@ class SklearnModelFactory {
                         obj.__type__ = cls;
                         return obj;
                     }
-                    throw new pickle.Error("Unknown base type '" + base + "'.");
+                    throw new SklearnError("Unknown base type '" + base + "'.");
                 };
                 functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
                     var data = rawData;
@@ -392,6 +392,9 @@ class SklearnAttribute {
 class SklearnTensor {
 
     constructor(name, value) {
+        SklearnTensor._escapeRegex = /\\(u\{([0-9A-Fa-f]+)\}|u([0-9A-Fa-f]{4})|x([0-9A-Fa-f]{2})|([1-7][0-7]{0,2}|[0-7]{2,3})|(['"tbrnfv0\\]))|\\U([0-9A-Fa-f]{8})/g;
+        SklearnTensor._escapeMap = { '0': '\0', 'b': '\b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t', 'v': '\v', '\'': '\'', '"': '"', '\\': '\\' };
+
         this._name = name;
 
         switch (value.__type__) {
@@ -567,11 +570,7 @@ class SklearnTensor {
     }
 
     static _unescape(text) {
-        if (!SklearnTensor._escapeRegex) {
-            SklearnTensor.escapeRegex = /\\(u\{([0-9A-Fa-f]+)\}|u([0-9A-Fa-f]{4})|x([0-9A-Fa-f]{2})|([1-7][0-7]{0,2}|[0-7]{2,3})|(['"tbrnfv0\\]))|\\U([0-9A-Fa-f]{8})/g;
-            SklearnTensor.escapeMap = { '0': '\0', 'b': '\b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t', 'v': '\v', '\'': '\'', '"': '"', '\\': '\\' };
-        }
-        return text.replace(SklearnTensor.escapeRegex, (_, __, varHex, longHex, shortHex, octal, specialCharacter, python) => {
+        return text.replace(SklearnTensor._escapeRegex, (_, __, varHex, longHex, shortHex, octal, specialCharacter, python) => {
             if (varHex !== undefined) {
                 return String.fromCodePoint(parseInt(varHex, 16));
             } else if (longHex !== undefined) {
@@ -583,7 +582,7 @@ class SklearnTensor {
             } else if (python !== undefined) {
                 return String.fromCodePoint(parseInt(python, 16));
             } else {
-                return SklearnTensor.escapeMap[specialCharacter];
+                return SklearnTensor._escapeMap[specialCharacter];
             }
         });
     };

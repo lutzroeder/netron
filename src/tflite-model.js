@@ -121,33 +121,25 @@ class TensorFlowLiteGraph {
     }
 
     get inputs() {
-        var results = [];
+        var inputs = [];
         var graph = this._graph;
         for (var i = 0; i < graph.inputsLength(); i++) {
             var tensorIndex = graph.inputs(i);
             var tensor = graph.tensors(tensorIndex);
-            results.push({ 
-                id: tensorIndex.toString(),
-                name: tensor.name(),
-                type: new TensorFlowLiteTensorType(tensor)
-            });
+            inputs.push(new TensorFlowLiteArgument(tensor, tensorIndex));
         }
-        return results;
+        return inputs;
     }
 
     get outputs() {
-        var results = [];
+        var outputs = [];
         var graph = this._graph;
         for (var i = 0; i < graph.outputsLength(); i++) {
             var tensorIndex = graph.outputs(i);
             var tensor = graph.tensors(tensorIndex);
-            results.push({ 
-                id: tensorIndex.toString(),
-                name: tensor.name(),
-                type: new TensorFlowLiteTensorType(tensor)
-            });
+            outputs.push(new TensorFlowLiteArgument(tensor, tensorIndex));
         }
-        return results;
+        return outputs;
     }
 
     get nodes() {
@@ -157,6 +149,38 @@ class TensorFlowLiteGraph {
     getInitializer(tensorIndex) {
         var initializer = this._initializerMap[tensorIndex];
         return initializer ? initializer : null;
+    }
+}
+
+class TensorFlowLiteArgument {
+    constructor(tensor, index) {
+        this._id = index.toString();
+        this._tensor = tensor;
+        this._type = new TensorFlowLiteTensorType(tensor);
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get name() {
+        return this._tensor.name();
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get quantization() {
+        var quantization = this._tensor.quantization();
+        if (quantization) {
+            var scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
+            var zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
+            if (scale != 0 || zeroPoint != 0) {
+                return 'f = ' + scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
+            }
+        }
+        return null;
     }
 }
 
@@ -233,7 +257,7 @@ class TensorFlowLiteNode {
             };
             var connection = {};
             connection.id = tensorIndex.toString();
-            connection.type = new TensorFlowLiteTensorType(tensor).toString();
+            connection.type = new TensorFlowLiteTensorType(tensor);
             var initializer = this._graph.getInitializer(tensorIndex);
             if (initializer) {
                 connection.initializer = initializer;
