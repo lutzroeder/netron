@@ -93,7 +93,7 @@ class TensorFlowLiteGraph {
             var tensor = graph.tensors(i);
             var buffer = model._model.buffers(tensor.buffer());
             if (buffer.dataLength() > 0) {
-                this._initializerMap[i] = new TensorFlowLiteTensor(tensor, buffer, i);
+                this._initializerMap[i] = new TensorFlowLiteTensor(tensor, i, buffer);
             }
         }
 
@@ -121,33 +121,25 @@ class TensorFlowLiteGraph {
     }
 
     get inputs() {
-        var results = [];
+        var inputs = [];
         var graph = this._graph;
         for (var i = 0; i < graph.inputsLength(); i++) {
-            var tensorIndex = graph.inputs(i);
-            var tensor = graph.tensors(tensorIndex);
-            results.push({ 
-                id: tensorIndex.toString(),
-                name: tensor.name(),
-                type: new TensorFlowLiteTensorType(tensor)
-            });
+            var index = graph.inputs(i);
+            var tensor = graph.tensors(index);
+            inputs.push(new TensorFlowLiteArgument(tensor, index));
         }
-        return results;
+        return inputs;
     }
 
     get outputs() {
-        var results = [];
+        var outputs = [];
         var graph = this._graph;
         for (var i = 0; i < graph.outputsLength(); i++) {
-            var tensorIndex = graph.outputs(i);
-            var tensor = graph.tensors(tensorIndex);
-            results.push({ 
-                id: tensorIndex.toString(),
-                name: tensor.name(),
-                type: new TensorFlowLiteTensorType(tensor)
-            });
+            var index = graph.outputs(i);
+            var tensor = graph.tensors(index);
+            outputs.push(new TensorFlowLiteArgument(tensor, index));
         }
-        return results;
+        return outputs;
     }
 
     get nodes() {
@@ -157,6 +149,37 @@ class TensorFlowLiteGraph {
     getInitializer(tensorIndex) {
         var initializer = this._initializerMap[tensorIndex];
         return initializer ? initializer : null;
+    }
+}
+
+class TensorFlowLiteArgument {
+    constructor(tensor, index) {
+        this._id = index;
+        this._tensor = tensor;
+    }
+
+    get id() {
+        return this._id.toString();
+    }
+
+    get name() {
+        return this._tensor.name();
+    }
+
+    get type() {
+        return new TensorFlowLiteTensorType(this._tensor);
+    }
+
+    get quantization() {
+        var quantization = this._tensor.quantization();
+        if (quantization) {
+            var scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
+            var zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
+            if (scale != 0 || zeroPoint != 0) {
+                return 'f = ' + scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
+            }
+        }
+        return null;
     }
 }
 
@@ -205,16 +228,10 @@ class TensorFlowLiteNode {
     get inputs() {
         var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(this._node, this.operator);
         inputs.forEach((input) => {
-            input.connections.forEach((connection) => {
-                var tensorIndex = connection.id;
-                var tensor = this._graph._graph.tensors(tensorIndex);
-                connection.type = new TensorFlowLiteTensorType(tensor);
-                var initializer = this._graph.getInitializer(tensorIndex);
-                if (initializer) {
-                    connection.initializer = initializer;
-                    connection.id = initializer.name;
-                }
-                connection.id = connection.id.toString();
+            input.connections = input.connections.map((connection) => {
+                var tensor = this._graph._graph.tensors(connection.id);
+                var initializer = this._graph.getInitializer(connection.id);
+                return new TensorFlowLiteConnection(tensor, connection.id, initializer);
             });
         });
         return inputs;
@@ -225,20 +242,14 @@ class TensorFlowLiteNode {
         var graph = this._graph._graph;
         var node = this._node;
         for (var i = 0; i < node.outputsLength(); i++) {
-            var tensorIndex = node.outputs(i);
-            var tensor = graph.tensors(tensorIndex);
+            var index = node.outputs(i);
+            var tensor = graph.tensors(index);
             var output = {
                 name: TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i),
                 connections: []
             };
-            var connection = {};
-            connection.id = tensorIndex.toString();
-            connection.type = new TensorFlowLiteTensorType(tensor).toString();
-            var initializer = this._graph.getInitializer(tensorIndex);
-            if (initializer) {
-                connection.initializer = initializer;
-            }
-            output.connections.push(connection);
+            var initializer = this._graph.getInitializer(index);
+            output.connections.push(new TensorFlowLiteConnection(tensor, index, initializer));
             results.push(output);
         }
         return results;
@@ -390,9 +401,51 @@ class TensorFlowLiteAttribute {
     }    
 }
 
+class TensorFlowLiteConnection {
+
+    constructor(tensor, index, initializer) {
+        this._id = index;
+        this._name = tensor.name();
+        this._tensor = tensor;
+        this._initializer = initializer;
+        if (this._initializer) {
+            this._name = this._initializer.name;
+        }
+    }
+
+    get id() {
+        return this._id.toString();
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get type() {
+        return new TensorFlowLiteTensorType(this._tensor);
+    }
+
+    get quantization() {
+        var quantization = this._tensor.quantization();
+        if (quantization) {
+            var scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
+            var zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
+            if (scale != 0 || zeroPoint != 0) {
+                return 'f = ' + scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
+            }
+        }
+        return null;
+    }
+
+    get initializer() {
+        return this._initializer;
+    }
+
+}
+
 class TensorFlowLiteTensor {
 
-    constructor(tensor, buffer, index) {
+    constructor(tensor, index, buffer) {
         this._id = index;
         this._tensor = tensor;
         this._buffer = buffer;
