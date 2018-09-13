@@ -10,6 +10,9 @@
     "license": "MIT",
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
+    "scripts": { 
+        "start": "npx electron ."
+    },
     "dependencies": {
         "d3": "latest",
         "dagre": "latest",
