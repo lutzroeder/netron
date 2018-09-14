@@ -403,7 +403,7 @@ class CoreMLGraph {
             case coreml.ArrayFeatureType.ArrayDataType.INT32:
                 return 'int32';
             case coreml.ArrayFeatureType.ArrayDataType.DOUBLE:
-                return 'double';
+                return 'float64';
         }
         return '?';
     }
@@ -513,7 +513,7 @@ class CoreMLNode {
                 }    
                 this._initializers.push(new CoreMLTensor('Weights', 'weights', weightsShape, data.weights));
                 if (data.hasBias) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'bias', [ data.bias.floatValue.length ], data.bias));
+                    this._initializers.push(new CoreMLTensor('Weights', 'bias', [ data.outputChannels ], data.bias));
                 }
                 return { 'weights': true, 'bias': data.hasBias };
             case 'innerProduct':
@@ -618,10 +618,21 @@ class CoreMLAttribute {
 
     get value() {
         if (Array.isArray(this._value)) {
-            return this._value.map((item) => JSON.stringify(item)).join(', ');
+            return this._value.map((value) => {
+                if (Number.isNaN(value)) {
+                    return 'NaN';
+                }
+                if (value && value.__isLong__) {
+                    return value.toString();
+                }
+                return JSON.stringify(value);
+            }).join(', ');
         }
         if (Number.isNaN(this._value)) {
             return 'NaN';
+        }
+        if (this._value && this._value.__isLong__) {
+            return this._value.toString();
         }
         return JSON.stringify(this._value);
     }
@@ -642,17 +653,15 @@ class CoreMLTensor {
             if (data.floatValue && data.floatValue.length > 0) {
                 this._data = data.floatValue;
                 dataType = 'float32';
-                this._shape = shape;
             }
             else if (data.float16Value && data.float16Value.length > 0) {
                 this._data = data.float16Value;
                 dataType = 'float16';
-                this._shape = shape;
             }
             else if (data.rawValue && data.rawValue.length > 0) {
                 this._data = null;
                 dataType = 'byte';
-                this._shape = [];
+                shape = [];
             }
         }
 
@@ -704,7 +713,9 @@ class CoreMLTensor {
         context.index = 0;
         context.count = 0;
         context.data = this._data;
-
+        context.dataType = this._type.dataType;
+        context.shape = this._type.shape;
+ 
         if (!this._data) {
             context.state = 'Tensor data is empty.';
             return context;
@@ -714,14 +725,23 @@ class CoreMLTensor {
 
     _decode(context, dimension) {
         var results = [];
-        var size = this._shape[dimension];
-        if (dimension == this._shape.length - 1) {
+        var size = context.shape[dimension];
+        if (dimension == context.shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                results.push(this._data[context.index]);
+                switch (context.dataType) {
+                    case 'float32':
+                        results.push(this._data[context.index]);
+                        break;
+                    case 'float16':
+                        var value = this._data[context.index] | (this._data[context.index + 1] << 8);
+                        results.push(CoreMLTensor._decodeNumberFromFloat16(value));
+                        context.index += 2;
+                        break;
+                }
                 context.index++;
                 context.count++;
             }
@@ -736,6 +756,19 @@ class CoreMLTensor {
             }
         }
         return results;
+    }
+
+    static _decodeNumberFromFloat16(value) {
+        var s = (value & 0x8000) >> 15;
+        var e = (value & 0x7C00) >> 10;
+        var f = value & 0x03FF;
+        if(e == 0) {
+            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+        }
+        else if (e == 0x1F) {
+            return f ? NaN : ((s ? -1 : 1) * Infinity);
+        }
+        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
 }
 
