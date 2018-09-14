@@ -1069,10 +1069,26 @@ tflite.DepthwiseConv2DOptions.prototype.fusedActivationFunction = function() {
 };
 
 /**
+ * @returns {number}
+ */
+tflite.DepthwiseConv2DOptions.prototype.dilationWFactor = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.DepthwiseConv2DOptions.prototype.dilationHFactor = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.DepthwiseConv2DOptions.startDepthwiseConv2DOptions = function(builder) {
-  builder.startObject(5);
+  builder.startObject(7);
 };
 
 /**
@@ -1113,6 +1129,22 @@ tflite.DepthwiseConv2DOptions.addDepthMultiplier = function(builder, depthMultip
  */
 tflite.DepthwiseConv2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
   builder.addFieldInt8(4, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} dilationWFactor
+ */
+tflite.DepthwiseConv2DOptions.addDilationWFactor = function(builder, dilationWFactor) {
+  builder.addFieldInt32(5, dilationWFactor, 1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} dilationHFactor
+ */
+tflite.DepthwiseConv2DOptions.addDilationHFactor = function(builder, dilationHFactor) {
+  builder.addFieldInt32(6, dilationHFactor, 1);
 };
 
 /**
