@@ -73,7 +73,7 @@ class Application {
 
     _parseCommandLine(argv) {
         var open = false;
-        if (process.platform == 'win32' && argv.length > 1) {
+        if (argv.length > 1) {
             argv.slice(1).forEach((arg) => {
                 if (!arg.startsWith('-')) {
                     var extension = arg.split('.').pop();
