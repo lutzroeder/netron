@@ -195,15 +195,10 @@ class OnnxGraph {
             this._name = graph.name || ('(' + index.toString() + ')');
             this._description = graph.docString || '';
 
-            this._initializerMap = {};
-            this._connectionMap = {};
+            var initializers = {};
             graph.initializer.forEach((tensor) => {
-                this._initializerMap[tensor.name] = new OnnxTensor(tensor, tensor.name, 'Initializer');
+                initializers[tensor.name] = new OnnxTensor(tensor, tensor.name, 'Initializer');
             });
-            graph.valueInfo.forEach((valueInfo) => {
-                this._connection(valueInfo.name, valueInfo.type, valueInfo.docString);
-            });
-
             var nodes = [];
             var outputCountMap = {};
             graph.node.forEach((node) => {
@@ -219,7 +214,7 @@ class OnnxGraph {
                     if (outputCountMap[name] == 1) {
                         var attribute = node.attribute.find((attribute) => { return attribute.name == 'value' && attribute.t; }); 
                         if (attribute) {
-                            this._initializerMap[name] = new OnnxTensor(attribute.t, name, 'Constant');
+                            initializers[name] = new OnnxTensor(attribute.t, name, 'Constant');
                             initializerNode = true;
                         }
                     }
@@ -229,17 +224,19 @@ class OnnxGraph {
                 }
             });
 
+            var connections = {};
+            graph.valueInfo.forEach((valueInfo) => {
+                this._connection(connections, valueInfo.name, valueInfo.type, valueInfo.docString, initializers[valueInfo.name]);
+            });
             graph.input.forEach((valueInfo) => {
-                var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.docString);
-                if (!this._initializerMap[valueInfo.name]) {
-                    connection.name = valueInfo.name;
-                    this._inputs.push(connection);
+                var connection = this._connection(connections, valueInfo.name, valueInfo.type, valueInfo.docString, initializers[valueInfo.name]);
+                if (!initializers[valueInfo.name]) {
+                    this._inputs.push(new OnnxArgument(valueInfo.name, [ connection ]));
                 }
             });
             graph.output.map((valueInfo) => {
-                var connection = this._connection(valueInfo.name, valueInfo.type, valueInfo.docString);
-                connection.name = valueInfo.name;
-                this._outputs.push(connection);
+                var connection = this._connection(connections, valueInfo.name, valueInfo.type, valueInfo.docString, initializers[valueInfo.name]);
+                this._outputs.push(new OnnxArgument(valueInfo.name, [ connection ]));
             });
     
             nodes.forEach((node) => {
@@ -248,13 +245,7 @@ class OnnxGraph {
                     inputs = this._metadata.getInputs(node.opType, node.input);
                     inputs.forEach((input) => {
                         input.connections = input.connections.map((connection) => {
-                            connection = this._connection(connection.id);
-                            var initializer = this._initializerMap[connection.id];
-                            if (initializer) {
-                                connection.initializer = initializer;
-                                connection.type = connection.type || initializer.type;
-                            }
-                            return connection;
+                            return this._connection(connections, connection.id, null, null, initializers[connection.id]);
                         });
                     });
                 }
@@ -263,15 +254,12 @@ class OnnxGraph {
                     outputs = this._metadata.getOutputs(node.opType, node.output);
                     outputs.forEach((output) => {
                         output.connections = output.connections.map((connection) => {
-                            return this._connection(connection.id);
+                            return this._connection(connections, connection.id, null, null, initializers[connection.id]);
                         });
                     });
                 }
                 this._nodes.push(new OnnxNode(this, node.opType, node.domain, node.name, node.docString, node.attribute, inputs, outputs));
             });
-
-            delete this._initializerMap;
-            delete this._connectionMap;
         }
     }
 
@@ -307,20 +295,28 @@ class OnnxGraph {
         return this._metadata;
     }
 
-    _connection(name, type, docString) {
-        var connection = this._connectionMap[name];
+    _connection(connections, id, type, docString, initializer) {
+        var connection = connections[id];
         if (!connection) {
-            connection = {};
-            connection.id = name;
-            if (type) {
-                connection.type = OnnxTensor._formatType(type, this._imageFormat);
-            }
-            if (docString) {
-                connection.description = docString;
-            }
-            this._connectionMap[name] = connection;
+            connection = new OnnxConnection(id, type ? OnnxTensor._formatType(type, this._imageFormat) : null, docString, initializer);
+            connections[id] = connection;
         }
         return connection;
+    }
+}
+
+class OnnxArgument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get connections() {
+        return this._connections;
     }
 }
 
@@ -490,6 +486,38 @@ class OnnxAttribute {
 
     get tensor() {
         return this._attribute.hasOwnProperty('t');
+    }
+}
+
+class OnnxConnection {
+
+    constructor(id, type, description, initializer) {
+        this._id = id;
+        this._type = type;
+        this._description = description || null;
+        this._initializer = initializer || null;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._type) {
+            return this._type;
+        }
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return null;
+    }
+
+    get description() {
+        return this._description;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 

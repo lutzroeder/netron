@@ -647,37 +647,66 @@ class View {
                 });
             
                 graph.inputs.forEach((input) => {
-                    var tuple = edgeMap[input.id];
-                    if (!tuple) {
-                        tuple = { from: null, to: [] };
-                        edgeMap[input.id] = tuple;
+                    var types = '';
+                    if (input.connections) {
+                        input.connections.forEach((connection) => {
+                            var tuple = edgeMap[connection.id];
+                            if (!tuple) {
+                                tuple = { from: null, to: [] };
+                                edgeMap[connection.id] = tuple;
+                            }
+                            tuple.from = { 
+                                node: nodeId,
+                            };    
+                        });
+                        types = input.connections.map(connection => connection.type || '').join('\n');
                     }
-                    tuple.from = { 
-                        node: nodeId,
-                    };
+                    else {
+                        // TODO Remove
+                        var tuple = edgeMap[input.id];
+                        if (!tuple) {
+                            tuple = { from: null, to: [] };
+                            edgeMap[input.id] = tuple;
+                        }
+                        tuple.from = { 
+                            node: nodeId,
+                        };
+                        types = input.type;
+                    }
     
                     var formatter = new NodeFormatter();
-                    formatter.addItem(input.name, null, [ 'graph-item-input' ], input.type, () => {
+                    formatter.addItem(input.name, null, [ 'graph-item-input' ], types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: formatter.format(graphElement), class: 'graph-input' } ); 
                 });
             
                 graph.outputs.forEach((output) => {
-                    var outputId = output.id;
-                    var outputName = output.name;
-                    var tuple = edgeMap[outputId];
-                    if (!tuple) {
-                        tuple = { from: null, to: [] };
-                        edgeMap[outputId] = tuple;
+                    var types = '';
+                    if (output.connections) {
+                        output.connections.forEach((connection) => {
+                            var tuple = edgeMap[connection.id];
+                            if (!tuple) {
+                                tuple = { from: null, to: [] };
+                                edgeMap[connection.id] = tuple;
+                            }
+                            tuple.to.push({ node: nodeId });
+                        });
+                        types = output.connections.map(connection => connection.type || '').join('\n');
                     }
-                    tuple.to.push({
-                        node: nodeId,
-                        // name: valueInfo.name
-                    });
+                    else {
+                        // TODO Remove
+                        var tuple = edgeMap[output.id];
+                        if (!tuple) {
+                            tuple = { from: null, to: [] };
+                            edgeMap[output.id] = tuple;
+                        }
+                        tuple.to.push({ node: nodeId });
+                        types = output.type;
+                    }
             
                     var formatter = new NodeFormatter();
-                    formatter.addItem(output.name, null, [ 'graph-item-output' ], output.type, () => {
+                    formatter.addItem(output.name, null, [ 'graph-item-output' ], types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: formatter.format(graphElement) } ); 
