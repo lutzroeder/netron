@@ -388,8 +388,7 @@ class TensorFlowLiteAttribute {
 class TensorFlowLiteConnection {
 
     constructor(tensor, index, initializer) {
-        this._id = index;
-        this._name = tensor.name();
+        this._id = tensor.name() || index.toString();
         this._tensor = tensor;
         this._initializer = initializer;
     }
@@ -398,7 +397,7 @@ class TensorFlowLiteConnection {
         if (this._initializer) {
             return this._initializer.name;
         }
-        return this._id.toString();
+        return this._id;
     }
 
     get type() {
@@ -408,11 +407,21 @@ class TensorFlowLiteConnection {
     get quantization() {
         var quantization = this._tensor.quantization();
         if (quantization) {
+            var value = 'q';
             var scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
             var zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
             if (scale != 0 || zeroPoint != 0) {
-                return 'f = ' + scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
+                value = scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
             }
+            var min = (quantization.minLength() == 1) ? quantization.min(0) : 0;
+            if (min != 0) {
+                value = min.toString() + ' \u2264 ' + value;
+            }
+            var max = (quantization.maxLength() == 1) ? quantization.max(0) : 0;
+            if (max != 0) {
+                value = value + ' \u2264 ' + max.toString();
+            }
+            return value;
         }
         return null;
     }

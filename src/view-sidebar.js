@@ -470,8 +470,8 @@ class ConnectionView {
                 if (quantization) {
                     var quantizationLine = document.createElement('div');
                     quantizationLine.className = 'sidebar-view-item-value-line-border';
-                    quantizationLine.innerHTML = 'quantization: ' + '<code><b>' + quantization + '</b></code>';
-                    this._element.appendChild(quantizationLine);   
+                    quantizationLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>quantization: ' + '<b>' + quantization + '</b></span>';
+                    this._element.appendChild(quantizationLine);
                 }
 
                 if (initializer) {
