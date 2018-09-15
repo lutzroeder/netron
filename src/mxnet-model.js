@@ -372,8 +372,8 @@ class MXNetArgument {
 class MXNetConnection {
     constructor(id, type, initializer) {
         this._id = id;
-        this._type = type;
-        this._initializer = initializer;
+        this._type = type || null;
+        this._initializer = initializer || null;
     }
 
     get id() {
