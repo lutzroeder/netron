@@ -412,13 +412,11 @@ class TensorFlowLiteConnection {
             if (scale != 0 || zeroPoint != 0) {
                 value = scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
             }
-            var min = (quantization.minLength() == 1) ? quantization.min(0) : 0;
-            if (min != 0) {
-                value = min.toString() + ' \u2264 ' + value;
+            if (quantization.minLength() == 1) {
+                value = quantization.min(0).toString() + ' \u2264 ' + value;
             }
-            var max = (quantization.maxLength() == 1) ? quantization.max(0) : 0;
-            if (max != 0) {
-                value = value + ' \u2264 ' + max.toString();
+            if (quantization.maxLength() == 1) {
+                value = value + ' \u2264 ' + quantization.max(0).toString();
             }
             return value;
         }
