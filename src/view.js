@@ -663,6 +663,7 @@ class View {
                     }
                     else {
                         // TODO Remove
+                        debugger;
                         var tuple = edgeMap[input.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
@@ -696,6 +697,7 @@ class View {
                     }
                     else {
                         // TODO Remove
+                        debugger; 
                         var tuple = edgeMap[output.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };

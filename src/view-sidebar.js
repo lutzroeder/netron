@@ -752,6 +752,7 @@ class GraphArgumentView {
         }
         else {
             // TODO Remove
+            debugger;
             var element = document.createElement('div');
             element.className = 'sidebar-view-item-value';
             this._elements.push(element);
@@ -800,6 +801,7 @@ class GraphArgumentView {
         }
         else {
             // TODO Remove
+            debugger;
             var element = this._elements[0];
 
             if (this._expander.innerText == '+') {
