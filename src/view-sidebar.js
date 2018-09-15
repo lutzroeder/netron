@@ -381,7 +381,7 @@ class ConnectionView {
         this._element.className = 'sidebar-view-item-value';
 
         var initializer = connection.initializer;
-        if (!initializer) {
+        if (initializer) {
             this._element.style.backgroundColor = '#f4f4f4';
         }
 
@@ -751,9 +751,11 @@ class GraphArgumentView {
             });
         }
         else {
+            // TODO Remove
             var element = document.createElement('div');
             element.className = 'sidebar-view-item-value';
-    
+            this._elements.push(element);
+
             var type = '?';
             var denotation = null;
             if (this._argument.type) {
@@ -765,7 +767,7 @@ class GraphArgumentView {
             }
     
             var quantization = argument.quantization;
-                if (argument.description || denotation || quantization) {
+            if (argument.description || denotation || quantization) {
                 this._expander = document.createElement('div');
                 this._expander.className = 'sidebar-view-item-value-expander';
                 this._expander.innerText = '+';
@@ -797,9 +799,12 @@ class GraphArgumentView {
             });
         }
         else {
+            // TODO Remove
+            var element = this._elements[0];
+
             if (this._expander.innerText == '+') {
                 this._expander.innerText = '-';
-    
+
                 var type = this._argument.type;
                 var denotation = (type && type.denotation) ? type.denotation : null; 
     
@@ -807,7 +812,7 @@ class GraphArgumentView {
                     var denotationLine = document.createElement('div');
                     denotationLine.className = 'sidebar-view-item-value-line-border';
                     denotationLine.innerHTML = 'denotation: <code><b>' + denotation + '</b></code>';
-                    this._element.appendChild(denotationLine);
+                    element.appendChild(denotationLine);
                 }
     
                 var quantization = this._argument.quantization;
@@ -815,20 +820,20 @@ class GraphArgumentView {
                     var quantizationLine = document.createElement('div');
                     quantizationLine.className = 'sidebar-view-item-value-line-border';
                     quantizationLine.innerHTML = 'quantization: ' + '<code><b>' + quantization + '</b></code>';
-                    this._element.appendChild(quantizationLine);   
+                    element.appendChild(quantizationLine);   
                 }
     
                 if (this._argument.description) {
                     var descriptionLine = document.createElement('div');
                     descriptionLine.className = 'sidebar-view-item-value-line-border';
                     descriptionLine.innerHTML = this._argument.description;
-                    this._element.appendChild(descriptionLine);
+                    element.appendChild(descriptionLine);
                 }
             }
             else {
                 this._expander.innerText = '+';
-                while (this._element.childElementCount > 2) {
-                    this._element.removeChild(this._element.lastChild);
+                while (element.childElementCount > 2) {
+                    element.removeChild(element.lastChild);
                 }
             }
         }
