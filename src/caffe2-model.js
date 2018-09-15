@@ -114,21 +114,13 @@ class Caffe2Graph {
         var inputs = Object.keys(initializers);
         inputs.forEach((input) => {
             if (inputs.length == 1 || !input.startsWith('caffe.')) {
-                this._inputs.push({
-                    id: input,
-                    name: input,
-                    type: null
-                });
+                this._inputs.push(new Caffe2Argument(input, [ new Caffe2Connection(input, null, null) ]));
             }
         });
 
         this._outputs = [];
         netDef.externalOutput.forEach((output) => {
-            this._outputs.push({ 
-                id: output,
-                name: output,
-                type: null
-            });
+            this._outputs.push(new Caffe2Argument(output, [ new Caffe2Connection(output, null, null) ]));
         });
     }
 
@@ -154,6 +146,44 @@ class Caffe2Graph {
 
     get operators() {
         return this._operators;
+    }
+}
+
+class Caffe2Argument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class Caffe2Connection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type;
+        this._initializer = initializer;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 
@@ -209,21 +239,20 @@ class Caffe2Node {
 
     get inputs() {
         var inputs = Caffe2OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs);
-        inputs.forEach((input) => {
-            input.connections.forEach((connection) => {
-                var initializer = this._initializers[connection.id];
-                if (initializer) {
-                    connection.initializer = initializer;
-                    connection.type = initializer.type;
-                }
-            });
+        return inputs.map((input) => {
+            return new Caffe2Argument(input.name, input.connections.map((connection) => {
+                return new Caffe2Connection(connection.id, null, this._initializers[connection.id]);
+            }));
         });
-        return inputs;
     }
 
     get outputs() {
         var outputs = Caffe2OperatorMetadata.operatorMetadata.getOutputs(this._operator, this._outputs);
-        return outputs;
+        return outputs.map((output) => {
+            return new Caffe2Argument(output.name, output.connections.map((connection) => {
+                return new Caffe2Connection(connection.id, null, null);
+            }));
+        });
     }
 
     get attributes() {
