@@ -497,7 +497,7 @@ class View {
                             var inputClass = 'node-item-input';
                             if (initializers.length == 0) {
                                 inputClass = 'node-item-input';
-                                if (input.hidden) {
+                                if (!input.visible) {
                                     hiddenInputs = true;
                                 }
                             }
@@ -507,20 +507,20 @@ class View {
                                 }
                                 if (initializers.length == input.connections.length) {
                                     inputClass = 'node-item-constant';
-                                    if (input.hidden) {
+                                    if (!input.visible) {
                                         hiddenInitializers = true;
                                     }
                                 }
                                 else {
                                     inputClass = 'node-item-constant';
-                                    if (input.hidden) {
+                                    if (!input.visible) {
                                         hiddenInputs = true;
                                     }
                                 }
                             }
             
                             if (this._showDetails) {
-                                if (!input.hidden) {
+                                if (input.visible) {
                                     var types = input.connections.map(connection => connection.type || '').join('\n');
                                     formatter.addItem(input.name, inputId, [ inputClass ], types, () => {
                                         this.showNodeProperties(node, input);

@@ -163,8 +163,8 @@ class TensorFlowLiteArgument {
         return this._name;
     }
 
-    get hidden() {
-        return !this._visible;
+    get visible() {
+        return this._visible;
     }
 
     get connections() {

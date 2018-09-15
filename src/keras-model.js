@@ -397,6 +397,10 @@ class KerasArgument {
         return this._name;
     }
 
+    get visible() {
+        return true;
+    }
+
     get connections() {
         return this._connections;
     }

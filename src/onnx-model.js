@@ -243,19 +243,19 @@ class OnnxGraph {
                 var inputs = [];
                 if (node.input) {
                     inputs = this._metadata.getInputs(node.opType, node.input);
-                    inputs.forEach((input) => {
-                        input.connections = input.connections.map((connection) => {
+                    inputs = inputs.map((input) => {
+                        return new OnnxArgument(input.name, input.connections.map((connection) => {
                             return this._connection(connections, connection.id, null, null, initializers[connection.id]);
-                        });
+                        }));
                     });
                 }
                 var outputs = [];
                 if (node.output) {
                     outputs = this._metadata.getOutputs(node.opType, node.output);
-                    outputs.forEach((output) => {
-                        output.connections = output.connections.map((connection) => {
+                    outputs = outputs.map((output) => {
+                        return new OnnxArgument(output.name, output.connections.map((connection) => {
                             return this._connection(connections, connection.id, null, null, initializers[connection.id]);
-                        });
+                        }));
                     });
                 }
                 this._nodes.push(new OnnxNode(this, node.opType, node.domain, node.name, node.docString, node.attribute, inputs, outputs));
@@ -315,8 +315,44 @@ class OnnxArgument {
         return this._name;
     }
 
+    get visible() {
+        return true;
+    }
+
     get connections() {
         return this._connections;
+    }
+}
+
+class OnnxConnection {
+
+    constructor(id, type, description, initializer) {
+        this._id = id;
+        this._type = type || null;
+        this._description = description || null;
+        this._initializer = initializer || null;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._type) {
+            return this._type;
+        }
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return null;
+    }
+
+    get description() {
+        return this._description;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 
@@ -486,38 +522,6 @@ class OnnxAttribute {
 
     get tensor() {
         return this._attribute.hasOwnProperty('t');
-    }
-}
-
-class OnnxConnection {
-
-    constructor(id, type, description, initializer) {
-        this._id = id;
-        this._type = type || null;
-        this._description = description || null;
-        this._initializer = initializer || null;
-    }
-
-    get id() {
-        return this._id;
-    }
-
-    get type() {
-        if (this._type) {
-            return this._type;
-        }
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return null;
-    }
-
-    get description() {
-        return this._description;
-    }
-
-    get initializer() {
-        return this._initializer;
     }
 }
 

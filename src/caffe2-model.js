@@ -159,6 +159,10 @@ class Caffe2Argument {
         return this._name;
     }
 
+    get visible() {
+        return true;
+    }
+
     get connections() {
         return this._connections;
     }
