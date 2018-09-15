@@ -98,21 +98,13 @@ class CoreMLGraph {
         this._groups = false; 
 
         this._inputs = this._description.input.map((input) => {
-            return {
-                id: input.name,
-                name: input.name,
-                description: input.shortDescription,
-                type: CoreMLGraph.formatFeatureType(input.type) 
-            };
+            var connection = new CoreMLConnection(input.name, CoreMLGraph._formatFeatureType(input.type), input.shortDescription, null);
+            return new CoreMLArgument(input.name, true, [ connection ]);
         });
 
         this._outputs = this._description.output.map((output) => {
-            return {
-                id: output.name,
-                name: output.name,
-                description: output.shortDescription,
-                type: CoreMLGraph.formatFeatureType(output.type) 
-            };
+            var connection = new CoreMLConnection(output.name, CoreMLGraph._formatFeatureType(output.type), output.shortDescription, null);
+            return new CoreMLArgument(output.name, true, [ connection ]);
         });
 
         this._nodes = [];
@@ -365,7 +357,7 @@ class CoreMLGraph {
         return node;
     }
 
-    static formatFeatureType(type) {
+    static _formatFeatureType(type) {
         var result = '';
         switch (type.Type) {
             case 'multiArrayType':
@@ -425,6 +417,54 @@ class CoreMLGraph {
     }
 }
 
+class CoreMLArgument {
+    constructor(name, visible, connections) {
+        this._name = name;
+        this._visible = visible;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get hidden() {
+        return !this._visible;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class CoreMLConnection {
+    constructor(id, type, description, initializer) {
+        this._id = id;
+        this._type = type;
+        this._description = description || null;
+        this._initializer = initializer || null;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get description() {
+        return this._description;
+    }
+
+    get initializer() {
+        return this._initializer;
+    }
+}
+
 class CoreMLNode {
 
     constructor(group, operator, name, data, inputs, outputs) {
@@ -468,35 +508,24 @@ class CoreMLNode {
     }
 
     get inputs() {
-        var results = [];
-        CoreMLOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).forEach((input) => {
-            results.push(input);
+        var inputs = CoreMLOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).map((input) => {
+            return new CoreMLArgument(input.name, input.hidden ? false : true, input.connections.map((connection) => {
+                return new CoreMLConnection(connection.id, connection.type, null, null);
+            }));
         });
         this._initializers.forEach((initializer) => {
-            var input = {
-                name: initializer.name,
-                connections: [ { 
-                    id: '',
-                    type: initializer.type,
-                    initializer: initializer, } ]
-            };
-            if (!CoreMLOperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name)) {
-                input.hidden = true;
-            }
-            results.push(input);
+            var connection = new CoreMLConnection(null, null, null, initializer);
+            var visible = CoreMLOperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name);
+            inputs.push(new CoreMLArgument(initializer.name, visible, [ connection ]));
         });
-        return results;
+        return inputs;
     }
 
     get outputs() {
-        var results = [];
-        this._outputs.forEach((output, index) => {
-            results.push({
-                name: CoreMLOperatorMetadata.operatorMetadata.getOutputName(this._operator, index),
-                connections: [ { id: output } ]
-            });
+        return this._outputs.map((output, index) => {
+            var name = CoreMLOperatorMetadata.operatorMetadata.getOutputName(this._operator, index);
+            return new CoreMLArgument(name, true, [ new CoreMLConnection(output, null, null, null) ]);
         });
-        return results;
     }
 
     get attributes() {

@@ -448,7 +448,7 @@ class ConnectionView {
                 if (type) {
                     var typeLine = document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
-                    typeLine.innerHTML = 'type: <code><b>' + type + '</b></code>';
+                    typeLine.innerHTML = 'type: <code><b>' + type.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
                     this._element.appendChild(typeLine);
                 }
                 if (denotation) {

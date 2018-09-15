@@ -493,7 +493,7 @@ class OnnxConnection {
 
     constructor(id, type, description, initializer) {
         this._id = id;
-        this._type = type;
+        this._type = type || null;
         this._description = description || null;
         this._initializer = initializer || null;
     }

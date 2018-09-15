@@ -126,7 +126,7 @@ class TensorFlowLiteGraph {
         for (var i = 0; i < graph.inputsLength(); i++) {
             var index = graph.inputs(i);
             var tensor = graph.tensors(index);
-            inputs.push(new TensorFlowLiteArgument(tensor.name(), [ new TensorFlowLiteConnection(tensor, index, null) ]));
+            inputs.push(new TensorFlowLiteArgument(tensor.name(), true, [ new TensorFlowLiteConnection(tensor, index, null) ]));
         }
         return inputs;
     }
@@ -137,7 +137,7 @@ class TensorFlowLiteGraph {
         for (var i = 0; i < graph.outputsLength(); i++) {
             var index = graph.outputs(i);
             var tensor = graph.tensors(index);
-            outputs.push(new TensorFlowLiteArgument(tensor.name(), [ new TensorFlowLiteConnection(tensor, index, null) ]));
+            outputs.push(new TensorFlowLiteArgument(tensor.name(), true, [ new TensorFlowLiteConnection(tensor, index, null) ]));
         }
         return outputs;
     }
@@ -153,13 +153,18 @@ class TensorFlowLiteGraph {
 }
 
 class TensorFlowLiteArgument {
-    constructor(name, connections) {
+    constructor(name, visible, connections) {
         this._name = name;
+        this._visible = visible;
         this._connections = connections;
     }
 
     get name() {
         return this._name;
+    }
+
+    get hidden() {
+        return !this._visible;
     }
 
     get connections() {
@@ -211,32 +216,26 @@ class TensorFlowLiteNode {
 
     get inputs() {
         var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(this._node, this.operator);
-        inputs.forEach((input) => {
-            input.connections = input.connections.map((connection) => {
+        return inputs.map((input) => {
+            return new TensorFlowLiteArgument(input.name, input.hidden ? false : true, input.connections.map((connection) => {
                 var tensor = this._graph._graph.tensors(connection.id);
                 var initializer = this._graph.getInitializer(connection.id);
                 return new TensorFlowLiteConnection(tensor, connection.id, initializer);
-            });
+            }));
         });
-        return inputs;
     }
 
     get outputs() {
-        var results = [];
+        var outputs = [];
         var graph = this._graph._graph;
-        var node = this._node;
-        for (var i = 0; i < node.outputsLength(); i++) {
-            var index = node.outputs(i);
+        for (var i = 0; i < this._node.outputsLength(); i++) {
+            var index = this._node.outputs(i);
             var tensor = graph.tensors(index);
-            var output = {
-                name: TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i),
-                connections: []
-            };
+            var name = TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i);
             var initializer = this._graph.getInitializer(index);
-            output.connections.push(new TensorFlowLiteConnection(tensor, index, initializer));
-            results.push(output);
+            outputs.push(new TensorFlowLiteArgument(name, true, [ new TensorFlowLiteConnection(tensor, index, initializer) ]));
         }
-        return results;
+        return outputs;
     }
 
     get dependencies() {
