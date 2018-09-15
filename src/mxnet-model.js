@@ -290,15 +290,14 @@ class MXNetGraph {
 
         this._outputs = [];
         symbol.heads.forEach((head, index) => {
-            var output = {};
-            output.id = MXNetGraph._updateOutput(nodes, head);
-            output.name = nodes[output.id[0]] ? nodes[output.id[0]].name : ('output' + ((index == 0) ? '' : (index + 1).toString()));
-            output.type = null;
-            var outputSignature = outputs[output.name];
+            var outputId = MXNetGraph._updateOutput(nodes, head);
+            var outputName = nodes[outputId[0]] ? nodes[outputId[0]].name : ('output' + ((index == 0) ? '' : (index + 1).toString()));
+            var outputType = null;
+            var outputSignature = outputs[outputName];
             if (outputSignature && outputSignature.data_shape) {
-                output.type = new MXNetTensorType(null, outputSignature.data_shape);
+                outputType = new MXNetTensorType(null, outputSignature.data_shape);
             }
-            this._outputs.push(output);
+            this._outputs.push(new MXNetArgument(outputName, [ new MXNetConnection('[' + outputId.join(',') + ']', outputType, null) ]));
         });
 
         nodes.forEach((node, index) => {
@@ -312,25 +311,15 @@ class MXNetGraph {
             var argument = argumentMap[key];
             if ((!argument.inputs || argument.inputs.length == 0) &&
                 (argument.outputs && argument.outputs.length == 1)) {
-                var input = {};
-                input.id = argument.outputs[0];
-                input.name = argument.name;
-                input.type = null;
-                var inputSignature = inputs[input.name];
+                var inputId = argument.outputs[0];
+                var inputName = argument.name;
+                var inputType = null;
+                var inputSignature = inputs[inputName];
                 if (inputSignature && inputSignature.data_shape) {
-                    input.type = new MXNetTensorType(null, inputSignature.data_shape);
+                    inputType = new MXNetTensorType(null, inputSignature.data_shape);
                 }
-                this._inputs.push(input);
+                this._inputs.push(new MXNetArgument(inputName, [ new MXNetConnection('[' + inputId.join(',') + ']', inputType) ]));
             }
-        });
-
-        this._inputs = this._inputs.map((input) => {
-            input.id = '[' + input.id.join(',') + ']';
-            return input;
-        });
-        this._outputs = this._outputs.map((output) => {
-            output.id = '[' + output.id.join(',') + ']';
-            return output;
         });
     }
 
@@ -362,6 +351,47 @@ class MXNetGraph {
             node.outputs.push([ nodeIndex, node.outputs.length ]);
         }
         return [ nodeIndex, outputIndex ];
+    }
+}
+
+class MXNetArgument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class MXNetConnection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type;
+        this._initializer = initializer;
+    }
+
+    get id() {
+        if (this._initializer) {
+            return this._initializer.name;
+        }
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 
@@ -455,28 +485,25 @@ class MXNetNode {
     }
 
     get inputs() {
-        var inputs = this._inputs.map((inputs) => {
+        var inputs = MXNetOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs.map((inputs) => {
             return '[' + inputs.join(',') + ']'; 
+        }));
+        return inputs.map((input) => {
+            return new MXNetArgument(input.name, input.connections.map((connection) => {
+                return new MXNetConnection(connection.id, null, this._initializers[connection.id]);
+            }));
         });
-        var results = MXNetOperatorMetadata.operatorMetadata.getInputs(this._operator, inputs);
-        results.forEach((input) => {
-            input.connections.forEach((connection) => {
-                var initializer = this._initializers[connection.id];
-                if (initializer) {
-                    connection.id = initializer.name || connection.id;
-                    connection.type = initializer.type;
-                    connection.initializer = initializer;
-                }
-            });
-        });
-        return results;
     }
 
     get outputs() {
-        var outputs = this._outputs.map((output) => {
+        var outputs = MXNetOperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs.map((output) => {
             return '[' + output.join(',') + ']'; 
+        }));
+        return outputs.map((output) => {
+            return new MXNetArgument(output.name, output.connections.map((connection) => {
+                return new MXNetConnection(connection.id, null, null);
+            }));
         });
-        return MXNetOperatorMetadata.operatorMetadata.getOutputs(this._type, outputs);
     }
 
     get attributes() {
