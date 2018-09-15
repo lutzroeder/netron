@@ -158,11 +158,9 @@ class TensorFlowGraph {
 
     get inputs() {
         this._update();
-        var results = [];
-        Object.keys(this._inputMap).forEach((key) => {
-            results.push(this._inputMap[key]);
+        return Object.keys(this._inputMap).map((key) => {
+            return this._inputMap[key];
         });
-        return results;
     }
 
     get outputs() {
@@ -305,11 +303,9 @@ class TensorFlowGraph {
                     var dtype = node.attr.dtype;
                     var shape = node.attr.shape;
                     if (dtype && dtype.type && shape && shape.shape) {
-                        this._inputMap[node.output[0]] = {
-                            id: node.output[0],
-                            name: node.name,
-                            type: new TensorFlowTensorType(dtype.type, shape.shape)
-                        };
+                        var type = new TensorFlowTensorType(dtype.type, shape.shape);
+                        var connection = new TensorFlowConnection(node.output[0], type, null); 
+                        this._inputMap[node.output[0]] = new TensorFlowArgument(node.name, [ connection ]);
                     }
                 }
             });
@@ -336,6 +332,44 @@ class TensorFlowGraph {
             return false;
         }
         return true;
+    }
+}
+
+class TensorFlowArgument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class TensorFlowConnection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type || null;
+        this._initializer = initializer || null;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 
@@ -408,22 +442,22 @@ class TensorFlowNode {
     get inputs() {
         if (this._node.input) {
             var inputs = this._graph.metadata.getInputs(this._node);
-            inputs.forEach((input) => {
-                input.connections.forEach((connection) => {
+            return inputs.map((input) => {
+                return new TensorFlowArgument(input.name, input.connections.map((connection) => {
                     var initializer = this._graph._getInitializer(connection.id);
-                    if (initializer) {
-                        connection.type = initializer.type;
-                        connection.initializer = initializer;
-                    }
-                });
+                    return new TensorFlowConnection(connection.id, null, initializer);
+                }));
             });          
-            return inputs;
         }
         return [];
     }
 
     get outputs() {
-        return this._graph.metadata.getOutputs(this._node);
+        return this._graph.metadata.getOutputs(this._node).map((output) => {
+            return new TensorFlowArgument(output.name, output.connections.map((connection) => {
+                return new TensorFlowConnection(connection.id, null, null);
+            }));
+        });
     }
 
     get dependencies() {

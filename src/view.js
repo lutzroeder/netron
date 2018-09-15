@@ -647,33 +647,17 @@ class View {
                 });
             
                 graph.inputs.forEach((input) => {
-                    var types = '';
-                    if (input.connections) {
-                        input.connections.forEach((connection) => {
-                            var tuple = edgeMap[connection.id];
-                            if (!tuple) {
-                                tuple = { from: null, to: [] };
-                                edgeMap[connection.id] = tuple;
-                            }
-                            tuple.from = { 
-                                node: nodeId,
-                            };    
-                        });
-                        types = input.connections.map(connection => connection.type || '').join('\n');
-                    }
-                    else {
-                        // TODO Remove
-                        debugger;
-                        var tuple = edgeMap[input.id];
+                    input.connections.forEach((connection) => {
+                        var tuple = edgeMap[connection.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[input.id] = tuple;
+                            edgeMap[connection.id] = tuple;
                         }
                         tuple.from = { 
                             node: nodeId,
-                        };
-                        types = input.type;
-                    }
+                        };    
+                    });
+                    var types = input.connections.map(connection => connection.type || '').join('\n');
     
                     var formatter = new NodeFormatter();
                     formatter.addItem(input.name, null, [ 'graph-item-input' ], types, () => {
@@ -683,29 +667,15 @@ class View {
                 });
             
                 graph.outputs.forEach((output) => {
-                    var types = '';
-                    if (output.connections) {
-                        output.connections.forEach((connection) => {
-                            var tuple = edgeMap[connection.id];
-                            if (!tuple) {
-                                tuple = { from: null, to: [] };
-                                edgeMap[connection.id] = tuple;
-                            }
-                            tuple.to.push({ node: nodeId });
-                        });
-                        types = output.connections.map(connection => connection.type || '').join('\n');
-                    }
-                    else {
-                        // TODO Remove
-                        debugger; 
-                        var tuple = edgeMap[output.id];
+                    output.connections.forEach((connection) => {
+                        var tuple = edgeMap[connection.id];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[output.id] = tuple;
+                            edgeMap[connection.id] = tuple;
                         }
                         tuple.to.push({ node: nodeId });
-                        types = output.type;
-                    }
+                    });
+                    var types = output.connections.map(connection => connection.type || '').join('\n');
             
                     var formatter = new NodeFormatter();
                     formatter.addItem(output.name, null, [ 'graph-item-output' ], types, () => {
