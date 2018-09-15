@@ -152,19 +152,11 @@ class CaffeGraph {
             });
             var keys = Object.keys(nodeMap);
             if (keys.length == 1) {
-                this._outputs.push({
-                    id: keys[0],
-                    name: keys[0],
-                    type: null
-                });
+                this._outputs.push(new CaffeArgument(keys[0], [ new CaffeConnection(keys[0], null) ]));
             }
             else if (outputs.length == 1) {
                 outputs[0]._outputs = [ 'output' ];
-                this._outputs.push({
-                    id: 'output',
-                    name: 'output',
-                    type: null
-                });
+                this._outputs.push(new CaffeArgument('output', [ new CaffeConnection('output', null) ]));
             }
         }
     }
@@ -201,17 +193,52 @@ class CaffeGraph {
                 var attribute = attributes[0];
                 if (attribute.name == 'shape') {
                     if (attribute._value.length == 1 && attribute._value[0].dim) {
-                        this._inputs.push({ 
-                            id: input,
-                            name: input,
-                            type: 'T' + JSON.stringify(attribute._value[0].dim)
-                        });
+                        var type = new CaffeTensorType(null, attribute._value[0].dim);
+                        this._inputs.push(new CaffeArgument(input, [ new CaffeConnection(input, type) ]));
                         return true;
                     }
                 }
             }
         }
         return false;
+    }
+}
+
+class CaffeArgument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class CaffeConnection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type;
+        this._initializer = initializer;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 
@@ -290,22 +317,23 @@ class CaffeNode {
     get inputs() {
         var list = this._inputs.concat(this._initializers);
         var inputs = CaffeOperatorMetadata.operatorMetadata.getInputs(this._type, list);
-        inputs.forEach((input) => {
-            input.connections.forEach((connection) => {
+        return inputs.map((input) => {
+            return new CaffeArgument(input.name, input.connections.map((connection) => {
                 if (connection.id instanceof CaffeTensor) {
-                    connection.initializer = connection.id;
-                    connection.type = connection.initializer.type;
-                    connection.id = '';
+                    return new CaffeConnection('', null, connection.id);
                 }
-            });
+                return new CaffeConnection(connection.id, null, null);
+            }));
         });
-
-        return inputs;
     }
 
     get outputs() {
         var outputs = CaffeOperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs);
-        return outputs;
+        return outputs.map((output) => {
+            return new CaffeArgument(output.name, output.connections.map((connection) => {
+                return new CaffeConnection(connection.id, null, null);
+            }));
+        });
     }
 
     get attributes() {
@@ -392,24 +420,24 @@ class CaffeTensor {
     constructor(blob) {
         this._blob = blob;
 
+        var shape = [];
         if (blob.hasOwnProperty('num') && blob.hasOwnProperty('channels') &&
             blob.hasOwnProperty('width') && blob.hasOwnProperty('height')) {
-            this._shape = [];
             if (blob.num != 1) {
-                this._shape.push(blob.num);
+                shape.push(blob.num);
             }
             if (blob.channels != 1) {
-                this._shape.push(blob.channels);
+                shape.push(blob.channels);
             }
             if (blob.width != 1) {
-                this._shape.push(blob.width);
+                shape.push(blob.width);
             }
             if (blob.height != 1) {
-                this._shape.push(blob.height);
+                shape.push(blob.height);
             }
         }
         else if (blob.hasOwnProperty('shape')) {
-            this._shape = blob.shape.dim;
+            shape = blob.shape.dim;
         }
 
         var dataType = '?';
@@ -422,7 +450,7 @@ class CaffeTensor {
             this._data = blob.doubleData;
         }
 
-        this._type = new CaffeTensorType(dataType, this._shape);
+        this._type = new CaffeTensorType(dataType, shape);
     }
 
     get kind() {
@@ -462,6 +490,7 @@ class CaffeTensor {
         context.index = 0;
         context.count = 0;
         context.data = this._data;
+        context.shape = this.type.shape;
         if (!this._data) {
             context.state = 'Tensor data is empty.';
         }
@@ -470,8 +499,8 @@ class CaffeTensor {
 
     _decode(context, dimension) {
         var results = [];
-        var size = this._shape[dimension];
-        if (dimension == this._shape.length - 1) {
+        var size = context.shape[dimension];
+        if (dimension == context.shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -499,7 +528,12 @@ class CaffeTensorType {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
-        this._shape = shape;
+        this._shape = shape.map((dimension) => {
+            if (dimension && dimension.__isLong__) {
+                return dimension.toNumber();
+            }
+            return dimension;
+        });
     }
 
     get dataType() {
@@ -511,7 +545,7 @@ class CaffeTensorType {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return (this.dataType || '?') + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
     }
 
 }
