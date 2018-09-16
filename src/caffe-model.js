@@ -115,11 +115,7 @@ class CaffeGraph {
 
         if (netParameter.input && netParameter.input.length > 0) {
             netParameter.input.forEach((input) => {
-                this._inputs.push({
-                    id: input,
-                    name: input,
-                    type: null
-                });
+                this._inputs.push(new CaffeArgument(input, [ new CaffeConnection(input, null, null) ]));
             });
         }
 
