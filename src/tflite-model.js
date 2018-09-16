@@ -157,7 +157,7 @@ class TensorFlowLiteNode {
 
         var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(this._node, this.operator);
         this._inputs = inputs.map((input) => {
-            return new TensorFlowLiteArgument(input.name, input.hidden ? false : true, input.connections.map((connection) => {
+            return new TensorFlowLiteArgument(input.name, input.visible != false, input.connections.map((connection) => {
                 return connections[connection.id];
             }));
         });
@@ -671,7 +671,7 @@ class TensorFlowLiteOperatorMetadata {
                     count = connections.length - index;
                 }
                 if (input.hasOwnProperty('visible') && !input.visible) {
-                    result.hidden = true;
+                    result.visible = false;
                 }
             }
             result.name = name ? name : '(' + index.toString() + ')';

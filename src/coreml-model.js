@@ -509,7 +509,7 @@ class CoreMLNode {
 
     get inputs() {
         var inputs = CoreMLOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).map((input) => {
-            return new CoreMLArgument(input.name, input.hidden ? false : true, input.connections.map((connection) => {
+            return new CoreMLArgument(input.name, true, input.connections.map((connection) => {
                 return new CoreMLConnection(connection.id, connection.type, null, null);
             }));
         });

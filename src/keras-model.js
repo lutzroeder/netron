@@ -271,7 +271,7 @@ class KerasGraph {
                     }            
                 }
                 else {
-                    this._inputs.push(new KerasArgument(name, [ new KerasConnection(name, type, null) ])); 
+                    this._inputs.push(new KerasArgument(name, true, [ new KerasConnection(name, type, null) ])); 
                 }
             });
         }
@@ -295,7 +295,7 @@ class KerasGraph {
                     inputNode._outputs[inputIndex] = inputName;
                 }
                 if (addGraphOutput) {
-                    this._outputs.push(new KerasArgument(inputName, [ new KerasConnection(inputName, null, null) ]));
+                    this._outputs.push(new KerasArgument(inputName, true, [ new KerasConnection(inputName, null, null) ]));
                 }
             });
         }
@@ -345,10 +345,10 @@ class KerasGraph {
             this._loadNode(layer, nodeInputs, nodeOutputs, model_weights, weightsManifest, group);
         });
         if (!inputs) {
-            this._inputs.push(new KerasArgument(inputName, [ new KerasConnection(inputName, inputType, null) ]));
+            this._inputs.push(new KerasArgument(inputName, true, [ new KerasConnection(inputName, inputType, null) ]));
         }
         if (connection) {
-            this._outputs.push(new KerasArgument(connection, [ new KerasConnection(connection, null, null) ]));
+            this._outputs.push(new KerasArgument(connection, true, [ new KerasConnection(connection, null, null) ]));
         }
     }
 
@@ -388,8 +388,9 @@ class KerasGraph {
 }
 
 class KerasArgument {
-    constructor(name, connections) {
+    constructor(name, visible, connections) {
         this._name = name;
+        this._visible = visible;
         this._connections = connections;
     }
 
@@ -398,7 +399,7 @@ class KerasArgument {
     }
 
     get visible() {
-        return true;
+        return this._visible;
     }
 
     get connections() {
@@ -517,7 +518,7 @@ class KerasNode {
     get inputs() {
         var inputs = KerasOperatorMetadata.operatorMetadata.getInputs(this, this._inputs);
         return inputs.map((input) => {
-            return new KerasArgument(input.name, input.connections.map((connection) => {
+            return new KerasArgument(input.name, input.visible != false, input.connections.map((connection) => {
                 return new KerasConnection(connection.id, null, this._initializers[connection.id]);
             }));
         });
@@ -527,7 +528,7 @@ class KerasNode {
         return this._outputs.map((output, index) => {
             var result = { connections: [] };
             var outputName = KerasOperatorMetadata.operatorMetadata.getOutputName(this.operator, index);
-            return new KerasArgument(outputName, [ new KerasConnection(output, null, null) ]);            
+            return new KerasArgument(outputName, true, [ new KerasConnection(output, null, null) ]);            
         });
     }
 
@@ -819,7 +820,7 @@ class KerasOperatorMetadata {
                                 }
                             }
                         }
-                        result.hidden = true;
+                        result.visible = false;
                         break;
                     case 'TimeDistributed':
                         if (innerSchema && innerSchema.inputs && index < innerSchema.inputs.length) {
