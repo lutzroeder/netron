@@ -12,27 +12,33 @@ class TensorFlowLiteModelFactory {
         host.require('tflite', (err) => {
             if (err) {
                 callback(err, null);
+                return;
             }
-            else {
+
+            var model = null;
+            try {
+                var byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
+                if (!tflite.Model.bufferHasIdentifier(byteBuffer))
+                {
+                    callback(new TensorFlowLiteError('Invalid FlatBuffers identifier.'));
+                    return;
+                }
+                model = tflite.Model.getRootAsModel(byteBuffer);
+            }
+            catch (error) {
+                host.exception(error, false);
+                callback(new TensorFlowLiteError(error.message), null);
+            }
+
+            TensorFlowLiteOperatorMetadata.open(host, (err, metadata) => {
                 try {
-                    var byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
-                    if (!tflite.Model.bufferHasIdentifier(byteBuffer))
-                    {
-                        callback(new TensorFlowLiteError('Invalid FlatBuffers identifier.'));
-                    }
-                    else {
-                        var model = tflite.Model.getRootAsModel(byteBuffer);
-                        model = new TensorFlowLiteModel(model);
-                        TensorFlowLiteOperatorMetadata.open(host, (err, metadata) => {
-                            callback(null, model);
-                        });
-                    }
+                    callback(null, new TensorFlowLiteModel(model));
                 }
                 catch (error) {
                     host.exception(error, false);
                     callback(new TensorFlowLiteError(error.message), null);
                 }
-            }
+            });
         });
     }
 }
@@ -40,9 +46,11 @@ class TensorFlowLiteModelFactory {
 class TensorFlowLiteModel {
 
     constructor(model) {
-        this._model = model;
         this._graphs = [];
-        this._operatorCodeList = [];
+        this._format = 'TensorFlow Lite v' + model.version().toString();
+        var description = model.description();
+        this._description = (description && description.length > 0) ? description : null;
+        var operatorCodeList = [];
         var builtinOperatorMap = {};
         Object.keys(tflite.BuiltinOperator).forEach(function (key) {
             var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
@@ -51,25 +59,24 @@ class TensorFlowLiteModel {
                 return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
             }).join('');
         });
-        for (var operatorIndex = 0; operatorIndex < this._model.operatorCodesLength(); operatorIndex++) {
-            var operatorCode = this._model.operatorCodes(operatorIndex);
+        for (var operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {
+            var operatorCode = model.operatorCodes(operatorIndex);
             var builtinCode = operatorCode.builtinCode();
-            this._operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
+            operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
         }
-        var subgraphsLength = this._model.subgraphsLength();
+        var subgraphsLength = model.subgraphsLength();
         for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
             var name = (subgraphsLength > 1) ? ('(' + subgraph.toString() + ')') : '';
-            this._graphs.push(new TensorFlowLiteGraph(this, this._model.subgraphs(subgraph), name));
+            this._graphs.push(new TensorFlowLiteGraph(model.subgraphs(subgraph), name, operatorCodeList, model));
         }
     }
 
     get format() {
-        return 'TensorFlow Lite v' + this._model.version().toString();
+        return this._format;
     }
 
     get description() {
-        var description = this._model.description();
-        return (description && description.length > 0) ? description : null;
+        return this._description;
     }
 
     get graphs() {
@@ -79,37 +86,45 @@ class TensorFlowLiteModel {
 
 class TensorFlowLiteGraph {
 
-    constructor(model, graph, name) {
-        this._model = model;
+    constructor(graph, name, operatorCodeList, model) {
         this._graph = graph;
-        this._name = this._graph.name();
+        this._name = this._graph.name() || name;
         this._nodes = [];
+        this._inputs = [];
+        this._outputs = [];
         this._operators = {};
-        if (!this._name) {
-            this._name = name;
-        }
-        this._initializerMap = {};
+        var connections = [];
+        var names = [];
         for (var i = 0; i < graph.tensorsLength(); i++) {
             var tensor = graph.tensors(i);
-            var buffer = model._model.buffers(tensor.buffer());
+            var initializer = null;
+            var buffer = model.buffers(tensor.buffer());
             if (buffer.dataLength() > 0) {
-                this._initializerMap[i] = new TensorFlowLiteTensor(tensor, i, buffer);
+                initializer = new TensorFlowLiteTensor(tensor, i, buffer);
             }
+            connections.push(new TensorFlowLiteConnection(tensor, i, initializer));
+            names.push(tensor.name());
         }
-
         for (var j = 0; j < this._graph.operatorsLength(); j++) {
-            var node = new TensorFlowLiteNode(this, this._graph.operators(j));
+            var operator = this._graph.operators(j);
+            var opcodeIndex = operator.opcodeIndex();
+            var operatorName = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : ('(' + opcodeIndex.toString() + ')');
+            var node = new TensorFlowLiteNode(this, operator, operatorName, connections);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             this._nodes.push(node);
-        } 
+        }
+        for (var k = 0; k < graph.inputsLength(); k++) {
+            var inputIndex = graph.inputs(k);
+            this._inputs.push(new TensorFlowLiteArgument(names[inputIndex], true, [ connections[inputIndex] ]));
+        }
+        for (var l = 0; l < graph.outputsLength(); l++) {
+            var outputIndex = graph.outputs(l);
+            this._outputs.push(new TensorFlowLiteArgument(names[outputIndex], true, [ connections[outputIndex] ]));
+        }
     }
 
     get operators() {
         return this._operators;
-    }
-
-    get model() {
-        return this._model;
     }
 
     get name() {
@@ -121,72 +136,41 @@ class TensorFlowLiteGraph {
     }
 
     get inputs() {
-        var inputs = [];
-        var graph = this._graph;
-        for (var i = 0; i < graph.inputsLength(); i++) {
-            var index = graph.inputs(i);
-            var tensor = graph.tensors(index);
-            inputs.push(new TensorFlowLiteArgument(tensor.name(), true, [ new TensorFlowLiteConnection(tensor, index, null) ]));
-        }
-        return inputs;
+        return this._inputs;
     }
 
     get outputs() {
-        var outputs = [];
-        var graph = this._graph;
-        for (var i = 0; i < graph.outputsLength(); i++) {
-            var index = graph.outputs(i);
-            var tensor = graph.tensors(index);
-            outputs.push(new TensorFlowLiteArgument(tensor.name(), true, [ new TensorFlowLiteConnection(tensor, index, null) ]));
-        }
-        return outputs;
+        return this._outputs;
     }
 
     get nodes() {
         return this._nodes;
     }
-
-    getInitializer(tensorIndex) {
-        var initializer = this._initializerMap[tensorIndex];
-        return initializer ? initializer : null;
-    }
-}
-
-class TensorFlowLiteArgument {
-    constructor(name, visible, connections) {
-        this._name = name;
-        this._visible = visible;
-        this._connections = connections;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get visible() {
-        return this._visible;
-    }
-
-    get connections() {
-        return this._connections;
-    }
 }
 
 class TensorFlowLiteNode {
 
-    constructor(graph, node) {
+    constructor(graph, node, operator, connections) {
         this._graph = graph;
         this._node = node;
+        this._operator = operator;
+
+        var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(this._node, this.operator);
+        this._inputs = inputs.map((input) => {
+            return new TensorFlowLiteArgument(input.name, input.hidden ? false : true, input.connections.map((connection) => {
+                return connections[connection.id];
+            }));
+        });
+        this._outputs = [];
+        for (var i = 0; i < this._node.outputsLength(); i++) {
+            var index = this._node.outputs(i);
+            var connection = connections[index];
+            var name = TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i);
+            this._outputs.push(new TensorFlowLiteArgument(name, true, [ connection ]));
+        }
     }
 
     get operator() {
-        if (!this._operator) {
-            var operatorCodeList = this._graph.model._operatorCodeList;
-            var opcodeIndex = this._node.opcodeIndex();
-            this._operator = (opcodeIndex < operatorCodeList.length) ?
-                operatorCodeList[opcodeIndex] :
-                ('(' + opcodeIndex.toString() + ')');
-        }
         return this._operator;
     }
 
@@ -215,27 +199,11 @@ class TensorFlowLiteNode {
     }
 
     get inputs() {
-        var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(this._node, this.operator);
-        return inputs.map((input) => {
-            return new TensorFlowLiteArgument(input.name, input.hidden ? false : true, input.connections.map((connection) => {
-                var tensor = this._graph._graph.tensors(connection.id);
-                var initializer = this._graph.getInitializer(connection.id);
-                return new TensorFlowLiteConnection(tensor, connection.id, initializer);
-            }));
-        });
+        return this._inputs;
     }
 
     get outputs() {
-        var outputs = [];
-        var graph = this._graph._graph;
-        for (var i = 0; i < this._node.outputsLength(); i++) {
-            var index = this._node.outputs(i);
-            var tensor = graph.tensors(index);
-            var name = TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i);
-            var initializer = this._graph.getInitializer(index);
-            outputs.push(new TensorFlowLiteArgument(name, true, [ new TensorFlowLiteConnection(tensor, index, initializer) ]));
-        }
-        return outputs;
+        return this._outputs;
     }
 
     get dependencies() {
@@ -384,27 +352,33 @@ class TensorFlowLiteAttribute {
     }    
 }
 
+class TensorFlowLiteArgument {
+    constructor(name, visible, connections) {
+        this._name = name;
+        this._visible = visible;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get visible() {
+        return this._visible;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
 class TensorFlowLiteConnection {
 
     constructor(tensor, index, initializer) {
         this._id = tensor.name() || index.toString();
-        this._tensor = tensor;
+        this._type = initializer ? null : new TensorFlowLiteTensorType(tensor);
         this._initializer = initializer;
-    }
-
-    get id() {
-        if (this._initializer) {
-            return this._initializer.name;
-        }
-        return this._id;
-    }
-
-    get type() {
-        return new TensorFlowLiteTensorType(this._tensor);
-    }
-
-    get quantization() {
-        var quantization = this._tensor.quantization();
+        var quantization = tensor.quantization();
         if (quantization) {
             var value = 'q';
             var scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
@@ -418,23 +392,42 @@ class TensorFlowLiteConnection {
             if (quantization.maxLength() == 1) {
                 value = value + ' \u2264 ' + quantization.max(0).toString();
             }
-            return value;
+            if (value != 'q') {
+                this._quantization = value;
+            }
         }
-        return null;
+    }
+
+    get id() {
+        if (this._initializer) {
+            return this._initializer.name;
+        }
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get quantization() {
+        return this._quantization;
     }
 
     get initializer() {
         return this._initializer;
     }
-
 }
 
 class TensorFlowLiteTensor {
 
     constructor(tensor, index, buffer) {
         this._id = index;
-        this._tensor = tensor;
-        this._buffer = buffer;
+        this._name = tensor.name();
+        this._type = new TensorFlowLiteTensorType(tensor);
+        this._data = buffer.dataLength() > 0 ? buffer.dataArray() : null;
     }
 
     get id() {
@@ -442,11 +435,11 @@ class TensorFlowLiteTensor {
     }
 
     get name() {
-        return this._tensor.name();
+        return this._name;
     }
 
     get type() {
-        return new TensorFlowLiteTensorType(this._tensor);
+        return this._type;
     }
 
     get state() {
@@ -478,15 +471,16 @@ class TensorFlowLiteTensor {
         context.index = 0;
         context.count = 0;
 
-        if (this._buffer.dataLength() == 0) {
+        if (this._data == null) {
             context.state = 'Tensor data is empty.';
             return context;
         }
  
-        var array = this._buffer.dataArray();
-        context.data = new DataView(array.buffer, array.byteOffset, array.byteLength);
+        context.dataType = this._type.dataType;
+        context.shape = this._type.shape;
+        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
 
-        if (this._tensor.type() == tflite.TensorType.STRING) {
+        if (this._type.dataType == 'string') {
             var utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
             var offset = 0;
             var count = context.data.getInt32(0, true);
@@ -496,10 +490,10 @@ class TensorFlowLiteTensor {
                 offsetTable.push(context.data.getInt32(offset, true));
                 offset += 4;
             }
-            offsetTable.push(array.length);
+            offsetTable.push(this._data.length);
             var stringTable = [];
             for (var k = 0; k < count; k++) {
-                var textArray = array.subarray(offsetTable[k], offsetTable[k + 1]);
+                var textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
                 if (utf8Decoder) {
                     stringTable.push(utf8Decoder.decode(textArray));
                 }
@@ -513,42 +507,42 @@ class TensorFlowLiteTensor {
     }
 
     _decode(context, dimension) {
-        var size = this._tensor.shape(dimension);
+        var size = context.shape[dimension];
         var results = [];
-        if (dimension == this._tensor.shapeLength() - 1) {
+        if (dimension == context.shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                switch (this._tensor.type())
+                switch (context.dataType)
                 {
-                    case tflite.TensorType.FLOAT32:
+                    case 'float32':
                         results.push(context.data.getFloat32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case tflite.TensorType.FLOAT16:
+                    case 'float16':
                         results.push(TensorFlowLiteTensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
                         context.index += 2;
                         context.count++;
                         break;
-                    case tflite.TensorType.UINT8:
+                    case 'byte':
                         results.push(context.data.getUint8(context.index));
                         context.index += 1;
                         context.count++;
                         break;
-                    case tflite.TensorType.INT32:
+                    case 'int32':
                         results.push(context.data.getInt32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case tflite.TensorType.INT64:
+                    case 'int64':
                         results.push(new Int64(context.data.getInt64(context.index, true)));
                         context.index += 8;
                         context.count++;
                         break;
-                    case tflite.TensorType.STRING:
+                    case 'string':
                         results.push(context.data[context.index++]);
                         context.count++;
                         break;
