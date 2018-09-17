@@ -566,8 +566,9 @@ class View {
                             }
                             tuple.from = { 
                                 node: nodeId,
-                                name: output.name
-                            };    
+                                name: output.name,
+                                type: connection.type
+                            };
                         });
                     });
             
@@ -655,6 +656,7 @@ class View {
                         }
                         tuple.from = { 
                             node: nodeId,
+                            type: connection.type
                         };    
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
@@ -689,7 +691,10 @@ class View {
                     if (tuple.from != null) {
                         tuple.to.forEach((to) => {
                             var text = '';
-                            if (tuple.from.name && to.name) {
+                            if (tuple.from.type && tuple.from.type.shape && tuple.from.type.shape.length > 0) {
+                                text = tuple.from.type.shape.join('\u00D7');
+                            }
+                            else if (tuple.from.name && to.name) {
                                 text = tuple.from.name + ' \u21E8 ' + to.name;
                             }
                             else if (tuple.from.name) {
