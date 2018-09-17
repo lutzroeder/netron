@@ -183,7 +183,11 @@ class PyTorchModelFactory {
                 }
             });
 
-            var model = new PyTorchModel(sysInfo, root, deserialized_storage_keys); 
+            if (!root._modules) {
+                throw new PyTorchError('Root object does not contain modules.');
+            }
+
+            var model = new PyTorchModel(sysInfo, root); 
 
             PyTorchOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
@@ -198,8 +202,8 @@ class PyTorchModelFactory {
 
 class PyTorchModel { 
 
-    constructor(sysInfo, root, deserialized_storage_keys) {
-        this._graphs = [ new PyTorchGraph(sysInfo, root, deserialized_storage_keys) ];
+    constructor(sysInfo, root) {
+        this._graphs = [ new PyTorchGraph(sysInfo, root) ];
     }
 
     get format() {
@@ -214,7 +218,7 @@ class PyTorchModel {
 
 class PyTorchGraph {
 
-    constructor(sysInfo, root, deserialized_storage_keys) {
+    constructor(sysInfo, root) {
         this._type = root.__type__;
         this._nodes = [];
         this._inputs = [];
