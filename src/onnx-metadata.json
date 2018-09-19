@@ -581,7 +581,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The axis in which to compute the arg indices. Default is 0.",
+          "description": "The axis in which to compute the arg indices.",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -656,7 +656,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The axis in which to compute the arg indices. Default is 0.",
+          "description": "The axis in which to compute the arg indices.",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -883,7 +883,7 @@
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -1005,7 +1005,7 @@
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -1345,21 +1345,21 @@
       "attributes": [
         {
           "default": 9.999999747378752e-06,
-          "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
+          "description": "The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
           "required": false,
           "type": "float"
         },
         {
           "default": 0.8999999761581421,
-          "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum), default is 0.9f.",
+          "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum).",
           "name": "momentum",
           "required": false,
           "type": "float"
         },
         {
           "default": 1,
-          "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.Default is 1.",
+          "description": "If true, compute the mean and variance across all spatial elements If false, compute the mean and variance across per feature.",
           "name": "spatial",
           "required": false,
           "type": "int"
@@ -1456,7 +1456,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Values greater than this are mapped to 1, others to 0.<br>The default threshold is 0.0.",
+          "description": "Values greater than this are mapped to 1, others to 0.",
           "name": "threshold",
           "required": false,
           "type": "float"
@@ -1662,21 +1662,21 @@
       "attributes": [
         {
           "default": "TO_FLOAT",
-          "description": "A string indicating the desired element type of the output tensor, one of 'TO_FLOAT', 'TO_STRING', 'TO_INT64'; the default is 'TO_FLOAT'",
+          "description": "A string indicating the desired element type of the output tensor, one of 'TO_FLOAT', 'TO_STRING', 'TO_INT64'.",
           "name": "cast_to",
           "required": false,
           "type": "string"
         },
         {
           "default": "DENSE",
-          "description": "Indicates whether to only output as many values as are in the input (dense), or position the input based on using the key of the map as the index of the output (sparse).<br>One of 'DENSE', 'SPARSE', default is 'DENSE'",
+          "description": "Indicates whether to only output as many values as are in the input (dense), or position the input based on using the key of the map as the index of the output (sparse).<br>One of 'DENSE', 'SPARSE'.",
           "name": "map_form",
           "required": false,
           "type": "string"
         },
         {
           "default": 1,
-          "description": "If the value of map_form is 'SPARSE,' this attribute indicates the total length of the output tensor.<br>The default value is 1.",
+          "description": "If the value of map_form is 'SPARSE,' this attribute indicates the total length of the output tensor.",
           "name": "max_map",
           "required": false,
           "type": "int"
@@ -2222,7 +2222,7 @@
           "type": "int[]"
         },
         {
-          "description": "The value for the elements of the output tensor. Default is 0.",
+          "description": "The value for the elements of the output tensor.",
           "name": "value",
           "required": false,
           "type": "float"
@@ -2276,6 +2276,107 @@
     }
   },
   {
+    "name": "ConstantLike",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "description": "(Optional) The data type for the elements of the output tensor. If not specified,the data type of the input tensor T1 is used. If input tensor T1 is also notspecified, then type defaults to 'float'.",
+          "name": "dtype",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "(Optional) The shape of the output tensor. If input tensor T1 is provided, then 'shape' attribute is ignored and the output follows the shape of the input. One of either input tensor T1 or 'shape' attribute must be provided.",
+          "name": "shape",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "(Optional) The value for the elements of the output tensor.",
+          "name": "value",
+          "required": false,
+          "type": "float"
+        }
+      ],
+      "description": "Generate a tensor with specific constant value. The value can be specified by the 'value' \nattribute. The shape of the output tensor is the same as the input tensor, if the input \ntensor is provided, or the shape provided in the 'shape' attribute (if both are provided, \nthe input tensor shape takes precendence). The data type can be specified by the 'dtype' \nargument. If 'dtype' is not specified, then the type of input tensor is used. If input \ntensor is also not specified, then the type defaults to 'float'.\n\nThe 'dtype' argument must be one of the data types specified in the 'DataType' enum field in the\nTensorProto message and be valid as an output type.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = (4, 3, 2)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    inputs=['x'],\n    outputs=['y'],\n    value=1.0,\n)\nx = np.random.randint(0, 100, size=shape, dtype=np.int32)\ny = np.ones(shape, dtype=np.int32)\nexpect(node, inputs=[x], outputs=[y], name='test_constantlike_ones_with_input')",
+          "summary": "ones_with_input"
+        },
+        {
+          "code": "shape = (3, 4)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    shape=shape,\n    inputs=[],\n    outputs=['y'],\n    value=3.0,\n    dtype=onnx.TensorProto.DOUBLE,  # 11: DOUBLE\n)\n\ny = 3.0 * np.ones(shape, dtype=np.float64)\nexpect(node, inputs=[], outputs=[y], name='test_constantlike_threes_with_shape_and_dtype')",
+          "summary": "threes_with_shape_and_dtype"
+        },
+        {
+          "code": "shape = (2, 5, 1)\nnode = onnx.helper.make_node(\n    'ConstantLike',\n    inputs=[],\n    outputs=['y'],\n    shape=shape,\n)\ny = np.zeros(shape, dtype=np.float32)\nexpect(node, inputs=[], outputs=[y], name='test_constantlike_zeros_without_input_dtype')",
+          "summary": "zeros_without_input_dtype"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor to copy shape, and optionally, type information from. One of either input tensor T1 or 'shape' attribute must be provided.",
+          "name": "input",
+          "option": "optional",
+          "type": "T1"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor, same shape as input tensor T1.",
+          "name": "output",
+          "type": "T2"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(bool)"
+          ],
+          "description": "Constrain input types. Strings and complex are not supported.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(bool)"
+          ],
+          "description": "Constrain output types. Strings and complex are not supported.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
     "name": "Conv",
     "schema": {
       "attributes": [
@@ -2287,14 +2388,14 @@
           "type": "string"
         },
         {
-          "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
+          "description": "dilation value along each axis of the filter.",
           "name": "dilations",
           "required": false,
           "type": "int[]"
         },
         {
           "default": 1,
-          "description": "number of groups input channels and output channels are divided into, default is 1.",
+          "description": "number of groups input channels and output channels are divided into.",
           "name": "group",
           "required": false,
           "type": "int"
@@ -2312,7 +2413,7 @@
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -2387,14 +2488,14 @@
           "type": "string"
         },
         {
-          "description": "dilation value along each axis of the filter. If not present, the dilation defaults to 1 along each axis.",
+          "description": "dilation value along each axis of the filter.",
           "name": "dilations",
           "required": false,
           "type": "int[]"
         },
         {
           "default": 1,
-          "description": "number of groups input channels and output channels are divided into, default is 1.",
+          "description": "number of groups input channels and output channels are divided into.",
           "name": "group",
           "required": false,
           "type": "int"
@@ -2424,7 +2525,7 @@
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -3082,7 +3183,7 @@
       "attributes": [
         {
           "default": 0.5,
-          "description": "(float, default 0.5) the ratio of random dropout",
+          "description": "The ratio of random dropout",
           "name": "ratio",
           "required": false,
           "type": "float"
@@ -3306,7 +3407,7 @@
       "attributes": [
         {
           "default": 1.0,
-          "description": "Coefficient of ELU default to 1.0.",
+          "description": "Coefficient of ELU.",
           "name": "alpha",
           "required": false,
           "type": "float"
@@ -3709,7 +3810,7 @@
       "attributes": [
         {
           "default": 1,
-          "description": "(Default to 1) Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output. The value for axis must be in the range [0, R], where R is the rank of the input tensor. When axis = 0, the shape of the output tensor is (1, (d_0 X d_1 ... d_n), where the shape of the input tensor is (d_0, d_1, ... d_n). ",
+          "description": "Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output. The value for axis must be in the range [0, R], where R is the rank of the input tensor. When axis = 0, the shape of the output tensor is (1, (d_0 X d_1 ... d_n), where the shape of the input tensor is (d_0, d_1, ... d_n). ",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -4348,7 +4449,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to gather on, defaults to 0. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
+          "description": "Which axis to gather on. Negative value means counting dimensions from the back. Accepted range in [-r, r-1]",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -4617,14 +4718,14 @@
       "attributes": [
         {
           "default": 1.0,
-          "description": "Scalar multiplier for the product of input tensors A * B, and the default value is 1.0.",
+          "description": "Scalar multiplier for the product of input tensors A * B.",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
           "default": 1.0,
-          "description": "Scalar multiplier for input tensor C, and the default value is 1.0.",
+          "description": "Scalar multiplier for input tensor C.",
           "name": "beta",
           "required": false,
           "type": "float"
@@ -4865,7 +4966,7 @@
       "attributes": [
         {
           "default": 2,
-          "description": "p value of the Lp norm used to pool over the input data, default is 2.",
+          "description": "p value of the Lp norm used to pool over the input data.",
           "name": "p",
           "required": false,
           "type": "int"
@@ -5238,14 +5339,14 @@
       "attributes": [
         {
           "default": 0.20000000298023224,
-          "description": "Value of alpha default to 0.2",
+          "description": "Value of alpha.",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
           "default": 0.5,
-          "description": "Value of beta default to 0.5",
+          "description": "Value of beta.",
           "name": "beta",
           "required": false,
           "type": "float"
@@ -5303,7 +5404,7 @@
       "attributes": [
         {
           "default": 1,
-          "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
+          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -5494,7 +5595,7 @@
         },
         {
           "default": 1.0,
-          "description": "(float, default 1.0) the scale to apply.",
+          "description": "The scale to apply.",
           "name": "scale",
           "required": false,
           "type": "float"
@@ -5677,7 +5778,7 @@
       "attributes": [
         {
           "default": 9.999999747378752e-06,
-          "description": "The epsilon value to use to avoid division by zero, default is 1e-5f.",
+          "description": "The epsilon value to use to avoid division by zero.",
           "name": "epsilon",
           "required": false,
           "type": "float"
@@ -5741,21 +5842,21 @@
       "attributes": [
         {
           "default": 9.999999747378752e-05,
-          "description": "Scaling parameter, default is 1e-4f.",
+          "description": "Scaling parameter.",
           "name": "alpha",
           "required": false,
           "type": "float"
         },
         {
           "default": 0.75,
-          "description": "The exponent, default is 0.75f",
+          "description": "The exponent.",
           "name": "beta",
           "required": false,
           "type": "float"
         },
         {
           "default": 1.0,
-          "description": "Default to 1.0f",
+          "description": "",
           "name": "bias",
           "required": false,
           "type": "float"
@@ -6019,7 +6120,7 @@
           "type": "int"
         },
         {
-          "description": "Couple the input and forget gates if 1, default 0.",
+          "description": "Couple the input and forget gates if 1.",
           "name": "input_forget",
           "required": false,
           "type": "int"
@@ -6272,7 +6373,7 @@
       "attributes": [
         {
           "default": 0.009999999776482582,
-          "description": "Coefficient of leakage default to 0.01.",
+          "description": "Coefficient of leakage.",
           "name": "alpha",
           "required": false,
           "type": "float"
@@ -6789,7 +6890,7 @@
       "attributes": [
         {
           "default": 1,
-          "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
+          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -6931,14 +7032,14 @@
       "attributes": [
         {
           "default": -1,
-          "description": "(int64, default -1) the axis on which to apply normalization, -1 mean last axis.",
+          "description": "The axis on which to apply normalization, -1 mean last axis.",
           "name": "axis",
           "required": false,
           "type": "int"
         },
         {
           "default": 2,
-          "description": "(int64, default 2) the order of the normalization, only 1 or 2 are supported.",
+          "description": "The order of the normalization, only 1 or 2 are supported.",
           "name": "p",
           "required": false,
           "type": "int"
@@ -7072,7 +7173,7 @@
         },
         {
           "default": 2,
-          "description": "p value of the Lp norm used to pool over the input data, default is 2.",
+          "description": "p value of the Lp norm used to pool over the input data.",
           "name": "p",
           "required": false,
           "type": "int"
@@ -7084,7 +7185,7 @@
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -7342,7 +7443,7 @@
           "type": "int[]"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -7458,13 +7559,13 @@
           "type": "int[]"
         },
         {
-          "description": "The storage order of the tensor. 0 is row major, and 1 is column major. Default is 0.",
+          "description": "The storage order of the tensor. 0 is row major, and 1 is column major.",
           "name": "storage_order",
           "required": false,
           "type": "int"
         },
         {
-          "description": "Stride along each axis. If not present, the stride defaults to 1 along each axis.",
+          "description": "Stride along each axis.",
           "name": "strides",
           "required": false,
           "type": "int[]"
@@ -7581,7 +7682,7 @@
         },
         {
           "default": 1.0,
-          "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling, default is 1.0f.",
+          "description": "Multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling.",
           "name": "spatial_scale",
           "required": false,
           "type": "float"
@@ -7776,14 +7877,14 @@
     "schema": {
       "attributes": [
         {
-          "description": "If 1, mean and variance are computed across channels. Default is 0.",
+          "description": "If 1, mean and variance are computed across channels.",
           "name": "across_channels",
           "required": false,
           "type": "int"
         },
         {
           "default": 1,
-          "description": "If 0, normalize the mean only.  Default is 1.",
+          "description": "If 0, normalize the mean only.",
           "name": "normalize_variance",
           "required": false,
           "type": "int"
@@ -8878,7 +8979,7 @@
           "type": "int[]"
         },
         {
-          "description": "One float, indicates the value to be filled, default is 0",
+          "description": "One float, indicates the value to be filled.",
           "name": "value",
           "required": false,
           "type": "float"
@@ -9388,14 +9489,14 @@
           "type": "int"
         },
         {
-          "description": "The mean of the normal distribution. If not specified, default is 0.",
+          "description": "The mean of the normal distribution.",
           "name": "mean",
           "required": false,
           "type": "float"
         },
         {
           "default": 1.0,
-          "description": "The standard deviation of the normal distribution. If not specified, default is 1.",
+          "description": "The standard deviation of the normal distribution.",
           "name": "scale",
           "required": false,
           "type": "float"
@@ -9452,14 +9553,14 @@
           "type": "int"
         },
         {
-          "description": "The mean of the normal distribution. If not specified, default is 0.",
+          "description": "The mean of the normal distribution.",
           "name": "mean",
           "required": false,
           "type": "float"
         },
         {
           "default": 1.0,
-          "description": "The standard deviation of the normal distribution. If not specified, default is 1.",
+          "description": "The standard deviation of the normal distribution.",
           "name": "scale",
           "required": false,
           "type": "float"
@@ -9540,13 +9641,13 @@
         },
         {
           "default": 1.0,
-          "description": "Upper boundary of the output values. If not specified, default is 1.",
+          "description": "Upper boundary of the output values.",
           "name": "high",
           "required": false,
           "type": "float"
         },
         {
-          "description": "Lower boundary of the output values. If not specified, default is 0.",
+          "description": "Lower boundary of the output values.",
           "name": "low",
           "required": false,
           "type": "float"
@@ -9604,13 +9705,13 @@
         },
         {
           "default": 1.0,
-          "description": "Upper boundary of the output values. If not specified, default is 1.",
+          "description": "Upper boundary of the output values.",
           "name": "high",
           "required": false,
           "type": "float"
         },
         {
-          "description": "Lower boundary of the output values. If not specified, default is 0.",
+          "description": "Lower boundary of the output values.",
           "name": "low",
           "required": false,
           "type": "float"
@@ -10729,7 +10830,7 @@
         },
         {
           "default": "LINEAR",
-          "description": "The kernel type, one of 'LINEAR,' 'POLY,' 'RBF,' 'SIGMOID. The default is 'LINEAR.'",
+          "description": "The kernel type, one of 'LINEAR,' 'POLY,' 'RBF,' 'SIGMOID'.",
           "name": "kernel_type",
           "required": false,
           "type": "string"
@@ -10839,7 +10940,7 @@
         },
         {
           "default": "LINEAR",
-          "description": "The kernel type, one of 'LINEAR,' 'POLY,' 'RBF,' 'SIGMOID. The default is 'LINEAR.'",
+          "description": "The kernel type, one of 'LINEAR,' 'POLY,' 'RBF,' 'SIGMOID'.",
           "name": "kernel_type",
           "required": false,
           "type": "string"
@@ -10851,7 +10952,7 @@
           "type": "int"
         },
         {
-          "description": "Flag indicating whether the regression is a one-class SVM or not. The default is false.",
+          "description": "Flag indicating whether the regression is a one-class SVM or not.",
           "name": "one_class",
           "required": false,
           "type": "int"
@@ -10918,7 +11019,7 @@
       "attributes": [
         {
           "default": 1.0,
-          "description": "(float, default 1.0) the scale to apply.",
+          "description": "The scale to apply.",
           "name": "scale",
           "required": false,
           "type": "float"
@@ -11652,7 +11753,7 @@
       "attributes": [
         {
           "default": 1,
-          "description": "(int) default to 1; describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
+          "description": "Describes the axis of the inputs when coerced to 2D; defaults to one because the 0th axis most likely describes the batch_size",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -11931,7 +12032,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Which axis to split on (defaults to 0)",
+          "description": "Which axis to split on.",
           "name": "axis",
           "required": false,
           "type": "int"
@@ -12856,7 +12957,7 @@
       "attributes": [
         {
           "default": -1,
-          "description": "Dimension on which to do the sort. Default -1, which indicates the last axis",
+          "description": "Dimension on which to do the sort.",
           "name": "axis",
           "required": false,
           "type": "int"
