@@ -13,15 +13,15 @@
         tensorflow.SavedModel = (function() {
     
             function SavedModel(properties) {
-                this.metaGraphs = [];
+                this.meta_graphs = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            SavedModel.prototype.savedModelSchemaVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-            SavedModel.prototype.metaGraphs = $util.emptyArray;
+            SavedModel.prototype.saved_model_schema_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            SavedModel.prototype.meta_graphs = $util.emptyArray;
     
             SavedModel.create = function create(properties) {
                 return new SavedModel(properties);
@@ -35,12 +35,12 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.savedModelSchemaVersion = reader.int64();
+                        message.saved_model_schema_version = reader.int64();
                         break;
                     case 2:
-                        if (!(message.metaGraphs && message.metaGraphs.length))
-                            message.metaGraphs = [];
-                        message.metaGraphs.push($root.tensorflow.MetaGraphDef.decode(reader, reader.uint32()));
+                        if (!(message.meta_graphs && message.meta_graphs.length))
+                            message.meta_graphs = [];
+                        message.meta_graphs.push($root.tensorflow.MetaGraphDef.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -53,16 +53,16 @@
             SavedModel.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.savedModelSchemaVersion != null && message.hasOwnProperty("savedModelSchemaVersion"))
-                    if (!$util.isInteger(message.savedModelSchemaVersion) && !(message.savedModelSchemaVersion && $util.isInteger(message.savedModelSchemaVersion.low) && $util.isInteger(message.savedModelSchemaVersion.high)))
-                        return "savedModelSchemaVersion: integer|Long expected";
-                if (message.metaGraphs != null && message.hasOwnProperty("metaGraphs")) {
-                    if (!Array.isArray(message.metaGraphs))
-                        return "metaGraphs: array expected";
-                    for (var i = 0; i < message.metaGraphs.length; ++i) {
-                        var error = $root.tensorflow.MetaGraphDef.verify(message.metaGraphs[i]);
+                if (message.saved_model_schema_version != null && message.hasOwnProperty("saved_model_schema_version"))
+                    if (!$util.isInteger(message.saved_model_schema_version) && !(message.saved_model_schema_version && $util.isInteger(message.saved_model_schema_version.low) && $util.isInteger(message.saved_model_schema_version.high)))
+                        return "saved_model_schema_version: integer|Long expected";
+                if (message.meta_graphs != null && message.hasOwnProperty("meta_graphs")) {
+                    if (!Array.isArray(message.meta_graphs))
+                        return "meta_graphs: array expected";
+                    for (var i = 0; i < message.meta_graphs.length; ++i) {
+                        var error = $root.tensorflow.MetaGraphDef.verify(message.meta_graphs[i]);
                         if (error)
-                            return "metaGraphs." + error;
+                            return "meta_graphs." + error;
                     }
                 }
                 return null;
@@ -72,23 +72,23 @@
                 if (object instanceof $root.tensorflow.SavedModel)
                     return object;
                 var message = new $root.tensorflow.SavedModel();
-                if (object.savedModelSchemaVersion != null)
+                if (object.saved_model_schema_version != null)
                     if ($util.Long)
-                        (message.savedModelSchemaVersion = $util.Long.fromValue(object.savedModelSchemaVersion)).unsigned = false;
-                    else if (typeof object.savedModelSchemaVersion === "string")
-                        message.savedModelSchemaVersion = parseInt(object.savedModelSchemaVersion, 10);
-                    else if (typeof object.savedModelSchemaVersion === "number")
-                        message.savedModelSchemaVersion = object.savedModelSchemaVersion;
-                    else if (typeof object.savedModelSchemaVersion === "object")
-                        message.savedModelSchemaVersion = new $util.LongBits(object.savedModelSchemaVersion.low >>> 0, object.savedModelSchemaVersion.high >>> 0).toNumber();
-                if (object.metaGraphs) {
-                    if (!Array.isArray(object.metaGraphs))
-                        throw TypeError(".tensorflow.SavedModel.metaGraphs: array expected");
-                    message.metaGraphs = [];
-                    for (var i = 0; i < object.metaGraphs.length; ++i) {
-                        if (typeof object.metaGraphs[i] !== "object")
-                            throw TypeError(".tensorflow.SavedModel.metaGraphs: object expected");
-                        message.metaGraphs[i] = $root.tensorflow.MetaGraphDef.fromObject(object.metaGraphs[i]);
+                        (message.saved_model_schema_version = $util.Long.fromValue(object.saved_model_schema_version)).unsigned = false;
+                    else if (typeof object.saved_model_schema_version === "string")
+                        message.saved_model_schema_version = parseInt(object.saved_model_schema_version, 10);
+                    else if (typeof object.saved_model_schema_version === "number")
+                        message.saved_model_schema_version = object.saved_model_schema_version;
+                    else if (typeof object.saved_model_schema_version === "object")
+                        message.saved_model_schema_version = new $util.LongBits(object.saved_model_schema_version.low >>> 0, object.saved_model_schema_version.high >>> 0).toNumber();
+                if (object.meta_graphs) {
+                    if (!Array.isArray(object.meta_graphs))
+                        throw TypeError(".tensorflow.SavedModel.meta_graphs: array expected");
+                    message.meta_graphs = [];
+                    for (var i = 0; i < object.meta_graphs.length; ++i) {
+                        if (typeof object.meta_graphs[i] !== "object")
+                            throw TypeError(".tensorflow.SavedModel.meta_graphs: object expected");
+                        message.meta_graphs[i] = $root.tensorflow.MetaGraphDef.fromObject(object.meta_graphs[i]);
                     }
                 }
                 return message;
@@ -99,22 +99,22 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.metaGraphs = [];
+                    object.meta_graphs = [];
                 if (options.defaults)
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.savedModelSchemaVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.saved_model_schema_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.savedModelSchemaVersion = options.longs === String ? "0" : 0;
-                if (message.savedModelSchemaVersion != null && message.hasOwnProperty("savedModelSchemaVersion"))
-                    if (typeof message.savedModelSchemaVersion === "number")
-                        object.savedModelSchemaVersion = options.longs === String ? String(message.savedModelSchemaVersion) : message.savedModelSchemaVersion;
+                        object.saved_model_schema_version = options.longs === String ? "0" : 0;
+                if (message.saved_model_schema_version != null && message.hasOwnProperty("saved_model_schema_version"))
+                    if (typeof message.saved_model_schema_version === "number")
+                        object.saved_model_schema_version = options.longs === String ? String(message.saved_model_schema_version) : message.saved_model_schema_version;
                     else
-                        object.savedModelSchemaVersion = options.longs === String ? $util.Long.prototype.toString.call(message.savedModelSchemaVersion) : options.longs === Number ? new $util.LongBits(message.savedModelSchemaVersion.low >>> 0, message.savedModelSchemaVersion.high >>> 0).toNumber() : message.savedModelSchemaVersion;
-                if (message.metaGraphs && message.metaGraphs.length) {
-                    object.metaGraphs = [];
-                    for (var j = 0; j < message.metaGraphs.length; ++j)
-                        object.metaGraphs[j] = $root.tensorflow.MetaGraphDef.toObject(message.metaGraphs[j], options);
+                        object.saved_model_schema_version = options.longs === String ? $util.Long.prototype.toString.call(message.saved_model_schema_version) : options.longs === Number ? new $util.LongBits(message.saved_model_schema_version.low >>> 0, message.saved_model_schema_version.high >>> 0).toNumber() : message.saved_model_schema_version;
+                if (message.meta_graphs && message.meta_graphs.length) {
+                    object.meta_graphs = [];
+                    for (var j = 0; j < message.meta_graphs.length; ++j)
+                        object.meta_graphs[j] = $root.tensorflow.MetaGraphDef.toObject(message.meta_graphs[j], options);
                 }
                 return object;
             };
@@ -129,21 +129,21 @@
         tensorflow.MetaGraphDef = (function() {
     
             function MetaGraphDef(properties) {
-                this.collectionDef = {};
-                this.signatureDef = {};
-                this.assetFileDef = [];
+                this.collection_def = {};
+                this.signature_def = {};
+                this.asset_file_def = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            MetaGraphDef.prototype.metaInfoDef = null;
-            MetaGraphDef.prototype.graphDef = null;
-            MetaGraphDef.prototype.saverDef = null;
-            MetaGraphDef.prototype.collectionDef = $util.emptyObject;
-            MetaGraphDef.prototype.signatureDef = $util.emptyObject;
-            MetaGraphDef.prototype.assetFileDef = $util.emptyArray;
+            MetaGraphDef.prototype.meta_info_def = null;
+            MetaGraphDef.prototype.graph_def = null;
+            MetaGraphDef.prototype.saver_def = null;
+            MetaGraphDef.prototype.collection_def = $util.emptyObject;
+            MetaGraphDef.prototype.signature_def = $util.emptyObject;
+            MetaGraphDef.prototype.asset_file_def = $util.emptyArray;
     
             MetaGraphDef.create = function create(properties) {
                 return new MetaGraphDef(properties);
@@ -157,34 +157,34 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.metaInfoDef = $root.tensorflow.MetaGraphDef.MetaInfoDef.decode(reader, reader.uint32());
+                        message.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.decode(reader, reader.uint32());
                         break;
                     case 2:
-                        message.graphDef = $root.tensorflow.GraphDef.decode(reader, reader.uint32());
+                        message.graph_def = $root.tensorflow.GraphDef.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.saverDef = $root.tensorflow.SaverDef.decode(reader, reader.uint32());
+                        message.saver_def = $root.tensorflow.SaverDef.decode(reader, reader.uint32());
                         break;
                     case 4:
                         reader.skip().pos++;
-                        if (message.collectionDef === $util.emptyObject)
-                            message.collectionDef = {};
+                        if (message.collection_def === $util.emptyObject)
+                            message.collection_def = {};
                         key = reader.string();
                         reader.pos++;
-                        message.collectionDef[key] = $root.tensorflow.CollectionDef.decode(reader, reader.uint32());
+                        message.collection_def[key] = $root.tensorflow.CollectionDef.decode(reader, reader.uint32());
                         break;
                     case 5:
                         reader.skip().pos++;
-                        if (message.signatureDef === $util.emptyObject)
-                            message.signatureDef = {};
+                        if (message.signature_def === $util.emptyObject)
+                            message.signature_def = {};
                         key = reader.string();
                         reader.pos++;
-                        message.signatureDef[key] = $root.tensorflow.SignatureDef.decode(reader, reader.uint32());
+                        message.signature_def[key] = $root.tensorflow.SignatureDef.decode(reader, reader.uint32());
                         break;
                     case 6:
-                        if (!(message.assetFileDef && message.assetFileDef.length))
-                            message.assetFileDef = [];
-                        message.assetFileDef.push($root.tensorflow.AssetFileDef.decode(reader, reader.uint32()));
+                        if (!(message.asset_file_def && message.asset_file_def.length))
+                            message.asset_file_def = [];
+                        message.asset_file_def.push($root.tensorflow.AssetFileDef.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -197,48 +197,48 @@
             MetaGraphDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.metaInfoDef != null && message.hasOwnProperty("metaInfoDef")) {
-                    var error = $root.tensorflow.MetaGraphDef.MetaInfoDef.verify(message.metaInfoDef);
+                if (message.meta_info_def != null && message.hasOwnProperty("meta_info_def")) {
+                    var error = $root.tensorflow.MetaGraphDef.MetaInfoDef.verify(message.meta_info_def);
                     if (error)
-                        return "metaInfoDef." + error;
+                        return "meta_info_def." + error;
                 }
-                if (message.graphDef != null && message.hasOwnProperty("graphDef")) {
-                    var error = $root.tensorflow.GraphDef.verify(message.graphDef);
+                if (message.graph_def != null && message.hasOwnProperty("graph_def")) {
+                    var error = $root.tensorflow.GraphDef.verify(message.graph_def);
                     if (error)
-                        return "graphDef." + error;
+                        return "graph_def." + error;
                 }
-                if (message.saverDef != null && message.hasOwnProperty("saverDef")) {
-                    var error = $root.tensorflow.SaverDef.verify(message.saverDef);
+                if (message.saver_def != null && message.hasOwnProperty("saver_def")) {
+                    var error = $root.tensorflow.SaverDef.verify(message.saver_def);
                     if (error)
-                        return "saverDef." + error;
+                        return "saver_def." + error;
                 }
-                if (message.collectionDef != null && message.hasOwnProperty("collectionDef")) {
-                    if (!$util.isObject(message.collectionDef))
-                        return "collectionDef: object expected";
-                    var key = Object.keys(message.collectionDef);
+                if (message.collection_def != null && message.hasOwnProperty("collection_def")) {
+                    if (!$util.isObject(message.collection_def))
+                        return "collection_def: object expected";
+                    var key = Object.keys(message.collection_def);
                     for (var i = 0; i < key.length; ++i) {
-                        var error = $root.tensorflow.CollectionDef.verify(message.collectionDef[key[i]]);
+                        var error = $root.tensorflow.CollectionDef.verify(message.collection_def[key[i]]);
                         if (error)
-                            return "collectionDef." + error;
+                            return "collection_def." + error;
                     }
                 }
-                if (message.signatureDef != null && message.hasOwnProperty("signatureDef")) {
-                    if (!$util.isObject(message.signatureDef))
-                        return "signatureDef: object expected";
-                    var key = Object.keys(message.signatureDef);
+                if (message.signature_def != null && message.hasOwnProperty("signature_def")) {
+                    if (!$util.isObject(message.signature_def))
+                        return "signature_def: object expected";
+                    var key = Object.keys(message.signature_def);
                     for (var i = 0; i < key.length; ++i) {
-                        var error = $root.tensorflow.SignatureDef.verify(message.signatureDef[key[i]]);
+                        var error = $root.tensorflow.SignatureDef.verify(message.signature_def[key[i]]);
                         if (error)
-                            return "signatureDef." + error;
+                            return "signature_def." + error;
                     }
                 }
-                if (message.assetFileDef != null && message.hasOwnProperty("assetFileDef")) {
-                    if (!Array.isArray(message.assetFileDef))
-                        return "assetFileDef: array expected";
-                    for (var i = 0; i < message.assetFileDef.length; ++i) {
-                        var error = $root.tensorflow.AssetFileDef.verify(message.assetFileDef[i]);
+                if (message.asset_file_def != null && message.hasOwnProperty("asset_file_def")) {
+                    if (!Array.isArray(message.asset_file_def))
+                        return "asset_file_def: array expected";
+                    for (var i = 0; i < message.asset_file_def.length; ++i) {
+                        var error = $root.tensorflow.AssetFileDef.verify(message.asset_file_def[i]);
                         if (error)
-                            return "assetFileDef." + error;
+                            return "asset_file_def." + error;
                     }
                 }
                 return null;
@@ -248,49 +248,49 @@
                 if (object instanceof $root.tensorflow.MetaGraphDef)
                     return object;
                 var message = new $root.tensorflow.MetaGraphDef();
-                if (object.metaInfoDef != null) {
-                    if (typeof object.metaInfoDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.metaInfoDef: object expected");
-                    message.metaInfoDef = $root.tensorflow.MetaGraphDef.MetaInfoDef.fromObject(object.metaInfoDef);
+                if (object.meta_info_def != null) {
+                    if (typeof object.meta_info_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.meta_info_def: object expected");
+                    message.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.fromObject(object.meta_info_def);
                 }
-                if (object.graphDef != null) {
-                    if (typeof object.graphDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.graphDef: object expected");
-                    message.graphDef = $root.tensorflow.GraphDef.fromObject(object.graphDef);
+                if (object.graph_def != null) {
+                    if (typeof object.graph_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.graph_def: object expected");
+                    message.graph_def = $root.tensorflow.GraphDef.fromObject(object.graph_def);
                 }
-                if (object.saverDef != null) {
-                    if (typeof object.saverDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.saverDef: object expected");
-                    message.saverDef = $root.tensorflow.SaverDef.fromObject(object.saverDef);
+                if (object.saver_def != null) {
+                    if (typeof object.saver_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.saver_def: object expected");
+                    message.saver_def = $root.tensorflow.SaverDef.fromObject(object.saver_def);
                 }
-                if (object.collectionDef) {
-                    if (typeof object.collectionDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.collectionDef: object expected");
-                    message.collectionDef = {};
-                    for (var keys = Object.keys(object.collectionDef), i = 0; i < keys.length; ++i) {
-                        if (typeof object.collectionDef[keys[i]] !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.collectionDef: object expected");
-                        message.collectionDef[keys[i]] = $root.tensorflow.CollectionDef.fromObject(object.collectionDef[keys[i]]);
+                if (object.collection_def) {
+                    if (typeof object.collection_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.collection_def: object expected");
+                    message.collection_def = {};
+                    for (var keys = Object.keys(object.collection_def), i = 0; i < keys.length; ++i) {
+                        if (typeof object.collection_def[keys[i]] !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.collection_def: object expected");
+                        message.collection_def[keys[i]] = $root.tensorflow.CollectionDef.fromObject(object.collection_def[keys[i]]);
                     }
                 }
-                if (object.signatureDef) {
-                    if (typeof object.signatureDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.signatureDef: object expected");
-                    message.signatureDef = {};
-                    for (var keys = Object.keys(object.signatureDef), i = 0; i < keys.length; ++i) {
-                        if (typeof object.signatureDef[keys[i]] !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.signatureDef: object expected");
-                        message.signatureDef[keys[i]] = $root.tensorflow.SignatureDef.fromObject(object.signatureDef[keys[i]]);
+                if (object.signature_def) {
+                    if (typeof object.signature_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.signature_def: object expected");
+                    message.signature_def = {};
+                    for (var keys = Object.keys(object.signature_def), i = 0; i < keys.length; ++i) {
+                        if (typeof object.signature_def[keys[i]] !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.signature_def: object expected");
+                        message.signature_def[keys[i]] = $root.tensorflow.SignatureDef.fromObject(object.signature_def[keys[i]]);
                     }
                 }
-                if (object.assetFileDef) {
-                    if (!Array.isArray(object.assetFileDef))
-                        throw TypeError(".tensorflow.MetaGraphDef.assetFileDef: array expected");
-                    message.assetFileDef = [];
-                    for (var i = 0; i < object.assetFileDef.length; ++i) {
-                        if (typeof object.assetFileDef[i] !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.assetFileDef: object expected");
-                        message.assetFileDef[i] = $root.tensorflow.AssetFileDef.fromObject(object.assetFileDef[i]);
+                if (object.asset_file_def) {
+                    if (!Array.isArray(object.asset_file_def))
+                        throw TypeError(".tensorflow.MetaGraphDef.asset_file_def: array expected");
+                    message.asset_file_def = [];
+                    for (var i = 0; i < object.asset_file_def.length; ++i) {
+                        if (typeof object.asset_file_def[i] !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.asset_file_def: object expected");
+                        message.asset_file_def[i] = $root.tensorflow.AssetFileDef.fromObject(object.asset_file_def[i]);
                     }
                 }
                 return message;
@@ -301,37 +301,37 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.assetFileDef = [];
+                    object.asset_file_def = [];
                 if (options.objects || options.defaults) {
-                    object.collectionDef = {};
-                    object.signatureDef = {};
+                    object.collection_def = {};
+                    object.signature_def = {};
                 }
                 if (options.defaults) {
-                    object.metaInfoDef = null;
-                    object.graphDef = null;
-                    object.saverDef = null;
+                    object.meta_info_def = null;
+                    object.graph_def = null;
+                    object.saver_def = null;
                 }
-                if (message.metaInfoDef != null && message.hasOwnProperty("metaInfoDef"))
-                    object.metaInfoDef = $root.tensorflow.MetaGraphDef.MetaInfoDef.toObject(message.metaInfoDef, options);
-                if (message.graphDef != null && message.hasOwnProperty("graphDef"))
-                    object.graphDef = $root.tensorflow.GraphDef.toObject(message.graphDef, options);
-                if (message.saverDef != null && message.hasOwnProperty("saverDef"))
-                    object.saverDef = $root.tensorflow.SaverDef.toObject(message.saverDef, options);
+                if (message.meta_info_def != null && message.hasOwnProperty("meta_info_def"))
+                    object.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.toObject(message.meta_info_def, options);
+                if (message.graph_def != null && message.hasOwnProperty("graph_def"))
+                    object.graph_def = $root.tensorflow.GraphDef.toObject(message.graph_def, options);
+                if (message.saver_def != null && message.hasOwnProperty("saver_def"))
+                    object.saver_def = $root.tensorflow.SaverDef.toObject(message.saver_def, options);
                 var keys2;
-                if (message.collectionDef && (keys2 = Object.keys(message.collectionDef)).length) {
-                    object.collectionDef = {};
+                if (message.collection_def && (keys2 = Object.keys(message.collection_def)).length) {
+                    object.collection_def = {};
                     for (var j = 0; j < keys2.length; ++j)
-                        object.collectionDef[keys2[j]] = $root.tensorflow.CollectionDef.toObject(message.collectionDef[keys2[j]], options);
+                        object.collection_def[keys2[j]] = $root.tensorflow.CollectionDef.toObject(message.collection_def[keys2[j]], options);
                 }
-                if (message.signatureDef && (keys2 = Object.keys(message.signatureDef)).length) {
-                    object.signatureDef = {};
+                if (message.signature_def && (keys2 = Object.keys(message.signature_def)).length) {
+                    object.signature_def = {};
                     for (var j = 0; j < keys2.length; ++j)
-                        object.signatureDef[keys2[j]] = $root.tensorflow.SignatureDef.toObject(message.signatureDef[keys2[j]], options);
+                        object.signature_def[keys2[j]] = $root.tensorflow.SignatureDef.toObject(message.signature_def[keys2[j]], options);
                 }
-                if (message.assetFileDef && message.assetFileDef.length) {
-                    object.assetFileDef = [];
-                    for (var j = 0; j < message.assetFileDef.length; ++j)
-                        object.assetFileDef[j] = $root.tensorflow.AssetFileDef.toObject(message.assetFileDef[j], options);
+                if (message.asset_file_def && message.asset_file_def.length) {
+                    object.asset_file_def = [];
+                    for (var j = 0; j < message.asset_file_def.length; ++j)
+                        object.asset_file_def[j] = $root.tensorflow.AssetFileDef.toObject(message.asset_file_def[j], options);
                 }
                 return object;
             };
@@ -350,13 +350,13 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                MetaInfoDef.prototype.metaGraphVersion = "";
-                MetaInfoDef.prototype.strippedOpList = null;
-                MetaInfoDef.prototype.anyInfo = null;
+                MetaInfoDef.prototype.meta_graph_version = "";
+                MetaInfoDef.prototype.stripped_op_list = null;
+                MetaInfoDef.prototype.any_info = null;
                 MetaInfoDef.prototype.tags = $util.emptyArray;
-                MetaInfoDef.prototype.tensorflowVersion = "";
-                MetaInfoDef.prototype.tensorflowGitVersion = "";
-                MetaInfoDef.prototype.strippedDefaultAttrs = false;
+                MetaInfoDef.prototype.tensorflow_version = "";
+                MetaInfoDef.prototype.tensorflow_git_version = "";
+                MetaInfoDef.prototype.stripped_default_attrs = false;
     
                 MetaInfoDef.create = function create(properties) {
                     return new MetaInfoDef(properties);
@@ -370,13 +370,13 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.metaGraphVersion = reader.string();
+                            message.meta_graph_version = reader.string();
                             break;
                         case 2:
-                            message.strippedOpList = $root.tensorflow.OpList.decode(reader, reader.uint32());
+                            message.stripped_op_list = $root.tensorflow.OpList.decode(reader, reader.uint32());
                             break;
                         case 3:
-                            message.anyInfo = $root.google.protobuf.Any.decode(reader, reader.uint32());
+                            message.any_info = $root.google.protobuf.Any.decode(reader, reader.uint32());
                             break;
                         case 4:
                             if (!(message.tags && message.tags.length))
@@ -384,13 +384,13 @@
                             message.tags.push(reader.string());
                             break;
                         case 5:
-                            message.tensorflowVersion = reader.string();
+                            message.tensorflow_version = reader.string();
                             break;
                         case 6:
-                            message.tensorflowGitVersion = reader.string();
+                            message.tensorflow_git_version = reader.string();
                             break;
                         case 7:
-                            message.strippedDefaultAttrs = reader.bool();
+                            message.stripped_default_attrs = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -403,18 +403,18 @@
                 MetaInfoDef.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.metaGraphVersion != null && message.hasOwnProperty("metaGraphVersion"))
-                        if (!$util.isString(message.metaGraphVersion))
-                            return "metaGraphVersion: string expected";
-                    if (message.strippedOpList != null && message.hasOwnProperty("strippedOpList")) {
-                        var error = $root.tensorflow.OpList.verify(message.strippedOpList);
+                    if (message.meta_graph_version != null && message.hasOwnProperty("meta_graph_version"))
+                        if (!$util.isString(message.meta_graph_version))
+                            return "meta_graph_version: string expected";
+                    if (message.stripped_op_list != null && message.hasOwnProperty("stripped_op_list")) {
+                        var error = $root.tensorflow.OpList.verify(message.stripped_op_list);
                         if (error)
-                            return "strippedOpList." + error;
+                            return "stripped_op_list." + error;
                     }
-                    if (message.anyInfo != null && message.hasOwnProperty("anyInfo")) {
-                        var error = $root.google.protobuf.Any.verify(message.anyInfo);
+                    if (message.any_info != null && message.hasOwnProperty("any_info")) {
+                        var error = $root.google.protobuf.Any.verify(message.any_info);
                         if (error)
-                            return "anyInfo." + error;
+                            return "any_info." + error;
                     }
                     if (message.tags != null && message.hasOwnProperty("tags")) {
                         if (!Array.isArray(message.tags))
@@ -423,15 +423,15 @@
                             if (!$util.isString(message.tags[i]))
                                 return "tags: string[] expected";
                     }
-                    if (message.tensorflowVersion != null && message.hasOwnProperty("tensorflowVersion"))
-                        if (!$util.isString(message.tensorflowVersion))
-                            return "tensorflowVersion: string expected";
-                    if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
-                        if (!$util.isString(message.tensorflowGitVersion))
-                            return "tensorflowGitVersion: string expected";
-                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
-                        if (typeof message.strippedDefaultAttrs !== "boolean")
-                            return "strippedDefaultAttrs: boolean expected";
+                    if (message.tensorflow_version != null && message.hasOwnProperty("tensorflow_version"))
+                        if (!$util.isString(message.tensorflow_version))
+                            return "tensorflow_version: string expected";
+                    if (message.tensorflow_git_version != null && message.hasOwnProperty("tensorflow_git_version"))
+                        if (!$util.isString(message.tensorflow_git_version))
+                            return "tensorflow_git_version: string expected";
+                    if (message.stripped_default_attrs != null && message.hasOwnProperty("stripped_default_attrs"))
+                        if (typeof message.stripped_default_attrs !== "boolean")
+                            return "stripped_default_attrs: boolean expected";
                     return null;
                 };
     
@@ -439,17 +439,17 @@
                     if (object instanceof $root.tensorflow.MetaGraphDef.MetaInfoDef)
                         return object;
                     var message = new $root.tensorflow.MetaGraphDef.MetaInfoDef();
-                    if (object.metaGraphVersion != null)
-                        message.metaGraphVersion = String(object.metaGraphVersion);
-                    if (object.strippedOpList != null) {
-                        if (typeof object.strippedOpList !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.strippedOpList: object expected");
-                        message.strippedOpList = $root.tensorflow.OpList.fromObject(object.strippedOpList);
+                    if (object.meta_graph_version != null)
+                        message.meta_graph_version = String(object.meta_graph_version);
+                    if (object.stripped_op_list != null) {
+                        if (typeof object.stripped_op_list !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.stripped_op_list: object expected");
+                        message.stripped_op_list = $root.tensorflow.OpList.fromObject(object.stripped_op_list);
                     }
-                    if (object.anyInfo != null) {
-                        if (typeof object.anyInfo !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.anyInfo: object expected");
-                        message.anyInfo = $root.google.protobuf.Any.fromObject(object.anyInfo);
+                    if (object.any_info != null) {
+                        if (typeof object.any_info !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.any_info: object expected");
+                        message.any_info = $root.google.protobuf.Any.fromObject(object.any_info);
                     }
                     if (object.tags) {
                         if (!Array.isArray(object.tags))
@@ -458,12 +458,12 @@
                         for (var i = 0; i < object.tags.length; ++i)
                             message.tags[i] = String(object.tags[i]);
                     }
-                    if (object.tensorflowVersion != null)
-                        message.tensorflowVersion = String(object.tensorflowVersion);
-                    if (object.tensorflowGitVersion != null)
-                        message.tensorflowGitVersion = String(object.tensorflowGitVersion);
-                    if (object.strippedDefaultAttrs != null)
-                        message.strippedDefaultAttrs = Boolean(object.strippedDefaultAttrs);
+                    if (object.tensorflow_version != null)
+                        message.tensorflow_version = String(object.tensorflow_version);
+                    if (object.tensorflow_git_version != null)
+                        message.tensorflow_git_version = String(object.tensorflow_git_version);
+                    if (object.stripped_default_attrs != null)
+                        message.stripped_default_attrs = Boolean(object.stripped_default_attrs);
                     return message;
                 };
     
@@ -474,30 +474,30 @@
                     if (options.arrays || options.defaults)
                         object.tags = [];
                     if (options.defaults) {
-                        object.metaGraphVersion = "";
-                        object.strippedOpList = null;
-                        object.anyInfo = null;
-                        object.tensorflowVersion = "";
-                        object.tensorflowGitVersion = "";
-                        object.strippedDefaultAttrs = false;
+                        object.meta_graph_version = "";
+                        object.stripped_op_list = null;
+                        object.any_info = null;
+                        object.tensorflow_version = "";
+                        object.tensorflow_git_version = "";
+                        object.stripped_default_attrs = false;
                     }
-                    if (message.metaGraphVersion != null && message.hasOwnProperty("metaGraphVersion"))
-                        object.metaGraphVersion = message.metaGraphVersion;
-                    if (message.strippedOpList != null && message.hasOwnProperty("strippedOpList"))
-                        object.strippedOpList = $root.tensorflow.OpList.toObject(message.strippedOpList, options);
-                    if (message.anyInfo != null && message.hasOwnProperty("anyInfo"))
-                        object.anyInfo = $root.google.protobuf.Any.toObject(message.anyInfo, options);
+                    if (message.meta_graph_version != null && message.hasOwnProperty("meta_graph_version"))
+                        object.meta_graph_version = message.meta_graph_version;
+                    if (message.stripped_op_list != null && message.hasOwnProperty("stripped_op_list"))
+                        object.stripped_op_list = $root.tensorflow.OpList.toObject(message.stripped_op_list, options);
+                    if (message.any_info != null && message.hasOwnProperty("any_info"))
+                        object.any_info = $root.google.protobuf.Any.toObject(message.any_info, options);
                     if (message.tags && message.tags.length) {
                         object.tags = [];
                         for (var j = 0; j < message.tags.length; ++j)
                             object.tags[j] = message.tags[j];
                     }
-                    if (message.tensorflowVersion != null && message.hasOwnProperty("tensorflowVersion"))
-                        object.tensorflowVersion = message.tensorflowVersion;
-                    if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
-                        object.tensorflowGitVersion = message.tensorflowGitVersion;
-                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
-                        object.strippedDefaultAttrs = message.strippedDefaultAttrs;
+                    if (message.tensorflow_version != null && message.hasOwnProperty("tensorflow_version"))
+                        object.tensorflow_version = message.tensorflow_version;
+                    if (message.tensorflow_git_version != null && message.hasOwnProperty("tensorflow_git_version"))
+                        object.tensorflow_git_version = message.tensorflow_git_version;
+                    if (message.stripped_default_attrs != null && message.hasOwnProperty("stripped_default_attrs"))
+                        object.stripped_default_attrs = message.stripped_default_attrs;
                     return object;
                 };
     
@@ -520,16 +520,16 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            CollectionDef.prototype.nodeList = null;
-            CollectionDef.prototype.bytesList = null;
-            CollectionDef.prototype.int64List = null;
-            CollectionDef.prototype.floatList = null;
-            CollectionDef.prototype.anyList = null;
+            CollectionDef.prototype.node_list = null;
+            CollectionDef.prototype.bytes_list = null;
+            CollectionDef.prototype.int64_list = null;
+            CollectionDef.prototype.float_list = null;
+            CollectionDef.prototype.any_list = null;
     
             var $oneOfFields;
     
             Object.defineProperty(CollectionDef.prototype, "kind", {
-                get: $util.oneOfGetter($oneOfFields = ["nodeList", "bytesList", "int64List", "floatList", "anyList"]),
+                get: $util.oneOfGetter($oneOfFields = ["node_list", "bytes_list", "int64_list", "float_list", "any_list"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -545,19 +545,19 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.nodeList = $root.tensorflow.CollectionDef.NodeList.decode(reader, reader.uint32());
+                        message.node_list = $root.tensorflow.CollectionDef.NodeList.decode(reader, reader.uint32());
                         break;
                     case 2:
-                        message.bytesList = $root.tensorflow.CollectionDef.BytesList.decode(reader, reader.uint32());
+                        message.bytes_list = $root.tensorflow.CollectionDef.BytesList.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.int64List = $root.tensorflow.CollectionDef.Int64List.decode(reader, reader.uint32());
+                        message.int64_list = $root.tensorflow.CollectionDef.Int64List.decode(reader, reader.uint32());
                         break;
                     case 4:
-                        message.floatList = $root.tensorflow.CollectionDef.FloatList.decode(reader, reader.uint32());
+                        message.float_list = $root.tensorflow.CollectionDef.FloatList.decode(reader, reader.uint32());
                         break;
                     case 5:
-                        message.anyList = $root.tensorflow.CollectionDef.AnyList.decode(reader, reader.uint32());
+                        message.any_list = $root.tensorflow.CollectionDef.AnyList.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -571,52 +571,52 @@
                 if (typeof message !== "object" || message === null)
                     return "object expected";
                 var properties = {};
-                if (message.nodeList != null && message.hasOwnProperty("nodeList")) {
+                if (message.node_list != null && message.hasOwnProperty("node_list")) {
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.NodeList.verify(message.nodeList);
+                        var error = $root.tensorflow.CollectionDef.NodeList.verify(message.node_list);
                         if (error)
-                            return "nodeList." + error;
+                            return "node_list." + error;
                     }
                 }
-                if (message.bytesList != null && message.hasOwnProperty("bytesList")) {
+                if (message.bytes_list != null && message.hasOwnProperty("bytes_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.BytesList.verify(message.bytesList);
+                        var error = $root.tensorflow.CollectionDef.BytesList.verify(message.bytes_list);
                         if (error)
-                            return "bytesList." + error;
+                            return "bytes_list." + error;
                     }
                 }
-                if (message.int64List != null && message.hasOwnProperty("int64List")) {
+                if (message.int64_list != null && message.hasOwnProperty("int64_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.Int64List.verify(message.int64List);
+                        var error = $root.tensorflow.CollectionDef.Int64List.verify(message.int64_list);
                         if (error)
-                            return "int64List." + error;
+                            return "int64_list." + error;
                     }
                 }
-                if (message.floatList != null && message.hasOwnProperty("floatList")) {
+                if (message.float_list != null && message.hasOwnProperty("float_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.FloatList.verify(message.floatList);
+                        var error = $root.tensorflow.CollectionDef.FloatList.verify(message.float_list);
                         if (error)
-                            return "floatList." + error;
+                            return "float_list." + error;
                     }
                 }
-                if (message.anyList != null && message.hasOwnProperty("anyList")) {
+                if (message.any_list != null && message.hasOwnProperty("any_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.AnyList.verify(message.anyList);
+                        var error = $root.tensorflow.CollectionDef.AnyList.verify(message.any_list);
                         if (error)
-                            return "anyList." + error;
+                            return "any_list." + error;
                     }
                 }
                 return null;
@@ -626,30 +626,30 @@
                 if (object instanceof $root.tensorflow.CollectionDef)
                     return object;
                 var message = new $root.tensorflow.CollectionDef();
-                if (object.nodeList != null) {
-                    if (typeof object.nodeList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.nodeList: object expected");
-                    message.nodeList = $root.tensorflow.CollectionDef.NodeList.fromObject(object.nodeList);
+                if (object.node_list != null) {
+                    if (typeof object.node_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.node_list: object expected");
+                    message.node_list = $root.tensorflow.CollectionDef.NodeList.fromObject(object.node_list);
                 }
-                if (object.bytesList != null) {
-                    if (typeof object.bytesList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.bytesList: object expected");
-                    message.bytesList = $root.tensorflow.CollectionDef.BytesList.fromObject(object.bytesList);
+                if (object.bytes_list != null) {
+                    if (typeof object.bytes_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.bytes_list: object expected");
+                    message.bytes_list = $root.tensorflow.CollectionDef.BytesList.fromObject(object.bytes_list);
                 }
-                if (object.int64List != null) {
-                    if (typeof object.int64List !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.int64List: object expected");
-                    message.int64List = $root.tensorflow.CollectionDef.Int64List.fromObject(object.int64List);
+                if (object.int64_list != null) {
+                    if (typeof object.int64_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.int64_list: object expected");
+                    message.int64_list = $root.tensorflow.CollectionDef.Int64List.fromObject(object.int64_list);
                 }
-                if (object.floatList != null) {
-                    if (typeof object.floatList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.floatList: object expected");
-                    message.floatList = $root.tensorflow.CollectionDef.FloatList.fromObject(object.floatList);
+                if (object.float_list != null) {
+                    if (typeof object.float_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.float_list: object expected");
+                    message.float_list = $root.tensorflow.CollectionDef.FloatList.fromObject(object.float_list);
                 }
-                if (object.anyList != null) {
-                    if (typeof object.anyList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.anyList: object expected");
-                    message.anyList = $root.tensorflow.CollectionDef.AnyList.fromObject(object.anyList);
+                if (object.any_list != null) {
+                    if (typeof object.any_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.any_list: object expected");
+                    message.any_list = $root.tensorflow.CollectionDef.AnyList.fromObject(object.any_list);
                 }
                 return message;
             };
@@ -658,30 +658,30 @@
                 if (!options)
                     options = {};
                 var object = {};
-                if (message.nodeList != null && message.hasOwnProperty("nodeList")) {
-                    object.nodeList = $root.tensorflow.CollectionDef.NodeList.toObject(message.nodeList, options);
+                if (message.node_list != null && message.hasOwnProperty("node_list")) {
+                    object.node_list = $root.tensorflow.CollectionDef.NodeList.toObject(message.node_list, options);
                     if (options.oneofs)
-                        object.kind = "nodeList";
+                        object.kind = "node_list";
                 }
-                if (message.bytesList != null && message.hasOwnProperty("bytesList")) {
-                    object.bytesList = $root.tensorflow.CollectionDef.BytesList.toObject(message.bytesList, options);
+                if (message.bytes_list != null && message.hasOwnProperty("bytes_list")) {
+                    object.bytes_list = $root.tensorflow.CollectionDef.BytesList.toObject(message.bytes_list, options);
                     if (options.oneofs)
-                        object.kind = "bytesList";
+                        object.kind = "bytes_list";
                 }
-                if (message.int64List != null && message.hasOwnProperty("int64List")) {
-                    object.int64List = $root.tensorflow.CollectionDef.Int64List.toObject(message.int64List, options);
+                if (message.int64_list != null && message.hasOwnProperty("int64_list")) {
+                    object.int64_list = $root.tensorflow.CollectionDef.Int64List.toObject(message.int64_list, options);
                     if (options.oneofs)
-                        object.kind = "int64List";
+                        object.kind = "int64_list";
                 }
-                if (message.floatList != null && message.hasOwnProperty("floatList")) {
-                    object.floatList = $root.tensorflow.CollectionDef.FloatList.toObject(message.floatList, options);
+                if (message.float_list != null && message.hasOwnProperty("float_list")) {
+                    object.float_list = $root.tensorflow.CollectionDef.FloatList.toObject(message.float_list, options);
                     if (options.oneofs)
-                        object.kind = "floatList";
+                        object.kind = "float_list";
                 }
-                if (message.anyList != null && message.hasOwnProperty("anyList")) {
-                    object.anyList = $root.tensorflow.CollectionDef.AnyList.toObject(message.anyList, options);
+                if (message.any_list != null && message.hasOwnProperty("any_list")) {
+                    object.any_list = $root.tensorflow.CollectionDef.AnyList.toObject(message.any_list, options);
                     if (options.oneofs)
-                        object.kind = "anyList";
+                        object.kind = "any_list";
                 }
                 return object;
             };
@@ -1151,14 +1151,14 @@
             }
     
             TensorInfo.prototype.name = "";
-            TensorInfo.prototype.cooSparse = null;
+            TensorInfo.prototype.coo_sparse = null;
             TensorInfo.prototype.dtype = 0;
-            TensorInfo.prototype.tensorShape = null;
+            TensorInfo.prototype.tensor_shape = null;
     
             var $oneOfFields;
     
             Object.defineProperty(TensorInfo.prototype, "encoding", {
-                get: $util.oneOfGetter($oneOfFields = ["name", "cooSparse"]),
+                get: $util.oneOfGetter($oneOfFields = ["name", "coo_sparse"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -1177,13 +1177,13 @@
                         message.name = reader.string();
                         break;
                     case 4:
-                        message.cooSparse = $root.tensorflow.TensorInfo.CooSparse.decode(reader, reader.uint32());
+                        message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.decode(reader, reader.uint32());
                         break;
                     case 2:
                         message.dtype = reader.int32();
                         break;
                     case 3:
-                        message.tensorShape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        message.tensor_shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1202,14 +1202,14 @@
                     if (!$util.isString(message.name))
                         return "name: string expected";
                 }
-                if (message.cooSparse != null && message.hasOwnProperty("cooSparse")) {
+                if (message.coo_sparse != null && message.hasOwnProperty("coo_sparse")) {
                     if (properties.encoding === 1)
                         return "encoding: multiple values";
                     properties.encoding = 1;
                     {
-                        var error = $root.tensorflow.TensorInfo.CooSparse.verify(message.cooSparse);
+                        var error = $root.tensorflow.TensorInfo.CooSparse.verify(message.coo_sparse);
                         if (error)
-                            return "cooSparse." + error;
+                            return "coo_sparse." + error;
                     }
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
@@ -1265,10 +1265,10 @@
                     case 123:
                         break;
                     }
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape")) {
-                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensorShape);
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape")) {
+                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensor_shape);
                     if (error)
-                        return "tensorShape." + error;
+                        return "tensor_shape." + error;
                 }
                 return null;
             };
@@ -1279,10 +1279,10 @@
                 var message = new $root.tensorflow.TensorInfo();
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.cooSparse != null) {
-                    if (typeof object.cooSparse !== "object")
-                        throw TypeError(".tensorflow.TensorInfo.cooSparse: object expected");
-                    message.cooSparse = $root.tensorflow.TensorInfo.CooSparse.fromObject(object.cooSparse);
+                if (object.coo_sparse != null) {
+                    if (typeof object.coo_sparse !== "object")
+                        throw TypeError(".tensorflow.TensorInfo.coo_sparse: object expected");
+                    message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.fromObject(object.coo_sparse);
                 }
                 switch (object.dtype) {
                 case "DT_INVALID":
@@ -1474,10 +1474,10 @@
                     message.dtype = 123;
                     break;
                 }
-                if (object.tensorShape != null) {
-                    if (typeof object.tensorShape !== "object")
-                        throw TypeError(".tensorflow.TensorInfo.tensorShape: object expected");
-                    message.tensorShape = $root.tensorflow.TensorShapeProto.fromObject(object.tensorShape);
+                if (object.tensor_shape != null) {
+                    if (typeof object.tensor_shape !== "object")
+                        throw TypeError(".tensorflow.TensorInfo.tensor_shape: object expected");
+                    message.tensor_shape = $root.tensorflow.TensorShapeProto.fromObject(object.tensor_shape);
                 }
                 return message;
             };
@@ -1488,7 +1488,7 @@
                 var object = {};
                 if (options.defaults) {
                     object.dtype = options.enums === String ? "DT_INVALID" : 0;
-                    object.tensorShape = null;
+                    object.tensor_shape = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name")) {
                     object.name = message.name;
@@ -1497,12 +1497,12 @@
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape"))
-                    object.tensorShape = $root.tensorflow.TensorShapeProto.toObject(message.tensorShape, options);
-                if (message.cooSparse != null && message.hasOwnProperty("cooSparse")) {
-                    object.cooSparse = $root.tensorflow.TensorInfo.CooSparse.toObject(message.cooSparse, options);
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape"))
+                    object.tensor_shape = $root.tensorflow.TensorShapeProto.toObject(message.tensor_shape, options);
+                if (message.coo_sparse != null && message.hasOwnProperty("coo_sparse")) {
+                    object.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.toObject(message.coo_sparse, options);
                     if (options.oneofs)
-                        object.encoding = "cooSparse";
+                        object.encoding = "coo_sparse";
                 }
                 return object;
             };
@@ -1520,9 +1520,9 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                CooSparse.prototype.valuesTensorName = "";
-                CooSparse.prototype.indicesTensorName = "";
-                CooSparse.prototype.denseShapeTensorName = "";
+                CooSparse.prototype.values_tensor_name = "";
+                CooSparse.prototype.indices_tensor_name = "";
+                CooSparse.prototype.dense_shape_tensor_name = "";
     
                 CooSparse.create = function create(properties) {
                     return new CooSparse(properties);
@@ -1536,13 +1536,13 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.valuesTensorName = reader.string();
+                            message.values_tensor_name = reader.string();
                             break;
                         case 2:
-                            message.indicesTensorName = reader.string();
+                            message.indices_tensor_name = reader.string();
                             break;
                         case 3:
-                            message.denseShapeTensorName = reader.string();
+                            message.dense_shape_tensor_name = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -1555,15 +1555,15 @@
                 CooSparse.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.valuesTensorName != null && message.hasOwnProperty("valuesTensorName"))
-                        if (!$util.isString(message.valuesTensorName))
-                            return "valuesTensorName: string expected";
-                    if (message.indicesTensorName != null && message.hasOwnProperty("indicesTensorName"))
-                        if (!$util.isString(message.indicesTensorName))
-                            return "indicesTensorName: string expected";
-                    if (message.denseShapeTensorName != null && message.hasOwnProperty("denseShapeTensorName"))
-                        if (!$util.isString(message.denseShapeTensorName))
-                            return "denseShapeTensorName: string expected";
+                    if (message.values_tensor_name != null && message.hasOwnProperty("values_tensor_name"))
+                        if (!$util.isString(message.values_tensor_name))
+                            return "values_tensor_name: string expected";
+                    if (message.indices_tensor_name != null && message.hasOwnProperty("indices_tensor_name"))
+                        if (!$util.isString(message.indices_tensor_name))
+                            return "indices_tensor_name: string expected";
+                    if (message.dense_shape_tensor_name != null && message.hasOwnProperty("dense_shape_tensor_name"))
+                        if (!$util.isString(message.dense_shape_tensor_name))
+                            return "dense_shape_tensor_name: string expected";
                     return null;
                 };
     
@@ -1571,12 +1571,12 @@
                     if (object instanceof $root.tensorflow.TensorInfo.CooSparse)
                         return object;
                     var message = new $root.tensorflow.TensorInfo.CooSparse();
-                    if (object.valuesTensorName != null)
-                        message.valuesTensorName = String(object.valuesTensorName);
-                    if (object.indicesTensorName != null)
-                        message.indicesTensorName = String(object.indicesTensorName);
-                    if (object.denseShapeTensorName != null)
-                        message.denseShapeTensorName = String(object.denseShapeTensorName);
+                    if (object.values_tensor_name != null)
+                        message.values_tensor_name = String(object.values_tensor_name);
+                    if (object.indices_tensor_name != null)
+                        message.indices_tensor_name = String(object.indices_tensor_name);
+                    if (object.dense_shape_tensor_name != null)
+                        message.dense_shape_tensor_name = String(object.dense_shape_tensor_name);
                     return message;
                 };
     
@@ -1585,16 +1585,16 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.valuesTensorName = "";
-                        object.indicesTensorName = "";
-                        object.denseShapeTensorName = "";
+                        object.values_tensor_name = "";
+                        object.indices_tensor_name = "";
+                        object.dense_shape_tensor_name = "";
                     }
-                    if (message.valuesTensorName != null && message.hasOwnProperty("valuesTensorName"))
-                        object.valuesTensorName = message.valuesTensorName;
-                    if (message.indicesTensorName != null && message.hasOwnProperty("indicesTensorName"))
-                        object.indicesTensorName = message.indicesTensorName;
-                    if (message.denseShapeTensorName != null && message.hasOwnProperty("denseShapeTensorName"))
-                        object.denseShapeTensorName = message.denseShapeTensorName;
+                    if (message.values_tensor_name != null && message.hasOwnProperty("values_tensor_name"))
+                        object.values_tensor_name = message.values_tensor_name;
+                    if (message.indices_tensor_name != null && message.hasOwnProperty("indices_tensor_name"))
+                        object.indices_tensor_name = message.indices_tensor_name;
+                    if (message.dense_shape_tensor_name != null && message.hasOwnProperty("dense_shape_tensor_name"))
+                        object.dense_shape_tensor_name = message.dense_shape_tensor_name;
                     return object;
                 };
     
@@ -1621,7 +1621,7 @@
     
             SignatureDef.prototype.inputs = $util.emptyObject;
             SignatureDef.prototype.outputs = $util.emptyObject;
-            SignatureDef.prototype.methodName = "";
+            SignatureDef.prototype.method_name = "";
     
             SignatureDef.create = function create(properties) {
                 return new SignatureDef(properties);
@@ -1651,7 +1651,7 @@
                         message.outputs[key] = $root.tensorflow.TensorInfo.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.methodName = reader.string();
+                        message.method_name = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1684,9 +1684,9 @@
                             return "outputs." + error;
                     }
                 }
-                if (message.methodName != null && message.hasOwnProperty("methodName"))
-                    if (!$util.isString(message.methodName))
-                        return "methodName: string expected";
+                if (message.method_name != null && message.hasOwnProperty("method_name"))
+                    if (!$util.isString(message.method_name))
+                        return "method_name: string expected";
                 return null;
             };
     
@@ -1714,8 +1714,8 @@
                         message.outputs[keys[i]] = $root.tensorflow.TensorInfo.fromObject(object.outputs[keys[i]]);
                     }
                 }
-                if (object.methodName != null)
-                    message.methodName = String(object.methodName);
+                if (object.method_name != null)
+                    message.method_name = String(object.method_name);
                 return message;
             };
     
@@ -1728,7 +1728,7 @@
                     object.outputs = {};
                 }
                 if (options.defaults)
-                    object.methodName = "";
+                    object.method_name = "";
                 var keys2;
                 if (message.inputs && (keys2 = Object.keys(message.inputs)).length) {
                     object.inputs = {};
@@ -1740,8 +1740,8 @@
                     for (var j = 0; j < keys2.length; ++j)
                         object.outputs[keys2[j]] = $root.tensorflow.TensorInfo.toObject(message.outputs[keys2[j]], options);
                 }
-                if (message.methodName != null && message.hasOwnProperty("methodName"))
-                    object.methodName = message.methodName;
+                if (message.method_name != null && message.hasOwnProperty("method_name"))
+                    object.method_name = message.method_name;
                 return object;
             };
     
@@ -1761,7 +1761,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            AssetFileDef.prototype.tensorInfo = null;
+            AssetFileDef.prototype.tensor_info = null;
             AssetFileDef.prototype.filename = "";
     
             AssetFileDef.create = function create(properties) {
@@ -1776,7 +1776,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.tensorInfo = $root.tensorflow.TensorInfo.decode(reader, reader.uint32());
+                        message.tensor_info = $root.tensorflow.TensorInfo.decode(reader, reader.uint32());
                         break;
                     case 2:
                         message.filename = reader.string();
@@ -1792,10 +1792,10 @@
             AssetFileDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.tensorInfo != null && message.hasOwnProperty("tensorInfo")) {
-                    var error = $root.tensorflow.TensorInfo.verify(message.tensorInfo);
+                if (message.tensor_info != null && message.hasOwnProperty("tensor_info")) {
+                    var error = $root.tensorflow.TensorInfo.verify(message.tensor_info);
                     if (error)
-                        return "tensorInfo." + error;
+                        return "tensor_info." + error;
                 }
                 if (message.filename != null && message.hasOwnProperty("filename"))
                     if (!$util.isString(message.filename))
@@ -1807,10 +1807,10 @@
                 if (object instanceof $root.tensorflow.AssetFileDef)
                     return object;
                 var message = new $root.tensorflow.AssetFileDef();
-                if (object.tensorInfo != null) {
-                    if (typeof object.tensorInfo !== "object")
-                        throw TypeError(".tensorflow.AssetFileDef.tensorInfo: object expected");
-                    message.tensorInfo = $root.tensorflow.TensorInfo.fromObject(object.tensorInfo);
+                if (object.tensor_info != null) {
+                    if (typeof object.tensor_info !== "object")
+                        throw TypeError(".tensorflow.AssetFileDef.tensor_info: object expected");
+                    message.tensor_info = $root.tensorflow.TensorInfo.fromObject(object.tensor_info);
                 }
                 if (object.filename != null)
                     message.filename = String(object.filename);
@@ -1822,11 +1822,11 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.tensorInfo = null;
+                    object.tensor_info = null;
                     object.filename = "";
                 }
-                if (message.tensorInfo != null && message.hasOwnProperty("tensorInfo"))
-                    object.tensorInfo = $root.tensorflow.TensorInfo.toObject(message.tensorInfo, options);
+                if (message.tensor_info != null && message.hasOwnProperty("tensor_info"))
+                    object.tensor_info = $root.tensorflow.TensorInfo.toObject(message.tensor_info, options);
                 if (message.filename != null && message.hasOwnProperty("filename"))
                     object.filename = message.filename;
                 return object;
@@ -1848,12 +1848,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            SaverDef.prototype.filenameTensorName = "";
-            SaverDef.prototype.saveTensorName = "";
-            SaverDef.prototype.restoreOpName = "";
-            SaverDef.prototype.maxToKeep = 0;
+            SaverDef.prototype.filename_tensor_name = "";
+            SaverDef.prototype.save_tensor_name = "";
+            SaverDef.prototype.restore_op_name = "";
+            SaverDef.prototype.max_to_keep = 0;
             SaverDef.prototype.sharded = false;
-            SaverDef.prototype.keepCheckpointEveryNHours = 0;
+            SaverDef.prototype.keep_checkpoint_every_n_hours = 0;
             SaverDef.prototype.version = 0;
     
             SaverDef.create = function create(properties) {
@@ -1868,22 +1868,22 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.filenameTensorName = reader.string();
+                        message.filename_tensor_name = reader.string();
                         break;
                     case 2:
-                        message.saveTensorName = reader.string();
+                        message.save_tensor_name = reader.string();
                         break;
                     case 3:
-                        message.restoreOpName = reader.string();
+                        message.restore_op_name = reader.string();
                         break;
                     case 4:
-                        message.maxToKeep = reader.int32();
+                        message.max_to_keep = reader.int32();
                         break;
                     case 5:
                         message.sharded = reader.bool();
                         break;
                     case 6:
-                        message.keepCheckpointEveryNHours = reader.float();
+                        message.keep_checkpoint_every_n_hours = reader.float();
                         break;
                     case 7:
                         message.version = reader.int32();
@@ -1899,24 +1899,24 @@
             SaverDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.filenameTensorName != null && message.hasOwnProperty("filenameTensorName"))
-                    if (!$util.isString(message.filenameTensorName))
-                        return "filenameTensorName: string expected";
-                if (message.saveTensorName != null && message.hasOwnProperty("saveTensorName"))
-                    if (!$util.isString(message.saveTensorName))
-                        return "saveTensorName: string expected";
-                if (message.restoreOpName != null && message.hasOwnProperty("restoreOpName"))
-                    if (!$util.isString(message.restoreOpName))
-                        return "restoreOpName: string expected";
-                if (message.maxToKeep != null && message.hasOwnProperty("maxToKeep"))
-                    if (!$util.isInteger(message.maxToKeep))
-                        return "maxToKeep: integer expected";
+                if (message.filename_tensor_name != null && message.hasOwnProperty("filename_tensor_name"))
+                    if (!$util.isString(message.filename_tensor_name))
+                        return "filename_tensor_name: string expected";
+                if (message.save_tensor_name != null && message.hasOwnProperty("save_tensor_name"))
+                    if (!$util.isString(message.save_tensor_name))
+                        return "save_tensor_name: string expected";
+                if (message.restore_op_name != null && message.hasOwnProperty("restore_op_name"))
+                    if (!$util.isString(message.restore_op_name))
+                        return "restore_op_name: string expected";
+                if (message.max_to_keep != null && message.hasOwnProperty("max_to_keep"))
+                    if (!$util.isInteger(message.max_to_keep))
+                        return "max_to_keep: integer expected";
                 if (message.sharded != null && message.hasOwnProperty("sharded"))
                     if (typeof message.sharded !== "boolean")
                         return "sharded: boolean expected";
-                if (message.keepCheckpointEveryNHours != null && message.hasOwnProperty("keepCheckpointEveryNHours"))
-                    if (typeof message.keepCheckpointEveryNHours !== "number")
-                        return "keepCheckpointEveryNHours: number expected";
+                if (message.keep_checkpoint_every_n_hours != null && message.hasOwnProperty("keep_checkpoint_every_n_hours"))
+                    if (typeof message.keep_checkpoint_every_n_hours !== "number")
+                        return "keep_checkpoint_every_n_hours: number expected";
                 if (message.version != null && message.hasOwnProperty("version"))
                     switch (message.version) {
                     default:
@@ -1933,18 +1933,18 @@
                 if (object instanceof $root.tensorflow.SaverDef)
                     return object;
                 var message = new $root.tensorflow.SaverDef();
-                if (object.filenameTensorName != null)
-                    message.filenameTensorName = String(object.filenameTensorName);
-                if (object.saveTensorName != null)
-                    message.saveTensorName = String(object.saveTensorName);
-                if (object.restoreOpName != null)
-                    message.restoreOpName = String(object.restoreOpName);
-                if (object.maxToKeep != null)
-                    message.maxToKeep = object.maxToKeep | 0;
+                if (object.filename_tensor_name != null)
+                    message.filename_tensor_name = String(object.filename_tensor_name);
+                if (object.save_tensor_name != null)
+                    message.save_tensor_name = String(object.save_tensor_name);
+                if (object.restore_op_name != null)
+                    message.restore_op_name = String(object.restore_op_name);
+                if (object.max_to_keep != null)
+                    message.max_to_keep = object.max_to_keep | 0;
                 if (object.sharded != null)
                     message.sharded = Boolean(object.sharded);
-                if (object.keepCheckpointEveryNHours != null)
-                    message.keepCheckpointEveryNHours = Number(object.keepCheckpointEveryNHours);
+                if (object.keep_checkpoint_every_n_hours != null)
+                    message.keep_checkpoint_every_n_hours = Number(object.keep_checkpoint_every_n_hours);
                 switch (object.version) {
                 case "LEGACY":
                 case 0:
@@ -1967,26 +1967,26 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.filenameTensorName = "";
-                    object.saveTensorName = "";
-                    object.restoreOpName = "";
-                    object.maxToKeep = 0;
+                    object.filename_tensor_name = "";
+                    object.save_tensor_name = "";
+                    object.restore_op_name = "";
+                    object.max_to_keep = 0;
                     object.sharded = false;
-                    object.keepCheckpointEveryNHours = 0;
+                    object.keep_checkpoint_every_n_hours = 0;
                     object.version = options.enums === String ? "LEGACY" : 0;
                 }
-                if (message.filenameTensorName != null && message.hasOwnProperty("filenameTensorName"))
-                    object.filenameTensorName = message.filenameTensorName;
-                if (message.saveTensorName != null && message.hasOwnProperty("saveTensorName"))
-                    object.saveTensorName = message.saveTensorName;
-                if (message.restoreOpName != null && message.hasOwnProperty("restoreOpName"))
-                    object.restoreOpName = message.restoreOpName;
-                if (message.maxToKeep != null && message.hasOwnProperty("maxToKeep"))
-                    object.maxToKeep = message.maxToKeep;
+                if (message.filename_tensor_name != null && message.hasOwnProperty("filename_tensor_name"))
+                    object.filename_tensor_name = message.filename_tensor_name;
+                if (message.save_tensor_name != null && message.hasOwnProperty("save_tensor_name"))
+                    object.save_tensor_name = message.save_tensor_name;
+                if (message.restore_op_name != null && message.hasOwnProperty("restore_op_name"))
+                    object.restore_op_name = message.restore_op_name;
+                if (message.max_to_keep != null && message.hasOwnProperty("max_to_keep"))
+                    object.max_to_keep = message.max_to_keep;
                 if (message.sharded != null && message.hasOwnProperty("sharded"))
                     object.sharded = message.sharded;
-                if (message.keepCheckpointEveryNHours != null && message.hasOwnProperty("keepCheckpointEveryNHours"))
-                    object.keepCheckpointEveryNHours = options.json && !isFinite(message.keepCheckpointEveryNHours) ? String(message.keepCheckpointEveryNHours) : message.keepCheckpointEveryNHours;
+                if (message.keep_checkpoint_every_n_hours != null && message.hasOwnProperty("keep_checkpoint_every_n_hours"))
+                    object.keep_checkpoint_every_n_hours = options.json && !isFinite(message.keep_checkpoint_every_n_hours) ? String(message.keep_checkpoint_every_n_hours) : message.keep_checkpoint_every_n_hours;
                 if (message.version != null && message.hasOwnProperty("version"))
                     object.version = options.enums === String ? $root.tensorflow.SaverDef.CheckpointFormatVersion[message.version] : message.version;
                 return object;
@@ -2147,8 +2147,8 @@
         tensorflow.OpDef = (function() {
     
             function OpDef(properties) {
-                this.inputArg = [];
-                this.outputArg = [];
+                this.input_arg = [];
+                this.output_arg = [];
                 this.attr = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -2157,16 +2157,16 @@
             }
     
             OpDef.prototype.name = "";
-            OpDef.prototype.inputArg = $util.emptyArray;
-            OpDef.prototype.outputArg = $util.emptyArray;
+            OpDef.prototype.input_arg = $util.emptyArray;
+            OpDef.prototype.output_arg = $util.emptyArray;
             OpDef.prototype.attr = $util.emptyArray;
             OpDef.prototype.deprecation = null;
             OpDef.prototype.summary = "";
             OpDef.prototype.description = "";
-            OpDef.prototype.isCommutative = false;
-            OpDef.prototype.isAggregate = false;
-            OpDef.prototype.isStateful = false;
-            OpDef.prototype.allowsUninitializedInput = false;
+            OpDef.prototype.is_commutative = false;
+            OpDef.prototype.is_aggregate = false;
+            OpDef.prototype.is_stateful = false;
+            OpDef.prototype.allows_uninitialized_input = false;
     
             OpDef.create = function create(properties) {
                 return new OpDef(properties);
@@ -2183,14 +2183,14 @@
                         message.name = reader.string();
                         break;
                     case 2:
-                        if (!(message.inputArg && message.inputArg.length))
-                            message.inputArg = [];
-                        message.inputArg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
+                        if (!(message.input_arg && message.input_arg.length))
+                            message.input_arg = [];
+                        message.input_arg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
                         break;
                     case 3:
-                        if (!(message.outputArg && message.outputArg.length))
-                            message.outputArg = [];
-                        message.outputArg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
+                        if (!(message.output_arg && message.output_arg.length))
+                            message.output_arg = [];
+                        message.output_arg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
                         break;
                     case 4:
                         if (!(message.attr && message.attr.length))
@@ -2207,16 +2207,16 @@
                         message.description = reader.string();
                         break;
                     case 18:
-                        message.isCommutative = reader.bool();
+                        message.is_commutative = reader.bool();
                         break;
                     case 16:
-                        message.isAggregate = reader.bool();
+                        message.is_aggregate = reader.bool();
                         break;
                     case 17:
-                        message.isStateful = reader.bool();
+                        message.is_stateful = reader.bool();
                         break;
                     case 19:
-                        message.allowsUninitializedInput = reader.bool();
+                        message.allows_uninitialized_input = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2232,22 +2232,22 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.inputArg != null && message.hasOwnProperty("inputArg")) {
-                    if (!Array.isArray(message.inputArg))
-                        return "inputArg: array expected";
-                    for (var i = 0; i < message.inputArg.length; ++i) {
-                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.inputArg[i]);
+                if (message.input_arg != null && message.hasOwnProperty("input_arg")) {
+                    if (!Array.isArray(message.input_arg))
+                        return "input_arg: array expected";
+                    for (var i = 0; i < message.input_arg.length; ++i) {
+                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.input_arg[i]);
                         if (error)
-                            return "inputArg." + error;
+                            return "input_arg." + error;
                     }
                 }
-                if (message.outputArg != null && message.hasOwnProperty("outputArg")) {
-                    if (!Array.isArray(message.outputArg))
-                        return "outputArg: array expected";
-                    for (var i = 0; i < message.outputArg.length; ++i) {
-                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.outputArg[i]);
+                if (message.output_arg != null && message.hasOwnProperty("output_arg")) {
+                    if (!Array.isArray(message.output_arg))
+                        return "output_arg: array expected";
+                    for (var i = 0; i < message.output_arg.length; ++i) {
+                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.output_arg[i]);
                         if (error)
-                            return "outputArg." + error;
+                            return "output_arg." + error;
                     }
                 }
                 if (message.attr != null && message.hasOwnProperty("attr")) {
@@ -2270,18 +2270,18 @@
                 if (message.description != null && message.hasOwnProperty("description"))
                     if (!$util.isString(message.description))
                         return "description: string expected";
-                if (message.isCommutative != null && message.hasOwnProperty("isCommutative"))
-                    if (typeof message.isCommutative !== "boolean")
-                        return "isCommutative: boolean expected";
-                if (message.isAggregate != null && message.hasOwnProperty("isAggregate"))
-                    if (typeof message.isAggregate !== "boolean")
-                        return "isAggregate: boolean expected";
-                if (message.isStateful != null && message.hasOwnProperty("isStateful"))
-                    if (typeof message.isStateful !== "boolean")
-                        return "isStateful: boolean expected";
-                if (message.allowsUninitializedInput != null && message.hasOwnProperty("allowsUninitializedInput"))
-                    if (typeof message.allowsUninitializedInput !== "boolean")
-                        return "allowsUninitializedInput: boolean expected";
+                if (message.is_commutative != null && message.hasOwnProperty("is_commutative"))
+                    if (typeof message.is_commutative !== "boolean")
+                        return "is_commutative: boolean expected";
+                if (message.is_aggregate != null && message.hasOwnProperty("is_aggregate"))
+                    if (typeof message.is_aggregate !== "boolean")
+                        return "is_aggregate: boolean expected";
+                if (message.is_stateful != null && message.hasOwnProperty("is_stateful"))
+                    if (typeof message.is_stateful !== "boolean")
+                        return "is_stateful: boolean expected";
+                if (message.allows_uninitialized_input != null && message.hasOwnProperty("allows_uninitialized_input"))
+                    if (typeof message.allows_uninitialized_input !== "boolean")
+                        return "allows_uninitialized_input: boolean expected";
                 return null;
             };
     
@@ -2291,24 +2291,24 @@
                 var message = new $root.tensorflow.OpDef();
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.inputArg) {
-                    if (!Array.isArray(object.inputArg))
-                        throw TypeError(".tensorflow.OpDef.inputArg: array expected");
-                    message.inputArg = [];
-                    for (var i = 0; i < object.inputArg.length; ++i) {
-                        if (typeof object.inputArg[i] !== "object")
-                            throw TypeError(".tensorflow.OpDef.inputArg: object expected");
-                        message.inputArg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.inputArg[i]);
+                if (object.input_arg) {
+                    if (!Array.isArray(object.input_arg))
+                        throw TypeError(".tensorflow.OpDef.input_arg: array expected");
+                    message.input_arg = [];
+                    for (var i = 0; i < object.input_arg.length; ++i) {
+                        if (typeof object.input_arg[i] !== "object")
+                            throw TypeError(".tensorflow.OpDef.input_arg: object expected");
+                        message.input_arg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.input_arg[i]);
                     }
                 }
-                if (object.outputArg) {
-                    if (!Array.isArray(object.outputArg))
-                        throw TypeError(".tensorflow.OpDef.outputArg: array expected");
-                    message.outputArg = [];
-                    for (var i = 0; i < object.outputArg.length; ++i) {
-                        if (typeof object.outputArg[i] !== "object")
-                            throw TypeError(".tensorflow.OpDef.outputArg: object expected");
-                        message.outputArg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.outputArg[i]);
+                if (object.output_arg) {
+                    if (!Array.isArray(object.output_arg))
+                        throw TypeError(".tensorflow.OpDef.output_arg: array expected");
+                    message.output_arg = [];
+                    for (var i = 0; i < object.output_arg.length; ++i) {
+                        if (typeof object.output_arg[i] !== "object")
+                            throw TypeError(".tensorflow.OpDef.output_arg: object expected");
+                        message.output_arg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.output_arg[i]);
                     }
                 }
                 if (object.attr) {
@@ -2330,14 +2330,14 @@
                     message.summary = String(object.summary);
                 if (object.description != null)
                     message.description = String(object.description);
-                if (object.isCommutative != null)
-                    message.isCommutative = Boolean(object.isCommutative);
-                if (object.isAggregate != null)
-                    message.isAggregate = Boolean(object.isAggregate);
-                if (object.isStateful != null)
-                    message.isStateful = Boolean(object.isStateful);
-                if (object.allowsUninitializedInput != null)
-                    message.allowsUninitializedInput = Boolean(object.allowsUninitializedInput);
+                if (object.is_commutative != null)
+                    message.is_commutative = Boolean(object.is_commutative);
+                if (object.is_aggregate != null)
+                    message.is_aggregate = Boolean(object.is_aggregate);
+                if (object.is_stateful != null)
+                    message.is_stateful = Boolean(object.is_stateful);
+                if (object.allows_uninitialized_input != null)
+                    message.allows_uninitialized_input = Boolean(object.allows_uninitialized_input);
                 return message;
             };
     
@@ -2346,8 +2346,8 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults) {
-                    object.inputArg = [];
-                    object.outputArg = [];
+                    object.input_arg = [];
+                    object.output_arg = [];
                     object.attr = [];
                 }
                 if (options.defaults) {
@@ -2355,22 +2355,22 @@
                     object.summary = "";
                     object.description = "";
                     object.deprecation = null;
-                    object.isAggregate = false;
-                    object.isStateful = false;
-                    object.isCommutative = false;
-                    object.allowsUninitializedInput = false;
+                    object.is_aggregate = false;
+                    object.is_stateful = false;
+                    object.is_commutative = false;
+                    object.allows_uninitialized_input = false;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.inputArg && message.inputArg.length) {
-                    object.inputArg = [];
-                    for (var j = 0; j < message.inputArg.length; ++j)
-                        object.inputArg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.inputArg[j], options);
+                if (message.input_arg && message.input_arg.length) {
+                    object.input_arg = [];
+                    for (var j = 0; j < message.input_arg.length; ++j)
+                        object.input_arg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.input_arg[j], options);
                 }
-                if (message.outputArg && message.outputArg.length) {
-                    object.outputArg = [];
-                    for (var j = 0; j < message.outputArg.length; ++j)
-                        object.outputArg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.outputArg[j], options);
+                if (message.output_arg && message.output_arg.length) {
+                    object.output_arg = [];
+                    for (var j = 0; j < message.output_arg.length; ++j)
+                        object.output_arg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.output_arg[j], options);
                 }
                 if (message.attr && message.attr.length) {
                     object.attr = [];
@@ -2383,14 +2383,14 @@
                     object.description = message.description;
                 if (message.deprecation != null && message.hasOwnProperty("deprecation"))
                     object.deprecation = $root.tensorflow.OpDeprecation.toObject(message.deprecation, options);
-                if (message.isAggregate != null && message.hasOwnProperty("isAggregate"))
-                    object.isAggregate = message.isAggregate;
-                if (message.isStateful != null && message.hasOwnProperty("isStateful"))
-                    object.isStateful = message.isStateful;
-                if (message.isCommutative != null && message.hasOwnProperty("isCommutative"))
-                    object.isCommutative = message.isCommutative;
-                if (message.allowsUninitializedInput != null && message.hasOwnProperty("allowsUninitializedInput"))
-                    object.allowsUninitializedInput = message.allowsUninitializedInput;
+                if (message.is_aggregate != null && message.hasOwnProperty("is_aggregate"))
+                    object.is_aggregate = message.is_aggregate;
+                if (message.is_stateful != null && message.hasOwnProperty("is_stateful"))
+                    object.is_stateful = message.is_stateful;
+                if (message.is_commutative != null && message.hasOwnProperty("is_commutative"))
+                    object.is_commutative = message.is_commutative;
+                if (message.allows_uninitialized_input != null && message.hasOwnProperty("allows_uninitialized_input"))
+                    object.allows_uninitialized_input = message.allows_uninitialized_input;
                 return object;
             };
     
@@ -2410,10 +2410,10 @@
                 ArgDef.prototype.name = "";
                 ArgDef.prototype.description = "";
                 ArgDef.prototype.type = 0;
-                ArgDef.prototype.typeAttr = "";
-                ArgDef.prototype.numberAttr = "";
-                ArgDef.prototype.typeListAttr = "";
-                ArgDef.prototype.isRef = false;
+                ArgDef.prototype.type_attr = "";
+                ArgDef.prototype.number_attr = "";
+                ArgDef.prototype.type_list_attr = "";
+                ArgDef.prototype.is_ref = false;
     
                 ArgDef.create = function create(properties) {
                     return new ArgDef(properties);
@@ -2436,16 +2436,16 @@
                             message.type = reader.int32();
                             break;
                         case 4:
-                            message.typeAttr = reader.string();
+                            message.type_attr = reader.string();
                             break;
                         case 5:
-                            message.numberAttr = reader.string();
+                            message.number_attr = reader.string();
                             break;
                         case 6:
-                            message.typeListAttr = reader.string();
+                            message.type_list_attr = reader.string();
                             break;
                         case 16:
-                            message.isRef = reader.bool();
+                            message.is_ref = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2517,18 +2517,18 @@
                         case 123:
                             break;
                         }
-                    if (message.typeAttr != null && message.hasOwnProperty("typeAttr"))
-                        if (!$util.isString(message.typeAttr))
-                            return "typeAttr: string expected";
-                    if (message.numberAttr != null && message.hasOwnProperty("numberAttr"))
-                        if (!$util.isString(message.numberAttr))
-                            return "numberAttr: string expected";
-                    if (message.typeListAttr != null && message.hasOwnProperty("typeListAttr"))
-                        if (!$util.isString(message.typeListAttr))
-                            return "typeListAttr: string expected";
-                    if (message.isRef != null && message.hasOwnProperty("isRef"))
-                        if (typeof message.isRef !== "boolean")
-                            return "isRef: boolean expected";
+                    if (message.type_attr != null && message.hasOwnProperty("type_attr"))
+                        if (!$util.isString(message.type_attr))
+                            return "type_attr: string expected";
+                    if (message.number_attr != null && message.hasOwnProperty("number_attr"))
+                        if (!$util.isString(message.number_attr))
+                            return "number_attr: string expected";
+                    if (message.type_list_attr != null && message.hasOwnProperty("type_list_attr"))
+                        if (!$util.isString(message.type_list_attr))
+                            return "type_list_attr: string expected";
+                    if (message.is_ref != null && message.hasOwnProperty("is_ref"))
+                        if (typeof message.is_ref !== "boolean")
+                            return "is_ref: boolean expected";
                     return null;
                 };
     
@@ -2730,14 +2730,14 @@
                         message.type = 123;
                         break;
                     }
-                    if (object.typeAttr != null)
-                        message.typeAttr = String(object.typeAttr);
-                    if (object.numberAttr != null)
-                        message.numberAttr = String(object.numberAttr);
-                    if (object.typeListAttr != null)
-                        message.typeListAttr = String(object.typeListAttr);
-                    if (object.isRef != null)
-                        message.isRef = Boolean(object.isRef);
+                    if (object.type_attr != null)
+                        message.type_attr = String(object.type_attr);
+                    if (object.number_attr != null)
+                        message.number_attr = String(object.number_attr);
+                    if (object.type_list_attr != null)
+                        message.type_list_attr = String(object.type_list_attr);
+                    if (object.is_ref != null)
+                        message.is_ref = Boolean(object.is_ref);
                     return message;
                 };
     
@@ -2749,10 +2749,10 @@
                         object.name = "";
                         object.description = "";
                         object.type = options.enums === String ? "DT_INVALID" : 0;
-                        object.typeAttr = "";
-                        object.numberAttr = "";
-                        object.typeListAttr = "";
-                        object.isRef = false;
+                        object.type_attr = "";
+                        object.number_attr = "";
+                        object.type_list_attr = "";
+                        object.is_ref = false;
                     }
                     if (message.name != null && message.hasOwnProperty("name"))
                         object.name = message.name;
@@ -2760,14 +2760,14 @@
                         object.description = message.description;
                     if (message.type != null && message.hasOwnProperty("type"))
                         object.type = options.enums === String ? $root.tensorflow.DataType[message.type] : message.type;
-                    if (message.typeAttr != null && message.hasOwnProperty("typeAttr"))
-                        object.typeAttr = message.typeAttr;
-                    if (message.numberAttr != null && message.hasOwnProperty("numberAttr"))
-                        object.numberAttr = message.numberAttr;
-                    if (message.typeListAttr != null && message.hasOwnProperty("typeListAttr"))
-                        object.typeListAttr = message.typeListAttr;
-                    if (message.isRef != null && message.hasOwnProperty("isRef"))
-                        object.isRef = message.isRef;
+                    if (message.type_attr != null && message.hasOwnProperty("type_attr"))
+                        object.type_attr = message.type_attr;
+                    if (message.number_attr != null && message.hasOwnProperty("number_attr"))
+                        object.number_attr = message.number_attr;
+                    if (message.type_list_attr != null && message.hasOwnProperty("type_list_attr"))
+                        object.type_list_attr = message.type_list_attr;
+                    if (message.is_ref != null && message.hasOwnProperty("is_ref"))
+                        object.is_ref = message.is_ref;
                     return object;
                 };
     
@@ -2789,11 +2789,11 @@
     
                 AttrDef.prototype.name = "";
                 AttrDef.prototype.type = "";
-                AttrDef.prototype.defaultValue = null;
+                AttrDef.prototype.default_value = null;
                 AttrDef.prototype.description = "";
-                AttrDef.prototype.hasMinimum = false;
+                AttrDef.prototype.has_minimum = false;
                 AttrDef.prototype.minimum = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-                AttrDef.prototype.allowedValues = null;
+                AttrDef.prototype.allowed_values = null;
     
                 AttrDef.create = function create(properties) {
                     return new AttrDef(properties);
@@ -2813,19 +2813,19 @@
                             message.type = reader.string();
                             break;
                         case 3:
-                            message.defaultValue = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
+                            message.default_value = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
                             break;
                         case 4:
                             message.description = reader.string();
                             break;
                         case 5:
-                            message.hasMinimum = reader.bool();
+                            message.has_minimum = reader.bool();
                             break;
                         case 6:
                             message.minimum = reader.int64();
                             break;
                         case 7:
-                            message.allowedValues = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
+                            message.allowed_values = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2844,24 +2844,24 @@
                     if (message.type != null && message.hasOwnProperty("type"))
                         if (!$util.isString(message.type))
                             return "type: string expected";
-                    if (message.defaultValue != null && message.hasOwnProperty("defaultValue")) {
-                        var error = $root.tensorflow.AttrValue.verify(message.defaultValue);
+                    if (message.default_value != null && message.hasOwnProperty("default_value")) {
+                        var error = $root.tensorflow.AttrValue.verify(message.default_value);
                         if (error)
-                            return "defaultValue." + error;
+                            return "default_value." + error;
                     }
                     if (message.description != null && message.hasOwnProperty("description"))
                         if (!$util.isString(message.description))
                             return "description: string expected";
-                    if (message.hasMinimum != null && message.hasOwnProperty("hasMinimum"))
-                        if (typeof message.hasMinimum !== "boolean")
-                            return "hasMinimum: boolean expected";
+                    if (message.has_minimum != null && message.hasOwnProperty("has_minimum"))
+                        if (typeof message.has_minimum !== "boolean")
+                            return "has_minimum: boolean expected";
                     if (message.minimum != null && message.hasOwnProperty("minimum"))
                         if (!$util.isInteger(message.minimum) && !(message.minimum && $util.isInteger(message.minimum.low) && $util.isInteger(message.minimum.high)))
                             return "minimum: integer|Long expected";
-                    if (message.allowedValues != null && message.hasOwnProperty("allowedValues")) {
-                        var error = $root.tensorflow.AttrValue.verify(message.allowedValues);
+                    if (message.allowed_values != null && message.hasOwnProperty("allowed_values")) {
+                        var error = $root.tensorflow.AttrValue.verify(message.allowed_values);
                         if (error)
-                            return "allowedValues." + error;
+                            return "allowed_values." + error;
                     }
                     return null;
                 };
@@ -2874,15 +2874,15 @@
                         message.name = String(object.name);
                     if (object.type != null)
                         message.type = String(object.type);
-                    if (object.defaultValue != null) {
-                        if (typeof object.defaultValue !== "object")
-                            throw TypeError(".tensorflow.OpDef.AttrDef.defaultValue: object expected");
-                        message.defaultValue = $root.tensorflow.AttrValue.fromObject(object.defaultValue);
+                    if (object.default_value != null) {
+                        if (typeof object.default_value !== "object")
+                            throw TypeError(".tensorflow.OpDef.AttrDef.default_value: object expected");
+                        message.default_value = $root.tensorflow.AttrValue.fromObject(object.default_value);
                     }
                     if (object.description != null)
                         message.description = String(object.description);
-                    if (object.hasMinimum != null)
-                        message.hasMinimum = Boolean(object.hasMinimum);
+                    if (object.has_minimum != null)
+                        message.has_minimum = Boolean(object.has_minimum);
                     if (object.minimum != null)
                         if ($util.Long)
                             (message.minimum = $util.Long.fromValue(object.minimum)).unsigned = false;
@@ -2892,10 +2892,10 @@
                             message.minimum = object.minimum;
                         else if (typeof object.minimum === "object")
                             message.minimum = new $util.LongBits(object.minimum.low >>> 0, object.minimum.high >>> 0).toNumber();
-                    if (object.allowedValues != null) {
-                        if (typeof object.allowedValues !== "object")
-                            throw TypeError(".tensorflow.OpDef.AttrDef.allowedValues: object expected");
-                        message.allowedValues = $root.tensorflow.AttrValue.fromObject(object.allowedValues);
+                    if (object.allowed_values != null) {
+                        if (typeof object.allowed_values !== "object")
+                            throw TypeError(".tensorflow.OpDef.AttrDef.allowed_values: object expected");
+                        message.allowed_values = $root.tensorflow.AttrValue.fromObject(object.allowed_values);
                     }
                     return message;
                 };
@@ -2907,33 +2907,33 @@
                     if (options.defaults) {
                         object.name = "";
                         object.type = "";
-                        object.defaultValue = null;
+                        object.default_value = null;
                         object.description = "";
-                        object.hasMinimum = false;
+                        object.has_minimum = false;
                         if ($util.Long) {
                             var long = new $util.Long(0, 0, false);
                             object.minimum = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                         } else
                             object.minimum = options.longs === String ? "0" : 0;
-                        object.allowedValues = null;
+                        object.allowed_values = null;
                     }
                     if (message.name != null && message.hasOwnProperty("name"))
                         object.name = message.name;
                     if (message.type != null && message.hasOwnProperty("type"))
                         object.type = message.type;
-                    if (message.defaultValue != null && message.hasOwnProperty("defaultValue"))
-                        object.defaultValue = $root.tensorflow.AttrValue.toObject(message.defaultValue, options);
+                    if (message.default_value != null && message.hasOwnProperty("default_value"))
+                        object.default_value = $root.tensorflow.AttrValue.toObject(message.default_value, options);
                     if (message.description != null && message.hasOwnProperty("description"))
                         object.description = message.description;
-                    if (message.hasMinimum != null && message.hasOwnProperty("hasMinimum"))
-                        object.hasMinimum = message.hasMinimum;
+                    if (message.has_minimum != null && message.hasOwnProperty("has_minimum"))
+                        object.has_minimum = message.has_minimum;
                     if (message.minimum != null && message.hasOwnProperty("minimum"))
                         if (typeof message.minimum === "number")
                             object.minimum = options.longs === String ? String(message.minimum) : message.minimum;
                         else
                             object.minimum = options.longs === String ? $util.Long.prototype.toString.call(message.minimum) : options.longs === Number ? new $util.LongBits(message.minimum.low >>> 0, message.minimum.high >>> 0).toNumber() : message.minimum;
-                    if (message.allowedValues != null && message.hasOwnProperty("allowedValues"))
-                        object.allowedValues = $root.tensorflow.AttrValue.toObject(message.allowedValues, options);
+                    if (message.allowed_values != null && message.hasOwnProperty("allowed_values"))
+                        object.allowed_values = $root.tensorflow.AttrValue.toObject(message.allowed_values, options);
                     return object;
                 };
     
@@ -3129,7 +3129,7 @@
             }
     
             TensorShapeProto.prototype.dim = $util.emptyArray;
-            TensorShapeProto.prototype.unknownRank = false;
+            TensorShapeProto.prototype.unknown_rank = false;
     
             TensorShapeProto.create = function create(properties) {
                 return new TensorShapeProto(properties);
@@ -3148,7 +3148,7 @@
                         message.dim.push($root.tensorflow.TensorShapeProto.Dim.decode(reader, reader.uint32()));
                         break;
                     case 3:
-                        message.unknownRank = reader.bool();
+                        message.unknown_rank = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3170,9 +3170,9 @@
                             return "dim." + error;
                     }
                 }
-                if (message.unknownRank != null && message.hasOwnProperty("unknownRank"))
-                    if (typeof message.unknownRank !== "boolean")
-                        return "unknownRank: boolean expected";
+                if (message.unknown_rank != null && message.hasOwnProperty("unknown_rank"))
+                    if (typeof message.unknown_rank !== "boolean")
+                        return "unknown_rank: boolean expected";
                 return null;
             };
     
@@ -3190,8 +3190,8 @@
                         message.dim[i] = $root.tensorflow.TensorShapeProto.Dim.fromObject(object.dim[i]);
                     }
                 }
-                if (object.unknownRank != null)
-                    message.unknownRank = Boolean(object.unknownRank);
+                if (object.unknown_rank != null)
+                    message.unknown_rank = Boolean(object.unknown_rank);
                 return message;
             };
     
@@ -3202,14 +3202,14 @@
                 if (options.arrays || options.defaults)
                     object.dim = [];
                 if (options.defaults)
-                    object.unknownRank = false;
+                    object.unknown_rank = false;
                 if (message.dim && message.dim.length) {
                     object.dim = [];
                     for (var j = 0; j < message.dim.length; ++j)
                         object.dim[j] = $root.tensorflow.TensorShapeProto.Dim.toObject(message.dim[j], options);
                 }
-                if (message.unknownRank != null && message.hasOwnProperty("unknownRank"))
-                    object.unknownRank = message.unknownRank;
+                if (message.unknown_rank != null && message.hasOwnProperty("unknown_rank"))
+                    object.unknown_rank = message.unknown_rank;
                 return object;
             };
     
@@ -3531,7 +3531,7 @@
         tensorflow.VersionDef = (function() {
     
             function VersionDef(properties) {
-                this.badConsumers = [];
+                this.bad_consumers = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -3539,8 +3539,8 @@
             }
     
             VersionDef.prototype.producer = 0;
-            VersionDef.prototype.minConsumer = 0;
-            VersionDef.prototype.badConsumers = $util.emptyArray;
+            VersionDef.prototype.min_consumer = 0;
+            VersionDef.prototype.bad_consumers = $util.emptyArray;
     
             VersionDef.create = function create(properties) {
                 return new VersionDef(properties);
@@ -3557,17 +3557,17 @@
                         message.producer = reader.int32();
                         break;
                     case 2:
-                        message.minConsumer = reader.int32();
+                        message.min_consumer = reader.int32();
                         break;
                     case 3:
-                        if (!(message.badConsumers && message.badConsumers.length))
-                            message.badConsumers = [];
+                        if (!(message.bad_consumers && message.bad_consumers.length))
+                            message.bad_consumers = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.badConsumers.push(reader.int32());
+                                message.bad_consumers.push(reader.int32());
                         } else
-                            message.badConsumers.push(reader.int32());
+                            message.bad_consumers.push(reader.int32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3583,15 +3583,15 @@
                 if (message.producer != null && message.hasOwnProperty("producer"))
                     if (!$util.isInteger(message.producer))
                         return "producer: integer expected";
-                if (message.minConsumer != null && message.hasOwnProperty("minConsumer"))
-                    if (!$util.isInteger(message.minConsumer))
-                        return "minConsumer: integer expected";
-                if (message.badConsumers != null && message.hasOwnProperty("badConsumers")) {
-                    if (!Array.isArray(message.badConsumers))
-                        return "badConsumers: array expected";
-                    for (var i = 0; i < message.badConsumers.length; ++i)
-                        if (!$util.isInteger(message.badConsumers[i]))
-                            return "badConsumers: integer[] expected";
+                if (message.min_consumer != null && message.hasOwnProperty("min_consumer"))
+                    if (!$util.isInteger(message.min_consumer))
+                        return "min_consumer: integer expected";
+                if (message.bad_consumers != null && message.hasOwnProperty("bad_consumers")) {
+                    if (!Array.isArray(message.bad_consumers))
+                        return "bad_consumers: array expected";
+                    for (var i = 0; i < message.bad_consumers.length; ++i)
+                        if (!$util.isInteger(message.bad_consumers[i]))
+                            return "bad_consumers: integer[] expected";
                 }
                 return null;
             };
@@ -3602,14 +3602,14 @@
                 var message = new $root.tensorflow.VersionDef();
                 if (object.producer != null)
                     message.producer = object.producer | 0;
-                if (object.minConsumer != null)
-                    message.minConsumer = object.minConsumer | 0;
-                if (object.badConsumers) {
-                    if (!Array.isArray(object.badConsumers))
-                        throw TypeError(".tensorflow.VersionDef.badConsumers: array expected");
-                    message.badConsumers = [];
-                    for (var i = 0; i < object.badConsumers.length; ++i)
-                        message.badConsumers[i] = object.badConsumers[i] | 0;
+                if (object.min_consumer != null)
+                    message.min_consumer = object.min_consumer | 0;
+                if (object.bad_consumers) {
+                    if (!Array.isArray(object.bad_consumers))
+                        throw TypeError(".tensorflow.VersionDef.bad_consumers: array expected");
+                    message.bad_consumers = [];
+                    for (var i = 0; i < object.bad_consumers.length; ++i)
+                        message.bad_consumers[i] = object.bad_consumers[i] | 0;
                 }
                 return message;
             };
@@ -3619,19 +3619,19 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.badConsumers = [];
+                    object.bad_consumers = [];
                 if (options.defaults) {
                     object.producer = 0;
-                    object.minConsumer = 0;
+                    object.min_consumer = 0;
                 }
                 if (message.producer != null && message.hasOwnProperty("producer"))
                     object.producer = message.producer;
-                if (message.minConsumer != null && message.hasOwnProperty("minConsumer"))
-                    object.minConsumer = message.minConsumer;
-                if (message.badConsumers && message.badConsumers.length) {
-                    object.badConsumers = [];
-                    for (var j = 0; j < message.badConsumers.length; ++j)
-                        object.badConsumers[j] = message.badConsumers[j];
+                if (message.min_consumer != null && message.hasOwnProperty("min_consumer"))
+                    object.min_consumer = message.min_consumer;
+                if (message.bad_consumers && message.bad_consumers.length) {
+                    object.bad_consumers = [];
+                    for (var j = 0; j < message.bad_consumers.length; ++j)
+                        object.bad_consumers[j] = message.bad_consumers[j];
                 }
                 return object;
             };
@@ -3769,7 +3769,7 @@
     
             function FunctionDef(properties) {
                 this.attr = {};
-                this.nodeDef = [];
+                this.node_def = [];
                 this.ret = {};
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -3779,7 +3779,7 @@
     
             FunctionDef.prototype.signature = null;
             FunctionDef.prototype.attr = $util.emptyObject;
-            FunctionDef.prototype.nodeDef = $util.emptyArray;
+            FunctionDef.prototype.node_def = $util.emptyArray;
             FunctionDef.prototype.ret = $util.emptyObject;
     
             FunctionDef.create = function create(properties) {
@@ -3805,9 +3805,9 @@
                         message.attr[key] = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        if (!(message.nodeDef && message.nodeDef.length))
-                            message.nodeDef = [];
-                        message.nodeDef.push($root.tensorflow.NodeDef.decode(reader, reader.uint32()));
+                        if (!(message.node_def && message.node_def.length))
+                            message.node_def = [];
+                        message.node_def.push($root.tensorflow.NodeDef.decode(reader, reader.uint32()));
                         break;
                     case 4:
                         reader.skip().pos++;
@@ -3843,13 +3843,13 @@
                             return "attr." + error;
                     }
                 }
-                if (message.nodeDef != null && message.hasOwnProperty("nodeDef")) {
-                    if (!Array.isArray(message.nodeDef))
-                        return "nodeDef: array expected";
-                    for (var i = 0; i < message.nodeDef.length; ++i) {
-                        var error = $root.tensorflow.NodeDef.verify(message.nodeDef[i]);
+                if (message.node_def != null && message.hasOwnProperty("node_def")) {
+                    if (!Array.isArray(message.node_def))
+                        return "node_def: array expected";
+                    for (var i = 0; i < message.node_def.length; ++i) {
+                        var error = $root.tensorflow.NodeDef.verify(message.node_def[i]);
                         if (error)
-                            return "nodeDef." + error;
+                            return "node_def." + error;
                     }
                 }
                 if (message.ret != null && message.hasOwnProperty("ret")) {
@@ -3882,14 +3882,14 @@
                         message.attr[keys[i]] = $root.tensorflow.AttrValue.fromObject(object.attr[keys[i]]);
                     }
                 }
-                if (object.nodeDef) {
-                    if (!Array.isArray(object.nodeDef))
-                        throw TypeError(".tensorflow.FunctionDef.nodeDef: array expected");
-                    message.nodeDef = [];
-                    for (var i = 0; i < object.nodeDef.length; ++i) {
-                        if (typeof object.nodeDef[i] !== "object")
-                            throw TypeError(".tensorflow.FunctionDef.nodeDef: object expected");
-                        message.nodeDef[i] = $root.tensorflow.NodeDef.fromObject(object.nodeDef[i]);
+                if (object.node_def) {
+                    if (!Array.isArray(object.node_def))
+                        throw TypeError(".tensorflow.FunctionDef.node_def: array expected");
+                    message.node_def = [];
+                    for (var i = 0; i < object.node_def.length; ++i) {
+                        if (typeof object.node_def[i] !== "object")
+                            throw TypeError(".tensorflow.FunctionDef.node_def: object expected");
+                        message.node_def[i] = $root.tensorflow.NodeDef.fromObject(object.node_def[i]);
                     }
                 }
                 if (object.ret) {
@@ -3907,7 +3907,7 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.nodeDef = [];
+                    object.node_def = [];
                 if (options.objects || options.defaults) {
                     object.ret = {};
                     object.attr = {};
@@ -3916,10 +3916,10 @@
                     object.signature = null;
                 if (message.signature != null && message.hasOwnProperty("signature"))
                     object.signature = $root.tensorflow.OpDef.toObject(message.signature, options);
-                if (message.nodeDef && message.nodeDef.length) {
-                    object.nodeDef = [];
-                    for (var j = 0; j < message.nodeDef.length; ++j)
-                        object.nodeDef[j] = $root.tensorflow.NodeDef.toObject(message.nodeDef[j], options);
+                if (message.node_def && message.node_def.length) {
+                    object.node_def = [];
+                    for (var j = 0; j < message.node_def.length; ++j)
+                        object.node_def[j] = $root.tensorflow.NodeDef.toObject(message.node_def[j], options);
                 }
                 var keys2;
                 if (message.ret && (keys2 = Object.keys(message.ret)).length) {
@@ -3951,8 +3951,8 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            GradientDef.prototype.functionName = "";
-            GradientDef.prototype.gradientFunc = "";
+            GradientDef.prototype.function_name = "";
+            GradientDef.prototype.gradient_func = "";
     
             GradientDef.create = function create(properties) {
                 return new GradientDef(properties);
@@ -3966,10 +3966,10 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.functionName = reader.string();
+                        message.function_name = reader.string();
                         break;
                     case 2:
-                        message.gradientFunc = reader.string();
+                        message.gradient_func = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3982,12 +3982,12 @@
             GradientDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.functionName != null && message.hasOwnProperty("functionName"))
-                    if (!$util.isString(message.functionName))
-                        return "functionName: string expected";
-                if (message.gradientFunc != null && message.hasOwnProperty("gradientFunc"))
-                    if (!$util.isString(message.gradientFunc))
-                        return "gradientFunc: string expected";
+                if (message.function_name != null && message.hasOwnProperty("function_name"))
+                    if (!$util.isString(message.function_name))
+                        return "function_name: string expected";
+                if (message.gradient_func != null && message.hasOwnProperty("gradient_func"))
+                    if (!$util.isString(message.gradient_func))
+                        return "gradient_func: string expected";
                 return null;
             };
     
@@ -3995,10 +3995,10 @@
                 if (object instanceof $root.tensorflow.GradientDef)
                     return object;
                 var message = new $root.tensorflow.GradientDef();
-                if (object.functionName != null)
-                    message.functionName = String(object.functionName);
-                if (object.gradientFunc != null)
-                    message.gradientFunc = String(object.gradientFunc);
+                if (object.function_name != null)
+                    message.function_name = String(object.function_name);
+                if (object.gradient_func != null)
+                    message.gradient_func = String(object.gradient_func);
                 return message;
             };
     
@@ -4007,13 +4007,13 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.functionName = "";
-                    object.gradientFunc = "";
+                    object.function_name = "";
+                    object.gradient_func = "";
                 }
-                if (message.functionName != null && message.hasOwnProperty("functionName"))
-                    object.functionName = message.functionName;
-                if (message.gradientFunc != null && message.hasOwnProperty("gradientFunc"))
-                    object.gradientFunc = message.gradientFunc;
+                if (message.function_name != null && message.hasOwnProperty("function_name"))
+                    object.function_name = message.function_name;
+                if (message.gradient_func != null && message.hasOwnProperty("gradient_func"))
+                    object.gradient_func = message.gradient_func;
                 return object;
             };
     
@@ -5213,19 +5213,19 @@
         tensorflow.TensorProto = (function() {
     
             function TensorProto(properties) {
-                this.halfVal = [];
-                this.floatVal = [];
-                this.doubleVal = [];
-                this.intVal = [];
-                this.stringVal = [];
-                this.scomplexVal = [];
-                this.int64Val = [];
-                this.boolVal = [];
-                this.dcomplexVal = [];
-                this.resourceHandleVal = [];
-                this.variantVal = [];
-                this.uint32Val = [];
-                this.uint64Val = [];
+                this.half_val = [];
+                this.float_val = [];
+                this.double_val = [];
+                this.int_val = [];
+                this.string_val = [];
+                this.scomplex_val = [];
+                this.int64_val = [];
+                this.bool_val = [];
+                this.dcomplex_val = [];
+                this.resource_handle_val = [];
+                this.variant_val = [];
+                this.uint32_val = [];
+                this.uint64_val = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -5233,22 +5233,22 @@
             }
     
             TensorProto.prototype.dtype = 0;
-            TensorProto.prototype.tensorShape = null;
-            TensorProto.prototype.versionNumber = 0;
-            TensorProto.prototype.tensorContent = $util.newBuffer([]);
-            TensorProto.prototype.halfVal = $util.emptyArray;
-            TensorProto.prototype.floatVal = $util.emptyArray;
-            TensorProto.prototype.doubleVal = $util.emptyArray;
-            TensorProto.prototype.intVal = $util.emptyArray;
-            TensorProto.prototype.stringVal = $util.emptyArray;
-            TensorProto.prototype.scomplexVal = $util.emptyArray;
-            TensorProto.prototype.int64Val = $util.emptyArray;
-            TensorProto.prototype.boolVal = $util.emptyArray;
-            TensorProto.prototype.dcomplexVal = $util.emptyArray;
-            TensorProto.prototype.resourceHandleVal = $util.emptyArray;
-            TensorProto.prototype.variantVal = $util.emptyArray;
-            TensorProto.prototype.uint32Val = $util.emptyArray;
-            TensorProto.prototype.uint64Val = $util.emptyArray;
+            TensorProto.prototype.tensor_shape = null;
+            TensorProto.prototype.version_number = 0;
+            TensorProto.prototype.tensor_content = $util.newBuffer([]);
+            TensorProto.prototype.half_val = $util.emptyArray;
+            TensorProto.prototype.float_val = $util.emptyArray;
+            TensorProto.prototype.double_val = $util.emptyArray;
+            TensorProto.prototype.int_val = $util.emptyArray;
+            TensorProto.prototype.string_val = $util.emptyArray;
+            TensorProto.prototype.scomplex_val = $util.emptyArray;
+            TensorProto.prototype.int64_val = $util.emptyArray;
+            TensorProto.prototype.bool_val = $util.emptyArray;
+            TensorProto.prototype.dcomplex_val = $util.emptyArray;
+            TensorProto.prototype.resource_handle_val = $util.emptyArray;
+            TensorProto.prototype.variant_val = $util.emptyArray;
+            TensorProto.prototype.uint32_val = $util.emptyArray;
+            TensorProto.prototype.uint64_val = $util.emptyArray;
     
             TensorProto.create = function create(properties) {
                 return new TensorProto(properties);
@@ -5265,128 +5265,128 @@
                         message.dtype = reader.int32();
                         break;
                     case 2:
-                        message.tensorShape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        message.tensor_shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.versionNumber = reader.int32();
+                        message.version_number = reader.int32();
                         break;
                     case 4:
-                        message.tensorContent = reader.bytes();
+                        message.tensor_content = reader.bytes();
                         break;
                     case 13:
-                        if (!(message.halfVal && message.halfVal.length))
-                            message.halfVal = [];
+                        if (!(message.half_val && message.half_val.length))
+                            message.half_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.halfVal.push(reader.int32());
+                                message.half_val.push(reader.int32());
                         } else
-                            message.halfVal.push(reader.int32());
+                            message.half_val.push(reader.int32());
                         break;
                     case 5:
-                        if (!(message.floatVal && message.floatVal.length))
-                            message.floatVal = [];
+                        if (!(message.float_val && message.float_val.length))
+                            message.float_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.floatVal.push(reader.float());
+                                message.float_val.push(reader.float());
                         } else
-                            message.floatVal.push(reader.float());
+                            message.float_val.push(reader.float());
                         break;
                     case 6:
-                        if (!(message.doubleVal && message.doubleVal.length))
-                            message.doubleVal = [];
+                        if (!(message.double_val && message.double_val.length))
+                            message.double_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.doubleVal.push(reader.double());
+                                message.double_val.push(reader.double());
                         } else
-                            message.doubleVal.push(reader.double());
+                            message.double_val.push(reader.double());
                         break;
                     case 7:
-                        if (!(message.intVal && message.intVal.length))
-                            message.intVal = [];
+                        if (!(message.int_val && message.int_val.length))
+                            message.int_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.intVal.push(reader.int32());
+                                message.int_val.push(reader.int32());
                         } else
-                            message.intVal.push(reader.int32());
+                            message.int_val.push(reader.int32());
                         break;
                     case 8:
-                        if (!(message.stringVal && message.stringVal.length))
-                            message.stringVal = [];
-                        message.stringVal.push(reader.bytes());
+                        if (!(message.string_val && message.string_val.length))
+                            message.string_val = [];
+                        message.string_val.push(reader.bytes());
                         break;
                     case 9:
-                        if (!(message.scomplexVal && message.scomplexVal.length))
-                            message.scomplexVal = [];
+                        if (!(message.scomplex_val && message.scomplex_val.length))
+                            message.scomplex_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.scomplexVal.push(reader.float());
+                                message.scomplex_val.push(reader.float());
                         } else
-                            message.scomplexVal.push(reader.float());
+                            message.scomplex_val.push(reader.float());
                         break;
                     case 10:
-                        if (!(message.int64Val && message.int64Val.length))
-                            message.int64Val = [];
+                        if (!(message.int64_val && message.int64_val.length))
+                            message.int64_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.int64Val.push(reader.int64());
+                                message.int64_val.push(reader.int64());
                         } else
-                            message.int64Val.push(reader.int64());
+                            message.int64_val.push(reader.int64());
                         break;
                     case 11:
-                        if (!(message.boolVal && message.boolVal.length))
-                            message.boolVal = [];
+                        if (!(message.bool_val && message.bool_val.length))
+                            message.bool_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.boolVal.push(reader.bool());
+                                message.bool_val.push(reader.bool());
                         } else
-                            message.boolVal.push(reader.bool());
+                            message.bool_val.push(reader.bool());
                         break;
                     case 12:
-                        if (!(message.dcomplexVal && message.dcomplexVal.length))
-                            message.dcomplexVal = [];
+                        if (!(message.dcomplex_val && message.dcomplex_val.length))
+                            message.dcomplex_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.dcomplexVal.push(reader.double());
+                                message.dcomplex_val.push(reader.double());
                         } else
-                            message.dcomplexVal.push(reader.double());
+                            message.dcomplex_val.push(reader.double());
                         break;
                     case 14:
-                        if (!(message.resourceHandleVal && message.resourceHandleVal.length))
-                            message.resourceHandleVal = [];
-                        message.resourceHandleVal.push($root.tensorflow.ResourceHandleProto.decode(reader, reader.uint32()));
+                        if (!(message.resource_handle_val && message.resource_handle_val.length))
+                            message.resource_handle_val = [];
+                        message.resource_handle_val.push($root.tensorflow.ResourceHandleProto.decode(reader, reader.uint32()));
                         break;
                     case 15:
-                        if (!(message.variantVal && message.variantVal.length))
-                            message.variantVal = [];
-                        message.variantVal.push($root.tensorflow.VariantTensorDataProto.decode(reader, reader.uint32()));
+                        if (!(message.variant_val && message.variant_val.length))
+                            message.variant_val = [];
+                        message.variant_val.push($root.tensorflow.VariantTensorDataProto.decode(reader, reader.uint32()));
                         break;
                     case 16:
-                        if (!(message.uint32Val && message.uint32Val.length))
-                            message.uint32Val = [];
+                        if (!(message.uint32_val && message.uint32_val.length))
+                            message.uint32_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.uint32Val.push(reader.uint32());
+                                message.uint32_val.push(reader.uint32());
                         } else
-                            message.uint32Val.push(reader.uint32());
+                            message.uint32_val.push(reader.uint32());
                         break;
                     case 17:
-                        if (!(message.uint64Val && message.uint64Val.length))
-                            message.uint64Val = [];
+                        if (!(message.uint64_val && message.uint64_val.length))
+                            message.uint64_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.uint64Val.push(reader.uint64());
+                                message.uint64_val.push(reader.uint64());
                         } else
-                            message.uint64Val.push(reader.uint64());
+                            message.uint64_val.push(reader.uint64());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -5452,111 +5452,111 @@
                     case 123:
                         break;
                     }
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape")) {
-                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensorShape);
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape")) {
+                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensor_shape);
                     if (error)
-                        return "tensorShape." + error;
+                        return "tensor_shape." + error;
                 }
-                if (message.versionNumber != null && message.hasOwnProperty("versionNumber"))
-                    if (!$util.isInteger(message.versionNumber))
-                        return "versionNumber: integer expected";
-                if (message.tensorContent != null && message.hasOwnProperty("tensorContent"))
-                    if (!(message.tensorContent && typeof message.tensorContent.length === "number" || $util.isString(message.tensorContent)))
-                        return "tensorContent: buffer expected";
-                if (message.halfVal != null && message.hasOwnProperty("halfVal")) {
-                    if (!Array.isArray(message.halfVal))
-                        return "halfVal: array expected";
-                    for (var i = 0; i < message.halfVal.length; ++i)
-                        if (!$util.isInteger(message.halfVal[i]))
-                            return "halfVal: integer[] expected";
+                if (message.version_number != null && message.hasOwnProperty("version_number"))
+                    if (!$util.isInteger(message.version_number))
+                        return "version_number: integer expected";
+                if (message.tensor_content != null && message.hasOwnProperty("tensor_content"))
+                    if (!(message.tensor_content && typeof message.tensor_content.length === "number" || $util.isString(message.tensor_content)))
+                        return "tensor_content: buffer expected";
+                if (message.half_val != null && message.hasOwnProperty("half_val")) {
+                    if (!Array.isArray(message.half_val))
+                        return "half_val: array expected";
+                    for (var i = 0; i < message.half_val.length; ++i)
+                        if (!$util.isInteger(message.half_val[i]))
+                            return "half_val: integer[] expected";
                 }
-                if (message.floatVal != null && message.hasOwnProperty("floatVal")) {
-                    if (!Array.isArray(message.floatVal))
-                        return "floatVal: array expected";
-                    for (var i = 0; i < message.floatVal.length; ++i)
-                        if (typeof message.floatVal[i] !== "number")
-                            return "floatVal: number[] expected";
+                if (message.float_val != null && message.hasOwnProperty("float_val")) {
+                    if (!Array.isArray(message.float_val))
+                        return "float_val: array expected";
+                    for (var i = 0; i < message.float_val.length; ++i)
+                        if (typeof message.float_val[i] !== "number")
+                            return "float_val: number[] expected";
                 }
-                if (message.doubleVal != null && message.hasOwnProperty("doubleVal")) {
-                    if (!Array.isArray(message.doubleVal))
-                        return "doubleVal: array expected";
-                    for (var i = 0; i < message.doubleVal.length; ++i)
-                        if (typeof message.doubleVal[i] !== "number")
-                            return "doubleVal: number[] expected";
+                if (message.double_val != null && message.hasOwnProperty("double_val")) {
+                    if (!Array.isArray(message.double_val))
+                        return "double_val: array expected";
+                    for (var i = 0; i < message.double_val.length; ++i)
+                        if (typeof message.double_val[i] !== "number")
+                            return "double_val: number[] expected";
                 }
-                if (message.intVal != null && message.hasOwnProperty("intVal")) {
-                    if (!Array.isArray(message.intVal))
-                        return "intVal: array expected";
-                    for (var i = 0; i < message.intVal.length; ++i)
-                        if (!$util.isInteger(message.intVal[i]))
-                            return "intVal: integer[] expected";
+                if (message.int_val != null && message.hasOwnProperty("int_val")) {
+                    if (!Array.isArray(message.int_val))
+                        return "int_val: array expected";
+                    for (var i = 0; i < message.int_val.length; ++i)
+                        if (!$util.isInteger(message.int_val[i]))
+                            return "int_val: integer[] expected";
                 }
-                if (message.stringVal != null && message.hasOwnProperty("stringVal")) {
-                    if (!Array.isArray(message.stringVal))
-                        return "stringVal: array expected";
-                    for (var i = 0; i < message.stringVal.length; ++i)
-                        if (!(message.stringVal[i] && typeof message.stringVal[i].length === "number" || $util.isString(message.stringVal[i])))
-                            return "stringVal: buffer[] expected";
+                if (message.string_val != null && message.hasOwnProperty("string_val")) {
+                    if (!Array.isArray(message.string_val))
+                        return "string_val: array expected";
+                    for (var i = 0; i < message.string_val.length; ++i)
+                        if (!(message.string_val[i] && typeof message.string_val[i].length === "number" || $util.isString(message.string_val[i])))
+                            return "string_val: buffer[] expected";
                 }
-                if (message.scomplexVal != null && message.hasOwnProperty("scomplexVal")) {
-                    if (!Array.isArray(message.scomplexVal))
-                        return "scomplexVal: array expected";
-                    for (var i = 0; i < message.scomplexVal.length; ++i)
-                        if (typeof message.scomplexVal[i] !== "number")
-                            return "scomplexVal: number[] expected";
+                if (message.scomplex_val != null && message.hasOwnProperty("scomplex_val")) {
+                    if (!Array.isArray(message.scomplex_val))
+                        return "scomplex_val: array expected";
+                    for (var i = 0; i < message.scomplex_val.length; ++i)
+                        if (typeof message.scomplex_val[i] !== "number")
+                            return "scomplex_val: number[] expected";
                 }
-                if (message.int64Val != null && message.hasOwnProperty("int64Val")) {
-                    if (!Array.isArray(message.int64Val))
-                        return "int64Val: array expected";
-                    for (var i = 0; i < message.int64Val.length; ++i)
-                        if (!$util.isInteger(message.int64Val[i]) && !(message.int64Val[i] && $util.isInteger(message.int64Val[i].low) && $util.isInteger(message.int64Val[i].high)))
-                            return "int64Val: integer|Long[] expected";
+                if (message.int64_val != null && message.hasOwnProperty("int64_val")) {
+                    if (!Array.isArray(message.int64_val))
+                        return "int64_val: array expected";
+                    for (var i = 0; i < message.int64_val.length; ++i)
+                        if (!$util.isInteger(message.int64_val[i]) && !(message.int64_val[i] && $util.isInteger(message.int64_val[i].low) && $util.isInteger(message.int64_val[i].high)))
+                            return "int64_val: integer|Long[] expected";
                 }
-                if (message.boolVal != null && message.hasOwnProperty("boolVal")) {
-                    if (!Array.isArray(message.boolVal))
-                        return "boolVal: array expected";
-                    for (var i = 0; i < message.boolVal.length; ++i)
-                        if (typeof message.boolVal[i] !== "boolean")
-                            return "boolVal: boolean[] expected";
+                if (message.bool_val != null && message.hasOwnProperty("bool_val")) {
+                    if (!Array.isArray(message.bool_val))
+                        return "bool_val: array expected";
+                    for (var i = 0; i < message.bool_val.length; ++i)
+                        if (typeof message.bool_val[i] !== "boolean")
+                            return "bool_val: boolean[] expected";
                 }
-                if (message.dcomplexVal != null && message.hasOwnProperty("dcomplexVal")) {
-                    if (!Array.isArray(message.dcomplexVal))
-                        return "dcomplexVal: array expected";
-                    for (var i = 0; i < message.dcomplexVal.length; ++i)
-                        if (typeof message.dcomplexVal[i] !== "number")
-                            return "dcomplexVal: number[] expected";
+                if (message.dcomplex_val != null && message.hasOwnProperty("dcomplex_val")) {
+                    if (!Array.isArray(message.dcomplex_val))
+                        return "dcomplex_val: array expected";
+                    for (var i = 0; i < message.dcomplex_val.length; ++i)
+                        if (typeof message.dcomplex_val[i] !== "number")
+                            return "dcomplex_val: number[] expected";
                 }
-                if (message.resourceHandleVal != null && message.hasOwnProperty("resourceHandleVal")) {
-                    if (!Array.isArray(message.resourceHandleVal))
-                        return "resourceHandleVal: array expected";
-                    for (var i = 0; i < message.resourceHandleVal.length; ++i) {
-                        var error = $root.tensorflow.ResourceHandleProto.verify(message.resourceHandleVal[i]);
+                if (message.resource_handle_val != null && message.hasOwnProperty("resource_handle_val")) {
+                    if (!Array.isArray(message.resource_handle_val))
+                        return "resource_handle_val: array expected";
+                    for (var i = 0; i < message.resource_handle_val.length; ++i) {
+                        var error = $root.tensorflow.ResourceHandleProto.verify(message.resource_handle_val[i]);
                         if (error)
-                            return "resourceHandleVal." + error;
+                            return "resource_handle_val." + error;
                     }
                 }
-                if (message.variantVal != null && message.hasOwnProperty("variantVal")) {
-                    if (!Array.isArray(message.variantVal))
-                        return "variantVal: array expected";
-                    for (var i = 0; i < message.variantVal.length; ++i) {
-                        var error = $root.tensorflow.VariantTensorDataProto.verify(message.variantVal[i]);
+                if (message.variant_val != null && message.hasOwnProperty("variant_val")) {
+                    if (!Array.isArray(message.variant_val))
+                        return "variant_val: array expected";
+                    for (var i = 0; i < message.variant_val.length; ++i) {
+                        var error = $root.tensorflow.VariantTensorDataProto.verify(message.variant_val[i]);
                         if (error)
-                            return "variantVal." + error;
+                            return "variant_val." + error;
                     }
                 }
-                if (message.uint32Val != null && message.hasOwnProperty("uint32Val")) {
-                    if (!Array.isArray(message.uint32Val))
-                        return "uint32Val: array expected";
-                    for (var i = 0; i < message.uint32Val.length; ++i)
-                        if (!$util.isInteger(message.uint32Val[i]))
-                            return "uint32Val: integer[] expected";
+                if (message.uint32_val != null && message.hasOwnProperty("uint32_val")) {
+                    if (!Array.isArray(message.uint32_val))
+                        return "uint32_val: array expected";
+                    for (var i = 0; i < message.uint32_val.length; ++i)
+                        if (!$util.isInteger(message.uint32_val[i]))
+                            return "uint32_val: integer[] expected";
                 }
-                if (message.uint64Val != null && message.hasOwnProperty("uint64Val")) {
-                    if (!Array.isArray(message.uint64Val))
-                        return "uint64Val: array expected";
-                    for (var i = 0; i < message.uint64Val.length; ++i)
-                        if (!$util.isInteger(message.uint64Val[i]) && !(message.uint64Val[i] && $util.isInteger(message.uint64Val[i].low) && $util.isInteger(message.uint64Val[i].high)))
-                            return "uint64Val: integer|Long[] expected";
+                if (message.uint64_val != null && message.hasOwnProperty("uint64_val")) {
+                    if (!Array.isArray(message.uint64_val))
+                        return "uint64_val: array expected";
+                    for (var i = 0; i < message.uint64_val.length; ++i)
+                        if (!$util.isInteger(message.uint64_val[i]) && !(message.uint64_val[i] && $util.isInteger(message.uint64_val[i].low) && $util.isInteger(message.uint64_val[i].high)))
+                            return "uint64_val: integer|Long[] expected";
                 }
                 return null;
             };
@@ -5755,131 +5755,131 @@
                     message.dtype = 123;
                     break;
                 }
-                if (object.tensorShape != null) {
-                    if (typeof object.tensorShape !== "object")
-                        throw TypeError(".tensorflow.TensorProto.tensorShape: object expected");
-                    message.tensorShape = $root.tensorflow.TensorShapeProto.fromObject(object.tensorShape);
+                if (object.tensor_shape != null) {
+                    if (typeof object.tensor_shape !== "object")
+                        throw TypeError(".tensorflow.TensorProto.tensor_shape: object expected");
+                    message.tensor_shape = $root.tensorflow.TensorShapeProto.fromObject(object.tensor_shape);
                 }
-                if (object.versionNumber != null)
-                    message.versionNumber = object.versionNumber | 0;
-                if (object.tensorContent != null)
-                    if (typeof object.tensorContent === "string")
-                        $util.base64.decode(object.tensorContent, message.tensorContent = $util.newBuffer($util.base64.length(object.tensorContent)), 0);
-                    else if (object.tensorContent.length)
-                        message.tensorContent = object.tensorContent;
-                if (object.halfVal) {
-                    if (!Array.isArray(object.halfVal))
-                        throw TypeError(".tensorflow.TensorProto.halfVal: array expected");
-                    message.halfVal = [];
-                    for (var i = 0; i < object.halfVal.length; ++i)
-                        message.halfVal[i] = object.halfVal[i] | 0;
+                if (object.version_number != null)
+                    message.version_number = object.version_number | 0;
+                if (object.tensor_content != null)
+                    if (typeof object.tensor_content === "string")
+                        $util.base64.decode(object.tensor_content, message.tensor_content = $util.newBuffer($util.base64.length(object.tensor_content)), 0);
+                    else if (object.tensor_content.length)
+                        message.tensor_content = object.tensor_content;
+                if (object.half_val) {
+                    if (!Array.isArray(object.half_val))
+                        throw TypeError(".tensorflow.TensorProto.half_val: array expected");
+                    message.half_val = [];
+                    for (var i = 0; i < object.half_val.length; ++i)
+                        message.half_val[i] = object.half_val[i] | 0;
                 }
-                if (object.floatVal) {
-                    if (!Array.isArray(object.floatVal))
-                        throw TypeError(".tensorflow.TensorProto.floatVal: array expected");
-                    message.floatVal = [];
-                    for (var i = 0; i < object.floatVal.length; ++i)
-                        message.floatVal[i] = Number(object.floatVal[i]);
+                if (object.float_val) {
+                    if (!Array.isArray(object.float_val))
+                        throw TypeError(".tensorflow.TensorProto.float_val: array expected");
+                    message.float_val = [];
+                    for (var i = 0; i < object.float_val.length; ++i)
+                        message.float_val[i] = Number(object.float_val[i]);
                 }
-                if (object.doubleVal) {
-                    if (!Array.isArray(object.doubleVal))
-                        throw TypeError(".tensorflow.TensorProto.doubleVal: array expected");
-                    message.doubleVal = [];
-                    for (var i = 0; i < object.doubleVal.length; ++i)
-                        message.doubleVal[i] = Number(object.doubleVal[i]);
+                if (object.double_val) {
+                    if (!Array.isArray(object.double_val))
+                        throw TypeError(".tensorflow.TensorProto.double_val: array expected");
+                    message.double_val = [];
+                    for (var i = 0; i < object.double_val.length; ++i)
+                        message.double_val[i] = Number(object.double_val[i]);
                 }
-                if (object.intVal) {
-                    if (!Array.isArray(object.intVal))
-                        throw TypeError(".tensorflow.TensorProto.intVal: array expected");
-                    message.intVal = [];
-                    for (var i = 0; i < object.intVal.length; ++i)
-                        message.intVal[i] = object.intVal[i] | 0;
+                if (object.int_val) {
+                    if (!Array.isArray(object.int_val))
+                        throw TypeError(".tensorflow.TensorProto.int_val: array expected");
+                    message.int_val = [];
+                    for (var i = 0; i < object.int_val.length; ++i)
+                        message.int_val[i] = object.int_val[i] | 0;
                 }
-                if (object.stringVal) {
-                    if (!Array.isArray(object.stringVal))
-                        throw TypeError(".tensorflow.TensorProto.stringVal: array expected");
-                    message.stringVal = [];
-                    for (var i = 0; i < object.stringVal.length; ++i)
-                        if (typeof object.stringVal[i] === "string")
-                            $util.base64.decode(object.stringVal[i], message.stringVal[i] = $util.newBuffer($util.base64.length(object.stringVal[i])), 0);
-                        else if (object.stringVal[i].length)
-                            message.stringVal[i] = object.stringVal[i];
+                if (object.string_val) {
+                    if (!Array.isArray(object.string_val))
+                        throw TypeError(".tensorflow.TensorProto.string_val: array expected");
+                    message.string_val = [];
+                    for (var i = 0; i < object.string_val.length; ++i)
+                        if (typeof object.string_val[i] === "string")
+                            $util.base64.decode(object.string_val[i], message.string_val[i] = $util.newBuffer($util.base64.length(object.string_val[i])), 0);
+                        else if (object.string_val[i].length)
+                            message.string_val[i] = object.string_val[i];
                 }
-                if (object.scomplexVal) {
-                    if (!Array.isArray(object.scomplexVal))
-                        throw TypeError(".tensorflow.TensorProto.scomplexVal: array expected");
-                    message.scomplexVal = [];
-                    for (var i = 0; i < object.scomplexVal.length; ++i)
-                        message.scomplexVal[i] = Number(object.scomplexVal[i]);
+                if (object.scomplex_val) {
+                    if (!Array.isArray(object.scomplex_val))
+                        throw TypeError(".tensorflow.TensorProto.scomplex_val: array expected");
+                    message.scomplex_val = [];
+                    for (var i = 0; i < object.scomplex_val.length; ++i)
+                        message.scomplex_val[i] = Number(object.scomplex_val[i]);
                 }
-                if (object.int64Val) {
-                    if (!Array.isArray(object.int64Val))
-                        throw TypeError(".tensorflow.TensorProto.int64Val: array expected");
-                    message.int64Val = [];
-                    for (var i = 0; i < object.int64Val.length; ++i)
+                if (object.int64_val) {
+                    if (!Array.isArray(object.int64_val))
+                        throw TypeError(".tensorflow.TensorProto.int64_val: array expected");
+                    message.int64_val = [];
+                    for (var i = 0; i < object.int64_val.length; ++i)
                         if ($util.Long)
-                            (message.int64Val[i] = $util.Long.fromValue(object.int64Val[i])).unsigned = false;
-                        else if (typeof object.int64Val[i] === "string")
-                            message.int64Val[i] = parseInt(object.int64Val[i], 10);
-                        else if (typeof object.int64Val[i] === "number")
-                            message.int64Val[i] = object.int64Val[i];
-                        else if (typeof object.int64Val[i] === "object")
-                            message.int64Val[i] = new $util.LongBits(object.int64Val[i].low >>> 0, object.int64Val[i].high >>> 0).toNumber();
+                            (message.int64_val[i] = $util.Long.fromValue(object.int64_val[i])).unsigned = false;
+                        else if (typeof object.int64_val[i] === "string")
+                            message.int64_val[i] = parseInt(object.int64_val[i], 10);
+                        else if (typeof object.int64_val[i] === "number")
+                            message.int64_val[i] = object.int64_val[i];
+                        else if (typeof object.int64_val[i] === "object")
+                            message.int64_val[i] = new $util.LongBits(object.int64_val[i].low >>> 0, object.int64_val[i].high >>> 0).toNumber();
                 }
-                if (object.boolVal) {
-                    if (!Array.isArray(object.boolVal))
-                        throw TypeError(".tensorflow.TensorProto.boolVal: array expected");
-                    message.boolVal = [];
-                    for (var i = 0; i < object.boolVal.length; ++i)
-                        message.boolVal[i] = Boolean(object.boolVal[i]);
+                if (object.bool_val) {
+                    if (!Array.isArray(object.bool_val))
+                        throw TypeError(".tensorflow.TensorProto.bool_val: array expected");
+                    message.bool_val = [];
+                    for (var i = 0; i < object.bool_val.length; ++i)
+                        message.bool_val[i] = Boolean(object.bool_val[i]);
                 }
-                if (object.dcomplexVal) {
-                    if (!Array.isArray(object.dcomplexVal))
-                        throw TypeError(".tensorflow.TensorProto.dcomplexVal: array expected");
-                    message.dcomplexVal = [];
-                    for (var i = 0; i < object.dcomplexVal.length; ++i)
-                        message.dcomplexVal[i] = Number(object.dcomplexVal[i]);
+                if (object.dcomplex_val) {
+                    if (!Array.isArray(object.dcomplex_val))
+                        throw TypeError(".tensorflow.TensorProto.dcomplex_val: array expected");
+                    message.dcomplex_val = [];
+                    for (var i = 0; i < object.dcomplex_val.length; ++i)
+                        message.dcomplex_val[i] = Number(object.dcomplex_val[i]);
                 }
-                if (object.resourceHandleVal) {
-                    if (!Array.isArray(object.resourceHandleVal))
-                        throw TypeError(".tensorflow.TensorProto.resourceHandleVal: array expected");
-                    message.resourceHandleVal = [];
-                    for (var i = 0; i < object.resourceHandleVal.length; ++i) {
-                        if (typeof object.resourceHandleVal[i] !== "object")
-                            throw TypeError(".tensorflow.TensorProto.resourceHandleVal: object expected");
-                        message.resourceHandleVal[i] = $root.tensorflow.ResourceHandleProto.fromObject(object.resourceHandleVal[i]);
+                if (object.resource_handle_val) {
+                    if (!Array.isArray(object.resource_handle_val))
+                        throw TypeError(".tensorflow.TensorProto.resource_handle_val: array expected");
+                    message.resource_handle_val = [];
+                    for (var i = 0; i < object.resource_handle_val.length; ++i) {
+                        if (typeof object.resource_handle_val[i] !== "object")
+                            throw TypeError(".tensorflow.TensorProto.resource_handle_val: object expected");
+                        message.resource_handle_val[i] = $root.tensorflow.ResourceHandleProto.fromObject(object.resource_handle_val[i]);
                     }
                 }
-                if (object.variantVal) {
-                    if (!Array.isArray(object.variantVal))
-                        throw TypeError(".tensorflow.TensorProto.variantVal: array expected");
-                    message.variantVal = [];
-                    for (var i = 0; i < object.variantVal.length; ++i) {
-                        if (typeof object.variantVal[i] !== "object")
-                            throw TypeError(".tensorflow.TensorProto.variantVal: object expected");
-                        message.variantVal[i] = $root.tensorflow.VariantTensorDataProto.fromObject(object.variantVal[i]);
+                if (object.variant_val) {
+                    if (!Array.isArray(object.variant_val))
+                        throw TypeError(".tensorflow.TensorProto.variant_val: array expected");
+                    message.variant_val = [];
+                    for (var i = 0; i < object.variant_val.length; ++i) {
+                        if (typeof object.variant_val[i] !== "object")
+                            throw TypeError(".tensorflow.TensorProto.variant_val: object expected");
+                        message.variant_val[i] = $root.tensorflow.VariantTensorDataProto.fromObject(object.variant_val[i]);
                     }
                 }
-                if (object.uint32Val) {
-                    if (!Array.isArray(object.uint32Val))
-                        throw TypeError(".tensorflow.TensorProto.uint32Val: array expected");
-                    message.uint32Val = [];
-                    for (var i = 0; i < object.uint32Val.length; ++i)
-                        message.uint32Val[i] = object.uint32Val[i] >>> 0;
+                if (object.uint32_val) {
+                    if (!Array.isArray(object.uint32_val))
+                        throw TypeError(".tensorflow.TensorProto.uint32_val: array expected");
+                    message.uint32_val = [];
+                    for (var i = 0; i < object.uint32_val.length; ++i)
+                        message.uint32_val[i] = object.uint32_val[i] >>> 0;
                 }
-                if (object.uint64Val) {
-                    if (!Array.isArray(object.uint64Val))
-                        throw TypeError(".tensorflow.TensorProto.uint64Val: array expected");
-                    message.uint64Val = [];
-                    for (var i = 0; i < object.uint64Val.length; ++i)
+                if (object.uint64_val) {
+                    if (!Array.isArray(object.uint64_val))
+                        throw TypeError(".tensorflow.TensorProto.uint64_val: array expected");
+                    message.uint64_val = [];
+                    for (var i = 0; i < object.uint64_val.length; ++i)
                         if ($util.Long)
-                            (message.uint64Val[i] = $util.Long.fromValue(object.uint64Val[i])).unsigned = true;
-                        else if (typeof object.uint64Val[i] === "string")
-                            message.uint64Val[i] = parseInt(object.uint64Val[i], 10);
-                        else if (typeof object.uint64Val[i] === "number")
-                            message.uint64Val[i] = object.uint64Val[i];
-                        else if (typeof object.uint64Val[i] === "object")
-                            message.uint64Val[i] = new $util.LongBits(object.uint64Val[i].low >>> 0, object.uint64Val[i].high >>> 0).toNumber(true);
+                            (message.uint64_val[i] = $util.Long.fromValue(object.uint64_val[i])).unsigned = true;
+                        else if (typeof object.uint64_val[i] === "string")
+                            message.uint64_val[i] = parseInt(object.uint64_val[i], 10);
+                        else if (typeof object.uint64_val[i] === "number")
+                            message.uint64_val[i] = object.uint64_val[i];
+                        else if (typeof object.uint64_val[i] === "object")
+                            message.uint64_val[i] = new $util.LongBits(object.uint64_val[i].low >>> 0, object.uint64_val[i].high >>> 0).toNumber(true);
                 }
                 return message;
             };
@@ -5889,110 +5889,110 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults) {
-                    object.floatVal = [];
-                    object.doubleVal = [];
-                    object.intVal = [];
-                    object.stringVal = [];
-                    object.scomplexVal = [];
-                    object.int64Val = [];
-                    object.boolVal = [];
-                    object.dcomplexVal = [];
-                    object.halfVal = [];
-                    object.resourceHandleVal = [];
-                    object.variantVal = [];
-                    object.uint32Val = [];
-                    object.uint64Val = [];
+                    object.float_val = [];
+                    object.double_val = [];
+                    object.int_val = [];
+                    object.string_val = [];
+                    object.scomplex_val = [];
+                    object.int64_val = [];
+                    object.bool_val = [];
+                    object.dcomplex_val = [];
+                    object.half_val = [];
+                    object.resource_handle_val = [];
+                    object.variant_val = [];
+                    object.uint32_val = [];
+                    object.uint64_val = [];
                 }
                 if (options.defaults) {
                     object.dtype = options.enums === String ? "DT_INVALID" : 0;
-                    object.tensorShape = null;
-                    object.versionNumber = 0;
+                    object.tensor_shape = null;
+                    object.version_number = 0;
                     if (options.bytes === String)
-                        object.tensorContent = "";
+                        object.tensor_content = "";
                     else {
-                        object.tensorContent = [];
+                        object.tensor_content = [];
                         if (options.bytes !== Array)
-                            object.tensorContent = $util.newBuffer(object.tensorContent);
+                            object.tensor_content = $util.newBuffer(object.tensor_content);
                     }
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape"))
-                    object.tensorShape = $root.tensorflow.TensorShapeProto.toObject(message.tensorShape, options);
-                if (message.versionNumber != null && message.hasOwnProperty("versionNumber"))
-                    object.versionNumber = message.versionNumber;
-                if (message.tensorContent != null && message.hasOwnProperty("tensorContent"))
-                    object.tensorContent = options.bytes === String ? $util.base64.encode(message.tensorContent, 0, message.tensorContent.length) : options.bytes === Array ? Array.prototype.slice.call(message.tensorContent) : message.tensorContent;
-                if (message.floatVal && message.floatVal.length) {
-                    object.floatVal = [];
-                    for (var j = 0; j < message.floatVal.length; ++j)
-                        object.floatVal[j] = options.json && !isFinite(message.floatVal[j]) ? String(message.floatVal[j]) : message.floatVal[j];
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape"))
+                    object.tensor_shape = $root.tensorflow.TensorShapeProto.toObject(message.tensor_shape, options);
+                if (message.version_number != null && message.hasOwnProperty("version_number"))
+                    object.version_number = message.version_number;
+                if (message.tensor_content != null && message.hasOwnProperty("tensor_content"))
+                    object.tensor_content = options.bytes === String ? $util.base64.encode(message.tensor_content, 0, message.tensor_content.length) : options.bytes === Array ? Array.prototype.slice.call(message.tensor_content) : message.tensor_content;
+                if (message.float_val && message.float_val.length) {
+                    object.float_val = [];
+                    for (var j = 0; j < message.float_val.length; ++j)
+                        object.float_val[j] = options.json && !isFinite(message.float_val[j]) ? String(message.float_val[j]) : message.float_val[j];
                 }
-                if (message.doubleVal && message.doubleVal.length) {
-                    object.doubleVal = [];
-                    for (var j = 0; j < message.doubleVal.length; ++j)
-                        object.doubleVal[j] = options.json && !isFinite(message.doubleVal[j]) ? String(message.doubleVal[j]) : message.doubleVal[j];
+                if (message.double_val && message.double_val.length) {
+                    object.double_val = [];
+                    for (var j = 0; j < message.double_val.length; ++j)
+                        object.double_val[j] = options.json && !isFinite(message.double_val[j]) ? String(message.double_val[j]) : message.double_val[j];
                 }
-                if (message.intVal && message.intVal.length) {
-                    object.intVal = [];
-                    for (var j = 0; j < message.intVal.length; ++j)
-                        object.intVal[j] = message.intVal[j];
+                if (message.int_val && message.int_val.length) {
+                    object.int_val = [];
+                    for (var j = 0; j < message.int_val.length; ++j)
+                        object.int_val[j] = message.int_val[j];
                 }
-                if (message.stringVal && message.stringVal.length) {
-                    object.stringVal = [];
-                    for (var j = 0; j < message.stringVal.length; ++j)
-                        object.stringVal[j] = options.bytes === String ? $util.base64.encode(message.stringVal[j], 0, message.stringVal[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.stringVal[j]) : message.stringVal[j];
+                if (message.string_val && message.string_val.length) {
+                    object.string_val = [];
+                    for (var j = 0; j < message.string_val.length; ++j)
+                        object.string_val[j] = options.bytes === String ? $util.base64.encode(message.string_val[j], 0, message.string_val[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.string_val[j]) : message.string_val[j];
                 }
-                if (message.scomplexVal && message.scomplexVal.length) {
-                    object.scomplexVal = [];
-                    for (var j = 0; j < message.scomplexVal.length; ++j)
-                        object.scomplexVal[j] = options.json && !isFinite(message.scomplexVal[j]) ? String(message.scomplexVal[j]) : message.scomplexVal[j];
+                if (message.scomplex_val && message.scomplex_val.length) {
+                    object.scomplex_val = [];
+                    for (var j = 0; j < message.scomplex_val.length; ++j)
+                        object.scomplex_val[j] = options.json && !isFinite(message.scomplex_val[j]) ? String(message.scomplex_val[j]) : message.scomplex_val[j];
                 }
-                if (message.int64Val && message.int64Val.length) {
-                    object.int64Val = [];
-                    for (var j = 0; j < message.int64Val.length; ++j)
-                        if (typeof message.int64Val[j] === "number")
-                            object.int64Val[j] = options.longs === String ? String(message.int64Val[j]) : message.int64Val[j];
+                if (message.int64_val && message.int64_val.length) {
+                    object.int64_val = [];
+                    for (var j = 0; j < message.int64_val.length; ++j)
+                        if (typeof message.int64_val[j] === "number")
+                            object.int64_val[j] = options.longs === String ? String(message.int64_val[j]) : message.int64_val[j];
                         else
-                            object.int64Val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64Val[j]) : options.longs === Number ? new $util.LongBits(message.int64Val[j].low >>> 0, message.int64Val[j].high >>> 0).toNumber() : message.int64Val[j];
+                            object.int64_val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64_val[j]) : options.longs === Number ? new $util.LongBits(message.int64_val[j].low >>> 0, message.int64_val[j].high >>> 0).toNumber() : message.int64_val[j];
                 }
-                if (message.boolVal && message.boolVal.length) {
-                    object.boolVal = [];
-                    for (var j = 0; j < message.boolVal.length; ++j)
-                        object.boolVal[j] = message.boolVal[j];
+                if (message.bool_val && message.bool_val.length) {
+                    object.bool_val = [];
+                    for (var j = 0; j < message.bool_val.length; ++j)
+                        object.bool_val[j] = message.bool_val[j];
                 }
-                if (message.dcomplexVal && message.dcomplexVal.length) {
-                    object.dcomplexVal = [];
-                    for (var j = 0; j < message.dcomplexVal.length; ++j)
-                        object.dcomplexVal[j] = options.json && !isFinite(message.dcomplexVal[j]) ? String(message.dcomplexVal[j]) : message.dcomplexVal[j];
+                if (message.dcomplex_val && message.dcomplex_val.length) {
+                    object.dcomplex_val = [];
+                    for (var j = 0; j < message.dcomplex_val.length; ++j)
+                        object.dcomplex_val[j] = options.json && !isFinite(message.dcomplex_val[j]) ? String(message.dcomplex_val[j]) : message.dcomplex_val[j];
                 }
-                if (message.halfVal && message.halfVal.length) {
-                    object.halfVal = [];
-                    for (var j = 0; j < message.halfVal.length; ++j)
-                        object.halfVal[j] = message.halfVal[j];
+                if (message.half_val && message.half_val.length) {
+                    object.half_val = [];
+                    for (var j = 0; j < message.half_val.length; ++j)
+                        object.half_val[j] = message.half_val[j];
                 }
-                if (message.resourceHandleVal && message.resourceHandleVal.length) {
-                    object.resourceHandleVal = [];
-                    for (var j = 0; j < message.resourceHandleVal.length; ++j)
-                        object.resourceHandleVal[j] = $root.tensorflow.ResourceHandleProto.toObject(message.resourceHandleVal[j], options);
+                if (message.resource_handle_val && message.resource_handle_val.length) {
+                    object.resource_handle_val = [];
+                    for (var j = 0; j < message.resource_handle_val.length; ++j)
+                        object.resource_handle_val[j] = $root.tensorflow.ResourceHandleProto.toObject(message.resource_handle_val[j], options);
                 }
-                if (message.variantVal && message.variantVal.length) {
-                    object.variantVal = [];
-                    for (var j = 0; j < message.variantVal.length; ++j)
-                        object.variantVal[j] = $root.tensorflow.VariantTensorDataProto.toObject(message.variantVal[j], options);
+                if (message.variant_val && message.variant_val.length) {
+                    object.variant_val = [];
+                    for (var j = 0; j < message.variant_val.length; ++j)
+                        object.variant_val[j] = $root.tensorflow.VariantTensorDataProto.toObject(message.variant_val[j], options);
                 }
-                if (message.uint32Val && message.uint32Val.length) {
-                    object.uint32Val = [];
-                    for (var j = 0; j < message.uint32Val.length; ++j)
-                        object.uint32Val[j] = message.uint32Val[j];
+                if (message.uint32_val && message.uint32_val.length) {
+                    object.uint32_val = [];
+                    for (var j = 0; j < message.uint32_val.length; ++j)
+                        object.uint32_val[j] = message.uint32_val[j];
                 }
-                if (message.uint64Val && message.uint64Val.length) {
-                    object.uint64Val = [];
-                    for (var j = 0; j < message.uint64Val.length; ++j)
-                        if (typeof message.uint64Val[j] === "number")
-                            object.uint64Val[j] = options.longs === String ? String(message.uint64Val[j]) : message.uint64Val[j];
+                if (message.uint64_val && message.uint64_val.length) {
+                    object.uint64_val = [];
+                    for (var j = 0; j < message.uint64_val.length; ++j)
+                        if (typeof message.uint64_val[j] === "number")
+                            object.uint64_val[j] = options.longs === String ? String(message.uint64_val[j]) : message.uint64_val[j];
                         else
-                            object.uint64Val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.uint64Val[j]) : options.longs === Number ? new $util.LongBits(message.uint64Val[j].low >>> 0, message.uint64Val[j].high >>> 0).toNumber(true) : message.uint64Val[j];
+                            object.uint64_val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.uint64_val[j]) : options.longs === Number ? new $util.LongBits(message.uint64_val[j].low >>> 0, message.uint64_val[j].high >>> 0).toNumber(true) : message.uint64_val[j];
                 }
                 return object;
             };
@@ -6014,7 +6014,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            VariantTensorDataProto.prototype.typeName = "";
+            VariantTensorDataProto.prototype.type_name = "";
             VariantTensorDataProto.prototype.metadata = $util.newBuffer([]);
             VariantTensorDataProto.prototype.tensors = $util.emptyArray;
     
@@ -6030,7 +6030,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.typeName = reader.string();
+                        message.type_name = reader.string();
                         break;
                     case 2:
                         message.metadata = reader.bytes();
@@ -6051,9 +6051,9 @@
             VariantTensorDataProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.typeName != null && message.hasOwnProperty("typeName"))
-                    if (!$util.isString(message.typeName))
-                        return "typeName: string expected";
+                if (message.type_name != null && message.hasOwnProperty("type_name"))
+                    if (!$util.isString(message.type_name))
+                        return "type_name: string expected";
                 if (message.metadata != null && message.hasOwnProperty("metadata"))
                     if (!(message.metadata && typeof message.metadata.length === "number" || $util.isString(message.metadata)))
                         return "metadata: buffer expected";
@@ -6073,8 +6073,8 @@
                 if (object instanceof $root.tensorflow.VariantTensorDataProto)
                     return object;
                 var message = new $root.tensorflow.VariantTensorDataProto();
-                if (object.typeName != null)
-                    message.typeName = String(object.typeName);
+                if (object.type_name != null)
+                    message.type_name = String(object.type_name);
                 if (object.metadata != null)
                     if (typeof object.metadata === "string")
                         $util.base64.decode(object.metadata, message.metadata = $util.newBuffer($util.base64.length(object.metadata)), 0);
@@ -6100,7 +6100,7 @@
                 if (options.arrays || options.defaults)
                     object.tensors = [];
                 if (options.defaults) {
-                    object.typeName = "";
+                    object.type_name = "";
                     if (options.bytes === String)
                         object.metadata = "";
                     else {
@@ -6109,8 +6109,8 @@
                             object.metadata = $util.newBuffer(object.metadata);
                     }
                 }
-                if (message.typeName != null && message.hasOwnProperty("typeName"))
-                    object.typeName = message.typeName;
+                if (message.type_name != null && message.hasOwnProperty("type_name"))
+                    object.type_name = message.type_name;
                 if (message.metadata != null && message.hasOwnProperty("metadata"))
                     object.metadata = options.bytes === String ? $util.base64.encode(message.metadata, 0, message.metadata.length) : options.bytes === Array ? Array.prototype.slice.call(message.metadata) : message.metadata;
                 if (message.tensors && message.tensors.length) {
@@ -6140,8 +6140,8 @@
             ResourceHandleProto.prototype.device = "";
             ResourceHandleProto.prototype.container = "";
             ResourceHandleProto.prototype.name = "";
-            ResourceHandleProto.prototype.hashCode = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
-            ResourceHandleProto.prototype.maybeTypeName = "";
+            ResourceHandleProto.prototype.hash_code = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+            ResourceHandleProto.prototype.maybe_type_name = "";
     
             ResourceHandleProto.create = function create(properties) {
                 return new ResourceHandleProto(properties);
@@ -6164,10 +6164,10 @@
                         message.name = reader.string();
                         break;
                     case 4:
-                        message.hashCode = reader.uint64();
+                        message.hash_code = reader.uint64();
                         break;
                     case 5:
-                        message.maybeTypeName = reader.string();
+                        message.maybe_type_name = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -6189,12 +6189,12 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.hashCode != null && message.hasOwnProperty("hashCode"))
-                    if (!$util.isInteger(message.hashCode) && !(message.hashCode && $util.isInteger(message.hashCode.low) && $util.isInteger(message.hashCode.high)))
-                        return "hashCode: integer|Long expected";
-                if (message.maybeTypeName != null && message.hasOwnProperty("maybeTypeName"))
-                    if (!$util.isString(message.maybeTypeName))
-                        return "maybeTypeName: string expected";
+                if (message.hash_code != null && message.hasOwnProperty("hash_code"))
+                    if (!$util.isInteger(message.hash_code) && !(message.hash_code && $util.isInteger(message.hash_code.low) && $util.isInteger(message.hash_code.high)))
+                        return "hash_code: integer|Long expected";
+                if (message.maybe_type_name != null && message.hasOwnProperty("maybe_type_name"))
+                    if (!$util.isString(message.maybe_type_name))
+                        return "maybe_type_name: string expected";
                 return null;
             };
     
@@ -6208,17 +6208,17 @@
                     message.container = String(object.container);
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.hashCode != null)
+                if (object.hash_code != null)
                     if ($util.Long)
-                        (message.hashCode = $util.Long.fromValue(object.hashCode)).unsigned = true;
-                    else if (typeof object.hashCode === "string")
-                        message.hashCode = parseInt(object.hashCode, 10);
-                    else if (typeof object.hashCode === "number")
-                        message.hashCode = object.hashCode;
-                    else if (typeof object.hashCode === "object")
-                        message.hashCode = new $util.LongBits(object.hashCode.low >>> 0, object.hashCode.high >>> 0).toNumber(true);
-                if (object.maybeTypeName != null)
-                    message.maybeTypeName = String(object.maybeTypeName);
+                        (message.hash_code = $util.Long.fromValue(object.hash_code)).unsigned = true;
+                    else if (typeof object.hash_code === "string")
+                        message.hash_code = parseInt(object.hash_code, 10);
+                    else if (typeof object.hash_code === "number")
+                        message.hash_code = object.hash_code;
+                    else if (typeof object.hash_code === "object")
+                        message.hash_code = new $util.LongBits(object.hash_code.low >>> 0, object.hash_code.high >>> 0).toNumber(true);
+                if (object.maybe_type_name != null)
+                    message.maybe_type_name = String(object.maybe_type_name);
                 return message;
             };
     
@@ -6232,10 +6232,10 @@
                     object.name = "";
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, true);
-                        object.hashCode = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.hash_code = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.hashCode = options.longs === String ? "0" : 0;
-                    object.maybeTypeName = "";
+                        object.hash_code = options.longs === String ? "0" : 0;
+                    object.maybe_type_name = "";
                 }
                 if (message.device != null && message.hasOwnProperty("device"))
                     object.device = message.device;
@@ -6243,13 +6243,13 @@
                     object.container = message.container;
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.hashCode != null && message.hasOwnProperty("hashCode"))
-                    if (typeof message.hashCode === "number")
-                        object.hashCode = options.longs === String ? String(message.hashCode) : message.hashCode;
+                if (message.hash_code != null && message.hasOwnProperty("hash_code"))
+                    if (typeof message.hash_code === "number")
+                        object.hash_code = options.longs === String ? String(message.hash_code) : message.hash_code;
                     else
-                        object.hashCode = options.longs === String ? $util.Long.prototype.toString.call(message.hashCode) : options.longs === Number ? new $util.LongBits(message.hashCode.low >>> 0, message.hashCode.high >>> 0).toNumber(true) : message.hashCode;
-                if (message.maybeTypeName != null && message.hasOwnProperty("maybeTypeName"))
-                    object.maybeTypeName = message.maybeTypeName;
+                        object.hash_code = options.longs === String ? $util.Long.prototype.toString.call(message.hash_code) : options.longs === Number ? new $util.LongBits(message.hash_code.low >>> 0, message.hash_code.high >>> 0).toNumber(true) : message.hash_code;
+                if (message.maybe_type_name != null && message.hasOwnProperty("maybe_type_name"))
+                    object.maybe_type_name = message.maybe_type_name;
                 return object;
             };
     

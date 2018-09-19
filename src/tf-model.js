@@ -29,8 +29,8 @@ class TensorFlowModelFactory {
                 if (context.identifier == 'saved_model.pb') {
                     savedModel = tensorflow.SavedModel.decode(context.buffer);
                     format = 'TensorFlow Saved Model';
-                    if (savedModel.savedModelSchemaVersion) {
-                        format = format + ' v' + savedModel.savedModelSchemaVersion.toString();
+                    if (savedModel.saved_model_schema_version) {
+                        format = format + ' v' + savedModel.saved_model_schema_version.toString();
                     }
                 }
             }
@@ -45,7 +45,7 @@ class TensorFlowModelFactory {
                     var metaGraphDef = tensorflow.MetaGraphDef.decode(context.buffer);
                     format = 'TensorFlow MetaGraph';
                     savedModel = new tensorflow.SavedModel();
-                    savedModel.metaGraphs.push(metaGraphDef);
+                    savedModel.meta_graphs.push(metaGraphDef);
                 }
             }
             catch (error) {
@@ -58,10 +58,10 @@ class TensorFlowModelFactory {
                     var graphDef = tensorflow.GraphDef.decode(context.buffer);
                     format = 'TensorFlow Graph';
                     var emptyMetaGraphDef = new tensorflow.MetaGraphDef();
-                    emptyMetaGraphDef.graphDef = graphDef;
-                    emptyMetaGraphDef.anyInfo = context.identifier;
+                    emptyMetaGraphDef.graph_def = graphDef;
+                    emptyMetaGraphDef.any_info = context.identifier;
                     savedModel = new tensorflow.SavedModel();
-                    savedModel.metaGraphs.push(emptyMetaGraphDef);
+                    savedModel.meta_graphs.push(emptyMetaGraphDef);
                 }
             }
             catch (error) {
@@ -90,8 +90,8 @@ class TensorFlowModel {
         this._model = model;
         this._format = format;
         this._graphs = [];
-        for (var i = 0; i < this._model.metaGraphs.length; i++) {
-            this._graphs.push(new TensorFlowGraph(this, this._model.metaGraphs[i], i));
+        for (var i = 0; i < this._model.meta_graphs.length; i++) {
+            this._graphs.push(new TensorFlowGraph(this, this._model.meta_graphs[i], i));
         }
         this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
     }
@@ -114,12 +114,12 @@ class TensorFlowGraph {
     constructor(model, graph, index) {
         this._model = model;
         this._graph = graph;
-        this._metadata = new TensorFlowGraphOperatorMetadata(graph.metaInfoDef);
-        this._name = this._graph.anyInfo ? this._graph.anyInfo.toString() : ('(' + index.toString() + ')');
+        this._metadata = new TensorFlowGraphOperatorMetadata(graph.meta_info_def);
+        this._name = this._graph.any_info ? this._graph.any_info.toString() : ('(' + index.toString() + ')');
         this._operators = {};
         this._inputMap = {};
-        if (this._graph.graphDef) {
-            this._graph.graphDef.node.forEach((node) => {
+        if (this._graph.graph_def) {
+            this._graph.graph_def.node.forEach((node) => {
                 this._operators[node.op] = (this._operators[node.op] || 0) + 1;
             });
         }
@@ -138,15 +138,15 @@ class TensorFlowGraph {
     }
 
     get version() {
-        if (this._graph.metaInfoDef && this._graph.metaInfoDef.tensorflowVersion) {
-            return this._graph.metaInfoDef.tensorflowVersion;
+        if (this._graph.meta_info_def && this._graph.meta_info_def.tensorflow_version) {
+            return this._graph.meta_info_def.tensorflow_version;
         }
         return null;
     }
 
     get tags() {
-        if (this._graph.metaInfoDef && this._graph.metaInfoDef.tags) {
-            return this._graph.metaInfoDef.tags.join(', ');
+        if (this._graph.meta_info_def && this._graph.meta_info_def.tags) {
+            return this._graph.meta_info_def.tags.join(', ');
         }
         return null;
     }
@@ -171,8 +171,8 @@ class TensorFlowGraph {
     get nodes() {
         this._update();
         var results = [];
-        if (this._graph.graphDef) {
-            this._graph.graphDef.node.forEach((node) => {
+        if (this._graph.graph_def) {
+            this._graph.graph_def.node.forEach((node) => {
                 if (node.output.filter(output => !output.startsWith('^')) != 0 ||
                     node.input.filter(input => !input.startsWith('^')).length > 0) {
                     var id = node.name;
@@ -194,10 +194,10 @@ class TensorFlowGraph {
     }
 
     _update() {
-        if (!this._nodeMap && this._graph.graphDef.node) {
+        if (!this._nodeMap && this._graph.graph_def.node) {
             this._nodeMap = {};
             this._namespaces = {};
-            var nodes = this._graph.graphDef.node;
+            var nodes = this._graph.graph_def.node;
             nodes.forEach((node) => {
                 var name = node.name;
                 this._nodeMap[name] = node;   
@@ -273,7 +273,7 @@ class TensorFlowGraph {
             });
 
             this._initializerMap = {};
-            this._graph.graphDef.node.forEach((node) => {
+            this._graph.graph_def.node.forEach((node) => {
                 if (node.op == 'Const' && this._checkEmptyInput(node) && this._checkSingleOutput(node)) {
                     var value = node.attr.value;
                     if (value && value.hasOwnProperty('tensor')) {
@@ -284,7 +284,7 @@ class TensorFlowGraph {
                     }
                 }
             });
-            this._graph.graphDef.node.forEach((node) => {
+            this._graph.graph_def.node.forEach((node) => {
                 if (node.op == 'Identity' && node.input.length == 1 && this._checkSingleOutput(node)) {
                     var input = node.input[0];
                     var tensor = this._initializerMap[input];
@@ -298,7 +298,7 @@ class TensorFlowGraph {
             });
 
             this._inputMap = {};
-            this._graph.graphDef.node.forEach((node) => {
+            this._graph.graph_def.node.forEach((node) => {
                 if (node.op == 'Placeholder' && node.input.length == 0 && node.output.length == 1) {
                     var dtype = node.attr.dtype;
                     var shape = node.attr.shape;
@@ -594,8 +594,8 @@ class TensorFlowAttribute {
 
     get tensor() {
         if (this._value.hasOwnProperty('tensor')) {
-            if (this._value.tensor.tensorShape && this._value.tensor.tensorShape.dim) {
-                if (this._value.tensor.tensorShape.dim.length == 0) {
+            if (this._value.tensor.tensor_shape && this._value.tensor.tensor_shape.dim) {
+                if (this._value.tensor.tensor_shape.dim.length == 0) {
                     return false;
                 }
             }
@@ -614,7 +614,7 @@ class TensorFlowTensor {
         if (kind) {
             this._kind = kind;
         }
-        this._type = new TensorFlowTensorType(this._tensor.dtype, this._tensor.tensorShape);
+        this._type = new TensorFlowTensorType(this._tensor.dtype, this._tensor.tensor_shape);
     }
 
     get id() {
@@ -671,22 +671,22 @@ class TensorFlowTensor {
             context.state = 'Tensor has no data type.';
             return context;
         }
-        if (!this._tensor.tensorShape || !this._tensor.tensorShape.dim) {
+        if (!this._tensor.tensor_shape || !this._tensor.tensor_shape.dim) {
             context.state = 'Tensor has no dimensions.';
             return context;
         }
 
-        this._tensor.tensorShape.dim.forEach((dim) => {
+        this._tensor.tensor_shape.dim.forEach((dim) => {
             context.size = context.size * (dim.size ? dim.size : 0);
         });
 
         switch (this._tensor.dtype) {
             case tensorflow.DataType.DT_FLOAT:
-                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
+                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
+                    context.rawData = new DataView(this._tensor.tensor_content.buffer, this._tensor.tensor_content.byteOffset, this._tensor.tensor_content.byteLength);
                 }
-                else if (this._tensor.floatVal && this._tensor.floatVal.length == context.size) {
-                    context.data = this._tensor.floatVal;
+                else if (this._tensor.float_val && this._tensor.float_val.length == context.size) {
+                    context.data = this._tensor.float_val;
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -694,8 +694,8 @@ class TensorFlowTensor {
                 break;
             case tensorflow.DataType.DT_QINT8:
             case tensorflow.DataType.DT_QUINT8:
-                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
+                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
+                    context.rawData = new DataView(this._tensor.tensor_content.buffer, this._tensor.tensor_content.byteOffset, this._tensor.tensor_content.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -703,22 +703,22 @@ class TensorFlowTensor {
                 break;
             case tensorflow.DataType.DT_INT32:
             case tensorflow.DataType.DT_UINT32:
-                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
-                    context.rawData = new DataView(this._tensor.tensorContent.buffer, this._tensor.tensorContent.byteOffset, this._tensor.tensorContent.byteLength);
+                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
+                    context.rawData = new DataView(this._tensor.tensor_content.buffer, this._tensor.tensor_content.byteOffset, this._tensor.tensor_content.byteLength);
                 }
-                else if (this._tensor.intVal && this._tensor.intVal.length == context.size) {
-                    context.data = this._tensor.intVal;
+                else if (this._tensor.int_val && this._tensor.int_val.length == context.size) {
+                    context.data = this._tensor.int_val;
                 }
                 else {
                     context.state = 'Tensor data is empty.';
                 }
                 break;
             case tensorflow.DataType.DT_STRING:
-                if (this._tensor.tensorContent && this._tensor.tensorContent.length > 0) {
+                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
                     result.state = 'Tensor data type is not implemented.';
                 }
-                else if (this._tensor.stringVal && this._tensor.stringVal.length == context.size) {
-                    context.data = this._tensor.stringVal;
+                else if (this._tensor.string_val && this._tensor.string_val.length == context.size) {
+                    context.data = this._tensor.string_val;
                 }
                 else {
                     context.state = 'Tensor data is empty.';
@@ -732,7 +732,7 @@ class TensorFlowTensor {
                 break;
         }
 
-        context.shape = this._tensor.tensorShape.dim.map((dim) => dim.size);
+        context.shape = this._tensor.tensor_shape.dim.map((dim) => dim.size);
         return context;
     }
 
@@ -831,7 +831,7 @@ class TensorFlowTensor {
 
     static formatTensorShape(shape) {
         if (shape && shape.dim) {
-            if (shape.unknownRank) {
+            if (shape.unknown_rank) {
                 return '[-]';
             }
             if (shape.dim.length == 0) {
@@ -859,7 +859,7 @@ class TensorFlowTensorType {
 
     get shape() {
         if (this._shape && this._shape.dim) {
-            if (this._shape.unknownRank) {
+            if (this._shape.unknown_rank) {
                 return null;
             }
             if (this._shape.dim.length == 0) {
@@ -881,10 +881,10 @@ class TensorFlowTensorType {
 
 class TensorFlowGraphOperatorMetadata {
 
-    constructor(metaInfoDef) {
+    constructor(meta_info_def) {
         this._map = {};
-        if (metaInfoDef && metaInfoDef.strippedOpList && metaInfoDef.strippedOpList.op) {
-            metaInfoDef.strippedOpList.op.forEach((opDef) => {
+        if (meta_info_def && meta_info_def.strippedOpList && meta_info_def.strippedOpList.op) {
+            meta_info_def.strippedOpList.op.forEach((opDef) => {
             });
         }
     }
