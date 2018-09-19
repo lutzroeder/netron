@@ -14,11 +14,11 @@
     
             function TensorProto(properties) {
                 this.dims = [];
-                this.floatData = [];
-                this.int32Data = [];
-                this.stringData = [];
-                this.doubleData = [];
-                this.int64Data = [];
+                this.float_data = [];
+                this.int32_data = [];
+                this.string_data = [];
+                this.double_data = [];
+                this.int64_data = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -26,15 +26,15 @@
             }
     
             TensorProto.prototype.dims = $util.emptyArray;
-            TensorProto.prototype.dataType = 1;
-            TensorProto.prototype.floatData = $util.emptyArray;
-            TensorProto.prototype.int32Data = $util.emptyArray;
-            TensorProto.prototype.byteData = $util.newBuffer([]);
-            TensorProto.prototype.stringData = $util.emptyArray;
-            TensorProto.prototype.doubleData = $util.emptyArray;
-            TensorProto.prototype.int64Data = $util.emptyArray;
+            TensorProto.prototype.data_type = 1;
+            TensorProto.prototype.float_data = $util.emptyArray;
+            TensorProto.prototype.int32_data = $util.emptyArray;
+            TensorProto.prototype.byte_data = $util.newBuffer([]);
+            TensorProto.prototype.string_data = $util.emptyArray;
+            TensorProto.prototype.double_data = $util.emptyArray;
+            TensorProto.prototype.int64_data = $util.emptyArray;
             TensorProto.prototype.name = "";
-            TensorProto.prototype.deviceDetail = null;
+            TensorProto.prototype.device_detail = null;
             TensorProto.prototype.segment = null;
     
             TensorProto.create = function create(properties) {
@@ -59,61 +59,61 @@
                             message.dims.push(reader.int64());
                         break;
                     case 2:
-                        message.dataType = reader.int32();
+                        message.data_type = reader.int32();
                         break;
                     case 3:
-                        if (!(message.floatData && message.floatData.length))
-                            message.floatData = [];
+                        if (!(message.float_data && message.float_data.length))
+                            message.float_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.floatData.push(reader.float());
+                                message.float_data.push(reader.float());
                         } else
-                            message.floatData.push(reader.float());
+                            message.float_data.push(reader.float());
                         break;
                     case 4:
-                        if (!(message.int32Data && message.int32Data.length))
-                            message.int32Data = [];
+                        if (!(message.int32_data && message.int32_data.length))
+                            message.int32_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.int32Data.push(reader.int32());
+                                message.int32_data.push(reader.int32());
                         } else
-                            message.int32Data.push(reader.int32());
+                            message.int32_data.push(reader.int32());
                         break;
                     case 5:
-                        message.byteData = reader.bytes();
+                        message.byte_data = reader.bytes();
                         break;
                     case 6:
-                        if (!(message.stringData && message.stringData.length))
-                            message.stringData = [];
-                        message.stringData.push(reader.bytes());
+                        if (!(message.string_data && message.string_data.length))
+                            message.string_data = [];
+                        message.string_data.push(reader.bytes());
                         break;
                     case 9:
-                        if (!(message.doubleData && message.doubleData.length))
-                            message.doubleData = [];
+                        if (!(message.double_data && message.double_data.length))
+                            message.double_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.doubleData.push(reader.double());
+                                message.double_data.push(reader.double());
                         } else
-                            message.doubleData.push(reader.double());
+                            message.double_data.push(reader.double());
                         break;
                     case 10:
-                        if (!(message.int64Data && message.int64Data.length))
-                            message.int64Data = [];
+                        if (!(message.int64_data && message.int64_data.length))
+                            message.int64_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.int64Data.push(reader.int64());
+                                message.int64_data.push(reader.int64());
                         } else
-                            message.int64Data.push(reader.int64());
+                            message.int64_data.push(reader.int64());
                         break;
                     case 7:
                         message.name = reader.string();
                         break;
                     case 8:
-                        message.deviceDetail = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
+                        message.device_detail = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
                         break;
                     case 11:
                         message.segment = $root.caffe2.TensorProto.Segment.decode(reader, reader.uint32());
@@ -136,10 +136,10 @@
                         if (!$util.isInteger(message.dims[i]) && !(message.dims[i] && $util.isInteger(message.dims[i].low) && $util.isInteger(message.dims[i].high)))
                             return "dims: integer|Long[] expected";
                 }
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    switch (message.dataType) {
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    switch (message.data_type) {
                     default:
-                        return "dataType: enum value expected";
+                        return "data_type: enum value expected";
                     case 0:
                     case 1:
                     case 2:
@@ -155,51 +155,51 @@
                     case 13:
                         break;
                     }
-                if (message.floatData != null && message.hasOwnProperty("floatData")) {
-                    if (!Array.isArray(message.floatData))
-                        return "floatData: array expected";
-                    for (var i = 0; i < message.floatData.length; ++i)
-                        if (typeof message.floatData[i] !== "number")
-                            return "floatData: number[] expected";
+                if (message.float_data != null && message.hasOwnProperty("float_data")) {
+                    if (!Array.isArray(message.float_data))
+                        return "float_data: array expected";
+                    for (var i = 0; i < message.float_data.length; ++i)
+                        if (typeof message.float_data[i] !== "number")
+                            return "float_data: number[] expected";
                 }
-                if (message.int32Data != null && message.hasOwnProperty("int32Data")) {
-                    if (!Array.isArray(message.int32Data))
-                        return "int32Data: array expected";
-                    for (var i = 0; i < message.int32Data.length; ++i)
-                        if (!$util.isInteger(message.int32Data[i]))
-                            return "int32Data: integer[] expected";
+                if (message.int32_data != null && message.hasOwnProperty("int32_data")) {
+                    if (!Array.isArray(message.int32_data))
+                        return "int32_data: array expected";
+                    for (var i = 0; i < message.int32_data.length; ++i)
+                        if (!$util.isInteger(message.int32_data[i]))
+                            return "int32_data: integer[] expected";
                 }
-                if (message.byteData != null && message.hasOwnProperty("byteData"))
-                    if (!(message.byteData && typeof message.byteData.length === "number" || $util.isString(message.byteData)))
-                        return "byteData: buffer expected";
-                if (message.stringData != null && message.hasOwnProperty("stringData")) {
-                    if (!Array.isArray(message.stringData))
-                        return "stringData: array expected";
-                    for (var i = 0; i < message.stringData.length; ++i)
-                        if (!(message.stringData[i] && typeof message.stringData[i].length === "number" || $util.isString(message.stringData[i])))
-                            return "stringData: buffer[] expected";
+                if (message.byte_data != null && message.hasOwnProperty("byte_data"))
+                    if (!(message.byte_data && typeof message.byte_data.length === "number" || $util.isString(message.byte_data)))
+                        return "byte_data: buffer expected";
+                if (message.string_data != null && message.hasOwnProperty("string_data")) {
+                    if (!Array.isArray(message.string_data))
+                        return "string_data: array expected";
+                    for (var i = 0; i < message.string_data.length; ++i)
+                        if (!(message.string_data[i] && typeof message.string_data[i].length === "number" || $util.isString(message.string_data[i])))
+                            return "string_data: buffer[] expected";
                 }
-                if (message.doubleData != null && message.hasOwnProperty("doubleData")) {
-                    if (!Array.isArray(message.doubleData))
-                        return "doubleData: array expected";
-                    for (var i = 0; i < message.doubleData.length; ++i)
-                        if (typeof message.doubleData[i] !== "number")
-                            return "doubleData: number[] expected";
+                if (message.double_data != null && message.hasOwnProperty("double_data")) {
+                    if (!Array.isArray(message.double_data))
+                        return "double_data: array expected";
+                    for (var i = 0; i < message.double_data.length; ++i)
+                        if (typeof message.double_data[i] !== "number")
+                            return "double_data: number[] expected";
                 }
-                if (message.int64Data != null && message.hasOwnProperty("int64Data")) {
-                    if (!Array.isArray(message.int64Data))
-                        return "int64Data: array expected";
-                    for (var i = 0; i < message.int64Data.length; ++i)
-                        if (!$util.isInteger(message.int64Data[i]) && !(message.int64Data[i] && $util.isInteger(message.int64Data[i].low) && $util.isInteger(message.int64Data[i].high)))
-                            return "int64Data: integer|Long[] expected";
+                if (message.int64_data != null && message.hasOwnProperty("int64_data")) {
+                    if (!Array.isArray(message.int64_data))
+                        return "int64_data: array expected";
+                    for (var i = 0; i < message.int64_data.length; ++i)
+                        if (!$util.isInteger(message.int64_data[i]) && !(message.int64_data[i] && $util.isInteger(message.int64_data[i].low) && $util.isInteger(message.int64_data[i].high)))
+                            return "int64_data: integer|Long[] expected";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.deviceDetail != null && message.hasOwnProperty("deviceDetail")) {
-                    var error = $root.caffe2.DeviceOption.verify(message.deviceDetail);
+                if (message.device_detail != null && message.hasOwnProperty("device_detail")) {
+                    var error = $root.caffe2.DeviceOption.verify(message.device_detail);
                     if (error)
-                        return "deviceDetail." + error;
+                        return "device_detail." + error;
                 }
                 if (message.segment != null && message.hasOwnProperty("segment")) {
                     var error = $root.caffe2.TensorProto.Segment.verify(message.segment);
@@ -227,116 +227,116 @@
                         else if (typeof object.dims[i] === "object")
                             message.dims[i] = new $util.LongBits(object.dims[i].low >>> 0, object.dims[i].high >>> 0).toNumber();
                 }
-                switch (object.dataType) {
+                switch (object.data_type) {
                 case "UNDEFINED":
                 case 0:
-                    message.dataType = 0;
+                    message.data_type = 0;
                     break;
                 case "FLOAT":
                 case 1:
-                    message.dataType = 1;
+                    message.data_type = 1;
                     break;
                 case "INT32":
                 case 2:
-                    message.dataType = 2;
+                    message.data_type = 2;
                     break;
                 case "BYTE":
                 case 3:
-                    message.dataType = 3;
+                    message.data_type = 3;
                     break;
                 case "STRING":
                 case 4:
-                    message.dataType = 4;
+                    message.data_type = 4;
                     break;
                 case "BOOL":
                 case 5:
-                    message.dataType = 5;
+                    message.data_type = 5;
                     break;
                 case "UINT8":
                 case 6:
-                    message.dataType = 6;
+                    message.data_type = 6;
                     break;
                 case "INT8":
                 case 7:
-                    message.dataType = 7;
+                    message.data_type = 7;
                     break;
                 case "UINT16":
                 case 8:
-                    message.dataType = 8;
+                    message.data_type = 8;
                     break;
                 case "INT16":
                 case 9:
-                    message.dataType = 9;
+                    message.data_type = 9;
                     break;
                 case "INT64":
                 case 10:
-                    message.dataType = 10;
+                    message.data_type = 10;
                     break;
                 case "FLOAT16":
                 case 12:
-                    message.dataType = 12;
+                    message.data_type = 12;
                     break;
                 case "DOUBLE":
                 case 13:
-                    message.dataType = 13;
+                    message.data_type = 13;
                     break;
                 }
-                if (object.floatData) {
-                    if (!Array.isArray(object.floatData))
-                        throw TypeError(".caffe2.TensorProto.floatData: array expected");
-                    message.floatData = [];
-                    for (var i = 0; i < object.floatData.length; ++i)
-                        message.floatData[i] = Number(object.floatData[i]);
+                if (object.float_data) {
+                    if (!Array.isArray(object.float_data))
+                        throw TypeError(".caffe2.TensorProto.float_data: array expected");
+                    message.float_data = [];
+                    for (var i = 0; i < object.float_data.length; ++i)
+                        message.float_data[i] = Number(object.float_data[i]);
                 }
-                if (object.int32Data) {
-                    if (!Array.isArray(object.int32Data))
-                        throw TypeError(".caffe2.TensorProto.int32Data: array expected");
-                    message.int32Data = [];
-                    for (var i = 0; i < object.int32Data.length; ++i)
-                        message.int32Data[i] = object.int32Data[i] | 0;
+                if (object.int32_data) {
+                    if (!Array.isArray(object.int32_data))
+                        throw TypeError(".caffe2.TensorProto.int32_data: array expected");
+                    message.int32_data = [];
+                    for (var i = 0; i < object.int32_data.length; ++i)
+                        message.int32_data[i] = object.int32_data[i] | 0;
                 }
-                if (object.byteData != null)
-                    if (typeof object.byteData === "string")
-                        $util.base64.decode(object.byteData, message.byteData = $util.newBuffer($util.base64.length(object.byteData)), 0);
-                    else if (object.byteData.length)
-                        message.byteData = object.byteData;
-                if (object.stringData) {
-                    if (!Array.isArray(object.stringData))
-                        throw TypeError(".caffe2.TensorProto.stringData: array expected");
-                    message.stringData = [];
-                    for (var i = 0; i < object.stringData.length; ++i)
-                        if (typeof object.stringData[i] === "string")
-                            $util.base64.decode(object.stringData[i], message.stringData[i] = $util.newBuffer($util.base64.length(object.stringData[i])), 0);
-                        else if (object.stringData[i].length)
-                            message.stringData[i] = object.stringData[i];
+                if (object.byte_data != null)
+                    if (typeof object.byte_data === "string")
+                        $util.base64.decode(object.byte_data, message.byte_data = $util.newBuffer($util.base64.length(object.byte_data)), 0);
+                    else if (object.byte_data.length)
+                        message.byte_data = object.byte_data;
+                if (object.string_data) {
+                    if (!Array.isArray(object.string_data))
+                        throw TypeError(".caffe2.TensorProto.string_data: array expected");
+                    message.string_data = [];
+                    for (var i = 0; i < object.string_data.length; ++i)
+                        if (typeof object.string_data[i] === "string")
+                            $util.base64.decode(object.string_data[i], message.string_data[i] = $util.newBuffer($util.base64.length(object.string_data[i])), 0);
+                        else if (object.string_data[i].length)
+                            message.string_data[i] = object.string_data[i];
                 }
-                if (object.doubleData) {
-                    if (!Array.isArray(object.doubleData))
-                        throw TypeError(".caffe2.TensorProto.doubleData: array expected");
-                    message.doubleData = [];
-                    for (var i = 0; i < object.doubleData.length; ++i)
-                        message.doubleData[i] = Number(object.doubleData[i]);
+                if (object.double_data) {
+                    if (!Array.isArray(object.double_data))
+                        throw TypeError(".caffe2.TensorProto.double_data: array expected");
+                    message.double_data = [];
+                    for (var i = 0; i < object.double_data.length; ++i)
+                        message.double_data[i] = Number(object.double_data[i]);
                 }
-                if (object.int64Data) {
-                    if (!Array.isArray(object.int64Data))
-                        throw TypeError(".caffe2.TensorProto.int64Data: array expected");
-                    message.int64Data = [];
-                    for (var i = 0; i < object.int64Data.length; ++i)
+                if (object.int64_data) {
+                    if (!Array.isArray(object.int64_data))
+                        throw TypeError(".caffe2.TensorProto.int64_data: array expected");
+                    message.int64_data = [];
+                    for (var i = 0; i < object.int64_data.length; ++i)
                         if ($util.Long)
-                            (message.int64Data[i] = $util.Long.fromValue(object.int64Data[i])).unsigned = false;
-                        else if (typeof object.int64Data[i] === "string")
-                            message.int64Data[i] = parseInt(object.int64Data[i], 10);
-                        else if (typeof object.int64Data[i] === "number")
-                            message.int64Data[i] = object.int64Data[i];
-                        else if (typeof object.int64Data[i] === "object")
-                            message.int64Data[i] = new $util.LongBits(object.int64Data[i].low >>> 0, object.int64Data[i].high >>> 0).toNumber();
+                            (message.int64_data[i] = $util.Long.fromValue(object.int64_data[i])).unsigned = false;
+                        else if (typeof object.int64_data[i] === "string")
+                            message.int64_data[i] = parseInt(object.int64_data[i], 10);
+                        else if (typeof object.int64_data[i] === "number")
+                            message.int64_data[i] = object.int64_data[i];
+                        else if (typeof object.int64_data[i] === "object")
+                            message.int64_data[i] = new $util.LongBits(object.int64_data[i].low >>> 0, object.int64_data[i].high >>> 0).toNumber();
                 }
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.deviceDetail != null) {
-                    if (typeof object.deviceDetail !== "object")
-                        throw TypeError(".caffe2.TensorProto.deviceDetail: object expected");
-                    message.deviceDetail = $root.caffe2.DeviceOption.fromObject(object.deviceDetail);
+                if (object.device_detail != null) {
+                    if (typeof object.device_detail !== "object")
+                        throw TypeError(".caffe2.TensorProto.device_detail: object expected");
+                    message.device_detail = $root.caffe2.DeviceOption.fromObject(object.device_detail);
                 }
                 if (object.segment != null) {
                     if (typeof object.segment !== "object")
@@ -352,23 +352,23 @@
                 var object = {};
                 if (options.arrays || options.defaults) {
                     object.dims = [];
-                    object.floatData = [];
-                    object.int32Data = [];
-                    object.stringData = [];
-                    object.doubleData = [];
-                    object.int64Data = [];
+                    object.float_data = [];
+                    object.int32_data = [];
+                    object.string_data = [];
+                    object.double_data = [];
+                    object.int64_data = [];
                 }
                 if (options.defaults) {
-                    object.dataType = options.enums === String ? "FLOAT" : 1;
+                    object.data_type = options.enums === String ? "FLOAT" : 1;
                     if (options.bytes === String)
-                        object.byteData = "";
+                        object.byte_data = "";
                     else {
-                        object.byteData = [];
+                        object.byte_data = [];
                         if (options.bytes !== Array)
-                            object.byteData = $util.newBuffer(object.byteData);
+                            object.byte_data = $util.newBuffer(object.byte_data);
                     }
                     object.name = "";
-                    object.deviceDetail = null;
+                    object.device_detail = null;
                     object.segment = null;
                 }
                 if (message.dims && message.dims.length) {
@@ -379,41 +379,41 @@
                         else
                             object.dims[j] = options.longs === String ? $util.Long.prototype.toString.call(message.dims[j]) : options.longs === Number ? new $util.LongBits(message.dims[j].low >>> 0, message.dims[j].high >>> 0).toNumber() : message.dims[j];
                 }
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    object.dataType = options.enums === String ? $root.caffe2.TensorProto.DataType[message.dataType] : message.dataType;
-                if (message.floatData && message.floatData.length) {
-                    object.floatData = [];
-                    for (var j = 0; j < message.floatData.length; ++j)
-                        object.floatData[j] = options.json && !isFinite(message.floatData[j]) ? String(message.floatData[j]) : message.floatData[j];
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    object.data_type = options.enums === String ? $root.caffe2.TensorProto.DataType[message.data_type] : message.data_type;
+                if (message.float_data && message.float_data.length) {
+                    object.float_data = [];
+                    for (var j = 0; j < message.float_data.length; ++j)
+                        object.float_data[j] = options.json && !isFinite(message.float_data[j]) ? String(message.float_data[j]) : message.float_data[j];
                 }
-                if (message.int32Data && message.int32Data.length) {
-                    object.int32Data = [];
-                    for (var j = 0; j < message.int32Data.length; ++j)
-                        object.int32Data[j] = message.int32Data[j];
+                if (message.int32_data && message.int32_data.length) {
+                    object.int32_data = [];
+                    for (var j = 0; j < message.int32_data.length; ++j)
+                        object.int32_data[j] = message.int32_data[j];
                 }
-                if (message.byteData != null && message.hasOwnProperty("byteData"))
-                    object.byteData = options.bytes === String ? $util.base64.encode(message.byteData, 0, message.byteData.length) : options.bytes === Array ? Array.prototype.slice.call(message.byteData) : message.byteData;
-                if (message.stringData && message.stringData.length) {
-                    object.stringData = [];
-                    for (var j = 0; j < message.stringData.length; ++j)
-                        object.stringData[j] = options.bytes === String ? $util.base64.encode(message.stringData[j], 0, message.stringData[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.stringData[j]) : message.stringData[j];
+                if (message.byte_data != null && message.hasOwnProperty("byte_data"))
+                    object.byte_data = options.bytes === String ? $util.base64.encode(message.byte_data, 0, message.byte_data.length) : options.bytes === Array ? Array.prototype.slice.call(message.byte_data) : message.byte_data;
+                if (message.string_data && message.string_data.length) {
+                    object.string_data = [];
+                    for (var j = 0; j < message.string_data.length; ++j)
+                        object.string_data[j] = options.bytes === String ? $util.base64.encode(message.string_data[j], 0, message.string_data[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.string_data[j]) : message.string_data[j];
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.deviceDetail != null && message.hasOwnProperty("deviceDetail"))
-                    object.deviceDetail = $root.caffe2.DeviceOption.toObject(message.deviceDetail, options);
-                if (message.doubleData && message.doubleData.length) {
-                    object.doubleData = [];
-                    for (var j = 0; j < message.doubleData.length; ++j)
-                        object.doubleData[j] = options.json && !isFinite(message.doubleData[j]) ? String(message.doubleData[j]) : message.doubleData[j];
+                if (message.device_detail != null && message.hasOwnProperty("device_detail"))
+                    object.device_detail = $root.caffe2.DeviceOption.toObject(message.device_detail, options);
+                if (message.double_data && message.double_data.length) {
+                    object.double_data = [];
+                    for (var j = 0; j < message.double_data.length; ++j)
+                        object.double_data[j] = options.json && !isFinite(message.double_data[j]) ? String(message.double_data[j]) : message.double_data[j];
                 }
-                if (message.int64Data && message.int64Data.length) {
-                    object.int64Data = [];
-                    for (var j = 0; j < message.int64Data.length; ++j)
-                        if (typeof message.int64Data[j] === "number")
-                            object.int64Data[j] = options.longs === String ? String(message.int64Data[j]) : message.int64Data[j];
+                if (message.int64_data && message.int64_data.length) {
+                    object.int64_data = [];
+                    for (var j = 0; j < message.int64_data.length; ++j)
+                        if (typeof message.int64_data[j] === "number")
+                            object.int64_data[j] = options.longs === String ? String(message.int64_data[j]) : message.int64_data[j];
                         else
-                            object.int64Data[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64Data[j]) : options.longs === Number ? new $util.LongBits(message.int64Data[j].low >>> 0, message.int64Data[j].high >>> 0).toNumber() : message.int64Data[j];
+                            object.int64_data[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64_data[j]) : options.longs === Number ? new $util.LongBits(message.int64_data[j].low >>> 0, message.int64_data[j].high >>> 0).toNumber() : message.int64_data[j];
                 }
                 if (message.segment != null && message.hasOwnProperty("segment"))
                     object.segment = $root.caffe2.TensorProto.Segment.toObject(message.segment, options);
@@ -572,10 +572,10 @@
             QTensorProto.prototype.precision = 0;
             QTensorProto.prototype.scale = 0;
             QTensorProto.prototype.bias = 0;
-            QTensorProto.prototype.isSigned = false;
+            QTensorProto.prototype.is_signed = false;
             QTensorProto.prototype.data = $util.emptyArray;
             QTensorProto.prototype.name = "";
-            QTensorProto.prototype.dataType = 2;
+            QTensorProto.prototype.data_type = 2;
     
             QTensorProto.create = function create(properties) {
                 return new QTensorProto(properties);
@@ -608,7 +608,7 @@
                         message.bias = reader.double();
                         break;
                     case 5:
-                        message.isSigned = reader.bool();
+                        message.is_signed = reader.bool();
                         break;
                     case 6:
                         if (!(message.data && message.data.length))
@@ -624,7 +624,7 @@
                         message.name = reader.string();
                         break;
                     case 8:
-                        message.dataType = reader.int32();
+                        message.data_type = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -637,8 +637,8 @@
                     throw $util.ProtocolError("missing required 'scale'", { instance: message });
                 if (!message.hasOwnProperty("bias"))
                     throw $util.ProtocolError("missing required 'bias'", { instance: message });
-                if (!message.hasOwnProperty("isSigned"))
-                    throw $util.ProtocolError("missing required 'isSigned'", { instance: message });
+                if (!message.hasOwnProperty("is_signed"))
+                    throw $util.ProtocolError("missing required 'is_signed'", { instance: message });
                 return message;
             };
     
@@ -658,8 +658,8 @@
                     return "scale: number expected";
                 if (typeof message.bias !== "number")
                     return "bias: number expected";
-                if (typeof message.isSigned !== "boolean")
-                    return "isSigned: boolean expected";
+                if (typeof message.is_signed !== "boolean")
+                    return "is_signed: boolean expected";
                 if (message.data != null && message.hasOwnProperty("data")) {
                     if (!Array.isArray(message.data))
                         return "data: array expected";
@@ -670,10 +670,10 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    switch (message.dataType) {
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    switch (message.data_type) {
                     default:
-                        return "dataType: enum value expected";
+                        return "data_type: enum value expected";
                     case 0:
                     case 1:
                     case 2:
@@ -716,8 +716,8 @@
                     message.scale = Number(object.scale);
                 if (object.bias != null)
                     message.bias = Number(object.bias);
-                if (object.isSigned != null)
-                    message.isSigned = Boolean(object.isSigned);
+                if (object.is_signed != null)
+                    message.is_signed = Boolean(object.is_signed);
                 if (object.data) {
                     if (!Array.isArray(object.data))
                         throw TypeError(".caffe2.QTensorProto.data: array expected");
@@ -727,58 +727,58 @@
                 }
                 if (object.name != null)
                     message.name = String(object.name);
-                switch (object.dataType) {
+                switch (object.data_type) {
                 case "UNDEFINED":
                 case 0:
-                    message.dataType = 0;
+                    message.data_type = 0;
                     break;
                 case "FLOAT":
                 case 1:
-                    message.dataType = 1;
+                    message.data_type = 1;
                     break;
                 case "INT32":
                 case 2:
-                    message.dataType = 2;
+                    message.data_type = 2;
                     break;
                 case "BYTE":
                 case 3:
-                    message.dataType = 3;
+                    message.data_type = 3;
                     break;
                 case "STRING":
                 case 4:
-                    message.dataType = 4;
+                    message.data_type = 4;
                     break;
                 case "BOOL":
                 case 5:
-                    message.dataType = 5;
+                    message.data_type = 5;
                     break;
                 case "UINT8":
                 case 6:
-                    message.dataType = 6;
+                    message.data_type = 6;
                     break;
                 case "INT8":
                 case 7:
-                    message.dataType = 7;
+                    message.data_type = 7;
                     break;
                 case "UINT16":
                 case 8:
-                    message.dataType = 8;
+                    message.data_type = 8;
                     break;
                 case "INT16":
                 case 9:
-                    message.dataType = 9;
+                    message.data_type = 9;
                     break;
                 case "INT64":
                 case 10:
-                    message.dataType = 10;
+                    message.data_type = 10;
                     break;
                 case "FLOAT16":
                 case 12:
-                    message.dataType = 12;
+                    message.data_type = 12;
                     break;
                 case "DOUBLE":
                 case 13:
-                    message.dataType = 13;
+                    message.data_type = 13;
                     break;
                 }
                 return message;
@@ -796,9 +796,9 @@
                     object.precision = 0;
                     object.scale = 0;
                     object.bias = 0;
-                    object.isSigned = false;
+                    object.is_signed = false;
                     object.name = "";
-                    object.dataType = options.enums === String ? "INT32" : 2;
+                    object.data_type = options.enums === String ? "INT32" : 2;
                 }
                 if (message.dims && message.dims.length) {
                     object.dims = [];
@@ -814,8 +814,8 @@
                     object.scale = options.json && !isFinite(message.scale) ? String(message.scale) : message.scale;
                 if (message.bias != null && message.hasOwnProperty("bias"))
                     object.bias = options.json && !isFinite(message.bias) ? String(message.bias) : message.bias;
-                if (message.isSigned != null && message.hasOwnProperty("isSigned"))
-                    object.isSigned = message.isSigned;
+                if (message.is_signed != null && message.hasOwnProperty("is_signed"))
+                    object.is_signed = message.is_signed;
                 if (message.data && message.data.length) {
                     object.data = [];
                     for (var j = 0; j < message.data.length; ++j)
@@ -823,8 +823,8 @@
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    object.dataType = options.enums === String ? $root.caffe2.TensorProto.DataType[message.dataType] : message.dataType;
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    object.data_type = options.enums === String ? $root.caffe2.TensorProto.DataType[message.data_type] : message.data_type;
                 return object;
             };
     
@@ -928,7 +928,7 @@
     
             function TensorShape(properties) {
                 this.dims = [];
-                this.unknownDims = [];
+                this.unknown_dims = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -936,9 +936,9 @@
             }
     
             TensorShape.prototype.dims = $util.emptyArray;
-            TensorShape.prototype.dataType = 1;
-            TensorShape.prototype.unknownDims = $util.emptyArray;
-            TensorShape.prototype.unknownShape = false;
+            TensorShape.prototype.data_type = 1;
+            TensorShape.prototype.unknown_dims = $util.emptyArray;
+            TensorShape.prototype.unknown_shape = false;
             TensorShape.prototype.name = "";
     
             TensorShape.create = function create(properties) {
@@ -963,20 +963,20 @@
                             message.dims.push(reader.int64());
                         break;
                     case 2:
-                        message.dataType = reader.int32();
+                        message.data_type = reader.int32();
                         break;
                     case 3:
-                        if (!(message.unknownDims && message.unknownDims.length))
-                            message.unknownDims = [];
+                        if (!(message.unknown_dims && message.unknown_dims.length))
+                            message.unknown_dims = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.unknownDims.push(reader.int32());
+                                message.unknown_dims.push(reader.int32());
                         } else
-                            message.unknownDims.push(reader.int32());
+                            message.unknown_dims.push(reader.int32());
                         break;
                     case 4:
-                        message.unknownShape = reader.bool();
+                        message.unknown_shape = reader.bool();
                         break;
                     case 5:
                         message.name = reader.string();
@@ -999,10 +999,10 @@
                         if (!$util.isInteger(message.dims[i]) && !(message.dims[i] && $util.isInteger(message.dims[i].low) && $util.isInteger(message.dims[i].high)))
                             return "dims: integer|Long[] expected";
                 }
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    switch (message.dataType) {
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    switch (message.data_type) {
                     default:
-                        return "dataType: enum value expected";
+                        return "data_type: enum value expected";
                     case 0:
                     case 1:
                     case 2:
@@ -1018,16 +1018,16 @@
                     case 13:
                         break;
                     }
-                if (message.unknownDims != null && message.hasOwnProperty("unknownDims")) {
-                    if (!Array.isArray(message.unknownDims))
-                        return "unknownDims: array expected";
-                    for (var i = 0; i < message.unknownDims.length; ++i)
-                        if (!$util.isInteger(message.unknownDims[i]))
-                            return "unknownDims: integer[] expected";
+                if (message.unknown_dims != null && message.hasOwnProperty("unknown_dims")) {
+                    if (!Array.isArray(message.unknown_dims))
+                        return "unknown_dims: array expected";
+                    for (var i = 0; i < message.unknown_dims.length; ++i)
+                        if (!$util.isInteger(message.unknown_dims[i]))
+                            return "unknown_dims: integer[] expected";
                 }
-                if (message.unknownShape != null && message.hasOwnProperty("unknownShape"))
-                    if (typeof message.unknownShape !== "boolean")
-                        return "unknownShape: boolean expected";
+                if (message.unknown_shape != null && message.hasOwnProperty("unknown_shape"))
+                    if (typeof message.unknown_shape !== "boolean")
+                        return "unknown_shape: boolean expected";
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
@@ -1052,69 +1052,69 @@
                         else if (typeof object.dims[i] === "object")
                             message.dims[i] = new $util.LongBits(object.dims[i].low >>> 0, object.dims[i].high >>> 0).toNumber();
                 }
-                switch (object.dataType) {
+                switch (object.data_type) {
                 case "UNDEFINED":
                 case 0:
-                    message.dataType = 0;
+                    message.data_type = 0;
                     break;
                 case "FLOAT":
                 case 1:
-                    message.dataType = 1;
+                    message.data_type = 1;
                     break;
                 case "INT32":
                 case 2:
-                    message.dataType = 2;
+                    message.data_type = 2;
                     break;
                 case "BYTE":
                 case 3:
-                    message.dataType = 3;
+                    message.data_type = 3;
                     break;
                 case "STRING":
                 case 4:
-                    message.dataType = 4;
+                    message.data_type = 4;
                     break;
                 case "BOOL":
                 case 5:
-                    message.dataType = 5;
+                    message.data_type = 5;
                     break;
                 case "UINT8":
                 case 6:
-                    message.dataType = 6;
+                    message.data_type = 6;
                     break;
                 case "INT8":
                 case 7:
-                    message.dataType = 7;
+                    message.data_type = 7;
                     break;
                 case "UINT16":
                 case 8:
-                    message.dataType = 8;
+                    message.data_type = 8;
                     break;
                 case "INT16":
                 case 9:
-                    message.dataType = 9;
+                    message.data_type = 9;
                     break;
                 case "INT64":
                 case 10:
-                    message.dataType = 10;
+                    message.data_type = 10;
                     break;
                 case "FLOAT16":
                 case 12:
-                    message.dataType = 12;
+                    message.data_type = 12;
                     break;
                 case "DOUBLE":
                 case 13:
-                    message.dataType = 13;
+                    message.data_type = 13;
                     break;
                 }
-                if (object.unknownDims) {
-                    if (!Array.isArray(object.unknownDims))
-                        throw TypeError(".caffe2.TensorShape.unknownDims: array expected");
-                    message.unknownDims = [];
-                    for (var i = 0; i < object.unknownDims.length; ++i)
-                        message.unknownDims[i] = object.unknownDims[i] | 0;
+                if (object.unknown_dims) {
+                    if (!Array.isArray(object.unknown_dims))
+                        throw TypeError(".caffe2.TensorShape.unknown_dims: array expected");
+                    message.unknown_dims = [];
+                    for (var i = 0; i < object.unknown_dims.length; ++i)
+                        message.unknown_dims[i] = object.unknown_dims[i] | 0;
                 }
-                if (object.unknownShape != null)
-                    message.unknownShape = Boolean(object.unknownShape);
+                if (object.unknown_shape != null)
+                    message.unknown_shape = Boolean(object.unknown_shape);
                 if (object.name != null)
                     message.name = String(object.name);
                 return message;
@@ -1126,11 +1126,11 @@
                 var object = {};
                 if (options.arrays || options.defaults) {
                     object.dims = [];
-                    object.unknownDims = [];
+                    object.unknown_dims = [];
                 }
                 if (options.defaults) {
-                    object.dataType = options.enums === String ? "FLOAT" : 1;
-                    object.unknownShape = false;
+                    object.data_type = options.enums === String ? "FLOAT" : 1;
+                    object.unknown_shape = false;
                     object.name = "";
                 }
                 if (message.dims && message.dims.length) {
@@ -1141,15 +1141,15 @@
                         else
                             object.dims[j] = options.longs === String ? $util.Long.prototype.toString.call(message.dims[j]) : options.longs === Number ? new $util.LongBits(message.dims[j].low >>> 0, message.dims[j].high >>> 0).toNumber() : message.dims[j];
                 }
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    object.dataType = options.enums === String ? $root.caffe2.TensorProto.DataType[message.dataType] : message.dataType;
-                if (message.unknownDims && message.unknownDims.length) {
-                    object.unknownDims = [];
-                    for (var j = 0; j < message.unknownDims.length; ++j)
-                        object.unknownDims[j] = message.unknownDims[j];
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    object.data_type = options.enums === String ? $root.caffe2.TensorProto.DataType[message.data_type] : message.data_type;
+                if (message.unknown_dims && message.unknown_dims.length) {
+                    object.unknown_dims = [];
+                    for (var j = 0; j < message.unknown_dims.length; ++j)
+                        object.unknown_dims[j] = message.unknown_dims[j];
                 }
-                if (message.unknownShape != null && message.hasOwnProperty("unknownShape"))
-                    object.unknownShape = message.unknownShape;
+                if (message.unknown_shape != null && message.hasOwnProperty("unknown_shape"))
+                    object.unknown_shape = message.unknown_shape;
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
                 return object;
@@ -1574,20 +1574,20 @@
         caffe2.DeviceOption = (function() {
     
             function DeviceOption(properties) {
-                this.extraInfo = [];
+                this.extra_info = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            DeviceOption.prototype.deviceType = 0;
-            DeviceOption.prototype.cudaGpuId = 0;
-            DeviceOption.prototype.randomSeed = 0;
-            DeviceOption.prototype.nodeName = "";
-            DeviceOption.prototype.numaNodeId = 0;
-            DeviceOption.prototype.extraInfo = $util.emptyArray;
-            DeviceOption.prototype.hipGpuId = 0;
+            DeviceOption.prototype.device_type = 0;
+            DeviceOption.prototype.cuda_gpu_id = 0;
+            DeviceOption.prototype.random_seed = 0;
+            DeviceOption.prototype.node_name = "";
+            DeviceOption.prototype.numa_node_id = 0;
+            DeviceOption.prototype.extra_info = $util.emptyArray;
+            DeviceOption.prototype.hip_gpu_id = 0;
     
             DeviceOption.create = function create(properties) {
                 return new DeviceOption(properties);
@@ -1601,27 +1601,27 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.deviceType = reader.int32();
+                        message.device_type = reader.int32();
                         break;
                     case 2:
-                        message.cudaGpuId = reader.int32();
+                        message.cuda_gpu_id = reader.int32();
                         break;
                     case 3:
-                        message.randomSeed = reader.uint32();
+                        message.random_seed = reader.uint32();
                         break;
                     case 4:
-                        message.nodeName = reader.string();
+                        message.node_name = reader.string();
                         break;
                     case 5:
-                        message.numaNodeId = reader.int32();
+                        message.numa_node_id = reader.int32();
                         break;
                     case 6:
-                        if (!(message.extraInfo && message.extraInfo.length))
-                            message.extraInfo = [];
-                        message.extraInfo.push(reader.string());
+                        if (!(message.extra_info && message.extra_info.length))
+                            message.extra_info = [];
+                        message.extra_info.push(reader.string());
                         break;
                     case 7:
-                        message.hipGpuId = reader.int32();
+                        message.hip_gpu_id = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1634,31 +1634,31 @@
             DeviceOption.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.deviceType != null && message.hasOwnProperty("deviceType"))
-                    if (!$util.isInteger(message.deviceType))
-                        return "deviceType: integer expected";
-                if (message.cudaGpuId != null && message.hasOwnProperty("cudaGpuId"))
-                    if (!$util.isInteger(message.cudaGpuId))
-                        return "cudaGpuId: integer expected";
-                if (message.randomSeed != null && message.hasOwnProperty("randomSeed"))
-                    if (!$util.isInteger(message.randomSeed))
-                        return "randomSeed: integer expected";
-                if (message.nodeName != null && message.hasOwnProperty("nodeName"))
-                    if (!$util.isString(message.nodeName))
-                        return "nodeName: string expected";
-                if (message.numaNodeId != null && message.hasOwnProperty("numaNodeId"))
-                    if (!$util.isInteger(message.numaNodeId))
-                        return "numaNodeId: integer expected";
-                if (message.extraInfo != null && message.hasOwnProperty("extraInfo")) {
-                    if (!Array.isArray(message.extraInfo))
-                        return "extraInfo: array expected";
-                    for (var i = 0; i < message.extraInfo.length; ++i)
-                        if (!$util.isString(message.extraInfo[i]))
-                            return "extraInfo: string[] expected";
+                if (message.device_type != null && message.hasOwnProperty("device_type"))
+                    if (!$util.isInteger(message.device_type))
+                        return "device_type: integer expected";
+                if (message.cuda_gpu_id != null && message.hasOwnProperty("cuda_gpu_id"))
+                    if (!$util.isInteger(message.cuda_gpu_id))
+                        return "cuda_gpu_id: integer expected";
+                if (message.random_seed != null && message.hasOwnProperty("random_seed"))
+                    if (!$util.isInteger(message.random_seed))
+                        return "random_seed: integer expected";
+                if (message.node_name != null && message.hasOwnProperty("node_name"))
+                    if (!$util.isString(message.node_name))
+                        return "node_name: string expected";
+                if (message.numa_node_id != null && message.hasOwnProperty("numa_node_id"))
+                    if (!$util.isInteger(message.numa_node_id))
+                        return "numa_node_id: integer expected";
+                if (message.extra_info != null && message.hasOwnProperty("extra_info")) {
+                    if (!Array.isArray(message.extra_info))
+                        return "extra_info: array expected";
+                    for (var i = 0; i < message.extra_info.length; ++i)
+                        if (!$util.isString(message.extra_info[i]))
+                            return "extra_info: string[] expected";
                 }
-                if (message.hipGpuId != null && message.hasOwnProperty("hipGpuId"))
-                    if (!$util.isInteger(message.hipGpuId))
-                        return "hipGpuId: integer expected";
+                if (message.hip_gpu_id != null && message.hasOwnProperty("hip_gpu_id"))
+                    if (!$util.isInteger(message.hip_gpu_id))
+                        return "hip_gpu_id: integer expected";
                 return null;
             };
     
@@ -1666,25 +1666,25 @@
                 if (object instanceof $root.caffe2.DeviceOption)
                     return object;
                 var message = new $root.caffe2.DeviceOption();
-                if (object.deviceType != null)
-                    message.deviceType = object.deviceType | 0;
-                if (object.cudaGpuId != null)
-                    message.cudaGpuId = object.cudaGpuId | 0;
-                if (object.randomSeed != null)
-                    message.randomSeed = object.randomSeed >>> 0;
-                if (object.nodeName != null)
-                    message.nodeName = String(object.nodeName);
-                if (object.numaNodeId != null)
-                    message.numaNodeId = object.numaNodeId | 0;
-                if (object.extraInfo) {
-                    if (!Array.isArray(object.extraInfo))
-                        throw TypeError(".caffe2.DeviceOption.extraInfo: array expected");
-                    message.extraInfo = [];
-                    for (var i = 0; i < object.extraInfo.length; ++i)
-                        message.extraInfo[i] = String(object.extraInfo[i]);
+                if (object.device_type != null)
+                    message.device_type = object.device_type | 0;
+                if (object.cuda_gpu_id != null)
+                    message.cuda_gpu_id = object.cuda_gpu_id | 0;
+                if (object.random_seed != null)
+                    message.random_seed = object.random_seed >>> 0;
+                if (object.node_name != null)
+                    message.node_name = String(object.node_name);
+                if (object.numa_node_id != null)
+                    message.numa_node_id = object.numa_node_id | 0;
+                if (object.extra_info) {
+                    if (!Array.isArray(object.extra_info))
+                        throw TypeError(".caffe2.DeviceOption.extra_info: array expected");
+                    message.extra_info = [];
+                    for (var i = 0; i < object.extra_info.length; ++i)
+                        message.extra_info[i] = String(object.extra_info[i]);
                 }
-                if (object.hipGpuId != null)
-                    message.hipGpuId = object.hipGpuId | 0;
+                if (object.hip_gpu_id != null)
+                    message.hip_gpu_id = object.hip_gpu_id | 0;
                 return message;
             };
     
@@ -1693,32 +1693,32 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.extraInfo = [];
+                    object.extra_info = [];
                 if (options.defaults) {
-                    object.deviceType = 0;
-                    object.cudaGpuId = 0;
-                    object.randomSeed = 0;
-                    object.nodeName = "";
-                    object.numaNodeId = 0;
-                    object.hipGpuId = 0;
+                    object.device_type = 0;
+                    object.cuda_gpu_id = 0;
+                    object.random_seed = 0;
+                    object.node_name = "";
+                    object.numa_node_id = 0;
+                    object.hip_gpu_id = 0;
                 }
-                if (message.deviceType != null && message.hasOwnProperty("deviceType"))
-                    object.deviceType = message.deviceType;
-                if (message.cudaGpuId != null && message.hasOwnProperty("cudaGpuId"))
-                    object.cudaGpuId = message.cudaGpuId;
-                if (message.randomSeed != null && message.hasOwnProperty("randomSeed"))
-                    object.randomSeed = message.randomSeed;
-                if (message.nodeName != null && message.hasOwnProperty("nodeName"))
-                    object.nodeName = message.nodeName;
-                if (message.numaNodeId != null && message.hasOwnProperty("numaNodeId"))
-                    object.numaNodeId = message.numaNodeId;
-                if (message.extraInfo && message.extraInfo.length) {
-                    object.extraInfo = [];
-                    for (var j = 0; j < message.extraInfo.length; ++j)
-                        object.extraInfo[j] = message.extraInfo[j];
+                if (message.device_type != null && message.hasOwnProperty("device_type"))
+                    object.device_type = message.device_type;
+                if (message.cuda_gpu_id != null && message.hasOwnProperty("cuda_gpu_id"))
+                    object.cuda_gpu_id = message.cuda_gpu_id;
+                if (message.random_seed != null && message.hasOwnProperty("random_seed"))
+                    object.random_seed = message.random_seed;
+                if (message.node_name != null && message.hasOwnProperty("node_name"))
+                    object.node_name = message.node_name;
+                if (message.numa_node_id != null && message.hasOwnProperty("numa_node_id"))
+                    object.numa_node_id = message.numa_node_id;
+                if (message.extra_info && message.extra_info.length) {
+                    object.extra_info = [];
+                    for (var j = 0; j < message.extra_info.length; ++j)
+                        object.extra_info[j] = message.extra_info[j];
                 }
-                if (message.hipGpuId != null && message.hasOwnProperty("hipGpuId"))
-                    object.hipGpuId = message.hipGpuId;
+                if (message.hip_gpu_id != null && message.hasOwnProperty("hip_gpu_id"))
+                    object.hip_gpu_id = message.hip_gpu_id;
                 return object;
             };
     
@@ -1735,7 +1735,7 @@
                 this.input = [];
                 this.output = [];
                 this.arg = [];
-                this.controlInput = [];
+                this.control_input = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -1747,11 +1747,11 @@
             OperatorDef.prototype.name = "";
             OperatorDef.prototype.type = "";
             OperatorDef.prototype.arg = $util.emptyArray;
-            OperatorDef.prototype.deviceOption = null;
+            OperatorDef.prototype.device_option = null;
             OperatorDef.prototype.engine = "";
-            OperatorDef.prototype.controlInput = $util.emptyArray;
-            OperatorDef.prototype.isGradientOp = false;
-            OperatorDef.prototype.debugInfo = "";
+            OperatorDef.prototype.control_input = $util.emptyArray;
+            OperatorDef.prototype.is_gradient_op = false;
+            OperatorDef.prototype.debug_info = "";
     
             OperatorDef.create = function create(properties) {
                 return new OperatorDef(properties);
@@ -1786,21 +1786,21 @@
                         message.arg.push($root.caffe2.Argument.decode(reader, reader.uint32()));
                         break;
                     case 6:
-                        message.deviceOption = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
+                        message.device_option = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
                         break;
                     case 7:
                         message.engine = reader.string();
                         break;
                     case 8:
-                        if (!(message.controlInput && message.controlInput.length))
-                            message.controlInput = [];
-                        message.controlInput.push(reader.string());
+                        if (!(message.control_input && message.control_input.length))
+                            message.control_input = [];
+                        message.control_input.push(reader.string());
                         break;
                     case 9:
-                        message.isGradientOp = reader.bool();
+                        message.is_gradient_op = reader.bool();
                         break;
                     case 10:
-                        message.debugInfo = reader.string();
+                        message.debug_info = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1842,27 +1842,27 @@
                             return "arg." + error;
                     }
                 }
-                if (message.deviceOption != null && message.hasOwnProperty("deviceOption")) {
-                    var error = $root.caffe2.DeviceOption.verify(message.deviceOption);
+                if (message.device_option != null && message.hasOwnProperty("device_option")) {
+                    var error = $root.caffe2.DeviceOption.verify(message.device_option);
                     if (error)
-                        return "deviceOption." + error;
+                        return "device_option." + error;
                 }
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     if (!$util.isString(message.engine))
                         return "engine: string expected";
-                if (message.controlInput != null && message.hasOwnProperty("controlInput")) {
-                    if (!Array.isArray(message.controlInput))
-                        return "controlInput: array expected";
-                    for (var i = 0; i < message.controlInput.length; ++i)
-                        if (!$util.isString(message.controlInput[i]))
-                            return "controlInput: string[] expected";
+                if (message.control_input != null && message.hasOwnProperty("control_input")) {
+                    if (!Array.isArray(message.control_input))
+                        return "control_input: array expected";
+                    for (var i = 0; i < message.control_input.length; ++i)
+                        if (!$util.isString(message.control_input[i]))
+                            return "control_input: string[] expected";
                 }
-                if (message.isGradientOp != null && message.hasOwnProperty("isGradientOp"))
-                    if (typeof message.isGradientOp !== "boolean")
-                        return "isGradientOp: boolean expected";
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    if (!$util.isString(message.debugInfo))
-                        return "debugInfo: string expected";
+                if (message.is_gradient_op != null && message.hasOwnProperty("is_gradient_op"))
+                    if (typeof message.is_gradient_op !== "boolean")
+                        return "is_gradient_op: boolean expected";
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    if (!$util.isString(message.debug_info))
+                        return "debug_info: string expected";
                 return null;
             };
     
@@ -1898,24 +1898,24 @@
                         message.arg[i] = $root.caffe2.Argument.fromObject(object.arg[i]);
                     }
                 }
-                if (object.deviceOption != null) {
-                    if (typeof object.deviceOption !== "object")
-                        throw TypeError(".caffe2.OperatorDef.deviceOption: object expected");
-                    message.deviceOption = $root.caffe2.DeviceOption.fromObject(object.deviceOption);
+                if (object.device_option != null) {
+                    if (typeof object.device_option !== "object")
+                        throw TypeError(".caffe2.OperatorDef.device_option: object expected");
+                    message.device_option = $root.caffe2.DeviceOption.fromObject(object.device_option);
                 }
                 if (object.engine != null)
                     message.engine = String(object.engine);
-                if (object.controlInput) {
-                    if (!Array.isArray(object.controlInput))
-                        throw TypeError(".caffe2.OperatorDef.controlInput: array expected");
-                    message.controlInput = [];
-                    for (var i = 0; i < object.controlInput.length; ++i)
-                        message.controlInput[i] = String(object.controlInput[i]);
+                if (object.control_input) {
+                    if (!Array.isArray(object.control_input))
+                        throw TypeError(".caffe2.OperatorDef.control_input: array expected");
+                    message.control_input = [];
+                    for (var i = 0; i < object.control_input.length; ++i)
+                        message.control_input[i] = String(object.control_input[i]);
                 }
-                if (object.isGradientOp != null)
-                    message.isGradientOp = Boolean(object.isGradientOp);
-                if (object.debugInfo != null)
-                    message.debugInfo = String(object.debugInfo);
+                if (object.is_gradient_op != null)
+                    message.is_gradient_op = Boolean(object.is_gradient_op);
+                if (object.debug_info != null)
+                    message.debug_info = String(object.debug_info);
                 return message;
             };
     
@@ -1927,15 +1927,15 @@
                     object.input = [];
                     object.output = [];
                     object.arg = [];
-                    object.controlInput = [];
+                    object.control_input = [];
                 }
                 if (options.defaults) {
                     object.name = "";
                     object.type = "";
-                    object.deviceOption = null;
+                    object.device_option = null;
                     object.engine = "";
-                    object.isGradientOp = false;
-                    object.debugInfo = "";
+                    object.is_gradient_op = false;
+                    object.debug_info = "";
                 }
                 if (message.input && message.input.length) {
                     object.input = [];
@@ -1956,19 +1956,19 @@
                     for (var j = 0; j < message.arg.length; ++j)
                         object.arg[j] = $root.caffe2.Argument.toObject(message.arg[j], options);
                 }
-                if (message.deviceOption != null && message.hasOwnProperty("deviceOption"))
-                    object.deviceOption = $root.caffe2.DeviceOption.toObject(message.deviceOption, options);
+                if (message.device_option != null && message.hasOwnProperty("device_option"))
+                    object.device_option = $root.caffe2.DeviceOption.toObject(message.device_option, options);
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     object.engine = message.engine;
-                if (message.controlInput && message.controlInput.length) {
-                    object.controlInput = [];
-                    for (var j = 0; j < message.controlInput.length; ++j)
-                        object.controlInput[j] = message.controlInput[j];
+                if (message.control_input && message.control_input.length) {
+                    object.control_input = [];
+                    for (var j = 0; j < message.control_input.length; ++j)
+                        object.control_input[j] = message.control_input[j];
                 }
-                if (message.isGradientOp != null && message.hasOwnProperty("isGradientOp"))
-                    object.isGradientOp = message.isGradientOp;
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    object.debugInfo = message.debugInfo;
+                if (message.is_gradient_op != null && message.hasOwnProperty("is_gradient_op"))
+                    object.is_gradient_op = message.is_gradient_op;
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    object.debug_info = message.debug_info;
                 return object;
             };
     
@@ -1984,8 +1984,8 @@
             function NetDef(properties) {
                 this.op = [];
                 this.arg = [];
-                this.externalInput = [];
-                this.externalOutput = [];
+                this.external_input = [];
+                this.external_output = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -1995,11 +1995,11 @@
             NetDef.prototype.name = "";
             NetDef.prototype.op = $util.emptyArray;
             NetDef.prototype.type = "";
-            NetDef.prototype.numWorkers = 0;
-            NetDef.prototype.deviceOption = null;
+            NetDef.prototype.num_workers = 0;
+            NetDef.prototype.device_option = null;
             NetDef.prototype.arg = $util.emptyArray;
-            NetDef.prototype.externalInput = $util.emptyArray;
-            NetDef.prototype.externalOutput = $util.emptyArray;
+            NetDef.prototype.external_input = $util.emptyArray;
+            NetDef.prototype.external_output = $util.emptyArray;
     
             NetDef.create = function create(properties) {
                 return new NetDef(properties);
@@ -2024,10 +2024,10 @@
                         message.type = reader.string();
                         break;
                     case 4:
-                        message.numWorkers = reader.int32();
+                        message.num_workers = reader.int32();
                         break;
                     case 5:
-                        message.deviceOption = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
+                        message.device_option = $root.caffe2.DeviceOption.decode(reader, reader.uint32());
                         break;
                     case 6:
                         if (!(message.arg && message.arg.length))
@@ -2035,14 +2035,14 @@
                         message.arg.push($root.caffe2.Argument.decode(reader, reader.uint32()));
                         break;
                     case 7:
-                        if (!(message.externalInput && message.externalInput.length))
-                            message.externalInput = [];
-                        message.externalInput.push(reader.string());
+                        if (!(message.external_input && message.external_input.length))
+                            message.external_input = [];
+                        message.external_input.push(reader.string());
                         break;
                     case 8:
-                        if (!(message.externalOutput && message.externalOutput.length))
-                            message.externalOutput = [];
-                        message.externalOutput.push(reader.string());
+                        if (!(message.external_output && message.external_output.length))
+                            message.external_output = [];
+                        message.external_output.push(reader.string());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2070,13 +2070,13 @@
                 if (message.type != null && message.hasOwnProperty("type"))
                     if (!$util.isString(message.type))
                         return "type: string expected";
-                if (message.numWorkers != null && message.hasOwnProperty("numWorkers"))
-                    if (!$util.isInteger(message.numWorkers))
-                        return "numWorkers: integer expected";
-                if (message.deviceOption != null && message.hasOwnProperty("deviceOption")) {
-                    var error = $root.caffe2.DeviceOption.verify(message.deviceOption);
+                if (message.num_workers != null && message.hasOwnProperty("num_workers"))
+                    if (!$util.isInteger(message.num_workers))
+                        return "num_workers: integer expected";
+                if (message.device_option != null && message.hasOwnProperty("device_option")) {
+                    var error = $root.caffe2.DeviceOption.verify(message.device_option);
                     if (error)
-                        return "deviceOption." + error;
+                        return "device_option." + error;
                 }
                 if (message.arg != null && message.hasOwnProperty("arg")) {
                     if (!Array.isArray(message.arg))
@@ -2087,19 +2087,19 @@
                             return "arg." + error;
                     }
                 }
-                if (message.externalInput != null && message.hasOwnProperty("externalInput")) {
-                    if (!Array.isArray(message.externalInput))
-                        return "externalInput: array expected";
-                    for (var i = 0; i < message.externalInput.length; ++i)
-                        if (!$util.isString(message.externalInput[i]))
-                            return "externalInput: string[] expected";
+                if (message.external_input != null && message.hasOwnProperty("external_input")) {
+                    if (!Array.isArray(message.external_input))
+                        return "external_input: array expected";
+                    for (var i = 0; i < message.external_input.length; ++i)
+                        if (!$util.isString(message.external_input[i]))
+                            return "external_input: string[] expected";
                 }
-                if (message.externalOutput != null && message.hasOwnProperty("externalOutput")) {
-                    if (!Array.isArray(message.externalOutput))
-                        return "externalOutput: array expected";
-                    for (var i = 0; i < message.externalOutput.length; ++i)
-                        if (!$util.isString(message.externalOutput[i]))
-                            return "externalOutput: string[] expected";
+                if (message.external_output != null && message.hasOwnProperty("external_output")) {
+                    if (!Array.isArray(message.external_output))
+                        return "external_output: array expected";
+                    for (var i = 0; i < message.external_output.length; ++i)
+                        if (!$util.isString(message.external_output[i]))
+                            return "external_output: string[] expected";
                 }
                 return null;
             };
@@ -2122,12 +2122,12 @@
                 }
                 if (object.type != null)
                     message.type = String(object.type);
-                if (object.numWorkers != null)
-                    message.numWorkers = object.numWorkers | 0;
-                if (object.deviceOption != null) {
-                    if (typeof object.deviceOption !== "object")
-                        throw TypeError(".caffe2.NetDef.deviceOption: object expected");
-                    message.deviceOption = $root.caffe2.DeviceOption.fromObject(object.deviceOption);
+                if (object.num_workers != null)
+                    message.num_workers = object.num_workers | 0;
+                if (object.device_option != null) {
+                    if (typeof object.device_option !== "object")
+                        throw TypeError(".caffe2.NetDef.device_option: object expected");
+                    message.device_option = $root.caffe2.DeviceOption.fromObject(object.device_option);
                 }
                 if (object.arg) {
                     if (!Array.isArray(object.arg))
@@ -2139,19 +2139,19 @@
                         message.arg[i] = $root.caffe2.Argument.fromObject(object.arg[i]);
                     }
                 }
-                if (object.externalInput) {
-                    if (!Array.isArray(object.externalInput))
-                        throw TypeError(".caffe2.NetDef.externalInput: array expected");
-                    message.externalInput = [];
-                    for (var i = 0; i < object.externalInput.length; ++i)
-                        message.externalInput[i] = String(object.externalInput[i]);
+                if (object.external_input) {
+                    if (!Array.isArray(object.external_input))
+                        throw TypeError(".caffe2.NetDef.external_input: array expected");
+                    message.external_input = [];
+                    for (var i = 0; i < object.external_input.length; ++i)
+                        message.external_input[i] = String(object.external_input[i]);
                 }
-                if (object.externalOutput) {
-                    if (!Array.isArray(object.externalOutput))
-                        throw TypeError(".caffe2.NetDef.externalOutput: array expected");
-                    message.externalOutput = [];
-                    for (var i = 0; i < object.externalOutput.length; ++i)
-                        message.externalOutput[i] = String(object.externalOutput[i]);
+                if (object.external_output) {
+                    if (!Array.isArray(object.external_output))
+                        throw TypeError(".caffe2.NetDef.external_output: array expected");
+                    message.external_output = [];
+                    for (var i = 0; i < object.external_output.length; ++i)
+                        message.external_output[i] = String(object.external_output[i]);
                 }
                 return message;
             };
@@ -2163,14 +2163,14 @@
                 if (options.arrays || options.defaults) {
                     object.op = [];
                     object.arg = [];
-                    object.externalInput = [];
-                    object.externalOutput = [];
+                    object.external_input = [];
+                    object.external_output = [];
                 }
                 if (options.defaults) {
                     object.name = "";
                     object.type = "";
-                    object.numWorkers = 0;
-                    object.deviceOption = null;
+                    object.num_workers = 0;
+                    object.device_option = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -2181,24 +2181,24 @@
                 }
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = message.type;
-                if (message.numWorkers != null && message.hasOwnProperty("numWorkers"))
-                    object.numWorkers = message.numWorkers;
-                if (message.deviceOption != null && message.hasOwnProperty("deviceOption"))
-                    object.deviceOption = $root.caffe2.DeviceOption.toObject(message.deviceOption, options);
+                if (message.num_workers != null && message.hasOwnProperty("num_workers"))
+                    object.num_workers = message.num_workers;
+                if (message.device_option != null && message.hasOwnProperty("device_option"))
+                    object.device_option = $root.caffe2.DeviceOption.toObject(message.device_option, options);
                 if (message.arg && message.arg.length) {
                     object.arg = [];
                     for (var j = 0; j < message.arg.length; ++j)
                         object.arg[j] = $root.caffe2.Argument.toObject(message.arg[j], options);
                 }
-                if (message.externalInput && message.externalInput.length) {
-                    object.externalInput = [];
-                    for (var j = 0; j < message.externalInput.length; ++j)
-                        object.externalInput[j] = message.externalInput[j];
+                if (message.external_input && message.external_input.length) {
+                    object.external_input = [];
+                    for (var j = 0; j < message.external_input.length; ++j)
+                        object.external_input[j] = message.external_input[j];
                 }
-                if (message.externalOutput && message.externalOutput.length) {
-                    object.externalOutput = [];
-                    for (var j = 0; j < message.externalOutput.length; ++j)
-                        object.externalOutput[j] = message.externalOutput[j];
+                if (message.external_output && message.external_output.length) {
+                    object.external_output = [];
+                    for (var j = 0; j < message.external_output.length; ++j)
+                        object.external_output[j] = message.external_output[j];
                 }
                 return object;
             };
@@ -2224,16 +2224,16 @@
             ExecutionStep.prototype.name = "";
             ExecutionStep.prototype.substep = $util.emptyArray;
             ExecutionStep.prototype.network = $util.emptyArray;
-            ExecutionStep.prototype.numIter = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-            ExecutionStep.prototype.criteriaNetwork = "";
-            ExecutionStep.prototype.reportNet = "";
-            ExecutionStep.prototype.reportInterval = 0;
-            ExecutionStep.prototype.runEveryMs = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-            ExecutionStep.prototype.concurrentSubsteps = false;
-            ExecutionStep.prototype.shouldStopBlob = "";
-            ExecutionStep.prototype.onlyOnce = false;
-            ExecutionStep.prototype.createWorkspace = false;
-            ExecutionStep.prototype.numConcurrentInstances = 0;
+            ExecutionStep.prototype.num_iter = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            ExecutionStep.prototype.criteria_network = "";
+            ExecutionStep.prototype.report_net = "";
+            ExecutionStep.prototype.report_interval = 0;
+            ExecutionStep.prototype.run_every_ms = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            ExecutionStep.prototype.concurrent_substeps = false;
+            ExecutionStep.prototype.should_stop_blob = "";
+            ExecutionStep.prototype.only_once = false;
+            ExecutionStep.prototype.create_workspace = false;
+            ExecutionStep.prototype.num_concurrent_instances = 0;
     
             ExecutionStep.create = function create(properties) {
                 return new ExecutionStep(properties);
@@ -2260,34 +2260,34 @@
                         message.network.push(reader.string());
                         break;
                     case 4:
-                        message.numIter = reader.int64();
+                        message.num_iter = reader.int64();
                         break;
                     case 5:
-                        message.criteriaNetwork = reader.string();
+                        message.criteria_network = reader.string();
                         break;
                     case 7:
-                        message.reportNet = reader.string();
+                        message.report_net = reader.string();
                         break;
                     case 8:
-                        message.reportInterval = reader.int32();
+                        message.report_interval = reader.int32();
                         break;
                     case 11:
-                        message.runEveryMs = reader.int64();
+                        message.run_every_ms = reader.int64();
                         break;
                     case 6:
-                        message.concurrentSubsteps = reader.bool();
+                        message.concurrent_substeps = reader.bool();
                         break;
                     case 9:
-                        message.shouldStopBlob = reader.string();
+                        message.should_stop_blob = reader.string();
                         break;
                     case 10:
-                        message.onlyOnce = reader.bool();
+                        message.only_once = reader.bool();
                         break;
                     case 12:
-                        message.createWorkspace = reader.bool();
+                        message.create_workspace = reader.bool();
                         break;
                     case 13:
-                        message.numConcurrentInstances = reader.int32();
+                        message.num_concurrent_instances = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2319,36 +2319,36 @@
                         if (!$util.isString(message.network[i]))
                             return "network: string[] expected";
                 }
-                if (message.numIter != null && message.hasOwnProperty("numIter"))
-                    if (!$util.isInteger(message.numIter) && !(message.numIter && $util.isInteger(message.numIter.low) && $util.isInteger(message.numIter.high)))
-                        return "numIter: integer|Long expected";
-                if (message.criteriaNetwork != null && message.hasOwnProperty("criteriaNetwork"))
-                    if (!$util.isString(message.criteriaNetwork))
-                        return "criteriaNetwork: string expected";
-                if (message.reportNet != null && message.hasOwnProperty("reportNet"))
-                    if (!$util.isString(message.reportNet))
-                        return "reportNet: string expected";
-                if (message.reportInterval != null && message.hasOwnProperty("reportInterval"))
-                    if (!$util.isInteger(message.reportInterval))
-                        return "reportInterval: integer expected";
-                if (message.runEveryMs != null && message.hasOwnProperty("runEveryMs"))
-                    if (!$util.isInteger(message.runEveryMs) && !(message.runEveryMs && $util.isInteger(message.runEveryMs.low) && $util.isInteger(message.runEveryMs.high)))
-                        return "runEveryMs: integer|Long expected";
-                if (message.concurrentSubsteps != null && message.hasOwnProperty("concurrentSubsteps"))
-                    if (typeof message.concurrentSubsteps !== "boolean")
-                        return "concurrentSubsteps: boolean expected";
-                if (message.shouldStopBlob != null && message.hasOwnProperty("shouldStopBlob"))
-                    if (!$util.isString(message.shouldStopBlob))
-                        return "shouldStopBlob: string expected";
-                if (message.onlyOnce != null && message.hasOwnProperty("onlyOnce"))
-                    if (typeof message.onlyOnce !== "boolean")
-                        return "onlyOnce: boolean expected";
-                if (message.createWorkspace != null && message.hasOwnProperty("createWorkspace"))
-                    if (typeof message.createWorkspace !== "boolean")
-                        return "createWorkspace: boolean expected";
-                if (message.numConcurrentInstances != null && message.hasOwnProperty("numConcurrentInstances"))
-                    if (!$util.isInteger(message.numConcurrentInstances))
-                        return "numConcurrentInstances: integer expected";
+                if (message.num_iter != null && message.hasOwnProperty("num_iter"))
+                    if (!$util.isInteger(message.num_iter) && !(message.num_iter && $util.isInteger(message.num_iter.low) && $util.isInteger(message.num_iter.high)))
+                        return "num_iter: integer|Long expected";
+                if (message.criteria_network != null && message.hasOwnProperty("criteria_network"))
+                    if (!$util.isString(message.criteria_network))
+                        return "criteria_network: string expected";
+                if (message.report_net != null && message.hasOwnProperty("report_net"))
+                    if (!$util.isString(message.report_net))
+                        return "report_net: string expected";
+                if (message.report_interval != null && message.hasOwnProperty("report_interval"))
+                    if (!$util.isInteger(message.report_interval))
+                        return "report_interval: integer expected";
+                if (message.run_every_ms != null && message.hasOwnProperty("run_every_ms"))
+                    if (!$util.isInteger(message.run_every_ms) && !(message.run_every_ms && $util.isInteger(message.run_every_ms.low) && $util.isInteger(message.run_every_ms.high)))
+                        return "run_every_ms: integer|Long expected";
+                if (message.concurrent_substeps != null && message.hasOwnProperty("concurrent_substeps"))
+                    if (typeof message.concurrent_substeps !== "boolean")
+                        return "concurrent_substeps: boolean expected";
+                if (message.should_stop_blob != null && message.hasOwnProperty("should_stop_blob"))
+                    if (!$util.isString(message.should_stop_blob))
+                        return "should_stop_blob: string expected";
+                if (message.only_once != null && message.hasOwnProperty("only_once"))
+                    if (typeof message.only_once !== "boolean")
+                        return "only_once: boolean expected";
+                if (message.create_workspace != null && message.hasOwnProperty("create_workspace"))
+                    if (typeof message.create_workspace !== "boolean")
+                        return "create_workspace: boolean expected";
+                if (message.num_concurrent_instances != null && message.hasOwnProperty("num_concurrent_instances"))
+                    if (!$util.isInteger(message.num_concurrent_instances))
+                        return "num_concurrent_instances: integer expected";
                 return null;
             };
     
@@ -2375,40 +2375,40 @@
                     for (var i = 0; i < object.network.length; ++i)
                         message.network[i] = String(object.network[i]);
                 }
-                if (object.numIter != null)
+                if (object.num_iter != null)
                     if ($util.Long)
-                        (message.numIter = $util.Long.fromValue(object.numIter)).unsigned = false;
-                    else if (typeof object.numIter === "string")
-                        message.numIter = parseInt(object.numIter, 10);
-                    else if (typeof object.numIter === "number")
-                        message.numIter = object.numIter;
-                    else if (typeof object.numIter === "object")
-                        message.numIter = new $util.LongBits(object.numIter.low >>> 0, object.numIter.high >>> 0).toNumber();
-                if (object.criteriaNetwork != null)
-                    message.criteriaNetwork = String(object.criteriaNetwork);
-                if (object.reportNet != null)
-                    message.reportNet = String(object.reportNet);
-                if (object.reportInterval != null)
-                    message.reportInterval = object.reportInterval | 0;
-                if (object.runEveryMs != null)
+                        (message.num_iter = $util.Long.fromValue(object.num_iter)).unsigned = false;
+                    else if (typeof object.num_iter === "string")
+                        message.num_iter = parseInt(object.num_iter, 10);
+                    else if (typeof object.num_iter === "number")
+                        message.num_iter = object.num_iter;
+                    else if (typeof object.num_iter === "object")
+                        message.num_iter = new $util.LongBits(object.num_iter.low >>> 0, object.num_iter.high >>> 0).toNumber();
+                if (object.criteria_network != null)
+                    message.criteria_network = String(object.criteria_network);
+                if (object.report_net != null)
+                    message.report_net = String(object.report_net);
+                if (object.report_interval != null)
+                    message.report_interval = object.report_interval | 0;
+                if (object.run_every_ms != null)
                     if ($util.Long)
-                        (message.runEveryMs = $util.Long.fromValue(object.runEveryMs)).unsigned = false;
-                    else if (typeof object.runEveryMs === "string")
-                        message.runEveryMs = parseInt(object.runEveryMs, 10);
-                    else if (typeof object.runEveryMs === "number")
-                        message.runEveryMs = object.runEveryMs;
-                    else if (typeof object.runEveryMs === "object")
-                        message.runEveryMs = new $util.LongBits(object.runEveryMs.low >>> 0, object.runEveryMs.high >>> 0).toNumber();
-                if (object.concurrentSubsteps != null)
-                    message.concurrentSubsteps = Boolean(object.concurrentSubsteps);
-                if (object.shouldStopBlob != null)
-                    message.shouldStopBlob = String(object.shouldStopBlob);
-                if (object.onlyOnce != null)
-                    message.onlyOnce = Boolean(object.onlyOnce);
-                if (object.createWorkspace != null)
-                    message.createWorkspace = Boolean(object.createWorkspace);
-                if (object.numConcurrentInstances != null)
-                    message.numConcurrentInstances = object.numConcurrentInstances | 0;
+                        (message.run_every_ms = $util.Long.fromValue(object.run_every_ms)).unsigned = false;
+                    else if (typeof object.run_every_ms === "string")
+                        message.run_every_ms = parseInt(object.run_every_ms, 10);
+                    else if (typeof object.run_every_ms === "number")
+                        message.run_every_ms = object.run_every_ms;
+                    else if (typeof object.run_every_ms === "object")
+                        message.run_every_ms = new $util.LongBits(object.run_every_ms.low >>> 0, object.run_every_ms.high >>> 0).toNumber();
+                if (object.concurrent_substeps != null)
+                    message.concurrent_substeps = Boolean(object.concurrent_substeps);
+                if (object.should_stop_blob != null)
+                    message.should_stop_blob = String(object.should_stop_blob);
+                if (object.only_once != null)
+                    message.only_once = Boolean(object.only_once);
+                if (object.create_workspace != null)
+                    message.create_workspace = Boolean(object.create_workspace);
+                if (object.num_concurrent_instances != null)
+                    message.num_concurrent_instances = object.num_concurrent_instances | 0;
                 return message;
             };
     
@@ -2424,22 +2424,22 @@
                     object.name = "";
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.numIter = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.num_iter = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.numIter = options.longs === String ? "0" : 0;
-                    object.criteriaNetwork = "";
-                    object.concurrentSubsteps = false;
-                    object.reportNet = "";
-                    object.reportInterval = 0;
-                    object.shouldStopBlob = "";
-                    object.onlyOnce = false;
+                        object.num_iter = options.longs === String ? "0" : 0;
+                    object.criteria_network = "";
+                    object.concurrent_substeps = false;
+                    object.report_net = "";
+                    object.report_interval = 0;
+                    object.should_stop_blob = "";
+                    object.only_once = false;
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.runEveryMs = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.run_every_ms = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.runEveryMs = options.longs === String ? "0" : 0;
-                    object.createWorkspace = false;
-                    object.numConcurrentInstances = 0;
+                        object.run_every_ms = options.longs === String ? "0" : 0;
+                    object.create_workspace = false;
+                    object.num_concurrent_instances = 0;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -2453,32 +2453,32 @@
                     for (var j = 0; j < message.network.length; ++j)
                         object.network[j] = message.network[j];
                 }
-                if (message.numIter != null && message.hasOwnProperty("numIter"))
-                    if (typeof message.numIter === "number")
-                        object.numIter = options.longs === String ? String(message.numIter) : message.numIter;
+                if (message.num_iter != null && message.hasOwnProperty("num_iter"))
+                    if (typeof message.num_iter === "number")
+                        object.num_iter = options.longs === String ? String(message.num_iter) : message.num_iter;
                     else
-                        object.numIter = options.longs === String ? $util.Long.prototype.toString.call(message.numIter) : options.longs === Number ? new $util.LongBits(message.numIter.low >>> 0, message.numIter.high >>> 0).toNumber() : message.numIter;
-                if (message.criteriaNetwork != null && message.hasOwnProperty("criteriaNetwork"))
-                    object.criteriaNetwork = message.criteriaNetwork;
-                if (message.concurrentSubsteps != null && message.hasOwnProperty("concurrentSubsteps"))
-                    object.concurrentSubsteps = message.concurrentSubsteps;
-                if (message.reportNet != null && message.hasOwnProperty("reportNet"))
-                    object.reportNet = message.reportNet;
-                if (message.reportInterval != null && message.hasOwnProperty("reportInterval"))
-                    object.reportInterval = message.reportInterval;
-                if (message.shouldStopBlob != null && message.hasOwnProperty("shouldStopBlob"))
-                    object.shouldStopBlob = message.shouldStopBlob;
-                if (message.onlyOnce != null && message.hasOwnProperty("onlyOnce"))
-                    object.onlyOnce = message.onlyOnce;
-                if (message.runEveryMs != null && message.hasOwnProperty("runEveryMs"))
-                    if (typeof message.runEveryMs === "number")
-                        object.runEveryMs = options.longs === String ? String(message.runEveryMs) : message.runEveryMs;
+                        object.num_iter = options.longs === String ? $util.Long.prototype.toString.call(message.num_iter) : options.longs === Number ? new $util.LongBits(message.num_iter.low >>> 0, message.num_iter.high >>> 0).toNumber() : message.num_iter;
+                if (message.criteria_network != null && message.hasOwnProperty("criteria_network"))
+                    object.criteria_network = message.criteria_network;
+                if (message.concurrent_substeps != null && message.hasOwnProperty("concurrent_substeps"))
+                    object.concurrent_substeps = message.concurrent_substeps;
+                if (message.report_net != null && message.hasOwnProperty("report_net"))
+                    object.report_net = message.report_net;
+                if (message.report_interval != null && message.hasOwnProperty("report_interval"))
+                    object.report_interval = message.report_interval;
+                if (message.should_stop_blob != null && message.hasOwnProperty("should_stop_blob"))
+                    object.should_stop_blob = message.should_stop_blob;
+                if (message.only_once != null && message.hasOwnProperty("only_once"))
+                    object.only_once = message.only_once;
+                if (message.run_every_ms != null && message.hasOwnProperty("run_every_ms"))
+                    if (typeof message.run_every_ms === "number")
+                        object.run_every_ms = options.longs === String ? String(message.run_every_ms) : message.run_every_ms;
                     else
-                        object.runEveryMs = options.longs === String ? $util.Long.prototype.toString.call(message.runEveryMs) : options.longs === Number ? new $util.LongBits(message.runEveryMs.low >>> 0, message.runEveryMs.high >>> 0).toNumber() : message.runEveryMs;
-                if (message.createWorkspace != null && message.hasOwnProperty("createWorkspace"))
-                    object.createWorkspace = message.createWorkspace;
-                if (message.numConcurrentInstances != null && message.hasOwnProperty("numConcurrentInstances"))
-                    object.numConcurrentInstances = message.numConcurrentInstances;
+                        object.run_every_ms = options.longs === String ? $util.Long.prototype.toString.call(message.run_every_ms) : options.longs === Number ? new $util.LongBits(message.run_every_ms.low >>> 0, message.run_every_ms.high >>> 0).toNumber() : message.run_every_ms;
+                if (message.create_workspace != null && message.hasOwnProperty("create_workspace"))
+                    object.create_workspace = message.create_workspace;
+                if (message.num_concurrent_instances != null && message.hasOwnProperty("num_concurrent_instances"))
+                    object.num_concurrent_instances = message.num_concurrent_instances;
                 return object;
             };
     
@@ -2493,7 +2493,7 @@
     
             function PlanDef(properties) {
                 this.network = [];
-                this.executionStep = [];
+                this.execution_step = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -2502,7 +2502,7 @@
     
             PlanDef.prototype.name = "";
             PlanDef.prototype.network = $util.emptyArray;
-            PlanDef.prototype.executionStep = $util.emptyArray;
+            PlanDef.prototype.execution_step = $util.emptyArray;
     
             PlanDef.create = function create(properties) {
                 return new PlanDef(properties);
@@ -2524,9 +2524,9 @@
                         message.network.push($root.caffe2.NetDef.decode(reader, reader.uint32()));
                         break;
                     case 3:
-                        if (!(message.executionStep && message.executionStep.length))
-                            message.executionStep = [];
-                        message.executionStep.push($root.caffe2.ExecutionStep.decode(reader, reader.uint32()));
+                        if (!(message.execution_step && message.execution_step.length))
+                            message.execution_step = [];
+                        message.execution_step.push($root.caffe2.ExecutionStep.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2551,13 +2551,13 @@
                             return "network." + error;
                     }
                 }
-                if (message.executionStep != null && message.hasOwnProperty("executionStep")) {
-                    if (!Array.isArray(message.executionStep))
-                        return "executionStep: array expected";
-                    for (var i = 0; i < message.executionStep.length; ++i) {
-                        var error = $root.caffe2.ExecutionStep.verify(message.executionStep[i]);
+                if (message.execution_step != null && message.hasOwnProperty("execution_step")) {
+                    if (!Array.isArray(message.execution_step))
+                        return "execution_step: array expected";
+                    for (var i = 0; i < message.execution_step.length; ++i) {
+                        var error = $root.caffe2.ExecutionStep.verify(message.execution_step[i]);
                         if (error)
-                            return "executionStep." + error;
+                            return "execution_step." + error;
                     }
                 }
                 return null;
@@ -2579,14 +2579,14 @@
                         message.network[i] = $root.caffe2.NetDef.fromObject(object.network[i]);
                     }
                 }
-                if (object.executionStep) {
-                    if (!Array.isArray(object.executionStep))
-                        throw TypeError(".caffe2.PlanDef.executionStep: array expected");
-                    message.executionStep = [];
-                    for (var i = 0; i < object.executionStep.length; ++i) {
-                        if (typeof object.executionStep[i] !== "object")
-                            throw TypeError(".caffe2.PlanDef.executionStep: object expected");
-                        message.executionStep[i] = $root.caffe2.ExecutionStep.fromObject(object.executionStep[i]);
+                if (object.execution_step) {
+                    if (!Array.isArray(object.execution_step))
+                        throw TypeError(".caffe2.PlanDef.execution_step: array expected");
+                    message.execution_step = [];
+                    for (var i = 0; i < object.execution_step.length; ++i) {
+                        if (typeof object.execution_step[i] !== "object")
+                            throw TypeError(".caffe2.PlanDef.execution_step: object expected");
+                        message.execution_step[i] = $root.caffe2.ExecutionStep.fromObject(object.execution_step[i]);
                     }
                 }
                 return message;
@@ -2598,7 +2598,7 @@
                 var object = {};
                 if (options.arrays || options.defaults) {
                     object.network = [];
-                    object.executionStep = [];
+                    object.execution_step = [];
                 }
                 if (options.defaults)
                     object.name = "";
@@ -2609,10 +2609,10 @@
                     for (var j = 0; j < message.network.length; ++j)
                         object.network[j] = $root.caffe2.NetDef.toObject(message.network[j], options);
                 }
-                if (message.executionStep && message.executionStep.length) {
-                    object.executionStep = [];
-                    for (var j = 0; j < message.executionStep.length; ++j)
-                        object.executionStep[j] = $root.caffe2.ExecutionStep.toObject(message.executionStep[j], options);
+                if (message.execution_step && message.execution_step.length) {
+                    object.execution_step = [];
+                    for (var j = 0; j < message.execution_step.length; ++j)
+                        object.execution_step[j] = $root.caffe2.ExecutionStep.toObject(message.execution_step[j], options);
                 }
                 return object;
             };
@@ -2638,8 +2638,8 @@
             BlobProto.prototype.tensor = null;
             BlobProto.prototype.content = $util.newBuffer([]);
             BlobProto.prototype.qtensor = null;
-            BlobProto.prototype.contentNumChunks = 0;
-            BlobProto.prototype.contentChunkId = 0;
+            BlobProto.prototype.content_num_chunks = 0;
+            BlobProto.prototype.content_chunk_id = 0;
     
             BlobProto.create = function create(properties) {
                 return new BlobProto(properties);
@@ -2668,10 +2668,10 @@
                         message.qtensor = $root.caffe2.QTensorProto.decode(reader, reader.uint32());
                         break;
                     case 6:
-                        message.contentNumChunks = reader.int32();
+                        message.content_num_chunks = reader.int32();
                         break;
                     case 7:
-                        message.contentChunkId = reader.int32();
+                        message.content_chunk_id = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2703,12 +2703,12 @@
                     if (error)
                         return "qtensor." + error;
                 }
-                if (message.contentNumChunks != null && message.hasOwnProperty("contentNumChunks"))
-                    if (!$util.isInteger(message.contentNumChunks))
-                        return "contentNumChunks: integer expected";
-                if (message.contentChunkId != null && message.hasOwnProperty("contentChunkId"))
-                    if (!$util.isInteger(message.contentChunkId))
-                        return "contentChunkId: integer expected";
+                if (message.content_num_chunks != null && message.hasOwnProperty("content_num_chunks"))
+                    if (!$util.isInteger(message.content_num_chunks))
+                        return "content_num_chunks: integer expected";
+                if (message.content_chunk_id != null && message.hasOwnProperty("content_chunk_id"))
+                    if (!$util.isInteger(message.content_chunk_id))
+                        return "content_chunk_id: integer expected";
                 return null;
             };
     
@@ -2735,10 +2735,10 @@
                         throw TypeError(".caffe2.BlobProto.qtensor: object expected");
                     message.qtensor = $root.caffe2.QTensorProto.fromObject(object.qtensor);
                 }
-                if (object.contentNumChunks != null)
-                    message.contentNumChunks = object.contentNumChunks | 0;
-                if (object.contentChunkId != null)
-                    message.contentChunkId = object.contentChunkId | 0;
+                if (object.content_num_chunks != null)
+                    message.content_num_chunks = object.content_num_chunks | 0;
+                if (object.content_chunk_id != null)
+                    message.content_chunk_id = object.content_chunk_id | 0;
                 return message;
             };
     
@@ -2758,8 +2758,8 @@
                             object.content = $util.newBuffer(object.content);
                     }
                     object.qtensor = null;
-                    object.contentNumChunks = 0;
-                    object.contentChunkId = 0;
+                    object.content_num_chunks = 0;
+                    object.content_chunk_id = 0;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -2771,10 +2771,10 @@
                     object.content = options.bytes === String ? $util.base64.encode(message.content, 0, message.content.length) : options.bytes === Array ? Array.prototype.slice.call(message.content) : message.content;
                 if (message.qtensor != null && message.hasOwnProperty("qtensor"))
                     object.qtensor = $root.caffe2.QTensorProto.toObject(message.qtensor, options);
-                if (message.contentNumChunks != null && message.hasOwnProperty("contentNumChunks"))
-                    object.contentNumChunks = message.contentNumChunks;
-                if (message.contentChunkId != null && message.hasOwnProperty("contentChunkId"))
-                    object.contentChunkId = message.contentChunkId;
+                if (message.content_num_chunks != null && message.hasOwnProperty("content_num_chunks"))
+                    object.content_num_chunks = message.content_num_chunks;
+                if (message.content_chunk_id != null && message.hasOwnProperty("content_chunk_id"))
+                    object.content_chunk_id = message.content_chunk_id;
                 return object;
             };
     
@@ -2796,7 +2796,7 @@
     
             DBReaderProto.prototype.name = "";
             DBReaderProto.prototype.source = "";
-            DBReaderProto.prototype.dbType = "";
+            DBReaderProto.prototype.db_type = "";
             DBReaderProto.prototype.key = "";
     
             DBReaderProto.create = function create(properties) {
@@ -2817,7 +2817,7 @@
                         message.source = reader.string();
                         break;
                     case 3:
-                        message.dbType = reader.string();
+                        message.db_type = reader.string();
                         break;
                     case 4:
                         message.key = reader.string();
@@ -2839,9 +2839,9 @@
                 if (message.source != null && message.hasOwnProperty("source"))
                     if (!$util.isString(message.source))
                         return "source: string expected";
-                if (message.dbType != null && message.hasOwnProperty("dbType"))
-                    if (!$util.isString(message.dbType))
-                        return "dbType: string expected";
+                if (message.db_type != null && message.hasOwnProperty("db_type"))
+                    if (!$util.isString(message.db_type))
+                        return "db_type: string expected";
                 if (message.key != null && message.hasOwnProperty("key"))
                     if (!$util.isString(message.key))
                         return "key: string expected";
@@ -2856,8 +2856,8 @@
                     message.name = String(object.name);
                 if (object.source != null)
                     message.source = String(object.source);
-                if (object.dbType != null)
-                    message.dbType = String(object.dbType);
+                if (object.db_type != null)
+                    message.db_type = String(object.db_type);
                 if (object.key != null)
                     message.key = String(object.key);
                 return message;
@@ -2870,15 +2870,15 @@
                 if (options.defaults) {
                     object.name = "";
                     object.source = "";
-                    object.dbType = "";
+                    object.db_type = "";
                     object.key = "";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
                 if (message.source != null && message.hasOwnProperty("source"))
                     object.source = message.source;
-                if (message.dbType != null && message.hasOwnProperty("dbType"))
-                    object.dbType = message.dbType;
+                if (message.db_type != null && message.hasOwnProperty("db_type"))
+                    object.db_type = message.db_type;
                 if (message.key != null && message.hasOwnProperty("key"))
                     object.key = message.key;
                 return object;

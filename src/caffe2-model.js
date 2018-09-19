@@ -79,7 +79,7 @@ class Caffe2Graph {
         this._operators = {};
 
         var initializers = {};
-        netDef.externalInput.forEach((input) => {
+        netDef.external_input.forEach((input) => {
             initializers[input] = {};
         });
         if (init) {
@@ -119,7 +119,7 @@ class Caffe2Graph {
         });
 
         this._outputs = [];
-        netDef.externalOutput.forEach((output) => {
+        netDef.external_output.forEach((output) => {
             this._outputs.push(new Caffe2Argument(output, [ new Caffe2Connection(output, null, null) ]));
         });
     }
