@@ -56204,8 +56204,23 @@
         },
         {
           "description": "A scalar representing the number of elements to accumulate in a window.",
-          "name": "window_size",
+          "name": "size",
           "type": 9
+        },
+        {
+          "description": "A scalar representing the steps moving the sliding window forward in one\niteration. It must be positive.",
+          "name": "shift",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing the stride of the input elements of the sliding window.\nIt must be positive.",
+          "name": "stride",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing whether a window should be dropped in case its size is\nsmaller than desired.",
+          "name": "drop_remainder",
+          "type": 10
         }
       ],
       "outputs": [
