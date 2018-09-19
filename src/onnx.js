@@ -34,8 +34,8 @@
             }
     
             AttributeProto.prototype.name = "";
-            AttributeProto.prototype.refAttrName = "";
-            AttributeProto.prototype.docString = "";
+            AttributeProto.prototype.ref_attr_name = "";
+            AttributeProto.prototype.doc_string = "";
             AttributeProto.prototype.type = 0;
             AttributeProto.prototype.f = 0;
             AttributeProto.prototype.i = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
@@ -63,10 +63,10 @@
                         message.name = reader.string();
                         break;
                     case 21:
-                        message.refAttrName = reader.string();
+                        message.ref_attr_name = reader.string();
                         break;
                     case 13:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     case 20:
                         message.type = reader.int32();
@@ -135,12 +135,12 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.refAttrName != null && message.hasOwnProperty("refAttrName"))
-                    if (!$util.isString(message.refAttrName))
-                        return "refAttrName: string expected";
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.ref_attr_name != null && message.hasOwnProperty("ref_attr_name"))
+                    if (!$util.isString(message.ref_attr_name))
+                        return "ref_attr_name: string expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 if (message.type != null && message.hasOwnProperty("type"))
                     switch (message.type) {
                     default:
@@ -225,10 +225,10 @@
                 var message = new $root.onnx.AttributeProto();
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.refAttrName != null)
-                    message.refAttrName = String(object.refAttrName);
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                if (object.ref_attr_name != null)
+                    message.ref_attr_name = String(object.ref_attr_name);
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 switch (object.type) {
                 case "UNDEFINED":
                 case 0:
@@ -383,9 +383,9 @@
                     }
                     object.t = null;
                     object.g = null;
-                    object.docString = "";
+                    object.doc_string = "";
                     object.type = options.enums === String ? "UNDEFINED" : 0;
-                    object.refAttrName = "";
+                    object.ref_attr_name = "";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -430,12 +430,12 @@
                     for (var j = 0; j < message.graphs.length; ++j)
                         object.graphs[j] = $root.onnx.GraphProto.toObject(message.graphs[j], options);
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = options.enums === String ? $root.onnx.AttributeProto.AttributeType[message.type] : message.type;
-                if (message.refAttrName != null && message.hasOwnProperty("refAttrName"))
-                    object.refAttrName = message.refAttrName;
+                if (message.ref_attr_name != null && message.hasOwnProperty("ref_attr_name"))
+                    object.ref_attr_name = message.ref_attr_name;
                 return object;
             };
     
@@ -473,7 +473,7 @@
     
             ValueInfoProto.prototype.name = "";
             ValueInfoProto.prototype.type = null;
-            ValueInfoProto.prototype.docString = "";
+            ValueInfoProto.prototype.doc_string = "";
     
             ValueInfoProto.create = function create(properties) {
                 return new ValueInfoProto(properties);
@@ -493,7 +493,7 @@
                         message.type = $root.onnx.TypeProto.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -514,9 +514,9 @@
                     if (error)
                         return "type." + error;
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 return null;
             };
     
@@ -531,8 +531,8 @@
                         throw TypeError(".onnx.ValueInfoProto.type: object expected");
                     message.type = $root.onnx.TypeProto.fromObject(object.type);
                 }
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 return message;
             };
     
@@ -543,14 +543,14 @@
                 if (options.defaults) {
                     object.name = "";
                     object.type = null;
-                    object.docString = "";
+                    object.doc_string = "";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = $root.onnx.TypeProto.toObject(message.type, options);
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 return object;
             };
     
@@ -576,10 +576,10 @@
             NodeProto.prototype.input = $util.emptyArray;
             NodeProto.prototype.output = $util.emptyArray;
             NodeProto.prototype.name = "";
-            NodeProto.prototype.opType = "";
+            NodeProto.prototype.op_type = "";
             NodeProto.prototype.domain = "";
             NodeProto.prototype.attribute = $util.emptyArray;
-            NodeProto.prototype.docString = "";
+            NodeProto.prototype.doc_string = "";
     
             NodeProto.create = function create(properties) {
                 return new NodeProto(properties);
@@ -606,7 +606,7 @@
                         message.name = reader.string();
                         break;
                     case 4:
-                        message.opType = reader.string();
+                        message.op_type = reader.string();
                         break;
                     case 7:
                         message.domain = reader.string();
@@ -617,7 +617,7 @@
                         message.attribute.push($root.onnx.AttributeProto.decode(reader, reader.uint32()));
                         break;
                     case 6:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -647,9 +647,9 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.opType != null && message.hasOwnProperty("opType"))
-                    if (!$util.isString(message.opType))
-                        return "opType: string expected";
+                if (message.op_type != null && message.hasOwnProperty("op_type"))
+                    if (!$util.isString(message.op_type))
+                        return "op_type: string expected";
                 if (message.domain != null && message.hasOwnProperty("domain"))
                     if (!$util.isString(message.domain))
                         return "domain: string expected";
@@ -662,9 +662,9 @@
                             return "attribute." + error;
                     }
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 return null;
             };
     
@@ -688,8 +688,8 @@
                 }
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.opType != null)
-                    message.opType = String(object.opType);
+                if (object.op_type != null)
+                    message.op_type = String(object.op_type);
                 if (object.domain != null)
                     message.domain = String(object.domain);
                 if (object.attribute) {
@@ -702,8 +702,8 @@
                         message.attribute[i] = $root.onnx.AttributeProto.fromObject(object.attribute[i]);
                     }
                 }
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 return message;
             };
     
@@ -718,8 +718,8 @@
                 }
                 if (options.defaults) {
                     object.name = "";
-                    object.opType = "";
-                    object.docString = "";
+                    object.op_type = "";
+                    object.doc_string = "";
                     object.domain = "";
                 }
                 if (message.input && message.input.length) {
@@ -734,15 +734,15 @@
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.opType != null && message.hasOwnProperty("opType"))
-                    object.opType = message.opType;
+                if (message.op_type != null && message.hasOwnProperty("op_type"))
+                    object.op_type = message.op_type;
                 if (message.attribute && message.attribute.length) {
                     object.attribute = [];
                     for (var j = 0; j < message.attribute.length; ++j)
                         object.attribute[j] = $root.onnx.AttributeProto.toObject(message.attribute[j], options);
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 if (message.domain != null && message.hasOwnProperty("domain"))
                     object.domain = message.domain;
                 return object;
@@ -758,23 +758,23 @@
         onnx.ModelProto = (function() {
     
             function ModelProto(properties) {
-                this.opsetImport = [];
-                this.metadataProps = [];
+                this.opset_import = [];
+                this.metadata_props = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            ModelProto.prototype.irVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-            ModelProto.prototype.opsetImport = $util.emptyArray;
-            ModelProto.prototype.producerName = "";
-            ModelProto.prototype.producerVersion = "";
+            ModelProto.prototype.ir_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            ModelProto.prototype.opset_import = $util.emptyArray;
+            ModelProto.prototype.producer_name = "";
+            ModelProto.prototype.producer_version = "";
             ModelProto.prototype.domain = "";
-            ModelProto.prototype.modelVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-            ModelProto.prototype.docString = "";
+            ModelProto.prototype.model_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            ModelProto.prototype.doc_string = "";
             ModelProto.prototype.graph = null;
-            ModelProto.prototype.metadataProps = $util.emptyArray;
+            ModelProto.prototype.metadata_props = $util.emptyArray;
     
             ModelProto.create = function create(properties) {
                 return new ModelProto(properties);
@@ -788,35 +788,35 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.irVersion = reader.int64();
+                        message.ir_version = reader.int64();
                         break;
                     case 8:
-                        if (!(message.opsetImport && message.opsetImport.length))
-                            message.opsetImport = [];
-                        message.opsetImport.push($root.onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
+                        if (!(message.opset_import && message.opset_import.length))
+                            message.opset_import = [];
+                        message.opset_import.push($root.onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
                         break;
                     case 2:
-                        message.producerName = reader.string();
+                        message.producer_name = reader.string();
                         break;
                     case 3:
-                        message.producerVersion = reader.string();
+                        message.producer_version = reader.string();
                         break;
                     case 4:
                         message.domain = reader.string();
                         break;
                     case 5:
-                        message.modelVersion = reader.int64();
+                        message.model_version = reader.int64();
                         break;
                     case 6:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     case 7:
                         message.graph = $root.onnx.GraphProto.decode(reader, reader.uint32());
                         break;
                     case 14:
-                        if (!(message.metadataProps && message.metadataProps.length))
-                            message.metadataProps = [];
-                        message.metadataProps.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
+                        if (!(message.metadata_props && message.metadata_props.length))
+                            message.metadata_props = [];
+                        message.metadata_props.push($root.onnx.StringStringEntryProto.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -829,45 +829,45 @@
             ModelProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
-                    if (!$util.isInteger(message.irVersion) && !(message.irVersion && $util.isInteger(message.irVersion.low) && $util.isInteger(message.irVersion.high)))
-                        return "irVersion: integer|Long expected";
-                if (message.opsetImport != null && message.hasOwnProperty("opsetImport")) {
-                    if (!Array.isArray(message.opsetImport))
-                        return "opsetImport: array expected";
-                    for (var i = 0; i < message.opsetImport.length; ++i) {
-                        var error = $root.onnx.OperatorSetIdProto.verify(message.opsetImport[i]);
+                if (message.ir_version != null && message.hasOwnProperty("ir_version"))
+                    if (!$util.isInteger(message.ir_version) && !(message.ir_version && $util.isInteger(message.ir_version.low) && $util.isInteger(message.ir_version.high)))
+                        return "ir_version: integer|Long expected";
+                if (message.opset_import != null && message.hasOwnProperty("opset_import")) {
+                    if (!Array.isArray(message.opset_import))
+                        return "opset_import: array expected";
+                    for (var i = 0; i < message.opset_import.length; ++i) {
+                        var error = $root.onnx.OperatorSetIdProto.verify(message.opset_import[i]);
                         if (error)
-                            return "opsetImport." + error;
+                            return "opset_import." + error;
                     }
                 }
-                if (message.producerName != null && message.hasOwnProperty("producerName"))
-                    if (!$util.isString(message.producerName))
-                        return "producerName: string expected";
-                if (message.producerVersion != null && message.hasOwnProperty("producerVersion"))
-                    if (!$util.isString(message.producerVersion))
-                        return "producerVersion: string expected";
+                if (message.producer_name != null && message.hasOwnProperty("producer_name"))
+                    if (!$util.isString(message.producer_name))
+                        return "producer_name: string expected";
+                if (message.producer_version != null && message.hasOwnProperty("producer_version"))
+                    if (!$util.isString(message.producer_version))
+                        return "producer_version: string expected";
                 if (message.domain != null && message.hasOwnProperty("domain"))
                     if (!$util.isString(message.domain))
                         return "domain: string expected";
-                if (message.modelVersion != null && message.hasOwnProperty("modelVersion"))
-                    if (!$util.isInteger(message.modelVersion) && !(message.modelVersion && $util.isInteger(message.modelVersion.low) && $util.isInteger(message.modelVersion.high)))
-                        return "modelVersion: integer|Long expected";
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.model_version != null && message.hasOwnProperty("model_version"))
+                    if (!$util.isInteger(message.model_version) && !(message.model_version && $util.isInteger(message.model_version.low) && $util.isInteger(message.model_version.high)))
+                        return "model_version: integer|Long expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 if (message.graph != null && message.hasOwnProperty("graph")) {
                     var error = $root.onnx.GraphProto.verify(message.graph);
                     if (error)
                         return "graph." + error;
                 }
-                if (message.metadataProps != null && message.hasOwnProperty("metadataProps")) {
-                    if (!Array.isArray(message.metadataProps))
-                        return "metadataProps: array expected";
-                    for (var i = 0; i < message.metadataProps.length; ++i) {
-                        var error = $root.onnx.StringStringEntryProto.verify(message.metadataProps[i]);
+                if (message.metadata_props != null && message.hasOwnProperty("metadata_props")) {
+                    if (!Array.isArray(message.metadata_props))
+                        return "metadata_props: array expected";
+                    for (var i = 0; i < message.metadata_props.length; ++i) {
+                        var error = $root.onnx.StringStringEntryProto.verify(message.metadata_props[i]);
                         if (error)
-                            return "metadataProps." + error;
+                            return "metadata_props." + error;
                     }
                 }
                 return null;
@@ -877,55 +877,55 @@
                 if (object instanceof $root.onnx.ModelProto)
                     return object;
                 var message = new $root.onnx.ModelProto();
-                if (object.irVersion != null)
+                if (object.ir_version != null)
                     if ($util.Long)
-                        (message.irVersion = $util.Long.fromValue(object.irVersion)).unsigned = false;
-                    else if (typeof object.irVersion === "string")
-                        message.irVersion = parseInt(object.irVersion, 10);
-                    else if (typeof object.irVersion === "number")
-                        message.irVersion = object.irVersion;
-                    else if (typeof object.irVersion === "object")
-                        message.irVersion = new $util.LongBits(object.irVersion.low >>> 0, object.irVersion.high >>> 0).toNumber();
-                if (object.opsetImport) {
-                    if (!Array.isArray(object.opsetImport))
-                        throw TypeError(".onnx.ModelProto.opsetImport: array expected");
-                    message.opsetImport = [];
-                    for (var i = 0; i < object.opsetImport.length; ++i) {
-                        if (typeof object.opsetImport[i] !== "object")
-                            throw TypeError(".onnx.ModelProto.opsetImport: object expected");
-                        message.opsetImport[i] = $root.onnx.OperatorSetIdProto.fromObject(object.opsetImport[i]);
+                        (message.ir_version = $util.Long.fromValue(object.ir_version)).unsigned = false;
+                    else if (typeof object.ir_version === "string")
+                        message.ir_version = parseInt(object.ir_version, 10);
+                    else if (typeof object.ir_version === "number")
+                        message.ir_version = object.ir_version;
+                    else if (typeof object.ir_version === "object")
+                        message.ir_version = new $util.LongBits(object.ir_version.low >>> 0, object.ir_version.high >>> 0).toNumber();
+                if (object.opset_import) {
+                    if (!Array.isArray(object.opset_import))
+                        throw TypeError(".onnx.ModelProto.opset_import: array expected");
+                    message.opset_import = [];
+                    for (var i = 0; i < object.opset_import.length; ++i) {
+                        if (typeof object.opset_import[i] !== "object")
+                            throw TypeError(".onnx.ModelProto.opset_import: object expected");
+                        message.opset_import[i] = $root.onnx.OperatorSetIdProto.fromObject(object.opset_import[i]);
                     }
                 }
-                if (object.producerName != null)
-                    message.producerName = String(object.producerName);
-                if (object.producerVersion != null)
-                    message.producerVersion = String(object.producerVersion);
+                if (object.producer_name != null)
+                    message.producer_name = String(object.producer_name);
+                if (object.producer_version != null)
+                    message.producer_version = String(object.producer_version);
                 if (object.domain != null)
                     message.domain = String(object.domain);
-                if (object.modelVersion != null)
+                if (object.model_version != null)
                     if ($util.Long)
-                        (message.modelVersion = $util.Long.fromValue(object.modelVersion)).unsigned = false;
-                    else if (typeof object.modelVersion === "string")
-                        message.modelVersion = parseInt(object.modelVersion, 10);
-                    else if (typeof object.modelVersion === "number")
-                        message.modelVersion = object.modelVersion;
-                    else if (typeof object.modelVersion === "object")
-                        message.modelVersion = new $util.LongBits(object.modelVersion.low >>> 0, object.modelVersion.high >>> 0).toNumber();
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                        (message.model_version = $util.Long.fromValue(object.model_version)).unsigned = false;
+                    else if (typeof object.model_version === "string")
+                        message.model_version = parseInt(object.model_version, 10);
+                    else if (typeof object.model_version === "number")
+                        message.model_version = object.model_version;
+                    else if (typeof object.model_version === "object")
+                        message.model_version = new $util.LongBits(object.model_version.low >>> 0, object.model_version.high >>> 0).toNumber();
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 if (object.graph != null) {
                     if (typeof object.graph !== "object")
                         throw TypeError(".onnx.ModelProto.graph: object expected");
                     message.graph = $root.onnx.GraphProto.fromObject(object.graph);
                 }
-                if (object.metadataProps) {
-                    if (!Array.isArray(object.metadataProps))
-                        throw TypeError(".onnx.ModelProto.metadataProps: array expected");
-                    message.metadataProps = [];
-                    for (var i = 0; i < object.metadataProps.length; ++i) {
-                        if (typeof object.metadataProps[i] !== "object")
-                            throw TypeError(".onnx.ModelProto.metadataProps: object expected");
-                        message.metadataProps[i] = $root.onnx.StringStringEntryProto.fromObject(object.metadataProps[i]);
+                if (object.metadata_props) {
+                    if (!Array.isArray(object.metadata_props))
+                        throw TypeError(".onnx.ModelProto.metadata_props: array expected");
+                    message.metadata_props = [];
+                    for (var i = 0; i < object.metadata_props.length; ++i) {
+                        if (typeof object.metadata_props[i] !== "object")
+                            throw TypeError(".onnx.ModelProto.metadata_props: object expected");
+                        message.metadata_props[i] = $root.onnx.StringStringEntryProto.fromObject(object.metadata_props[i]);
                     }
                 }
                 return message;
@@ -936,55 +936,55 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults) {
-                    object.opsetImport = [];
-                    object.metadataProps = [];
+                    object.opset_import = [];
+                    object.metadata_props = [];
                 }
                 if (options.defaults) {
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.irVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.ir_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.irVersion = options.longs === String ? "0" : 0;
-                    object.producerName = "";
-                    object.producerVersion = "";
+                        object.ir_version = options.longs === String ? "0" : 0;
+                    object.producer_name = "";
+                    object.producer_version = "";
                     object.domain = "";
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.modelVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.model_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.modelVersion = options.longs === String ? "0" : 0;
-                    object.docString = "";
+                        object.model_version = options.longs === String ? "0" : 0;
+                    object.doc_string = "";
                     object.graph = null;
                 }
-                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
-                    if (typeof message.irVersion === "number")
-                        object.irVersion = options.longs === String ? String(message.irVersion) : message.irVersion;
+                if (message.ir_version != null && message.hasOwnProperty("ir_version"))
+                    if (typeof message.ir_version === "number")
+                        object.ir_version = options.longs === String ? String(message.ir_version) : message.ir_version;
                     else
-                        object.irVersion = options.longs === String ? $util.Long.prototype.toString.call(message.irVersion) : options.longs === Number ? new $util.LongBits(message.irVersion.low >>> 0, message.irVersion.high >>> 0).toNumber() : message.irVersion;
-                if (message.producerName != null && message.hasOwnProperty("producerName"))
-                    object.producerName = message.producerName;
-                if (message.producerVersion != null && message.hasOwnProperty("producerVersion"))
-                    object.producerVersion = message.producerVersion;
+                        object.ir_version = options.longs === String ? $util.Long.prototype.toString.call(message.ir_version) : options.longs === Number ? new $util.LongBits(message.ir_version.low >>> 0, message.ir_version.high >>> 0).toNumber() : message.ir_version;
+                if (message.producer_name != null && message.hasOwnProperty("producer_name"))
+                    object.producer_name = message.producer_name;
+                if (message.producer_version != null && message.hasOwnProperty("producer_version"))
+                    object.producer_version = message.producer_version;
                 if (message.domain != null && message.hasOwnProperty("domain"))
                     object.domain = message.domain;
-                if (message.modelVersion != null && message.hasOwnProperty("modelVersion"))
-                    if (typeof message.modelVersion === "number")
-                        object.modelVersion = options.longs === String ? String(message.modelVersion) : message.modelVersion;
+                if (message.model_version != null && message.hasOwnProperty("model_version"))
+                    if (typeof message.model_version === "number")
+                        object.model_version = options.longs === String ? String(message.model_version) : message.model_version;
                     else
-                        object.modelVersion = options.longs === String ? $util.Long.prototype.toString.call(message.modelVersion) : options.longs === Number ? new $util.LongBits(message.modelVersion.low >>> 0, message.modelVersion.high >>> 0).toNumber() : message.modelVersion;
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                        object.model_version = options.longs === String ? $util.Long.prototype.toString.call(message.model_version) : options.longs === Number ? new $util.LongBits(message.model_version.low >>> 0, message.model_version.high >>> 0).toNumber() : message.model_version;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 if (message.graph != null && message.hasOwnProperty("graph"))
                     object.graph = $root.onnx.GraphProto.toObject(message.graph, options);
-                if (message.opsetImport && message.opsetImport.length) {
-                    object.opsetImport = [];
-                    for (var j = 0; j < message.opsetImport.length; ++j)
-                        object.opsetImport[j] = $root.onnx.OperatorSetIdProto.toObject(message.opsetImport[j], options);
+                if (message.opset_import && message.opset_import.length) {
+                    object.opset_import = [];
+                    for (var j = 0; j < message.opset_import.length; ++j)
+                        object.opset_import[j] = $root.onnx.OperatorSetIdProto.toObject(message.opset_import[j], options);
                 }
-                if (message.metadataProps && message.metadataProps.length) {
-                    object.metadataProps = [];
-                    for (var j = 0; j < message.metadataProps.length; ++j)
-                        object.metadataProps[j] = $root.onnx.StringStringEntryProto.toObject(message.metadataProps[j], options);
+                if (message.metadata_props && message.metadata_props.length) {
+                    object.metadata_props = [];
+                    for (var j = 0; j < message.metadata_props.length; ++j)
+                        object.metadata_props[j] = $root.onnx.StringStringEntryProto.toObject(message.metadata_props[j], options);
                 }
                 return object;
             };
@@ -1085,7 +1085,7 @@
                 this.initializer = [];
                 this.input = [];
                 this.output = [];
-                this.valueInfo = [];
+                this.value_info = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -1095,10 +1095,10 @@
             GraphProto.prototype.node = $util.emptyArray;
             GraphProto.prototype.name = "";
             GraphProto.prototype.initializer = $util.emptyArray;
-            GraphProto.prototype.docString = "";
+            GraphProto.prototype.doc_string = "";
             GraphProto.prototype.input = $util.emptyArray;
             GraphProto.prototype.output = $util.emptyArray;
-            GraphProto.prototype.valueInfo = $util.emptyArray;
+            GraphProto.prototype.value_info = $util.emptyArray;
     
             GraphProto.create = function create(properties) {
                 return new GraphProto(properties);
@@ -1125,7 +1125,7 @@
                         message.initializer.push($root.onnx.TensorProto.decode(reader, reader.uint32()));
                         break;
                     case 10:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     case 11:
                         if (!(message.input && message.input.length))
@@ -1138,9 +1138,9 @@
                         message.output.push($root.onnx.ValueInfoProto.decode(reader, reader.uint32()));
                         break;
                     case 13:
-                        if (!(message.valueInfo && message.valueInfo.length))
-                            message.valueInfo = [];
-                        message.valueInfo.push($root.onnx.ValueInfoProto.decode(reader, reader.uint32()));
+                        if (!(message.value_info && message.value_info.length))
+                            message.value_info = [];
+                        message.value_info.push($root.onnx.ValueInfoProto.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1174,9 +1174,9 @@
                             return "initializer." + error;
                     }
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 if (message.input != null && message.hasOwnProperty("input")) {
                     if (!Array.isArray(message.input))
                         return "input: array expected";
@@ -1195,13 +1195,13 @@
                             return "output." + error;
                     }
                 }
-                if (message.valueInfo != null && message.hasOwnProperty("valueInfo")) {
-                    if (!Array.isArray(message.valueInfo))
-                        return "valueInfo: array expected";
-                    for (var i = 0; i < message.valueInfo.length; ++i) {
-                        var error = $root.onnx.ValueInfoProto.verify(message.valueInfo[i]);
+                if (message.value_info != null && message.hasOwnProperty("value_info")) {
+                    if (!Array.isArray(message.value_info))
+                        return "value_info: array expected";
+                    for (var i = 0; i < message.value_info.length; ++i) {
+                        var error = $root.onnx.ValueInfoProto.verify(message.value_info[i]);
                         if (error)
-                            return "valueInfo." + error;
+                            return "value_info." + error;
                     }
                 }
                 return null;
@@ -1233,8 +1233,8 @@
                         message.initializer[i] = $root.onnx.TensorProto.fromObject(object.initializer[i]);
                     }
                 }
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 if (object.input) {
                     if (!Array.isArray(object.input))
                         throw TypeError(".onnx.GraphProto.input: array expected");
@@ -1255,14 +1255,14 @@
                         message.output[i] = $root.onnx.ValueInfoProto.fromObject(object.output[i]);
                     }
                 }
-                if (object.valueInfo) {
-                    if (!Array.isArray(object.valueInfo))
-                        throw TypeError(".onnx.GraphProto.valueInfo: array expected");
-                    message.valueInfo = [];
-                    for (var i = 0; i < object.valueInfo.length; ++i) {
-                        if (typeof object.valueInfo[i] !== "object")
-                            throw TypeError(".onnx.GraphProto.valueInfo: object expected");
-                        message.valueInfo[i] = $root.onnx.ValueInfoProto.fromObject(object.valueInfo[i]);
+                if (object.value_info) {
+                    if (!Array.isArray(object.value_info))
+                        throw TypeError(".onnx.GraphProto.value_info: array expected");
+                    message.value_info = [];
+                    for (var i = 0; i < object.value_info.length; ++i) {
+                        if (typeof object.value_info[i] !== "object")
+                            throw TypeError(".onnx.GraphProto.value_info: object expected");
+                        message.value_info[i] = $root.onnx.ValueInfoProto.fromObject(object.value_info[i]);
                     }
                 }
                 return message;
@@ -1277,11 +1277,11 @@
                     object.initializer = [];
                     object.input = [];
                     object.output = [];
-                    object.valueInfo = [];
+                    object.value_info = [];
                 }
                 if (options.defaults) {
                     object.name = "";
-                    object.docString = "";
+                    object.doc_string = "";
                 }
                 if (message.node && message.node.length) {
                     object.node = [];
@@ -1295,8 +1295,8 @@
                     for (var j = 0; j < message.initializer.length; ++j)
                         object.initializer[j] = $root.onnx.TensorProto.toObject(message.initializer[j], options);
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 if (message.input && message.input.length) {
                     object.input = [];
                     for (var j = 0; j < message.input.length; ++j)
@@ -1307,10 +1307,10 @@
                     for (var j = 0; j < message.output.length; ++j)
                         object.output[j] = $root.onnx.ValueInfoProto.toObject(message.output[j], options);
                 }
-                if (message.valueInfo && message.valueInfo.length) {
-                    object.valueInfo = [];
-                    for (var j = 0; j < message.valueInfo.length; ++j)
-                        object.valueInfo[j] = $root.onnx.ValueInfoProto.toObject(message.valueInfo[j], options);
+                if (message.value_info && message.value_info.length) {
+                    object.value_info = [];
+                    for (var j = 0; j < message.value_info.length; ++j)
+                        object.value_info[j] = $root.onnx.ValueInfoProto.toObject(message.value_info[j], options);
                 }
                 return object;
             };
@@ -1326,12 +1326,12 @@
     
             function TensorProto(properties) {
                 this.dims = [];
-                this.floatData = [];
-                this.int32Data = [];
-                this.stringData = [];
-                this.int64Data = [];
-                this.doubleData = [];
-                this.uint64Data = [];
+                this.float_data = [];
+                this.int32_data = [];
+                this.string_data = [];
+                this.int64_data = [];
+                this.double_data = [];
+                this.uint64_data = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -1339,17 +1339,17 @@
             }
     
             TensorProto.prototype.dims = $util.emptyArray;
-            TensorProto.prototype.dataType = 0;
+            TensorProto.prototype.data_type = 0;
             TensorProto.prototype.segment = null;
-            TensorProto.prototype.floatData = $util.emptyArray;
-            TensorProto.prototype.int32Data = $util.emptyArray;
-            TensorProto.prototype.stringData = $util.emptyArray;
-            TensorProto.prototype.int64Data = $util.emptyArray;
+            TensorProto.prototype.float_data = $util.emptyArray;
+            TensorProto.prototype.int32_data = $util.emptyArray;
+            TensorProto.prototype.string_data = $util.emptyArray;
+            TensorProto.prototype.int64_data = $util.emptyArray;
             TensorProto.prototype.name = "";
-            TensorProto.prototype.docString = "";
-            TensorProto.prototype.rawData = $util.newBuffer([]);
-            TensorProto.prototype.doubleData = $util.emptyArray;
-            TensorProto.prototype.uint64Data = $util.emptyArray;
+            TensorProto.prototype.doc_string = "";
+            TensorProto.prototype.raw_data = $util.newBuffer([]);
+            TensorProto.prototype.double_data = $util.emptyArray;
+            TensorProto.prototype.uint64_data = $util.emptyArray;
     
             TensorProto.create = function create(properties) {
                 return new TensorProto(properties);
@@ -1373,100 +1373,100 @@
                             message.dims.push(reader.int64());
                         break;
                     case 2:
-                        message.dataType = reader.int32();
+                        message.data_type = reader.int32();
                         break;
                     case 3:
                         message.segment = $root.onnx.TensorProto.Segment.decode(reader, reader.uint32());
                         break;
                     case 4:
-                        if (!(message.floatData && message.floatData.length))
-                            message.floatData = [];
+                        if (!(message.float_data && message.float_data.length))
+                            message.float_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
-                            if (message.floatData.length == 0 && (end2 - reader.pos) > 1048576) {
-                                var floatDataLength = end2 - reader.pos;
-                                var floatDataView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, floatDataLength);
-                                floatDataLength = floatDataLength >>> 2;
-                                var floatData = new Float32Array(floatDataLength);
-                                for (var i = 0; i < floatDataLength; i++) {
-                                    floatData[i] = floatDataView.getFloat32(i << 2, true);
+                            if (message.float_data.length == 0 && (end2 - reader.pos) > 1048576) {
+                                var float_dataLength = end2 - reader.pos;
+                                var float_dataView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, float_dataLength);
+                                float_dataLength = float_dataLength >>> 2;
+                                var float_data = new Float32Array(float_dataLength);
+                                for (var i = 0; i < float_dataLength; i++) {
+                                    float_data[i] = float_dataView.getFloat32(i << 2, true);
                                 }
-                                message.floatData = floatData;
+                                message.float_data = float_data;
                                 reader.pos = end2;
                             }
                             else {
                                 while (reader.pos < end2)
-                                    message.floatData.push(reader.float());
+                                    message.float_data.push(reader.float());
                             }
                         } else
-                            message.floatData.push(reader.float());
+                            message.float_data.push(reader.float());
                         break;
                     case 5:
-                        if (!(message.int32Data && message.int32Data.length))
-                            message.int32Data = [];
+                        if (!(message.int32_data && message.int32_data.length))
+                            message.int32_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.int32Data.push(reader.int32());
+                                message.int32_data.push(reader.int32());
                         } else
-                            message.int32Data.push(reader.int32());
+                            message.int32_data.push(reader.int32());
                         break;
                     case 6:
-                        if (!(message.stringData && message.stringData.length))
-                            message.stringData = [];
-                        message.stringData.push(reader.bytes());
+                        if (!(message.string_data && message.string_data.length))
+                            message.string_data = [];
+                        message.string_data.push(reader.bytes());
                         break;
                     case 7:
-                        if (!(message.int64Data && message.int64Data.length))
-                            message.int64Data = [];
+                        if (!(message.int64_data && message.int64_data.length))
+                            message.int64_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.int64Data.push(reader.int64());
+                                message.int64_data.push(reader.int64());
                         } else
-                            message.int64Data.push(reader.int64());
+                            message.int64_data.push(reader.int64());
                         break;
                     case 8:
                         message.name = reader.string();
                         break;
                     case 12:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     case 9:
-                        message.rawData = reader.bytes();
+                        message.raw_data = reader.bytes();
                         break;
                     case 10:
-                        if (!(message.doubleData && message.doubleData.length))
-                            message.doubleData = [];
+                        if (!(message.double_data && message.double_data.length))
+                            message.double_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
-                            if (message.doubleData.length == 0 && (end2 - reader.pos) > 1048576) {
-                                var doubleDataLength = end2 - reader.pos;
-                                var doubleDataView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, doubleDataLength);
-                                doubleDataLength = doubleDataLength >>> 3;
-                                var doubleData = new Float64Array(doubleDataLength);
-                                for (var i = 0; i < doubleDataLength; i++) {
-                                    doubleData[i] = doubleDataView.getFloat64(i << 3, true);
+                            if (message.double_data.length == 0 && (end2 - reader.pos) > 1048576) {
+                                var double_dataLength = end2 - reader.pos;
+                                var double_dataView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, double_dataLength);
+                                double_dataLength = double_dataLength >>> 3;
+                                var double_data = new Float64Array(double_dataLength);
+                                for (var i = 0; i < double_dataLength; i++) {
+                                    double_data[i] = double_dataView.getFloat64(i << 3, true);
                                 }
-                                message.doubleData = doubleData;
+                                message.double_data = double_data;
                                 reader.pos = end2;
                             }
                             else {
                                 while (reader.pos < end2)
-                                    message.doubleData.push(reader.double());
+                                    message.double_data.push(reader.double());
                             }
                         } else
-                            message.doubleData.push(reader.double());
+                            message.double_data.push(reader.double());
                         break;
                     case 11:
-                        if (!(message.uint64Data && message.uint64Data.length))
-                            message.uint64Data = [];
+                        if (!(message.uint64_data && message.uint64_data.length))
+                            message.uint64_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.uint64Data.push(reader.uint64());
+                                message.uint64_data.push(reader.uint64());
                         } else
-                            message.uint64Data.push(reader.uint64());
+                            message.uint64_data.push(reader.uint64());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1486,10 +1486,10 @@
                         if (!$util.isInteger(message.dims[i]) && !(message.dims[i] && $util.isInteger(message.dims[i].low) && $util.isInteger(message.dims[i].high)))
                             return "dims: integer|Long[] expected";
                 }
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    switch (message.dataType) {
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    switch (message.data_type) {
                     default:
-                        return "dataType: enum value expected";
+                        return "data_type: enum value expected";
                     case 0:
                     case 1:
                     case 2:
@@ -1513,56 +1513,56 @@
                     if (error)
                         return "segment." + error;
                 }
-                if (message.floatData != null && message.hasOwnProperty("floatData")) {
-                    if (!Array.isArray(message.floatData))
-                        return "floatData: array expected";
-                    for (var i = 0; i < message.floatData.length; ++i)
-                        if (typeof message.floatData[i] !== "number")
-                            return "floatData: number[] expected";
+                if (message.float_data != null && message.hasOwnProperty("float_data")) {
+                    if (!Array.isArray(message.float_data))
+                        return "float_data: array expected";
+                    for (var i = 0; i < message.float_data.length; ++i)
+                        if (typeof message.float_data[i] !== "number")
+                            return "float_data: number[] expected";
                 }
-                if (message.int32Data != null && message.hasOwnProperty("int32Data")) {
-                    if (!Array.isArray(message.int32Data))
-                        return "int32Data: array expected";
-                    for (var i = 0; i < message.int32Data.length; ++i)
-                        if (!$util.isInteger(message.int32Data[i]))
-                            return "int32Data: integer[] expected";
+                if (message.int32_data != null && message.hasOwnProperty("int32_data")) {
+                    if (!Array.isArray(message.int32_data))
+                        return "int32_data: array expected";
+                    for (var i = 0; i < message.int32_data.length; ++i)
+                        if (!$util.isInteger(message.int32_data[i]))
+                            return "int32_data: integer[] expected";
                 }
-                if (message.stringData != null && message.hasOwnProperty("stringData")) {
-                    if (!Array.isArray(message.stringData))
-                        return "stringData: array expected";
-                    for (var i = 0; i < message.stringData.length; ++i)
-                        if (!(message.stringData[i] && typeof message.stringData[i].length === "number" || $util.isString(message.stringData[i])))
-                            return "stringData: buffer[] expected";
+                if (message.string_data != null && message.hasOwnProperty("string_data")) {
+                    if (!Array.isArray(message.string_data))
+                        return "string_data: array expected";
+                    for (var i = 0; i < message.string_data.length; ++i)
+                        if (!(message.string_data[i] && typeof message.string_data[i].length === "number" || $util.isString(message.string_data[i])))
+                            return "string_data: buffer[] expected";
                 }
-                if (message.int64Data != null && message.hasOwnProperty("int64Data")) {
-                    if (!Array.isArray(message.int64Data))
-                        return "int64Data: array expected";
-                    for (var i = 0; i < message.int64Data.length; ++i)
-                        if (!$util.isInteger(message.int64Data[i]) && !(message.int64Data[i] && $util.isInteger(message.int64Data[i].low) && $util.isInteger(message.int64Data[i].high)))
-                            return "int64Data: integer|Long[] expected";
+                if (message.int64_data != null && message.hasOwnProperty("int64_data")) {
+                    if (!Array.isArray(message.int64_data))
+                        return "int64_data: array expected";
+                    for (var i = 0; i < message.int64_data.length; ++i)
+                        if (!$util.isInteger(message.int64_data[i]) && !(message.int64_data[i] && $util.isInteger(message.int64_data[i].low) && $util.isInteger(message.int64_data[i].high)))
+                            return "int64_data: integer|Long[] expected";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
-                if (message.rawData != null && message.hasOwnProperty("rawData"))
-                    if (!(message.rawData && typeof message.rawData.length === "number" || $util.isString(message.rawData)))
-                        return "rawData: buffer expected";
-                if (message.doubleData != null && message.hasOwnProperty("doubleData")) {
-                    if (!Array.isArray(message.doubleData))
-                        return "doubleData: array expected";
-                    for (var i = 0; i < message.doubleData.length; ++i)
-                        if (typeof message.doubleData[i] !== "number")
-                            return "doubleData: number[] expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
+                if (message.raw_data != null && message.hasOwnProperty("raw_data"))
+                    if (!(message.raw_data && typeof message.raw_data.length === "number" || $util.isString(message.raw_data)))
+                        return "raw_data: buffer expected";
+                if (message.double_data != null && message.hasOwnProperty("double_data")) {
+                    if (!Array.isArray(message.double_data))
+                        return "double_data: array expected";
+                    for (var i = 0; i < message.double_data.length; ++i)
+                        if (typeof message.double_data[i] !== "number")
+                            return "double_data: number[] expected";
                 }
-                if (message.uint64Data != null && message.hasOwnProperty("uint64Data")) {
-                    if (!Array.isArray(message.uint64Data))
-                        return "uint64Data: array expected";
-                    for (var i = 0; i < message.uint64Data.length; ++i)
-                        if (!$util.isInteger(message.uint64Data[i]) && !(message.uint64Data[i] && $util.isInteger(message.uint64Data[i].low) && $util.isInteger(message.uint64Data[i].high)))
-                            return "uint64Data: integer|Long[] expected";
+                if (message.uint64_data != null && message.hasOwnProperty("uint64_data")) {
+                    if (!Array.isArray(message.uint64_data))
+                        return "uint64_data: array expected";
+                    for (var i = 0; i < message.uint64_data.length; ++i)
+                        if (!$util.isInteger(message.uint64_data[i]) && !(message.uint64_data[i] && $util.isInteger(message.uint64_data[i].low) && $util.isInteger(message.uint64_data[i].high)))
+                            return "uint64_data: integer|Long[] expected";
                 }
                 return null;
             };
@@ -1585,70 +1585,70 @@
                         else if (typeof object.dims[i] === "object")
                             message.dims[i] = new $util.LongBits(object.dims[i].low >>> 0, object.dims[i].high >>> 0).toNumber();
                 }
-                switch (object.dataType) {
+                switch (object.data_type) {
                 case "UNDEFINED":
                 case 0:
-                    message.dataType = 0;
+                    message.data_type = 0;
                     break;
                 case "FLOAT":
                 case 1:
-                    message.dataType = 1;
+                    message.data_type = 1;
                     break;
                 case "UINT8":
                 case 2:
-                    message.dataType = 2;
+                    message.data_type = 2;
                     break;
                 case "INT8":
                 case 3:
-                    message.dataType = 3;
+                    message.data_type = 3;
                     break;
                 case "UINT16":
                 case 4:
-                    message.dataType = 4;
+                    message.data_type = 4;
                     break;
                 case "INT16":
                 case 5:
-                    message.dataType = 5;
+                    message.data_type = 5;
                     break;
                 case "INT32":
                 case 6:
-                    message.dataType = 6;
+                    message.data_type = 6;
                     break;
                 case "INT64":
                 case 7:
-                    message.dataType = 7;
+                    message.data_type = 7;
                     break;
                 case "STRING":
                 case 8:
-                    message.dataType = 8;
+                    message.data_type = 8;
                     break;
                 case "BOOL":
                 case 9:
-                    message.dataType = 9;
+                    message.data_type = 9;
                     break;
                 case "FLOAT16":
                 case 10:
-                    message.dataType = 10;
+                    message.data_type = 10;
                     break;
                 case "DOUBLE":
                 case 11:
-                    message.dataType = 11;
+                    message.data_type = 11;
                     break;
                 case "UINT32":
                 case 12:
-                    message.dataType = 12;
+                    message.data_type = 12;
                     break;
                 case "UINT64":
                 case 13:
-                    message.dataType = 13;
+                    message.data_type = 13;
                     break;
                 case "COMPLEX64":
                 case 14:
-                    message.dataType = 14;
+                    message.data_type = 14;
                     break;
                 case "COMPLEX128":
                 case 15:
-                    message.dataType = 15;
+                    message.data_type = 15;
                     break;
                 }
                 if (object.segment != null) {
@@ -1656,73 +1656,73 @@
                         throw TypeError(".onnx.TensorProto.segment: object expected");
                     message.segment = $root.onnx.TensorProto.Segment.fromObject(object.segment);
                 }
-                if (object.floatData) {
-                    if (!Array.isArray(object.floatData))
-                        throw TypeError(".onnx.TensorProto.floatData: array expected");
-                    message.floatData = [];
-                    for (var i = 0; i < object.floatData.length; ++i)
-                        message.floatData[i] = Number(object.floatData[i]);
+                if (object.float_data) {
+                    if (!Array.isArray(object.float_data))
+                        throw TypeError(".onnx.TensorProto.float_data: array expected");
+                    message.float_data = [];
+                    for (var i = 0; i < object.float_data.length; ++i)
+                        message.float_data[i] = Number(object.float_data[i]);
                 }
-                if (object.int32Data) {
-                    if (!Array.isArray(object.int32Data))
-                        throw TypeError(".onnx.TensorProto.int32Data: array expected");
-                    message.int32Data = [];
-                    for (var i = 0; i < object.int32Data.length; ++i)
-                        message.int32Data[i] = object.int32Data[i] | 0;
+                if (object.int32_data) {
+                    if (!Array.isArray(object.int32_data))
+                        throw TypeError(".onnx.TensorProto.int32_data: array expected");
+                    message.int32_data = [];
+                    for (var i = 0; i < object.int32_data.length; ++i)
+                        message.int32_data[i] = object.int32_data[i] | 0;
                 }
-                if (object.stringData) {
-                    if (!Array.isArray(object.stringData))
-                        throw TypeError(".onnx.TensorProto.stringData: array expected");
-                    message.stringData = [];
-                    for (var i = 0; i < object.stringData.length; ++i)
-                        if (typeof object.stringData[i] === "string")
-                            $util.base64.decode(object.stringData[i], message.stringData[i] = $util.newBuffer($util.base64.length(object.stringData[i])), 0);
-                        else if (object.stringData[i].length)
-                            message.stringData[i] = object.stringData[i];
+                if (object.string_data) {
+                    if (!Array.isArray(object.string_data))
+                        throw TypeError(".onnx.TensorProto.string_data: array expected");
+                    message.string_data = [];
+                    for (var i = 0; i < object.string_data.length; ++i)
+                        if (typeof object.string_data[i] === "string")
+                            $util.base64.decode(object.string_data[i], message.string_data[i] = $util.newBuffer($util.base64.length(object.string_data[i])), 0);
+                        else if (object.string_data[i].length)
+                            message.string_data[i] = object.string_data[i];
                 }
-                if (object.int64Data) {
-                    if (!Array.isArray(object.int64Data))
-                        throw TypeError(".onnx.TensorProto.int64Data: array expected");
-                    message.int64Data = [];
-                    for (var i = 0; i < object.int64Data.length; ++i)
+                if (object.int64_data) {
+                    if (!Array.isArray(object.int64_data))
+                        throw TypeError(".onnx.TensorProto.int64_data: array expected");
+                    message.int64_data = [];
+                    for (var i = 0; i < object.int64_data.length; ++i)
                         if ($util.Long)
-                            (message.int64Data[i] = $util.Long.fromValue(object.int64Data[i])).unsigned = false;
-                        else if (typeof object.int64Data[i] === "string")
-                            message.int64Data[i] = parseInt(object.int64Data[i], 10);
-                        else if (typeof object.int64Data[i] === "number")
-                            message.int64Data[i] = object.int64Data[i];
-                        else if (typeof object.int64Data[i] === "object")
-                            message.int64Data[i] = new $util.LongBits(object.int64Data[i].low >>> 0, object.int64Data[i].high >>> 0).toNumber();
+                            (message.int64_data[i] = $util.Long.fromValue(object.int64_data[i])).unsigned = false;
+                        else if (typeof object.int64_data[i] === "string")
+                            message.int64_data[i] = parseInt(object.int64_data[i], 10);
+                        else if (typeof object.int64_data[i] === "number")
+                            message.int64_data[i] = object.int64_data[i];
+                        else if (typeof object.int64_data[i] === "object")
+                            message.int64_data[i] = new $util.LongBits(object.int64_data[i].low >>> 0, object.int64_data[i].high >>> 0).toNumber();
                 }
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.docString != null)
-                    message.docString = String(object.docString);
-                if (object.rawData != null)
-                    if (typeof object.rawData === "string")
-                        $util.base64.decode(object.rawData, message.rawData = $util.newBuffer($util.base64.length(object.rawData)), 0);
-                    else if (object.rawData.length)
-                        message.rawData = object.rawData;
-                if (object.doubleData) {
-                    if (!Array.isArray(object.doubleData))
-                        throw TypeError(".onnx.TensorProto.doubleData: array expected");
-                    message.doubleData = [];
-                    for (var i = 0; i < object.doubleData.length; ++i)
-                        message.doubleData[i] = Number(object.doubleData[i]);
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
+                if (object.raw_data != null)
+                    if (typeof object.raw_data === "string")
+                        $util.base64.decode(object.raw_data, message.raw_data = $util.newBuffer($util.base64.length(object.raw_data)), 0);
+                    else if (object.raw_data.length)
+                        message.raw_data = object.raw_data;
+                if (object.double_data) {
+                    if (!Array.isArray(object.double_data))
+                        throw TypeError(".onnx.TensorProto.double_data: array expected");
+                    message.double_data = [];
+                    for (var i = 0; i < object.double_data.length; ++i)
+                        message.double_data[i] = Number(object.double_data[i]);
                 }
-                if (object.uint64Data) {
-                    if (!Array.isArray(object.uint64Data))
-                        throw TypeError(".onnx.TensorProto.uint64Data: array expected");
-                    message.uint64Data = [];
-                    for (var i = 0; i < object.uint64Data.length; ++i)
+                if (object.uint64_data) {
+                    if (!Array.isArray(object.uint64_data))
+                        throw TypeError(".onnx.TensorProto.uint64_data: array expected");
+                    message.uint64_data = [];
+                    for (var i = 0; i < object.uint64_data.length; ++i)
                         if ($util.Long)
-                            (message.uint64Data[i] = $util.Long.fromValue(object.uint64Data[i])).unsigned = true;
-                        else if (typeof object.uint64Data[i] === "string")
-                            message.uint64Data[i] = parseInt(object.uint64Data[i], 10);
-                        else if (typeof object.uint64Data[i] === "number")
-                            message.uint64Data[i] = object.uint64Data[i];
-                        else if (typeof object.uint64Data[i] === "object")
-                            message.uint64Data[i] = new $util.LongBits(object.uint64Data[i].low >>> 0, object.uint64Data[i].high >>> 0).toNumber(true);
+                            (message.uint64_data[i] = $util.Long.fromValue(object.uint64_data[i])).unsigned = true;
+                        else if (typeof object.uint64_data[i] === "string")
+                            message.uint64_data[i] = parseInt(object.uint64_data[i], 10);
+                        else if (typeof object.uint64_data[i] === "number")
+                            message.uint64_data[i] = object.uint64_data[i];
+                        else if (typeof object.uint64_data[i] === "object")
+                            message.uint64_data[i] = new $util.LongBits(object.uint64_data[i].low >>> 0, object.uint64_data[i].high >>> 0).toNumber(true);
                 }
                 return message;
             };
@@ -1733,25 +1733,25 @@
                 var object = {};
                 if (options.arrays || options.defaults) {
                     object.dims = [];
-                    object.floatData = [];
-                    object.int32Data = [];
-                    object.stringData = [];
-                    object.int64Data = [];
-                    object.doubleData = [];
-                    object.uint64Data = [];
+                    object.float_data = [];
+                    object.int32_data = [];
+                    object.string_data = [];
+                    object.int64_data = [];
+                    object.double_data = [];
+                    object.uint64_data = [];
                 }
                 if (options.defaults) {
-                    object.dataType = options.enums === String ? "UNDEFINED" : 0;
+                    object.data_type = options.enums === String ? "UNDEFINED" : 0;
                     object.segment = null;
                     object.name = "";
                     if (options.bytes === String)
-                        object.rawData = "";
+                        object.raw_data = "";
                     else {
-                        object.rawData = [];
+                        object.raw_data = [];
                         if (options.bytes !== Array)
-                            object.rawData = $util.newBuffer(object.rawData);
+                            object.raw_data = $util.newBuffer(object.raw_data);
                     }
-                    object.docString = "";
+                    object.doc_string = "";
                 }
                 if (message.dims && message.dims.length) {
                     object.dims = [];
@@ -1761,52 +1761,52 @@
                         else
                             object.dims[j] = options.longs === String ? $util.Long.prototype.toString.call(message.dims[j]) : options.longs === Number ? new $util.LongBits(message.dims[j].low >>> 0, message.dims[j].high >>> 0).toNumber() : message.dims[j];
                 }
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    object.dataType = options.enums === String ? $root.onnx.TensorProto.DataType[message.dataType] : message.dataType;
+                if (message.data_type != null && message.hasOwnProperty("data_type"))
+                    object.data_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.data_type] : message.data_type;
                 if (message.segment != null && message.hasOwnProperty("segment"))
                     object.segment = $root.onnx.TensorProto.Segment.toObject(message.segment, options);
-                if (message.floatData && message.floatData.length) {
-                    object.floatData = [];
-                    for (var j = 0; j < message.floatData.length; ++j)
-                        object.floatData[j] = options.json && !isFinite(message.floatData[j]) ? String(message.floatData[j]) : message.floatData[j];
+                if (message.float_data && message.float_data.length) {
+                    object.float_data = [];
+                    for (var j = 0; j < message.float_data.length; ++j)
+                        object.float_data[j] = options.json && !isFinite(message.float_data[j]) ? String(message.float_data[j]) : message.float_data[j];
                 }
-                if (message.int32Data && message.int32Data.length) {
-                    object.int32Data = [];
-                    for (var j = 0; j < message.int32Data.length; ++j)
-                        object.int32Data[j] = message.int32Data[j];
+                if (message.int32_data && message.int32_data.length) {
+                    object.int32_data = [];
+                    for (var j = 0; j < message.int32_data.length; ++j)
+                        object.int32_data[j] = message.int32_data[j];
                 }
-                if (message.stringData && message.stringData.length) {
-                    object.stringData = [];
-                    for (var j = 0; j < message.stringData.length; ++j)
-                        object.stringData[j] = options.bytes === String ? $util.base64.encode(message.stringData[j], 0, message.stringData[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.stringData[j]) : message.stringData[j];
+                if (message.string_data && message.string_data.length) {
+                    object.string_data = [];
+                    for (var j = 0; j < message.string_data.length; ++j)
+                        object.string_data[j] = options.bytes === String ? $util.base64.encode(message.string_data[j], 0, message.string_data[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.string_data[j]) : message.string_data[j];
                 }
-                if (message.int64Data && message.int64Data.length) {
-                    object.int64Data = [];
-                    for (var j = 0; j < message.int64Data.length; ++j)
-                        if (typeof message.int64Data[j] === "number")
-                            object.int64Data[j] = options.longs === String ? String(message.int64Data[j]) : message.int64Data[j];
+                if (message.int64_data && message.int64_data.length) {
+                    object.int64_data = [];
+                    for (var j = 0; j < message.int64_data.length; ++j)
+                        if (typeof message.int64_data[j] === "number")
+                            object.int64_data[j] = options.longs === String ? String(message.int64_data[j]) : message.int64_data[j];
                         else
-                            object.int64Data[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64Data[j]) : options.longs === Number ? new $util.LongBits(message.int64Data[j].low >>> 0, message.int64Data[j].high >>> 0).toNumber() : message.int64Data[j];
+                            object.int64_data[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64_data[j]) : options.longs === Number ? new $util.LongBits(message.int64_data[j].low >>> 0, message.int64_data[j].high >>> 0).toNumber() : message.int64_data[j];
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.rawData != null && message.hasOwnProperty("rawData"))
-                    object.rawData = options.bytes === String ? $util.base64.encode(message.rawData, 0, message.rawData.length) : options.bytes === Array ? Array.prototype.slice.call(message.rawData) : message.rawData;
-                if (message.doubleData && message.doubleData.length) {
-                    object.doubleData = [];
-                    for (var j = 0; j < message.doubleData.length; ++j)
-                        object.doubleData[j] = options.json && !isFinite(message.doubleData[j]) ? String(message.doubleData[j]) : message.doubleData[j];
+                if (message.raw_data != null && message.hasOwnProperty("raw_data"))
+                    object.raw_data = options.bytes === String ? $util.base64.encode(message.raw_data, 0, message.raw_data.length) : options.bytes === Array ? Array.prototype.slice.call(message.raw_data) : message.raw_data;
+                if (message.double_data && message.double_data.length) {
+                    object.double_data = [];
+                    for (var j = 0; j < message.double_data.length; ++j)
+                        object.double_data[j] = options.json && !isFinite(message.double_data[j]) ? String(message.double_data[j]) : message.double_data[j];
                 }
-                if (message.uint64Data && message.uint64Data.length) {
-                    object.uint64Data = [];
-                    for (var j = 0; j < message.uint64Data.length; ++j)
-                        if (typeof message.uint64Data[j] === "number")
-                            object.uint64Data[j] = options.longs === String ? String(message.uint64Data[j]) : message.uint64Data[j];
+                if (message.uint64_data && message.uint64_data.length) {
+                    object.uint64_data = [];
+                    for (var j = 0; j < message.uint64_data.length; ++j)
+                        if (typeof message.uint64_data[j] === "number")
+                            object.uint64_data[j] = options.longs === String ? String(message.uint64_data[j]) : message.uint64_data[j];
                         else
-                            object.uint64Data[j] = options.longs === String ? $util.Long.prototype.toString.call(message.uint64Data[j]) : options.longs === Number ? new $util.LongBits(message.uint64Data[j].low >>> 0, message.uint64Data[j].high >>> 0).toNumber(true) : message.uint64Data[j];
+                            object.uint64_data[j] = options.longs === String ? $util.Long.prototype.toString.call(message.uint64_data[j]) : options.longs === Number ? new $util.LongBits(message.uint64_data[j].low >>> 0, message.uint64_data[j].high >>> 0).toNumber(true) : message.uint64_data[j];
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 return object;
             };
     
@@ -2043,14 +2043,14 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                Dimension.prototype.dimValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-                Dimension.prototype.dimParam = "";
+                Dimension.prototype.dim_value = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                Dimension.prototype.dim_param = "";
                 Dimension.prototype.denotation = "";
     
                 var $oneOfFields;
     
                 Object.defineProperty(Dimension.prototype, "value", {
-                    get: $util.oneOfGetter($oneOfFields = ["dimValue", "dimParam"]),
+                    get: $util.oneOfGetter($oneOfFields = ["dim_value", "dim_param"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -2066,10 +2066,10 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.dimValue = reader.int64();
+                            message.dim_value = reader.int64();
                             break;
                         case 2:
-                            message.dimParam = reader.string();
+                            message.dim_param = reader.string();
                             break;
                         case 3:
                             message.denotation = reader.string();
@@ -2086,17 +2086,17 @@
                     if (typeof message !== "object" || message === null)
                         return "object expected";
                     var properties = {};
-                    if (message.dimValue != null && message.hasOwnProperty("dimValue")) {
+                    if (message.dim_value != null && message.hasOwnProperty("dim_value")) {
                         properties.value = 1;
-                        if (!$util.isInteger(message.dimValue) && !(message.dimValue && $util.isInteger(message.dimValue.low) && $util.isInteger(message.dimValue.high)))
-                            return "dimValue: integer|Long expected";
+                        if (!$util.isInteger(message.dim_value) && !(message.dim_value && $util.isInteger(message.dim_value.low) && $util.isInteger(message.dim_value.high)))
+                            return "dim_value: integer|Long expected";
                     }
-                    if (message.dimParam != null && message.hasOwnProperty("dimParam")) {
+                    if (message.dim_param != null && message.hasOwnProperty("dim_param")) {
                         if (properties.value === 1)
                             return "value: multiple values";
                         properties.value = 1;
-                        if (!$util.isString(message.dimParam))
-                            return "dimParam: string expected";
+                        if (!$util.isString(message.dim_param))
+                            return "dim_param: string expected";
                     }
                     if (message.denotation != null && message.hasOwnProperty("denotation"))
                         if (!$util.isString(message.denotation))
@@ -2108,17 +2108,17 @@
                     if (object instanceof $root.onnx.TensorShapeProto.Dimension)
                         return object;
                     var message = new $root.onnx.TensorShapeProto.Dimension();
-                    if (object.dimValue != null)
+                    if (object.dim_value != null)
                         if ($util.Long)
-                            (message.dimValue = $util.Long.fromValue(object.dimValue)).unsigned = false;
-                        else if (typeof object.dimValue === "string")
-                            message.dimValue = parseInt(object.dimValue, 10);
-                        else if (typeof object.dimValue === "number")
-                            message.dimValue = object.dimValue;
-                        else if (typeof object.dimValue === "object")
-                            message.dimValue = new $util.LongBits(object.dimValue.low >>> 0, object.dimValue.high >>> 0).toNumber();
-                    if (object.dimParam != null)
-                        message.dimParam = String(object.dimParam);
+                            (message.dim_value = $util.Long.fromValue(object.dim_value)).unsigned = false;
+                        else if (typeof object.dim_value === "string")
+                            message.dim_value = parseInt(object.dim_value, 10);
+                        else if (typeof object.dim_value === "number")
+                            message.dim_value = object.dim_value;
+                        else if (typeof object.dim_value === "object")
+                            message.dim_value = new $util.LongBits(object.dim_value.low >>> 0, object.dim_value.high >>> 0).toNumber();
+                    if (object.dim_param != null)
+                        message.dim_param = String(object.dim_param);
                     if (object.denotation != null)
                         message.denotation = String(object.denotation);
                     return message;
@@ -2130,18 +2130,18 @@
                     var object = {};
                     if (options.defaults)
                         object.denotation = "";
-                    if (message.dimValue != null && message.hasOwnProperty("dimValue")) {
-                        if (typeof message.dimValue === "number")
-                            object.dimValue = options.longs === String ? String(message.dimValue) : message.dimValue;
+                    if (message.dim_value != null && message.hasOwnProperty("dim_value")) {
+                        if (typeof message.dim_value === "number")
+                            object.dim_value = options.longs === String ? String(message.dim_value) : message.dim_value;
                         else
-                            object.dimValue = options.longs === String ? $util.Long.prototype.toString.call(message.dimValue) : options.longs === Number ? new $util.LongBits(message.dimValue.low >>> 0, message.dimValue.high >>> 0).toNumber() : message.dimValue;
+                            object.dim_value = options.longs === String ? $util.Long.prototype.toString.call(message.dim_value) : options.longs === Number ? new $util.LongBits(message.dim_value.low >>> 0, message.dim_value.high >>> 0).toNumber() : message.dim_value;
                         if (options.oneofs)
-                            object.value = "dimValue";
+                            object.value = "dim_value";
                     }
-                    if (message.dimParam != null && message.hasOwnProperty("dimParam")) {
-                        object.dimParam = message.dimParam;
+                    if (message.dim_param != null && message.hasOwnProperty("dim_param")) {
+                        object.dim_param = message.dim_param;
                         if (options.oneofs)
-                            object.value = "dimParam";
+                            object.value = "dim_param";
                     }
                     if (message.denotation != null && message.hasOwnProperty("denotation"))
                         object.denotation = message.denotation;
@@ -2167,15 +2167,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            TypeProto.prototype.tensorType = null;
-            TypeProto.prototype.sequenceType = null;
-            TypeProto.prototype.mapType = null;
+            TypeProto.prototype.tensor_type = null;
+            TypeProto.prototype.sequence_type = null;
+            TypeProto.prototype.map_type = null;
             TypeProto.prototype.denotation = "";
     
             var $oneOfFields;
     
             Object.defineProperty(TypeProto.prototype, "value", {
-                get: $util.oneOfGetter($oneOfFields = ["tensorType", "sequenceType", "mapType"]),
+                get: $util.oneOfGetter($oneOfFields = ["tensor_type", "sequence_type", "map_type"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -2191,13 +2191,13 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.tensorType = $root.onnx.TypeProto.Tensor.decode(reader, reader.uint32());
+                        message.tensor_type = $root.onnx.TypeProto.Tensor.decode(reader, reader.uint32());
                         break;
                     case 4:
-                        message.sequenceType = $root.onnx.TypeProto.Sequence.decode(reader, reader.uint32());
+                        message.sequence_type = $root.onnx.TypeProto.Sequence.decode(reader, reader.uint32());
                         break;
                     case 5:
-                        message.mapType = $root.onnx.TypeProto.Map.decode(reader, reader.uint32());
+                        message.map_type = $root.onnx.TypeProto.Map.decode(reader, reader.uint32());
                         break;
                     case 6:
                         message.denotation = reader.string();
@@ -2214,32 +2214,32 @@
                 if (typeof message !== "object" || message === null)
                     return "object expected";
                 var properties = {};
-                if (message.tensorType != null && message.hasOwnProperty("tensorType")) {
+                if (message.tensor_type != null && message.hasOwnProperty("tensor_type")) {
                     properties.value = 1;
                     {
-                        var error = $root.onnx.TypeProto.Tensor.verify(message.tensorType);
+                        var error = $root.onnx.TypeProto.Tensor.verify(message.tensor_type);
                         if (error)
-                            return "tensorType." + error;
+                            return "tensor_type." + error;
                     }
                 }
-                if (message.sequenceType != null && message.hasOwnProperty("sequenceType")) {
+                if (message.sequence_type != null && message.hasOwnProperty("sequence_type")) {
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
                     {
-                        var error = $root.onnx.TypeProto.Sequence.verify(message.sequenceType);
+                        var error = $root.onnx.TypeProto.Sequence.verify(message.sequence_type);
                         if (error)
-                            return "sequenceType." + error;
+                            return "sequence_type." + error;
                     }
                 }
-                if (message.mapType != null && message.hasOwnProperty("mapType")) {
+                if (message.map_type != null && message.hasOwnProperty("map_type")) {
                     if (properties.value === 1)
                         return "value: multiple values";
                     properties.value = 1;
                     {
-                        var error = $root.onnx.TypeProto.Map.verify(message.mapType);
+                        var error = $root.onnx.TypeProto.Map.verify(message.map_type);
                         if (error)
-                            return "mapType." + error;
+                            return "map_type." + error;
                     }
                 }
                 if (message.denotation != null && message.hasOwnProperty("denotation"))
@@ -2252,20 +2252,20 @@
                 if (object instanceof $root.onnx.TypeProto)
                     return object;
                 var message = new $root.onnx.TypeProto();
-                if (object.tensorType != null) {
-                    if (typeof object.tensorType !== "object")
-                        throw TypeError(".onnx.TypeProto.tensorType: object expected");
-                    message.tensorType = $root.onnx.TypeProto.Tensor.fromObject(object.tensorType);
+                if (object.tensor_type != null) {
+                    if (typeof object.tensor_type !== "object")
+                        throw TypeError(".onnx.TypeProto.tensor_type: object expected");
+                    message.tensor_type = $root.onnx.TypeProto.Tensor.fromObject(object.tensor_type);
                 }
-                if (object.sequenceType != null) {
-                    if (typeof object.sequenceType !== "object")
-                        throw TypeError(".onnx.TypeProto.sequenceType: object expected");
-                    message.sequenceType = $root.onnx.TypeProto.Sequence.fromObject(object.sequenceType);
+                if (object.sequence_type != null) {
+                    if (typeof object.sequence_type !== "object")
+                        throw TypeError(".onnx.TypeProto.sequence_type: object expected");
+                    message.sequence_type = $root.onnx.TypeProto.Sequence.fromObject(object.sequence_type);
                 }
-                if (object.mapType != null) {
-                    if (typeof object.mapType !== "object")
-                        throw TypeError(".onnx.TypeProto.mapType: object expected");
-                    message.mapType = $root.onnx.TypeProto.Map.fromObject(object.mapType);
+                if (object.map_type != null) {
+                    if (typeof object.map_type !== "object")
+                        throw TypeError(".onnx.TypeProto.map_type: object expected");
+                    message.map_type = $root.onnx.TypeProto.Map.fromObject(object.map_type);
                 }
                 if (object.denotation != null)
                     message.denotation = String(object.denotation);
@@ -2278,20 +2278,20 @@
                 var object = {};
                 if (options.defaults)
                     object.denotation = "";
-                if (message.tensorType != null && message.hasOwnProperty("tensorType")) {
-                    object.tensorType = $root.onnx.TypeProto.Tensor.toObject(message.tensorType, options);
+                if (message.tensor_type != null && message.hasOwnProperty("tensor_type")) {
+                    object.tensor_type = $root.onnx.TypeProto.Tensor.toObject(message.tensor_type, options);
                     if (options.oneofs)
-                        object.value = "tensorType";
+                        object.value = "tensor_type";
                 }
-                if (message.sequenceType != null && message.hasOwnProperty("sequenceType")) {
-                    object.sequenceType = $root.onnx.TypeProto.Sequence.toObject(message.sequenceType, options);
+                if (message.sequence_type != null && message.hasOwnProperty("sequence_type")) {
+                    object.sequence_type = $root.onnx.TypeProto.Sequence.toObject(message.sequence_type, options);
                     if (options.oneofs)
-                        object.value = "sequenceType";
+                        object.value = "sequence_type";
                 }
-                if (message.mapType != null && message.hasOwnProperty("mapType")) {
-                    object.mapType = $root.onnx.TypeProto.Map.toObject(message.mapType, options);
+                if (message.map_type != null && message.hasOwnProperty("map_type")) {
+                    object.map_type = $root.onnx.TypeProto.Map.toObject(message.map_type, options);
                     if (options.oneofs)
-                        object.value = "mapType";
+                        object.value = "map_type";
                 }
                 if (message.denotation != null && message.hasOwnProperty("denotation"))
                     object.denotation = message.denotation;
@@ -2311,7 +2311,7 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                Tensor.prototype.elemType = 0;
+                Tensor.prototype.elem_type = 0;
                 Tensor.prototype.shape = null;
     
                 Tensor.create = function create(properties) {
@@ -2326,7 +2326,7 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.elemType = reader.int32();
+                            message.elem_type = reader.int32();
                             break;
                         case 2:
                             message.shape = $root.onnx.TensorShapeProto.decode(reader, reader.uint32());
@@ -2342,10 +2342,10 @@
                 Tensor.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.elemType != null && message.hasOwnProperty("elemType"))
-                        switch (message.elemType) {
+                    if (message.elem_type != null && message.hasOwnProperty("elem_type"))
+                        switch (message.elem_type) {
                         default:
-                            return "elemType: enum value expected";
+                            return "elem_type: enum value expected";
                         case 0:
                         case 1:
                         case 2:
@@ -2376,70 +2376,70 @@
                     if (object instanceof $root.onnx.TypeProto.Tensor)
                         return object;
                     var message = new $root.onnx.TypeProto.Tensor();
-                    switch (object.elemType) {
+                    switch (object.elem_type) {
                     case "UNDEFINED":
                     case 0:
-                        message.elemType = 0;
+                        message.elem_type = 0;
                         break;
                     case "FLOAT":
                     case 1:
-                        message.elemType = 1;
+                        message.elem_type = 1;
                         break;
                     case "UINT8":
                     case 2:
-                        message.elemType = 2;
+                        message.elem_type = 2;
                         break;
                     case "INT8":
                     case 3:
-                        message.elemType = 3;
+                        message.elem_type = 3;
                         break;
                     case "UINT16":
                     case 4:
-                        message.elemType = 4;
+                        message.elem_type = 4;
                         break;
                     case "INT16":
                     case 5:
-                        message.elemType = 5;
+                        message.elem_type = 5;
                         break;
                     case "INT32":
                     case 6:
-                        message.elemType = 6;
+                        message.elem_type = 6;
                         break;
                     case "INT64":
                     case 7:
-                        message.elemType = 7;
+                        message.elem_type = 7;
                         break;
                     case "STRING":
                     case 8:
-                        message.elemType = 8;
+                        message.elem_type = 8;
                         break;
                     case "BOOL":
                     case 9:
-                        message.elemType = 9;
+                        message.elem_type = 9;
                         break;
                     case "FLOAT16":
                     case 10:
-                        message.elemType = 10;
+                        message.elem_type = 10;
                         break;
                     case "DOUBLE":
                     case 11:
-                        message.elemType = 11;
+                        message.elem_type = 11;
                         break;
                     case "UINT32":
                     case 12:
-                        message.elemType = 12;
+                        message.elem_type = 12;
                         break;
                     case "UINT64":
                     case 13:
-                        message.elemType = 13;
+                        message.elem_type = 13;
                         break;
                     case "COMPLEX64":
                     case 14:
-                        message.elemType = 14;
+                        message.elem_type = 14;
                         break;
                     case "COMPLEX128":
                     case 15:
-                        message.elemType = 15;
+                        message.elem_type = 15;
                         break;
                     }
                     if (object.shape != null) {
@@ -2455,11 +2455,11 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.elemType = options.enums === String ? "UNDEFINED" : 0;
+                        object.elem_type = options.enums === String ? "UNDEFINED" : 0;
                         object.shape = null;
                     }
-                    if (message.elemType != null && message.hasOwnProperty("elemType"))
-                        object.elemType = options.enums === String ? $root.onnx.TensorProto.DataType[message.elemType] : message.elemType;
+                    if (message.elem_type != null && message.hasOwnProperty("elem_type"))
+                        object.elem_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.elem_type] : message.elem_type;
                     if (message.shape != null && message.hasOwnProperty("shape"))
                         object.shape = $root.onnx.TensorShapeProto.toObject(message.shape, options);
                     return object;
@@ -2481,7 +2481,7 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                Sequence.prototype.elemType = null;
+                Sequence.prototype.elem_type = null;
     
                 Sequence.create = function create(properties) {
                     return new Sequence(properties);
@@ -2495,7 +2495,7 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.elemType = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                            message.elem_type = $root.onnx.TypeProto.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2508,10 +2508,10 @@
                 Sequence.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.elemType != null && message.hasOwnProperty("elemType")) {
-                        var error = $root.onnx.TypeProto.verify(message.elemType);
+                    if (message.elem_type != null && message.hasOwnProperty("elem_type")) {
+                        var error = $root.onnx.TypeProto.verify(message.elem_type);
                         if (error)
-                            return "elemType." + error;
+                            return "elem_type." + error;
                     }
                     return null;
                 };
@@ -2520,10 +2520,10 @@
                     if (object instanceof $root.onnx.TypeProto.Sequence)
                         return object;
                     var message = new $root.onnx.TypeProto.Sequence();
-                    if (object.elemType != null) {
-                        if (typeof object.elemType !== "object")
-                            throw TypeError(".onnx.TypeProto.Sequence.elemType: object expected");
-                        message.elemType = $root.onnx.TypeProto.fromObject(object.elemType);
+                    if (object.elem_type != null) {
+                        if (typeof object.elem_type !== "object")
+                            throw TypeError(".onnx.TypeProto.Sequence.elem_type: object expected");
+                        message.elem_type = $root.onnx.TypeProto.fromObject(object.elem_type);
                     }
                     return message;
                 };
@@ -2533,9 +2533,9 @@
                         options = {};
                     var object = {};
                     if (options.defaults)
-                        object.elemType = null;
-                    if (message.elemType != null && message.hasOwnProperty("elemType"))
-                        object.elemType = $root.onnx.TypeProto.toObject(message.elemType, options);
+                        object.elem_type = null;
+                    if (message.elem_type != null && message.hasOwnProperty("elem_type"))
+                        object.elem_type = $root.onnx.TypeProto.toObject(message.elem_type, options);
                     return object;
                 };
     
@@ -2555,8 +2555,8 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                Map.prototype.keyType = 0;
-                Map.prototype.valueType = null;
+                Map.prototype.key_type = 0;
+                Map.prototype.value_type = null;
     
                 Map.create = function create(properties) {
                     return new Map(properties);
@@ -2570,10 +2570,10 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.keyType = reader.int32();
+                            message.key_type = reader.int32();
                             break;
                         case 2:
-                            message.valueType = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                            message.value_type = $root.onnx.TypeProto.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -2586,10 +2586,10 @@
                 Map.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.keyType != null && message.hasOwnProperty("keyType"))
-                        switch (message.keyType) {
+                    if (message.key_type != null && message.hasOwnProperty("key_type"))
+                        switch (message.key_type) {
                         default:
-                            return "keyType: enum value expected";
+                            return "key_type: enum value expected";
                         case 0:
                         case 1:
                         case 2:
@@ -2608,10 +2608,10 @@
                         case 15:
                             break;
                         }
-                    if (message.valueType != null && message.hasOwnProperty("valueType")) {
-                        var error = $root.onnx.TypeProto.verify(message.valueType);
+                    if (message.value_type != null && message.hasOwnProperty("value_type")) {
+                        var error = $root.onnx.TypeProto.verify(message.value_type);
                         if (error)
-                            return "valueType." + error;
+                            return "value_type." + error;
                     }
                     return null;
                 };
@@ -2620,76 +2620,76 @@
                     if (object instanceof $root.onnx.TypeProto.Map)
                         return object;
                     var message = new $root.onnx.TypeProto.Map();
-                    switch (object.keyType) {
+                    switch (object.key_type) {
                     case "UNDEFINED":
                     case 0:
-                        message.keyType = 0;
+                        message.key_type = 0;
                         break;
                     case "FLOAT":
                     case 1:
-                        message.keyType = 1;
+                        message.key_type = 1;
                         break;
                     case "UINT8":
                     case 2:
-                        message.keyType = 2;
+                        message.key_type = 2;
                         break;
                     case "INT8":
                     case 3:
-                        message.keyType = 3;
+                        message.key_type = 3;
                         break;
                     case "UINT16":
                     case 4:
-                        message.keyType = 4;
+                        message.key_type = 4;
                         break;
                     case "INT16":
                     case 5:
-                        message.keyType = 5;
+                        message.key_type = 5;
                         break;
                     case "INT32":
                     case 6:
-                        message.keyType = 6;
+                        message.key_type = 6;
                         break;
                     case "INT64":
                     case 7:
-                        message.keyType = 7;
+                        message.key_type = 7;
                         break;
                     case "STRING":
                     case 8:
-                        message.keyType = 8;
+                        message.key_type = 8;
                         break;
                     case "BOOL":
                     case 9:
-                        message.keyType = 9;
+                        message.key_type = 9;
                         break;
                     case "FLOAT16":
                     case 10:
-                        message.keyType = 10;
+                        message.key_type = 10;
                         break;
                     case "DOUBLE":
                     case 11:
-                        message.keyType = 11;
+                        message.key_type = 11;
                         break;
                     case "UINT32":
                     case 12:
-                        message.keyType = 12;
+                        message.key_type = 12;
                         break;
                     case "UINT64":
                     case 13:
-                        message.keyType = 13;
+                        message.key_type = 13;
                         break;
                     case "COMPLEX64":
                     case 14:
-                        message.keyType = 14;
+                        message.key_type = 14;
                         break;
                     case "COMPLEX128":
                     case 15:
-                        message.keyType = 15;
+                        message.key_type = 15;
                         break;
                     }
-                    if (object.valueType != null) {
-                        if (typeof object.valueType !== "object")
-                            throw TypeError(".onnx.TypeProto.Map.valueType: object expected");
-                        message.valueType = $root.onnx.TypeProto.fromObject(object.valueType);
+                    if (object.value_type != null) {
+                        if (typeof object.value_type !== "object")
+                            throw TypeError(".onnx.TypeProto.Map.value_type: object expected");
+                        message.value_type = $root.onnx.TypeProto.fromObject(object.value_type);
                     }
                     return message;
                 };
@@ -2699,13 +2699,13 @@
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.keyType = options.enums === String ? "UNDEFINED" : 0;
-                        object.valueType = null;
+                        object.key_type = options.enums === String ? "UNDEFINED" : 0;
+                        object.value_type = null;
                     }
-                    if (message.keyType != null && message.hasOwnProperty("keyType"))
-                        object.keyType = options.enums === String ? $root.onnx.TensorProto.DataType[message.keyType] : message.keyType;
-                    if (message.valueType != null && message.hasOwnProperty("valueType"))
-                        object.valueType = $root.onnx.TypeProto.toObject(message.valueType, options);
+                    if (message.key_type != null && message.hasOwnProperty("key_type"))
+                        object.key_type = options.enums === String ? $root.onnx.TensorProto.DataType[message.key_type] : message.key_type;
+                    if (message.value_type != null && message.hasOwnProperty("value_type"))
+                        object.value_type = $root.onnx.TypeProto.toObject(message.value_type, options);
                     return object;
                 };
     
@@ -2836,13 +2836,13 @@
             }
     
             FunctionProto.prototype.name = "";
-            FunctionProto.prototype.sinceVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            FunctionProto.prototype.since_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
             FunctionProto.prototype.status = 0;
             FunctionProto.prototype.input = $util.emptyArray;
             FunctionProto.prototype.output = $util.emptyArray;
             FunctionProto.prototype.attribute = $util.emptyArray;
             FunctionProto.prototype.node = $util.emptyArray;
-            FunctionProto.prototype.docString = "";
+            FunctionProto.prototype.doc_string = "";
     
             FunctionProto.create = function create(properties) {
                 return new FunctionProto(properties);
@@ -2859,7 +2859,7 @@
                         message.name = reader.string();
                         break;
                     case 2:
-                        message.sinceVersion = reader.int64();
+                        message.since_version = reader.int64();
                         break;
                     case 3:
                         message.status = reader.int32();
@@ -2885,7 +2885,7 @@
                         message.node.push($root.onnx.NodeProto.decode(reader, reader.uint32()));
                         break;
                     case 8:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2901,9 +2901,9 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
-                    if (!$util.isInteger(message.sinceVersion) && !(message.sinceVersion && $util.isInteger(message.sinceVersion.low) && $util.isInteger(message.sinceVersion.high)))
-                        return "sinceVersion: integer|Long expected";
+                if (message.since_version != null && message.hasOwnProperty("since_version"))
+                    if (!$util.isInteger(message.since_version) && !(message.since_version && $util.isInteger(message.since_version.low) && $util.isInteger(message.since_version.high)))
+                        return "since_version: integer|Long expected";
                 if (message.status != null && message.hasOwnProperty("status"))
                     switch (message.status) {
                     default:
@@ -2942,9 +2942,9 @@
                             return "node." + error;
                     }
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 return null;
             };
     
@@ -2954,15 +2954,15 @@
                 var message = new $root.onnx.FunctionProto();
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.sinceVersion != null)
+                if (object.since_version != null)
                     if ($util.Long)
-                        (message.sinceVersion = $util.Long.fromValue(object.sinceVersion)).unsigned = false;
-                    else if (typeof object.sinceVersion === "string")
-                        message.sinceVersion = parseInt(object.sinceVersion, 10);
-                    else if (typeof object.sinceVersion === "number")
-                        message.sinceVersion = object.sinceVersion;
-                    else if (typeof object.sinceVersion === "object")
-                        message.sinceVersion = new $util.LongBits(object.sinceVersion.low >>> 0, object.sinceVersion.high >>> 0).toNumber();
+                        (message.since_version = $util.Long.fromValue(object.since_version)).unsigned = false;
+                    else if (typeof object.since_version === "string")
+                        message.since_version = parseInt(object.since_version, 10);
+                    else if (typeof object.since_version === "number")
+                        message.since_version = object.since_version;
+                    else if (typeof object.since_version === "object")
+                        message.since_version = new $util.LongBits(object.since_version.low >>> 0, object.since_version.high >>> 0).toNumber();
                 switch (object.status) {
                 case "EXPERIMENTAL":
                 case 0:
@@ -3004,8 +3004,8 @@
                         message.node[i] = $root.onnx.NodeProto.fromObject(object.node[i]);
                     }
                 }
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 return message;
             };
     
@@ -3023,19 +3023,19 @@
                     object.name = "";
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.sinceVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.since_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.sinceVersion = options.longs === String ? "0" : 0;
+                        object.since_version = options.longs === String ? "0" : 0;
                     object.status = options.enums === String ? "EXPERIMENTAL" : 0;
-                    object.docString = "";
+                    object.doc_string = "";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
-                    if (typeof message.sinceVersion === "number")
-                        object.sinceVersion = options.longs === String ? String(message.sinceVersion) : message.sinceVersion;
+                if (message.since_version != null && message.hasOwnProperty("since_version"))
+                    if (typeof message.since_version === "number")
+                        object.since_version = options.longs === String ? String(message.since_version) : message.since_version;
                     else
-                        object.sinceVersion = options.longs === String ? $util.Long.prototype.toString.call(message.sinceVersion) : options.longs === Number ? new $util.LongBits(message.sinceVersion.low >>> 0, message.sinceVersion.high >>> 0).toNumber() : message.sinceVersion;
+                        object.since_version = options.longs === String ? $util.Long.prototype.toString.call(message.since_version) : options.longs === Number ? new $util.LongBits(message.since_version.low >>> 0, message.since_version.high >>> 0).toNumber() : message.since_version;
                 if (message.status != null && message.hasOwnProperty("status"))
                     object.status = options.enums === String ? $root.onnx.OperatorStatus[message.status] : message.status;
                 if (message.input && message.input.length) {
@@ -3058,8 +3058,8 @@
                     for (var j = 0; j < message.node.length; ++j)
                         object.node[j] = $root.onnx.NodeProto.toObject(message.node[j], options);
                 }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 return object;
             };
     
@@ -3079,10 +3079,10 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            OperatorProto.prototype.opType = "";
-            OperatorProto.prototype.sinceVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            OperatorProto.prototype.op_type = "";
+            OperatorProto.prototype.since_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
             OperatorProto.prototype.status = 0;
-            OperatorProto.prototype.docString = "";
+            OperatorProto.prototype.doc_string = "";
     
             OperatorProto.create = function create(properties) {
                 return new OperatorProto(properties);
@@ -3096,16 +3096,16 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.opType = reader.string();
+                        message.op_type = reader.string();
                         break;
                     case 2:
-                        message.sinceVersion = reader.int64();
+                        message.since_version = reader.int64();
                         break;
                     case 3:
                         message.status = reader.int32();
                         break;
                     case 10:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3118,12 +3118,12 @@
             OperatorProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.opType != null && message.hasOwnProperty("opType"))
-                    if (!$util.isString(message.opType))
-                        return "opType: string expected";
-                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
-                    if (!$util.isInteger(message.sinceVersion) && !(message.sinceVersion && $util.isInteger(message.sinceVersion.low) && $util.isInteger(message.sinceVersion.high)))
-                        return "sinceVersion: integer|Long expected";
+                if (message.op_type != null && message.hasOwnProperty("op_type"))
+                    if (!$util.isString(message.op_type))
+                        return "op_type: string expected";
+                if (message.since_version != null && message.hasOwnProperty("since_version"))
+                    if (!$util.isInteger(message.since_version) && !(message.since_version && $util.isInteger(message.since_version.low) && $util.isInteger(message.since_version.high)))
+                        return "since_version: integer|Long expected";
                 if (message.status != null && message.hasOwnProperty("status"))
                     switch (message.status) {
                     default:
@@ -3132,9 +3132,9 @@
                     case 1:
                         break;
                     }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 return null;
             };
     
@@ -3142,17 +3142,17 @@
                 if (object instanceof $root.onnx.OperatorProto)
                     return object;
                 var message = new $root.onnx.OperatorProto();
-                if (object.opType != null)
-                    message.opType = String(object.opType);
-                if (object.sinceVersion != null)
+                if (object.op_type != null)
+                    message.op_type = String(object.op_type);
+                if (object.since_version != null)
                     if ($util.Long)
-                        (message.sinceVersion = $util.Long.fromValue(object.sinceVersion)).unsigned = false;
-                    else if (typeof object.sinceVersion === "string")
-                        message.sinceVersion = parseInt(object.sinceVersion, 10);
-                    else if (typeof object.sinceVersion === "number")
-                        message.sinceVersion = object.sinceVersion;
-                    else if (typeof object.sinceVersion === "object")
-                        message.sinceVersion = new $util.LongBits(object.sinceVersion.low >>> 0, object.sinceVersion.high >>> 0).toNumber();
+                        (message.since_version = $util.Long.fromValue(object.since_version)).unsigned = false;
+                    else if (typeof object.since_version === "string")
+                        message.since_version = parseInt(object.since_version, 10);
+                    else if (typeof object.since_version === "number")
+                        message.since_version = object.since_version;
+                    else if (typeof object.since_version === "object")
+                        message.since_version = new $util.LongBits(object.since_version.low >>> 0, object.since_version.high >>> 0).toNumber();
                 switch (object.status) {
                 case "EXPERIMENTAL":
                 case 0:
@@ -3163,8 +3163,8 @@
                     message.status = 1;
                     break;
                 }
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 return message;
             };
     
@@ -3173,26 +3173,26 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.opType = "";
+                    object.op_type = "";
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.sinceVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.since_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.sinceVersion = options.longs === String ? "0" : 0;
+                        object.since_version = options.longs === String ? "0" : 0;
                     object.status = options.enums === String ? "EXPERIMENTAL" : 0;
-                    object.docString = "";
+                    object.doc_string = "";
                 }
-                if (message.opType != null && message.hasOwnProperty("opType"))
-                    object.opType = message.opType;
-                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
-                    if (typeof message.sinceVersion === "number")
-                        object.sinceVersion = options.longs === String ? String(message.sinceVersion) : message.sinceVersion;
+                if (message.op_type != null && message.hasOwnProperty("op_type"))
+                    object.op_type = message.op_type;
+                if (message.since_version != null && message.hasOwnProperty("since_version"))
+                    if (typeof message.since_version === "number")
+                        object.since_version = options.longs === String ? String(message.since_version) : message.since_version;
                     else
-                        object.sinceVersion = options.longs === String ? $util.Long.prototype.toString.call(message.sinceVersion) : options.longs === Number ? new $util.LongBits(message.sinceVersion.low >>> 0, message.sinceVersion.high >>> 0).toNumber() : message.sinceVersion;
+                        object.since_version = options.longs === String ? $util.Long.prototype.toString.call(message.since_version) : options.longs === Number ? new $util.LongBits(message.since_version.low >>> 0, message.since_version.high >>> 0).toNumber() : message.since_version;
                 if (message.status != null && message.hasOwnProperty("status"))
                     object.status = options.enums === String ? $root.onnx.OperatorStatus[message.status] : message.status;
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
                 return object;
             };
     
@@ -3215,12 +3215,12 @@
             }
     
             OperatorSetProto.prototype.magic = "";
-            OperatorSetProto.prototype.irVersion = 0;
-            OperatorSetProto.prototype.irVersionPrerelease = "";
-            OperatorSetProto.prototype.irBuildMetadata = "";
+            OperatorSetProto.prototype.ir_version = 0;
+            OperatorSetProto.prototype.ir_version_prerelease = "";
+            OperatorSetProto.prototype.ir_build_metadata = "";
             OperatorSetProto.prototype.domain = "";
-            OperatorSetProto.prototype.opsetVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-            OperatorSetProto.prototype.docString = "";
+            OperatorSetProto.prototype.opset_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            OperatorSetProto.prototype.doc_string = "";
             OperatorSetProto.prototype.operator = $util.emptyArray;
             OperatorSetProto.prototype.functions = $util.emptyArray;
     
@@ -3239,22 +3239,22 @@
                         message.magic = reader.string();
                         break;
                     case 2:
-                        message.irVersion = reader.int32();
+                        message.ir_version = reader.int32();
                         break;
                     case 3:
-                        message.irVersionPrerelease = reader.string();
+                        message.ir_version_prerelease = reader.string();
                         break;
                     case 7:
-                        message.irBuildMetadata = reader.string();
+                        message.ir_build_metadata = reader.string();
                         break;
                     case 4:
                         message.domain = reader.string();
                         break;
                     case 5:
-                        message.opsetVersion = reader.int64();
+                        message.opset_version = reader.int64();
                         break;
                     case 6:
-                        message.docString = reader.string();
+                        message.doc_string = reader.string();
                         break;
                     case 8:
                         if (!(message.operator && message.operator.length))
@@ -3280,24 +3280,24 @@
                 if (message.magic != null && message.hasOwnProperty("magic"))
                     if (!$util.isString(message.magic))
                         return "magic: string expected";
-                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
-                    if (!$util.isInteger(message.irVersion))
-                        return "irVersion: integer expected";
-                if (message.irVersionPrerelease != null && message.hasOwnProperty("irVersionPrerelease"))
-                    if (!$util.isString(message.irVersionPrerelease))
-                        return "irVersionPrerelease: string expected";
-                if (message.irBuildMetadata != null && message.hasOwnProperty("irBuildMetadata"))
-                    if (!$util.isString(message.irBuildMetadata))
-                        return "irBuildMetadata: string expected";
+                if (message.ir_version != null && message.hasOwnProperty("ir_version"))
+                    if (!$util.isInteger(message.ir_version))
+                        return "ir_version: integer expected";
+                if (message.ir_version_prerelease != null && message.hasOwnProperty("ir_version_prerelease"))
+                    if (!$util.isString(message.ir_version_prerelease))
+                        return "ir_version_prerelease: string expected";
+                if (message.ir_build_metadata != null && message.hasOwnProperty("ir_build_metadata"))
+                    if (!$util.isString(message.ir_build_metadata))
+                        return "ir_build_metadata: string expected";
                 if (message.domain != null && message.hasOwnProperty("domain"))
                     if (!$util.isString(message.domain))
                         return "domain: string expected";
-                if (message.opsetVersion != null && message.hasOwnProperty("opsetVersion"))
-                    if (!$util.isInteger(message.opsetVersion) && !(message.opsetVersion && $util.isInteger(message.opsetVersion.low) && $util.isInteger(message.opsetVersion.high)))
-                        return "opsetVersion: integer|Long expected";
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    if (!$util.isString(message.docString))
-                        return "docString: string expected";
+                if (message.opset_version != null && message.hasOwnProperty("opset_version"))
+                    if (!$util.isInteger(message.opset_version) && !(message.opset_version && $util.isInteger(message.opset_version.low) && $util.isInteger(message.opset_version.high)))
+                        return "opset_version: integer|Long expected";
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    if (!$util.isString(message.doc_string))
+                        return "doc_string: string expected";
                 if (message.operator != null && message.hasOwnProperty("operator")) {
                     if (!Array.isArray(message.operator))
                         return "operator: array expected";
@@ -3325,25 +3325,25 @@
                 var message = new $root.onnx.OperatorSetProto();
                 if (object.magic != null)
                     message.magic = String(object.magic);
-                if (object.irVersion != null)
-                    message.irVersion = object.irVersion | 0;
-                if (object.irVersionPrerelease != null)
-                    message.irVersionPrerelease = String(object.irVersionPrerelease);
-                if (object.irBuildMetadata != null)
-                    message.irBuildMetadata = String(object.irBuildMetadata);
+                if (object.ir_version != null)
+                    message.ir_version = object.ir_version | 0;
+                if (object.ir_version_prerelease != null)
+                    message.ir_version_prerelease = String(object.ir_version_prerelease);
+                if (object.ir_build_metadata != null)
+                    message.ir_build_metadata = String(object.ir_build_metadata);
                 if (object.domain != null)
                     message.domain = String(object.domain);
-                if (object.opsetVersion != null)
+                if (object.opset_version != null)
                     if ($util.Long)
-                        (message.opsetVersion = $util.Long.fromValue(object.opsetVersion)).unsigned = false;
-                    else if (typeof object.opsetVersion === "string")
-                        message.opsetVersion = parseInt(object.opsetVersion, 10);
-                    else if (typeof object.opsetVersion === "number")
-                        message.opsetVersion = object.opsetVersion;
-                    else if (typeof object.opsetVersion === "object")
-                        message.opsetVersion = new $util.LongBits(object.opsetVersion.low >>> 0, object.opsetVersion.high >>> 0).toNumber();
-                if (object.docString != null)
-                    message.docString = String(object.docString);
+                        (message.opset_version = $util.Long.fromValue(object.opset_version)).unsigned = false;
+                    else if (typeof object.opset_version === "string")
+                        message.opset_version = parseInt(object.opset_version, 10);
+                    else if (typeof object.opset_version === "number")
+                        message.opset_version = object.opset_version;
+                    else if (typeof object.opset_version === "object")
+                        message.opset_version = new $util.LongBits(object.opset_version.low >>> 0, object.opset_version.high >>> 0).toNumber();
+                if (object.doc_string != null)
+                    message.doc_string = String(object.doc_string);
                 if (object.operator) {
                     if (!Array.isArray(object.operator))
                         throw TypeError(".onnx.OperatorSetProto.operator: array expected");
@@ -3377,34 +3377,34 @@
                 }
                 if (options.defaults) {
                     object.magic = "";
-                    object.irVersion = 0;
-                    object.irVersionPrerelease = "";
+                    object.ir_version = 0;
+                    object.ir_version_prerelease = "";
                     object.domain = "";
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.opsetVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.opset_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.opsetVersion = options.longs === String ? "0" : 0;
-                    object.docString = "";
-                    object.irBuildMetadata = "";
+                        object.opset_version = options.longs === String ? "0" : 0;
+                    object.doc_string = "";
+                    object.ir_build_metadata = "";
                 }
                 if (message.magic != null && message.hasOwnProperty("magic"))
                     object.magic = message.magic;
-                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
-                    object.irVersion = message.irVersion;
-                if (message.irVersionPrerelease != null && message.hasOwnProperty("irVersionPrerelease"))
-                    object.irVersionPrerelease = message.irVersionPrerelease;
+                if (message.ir_version != null && message.hasOwnProperty("ir_version"))
+                    object.ir_version = message.ir_version;
+                if (message.ir_version_prerelease != null && message.hasOwnProperty("ir_version_prerelease"))
+                    object.ir_version_prerelease = message.ir_version_prerelease;
                 if (message.domain != null && message.hasOwnProperty("domain"))
                     object.domain = message.domain;
-                if (message.opsetVersion != null && message.hasOwnProperty("opsetVersion"))
-                    if (typeof message.opsetVersion === "number")
-                        object.opsetVersion = options.longs === String ? String(message.opsetVersion) : message.opsetVersion;
+                if (message.opset_version != null && message.hasOwnProperty("opset_version"))
+                    if (typeof message.opset_version === "number")
+                        object.opset_version = options.longs === String ? String(message.opset_version) : message.opset_version;
                     else
-                        object.opsetVersion = options.longs === String ? $util.Long.prototype.toString.call(message.opsetVersion) : options.longs === Number ? new $util.LongBits(message.opsetVersion.low >>> 0, message.opsetVersion.high >>> 0).toNumber() : message.opsetVersion;
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    object.docString = message.docString;
-                if (message.irBuildMetadata != null && message.hasOwnProperty("irBuildMetadata"))
-                    object.irBuildMetadata = message.irBuildMetadata;
+                        object.opset_version = options.longs === String ? $util.Long.prototype.toString.call(message.opset_version) : options.longs === Number ? new $util.LongBits(message.opset_version.low >>> 0, message.opset_version.high >>> 0).toNumber() : message.opset_version;
+                if (message.doc_string != null && message.hasOwnProperty("doc_string"))
+                    object.doc_string = message.doc_string;
+                if (message.ir_build_metadata != null && message.hasOwnProperty("ir_build_metadata"))
+                    object.ir_build_metadata = message.ir_build_metadata;
                 if (message.operator && message.operator.length) {
                     object.operator = [];
                     for (var j = 0; j < message.operator.length; ++j)
