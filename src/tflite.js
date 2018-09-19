@@ -116,7 +116,9 @@ tflite.BuiltinOperator = {
   REDUCE_MIN: 89,
   FLOOR_DIV: 90,
   REDUCE_ANY: 91,
-  SQUARE: 92
+  SQUARE: 92,
+  ZEROS_LIKE: 93,
+  FILL: 94
 };
 
 /**
@@ -189,7 +191,9 @@ tflite.BuiltinOptions = {
   LogicalNotOptions: 63,
   UnpackOptions: 64,
   FloorDivOptions: 65,
-  SquareOptions: 66
+  SquareOptions: 66,
+  ZerosLikeOptions: 67,
+  FillOptions: 68
 };
 
 /**
@@ -5592,6 +5596,108 @@ tflite.SquareOptions.startSquareOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite.SquareOptions.endSquareOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.ZerosLikeOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.ZerosLikeOptions}
+ */
+tflite.ZerosLikeOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.ZerosLikeOptions=} obj
+ * @returns {tflite.ZerosLikeOptions}
+ */
+tflite.ZerosLikeOptions.getRootAsZerosLikeOptions = function(bb, obj) {
+  return (obj || new tflite.ZerosLikeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.ZerosLikeOptions.startZerosLikeOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.ZerosLikeOptions.endZerosLikeOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.FillOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.FillOptions}
+ */
+tflite.FillOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.FillOptions=} obj
+ * @returns {tflite.FillOptions}
+ */
+tflite.FillOptions.getRootAsFillOptions = function(bb, obj) {
+  return (obj || new tflite.FillOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.FillOptions.startFillOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.FillOptions.endFillOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
