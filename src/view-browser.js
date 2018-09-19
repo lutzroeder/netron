@@ -250,6 +250,7 @@ class BrowserHost {
             }
         };
         request.onerror = () => {
+            this._view.show(null);
             this.error('Error while requesting model.', request.status);
         };
         request.open('GET', url, true);
