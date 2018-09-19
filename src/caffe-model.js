@@ -284,7 +284,7 @@ class CaffeNode {
         switch (version) {
             case 0:
                 Object.keys(layer.layer).forEach((attributeName) => {
-                    if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobsLr') {
+                    if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
                         var attributeValue = layer.layer[attributeName];
                         this._attributes.push(new CaffeAttribute(this, attributeName, attributeValue));
                     }
@@ -296,7 +296,7 @@ class CaffeNode {
             case 1:
             case 2:
                 Object.keys(layer).forEach((key) => {
-                    if (key.endsWith('Param')) {
+                    if (key.endsWith('_param')) {
                         var param = layer[key];
                         var type = this._type;
                         if (type == 'Deconvolution') {
@@ -411,12 +411,7 @@ class CaffeAttribute {
 
     constructor(owner, name, value) {
         this._owner = owner;
-        this._name = '';
-        for (var i = 0; i < name.length; i++) {
-            var character = name[i];
-            var lowerCase = character.toLowerCase();
-            this._name += (character != lowerCase) ? ('_' + lowerCase) : character;
-        }
+        this._name = name;
         this._value = value;
     }
 
@@ -463,9 +458,9 @@ class CaffeTensor {
             dataType = 'float32';
             this._data = blob.data;
         }
-        else if (blob.doubleData.length > 0) {
+        else if (blob.double_data.length > 0) {
             dataType = 'float64';
-            this._data = blob.doubleData;
+            this._data = blob.double_data;
         }
 
         this._type = new CaffeTensorType(dataType, shape);

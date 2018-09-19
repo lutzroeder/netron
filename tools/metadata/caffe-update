@@ -22,5 +22,5 @@ else
 fi
 
 echo "Generate 'caffe.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments -r caffe -o ${src}/caffe.js ${third_party}/${identifier}/src/caffe/proto/caffe.proto
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r caffe -o ${src}/caffe.js ${third_party}/${identifier}/src/caffe/proto/caffe.proto
 node ${tools}/metadata/update_pbjs.js array ${src}/caffe.js data float 1

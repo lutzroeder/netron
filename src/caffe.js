@@ -114,8 +114,8 @@
             function BlobProto(properties) {
                 this.data = [];
                 this.diff = [];
-                this.doubleData = [];
-                this.doubleDiff = [];
+                this.double_data = [];
+                this.double_diff = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -125,8 +125,8 @@
             BlobProto.prototype.shape = null;
             BlobProto.prototype.data = $util.emptyArray;
             BlobProto.prototype.diff = $util.emptyArray;
-            BlobProto.prototype.doubleData = $util.emptyArray;
-            BlobProto.prototype.doubleDiff = $util.emptyArray;
+            BlobProto.prototype.double_data = $util.emptyArray;
+            BlobProto.prototype.double_diff = $util.emptyArray;
             BlobProto.prototype.num = 0;
             BlobProto.prototype.channels = 0;
             BlobProto.prototype.height = 0;
@@ -180,24 +180,24 @@
                             message.diff.push(reader.float());
                         break;
                     case 8:
-                        if (!(message.doubleData && message.doubleData.length))
-                            message.doubleData = [];
+                        if (!(message.double_data && message.double_data.length))
+                            message.double_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.doubleData.push(reader.double());
+                                message.double_data.push(reader.double());
                         } else
-                            message.doubleData.push(reader.double());
+                            message.double_data.push(reader.double());
                         break;
                     case 9:
-                        if (!(message.doubleDiff && message.doubleDiff.length))
-                            message.doubleDiff = [];
+                        if (!(message.double_diff && message.double_diff.length))
+                            message.double_diff = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.doubleDiff.push(reader.double());
+                                message.double_diff.push(reader.double());
                         } else
-                            message.doubleDiff.push(reader.double());
+                            message.double_diff.push(reader.double());
                         break;
                     case 1:
                         message.num = reader.int32();
@@ -241,19 +241,19 @@
                         if (typeof message.diff[i] !== "number")
                             return "diff: number[] expected";
                 }
-                if (message.doubleData != null && message.hasOwnProperty("doubleData")) {
-                    if (!Array.isArray(message.doubleData))
-                        return "doubleData: array expected";
-                    for (var i = 0; i < message.doubleData.length; ++i)
-                        if (typeof message.doubleData[i] !== "number")
-                            return "doubleData: number[] expected";
+                if (message.double_data != null && message.hasOwnProperty("double_data")) {
+                    if (!Array.isArray(message.double_data))
+                        return "double_data: array expected";
+                    for (var i = 0; i < message.double_data.length; ++i)
+                        if (typeof message.double_data[i] !== "number")
+                            return "double_data: number[] expected";
                 }
-                if (message.doubleDiff != null && message.hasOwnProperty("doubleDiff")) {
-                    if (!Array.isArray(message.doubleDiff))
-                        return "doubleDiff: array expected";
-                    for (var i = 0; i < message.doubleDiff.length; ++i)
-                        if (typeof message.doubleDiff[i] !== "number")
-                            return "doubleDiff: number[] expected";
+                if (message.double_diff != null && message.hasOwnProperty("double_diff")) {
+                    if (!Array.isArray(message.double_diff))
+                        return "double_diff: array expected";
+                    for (var i = 0; i < message.double_diff.length; ++i)
+                        if (typeof message.double_diff[i] !== "number")
+                            return "double_diff: number[] expected";
                 }
                 if (message.num != null && message.hasOwnProperty("num"))
                     if (!$util.isInteger(message.num))
@@ -293,19 +293,19 @@
                     for (var i = 0; i < object.diff.length; ++i)
                         message.diff[i] = Number(object.diff[i]);
                 }
-                if (object.doubleData) {
-                    if (!Array.isArray(object.doubleData))
-                        throw TypeError(".caffe.BlobProto.doubleData: array expected");
-                    message.doubleData = [];
-                    for (var i = 0; i < object.doubleData.length; ++i)
-                        message.doubleData[i] = Number(object.doubleData[i]);
+                if (object.double_data) {
+                    if (!Array.isArray(object.double_data))
+                        throw TypeError(".caffe.BlobProto.double_data: array expected");
+                    message.double_data = [];
+                    for (var i = 0; i < object.double_data.length; ++i)
+                        message.double_data[i] = Number(object.double_data[i]);
                 }
-                if (object.doubleDiff) {
-                    if (!Array.isArray(object.doubleDiff))
-                        throw TypeError(".caffe.BlobProto.doubleDiff: array expected");
-                    message.doubleDiff = [];
-                    for (var i = 0; i < object.doubleDiff.length; ++i)
-                        message.doubleDiff[i] = Number(object.doubleDiff[i]);
+                if (object.double_diff) {
+                    if (!Array.isArray(object.double_diff))
+                        throw TypeError(".caffe.BlobProto.double_diff: array expected");
+                    message.double_diff = [];
+                    for (var i = 0; i < object.double_diff.length; ++i)
+                        message.double_diff[i] = Number(object.double_diff[i]);
                 }
                 if (object.num != null)
                     message.num = object.num | 0;
@@ -325,8 +325,8 @@
                 if (options.arrays || options.defaults) {
                     object.data = [];
                     object.diff = [];
-                    object.doubleData = [];
-                    object.doubleDiff = [];
+                    object.double_data = [];
+                    object.double_diff = [];
                 }
                 if (options.defaults) {
                     object.num = 0;
@@ -355,15 +355,15 @@
                 }
                 if (message.shape != null && message.hasOwnProperty("shape"))
                     object.shape = $root.caffe.BlobShape.toObject(message.shape, options);
-                if (message.doubleData && message.doubleData.length) {
-                    object.doubleData = [];
-                    for (var j = 0; j < message.doubleData.length; ++j)
-                        object.doubleData[j] = options.json && !isFinite(message.doubleData[j]) ? String(message.doubleData[j]) : message.doubleData[j];
+                if (message.double_data && message.double_data.length) {
+                    object.double_data = [];
+                    for (var j = 0; j < message.double_data.length; ++j)
+                        object.double_data[j] = options.json && !isFinite(message.double_data[j]) ? String(message.double_data[j]) : message.double_data[j];
                 }
-                if (message.doubleDiff && message.doubleDiff.length) {
-                    object.doubleDiff = [];
-                    for (var j = 0; j < message.doubleDiff.length; ++j)
-                        object.doubleDiff[j] = options.json && !isFinite(message.doubleDiff[j]) ? String(message.doubleDiff[j]) : message.doubleDiff[j];
+                if (message.double_diff && message.double_diff.length) {
+                    object.double_diff = [];
+                    for (var j = 0; j < message.double_diff.length; ++j)
+                        object.double_diff[j] = options.json && !isFinite(message.double_diff[j]) ? String(message.double_diff[j]) : message.double_diff[j];
                 }
                 return object;
             };
@@ -467,7 +467,7 @@
         caffe.Datum = (function() {
     
             function Datum(properties) {
-                this.floatData = [];
+                this.float_data = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -479,7 +479,7 @@
             Datum.prototype.width = 0;
             Datum.prototype.data = $util.newBuffer([]);
             Datum.prototype.label = 0;
-            Datum.prototype.floatData = $util.emptyArray;
+            Datum.prototype.float_data = $util.emptyArray;
             Datum.prototype.encoded = false;
     
             Datum.create = function create(properties) {
@@ -509,14 +509,14 @@
                         message.label = reader.int32();
                         break;
                     case 6:
-                        if (!(message.floatData && message.floatData.length))
-                            message.floatData = [];
+                        if (!(message.float_data && message.float_data.length))
+                            message.float_data = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.floatData.push(reader.float());
+                                message.float_data.push(reader.float());
                         } else
-                            message.floatData.push(reader.float());
+                            message.float_data.push(reader.float());
                         break;
                     case 7:
                         message.encoded = reader.bool();
@@ -547,12 +547,12 @@
                 if (message.label != null && message.hasOwnProperty("label"))
                     if (!$util.isInteger(message.label))
                         return "label: integer expected";
-                if (message.floatData != null && message.hasOwnProperty("floatData")) {
-                    if (!Array.isArray(message.floatData))
-                        return "floatData: array expected";
-                    for (var i = 0; i < message.floatData.length; ++i)
-                        if (typeof message.floatData[i] !== "number")
-                            return "floatData: number[] expected";
+                if (message.float_data != null && message.hasOwnProperty("float_data")) {
+                    if (!Array.isArray(message.float_data))
+                        return "float_data: array expected";
+                    for (var i = 0; i < message.float_data.length; ++i)
+                        if (typeof message.float_data[i] !== "number")
+                            return "float_data: number[] expected";
                 }
                 if (message.encoded != null && message.hasOwnProperty("encoded"))
                     if (typeof message.encoded !== "boolean")
@@ -577,12 +577,12 @@
                         message.data = object.data;
                 if (object.label != null)
                     message.label = object.label | 0;
-                if (object.floatData) {
-                    if (!Array.isArray(object.floatData))
-                        throw TypeError(".caffe.Datum.floatData: array expected");
-                    message.floatData = [];
-                    for (var i = 0; i < object.floatData.length; ++i)
-                        message.floatData[i] = Number(object.floatData[i]);
+                if (object.float_data) {
+                    if (!Array.isArray(object.float_data))
+                        throw TypeError(".caffe.Datum.float_data: array expected");
+                    message.float_data = [];
+                    for (var i = 0; i < object.float_data.length; ++i)
+                        message.float_data[i] = Number(object.float_data[i]);
                 }
                 if (object.encoded != null)
                     message.encoded = Boolean(object.encoded);
@@ -594,7 +594,7 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.floatData = [];
+                    object.float_data = [];
                 if (options.defaults) {
                     object.channels = 0;
                     object.height = 0;
@@ -619,10 +619,10 @@
                     object.data = options.bytes === String ? $util.base64.encode(message.data, 0, message.data.length) : options.bytes === Array ? Array.prototype.slice.call(message.data) : message.data;
                 if (message.label != null && message.hasOwnProperty("label"))
                     object.label = message.label;
-                if (message.floatData && message.floatData.length) {
-                    object.floatData = [];
-                    for (var j = 0; j < message.floatData.length; ++j)
-                        object.floatData[j] = options.json && !isFinite(message.floatData[j]) ? String(message.floatData[j]) : message.floatData[j];
+                if (message.float_data && message.float_data.length) {
+                    object.float_data = [];
+                    for (var j = 0; j < message.float_data.length; ++j)
+                        object.float_data[j] = options.json && !isFinite(message.float_data[j]) ? String(message.float_data[j]) : message.float_data[j];
                 }
                 if (message.encoded != null && message.hasOwnProperty("encoded"))
                     object.encoded = message.encoded;
@@ -652,7 +652,7 @@
             FillerParameter.prototype.mean = 0;
             FillerParameter.prototype.std = 1;
             FillerParameter.prototype.sparse = -1;
-            FillerParameter.prototype.varianceNorm = 0;
+            FillerParameter.prototype.variance_norm = 0;
     
             FillerParameter.create = function create(properties) {
                 return new FillerParameter(properties);
@@ -687,7 +687,7 @@
                         message.sparse = reader.int32();
                         break;
                     case 8:
-                        message.varianceNorm = reader.int32();
+                        message.variance_norm = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -721,10 +721,10 @@
                 if (message.sparse != null && message.hasOwnProperty("sparse"))
                     if (!$util.isInteger(message.sparse))
                         return "sparse: integer expected";
-                if (message.varianceNorm != null && message.hasOwnProperty("varianceNorm"))
-                    switch (message.varianceNorm) {
+                if (message.variance_norm != null && message.hasOwnProperty("variance_norm"))
+                    switch (message.variance_norm) {
                     default:
-                        return "varianceNorm: enum value expected";
+                        return "variance_norm: enum value expected";
                     case 0:
                     case 1:
                     case 2:
@@ -751,18 +751,18 @@
                     message.std = Number(object.std);
                 if (object.sparse != null)
                     message.sparse = object.sparse | 0;
-                switch (object.varianceNorm) {
+                switch (object.variance_norm) {
                 case "FAN_IN":
                 case 0:
-                    message.varianceNorm = 0;
+                    message.variance_norm = 0;
                     break;
                 case "FAN_OUT":
                 case 1:
-                    message.varianceNorm = 1;
+                    message.variance_norm = 1;
                     break;
                 case "AVERAGE":
                 case 2:
-                    message.varianceNorm = 2;
+                    message.variance_norm = 2;
                     break;
                 }
                 return message;
@@ -780,7 +780,7 @@
                     object.mean = 0;
                     object.std = 1;
                     object.sparse = -1;
-                    object.varianceNorm = options.enums === String ? "FAN_IN" : 0;
+                    object.variance_norm = options.enums === String ? "FAN_IN" : 0;
                 }
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = message.type;
@@ -796,8 +796,8 @@
                     object.std = options.json && !isFinite(message.std) ? String(message.std) : message.std;
                 if (message.sparse != null && message.hasOwnProperty("sparse"))
                     object.sparse = message.sparse;
-                if (message.varianceNorm != null && message.hasOwnProperty("varianceNorm"))
-                    object.varianceNorm = options.enums === String ? $root.caffe.FillerParameter.VarianceNorm[message.varianceNorm] : message.varianceNorm;
+                if (message.variance_norm != null && message.hasOwnProperty("variance_norm"))
+                    object.variance_norm = options.enums === String ? $root.caffe.FillerParameter.VarianceNorm[message.variance_norm] : message.variance_norm;
                 return object;
             };
     
@@ -820,8 +820,8 @@
     
             function NetParameter(properties) {
                 this.input = [];
-                this.inputShape = [];
-                this.inputDim = [];
+                this.input_shape = [];
+                this.input_dim = [];
                 this.layer = [];
                 this.layers = [];
                 if (properties)
@@ -832,11 +832,11 @@
     
             NetParameter.prototype.name = "";
             NetParameter.prototype.input = $util.emptyArray;
-            NetParameter.prototype.inputShape = $util.emptyArray;
-            NetParameter.prototype.inputDim = $util.emptyArray;
-            NetParameter.prototype.forceBackward = false;
+            NetParameter.prototype.input_shape = $util.emptyArray;
+            NetParameter.prototype.input_dim = $util.emptyArray;
+            NetParameter.prototype.force_backward = false;
             NetParameter.prototype.state = null;
-            NetParameter.prototype.debugInfo = false;
+            NetParameter.prototype.debug_info = false;
             NetParameter.prototype.layer = $util.emptyArray;
             NetParameter.prototype.layers = $util.emptyArray;
     
@@ -860,28 +860,28 @@
                         message.input.push(reader.string());
                         break;
                     case 8:
-                        if (!(message.inputShape && message.inputShape.length))
-                            message.inputShape = [];
-                        message.inputShape.push($root.caffe.BlobShape.decode(reader, reader.uint32()));
+                        if (!(message.input_shape && message.input_shape.length))
+                            message.input_shape = [];
+                        message.input_shape.push($root.caffe.BlobShape.decode(reader, reader.uint32()));
                         break;
                     case 4:
-                        if (!(message.inputDim && message.inputDim.length))
-                            message.inputDim = [];
+                        if (!(message.input_dim && message.input_dim.length))
+                            message.input_dim = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.inputDim.push(reader.int32());
+                                message.input_dim.push(reader.int32());
                         } else
-                            message.inputDim.push(reader.int32());
+                            message.input_dim.push(reader.int32());
                         break;
                     case 5:
-                        message.forceBackward = reader.bool();
+                        message.force_backward = reader.bool();
                         break;
                     case 6:
                         message.state = $root.caffe.NetState.decode(reader, reader.uint32());
                         break;
                     case 7:
-                        message.debugInfo = reader.bool();
+                        message.debug_info = reader.bool();
                         break;
                     case 100:
                         if (!(message.layer && message.layer.length))
@@ -914,33 +914,33 @@
                         if (!$util.isString(message.input[i]))
                             return "input: string[] expected";
                 }
-                if (message.inputShape != null && message.hasOwnProperty("inputShape")) {
-                    if (!Array.isArray(message.inputShape))
-                        return "inputShape: array expected";
-                    for (var i = 0; i < message.inputShape.length; ++i) {
-                        var error = $root.caffe.BlobShape.verify(message.inputShape[i]);
+                if (message.input_shape != null && message.hasOwnProperty("input_shape")) {
+                    if (!Array.isArray(message.input_shape))
+                        return "input_shape: array expected";
+                    for (var i = 0; i < message.input_shape.length; ++i) {
+                        var error = $root.caffe.BlobShape.verify(message.input_shape[i]);
                         if (error)
-                            return "inputShape." + error;
+                            return "input_shape." + error;
                     }
                 }
-                if (message.inputDim != null && message.hasOwnProperty("inputDim")) {
-                    if (!Array.isArray(message.inputDim))
-                        return "inputDim: array expected";
-                    for (var i = 0; i < message.inputDim.length; ++i)
-                        if (!$util.isInteger(message.inputDim[i]))
-                            return "inputDim: integer[] expected";
+                if (message.input_dim != null && message.hasOwnProperty("input_dim")) {
+                    if (!Array.isArray(message.input_dim))
+                        return "input_dim: array expected";
+                    for (var i = 0; i < message.input_dim.length; ++i)
+                        if (!$util.isInteger(message.input_dim[i]))
+                            return "input_dim: integer[] expected";
                 }
-                if (message.forceBackward != null && message.hasOwnProperty("forceBackward"))
-                    if (typeof message.forceBackward !== "boolean")
-                        return "forceBackward: boolean expected";
+                if (message.force_backward != null && message.hasOwnProperty("force_backward"))
+                    if (typeof message.force_backward !== "boolean")
+                        return "force_backward: boolean expected";
                 if (message.state != null && message.hasOwnProperty("state")) {
                     var error = $root.caffe.NetState.verify(message.state);
                     if (error)
                         return "state." + error;
                 }
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    if (typeof message.debugInfo !== "boolean")
-                        return "debugInfo: boolean expected";
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    if (typeof message.debug_info !== "boolean")
+                        return "debug_info: boolean expected";
                 if (message.layer != null && message.hasOwnProperty("layer")) {
                     if (!Array.isArray(message.layer))
                         return "layer: array expected";
@@ -975,32 +975,32 @@
                     for (var i = 0; i < object.input.length; ++i)
                         message.input[i] = String(object.input[i]);
                 }
-                if (object.inputShape) {
-                    if (!Array.isArray(object.inputShape))
-                        throw TypeError(".caffe.NetParameter.inputShape: array expected");
-                    message.inputShape = [];
-                    for (var i = 0; i < object.inputShape.length; ++i) {
-                        if (typeof object.inputShape[i] !== "object")
-                            throw TypeError(".caffe.NetParameter.inputShape: object expected");
-                        message.inputShape[i] = $root.caffe.BlobShape.fromObject(object.inputShape[i]);
+                if (object.input_shape) {
+                    if (!Array.isArray(object.input_shape))
+                        throw TypeError(".caffe.NetParameter.input_shape: array expected");
+                    message.input_shape = [];
+                    for (var i = 0; i < object.input_shape.length; ++i) {
+                        if (typeof object.input_shape[i] !== "object")
+                            throw TypeError(".caffe.NetParameter.input_shape: object expected");
+                        message.input_shape[i] = $root.caffe.BlobShape.fromObject(object.input_shape[i]);
                     }
                 }
-                if (object.inputDim) {
-                    if (!Array.isArray(object.inputDim))
-                        throw TypeError(".caffe.NetParameter.inputDim: array expected");
-                    message.inputDim = [];
-                    for (var i = 0; i < object.inputDim.length; ++i)
-                        message.inputDim[i] = object.inputDim[i] | 0;
+                if (object.input_dim) {
+                    if (!Array.isArray(object.input_dim))
+                        throw TypeError(".caffe.NetParameter.input_dim: array expected");
+                    message.input_dim = [];
+                    for (var i = 0; i < object.input_dim.length; ++i)
+                        message.input_dim[i] = object.input_dim[i] | 0;
                 }
-                if (object.forceBackward != null)
-                    message.forceBackward = Boolean(object.forceBackward);
+                if (object.force_backward != null)
+                    message.force_backward = Boolean(object.force_backward);
                 if (object.state != null) {
                     if (typeof object.state !== "object")
                         throw TypeError(".caffe.NetParameter.state: object expected");
                     message.state = $root.caffe.NetState.fromObject(object.state);
                 }
-                if (object.debugInfo != null)
-                    message.debugInfo = Boolean(object.debugInfo);
+                if (object.debug_info != null)
+                    message.debug_info = Boolean(object.debug_info);
                 if (object.layer) {
                     if (!Array.isArray(object.layer))
                         throw TypeError(".caffe.NetParameter.layer: array expected");
@@ -1031,15 +1031,15 @@
                 if (options.arrays || options.defaults) {
                     object.layers = [];
                     object.input = [];
-                    object.inputDim = [];
-                    object.inputShape = [];
+                    object.input_dim = [];
+                    object.input_shape = [];
                     object.layer = [];
                 }
                 if (options.defaults) {
                     object.name = "";
-                    object.forceBackward = false;
+                    object.force_backward = false;
                     object.state = null;
-                    object.debugInfo = false;
+                    object.debug_info = false;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -1053,21 +1053,21 @@
                     for (var j = 0; j < message.input.length; ++j)
                         object.input[j] = message.input[j];
                 }
-                if (message.inputDim && message.inputDim.length) {
-                    object.inputDim = [];
-                    for (var j = 0; j < message.inputDim.length; ++j)
-                        object.inputDim[j] = message.inputDim[j];
+                if (message.input_dim && message.input_dim.length) {
+                    object.input_dim = [];
+                    for (var j = 0; j < message.input_dim.length; ++j)
+                        object.input_dim[j] = message.input_dim[j];
                 }
-                if (message.forceBackward != null && message.hasOwnProperty("forceBackward"))
-                    object.forceBackward = message.forceBackward;
+                if (message.force_backward != null && message.hasOwnProperty("force_backward"))
+                    object.force_backward = message.force_backward;
                 if (message.state != null && message.hasOwnProperty("state"))
                     object.state = $root.caffe.NetState.toObject(message.state, options);
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    object.debugInfo = message.debugInfo;
-                if (message.inputShape && message.inputShape.length) {
-                    object.inputShape = [];
-                    for (var j = 0; j < message.inputShape.length; ++j)
-                        object.inputShape[j] = $root.caffe.BlobShape.toObject(message.inputShape[j], options);
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    object.debug_info = message.debug_info;
+                if (message.input_shape && message.input_shape.length) {
+                    object.input_shape = [];
+                    for (var j = 0; j < message.input_shape.length; ++j)
+                        object.input_shape[j] = $root.caffe.BlobShape.toObject(message.input_shape[j], options);
                 }
                 if (message.layer && message.layer.length) {
                     object.layer = [];
@@ -1087,10 +1087,10 @@
         caffe.SolverParameter = (function() {
     
             function SolverParameter(properties) {
-                this.testNet = [];
-                this.testNetParam = [];
-                this.testState = [];
-                this.testIter = [];
+                this.test_net = [];
+                this.test_net_param = [];
+                this.test_state = [];
+                this.test_iter = [];
                 this.stepvalue = [];
                 this.weights = [];
                 if (properties)
@@ -1100,46 +1100,46 @@
             }
     
             SolverParameter.prototype.net = "";
-            SolverParameter.prototype.netParam = null;
-            SolverParameter.prototype.trainNet = "";
-            SolverParameter.prototype.testNet = $util.emptyArray;
-            SolverParameter.prototype.trainNetParam = null;
-            SolverParameter.prototype.testNetParam = $util.emptyArray;
-            SolverParameter.prototype.trainState = null;
-            SolverParameter.prototype.testState = $util.emptyArray;
-            SolverParameter.prototype.testIter = $util.emptyArray;
-            SolverParameter.prototype.testInterval = 0;
-            SolverParameter.prototype.testComputeLoss = false;
-            SolverParameter.prototype.testInitialization = true;
-            SolverParameter.prototype.baseLr = 0;
+            SolverParameter.prototype.net_param = null;
+            SolverParameter.prototype.train_net = "";
+            SolverParameter.prototype.test_net = $util.emptyArray;
+            SolverParameter.prototype.train_net_param = null;
+            SolverParameter.prototype.test_net_param = $util.emptyArray;
+            SolverParameter.prototype.train_state = null;
+            SolverParameter.prototype.test_state = $util.emptyArray;
+            SolverParameter.prototype.test_iter = $util.emptyArray;
+            SolverParameter.prototype.test_interval = 0;
+            SolverParameter.prototype.test_compute_loss = false;
+            SolverParameter.prototype.test_initialization = true;
+            SolverParameter.prototype.base_lr = 0;
             SolverParameter.prototype.display = 0;
-            SolverParameter.prototype.averageLoss = 1;
-            SolverParameter.prototype.maxIter = 0;
-            SolverParameter.prototype.iterSize = 1;
-            SolverParameter.prototype.lrPolicy = "";
+            SolverParameter.prototype.average_loss = 1;
+            SolverParameter.prototype.max_iter = 0;
+            SolverParameter.prototype.iter_size = 1;
+            SolverParameter.prototype.lr_policy = "";
             SolverParameter.prototype.gamma = 0;
             SolverParameter.prototype.power = 0;
             SolverParameter.prototype.momentum = 0;
-            SolverParameter.prototype.weightDecay = 0;
-            SolverParameter.prototype.regularizationType = "L2";
+            SolverParameter.prototype.weight_decay = 0;
+            SolverParameter.prototype.regularization_type = "L2";
             SolverParameter.prototype.stepsize = 0;
             SolverParameter.prototype.stepvalue = $util.emptyArray;
-            SolverParameter.prototype.clipGradients = -1;
+            SolverParameter.prototype.clip_gradients = -1;
             SolverParameter.prototype.snapshot = 0;
-            SolverParameter.prototype.snapshotPrefix = "";
-            SolverParameter.prototype.snapshotDiff = false;
-            SolverParameter.prototype.snapshotFormat = 1;
-            SolverParameter.prototype.solverMode = 1;
-            SolverParameter.prototype.deviceId = 0;
-            SolverParameter.prototype.randomSeed = $util.Long ? $util.Long.fromBits(-1,-1,false) : -1;
+            SolverParameter.prototype.snapshot_prefix = "";
+            SolverParameter.prototype.snapshot_diff = false;
+            SolverParameter.prototype.snapshot_format = 1;
+            SolverParameter.prototype.solver_mode = 1;
+            SolverParameter.prototype.device_id = 0;
+            SolverParameter.prototype.random_seed = $util.Long ? $util.Long.fromBits(-1,-1,false) : -1;
             SolverParameter.prototype.type = "SGD";
             SolverParameter.prototype.delta = 1e-8;
             SolverParameter.prototype.momentum2 = 0.999;
-            SolverParameter.prototype.rmsDecay = 0.99;
-            SolverParameter.prototype.debugInfo = false;
-            SolverParameter.prototype.snapshotAfterTrain = true;
-            SolverParameter.prototype.solverType = 0;
-            SolverParameter.prototype.layerWiseReduce = true;
+            SolverParameter.prototype.rms_decay = 0.99;
+            SolverParameter.prototype.debug_info = false;
+            SolverParameter.prototype.snapshot_after_train = true;
+            SolverParameter.prototype.solver_type = 0;
+            SolverParameter.prototype.layer_wise_reduce = true;
             SolverParameter.prototype.weights = $util.emptyArray;
     
             SolverParameter.create = function create(properties) {
@@ -1157,68 +1157,68 @@
                         message.net = reader.string();
                         break;
                     case 25:
-                        message.netParam = $root.caffe.NetParameter.decode(reader, reader.uint32());
+                        message.net_param = $root.caffe.NetParameter.decode(reader, reader.uint32());
                         break;
                     case 1:
-                        message.trainNet = reader.string();
+                        message.train_net = reader.string();
                         break;
                     case 2:
-                        if (!(message.testNet && message.testNet.length))
-                            message.testNet = [];
-                        message.testNet.push(reader.string());
+                        if (!(message.test_net && message.test_net.length))
+                            message.test_net = [];
+                        message.test_net.push(reader.string());
                         break;
                     case 21:
-                        message.trainNetParam = $root.caffe.NetParameter.decode(reader, reader.uint32());
+                        message.train_net_param = $root.caffe.NetParameter.decode(reader, reader.uint32());
                         break;
                     case 22:
-                        if (!(message.testNetParam && message.testNetParam.length))
-                            message.testNetParam = [];
-                        message.testNetParam.push($root.caffe.NetParameter.decode(reader, reader.uint32()));
+                        if (!(message.test_net_param && message.test_net_param.length))
+                            message.test_net_param = [];
+                        message.test_net_param.push($root.caffe.NetParameter.decode(reader, reader.uint32()));
                         break;
                     case 26:
-                        message.trainState = $root.caffe.NetState.decode(reader, reader.uint32());
+                        message.train_state = $root.caffe.NetState.decode(reader, reader.uint32());
                         break;
                     case 27:
-                        if (!(message.testState && message.testState.length))
-                            message.testState = [];
-                        message.testState.push($root.caffe.NetState.decode(reader, reader.uint32()));
+                        if (!(message.test_state && message.test_state.length))
+                            message.test_state = [];
+                        message.test_state.push($root.caffe.NetState.decode(reader, reader.uint32()));
                         break;
                     case 3:
-                        if (!(message.testIter && message.testIter.length))
-                            message.testIter = [];
+                        if (!(message.test_iter && message.test_iter.length))
+                            message.test_iter = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.testIter.push(reader.int32());
+                                message.test_iter.push(reader.int32());
                         } else
-                            message.testIter.push(reader.int32());
+                            message.test_iter.push(reader.int32());
                         break;
                     case 4:
-                        message.testInterval = reader.int32();
+                        message.test_interval = reader.int32();
                         break;
                     case 19:
-                        message.testComputeLoss = reader.bool();
+                        message.test_compute_loss = reader.bool();
                         break;
                     case 32:
-                        message.testInitialization = reader.bool();
+                        message.test_initialization = reader.bool();
                         break;
                     case 5:
-                        message.baseLr = reader.float();
+                        message.base_lr = reader.float();
                         break;
                     case 6:
                         message.display = reader.int32();
                         break;
                     case 33:
-                        message.averageLoss = reader.int32();
+                        message.average_loss = reader.int32();
                         break;
                     case 7:
-                        message.maxIter = reader.int32();
+                        message.max_iter = reader.int32();
                         break;
                     case 36:
-                        message.iterSize = reader.int32();
+                        message.iter_size = reader.int32();
                         break;
                     case 8:
-                        message.lrPolicy = reader.string();
+                        message.lr_policy = reader.string();
                         break;
                     case 9:
                         message.gamma = reader.float();
@@ -1230,10 +1230,10 @@
                         message.momentum = reader.float();
                         break;
                     case 12:
-                        message.weightDecay = reader.float();
+                        message.weight_decay = reader.float();
                         break;
                     case 29:
-                        message.regularizationType = reader.string();
+                        message.regularization_type = reader.string();
                         break;
                     case 13:
                         message.stepsize = reader.int32();
@@ -1249,28 +1249,28 @@
                             message.stepvalue.push(reader.int32());
                         break;
                     case 35:
-                        message.clipGradients = reader.float();
+                        message.clip_gradients = reader.float();
                         break;
                     case 14:
                         message.snapshot = reader.int32();
                         break;
                     case 15:
-                        message.snapshotPrefix = reader.string();
+                        message.snapshot_prefix = reader.string();
                         break;
                     case 16:
-                        message.snapshotDiff = reader.bool();
+                        message.snapshot_diff = reader.bool();
                         break;
                     case 37:
-                        message.snapshotFormat = reader.int32();
+                        message.snapshot_format = reader.int32();
                         break;
                     case 17:
-                        message.solverMode = reader.int32();
+                        message.solver_mode = reader.int32();
                         break;
                     case 18:
-                        message.deviceId = reader.int32();
+                        message.device_id = reader.int32();
                         break;
                     case 20:
-                        message.randomSeed = reader.int64();
+                        message.random_seed = reader.int64();
                         break;
                     case 40:
                         message.type = reader.string();
@@ -1282,19 +1282,19 @@
                         message.momentum2 = reader.float();
                         break;
                     case 38:
-                        message.rmsDecay = reader.float();
+                        message.rms_decay = reader.float();
                         break;
                     case 23:
-                        message.debugInfo = reader.bool();
+                        message.debug_info = reader.bool();
                         break;
                     case 28:
-                        message.snapshotAfterTrain = reader.bool();
+                        message.snapshot_after_train = reader.bool();
                         break;
                     case 30:
-                        message.solverType = reader.int32();
+                        message.solver_type = reader.int32();
                         break;
                     case 41:
-                        message.layerWiseReduce = reader.bool();
+                        message.layer_wise_reduce = reader.bool();
                         break;
                     case 42:
                         if (!(message.weights && message.weights.length))
@@ -1315,83 +1315,83 @@
                 if (message.net != null && message.hasOwnProperty("net"))
                     if (!$util.isString(message.net))
                         return "net: string expected";
-                if (message.netParam != null && message.hasOwnProperty("netParam")) {
-                    var error = $root.caffe.NetParameter.verify(message.netParam);
+                if (message.net_param != null && message.hasOwnProperty("net_param")) {
+                    var error = $root.caffe.NetParameter.verify(message.net_param);
                     if (error)
-                        return "netParam." + error;
+                        return "net_param." + error;
                 }
-                if (message.trainNet != null && message.hasOwnProperty("trainNet"))
-                    if (!$util.isString(message.trainNet))
-                        return "trainNet: string expected";
-                if (message.testNet != null && message.hasOwnProperty("testNet")) {
-                    if (!Array.isArray(message.testNet))
-                        return "testNet: array expected";
-                    for (var i = 0; i < message.testNet.length; ++i)
-                        if (!$util.isString(message.testNet[i]))
-                            return "testNet: string[] expected";
+                if (message.train_net != null && message.hasOwnProperty("train_net"))
+                    if (!$util.isString(message.train_net))
+                        return "train_net: string expected";
+                if (message.test_net != null && message.hasOwnProperty("test_net")) {
+                    if (!Array.isArray(message.test_net))
+                        return "test_net: array expected";
+                    for (var i = 0; i < message.test_net.length; ++i)
+                        if (!$util.isString(message.test_net[i]))
+                            return "test_net: string[] expected";
                 }
-                if (message.trainNetParam != null && message.hasOwnProperty("trainNetParam")) {
-                    var error = $root.caffe.NetParameter.verify(message.trainNetParam);
+                if (message.train_net_param != null && message.hasOwnProperty("train_net_param")) {
+                    var error = $root.caffe.NetParameter.verify(message.train_net_param);
                     if (error)
-                        return "trainNetParam." + error;
+                        return "train_net_param." + error;
                 }
-                if (message.testNetParam != null && message.hasOwnProperty("testNetParam")) {
-                    if (!Array.isArray(message.testNetParam))
-                        return "testNetParam: array expected";
-                    for (var i = 0; i < message.testNetParam.length; ++i) {
-                        var error = $root.caffe.NetParameter.verify(message.testNetParam[i]);
+                if (message.test_net_param != null && message.hasOwnProperty("test_net_param")) {
+                    if (!Array.isArray(message.test_net_param))
+                        return "test_net_param: array expected";
+                    for (var i = 0; i < message.test_net_param.length; ++i) {
+                        var error = $root.caffe.NetParameter.verify(message.test_net_param[i]);
                         if (error)
-                            return "testNetParam." + error;
+                            return "test_net_param." + error;
                     }
                 }
-                if (message.trainState != null && message.hasOwnProperty("trainState")) {
-                    var error = $root.caffe.NetState.verify(message.trainState);
+                if (message.train_state != null && message.hasOwnProperty("train_state")) {
+                    var error = $root.caffe.NetState.verify(message.train_state);
                     if (error)
-                        return "trainState." + error;
+                        return "train_state." + error;
                 }
-                if (message.testState != null && message.hasOwnProperty("testState")) {
-                    if (!Array.isArray(message.testState))
-                        return "testState: array expected";
-                    for (var i = 0; i < message.testState.length; ++i) {
-                        var error = $root.caffe.NetState.verify(message.testState[i]);
+                if (message.test_state != null && message.hasOwnProperty("test_state")) {
+                    if (!Array.isArray(message.test_state))
+                        return "test_state: array expected";
+                    for (var i = 0; i < message.test_state.length; ++i) {
+                        var error = $root.caffe.NetState.verify(message.test_state[i]);
                         if (error)
-                            return "testState." + error;
+                            return "test_state." + error;
                     }
                 }
-                if (message.testIter != null && message.hasOwnProperty("testIter")) {
-                    if (!Array.isArray(message.testIter))
-                        return "testIter: array expected";
-                    for (var i = 0; i < message.testIter.length; ++i)
-                        if (!$util.isInteger(message.testIter[i]))
-                            return "testIter: integer[] expected";
+                if (message.test_iter != null && message.hasOwnProperty("test_iter")) {
+                    if (!Array.isArray(message.test_iter))
+                        return "test_iter: array expected";
+                    for (var i = 0; i < message.test_iter.length; ++i)
+                        if (!$util.isInteger(message.test_iter[i]))
+                            return "test_iter: integer[] expected";
                 }
-                if (message.testInterval != null && message.hasOwnProperty("testInterval"))
-                    if (!$util.isInteger(message.testInterval))
-                        return "testInterval: integer expected";
-                if (message.testComputeLoss != null && message.hasOwnProperty("testComputeLoss"))
-                    if (typeof message.testComputeLoss !== "boolean")
-                        return "testComputeLoss: boolean expected";
-                if (message.testInitialization != null && message.hasOwnProperty("testInitialization"))
-                    if (typeof message.testInitialization !== "boolean")
-                        return "testInitialization: boolean expected";
-                if (message.baseLr != null && message.hasOwnProperty("baseLr"))
-                    if (typeof message.baseLr !== "number")
-                        return "baseLr: number expected";
+                if (message.test_interval != null && message.hasOwnProperty("test_interval"))
+                    if (!$util.isInteger(message.test_interval))
+                        return "test_interval: integer expected";
+                if (message.test_compute_loss != null && message.hasOwnProperty("test_compute_loss"))
+                    if (typeof message.test_compute_loss !== "boolean")
+                        return "test_compute_loss: boolean expected";
+                if (message.test_initialization != null && message.hasOwnProperty("test_initialization"))
+                    if (typeof message.test_initialization !== "boolean")
+                        return "test_initialization: boolean expected";
+                if (message.base_lr != null && message.hasOwnProperty("base_lr"))
+                    if (typeof message.base_lr !== "number")
+                        return "base_lr: number expected";
                 if (message.display != null && message.hasOwnProperty("display"))
                     if (!$util.isInteger(message.display))
                         return "display: integer expected";
-                if (message.averageLoss != null && message.hasOwnProperty("averageLoss"))
-                    if (!$util.isInteger(message.averageLoss))
-                        return "averageLoss: integer expected";
-                if (message.maxIter != null && message.hasOwnProperty("maxIter"))
-                    if (!$util.isInteger(message.maxIter))
-                        return "maxIter: integer expected";
-                if (message.iterSize != null && message.hasOwnProperty("iterSize"))
-                    if (!$util.isInteger(message.iterSize))
-                        return "iterSize: integer expected";
-                if (message.lrPolicy != null && message.hasOwnProperty("lrPolicy"))
-                    if (!$util.isString(message.lrPolicy))
-                        return "lrPolicy: string expected";
+                if (message.average_loss != null && message.hasOwnProperty("average_loss"))
+                    if (!$util.isInteger(message.average_loss))
+                        return "average_loss: integer expected";
+                if (message.max_iter != null && message.hasOwnProperty("max_iter"))
+                    if (!$util.isInteger(message.max_iter))
+                        return "max_iter: integer expected";
+                if (message.iter_size != null && message.hasOwnProperty("iter_size"))
+                    if (!$util.isInteger(message.iter_size))
+                        return "iter_size: integer expected";
+                if (message.lr_policy != null && message.hasOwnProperty("lr_policy"))
+                    if (!$util.isString(message.lr_policy))
+                        return "lr_policy: string expected";
                 if (message.gamma != null && message.hasOwnProperty("gamma"))
                     if (typeof message.gamma !== "number")
                         return "gamma: number expected";
@@ -1401,12 +1401,12 @@
                 if (message.momentum != null && message.hasOwnProperty("momentum"))
                     if (typeof message.momentum !== "number")
                         return "momentum: number expected";
-                if (message.weightDecay != null && message.hasOwnProperty("weightDecay"))
-                    if (typeof message.weightDecay !== "number")
-                        return "weightDecay: number expected";
-                if (message.regularizationType != null && message.hasOwnProperty("regularizationType"))
-                    if (!$util.isString(message.regularizationType))
-                        return "regularizationType: string expected";
+                if (message.weight_decay != null && message.hasOwnProperty("weight_decay"))
+                    if (typeof message.weight_decay !== "number")
+                        return "weight_decay: number expected";
+                if (message.regularization_type != null && message.hasOwnProperty("regularization_type"))
+                    if (!$util.isString(message.regularization_type))
+                        return "regularization_type: string expected";
                 if (message.stepsize != null && message.hasOwnProperty("stepsize"))
                     if (!$util.isInteger(message.stepsize))
                         return "stepsize: integer expected";
@@ -1417,40 +1417,40 @@
                         if (!$util.isInteger(message.stepvalue[i]))
                             return "stepvalue: integer[] expected";
                 }
-                if (message.clipGradients != null && message.hasOwnProperty("clipGradients"))
-                    if (typeof message.clipGradients !== "number")
-                        return "clipGradients: number expected";
+                if (message.clip_gradients != null && message.hasOwnProperty("clip_gradients"))
+                    if (typeof message.clip_gradients !== "number")
+                        return "clip_gradients: number expected";
                 if (message.snapshot != null && message.hasOwnProperty("snapshot"))
                     if (!$util.isInteger(message.snapshot))
                         return "snapshot: integer expected";
-                if (message.snapshotPrefix != null && message.hasOwnProperty("snapshotPrefix"))
-                    if (!$util.isString(message.snapshotPrefix))
-                        return "snapshotPrefix: string expected";
-                if (message.snapshotDiff != null && message.hasOwnProperty("snapshotDiff"))
-                    if (typeof message.snapshotDiff !== "boolean")
-                        return "snapshotDiff: boolean expected";
-                if (message.snapshotFormat != null && message.hasOwnProperty("snapshotFormat"))
-                    switch (message.snapshotFormat) {
+                if (message.snapshot_prefix != null && message.hasOwnProperty("snapshot_prefix"))
+                    if (!$util.isString(message.snapshot_prefix))
+                        return "snapshot_prefix: string expected";
+                if (message.snapshot_diff != null && message.hasOwnProperty("snapshot_diff"))
+                    if (typeof message.snapshot_diff !== "boolean")
+                        return "snapshot_diff: boolean expected";
+                if (message.snapshot_format != null && message.hasOwnProperty("snapshot_format"))
+                    switch (message.snapshot_format) {
                     default:
-                        return "snapshotFormat: enum value expected";
+                        return "snapshot_format: enum value expected";
                     case 0:
                     case 1:
                         break;
                     }
-                if (message.solverMode != null && message.hasOwnProperty("solverMode"))
-                    switch (message.solverMode) {
+                if (message.solver_mode != null && message.hasOwnProperty("solver_mode"))
+                    switch (message.solver_mode) {
                     default:
-                        return "solverMode: enum value expected";
+                        return "solver_mode: enum value expected";
                     case 0:
                     case 1:
                         break;
                     }
-                if (message.deviceId != null && message.hasOwnProperty("deviceId"))
-                    if (!$util.isInteger(message.deviceId))
-                        return "deviceId: integer expected";
-                if (message.randomSeed != null && message.hasOwnProperty("randomSeed"))
-                    if (!$util.isInteger(message.randomSeed) && !(message.randomSeed && $util.isInteger(message.randomSeed.low) && $util.isInteger(message.randomSeed.high)))
-                        return "randomSeed: integer|Long expected";
+                if (message.device_id != null && message.hasOwnProperty("device_id"))
+                    if (!$util.isInteger(message.device_id))
+                        return "device_id: integer expected";
+                if (message.random_seed != null && message.hasOwnProperty("random_seed"))
+                    if (!$util.isInteger(message.random_seed) && !(message.random_seed && $util.isInteger(message.random_seed.low) && $util.isInteger(message.random_seed.high)))
+                        return "random_seed: integer|Long expected";
                 if (message.type != null && message.hasOwnProperty("type"))
                     if (!$util.isString(message.type))
                         return "type: string expected";
@@ -1460,19 +1460,19 @@
                 if (message.momentum2 != null && message.hasOwnProperty("momentum2"))
                     if (typeof message.momentum2 !== "number")
                         return "momentum2: number expected";
-                if (message.rmsDecay != null && message.hasOwnProperty("rmsDecay"))
-                    if (typeof message.rmsDecay !== "number")
-                        return "rmsDecay: number expected";
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    if (typeof message.debugInfo !== "boolean")
-                        return "debugInfo: boolean expected";
-                if (message.snapshotAfterTrain != null && message.hasOwnProperty("snapshotAfterTrain"))
-                    if (typeof message.snapshotAfterTrain !== "boolean")
-                        return "snapshotAfterTrain: boolean expected";
-                if (message.solverType != null && message.hasOwnProperty("solverType"))
-                    switch (message.solverType) {
+                if (message.rms_decay != null && message.hasOwnProperty("rms_decay"))
+                    if (typeof message.rms_decay !== "number")
+                        return "rms_decay: number expected";
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    if (typeof message.debug_info !== "boolean")
+                        return "debug_info: boolean expected";
+                if (message.snapshot_after_train != null && message.hasOwnProperty("snapshot_after_train"))
+                    if (typeof message.snapshot_after_train !== "boolean")
+                        return "snapshot_after_train: boolean expected";
+                if (message.solver_type != null && message.hasOwnProperty("solver_type"))
+                    switch (message.solver_type) {
                     default:
-                        return "solverType: enum value expected";
+                        return "solver_type: enum value expected";
                     case 0:
                     case 1:
                     case 2:
@@ -1481,9 +1481,9 @@
                     case 5:
                         break;
                     }
-                if (message.layerWiseReduce != null && message.hasOwnProperty("layerWiseReduce"))
-                    if (typeof message.layerWiseReduce !== "boolean")
-                        return "layerWiseReduce: boolean expected";
+                if (message.layer_wise_reduce != null && message.hasOwnProperty("layer_wise_reduce"))
+                    if (typeof message.layer_wise_reduce !== "boolean")
+                        return "layer_wise_reduce: boolean expected";
                 if (message.weights != null && message.hasOwnProperty("weights")) {
                     if (!Array.isArray(message.weights))
                         return "weights: array expected";
@@ -1500,85 +1500,85 @@
                 var message = new $root.caffe.SolverParameter();
                 if (object.net != null)
                     message.net = String(object.net);
-                if (object.netParam != null) {
-                    if (typeof object.netParam !== "object")
-                        throw TypeError(".caffe.SolverParameter.netParam: object expected");
-                    message.netParam = $root.caffe.NetParameter.fromObject(object.netParam);
+                if (object.net_param != null) {
+                    if (typeof object.net_param !== "object")
+                        throw TypeError(".caffe.SolverParameter.net_param: object expected");
+                    message.net_param = $root.caffe.NetParameter.fromObject(object.net_param);
                 }
-                if (object.trainNet != null)
-                    message.trainNet = String(object.trainNet);
-                if (object.testNet) {
-                    if (!Array.isArray(object.testNet))
-                        throw TypeError(".caffe.SolverParameter.testNet: array expected");
-                    message.testNet = [];
-                    for (var i = 0; i < object.testNet.length; ++i)
-                        message.testNet[i] = String(object.testNet[i]);
+                if (object.train_net != null)
+                    message.train_net = String(object.train_net);
+                if (object.test_net) {
+                    if (!Array.isArray(object.test_net))
+                        throw TypeError(".caffe.SolverParameter.test_net: array expected");
+                    message.test_net = [];
+                    for (var i = 0; i < object.test_net.length; ++i)
+                        message.test_net[i] = String(object.test_net[i]);
                 }
-                if (object.trainNetParam != null) {
-                    if (typeof object.trainNetParam !== "object")
-                        throw TypeError(".caffe.SolverParameter.trainNetParam: object expected");
-                    message.trainNetParam = $root.caffe.NetParameter.fromObject(object.trainNetParam);
+                if (object.train_net_param != null) {
+                    if (typeof object.train_net_param !== "object")
+                        throw TypeError(".caffe.SolverParameter.train_net_param: object expected");
+                    message.train_net_param = $root.caffe.NetParameter.fromObject(object.train_net_param);
                 }
-                if (object.testNetParam) {
-                    if (!Array.isArray(object.testNetParam))
-                        throw TypeError(".caffe.SolverParameter.testNetParam: array expected");
-                    message.testNetParam = [];
-                    for (var i = 0; i < object.testNetParam.length; ++i) {
-                        if (typeof object.testNetParam[i] !== "object")
-                            throw TypeError(".caffe.SolverParameter.testNetParam: object expected");
-                        message.testNetParam[i] = $root.caffe.NetParameter.fromObject(object.testNetParam[i]);
+                if (object.test_net_param) {
+                    if (!Array.isArray(object.test_net_param))
+                        throw TypeError(".caffe.SolverParameter.test_net_param: array expected");
+                    message.test_net_param = [];
+                    for (var i = 0; i < object.test_net_param.length; ++i) {
+                        if (typeof object.test_net_param[i] !== "object")
+                            throw TypeError(".caffe.SolverParameter.test_net_param: object expected");
+                        message.test_net_param[i] = $root.caffe.NetParameter.fromObject(object.test_net_param[i]);
                     }
                 }
-                if (object.trainState != null) {
-                    if (typeof object.trainState !== "object")
-                        throw TypeError(".caffe.SolverParameter.trainState: object expected");
-                    message.trainState = $root.caffe.NetState.fromObject(object.trainState);
+                if (object.train_state != null) {
+                    if (typeof object.train_state !== "object")
+                        throw TypeError(".caffe.SolverParameter.train_state: object expected");
+                    message.train_state = $root.caffe.NetState.fromObject(object.train_state);
                 }
-                if (object.testState) {
-                    if (!Array.isArray(object.testState))
-                        throw TypeError(".caffe.SolverParameter.testState: array expected");
-                    message.testState = [];
-                    for (var i = 0; i < object.testState.length; ++i) {
-                        if (typeof object.testState[i] !== "object")
-                            throw TypeError(".caffe.SolverParameter.testState: object expected");
-                        message.testState[i] = $root.caffe.NetState.fromObject(object.testState[i]);
+                if (object.test_state) {
+                    if (!Array.isArray(object.test_state))
+                        throw TypeError(".caffe.SolverParameter.test_state: array expected");
+                    message.test_state = [];
+                    for (var i = 0; i < object.test_state.length; ++i) {
+                        if (typeof object.test_state[i] !== "object")
+                            throw TypeError(".caffe.SolverParameter.test_state: object expected");
+                        message.test_state[i] = $root.caffe.NetState.fromObject(object.test_state[i]);
                     }
                 }
-                if (object.testIter) {
-                    if (!Array.isArray(object.testIter))
-                        throw TypeError(".caffe.SolverParameter.testIter: array expected");
-                    message.testIter = [];
-                    for (var i = 0; i < object.testIter.length; ++i)
-                        message.testIter[i] = object.testIter[i] | 0;
+                if (object.test_iter) {
+                    if (!Array.isArray(object.test_iter))
+                        throw TypeError(".caffe.SolverParameter.test_iter: array expected");
+                    message.test_iter = [];
+                    for (var i = 0; i < object.test_iter.length; ++i)
+                        message.test_iter[i] = object.test_iter[i] | 0;
                 }
-                if (object.testInterval != null)
-                    message.testInterval = object.testInterval | 0;
-                if (object.testComputeLoss != null)
-                    message.testComputeLoss = Boolean(object.testComputeLoss);
-                if (object.testInitialization != null)
-                    message.testInitialization = Boolean(object.testInitialization);
-                if (object.baseLr != null)
-                    message.baseLr = Number(object.baseLr);
+                if (object.test_interval != null)
+                    message.test_interval = object.test_interval | 0;
+                if (object.test_compute_loss != null)
+                    message.test_compute_loss = Boolean(object.test_compute_loss);
+                if (object.test_initialization != null)
+                    message.test_initialization = Boolean(object.test_initialization);
+                if (object.base_lr != null)
+                    message.base_lr = Number(object.base_lr);
                 if (object.display != null)
                     message.display = object.display | 0;
-                if (object.averageLoss != null)
-                    message.averageLoss = object.averageLoss | 0;
-                if (object.maxIter != null)
-                    message.maxIter = object.maxIter | 0;
-                if (object.iterSize != null)
-                    message.iterSize = object.iterSize | 0;
-                if (object.lrPolicy != null)
-                    message.lrPolicy = String(object.lrPolicy);
+                if (object.average_loss != null)
+                    message.average_loss = object.average_loss | 0;
+                if (object.max_iter != null)
+                    message.max_iter = object.max_iter | 0;
+                if (object.iter_size != null)
+                    message.iter_size = object.iter_size | 0;
+                if (object.lr_policy != null)
+                    message.lr_policy = String(object.lr_policy);
                 if (object.gamma != null)
                     message.gamma = Number(object.gamma);
                 if (object.power != null)
                     message.power = Number(object.power);
                 if (object.momentum != null)
                     message.momentum = Number(object.momentum);
-                if (object.weightDecay != null)
-                    message.weightDecay = Number(object.weightDecay);
-                if (object.regularizationType != null)
-                    message.regularizationType = String(object.regularizationType);
+                if (object.weight_decay != null)
+                    message.weight_decay = Number(object.weight_decay);
+                if (object.regularization_type != null)
+                    message.regularization_type = String(object.regularization_type);
                 if (object.stepsize != null)
                     message.stepsize = object.stepsize | 0;
                 if (object.stepvalue) {
@@ -1588,85 +1588,85 @@
                     for (var i = 0; i < object.stepvalue.length; ++i)
                         message.stepvalue[i] = object.stepvalue[i] | 0;
                 }
-                if (object.clipGradients != null)
-                    message.clipGradients = Number(object.clipGradients);
+                if (object.clip_gradients != null)
+                    message.clip_gradients = Number(object.clip_gradients);
                 if (object.snapshot != null)
                     message.snapshot = object.snapshot | 0;
-                if (object.snapshotPrefix != null)
-                    message.snapshotPrefix = String(object.snapshotPrefix);
-                if (object.snapshotDiff != null)
-                    message.snapshotDiff = Boolean(object.snapshotDiff);
-                switch (object.snapshotFormat) {
+                if (object.snapshot_prefix != null)
+                    message.snapshot_prefix = String(object.snapshot_prefix);
+                if (object.snapshot_diff != null)
+                    message.snapshot_diff = Boolean(object.snapshot_diff);
+                switch (object.snapshot_format) {
                 case "HDF5":
                 case 0:
-                    message.snapshotFormat = 0;
+                    message.snapshot_format = 0;
                     break;
                 case "BINARYPROTO":
                 case 1:
-                    message.snapshotFormat = 1;
+                    message.snapshot_format = 1;
                     break;
                 }
-                switch (object.solverMode) {
+                switch (object.solver_mode) {
                 case "CPU":
                 case 0:
-                    message.solverMode = 0;
+                    message.solver_mode = 0;
                     break;
                 case "GPU":
                 case 1:
-                    message.solverMode = 1;
+                    message.solver_mode = 1;
                     break;
                 }
-                if (object.deviceId != null)
-                    message.deviceId = object.deviceId | 0;
-                if (object.randomSeed != null)
+                if (object.device_id != null)
+                    message.device_id = object.device_id | 0;
+                if (object.random_seed != null)
                     if ($util.Long)
-                        (message.randomSeed = $util.Long.fromValue(object.randomSeed)).unsigned = false;
-                    else if (typeof object.randomSeed === "string")
-                        message.randomSeed = parseInt(object.randomSeed, 10);
-                    else if (typeof object.randomSeed === "number")
-                        message.randomSeed = object.randomSeed;
-                    else if (typeof object.randomSeed === "object")
-                        message.randomSeed = new $util.LongBits(object.randomSeed.low >>> 0, object.randomSeed.high >>> 0).toNumber();
+                        (message.random_seed = $util.Long.fromValue(object.random_seed)).unsigned = false;
+                    else if (typeof object.random_seed === "string")
+                        message.random_seed = parseInt(object.random_seed, 10);
+                    else if (typeof object.random_seed === "number")
+                        message.random_seed = object.random_seed;
+                    else if (typeof object.random_seed === "object")
+                        message.random_seed = new $util.LongBits(object.random_seed.low >>> 0, object.random_seed.high >>> 0).toNumber();
                 if (object.type != null)
                     message.type = String(object.type);
                 if (object.delta != null)
                     message.delta = Number(object.delta);
                 if (object.momentum2 != null)
                     message.momentum2 = Number(object.momentum2);
-                if (object.rmsDecay != null)
-                    message.rmsDecay = Number(object.rmsDecay);
-                if (object.debugInfo != null)
-                    message.debugInfo = Boolean(object.debugInfo);
-                if (object.snapshotAfterTrain != null)
-                    message.snapshotAfterTrain = Boolean(object.snapshotAfterTrain);
-                switch (object.solverType) {
+                if (object.rms_decay != null)
+                    message.rms_decay = Number(object.rms_decay);
+                if (object.debug_info != null)
+                    message.debug_info = Boolean(object.debug_info);
+                if (object.snapshot_after_train != null)
+                    message.snapshot_after_train = Boolean(object.snapshot_after_train);
+                switch (object.solver_type) {
                 case "SGD":
                 case 0:
-                    message.solverType = 0;
+                    message.solver_type = 0;
                     break;
                 case "NESTEROV":
                 case 1:
-                    message.solverType = 1;
+                    message.solver_type = 1;
                     break;
                 case "ADAGRAD":
                 case 2:
-                    message.solverType = 2;
+                    message.solver_type = 2;
                     break;
                 case "RMSPROP":
                 case 3:
-                    message.solverType = 3;
+                    message.solver_type = 3;
                     break;
                 case "ADADELTA":
                 case 4:
-                    message.solverType = 4;
+                    message.solver_type = 4;
                     break;
                 case "ADAM":
                 case 5:
-                    message.solverType = 5;
+                    message.solver_type = 5;
                     break;
                 }
-                if (object.layerWiseReduce != null)
-                    message.layerWiseReduce = Boolean(object.layerWiseReduce);
+                if (object.layer_wise_reduce != null)
+                    message.layer_wise_reduce = Boolean(object.layer_wise_reduce);
                 if (object.weights) {
                     if (!Array.isArray(object.weights))
                         throw TypeError(".caffe.SolverParameter.weights: array expected");
@@ -1682,155 +1682,155 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults) {
-                    object.testNet = [];
-                    object.testIter = [];
-                    object.testNetParam = [];
-                    object.testState = [];
+                    object.test_net = [];
+                    object.test_iter = [];
+                    object.test_net_param = [];
+                    object.test_state = [];
                     object.stepvalue = [];
                     object.weights = [];
                 }
                 if (options.defaults) {
-                    object.trainNet = "";
-                    object.testInterval = 0;
-                    object.baseLr = 0;
+                    object.train_net = "";
+                    object.test_interval = 0;
+                    object.base_lr = 0;
                     object.display = 0;
-                    object.maxIter = 0;
-                    object.lrPolicy = "";
+                    object.max_iter = 0;
+                    object.lr_policy = "";
                     object.gamma = 0;
                     object.power = 0;
                     object.momentum = 0;
-                    object.weightDecay = 0;
+                    object.weight_decay = 0;
                     object.stepsize = 0;
                     object.snapshot = 0;
-                    object.snapshotPrefix = "";
-                    object.snapshotDiff = false;
-                    object.solverMode = options.enums === String ? "GPU" : 1;
-                    object.deviceId = 0;
-                    object.testComputeLoss = false;
+                    object.snapshot_prefix = "";
+                    object.snapshot_diff = false;
+                    object.solver_mode = options.enums === String ? "GPU" : 1;
+                    object.device_id = 0;
+                    object.test_compute_loss = false;
                     if ($util.Long) {
                         var long = new $util.Long(-1, -1, false);
-                        object.randomSeed = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.random_seed = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.randomSeed = options.longs === String ? "-1" : -1;
-                    object.trainNetParam = null;
-                    object.debugInfo = false;
+                        object.random_seed = options.longs === String ? "-1" : -1;
+                    object.train_net_param = null;
+                    object.debug_info = false;
                     object.net = "";
-                    object.netParam = null;
-                    object.trainState = null;
-                    object.snapshotAfterTrain = true;
-                    object.regularizationType = "L2";
-                    object.solverType = options.enums === String ? "SGD" : 0;
+                    object.net_param = null;
+                    object.train_state = null;
+                    object.snapshot_after_train = true;
+                    object.regularization_type = "L2";
+                    object.solver_type = options.enums === String ? "SGD" : 0;
                     object.delta = 1e-8;
-                    object.testInitialization = true;
-                    object.averageLoss = 1;
-                    object.clipGradients = -1;
-                    object.iterSize = 1;
-                    object.snapshotFormat = options.enums === String ? "BINARYPROTO" : 1;
-                    object.rmsDecay = 0.99;
+                    object.test_initialization = true;
+                    object.average_loss = 1;
+                    object.clip_gradients = -1;
+                    object.iter_size = 1;
+                    object.snapshot_format = options.enums === String ? "BINARYPROTO" : 1;
+                    object.rms_decay = 0.99;
                     object.momentum2 = 0.999;
                     object.type = "SGD";
-                    object.layerWiseReduce = true;
+                    object.layer_wise_reduce = true;
                 }
-                if (message.trainNet != null && message.hasOwnProperty("trainNet"))
-                    object.trainNet = message.trainNet;
-                if (message.testNet && message.testNet.length) {
-                    object.testNet = [];
-                    for (var j = 0; j < message.testNet.length; ++j)
-                        object.testNet[j] = message.testNet[j];
+                if (message.train_net != null && message.hasOwnProperty("train_net"))
+                    object.train_net = message.train_net;
+                if (message.test_net && message.test_net.length) {
+                    object.test_net = [];
+                    for (var j = 0; j < message.test_net.length; ++j)
+                        object.test_net[j] = message.test_net[j];
                 }
-                if (message.testIter && message.testIter.length) {
-                    object.testIter = [];
-                    for (var j = 0; j < message.testIter.length; ++j)
-                        object.testIter[j] = message.testIter[j];
+                if (message.test_iter && message.test_iter.length) {
+                    object.test_iter = [];
+                    for (var j = 0; j < message.test_iter.length; ++j)
+                        object.test_iter[j] = message.test_iter[j];
                 }
-                if (message.testInterval != null && message.hasOwnProperty("testInterval"))
-                    object.testInterval = message.testInterval;
-                if (message.baseLr != null && message.hasOwnProperty("baseLr"))
-                    object.baseLr = options.json && !isFinite(message.baseLr) ? String(message.baseLr) : message.baseLr;
+                if (message.test_interval != null && message.hasOwnProperty("test_interval"))
+                    object.test_interval = message.test_interval;
+                if (message.base_lr != null && message.hasOwnProperty("base_lr"))
+                    object.base_lr = options.json && !isFinite(message.base_lr) ? String(message.base_lr) : message.base_lr;
                 if (message.display != null && message.hasOwnProperty("display"))
                     object.display = message.display;
-                if (message.maxIter != null && message.hasOwnProperty("maxIter"))
-                    object.maxIter = message.maxIter;
-                if (message.lrPolicy != null && message.hasOwnProperty("lrPolicy"))
-                    object.lrPolicy = message.lrPolicy;
+                if (message.max_iter != null && message.hasOwnProperty("max_iter"))
+                    object.max_iter = message.max_iter;
+                if (message.lr_policy != null && message.hasOwnProperty("lr_policy"))
+                    object.lr_policy = message.lr_policy;
                 if (message.gamma != null && message.hasOwnProperty("gamma"))
                     object.gamma = options.json && !isFinite(message.gamma) ? String(message.gamma) : message.gamma;
                 if (message.power != null && message.hasOwnProperty("power"))
                     object.power = options.json && !isFinite(message.power) ? String(message.power) : message.power;
                 if (message.momentum != null && message.hasOwnProperty("momentum"))
                     object.momentum = options.json && !isFinite(message.momentum) ? String(message.momentum) : message.momentum;
-                if (message.weightDecay != null && message.hasOwnProperty("weightDecay"))
-                    object.weightDecay = options.json && !isFinite(message.weightDecay) ? String(message.weightDecay) : message.weightDecay;
+                if (message.weight_decay != null && message.hasOwnProperty("weight_decay"))
+                    object.weight_decay = options.json && !isFinite(message.weight_decay) ? String(message.weight_decay) : message.weight_decay;
                 if (message.stepsize != null && message.hasOwnProperty("stepsize"))
                     object.stepsize = message.stepsize;
                 if (message.snapshot != null && message.hasOwnProperty("snapshot"))
                     object.snapshot = message.snapshot;
-                if (message.snapshotPrefix != null && message.hasOwnProperty("snapshotPrefix"))
-                    object.snapshotPrefix = message.snapshotPrefix;
-                if (message.snapshotDiff != null && message.hasOwnProperty("snapshotDiff"))
-                    object.snapshotDiff = message.snapshotDiff;
-                if (message.solverMode != null && message.hasOwnProperty("solverMode"))
-                    object.solverMode = options.enums === String ? $root.caffe.SolverParameter.SolverMode[message.solverMode] : message.solverMode;
-                if (message.deviceId != null && message.hasOwnProperty("deviceId"))
-                    object.deviceId = message.deviceId;
-                if (message.testComputeLoss != null && message.hasOwnProperty("testComputeLoss"))
-                    object.testComputeLoss = message.testComputeLoss;
-                if (message.randomSeed != null && message.hasOwnProperty("randomSeed"))
-                    if (typeof message.randomSeed === "number")
-                        object.randomSeed = options.longs === String ? String(message.randomSeed) : message.randomSeed;
+                if (message.snapshot_prefix != null && message.hasOwnProperty("snapshot_prefix"))
+                    object.snapshot_prefix = message.snapshot_prefix;
+                if (message.snapshot_diff != null && message.hasOwnProperty("snapshot_diff"))
+                    object.snapshot_diff = message.snapshot_diff;
+                if (message.solver_mode != null && message.hasOwnProperty("solver_mode"))
+                    object.solver_mode = options.enums === String ? $root.caffe.SolverParameter.SolverMode[message.solver_mode] : message.solver_mode;
+                if (message.device_id != null && message.hasOwnProperty("device_id"))
+                    object.device_id = message.device_id;
+                if (message.test_compute_loss != null && message.hasOwnProperty("test_compute_loss"))
+                    object.test_compute_loss = message.test_compute_loss;
+                if (message.random_seed != null && message.hasOwnProperty("random_seed"))
+                    if (typeof message.random_seed === "number")
+                        object.random_seed = options.longs === String ? String(message.random_seed) : message.random_seed;
                     else
-                        object.randomSeed = options.longs === String ? $util.Long.prototype.toString.call(message.randomSeed) : options.longs === Number ? new $util.LongBits(message.randomSeed.low >>> 0, message.randomSeed.high >>> 0).toNumber() : message.randomSeed;
-                if (message.trainNetParam != null && message.hasOwnProperty("trainNetParam"))
-                    object.trainNetParam = $root.caffe.NetParameter.toObject(message.trainNetParam, options);
-                if (message.testNetParam && message.testNetParam.length) {
-                    object.testNetParam = [];
-                    for (var j = 0; j < message.testNetParam.length; ++j)
-                        object.testNetParam[j] = $root.caffe.NetParameter.toObject(message.testNetParam[j], options);
+                        object.random_seed = options.longs === String ? $util.Long.prototype.toString.call(message.random_seed) : options.longs === Number ? new $util.LongBits(message.random_seed.low >>> 0, message.random_seed.high >>> 0).toNumber() : message.random_seed;
+                if (message.train_net_param != null && message.hasOwnProperty("train_net_param"))
+                    object.train_net_param = $root.caffe.NetParameter.toObject(message.train_net_param, options);
+                if (message.test_net_param && message.test_net_param.length) {
+                    object.test_net_param = [];
+                    for (var j = 0; j < message.test_net_param.length; ++j)
+                        object.test_net_param[j] = $root.caffe.NetParameter.toObject(message.test_net_param[j], options);
                 }
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    object.debugInfo = message.debugInfo;
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    object.debug_info = message.debug_info;
                 if (message.net != null && message.hasOwnProperty("net"))
                     object.net = message.net;
-                if (message.netParam != null && message.hasOwnProperty("netParam"))
-                    object.netParam = $root.caffe.NetParameter.toObject(message.netParam, options);
-                if (message.trainState != null && message.hasOwnProperty("trainState"))
-                    object.trainState = $root.caffe.NetState.toObject(message.trainState, options);
-                if (message.testState && message.testState.length) {
-                    object.testState = [];
-                    for (var j = 0; j < message.testState.length; ++j)
-                        object.testState[j] = $root.caffe.NetState.toObject(message.testState[j], options);
+                if (message.net_param != null && message.hasOwnProperty("net_param"))
+                    object.net_param = $root.caffe.NetParameter.toObject(message.net_param, options);
+                if (message.train_state != null && message.hasOwnProperty("train_state"))
+                    object.train_state = $root.caffe.NetState.toObject(message.train_state, options);
+                if (message.test_state && message.test_state.length) {
+                    object.test_state = [];
+                    for (var j = 0; j < message.test_state.length; ++j)
+                        object.test_state[j] = $root.caffe.NetState.toObject(message.test_state[j], options);
                 }
-                if (message.snapshotAfterTrain != null && message.hasOwnProperty("snapshotAfterTrain"))
-                    object.snapshotAfterTrain = message.snapshotAfterTrain;
-                if (message.regularizationType != null && message.hasOwnProperty("regularizationType"))
-                    object.regularizationType = message.regularizationType;
-                if (message.solverType != null && message.hasOwnProperty("solverType"))
-                    object.solverType = options.enums === String ? $root.caffe.SolverParameter.SolverType[message.solverType] : message.solverType;
+                if (message.snapshot_after_train != null && message.hasOwnProperty("snapshot_after_train"))
+                    object.snapshot_after_train = message.snapshot_after_train;
+                if (message.regularization_type != null && message.hasOwnProperty("regularization_type"))
+                    object.regularization_type = message.regularization_type;
+                if (message.solver_type != null && message.hasOwnProperty("solver_type"))
+                    object.solver_type = options.enums === String ? $root.caffe.SolverParameter.SolverType[message.solver_type] : message.solver_type;
                 if (message.delta != null && message.hasOwnProperty("delta"))
                     object.delta = options.json && !isFinite(message.delta) ? String(message.delta) : message.delta;
-                if (message.testInitialization != null && message.hasOwnProperty("testInitialization"))
-                    object.testInitialization = message.testInitialization;
-                if (message.averageLoss != null && message.hasOwnProperty("averageLoss"))
-                    object.averageLoss = message.averageLoss;
+                if (message.test_initialization != null && message.hasOwnProperty("test_initialization"))
+                    object.test_initialization = message.test_initialization;
+                if (message.average_loss != null && message.hasOwnProperty("average_loss"))
+                    object.average_loss = message.average_loss;
                 if (message.stepvalue && message.stepvalue.length) {
                     object.stepvalue = [];
                     for (var j = 0; j < message.stepvalue.length; ++j)
                         object.stepvalue[j] = message.stepvalue[j];
                 }
-                if (message.clipGradients != null && message.hasOwnProperty("clipGradients"))
-                    object.clipGradients = options.json && !isFinite(message.clipGradients) ? String(message.clipGradients) : message.clipGradients;
-                if (message.iterSize != null && message.hasOwnProperty("iterSize"))
-                    object.iterSize = message.iterSize;
-                if (message.snapshotFormat != null && message.hasOwnProperty("snapshotFormat"))
-                    object.snapshotFormat = options.enums === String ? $root.caffe.SolverParameter.SnapshotFormat[message.snapshotFormat] : message.snapshotFormat;
-                if (message.rmsDecay != null && message.hasOwnProperty("rmsDecay"))
-                    object.rmsDecay = options.json && !isFinite(message.rmsDecay) ? String(message.rmsDecay) : message.rmsDecay;
+                if (message.clip_gradients != null && message.hasOwnProperty("clip_gradients"))
+                    object.clip_gradients = options.json && !isFinite(message.clip_gradients) ? String(message.clip_gradients) : message.clip_gradients;
+                if (message.iter_size != null && message.hasOwnProperty("iter_size"))
+                    object.iter_size = message.iter_size;
+                if (message.snapshot_format != null && message.hasOwnProperty("snapshot_format"))
+                    object.snapshot_format = options.enums === String ? $root.caffe.SolverParameter.SnapshotFormat[message.snapshot_format] : message.snapshot_format;
+                if (message.rms_decay != null && message.hasOwnProperty("rms_decay"))
+                    object.rms_decay = options.json && !isFinite(message.rms_decay) ? String(message.rms_decay) : message.rms_decay;
                 if (message.momentum2 != null && message.hasOwnProperty("momentum2"))
                     object.momentum2 = options.json && !isFinite(message.momentum2) ? String(message.momentum2) : message.momentum2;
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = message.type;
-                if (message.layerWiseReduce != null && message.hasOwnProperty("layerWiseReduce"))
-                    object.layerWiseReduce = message.layerWiseReduce;
+                if (message.layer_wise_reduce != null && message.hasOwnProperty("layer_wise_reduce"))
+                    object.layer_wise_reduce = message.layer_wise_reduce;
                 if (message.weights && message.weights.length) {
                     object.weights = [];
                     for (var j = 0; j < message.weights.length; ++j)
@@ -1882,9 +1882,9 @@
             }
     
             SolverState.prototype.iter = 0;
-            SolverState.prototype.learnedNet = "";
+            SolverState.prototype.learned_net = "";
             SolverState.prototype.history = $util.emptyArray;
-            SolverState.prototype.currentStep = 0;
+            SolverState.prototype.current_step = 0;
     
             SolverState.create = function create(properties) {
                 return new SolverState(properties);
@@ -1901,7 +1901,7 @@
                         message.iter = reader.int32();
                         break;
                     case 2:
-                        message.learnedNet = reader.string();
+                        message.learned_net = reader.string();
                         break;
                     case 3:
                         if (!(message.history && message.history.length))
@@ -1909,7 +1909,7 @@
                         message.history.push($root.caffe.BlobProto.decode(reader, reader.uint32()));
                         break;
                     case 4:
-                        message.currentStep = reader.int32();
+                        message.current_step = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1925,9 +1925,9 @@
                 if (message.iter != null && message.hasOwnProperty("iter"))
                     if (!$util.isInteger(message.iter))
                         return "iter: integer expected";
-                if (message.learnedNet != null && message.hasOwnProperty("learnedNet"))
-                    if (!$util.isString(message.learnedNet))
-                        return "learnedNet: string expected";
+                if (message.learned_net != null && message.hasOwnProperty("learned_net"))
+                    if (!$util.isString(message.learned_net))
+                        return "learned_net: string expected";
                 if (message.history != null && message.hasOwnProperty("history")) {
                     if (!Array.isArray(message.history))
                         return "history: array expected";
@@ -1937,9 +1937,9 @@
                             return "history." + error;
                     }
                 }
-                if (message.currentStep != null && message.hasOwnProperty("currentStep"))
-                    if (!$util.isInteger(message.currentStep))
-                        return "currentStep: integer expected";
+                if (message.current_step != null && message.hasOwnProperty("current_step"))
+                    if (!$util.isInteger(message.current_step))
+                        return "current_step: integer expected";
                 return null;
             };
     
@@ -1949,8 +1949,8 @@
                 var message = new $root.caffe.SolverState();
                 if (object.iter != null)
                     message.iter = object.iter | 0;
-                if (object.learnedNet != null)
-                    message.learnedNet = String(object.learnedNet);
+                if (object.learned_net != null)
+                    message.learned_net = String(object.learned_net);
                 if (object.history) {
                     if (!Array.isArray(object.history))
                         throw TypeError(".caffe.SolverState.history: array expected");
@@ -1961,8 +1961,8 @@
                         message.history[i] = $root.caffe.BlobProto.fromObject(object.history[i]);
                     }
                 }
-                if (object.currentStep != null)
-                    message.currentStep = object.currentStep | 0;
+                if (object.current_step != null)
+                    message.current_step = object.current_step | 0;
                 return message;
             };
     
@@ -1974,20 +1974,20 @@
                     object.history = [];
                 if (options.defaults) {
                     object.iter = 0;
-                    object.learnedNet = "";
-                    object.currentStep = 0;
+                    object.learned_net = "";
+                    object.current_step = 0;
                 }
                 if (message.iter != null && message.hasOwnProperty("iter"))
                     object.iter = message.iter;
-                if (message.learnedNet != null && message.hasOwnProperty("learnedNet"))
-                    object.learnedNet = message.learnedNet;
+                if (message.learned_net != null && message.hasOwnProperty("learned_net"))
+                    object.learned_net = message.learned_net;
                 if (message.history && message.history.length) {
                     object.history = [];
                     for (var j = 0; j < message.history.length; ++j)
                         object.history[j] = $root.caffe.BlobProto.toObject(message.history[j], options);
                 }
-                if (message.currentStep != null && message.hasOwnProperty("currentStep"))
-                    object.currentStep = message.currentStep;
+                if (message.current_step != null && message.hasOwnProperty("current_step"))
+                    object.current_step = message.current_step;
                 return object;
             };
     
@@ -2132,7 +2132,7 @@
     
             function NetStateRule(properties) {
                 this.stage = [];
-                this.notStage = [];
+                this.not_stage = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -2140,10 +2140,10 @@
             }
     
             NetStateRule.prototype.phase = 0;
-            NetStateRule.prototype.minLevel = 0;
-            NetStateRule.prototype.maxLevel = 0;
+            NetStateRule.prototype.min_level = 0;
+            NetStateRule.prototype.max_level = 0;
             NetStateRule.prototype.stage = $util.emptyArray;
-            NetStateRule.prototype.notStage = $util.emptyArray;
+            NetStateRule.prototype.not_stage = $util.emptyArray;
     
             NetStateRule.create = function create(properties) {
                 return new NetStateRule(properties);
@@ -2160,10 +2160,10 @@
                         message.phase = reader.int32();
                         break;
                     case 2:
-                        message.minLevel = reader.int32();
+                        message.min_level = reader.int32();
                         break;
                     case 3:
-                        message.maxLevel = reader.int32();
+                        message.max_level = reader.int32();
                         break;
                     case 4:
                         if (!(message.stage && message.stage.length))
@@ -2171,9 +2171,9 @@
                         message.stage.push(reader.string());
                         break;
                     case 5:
-                        if (!(message.notStage && message.notStage.length))
-                            message.notStage = [];
-                        message.notStage.push(reader.string());
+                        if (!(message.not_stage && message.not_stage.length))
+                            message.not_stage = [];
+                        message.not_stage.push(reader.string());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2194,12 +2194,12 @@
                     case 1:
                         break;
                     }
-                if (message.minLevel != null && message.hasOwnProperty("minLevel"))
-                    if (!$util.isInteger(message.minLevel))
-                        return "minLevel: integer expected";
-                if (message.maxLevel != null && message.hasOwnProperty("maxLevel"))
-                    if (!$util.isInteger(message.maxLevel))
-                        return "maxLevel: integer expected";
+                if (message.min_level != null && message.hasOwnProperty("min_level"))
+                    if (!$util.isInteger(message.min_level))
+                        return "min_level: integer expected";
+                if (message.max_level != null && message.hasOwnProperty("max_level"))
+                    if (!$util.isInteger(message.max_level))
+                        return "max_level: integer expected";
                 if (message.stage != null && message.hasOwnProperty("stage")) {
                     if (!Array.isArray(message.stage))
                         return "stage: array expected";
@@ -2207,12 +2207,12 @@
                         if (!$util.isString(message.stage[i]))
                             return "stage: string[] expected";
                 }
-                if (message.notStage != null && message.hasOwnProperty("notStage")) {
-                    if (!Array.isArray(message.notStage))
-                        return "notStage: array expected";
-                    for (var i = 0; i < message.notStage.length; ++i)
-                        if (!$util.isString(message.notStage[i]))
-                            return "notStage: string[] expected";
+                if (message.not_stage != null && message.hasOwnProperty("not_stage")) {
+                    if (!Array.isArray(message.not_stage))
+                        return "not_stage: array expected";
+                    for (var i = 0; i < message.not_stage.length; ++i)
+                        if (!$util.isString(message.not_stage[i]))
+                            return "not_stage: string[] expected";
                 }
                 return null;
             };
@@ -2231,10 +2231,10 @@
                     message.phase = 1;
                     break;
                 }
-                if (object.minLevel != null)
-                    message.minLevel = object.minLevel | 0;
-                if (object.maxLevel != null)
-                    message.maxLevel = object.maxLevel | 0;
+                if (object.min_level != null)
+                    message.min_level = object.min_level | 0;
+                if (object.max_level != null)
+                    message.max_level = object.max_level | 0;
                 if (object.stage) {
                     if (!Array.isArray(object.stage))
                         throw TypeError(".caffe.NetStateRule.stage: array expected");
@@ -2242,12 +2242,12 @@
                     for (var i = 0; i < object.stage.length; ++i)
                         message.stage[i] = String(object.stage[i]);
                 }
-                if (object.notStage) {
-                    if (!Array.isArray(object.notStage))
-                        throw TypeError(".caffe.NetStateRule.notStage: array expected");
-                    message.notStage = [];
-                    for (var i = 0; i < object.notStage.length; ++i)
-                        message.notStage[i] = String(object.notStage[i]);
+                if (object.not_stage) {
+                    if (!Array.isArray(object.not_stage))
+                        throw TypeError(".caffe.NetStateRule.not_stage: array expected");
+                    message.not_stage = [];
+                    for (var i = 0; i < object.not_stage.length; ++i)
+                        message.not_stage[i] = String(object.not_stage[i]);
                 }
                 return message;
             };
@@ -2258,28 +2258,28 @@
                 var object = {};
                 if (options.arrays || options.defaults) {
                     object.stage = [];
-                    object.notStage = [];
+                    object.not_stage = [];
                 }
                 if (options.defaults) {
                     object.phase = options.enums === String ? "TRAIN" : 0;
-                    object.minLevel = 0;
-                    object.maxLevel = 0;
+                    object.min_level = 0;
+                    object.max_level = 0;
                 }
                 if (message.phase != null && message.hasOwnProperty("phase"))
                     object.phase = options.enums === String ? $root.caffe.Phase[message.phase] : message.phase;
-                if (message.minLevel != null && message.hasOwnProperty("minLevel"))
-                    object.minLevel = message.minLevel;
-                if (message.maxLevel != null && message.hasOwnProperty("maxLevel"))
-                    object.maxLevel = message.maxLevel;
+                if (message.min_level != null && message.hasOwnProperty("min_level"))
+                    object.min_level = message.min_level;
+                if (message.max_level != null && message.hasOwnProperty("max_level"))
+                    object.max_level = message.max_level;
                 if (message.stage && message.stage.length) {
                     object.stage = [];
                     for (var j = 0; j < message.stage.length; ++j)
                         object.stage[j] = message.stage[j];
                 }
-                if (message.notStage && message.notStage.length) {
-                    object.notStage = [];
-                    for (var j = 0; j < message.notStage.length; ++j)
-                        object.notStage[j] = message.notStage[j];
+                if (message.not_stage && message.not_stage.length) {
+                    object.not_stage = [];
+                    for (var j = 0; j < message.not_stage.length; ++j)
+                        object.not_stage[j] = message.not_stage[j];
                 }
                 return object;
             };
@@ -2301,9 +2301,9 @@
             }
     
             ParamSpec.prototype.name = "";
-            ParamSpec.prototype.shareMode = 0;
-            ParamSpec.prototype.lrMult = 1;
-            ParamSpec.prototype.decayMult = 1;
+            ParamSpec.prototype.share_mode = 0;
+            ParamSpec.prototype.lr_mult = 1;
+            ParamSpec.prototype.decay_mult = 1;
     
             ParamSpec.create = function create(properties) {
                 return new ParamSpec(properties);
@@ -2320,13 +2320,13 @@
                         message.name = reader.string();
                         break;
                     case 2:
-                        message.shareMode = reader.int32();
+                        message.share_mode = reader.int32();
                         break;
                     case 3:
-                        message.lrMult = reader.float();
+                        message.lr_mult = reader.float();
                         break;
                     case 4:
-                        message.decayMult = reader.float();
+                        message.decay_mult = reader.float();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2342,20 +2342,20 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.shareMode != null && message.hasOwnProperty("shareMode"))
-                    switch (message.shareMode) {
+                if (message.share_mode != null && message.hasOwnProperty("share_mode"))
+                    switch (message.share_mode) {
                     default:
-                        return "shareMode: enum value expected";
+                        return "share_mode: enum value expected";
                     case 0:
                     case 1:
                         break;
                     }
-                if (message.lrMult != null && message.hasOwnProperty("lrMult"))
-                    if (typeof message.lrMult !== "number")
-                        return "lrMult: number expected";
-                if (message.decayMult != null && message.hasOwnProperty("decayMult"))
-                    if (typeof message.decayMult !== "number")
-                        return "decayMult: number expected";
+                if (message.lr_mult != null && message.hasOwnProperty("lr_mult"))
+                    if (typeof message.lr_mult !== "number")
+                        return "lr_mult: number expected";
+                if (message.decay_mult != null && message.hasOwnProperty("decay_mult"))
+                    if (typeof message.decay_mult !== "number")
+                        return "decay_mult: number expected";
                 return null;
             };
     
@@ -2365,20 +2365,20 @@
                 var message = new $root.caffe.ParamSpec();
                 if (object.name != null)
                     message.name = String(object.name);
-                switch (object.shareMode) {
+                switch (object.share_mode) {
                 case "STRICT":
                 case 0:
-                    message.shareMode = 0;
+                    message.share_mode = 0;
                     break;
                 case "PERMISSIVE":
                 case 1:
-                    message.shareMode = 1;
+                    message.share_mode = 1;
                     break;
                 }
-                if (object.lrMult != null)
-                    message.lrMult = Number(object.lrMult);
-                if (object.decayMult != null)
-                    message.decayMult = Number(object.decayMult);
+                if (object.lr_mult != null)
+                    message.lr_mult = Number(object.lr_mult);
+                if (object.decay_mult != null)
+                    message.decay_mult = Number(object.decay_mult);
                 return message;
             };
     
@@ -2388,18 +2388,18 @@
                 var object = {};
                 if (options.defaults) {
                     object.name = "";
-                    object.shareMode = options.enums === String ? "STRICT" : 0;
-                    object.lrMult = 1;
-                    object.decayMult = 1;
+                    object.share_mode = options.enums === String ? "STRICT" : 0;
+                    object.lr_mult = 1;
+                    object.decay_mult = 1;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.shareMode != null && message.hasOwnProperty("shareMode"))
-                    object.shareMode = options.enums === String ? $root.caffe.ParamSpec.DimCheckMode[message.shareMode] : message.shareMode;
-                if (message.lrMult != null && message.hasOwnProperty("lrMult"))
-                    object.lrMult = options.json && !isFinite(message.lrMult) ? String(message.lrMult) : message.lrMult;
-                if (message.decayMult != null && message.hasOwnProperty("decayMult"))
-                    object.decayMult = options.json && !isFinite(message.decayMult) ? String(message.decayMult) : message.decayMult;
+                if (message.share_mode != null && message.hasOwnProperty("share_mode"))
+                    object.share_mode = options.enums === String ? $root.caffe.ParamSpec.DimCheckMode[message.share_mode] : message.share_mode;
+                if (message.lr_mult != null && message.hasOwnProperty("lr_mult"))
+                    object.lr_mult = options.json && !isFinite(message.lr_mult) ? String(message.lr_mult) : message.lr_mult;
+                if (message.decay_mult != null && message.hasOwnProperty("decay_mult"))
+                    object.decay_mult = options.json && !isFinite(message.decay_mult) ? String(message.decay_mult) : message.decay_mult;
                 return object;
             };
     
@@ -2422,10 +2422,10 @@
             function LayerParameter(properties) {
                 this.bottom = [];
                 this.top = [];
-                this.lossWeight = [];
+                this.loss_weight = [];
                 this.param = [];
                 this.blobs = [];
-                this.propagateDown = [];
+                this.propagate_down = [];
                 this.include = [];
                 this.exclude = [];
                 if (properties)
@@ -2439,61 +2439,61 @@
             LayerParameter.prototype.bottom = $util.emptyArray;
             LayerParameter.prototype.top = $util.emptyArray;
             LayerParameter.prototype.phase = 0;
-            LayerParameter.prototype.lossWeight = $util.emptyArray;
+            LayerParameter.prototype.loss_weight = $util.emptyArray;
             LayerParameter.prototype.param = $util.emptyArray;
             LayerParameter.prototype.blobs = $util.emptyArray;
-            LayerParameter.prototype.propagateDown = $util.emptyArray;
+            LayerParameter.prototype.propagate_down = $util.emptyArray;
             LayerParameter.prototype.include = $util.emptyArray;
             LayerParameter.prototype.exclude = $util.emptyArray;
-            LayerParameter.prototype.transformParam = null;
-            LayerParameter.prototype.lossParam = null;
-            LayerParameter.prototype.accuracyParam = null;
-            LayerParameter.prototype.argmaxParam = null;
-            LayerParameter.prototype.batchNormParam = null;
-            LayerParameter.prototype.biasParam = null;
-            LayerParameter.prototype.clipParam = null;
-            LayerParameter.prototype.concatParam = null;
-            LayerParameter.prototype.contrastiveLossParam = null;
-            LayerParameter.prototype.convolutionParam = null;
-            LayerParameter.prototype.cropParam = null;
-            LayerParameter.prototype.dataParam = null;
-            LayerParameter.prototype.dropoutParam = null;
-            LayerParameter.prototype.dummyDataParam = null;
-            LayerParameter.prototype.eltwiseParam = null;
-            LayerParameter.prototype.eluParam = null;
-            LayerParameter.prototype.embedParam = null;
-            LayerParameter.prototype.expParam = null;
-            LayerParameter.prototype.flattenParam = null;
-            LayerParameter.prototype.hdf5DataParam = null;
-            LayerParameter.prototype.hdf5OutputParam = null;
-            LayerParameter.prototype.hingeLossParam = null;
-            LayerParameter.prototype.imageDataParam = null;
-            LayerParameter.prototype.infogainLossParam = null;
-            LayerParameter.prototype.innerProductParam = null;
-            LayerParameter.prototype.inputParam = null;
-            LayerParameter.prototype.logParam = null;
-            LayerParameter.prototype.lrnParam = null;
-            LayerParameter.prototype.memoryDataParam = null;
-            LayerParameter.prototype.mvnParam = null;
-            LayerParameter.prototype.parameterParam = null;
-            LayerParameter.prototype.poolingParam = null;
-            LayerParameter.prototype.powerParam = null;
-            LayerParameter.prototype.preluParam = null;
-            LayerParameter.prototype.pythonParam = null;
-            LayerParameter.prototype.recurrentParam = null;
-            LayerParameter.prototype.reductionParam = null;
-            LayerParameter.prototype.reluParam = null;
-            LayerParameter.prototype.reshapeParam = null;
-            LayerParameter.prototype.scaleParam = null;
-            LayerParameter.prototype.sigmoidParam = null;
-            LayerParameter.prototype.softmaxParam = null;
-            LayerParameter.prototype.sppParam = null;
-            LayerParameter.prototype.sliceParam = null;
-            LayerParameter.prototype.swishParam = null;
-            LayerParameter.prototype.tanhParam = null;
-            LayerParameter.prototype.thresholdParam = null;
-            LayerParameter.prototype.tileParam = null;
-            LayerParameter.prototype.windowDataParam = null;
+            LayerParameter.prototype.transform_param = null;
+            LayerParameter.prototype.loss_param = null;
+            LayerParameter.prototype.accuracy_param = null;
+            LayerParameter.prototype.argmax_param = null;
+            LayerParameter.prototype.batch_norm_param = null;
+            LayerParameter.prototype.bias_param = null;
+            LayerParameter.prototype.clip_param = null;
+            LayerParameter.prototype.concat_param = null;
+            LayerParameter.prototype.contrastive_loss_param = null;
+            LayerParameter.prototype.convolution_param = null;
+            LayerParameter.prototype.crop_param = null;
+            LayerParameter.prototype.data_param = null;
+            LayerParameter.prototype.dropout_param = null;
+            LayerParameter.prototype.dummy_data_param = null;
+            LayerParameter.prototype.eltwise_param = null;
+            LayerParameter.prototype.elu_param = null;
+            LayerParameter.prototype.embed_param = null;
+            LayerParameter.prototype.exp_param = null;
+            LayerParameter.prototype.flatten_param = null;
+            LayerParameter.prototype.hdf5_data_param = null;
+            LayerParameter.prototype.hdf5_output_param = null;
+            LayerParameter.prototype.hinge_loss_param = null;
+            LayerParameter.prototype.image_data_param = null;
+            LayerParameter.prototype.infogain_loss_param = null;
+            LayerParameter.prototype.inner_product_param = null;
+            LayerParameter.prototype.input_param = null;
+            LayerParameter.prototype.log_param = null;
+            LayerParameter.prototype.lrn_param = null;
+            LayerParameter.prototype.memory_data_param = null;
+            LayerParameter.prototype.mvn_param = null;
+            LayerParameter.prototype.parameter_param = null;
+            LayerParameter.prototype.pooling_param = null;
+            LayerParameter.prototype.power_param = null;
+            LayerParameter.prototype.prelu_param = null;
+            LayerParameter.prototype.python_param = null;
+            LayerParameter.prototype.recurrent_param = null;
+            LayerParameter.prototype.reduction_param = null;
+            LayerParameter.prototype.relu_param = null;
+            LayerParameter.prototype.reshape_param = null;
+            LayerParameter.prototype.scale_param = null;
+            LayerParameter.prototype.sigmoid_param = null;
+            LayerParameter.prototype.softmax_param = null;
+            LayerParameter.prototype.spp_param = null;
+            LayerParameter.prototype.slice_param = null;
+            LayerParameter.prototype.swish_param = null;
+            LayerParameter.prototype.tanh_param = null;
+            LayerParameter.prototype.threshold_param = null;
+            LayerParameter.prototype.tile_param = null;
+            LayerParameter.prototype.window_data_param = null;
     
             LayerParameter.create = function create(properties) {
                 return new LayerParameter(properties);
@@ -2526,14 +2526,14 @@
                         message.phase = reader.int32();
                         break;
                     case 5:
-                        if (!(message.lossWeight && message.lossWeight.length))
-                            message.lossWeight = [];
+                        if (!(message.loss_weight && message.loss_weight.length))
+                            message.loss_weight = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.lossWeight.push(reader.float());
+                                message.loss_weight.push(reader.float());
                         } else
-                            message.lossWeight.push(reader.float());
+                            message.loss_weight.push(reader.float());
                         break;
                     case 6:
                         if (!(message.param && message.param.length))
@@ -2546,14 +2546,14 @@
                         message.blobs.push($root.caffe.BlobProto.decode(reader, reader.uint32()));
                         break;
                     case 11:
-                        if (!(message.propagateDown && message.propagateDown.length))
-                            message.propagateDown = [];
+                        if (!(message.propagate_down && message.propagate_down.length))
+                            message.propagate_down = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.propagateDown.push(reader.bool());
+                                message.propagate_down.push(reader.bool());
                         } else
-                            message.propagateDown.push(reader.bool());
+                            message.propagate_down.push(reader.bool());
                         break;
                     case 8:
                         if (!(message.include && message.include.length))
@@ -2566,151 +2566,151 @@
                         message.exclude.push($root.caffe.NetStateRule.decode(reader, reader.uint32()));
                         break;
                     case 100:
-                        message.transformParam = $root.caffe.TransformationParameter.decode(reader, reader.uint32());
+                        message.transform_param = $root.caffe.TransformationParameter.decode(reader, reader.uint32());
                         break;
                     case 101:
-                        message.lossParam = $root.caffe.LossParameter.decode(reader, reader.uint32());
+                        message.loss_param = $root.caffe.LossParameter.decode(reader, reader.uint32());
                         break;
                     case 102:
-                        message.accuracyParam = $root.caffe.AccuracyParameter.decode(reader, reader.uint32());
+                        message.accuracy_param = $root.caffe.AccuracyParameter.decode(reader, reader.uint32());
                         break;
                     case 103:
-                        message.argmaxParam = $root.caffe.ArgMaxParameter.decode(reader, reader.uint32());
+                        message.argmax_param = $root.caffe.ArgMaxParameter.decode(reader, reader.uint32());
                         break;
                     case 139:
-                        message.batchNormParam = $root.caffe.BatchNormParameter.decode(reader, reader.uint32());
+                        message.batch_norm_param = $root.caffe.BatchNormParameter.decode(reader, reader.uint32());
                         break;
                     case 141:
-                        message.biasParam = $root.caffe.BiasParameter.decode(reader, reader.uint32());
+                        message.bias_param = $root.caffe.BiasParameter.decode(reader, reader.uint32());
                         break;
                     case 148:
-                        message.clipParam = $root.caffe.ClipParameter.decode(reader, reader.uint32());
+                        message.clip_param = $root.caffe.ClipParameter.decode(reader, reader.uint32());
                         break;
                     case 104:
-                        message.concatParam = $root.caffe.ConcatParameter.decode(reader, reader.uint32());
+                        message.concat_param = $root.caffe.ConcatParameter.decode(reader, reader.uint32());
                         break;
                     case 105:
-                        message.contrastiveLossParam = $root.caffe.ContrastiveLossParameter.decode(reader, reader.uint32());
+                        message.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.decode(reader, reader.uint32());
                         break;
                     case 106:
-                        message.convolutionParam = $root.caffe.ConvolutionParameter.decode(reader, reader.uint32());
+                        message.convolution_param = $root.caffe.ConvolutionParameter.decode(reader, reader.uint32());
                         break;
                     case 144:
-                        message.cropParam = $root.caffe.CropParameter.decode(reader, reader.uint32());
+                        message.crop_param = $root.caffe.CropParameter.decode(reader, reader.uint32());
                         break;
                     case 107:
-                        message.dataParam = $root.caffe.DataParameter.decode(reader, reader.uint32());
+                        message.data_param = $root.caffe.DataParameter.decode(reader, reader.uint32());
                         break;
                     case 108:
-                        message.dropoutParam = $root.caffe.DropoutParameter.decode(reader, reader.uint32());
+                        message.dropout_param = $root.caffe.DropoutParameter.decode(reader, reader.uint32());
                         break;
                     case 109:
-                        message.dummyDataParam = $root.caffe.DummyDataParameter.decode(reader, reader.uint32());
+                        message.dummy_data_param = $root.caffe.DummyDataParameter.decode(reader, reader.uint32());
                         break;
                     case 110:
-                        message.eltwiseParam = $root.caffe.EltwiseParameter.decode(reader, reader.uint32());
+                        message.eltwise_param = $root.caffe.EltwiseParameter.decode(reader, reader.uint32());
                         break;
                     case 140:
-                        message.eluParam = $root.caffe.ELUParameter.decode(reader, reader.uint32());
+                        message.elu_param = $root.caffe.ELUParameter.decode(reader, reader.uint32());
                         break;
                     case 137:
-                        message.embedParam = $root.caffe.EmbedParameter.decode(reader, reader.uint32());
+                        message.embed_param = $root.caffe.EmbedParameter.decode(reader, reader.uint32());
                         break;
                     case 111:
-                        message.expParam = $root.caffe.ExpParameter.decode(reader, reader.uint32());
+                        message.exp_param = $root.caffe.ExpParameter.decode(reader, reader.uint32());
                         break;
                     case 135:
-                        message.flattenParam = $root.caffe.FlattenParameter.decode(reader, reader.uint32());
+                        message.flatten_param = $root.caffe.FlattenParameter.decode(reader, reader.uint32());
                         break;
                     case 112:
-                        message.hdf5DataParam = $root.caffe.HDF5DataParameter.decode(reader, reader.uint32());
+                        message.hdf5_data_param = $root.caffe.HDF5DataParameter.decode(reader, reader.uint32());
                         break;
                     case 113:
-                        message.hdf5OutputParam = $root.caffe.HDF5OutputParameter.decode(reader, reader.uint32());
+                        message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decode(reader, reader.uint32());
                         break;
                     case 114:
-                        message.hingeLossParam = $root.caffe.HingeLossParameter.decode(reader, reader.uint32());
+                        message.hinge_loss_param = $root.caffe.HingeLossParameter.decode(reader, reader.uint32());
                         break;
                     case 115:
-                        message.imageDataParam = $root.caffe.ImageDataParameter.decode(reader, reader.uint32());
+                        message.image_data_param = $root.caffe.ImageDataParameter.decode(reader, reader.uint32());
                         break;
                     case 116:
-                        message.infogainLossParam = $root.caffe.InfogainLossParameter.decode(reader, reader.uint32());
+                        message.infogain_loss_param = $root.caffe.InfogainLossParameter.decode(reader, reader.uint32());
                         break;
                     case 117:
-                        message.innerProductParam = $root.caffe.InnerProductParameter.decode(reader, reader.uint32());
+                        message.inner_product_param = $root.caffe.InnerProductParameter.decode(reader, reader.uint32());
                         break;
                     case 143:
-                        message.inputParam = $root.caffe.InputParameter.decode(reader, reader.uint32());
+                        message.input_param = $root.caffe.InputParameter.decode(reader, reader.uint32());
                         break;
                     case 134:
-                        message.logParam = $root.caffe.LogParameter.decode(reader, reader.uint32());
+                        message.log_param = $root.caffe.LogParameter.decode(reader, reader.uint32());
                         break;
                     case 118:
-                        message.lrnParam = $root.caffe.LRNParameter.decode(reader, reader.uint32());
+                        message.lrn_param = $root.caffe.LRNParameter.decode(reader, reader.uint32());
                         break;
                     case 119:
-                        message.memoryDataParam = $root.caffe.MemoryDataParameter.decode(reader, reader.uint32());
+                        message.memory_data_param = $root.caffe.MemoryDataParameter.decode(reader, reader.uint32());
                         break;
                     case 120:
-                        message.mvnParam = $root.caffe.MVNParameter.decode(reader, reader.uint32());
+                        message.mvn_param = $root.caffe.MVNParameter.decode(reader, reader.uint32());
                         break;
                     case 145:
-                        message.parameterParam = $root.caffe.ParameterParameter.decode(reader, reader.uint32());
+                        message.parameter_param = $root.caffe.ParameterParameter.decode(reader, reader.uint32());
                         break;
                     case 121:
-                        message.poolingParam = $root.caffe.PoolingParameter.decode(reader, reader.uint32());
+                        message.pooling_param = $root.caffe.PoolingParameter.decode(reader, reader.uint32());
                         break;
                     case 122:
-                        message.powerParam = $root.caffe.PowerParameter.decode(reader, reader.uint32());
+                        message.power_param = $root.caffe.PowerParameter.decode(reader, reader.uint32());
                         break;
                     case 131:
-                        message.preluParam = $root.caffe.PReLUParameter.decode(reader, reader.uint32());
+                        message.prelu_param = $root.caffe.PReLUParameter.decode(reader, reader.uint32());
                         break;
                     case 130:
-                        message.pythonParam = $root.caffe.PythonParameter.decode(reader, reader.uint32());
+                        message.python_param = $root.caffe.PythonParameter.decode(reader, reader.uint32());
                         break;
                     case 146:
-                        message.recurrentParam = $root.caffe.RecurrentParameter.decode(reader, reader.uint32());
+                        message.recurrent_param = $root.caffe.RecurrentParameter.decode(reader, reader.uint32());
                         break;
                     case 136:
-                        message.reductionParam = $root.caffe.ReductionParameter.decode(reader, reader.uint32());
+                        message.reduction_param = $root.caffe.ReductionParameter.decode(reader, reader.uint32());
                         break;
                     case 123:
-                        message.reluParam = $root.caffe.ReLUParameter.decode(reader, reader.uint32());
+                        message.relu_param = $root.caffe.ReLUParameter.decode(reader, reader.uint32());
                         break;
                     case 133:
-                        message.reshapeParam = $root.caffe.ReshapeParameter.decode(reader, reader.uint32());
+                        message.reshape_param = $root.caffe.ReshapeParameter.decode(reader, reader.uint32());
                         break;
                     case 142:
-                        message.scaleParam = $root.caffe.ScaleParameter.decode(reader, reader.uint32());
+                        message.scale_param = $root.caffe.ScaleParameter.decode(reader, reader.uint32());
                         break;
                     case 124:
-                        message.sigmoidParam = $root.caffe.SigmoidParameter.decode(reader, reader.uint32());
+                        message.sigmoid_param = $root.caffe.SigmoidParameter.decode(reader, reader.uint32());
                         break;
                     case 125:
-                        message.softmaxParam = $root.caffe.SoftmaxParameter.decode(reader, reader.uint32());
+                        message.softmax_param = $root.caffe.SoftmaxParameter.decode(reader, reader.uint32());
                         break;
                     case 132:
-                        message.sppParam = $root.caffe.SPPParameter.decode(reader, reader.uint32());
+                        message.spp_param = $root.caffe.SPPParameter.decode(reader, reader.uint32());
                         break;
                     case 126:
-                        message.sliceParam = $root.caffe.SliceParameter.decode(reader, reader.uint32());
+                        message.slice_param = $root.caffe.SliceParameter.decode(reader, reader.uint32());
                         break;
                     case 147:
-                        message.swishParam = $root.caffe.SwishParameter.decode(reader, reader.uint32());
+                        message.swish_param = $root.caffe.SwishParameter.decode(reader, reader.uint32());
                         break;
                     case 127:
-                        message.tanhParam = $root.caffe.TanHParameter.decode(reader, reader.uint32());
+                        message.tanh_param = $root.caffe.TanHParameter.decode(reader, reader.uint32());
                         break;
                     case 128:
-                        message.thresholdParam = $root.caffe.ThresholdParameter.decode(reader, reader.uint32());
+                        message.threshold_param = $root.caffe.ThresholdParameter.decode(reader, reader.uint32());
                         break;
                     case 138:
-                        message.tileParam = $root.caffe.TileParameter.decode(reader, reader.uint32());
+                        message.tile_param = $root.caffe.TileParameter.decode(reader, reader.uint32());
                         break;
                     case 129:
-                        message.windowDataParam = $root.caffe.WindowDataParameter.decode(reader, reader.uint32());
+                        message.window_data_param = $root.caffe.WindowDataParameter.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2751,12 +2751,12 @@
                     case 1:
                         break;
                     }
-                if (message.lossWeight != null && message.hasOwnProperty("lossWeight")) {
-                    if (!Array.isArray(message.lossWeight))
-                        return "lossWeight: array expected";
-                    for (var i = 0; i < message.lossWeight.length; ++i)
-                        if (typeof message.lossWeight[i] !== "number")
-                            return "lossWeight: number[] expected";
+                if (message.loss_weight != null && message.hasOwnProperty("loss_weight")) {
+                    if (!Array.isArray(message.loss_weight))
+                        return "loss_weight: array expected";
+                    for (var i = 0; i < message.loss_weight.length; ++i)
+                        if (typeof message.loss_weight[i] !== "number")
+                            return "loss_weight: number[] expected";
                 }
                 if (message.param != null && message.hasOwnProperty("param")) {
                     if (!Array.isArray(message.param))
@@ -2776,12 +2776,12 @@
                             return "blobs." + error;
                     }
                 }
-                if (message.propagateDown != null && message.hasOwnProperty("propagateDown")) {
-                    if (!Array.isArray(message.propagateDown))
-                        return "propagateDown: array expected";
-                    for (var i = 0; i < message.propagateDown.length; ++i)
-                        if (typeof message.propagateDown[i] !== "boolean")
-                            return "propagateDown: boolean[] expected";
+                if (message.propagate_down != null && message.hasOwnProperty("propagate_down")) {
+                    if (!Array.isArray(message.propagate_down))
+                        return "propagate_down: array expected";
+                    for (var i = 0; i < message.propagate_down.length; ++i)
+                        if (typeof message.propagate_down[i] !== "boolean")
+                            return "propagate_down: boolean[] expected";
                 }
                 if (message.include != null && message.hasOwnProperty("include")) {
                     if (!Array.isArray(message.include))
@@ -2801,250 +2801,250 @@
                             return "exclude." + error;
                     }
                 }
-                if (message.transformParam != null && message.hasOwnProperty("transformParam")) {
-                    var error = $root.caffe.TransformationParameter.verify(message.transformParam);
+                if (message.transform_param != null && message.hasOwnProperty("transform_param")) {
+                    var error = $root.caffe.TransformationParameter.verify(message.transform_param);
                     if (error)
-                        return "transformParam." + error;
+                        return "transform_param." + error;
                 }
-                if (message.lossParam != null && message.hasOwnProperty("lossParam")) {
-                    var error = $root.caffe.LossParameter.verify(message.lossParam);
+                if (message.loss_param != null && message.hasOwnProperty("loss_param")) {
+                    var error = $root.caffe.LossParameter.verify(message.loss_param);
                     if (error)
-                        return "lossParam." + error;
+                        return "loss_param." + error;
                 }
-                if (message.accuracyParam != null && message.hasOwnProperty("accuracyParam")) {
-                    var error = $root.caffe.AccuracyParameter.verify(message.accuracyParam);
+                if (message.accuracy_param != null && message.hasOwnProperty("accuracy_param")) {
+                    var error = $root.caffe.AccuracyParameter.verify(message.accuracy_param);
                     if (error)
-                        return "accuracyParam." + error;
+                        return "accuracy_param." + error;
                 }
-                if (message.argmaxParam != null && message.hasOwnProperty("argmaxParam")) {
-                    var error = $root.caffe.ArgMaxParameter.verify(message.argmaxParam);
+                if (message.argmax_param != null && message.hasOwnProperty("argmax_param")) {
+                    var error = $root.caffe.ArgMaxParameter.verify(message.argmax_param);
                     if (error)
-                        return "argmaxParam." + error;
+                        return "argmax_param." + error;
                 }
-                if (message.batchNormParam != null && message.hasOwnProperty("batchNormParam")) {
-                    var error = $root.caffe.BatchNormParameter.verify(message.batchNormParam);
+                if (message.batch_norm_param != null && message.hasOwnProperty("batch_norm_param")) {
+                    var error = $root.caffe.BatchNormParameter.verify(message.batch_norm_param);
                     if (error)
-                        return "batchNormParam." + error;
+                        return "batch_norm_param." + error;
                 }
-                if (message.biasParam != null && message.hasOwnProperty("biasParam")) {
-                    var error = $root.caffe.BiasParameter.verify(message.biasParam);
+                if (message.bias_param != null && message.hasOwnProperty("bias_param")) {
+                    var error = $root.caffe.BiasParameter.verify(message.bias_param);
                     if (error)
-                        return "biasParam." + error;
+                        return "bias_param." + error;
                 }
-                if (message.clipParam != null && message.hasOwnProperty("clipParam")) {
-                    var error = $root.caffe.ClipParameter.verify(message.clipParam);
+                if (message.clip_param != null && message.hasOwnProperty("clip_param")) {
+                    var error = $root.caffe.ClipParameter.verify(message.clip_param);
                     if (error)
-                        return "clipParam." + error;
+                        return "clip_param." + error;
                 }
-                if (message.concatParam != null && message.hasOwnProperty("concatParam")) {
-                    var error = $root.caffe.ConcatParameter.verify(message.concatParam);
+                if (message.concat_param != null && message.hasOwnProperty("concat_param")) {
+                    var error = $root.caffe.ConcatParameter.verify(message.concat_param);
                     if (error)
-                        return "concatParam." + error;
+                        return "concat_param." + error;
                 }
-                if (message.contrastiveLossParam != null && message.hasOwnProperty("contrastiveLossParam")) {
-                    var error = $root.caffe.ContrastiveLossParameter.verify(message.contrastiveLossParam);
+                if (message.contrastive_loss_param != null && message.hasOwnProperty("contrastive_loss_param")) {
+                    var error = $root.caffe.ContrastiveLossParameter.verify(message.contrastive_loss_param);
                     if (error)
-                        return "contrastiveLossParam." + error;
+                        return "contrastive_loss_param." + error;
                 }
-                if (message.convolutionParam != null && message.hasOwnProperty("convolutionParam")) {
-                    var error = $root.caffe.ConvolutionParameter.verify(message.convolutionParam);
+                if (message.convolution_param != null && message.hasOwnProperty("convolution_param")) {
+                    var error = $root.caffe.ConvolutionParameter.verify(message.convolution_param);
                     if (error)
-                        return "convolutionParam." + error;
+                        return "convolution_param." + error;
                 }
-                if (message.cropParam != null && message.hasOwnProperty("cropParam")) {
-                    var error = $root.caffe.CropParameter.verify(message.cropParam);
+                if (message.crop_param != null && message.hasOwnProperty("crop_param")) {
+                    var error = $root.caffe.CropParameter.verify(message.crop_param);
                     if (error)
-                        return "cropParam." + error;
+                        return "crop_param." + error;
                 }
-                if (message.dataParam != null && message.hasOwnProperty("dataParam")) {
-                    var error = $root.caffe.DataParameter.verify(message.dataParam);
+                if (message.data_param != null && message.hasOwnProperty("data_param")) {
+                    var error = $root.caffe.DataParameter.verify(message.data_param);
                     if (error)
-                        return "dataParam." + error;
+                        return "data_param." + error;
                 }
-                if (message.dropoutParam != null && message.hasOwnProperty("dropoutParam")) {
-                    var error = $root.caffe.DropoutParameter.verify(message.dropoutParam);
+                if (message.dropout_param != null && message.hasOwnProperty("dropout_param")) {
+                    var error = $root.caffe.DropoutParameter.verify(message.dropout_param);
                     if (error)
-                        return "dropoutParam." + error;
+                        return "dropout_param." + error;
                 }
-                if (message.dummyDataParam != null && message.hasOwnProperty("dummyDataParam")) {
-                    var error = $root.caffe.DummyDataParameter.verify(message.dummyDataParam);
+                if (message.dummy_data_param != null && message.hasOwnProperty("dummy_data_param")) {
+                    var error = $root.caffe.DummyDataParameter.verify(message.dummy_data_param);
                     if (error)
-                        return "dummyDataParam." + error;
+                        return "dummy_data_param." + error;
                 }
-                if (message.eltwiseParam != null && message.hasOwnProperty("eltwiseParam")) {
-                    var error = $root.caffe.EltwiseParameter.verify(message.eltwiseParam);
+                if (message.eltwise_param != null && message.hasOwnProperty("eltwise_param")) {
+                    var error = $root.caffe.EltwiseParameter.verify(message.eltwise_param);
                     if (error)
-                        return "eltwiseParam." + error;
+                        return "eltwise_param." + error;
                 }
-                if (message.eluParam != null && message.hasOwnProperty("eluParam")) {
-                    var error = $root.caffe.ELUParameter.verify(message.eluParam);
+                if (message.elu_param != null && message.hasOwnProperty("elu_param")) {
+                    var error = $root.caffe.ELUParameter.verify(message.elu_param);
                     if (error)
-                        return "eluParam." + error;
+                        return "elu_param." + error;
                 }
-                if (message.embedParam != null && message.hasOwnProperty("embedParam")) {
-                    var error = $root.caffe.EmbedParameter.verify(message.embedParam);
+                if (message.embed_param != null && message.hasOwnProperty("embed_param")) {
+                    var error = $root.caffe.EmbedParameter.verify(message.embed_param);
                     if (error)
-                        return "embedParam." + error;
+                        return "embed_param." + error;
                 }
-                if (message.expParam != null && message.hasOwnProperty("expParam")) {
-                    var error = $root.caffe.ExpParameter.verify(message.expParam);
+                if (message.exp_param != null && message.hasOwnProperty("exp_param")) {
+                    var error = $root.caffe.ExpParameter.verify(message.exp_param);
                     if (error)
-                        return "expParam." + error;
+                        return "exp_param." + error;
                 }
-                if (message.flattenParam != null && message.hasOwnProperty("flattenParam")) {
-                    var error = $root.caffe.FlattenParameter.verify(message.flattenParam);
+                if (message.flatten_param != null && message.hasOwnProperty("flatten_param")) {
+                    var error = $root.caffe.FlattenParameter.verify(message.flatten_param);
                     if (error)
-                        return "flattenParam." + error;
+                        return "flatten_param." + error;
                 }
-                if (message.hdf5DataParam != null && message.hasOwnProperty("hdf5DataParam")) {
-                    var error = $root.caffe.HDF5DataParameter.verify(message.hdf5DataParam);
+                if (message.hdf5_data_param != null && message.hasOwnProperty("hdf5_data_param")) {
+                    var error = $root.caffe.HDF5DataParameter.verify(message.hdf5_data_param);
                     if (error)
-                        return "hdf5DataParam." + error;
+                        return "hdf5_data_param." + error;
                 }
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam")) {
-                    var error = $root.caffe.HDF5OutputParameter.verify(message.hdf5OutputParam);
+                if (message.hdf5_output_param != null && message.hasOwnProperty("hdf5_output_param")) {
+                    var error = $root.caffe.HDF5OutputParameter.verify(message.hdf5_output_param);
                     if (error)
-                        return "hdf5OutputParam." + error;
+                        return "hdf5_output_param." + error;
                 }
-                if (message.hingeLossParam != null && message.hasOwnProperty("hingeLossParam")) {
-                    var error = $root.caffe.HingeLossParameter.verify(message.hingeLossParam);
+                if (message.hinge_loss_param != null && message.hasOwnProperty("hinge_loss_param")) {
+                    var error = $root.caffe.HingeLossParameter.verify(message.hinge_loss_param);
                     if (error)
-                        return "hingeLossParam." + error;
+                        return "hinge_loss_param." + error;
                 }
-                if (message.imageDataParam != null && message.hasOwnProperty("imageDataParam")) {
-                    var error = $root.caffe.ImageDataParameter.verify(message.imageDataParam);
+                if (message.image_data_param != null && message.hasOwnProperty("image_data_param")) {
+                    var error = $root.caffe.ImageDataParameter.verify(message.image_data_param);
                     if (error)
-                        return "imageDataParam." + error;
+                        return "image_data_param." + error;
                 }
-                if (message.infogainLossParam != null && message.hasOwnProperty("infogainLossParam")) {
-                    var error = $root.caffe.InfogainLossParameter.verify(message.infogainLossParam);
+                if (message.infogain_loss_param != null && message.hasOwnProperty("infogain_loss_param")) {
+                    var error = $root.caffe.InfogainLossParameter.verify(message.infogain_loss_param);
                     if (error)
-                        return "infogainLossParam." + error;
+                        return "infogain_loss_param." + error;
                 }
-                if (message.innerProductParam != null && message.hasOwnProperty("innerProductParam")) {
-                    var error = $root.caffe.InnerProductParameter.verify(message.innerProductParam);
+                if (message.inner_product_param != null && message.hasOwnProperty("inner_product_param")) {
+                    var error = $root.caffe.InnerProductParameter.verify(message.inner_product_param);
                     if (error)
-                        return "innerProductParam." + error;
+                        return "inner_product_param." + error;
                 }
-                if (message.inputParam != null && message.hasOwnProperty("inputParam")) {
-                    var error = $root.caffe.InputParameter.verify(message.inputParam);
+                if (message.input_param != null && message.hasOwnProperty("input_param")) {
+                    var error = $root.caffe.InputParameter.verify(message.input_param);
                     if (error)
-                        return "inputParam." + error;
+                        return "input_param." + error;
                 }
-                if (message.logParam != null && message.hasOwnProperty("logParam")) {
-                    var error = $root.caffe.LogParameter.verify(message.logParam);
+                if (message.log_param != null && message.hasOwnProperty("log_param")) {
+                    var error = $root.caffe.LogParameter.verify(message.log_param);
                     if (error)
-                        return "logParam." + error;
+                        return "log_param." + error;
                 }
-                if (message.lrnParam != null && message.hasOwnProperty("lrnParam")) {
-                    var error = $root.caffe.LRNParameter.verify(message.lrnParam);
+                if (message.lrn_param != null && message.hasOwnProperty("lrn_param")) {
+                    var error = $root.caffe.LRNParameter.verify(message.lrn_param);
                     if (error)
-                        return "lrnParam." + error;
+                        return "lrn_param." + error;
                 }
-                if (message.memoryDataParam != null && message.hasOwnProperty("memoryDataParam")) {
-                    var error = $root.caffe.MemoryDataParameter.verify(message.memoryDataParam);
+                if (message.memory_data_param != null && message.hasOwnProperty("memory_data_param")) {
+                    var error = $root.caffe.MemoryDataParameter.verify(message.memory_data_param);
                     if (error)
-                        return "memoryDataParam." + error;
+                        return "memory_data_param." + error;
                 }
-                if (message.mvnParam != null && message.hasOwnProperty("mvnParam")) {
-                    var error = $root.caffe.MVNParameter.verify(message.mvnParam);
+                if (message.mvn_param != null && message.hasOwnProperty("mvn_param")) {
+                    var error = $root.caffe.MVNParameter.verify(message.mvn_param);
                     if (error)
-                        return "mvnParam." + error;
+                        return "mvn_param." + error;
                 }
-                if (message.parameterParam != null && message.hasOwnProperty("parameterParam")) {
-                    var error = $root.caffe.ParameterParameter.verify(message.parameterParam);
+                if (message.parameter_param != null && message.hasOwnProperty("parameter_param")) {
+                    var error = $root.caffe.ParameterParameter.verify(message.parameter_param);
                     if (error)
-                        return "parameterParam." + error;
+                        return "parameter_param." + error;
                 }
-                if (message.poolingParam != null && message.hasOwnProperty("poolingParam")) {
-                    var error = $root.caffe.PoolingParameter.verify(message.poolingParam);
+                if (message.pooling_param != null && message.hasOwnProperty("pooling_param")) {
+                    var error = $root.caffe.PoolingParameter.verify(message.pooling_param);
                     if (error)
-                        return "poolingParam." + error;
+                        return "pooling_param." + error;
                 }
-                if (message.powerParam != null && message.hasOwnProperty("powerParam")) {
-                    var error = $root.caffe.PowerParameter.verify(message.powerParam);
+                if (message.power_param != null && message.hasOwnProperty("power_param")) {
+                    var error = $root.caffe.PowerParameter.verify(message.power_param);
                     if (error)
-                        return "powerParam." + error;
+                        return "power_param." + error;
                 }
-                if (message.preluParam != null && message.hasOwnProperty("preluParam")) {
-                    var error = $root.caffe.PReLUParameter.verify(message.preluParam);
+                if (message.prelu_param != null && message.hasOwnProperty("prelu_param")) {
+                    var error = $root.caffe.PReLUParameter.verify(message.prelu_param);
                     if (error)
-                        return "preluParam." + error;
+                        return "prelu_param." + error;
                 }
-                if (message.pythonParam != null && message.hasOwnProperty("pythonParam")) {
-                    var error = $root.caffe.PythonParameter.verify(message.pythonParam);
+                if (message.python_param != null && message.hasOwnProperty("python_param")) {
+                    var error = $root.caffe.PythonParameter.verify(message.python_param);
                     if (error)
-                        return "pythonParam." + error;
+                        return "python_param." + error;
                 }
-                if (message.recurrentParam != null && message.hasOwnProperty("recurrentParam")) {
-                    var error = $root.caffe.RecurrentParameter.verify(message.recurrentParam);
+                if (message.recurrent_param != null && message.hasOwnProperty("recurrent_param")) {
+                    var error = $root.caffe.RecurrentParameter.verify(message.recurrent_param);
                     if (error)
-                        return "recurrentParam." + error;
+                        return "recurrent_param." + error;
                 }
-                if (message.reductionParam != null && message.hasOwnProperty("reductionParam")) {
-                    var error = $root.caffe.ReductionParameter.verify(message.reductionParam);
+                if (message.reduction_param != null && message.hasOwnProperty("reduction_param")) {
+                    var error = $root.caffe.ReductionParameter.verify(message.reduction_param);
                     if (error)
-                        return "reductionParam." + error;
+                        return "reduction_param." + error;
                 }
-                if (message.reluParam != null && message.hasOwnProperty("reluParam")) {
-                    var error = $root.caffe.ReLUParameter.verify(message.reluParam);
+                if (message.relu_param != null && message.hasOwnProperty("relu_param")) {
+                    var error = $root.caffe.ReLUParameter.verify(message.relu_param);
                     if (error)
-                        return "reluParam." + error;
+                        return "relu_param." + error;
                 }
-                if (message.reshapeParam != null && message.hasOwnProperty("reshapeParam")) {
-                    var error = $root.caffe.ReshapeParameter.verify(message.reshapeParam);
+                if (message.reshape_param != null && message.hasOwnProperty("reshape_param")) {
+                    var error = $root.caffe.ReshapeParameter.verify(message.reshape_param);
                     if (error)
-                        return "reshapeParam." + error;
+                        return "reshape_param." + error;
                 }
-                if (message.scaleParam != null && message.hasOwnProperty("scaleParam")) {
-                    var error = $root.caffe.ScaleParameter.verify(message.scaleParam);
+                if (message.scale_param != null && message.hasOwnProperty("scale_param")) {
+                    var error = $root.caffe.ScaleParameter.verify(message.scale_param);
                     if (error)
-                        return "scaleParam." + error;
+                        return "scale_param." + error;
                 }
-                if (message.sigmoidParam != null && message.hasOwnProperty("sigmoidParam")) {
-                    var error = $root.caffe.SigmoidParameter.verify(message.sigmoidParam);
+                if (message.sigmoid_param != null && message.hasOwnProperty("sigmoid_param")) {
+                    var error = $root.caffe.SigmoidParameter.verify(message.sigmoid_param);
                     if (error)
-                        return "sigmoidParam." + error;
+                        return "sigmoid_param." + error;
                 }
-                if (message.softmaxParam != null && message.hasOwnProperty("softmaxParam")) {
-                    var error = $root.caffe.SoftmaxParameter.verify(message.softmaxParam);
+                if (message.softmax_param != null && message.hasOwnProperty("softmax_param")) {
+                    var error = $root.caffe.SoftmaxParameter.verify(message.softmax_param);
                     if (error)
-                        return "softmaxParam." + error;
+                        return "softmax_param." + error;
                 }
-                if (message.sppParam != null && message.hasOwnProperty("sppParam")) {
-                    var error = $root.caffe.SPPParameter.verify(message.sppParam);
+                if (message.spp_param != null && message.hasOwnProperty("spp_param")) {
+                    var error = $root.caffe.SPPParameter.verify(message.spp_param);
                     if (error)
-                        return "sppParam." + error;
+                        return "spp_param." + error;
                 }
-                if (message.sliceParam != null && message.hasOwnProperty("sliceParam")) {
-                    var error = $root.caffe.SliceParameter.verify(message.sliceParam);
+                if (message.slice_param != null && message.hasOwnProperty("slice_param")) {
+                    var error = $root.caffe.SliceParameter.verify(message.slice_param);
                     if (error)
-                        return "sliceParam." + error;
+                        return "slice_param." + error;
                 }
-                if (message.swishParam != null && message.hasOwnProperty("swishParam")) {
-                    var error = $root.caffe.SwishParameter.verify(message.swishParam);
+                if (message.swish_param != null && message.hasOwnProperty("swish_param")) {
+                    var error = $root.caffe.SwishParameter.verify(message.swish_param);
                     if (error)
-                        return "swishParam." + error;
+                        return "swish_param." + error;
                 }
-                if (message.tanhParam != null && message.hasOwnProperty("tanhParam")) {
-                    var error = $root.caffe.TanHParameter.verify(message.tanhParam);
+                if (message.tanh_param != null && message.hasOwnProperty("tanh_param")) {
+                    var error = $root.caffe.TanHParameter.verify(message.tanh_param);
                     if (error)
-                        return "tanhParam." + error;
+                        return "tanh_param." + error;
                 }
-                if (message.thresholdParam != null && message.hasOwnProperty("thresholdParam")) {
-                    var error = $root.caffe.ThresholdParameter.verify(message.thresholdParam);
+                if (message.threshold_param != null && message.hasOwnProperty("threshold_param")) {
+                    var error = $root.caffe.ThresholdParameter.verify(message.threshold_param);
                     if (error)
-                        return "thresholdParam." + error;
+                        return "threshold_param." + error;
                 }
-                if (message.tileParam != null && message.hasOwnProperty("tileParam")) {
-                    var error = $root.caffe.TileParameter.verify(message.tileParam);
+                if (message.tile_param != null && message.hasOwnProperty("tile_param")) {
+                    var error = $root.caffe.TileParameter.verify(message.tile_param);
                     if (error)
-                        return "tileParam." + error;
+                        return "tile_param." + error;
                 }
-                if (message.windowDataParam != null && message.hasOwnProperty("windowDataParam")) {
-                    var error = $root.caffe.WindowDataParameter.verify(message.windowDataParam);
+                if (message.window_data_param != null && message.hasOwnProperty("window_data_param")) {
+                    var error = $root.caffe.WindowDataParameter.verify(message.window_data_param);
                     if (error)
-                        return "windowDataParam." + error;
+                        return "window_data_param." + error;
                 }
                 return null;
             };
@@ -3081,12 +3081,12 @@
                     message.phase = 1;
                     break;
                 }
-                if (object.lossWeight) {
-                    if (!Array.isArray(object.lossWeight))
-                        throw TypeError(".caffe.LayerParameter.lossWeight: array expected");
-                    message.lossWeight = [];
-                    for (var i = 0; i < object.lossWeight.length; ++i)
-                        message.lossWeight[i] = Number(object.lossWeight[i]);
+                if (object.loss_weight) {
+                    if (!Array.isArray(object.loss_weight))
+                        throw TypeError(".caffe.LayerParameter.loss_weight: array expected");
+                    message.loss_weight = [];
+                    for (var i = 0; i < object.loss_weight.length; ++i)
+                        message.loss_weight[i] = Number(object.loss_weight[i]);
                 }
                 if (object.param) {
                     if (!Array.isArray(object.param))
@@ -3108,12 +3108,12 @@
                         message.blobs[i] = $root.caffe.BlobProto.fromObject(object.blobs[i]);
                     }
                 }
-                if (object.propagateDown) {
-                    if (!Array.isArray(object.propagateDown))
-                        throw TypeError(".caffe.LayerParameter.propagateDown: array expected");
-                    message.propagateDown = [];
-                    for (var i = 0; i < object.propagateDown.length; ++i)
-                        message.propagateDown[i] = Boolean(object.propagateDown[i]);
+                if (object.propagate_down) {
+                    if (!Array.isArray(object.propagate_down))
+                        throw TypeError(".caffe.LayerParameter.propagate_down: array expected");
+                    message.propagate_down = [];
+                    for (var i = 0; i < object.propagate_down.length; ++i)
+                        message.propagate_down[i] = Boolean(object.propagate_down[i]);
                 }
                 if (object.include) {
                     if (!Array.isArray(object.include))
@@ -3135,250 +3135,250 @@
                         message.exclude[i] = $root.caffe.NetStateRule.fromObject(object.exclude[i]);
                     }
                 }
-                if (object.transformParam != null) {
-                    if (typeof object.transformParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.transformParam: object expected");
-                    message.transformParam = $root.caffe.TransformationParameter.fromObject(object.transformParam);
+                if (object.transform_param != null) {
+                    if (typeof object.transform_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.transform_param: object expected");
+                    message.transform_param = $root.caffe.TransformationParameter.fromObject(object.transform_param);
                 }
-                if (object.lossParam != null) {
-                    if (typeof object.lossParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.lossParam: object expected");
-                    message.lossParam = $root.caffe.LossParameter.fromObject(object.lossParam);
+                if (object.loss_param != null) {
+                    if (typeof object.loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.loss_param: object expected");
+                    message.loss_param = $root.caffe.LossParameter.fromObject(object.loss_param);
                 }
-                if (object.accuracyParam != null) {
-                    if (typeof object.accuracyParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.accuracyParam: object expected");
-                    message.accuracyParam = $root.caffe.AccuracyParameter.fromObject(object.accuracyParam);
+                if (object.accuracy_param != null) {
+                    if (typeof object.accuracy_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.accuracy_param: object expected");
+                    message.accuracy_param = $root.caffe.AccuracyParameter.fromObject(object.accuracy_param);
                 }
-                if (object.argmaxParam != null) {
-                    if (typeof object.argmaxParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.argmaxParam: object expected");
-                    message.argmaxParam = $root.caffe.ArgMaxParameter.fromObject(object.argmaxParam);
+                if (object.argmax_param != null) {
+                    if (typeof object.argmax_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.argmax_param: object expected");
+                    message.argmax_param = $root.caffe.ArgMaxParameter.fromObject(object.argmax_param);
                 }
-                if (object.batchNormParam != null) {
-                    if (typeof object.batchNormParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.batchNormParam: object expected");
-                    message.batchNormParam = $root.caffe.BatchNormParameter.fromObject(object.batchNormParam);
+                if (object.batch_norm_param != null) {
+                    if (typeof object.batch_norm_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.batch_norm_param: object expected");
+                    message.batch_norm_param = $root.caffe.BatchNormParameter.fromObject(object.batch_norm_param);
                 }
-                if (object.biasParam != null) {
-                    if (typeof object.biasParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.biasParam: object expected");
-                    message.biasParam = $root.caffe.BiasParameter.fromObject(object.biasParam);
+                if (object.bias_param != null) {
+                    if (typeof object.bias_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.bias_param: object expected");
+                    message.bias_param = $root.caffe.BiasParameter.fromObject(object.bias_param);
                 }
-                if (object.clipParam != null) {
-                    if (typeof object.clipParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.clipParam: object expected");
-                    message.clipParam = $root.caffe.ClipParameter.fromObject(object.clipParam);
+                if (object.clip_param != null) {
+                    if (typeof object.clip_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.clip_param: object expected");
+                    message.clip_param = $root.caffe.ClipParameter.fromObject(object.clip_param);
                 }
-                if (object.concatParam != null) {
-                    if (typeof object.concatParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.concatParam: object expected");
-                    message.concatParam = $root.caffe.ConcatParameter.fromObject(object.concatParam);
+                if (object.concat_param != null) {
+                    if (typeof object.concat_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.concat_param: object expected");
+                    message.concat_param = $root.caffe.ConcatParameter.fromObject(object.concat_param);
                 }
-                if (object.contrastiveLossParam != null) {
-                    if (typeof object.contrastiveLossParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.contrastiveLossParam: object expected");
-                    message.contrastiveLossParam = $root.caffe.ContrastiveLossParameter.fromObject(object.contrastiveLossParam);
+                if (object.contrastive_loss_param != null) {
+                    if (typeof object.contrastive_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.contrastive_loss_param: object expected");
+                    message.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.fromObject(object.contrastive_loss_param);
                 }
-                if (object.convolutionParam != null) {
-                    if (typeof object.convolutionParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.convolutionParam: object expected");
-                    message.convolutionParam = $root.caffe.ConvolutionParameter.fromObject(object.convolutionParam);
+                if (object.convolution_param != null) {
+                    if (typeof object.convolution_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.convolution_param: object expected");
+                    message.convolution_param = $root.caffe.ConvolutionParameter.fromObject(object.convolution_param);
                 }
-                if (object.cropParam != null) {
-                    if (typeof object.cropParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.cropParam: object expected");
-                    message.cropParam = $root.caffe.CropParameter.fromObject(object.cropParam);
+                if (object.crop_param != null) {
+                    if (typeof object.crop_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.crop_param: object expected");
+                    message.crop_param = $root.caffe.CropParameter.fromObject(object.crop_param);
                 }
-                if (object.dataParam != null) {
-                    if (typeof object.dataParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.dataParam: object expected");
-                    message.dataParam = $root.caffe.DataParameter.fromObject(object.dataParam);
+                if (object.data_param != null) {
+                    if (typeof object.data_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.data_param: object expected");
+                    message.data_param = $root.caffe.DataParameter.fromObject(object.data_param);
                 }
-                if (object.dropoutParam != null) {
-                    if (typeof object.dropoutParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.dropoutParam: object expected");
-                    message.dropoutParam = $root.caffe.DropoutParameter.fromObject(object.dropoutParam);
+                if (object.dropout_param != null) {
+                    if (typeof object.dropout_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.dropout_param: object expected");
+                    message.dropout_param = $root.caffe.DropoutParameter.fromObject(object.dropout_param);
                 }
-                if (object.dummyDataParam != null) {
-                    if (typeof object.dummyDataParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.dummyDataParam: object expected");
-                    message.dummyDataParam = $root.caffe.DummyDataParameter.fromObject(object.dummyDataParam);
+                if (object.dummy_data_param != null) {
+                    if (typeof object.dummy_data_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.dummy_data_param: object expected");
+                    message.dummy_data_param = $root.caffe.DummyDataParameter.fromObject(object.dummy_data_param);
                 }
-                if (object.eltwiseParam != null) {
-                    if (typeof object.eltwiseParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.eltwiseParam: object expected");
-                    message.eltwiseParam = $root.caffe.EltwiseParameter.fromObject(object.eltwiseParam);
+                if (object.eltwise_param != null) {
+                    if (typeof object.eltwise_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.eltwise_param: object expected");
+                    message.eltwise_param = $root.caffe.EltwiseParameter.fromObject(object.eltwise_param);
                 }
-                if (object.eluParam != null) {
-                    if (typeof object.eluParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.eluParam: object expected");
-                    message.eluParam = $root.caffe.ELUParameter.fromObject(object.eluParam);
+                if (object.elu_param != null) {
+                    if (typeof object.elu_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.elu_param: object expected");
+                    message.elu_param = $root.caffe.ELUParameter.fromObject(object.elu_param);
                 }
-                if (object.embedParam != null) {
-                    if (typeof object.embedParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.embedParam: object expected");
-                    message.embedParam = $root.caffe.EmbedParameter.fromObject(object.embedParam);
+                if (object.embed_param != null) {
+                    if (typeof object.embed_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.embed_param: object expected");
+                    message.embed_param = $root.caffe.EmbedParameter.fromObject(object.embed_param);
                 }
-                if (object.expParam != null) {
-                    if (typeof object.expParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.expParam: object expected");
-                    message.expParam = $root.caffe.ExpParameter.fromObject(object.expParam);
+                if (object.exp_param != null) {
+                    if (typeof object.exp_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.exp_param: object expected");
+                    message.exp_param = $root.caffe.ExpParameter.fromObject(object.exp_param);
                 }
-                if (object.flattenParam != null) {
-                    if (typeof object.flattenParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.flattenParam: object expected");
-                    message.flattenParam = $root.caffe.FlattenParameter.fromObject(object.flattenParam);
+                if (object.flatten_param != null) {
+                    if (typeof object.flatten_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.flatten_param: object expected");
+                    message.flatten_param = $root.caffe.FlattenParameter.fromObject(object.flatten_param);
                 }
-                if (object.hdf5DataParam != null) {
-                    if (typeof object.hdf5DataParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.hdf5DataParam: object expected");
-                    message.hdf5DataParam = $root.caffe.HDF5DataParameter.fromObject(object.hdf5DataParam);
+                if (object.hdf5_data_param != null) {
+                    if (typeof object.hdf5_data_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.hdf5_data_param: object expected");
+                    message.hdf5_data_param = $root.caffe.HDF5DataParameter.fromObject(object.hdf5_data_param);
                 }
-                if (object.hdf5OutputParam != null) {
-                    if (typeof object.hdf5OutputParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.hdf5OutputParam: object expected");
-                    message.hdf5OutputParam = $root.caffe.HDF5OutputParameter.fromObject(object.hdf5OutputParam);
+                if (object.hdf5_output_param != null) {
+                    if (typeof object.hdf5_output_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.hdf5_output_param: object expected");
+                    message.hdf5_output_param = $root.caffe.HDF5OutputParameter.fromObject(object.hdf5_output_param);
                 }
-                if (object.hingeLossParam != null) {
-                    if (typeof object.hingeLossParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.hingeLossParam: object expected");
-                    message.hingeLossParam = $root.caffe.HingeLossParameter.fromObject(object.hingeLossParam);
+                if (object.hinge_loss_param != null) {
+                    if (typeof object.hinge_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.hinge_loss_param: object expected");
+                    message.hinge_loss_param = $root.caffe.HingeLossParameter.fromObject(object.hinge_loss_param);
                 }
-                if (object.imageDataParam != null) {
-                    if (typeof object.imageDataParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.imageDataParam: object expected");
-                    message.imageDataParam = $root.caffe.ImageDataParameter.fromObject(object.imageDataParam);
+                if (object.image_data_param != null) {
+                    if (typeof object.image_data_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.image_data_param: object expected");
+                    message.image_data_param = $root.caffe.ImageDataParameter.fromObject(object.image_data_param);
                 }
-                if (object.infogainLossParam != null) {
-                    if (typeof object.infogainLossParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.infogainLossParam: object expected");
-                    message.infogainLossParam = $root.caffe.InfogainLossParameter.fromObject(object.infogainLossParam);
+                if (object.infogain_loss_param != null) {
+                    if (typeof object.infogain_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.infogain_loss_param: object expected");
+                    message.infogain_loss_param = $root.caffe.InfogainLossParameter.fromObject(object.infogain_loss_param);
                 }
-                if (object.innerProductParam != null) {
-                    if (typeof object.innerProductParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.innerProductParam: object expected");
-                    message.innerProductParam = $root.caffe.InnerProductParameter.fromObject(object.innerProductParam);
+                if (object.inner_product_param != null) {
+                    if (typeof object.inner_product_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.inner_product_param: object expected");
+                    message.inner_product_param = $root.caffe.InnerProductParameter.fromObject(object.inner_product_param);
                 }
-                if (object.inputParam != null) {
-                    if (typeof object.inputParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.inputParam: object expected");
-                    message.inputParam = $root.caffe.InputParameter.fromObject(object.inputParam);
+                if (object.input_param != null) {
+                    if (typeof object.input_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.input_param: object expected");
+                    message.input_param = $root.caffe.InputParameter.fromObject(object.input_param);
                 }
-                if (object.logParam != null) {
-                    if (typeof object.logParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.logParam: object expected");
-                    message.logParam = $root.caffe.LogParameter.fromObject(object.logParam);
+                if (object.log_param != null) {
+                    if (typeof object.log_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.log_param: object expected");
+                    message.log_param = $root.caffe.LogParameter.fromObject(object.log_param);
                 }
-                if (object.lrnParam != null) {
-                    if (typeof object.lrnParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.lrnParam: object expected");
-                    message.lrnParam = $root.caffe.LRNParameter.fromObject(object.lrnParam);
+                if (object.lrn_param != null) {
+                    if (typeof object.lrn_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.lrn_param: object expected");
+                    message.lrn_param = $root.caffe.LRNParameter.fromObject(object.lrn_param);
                 }
-                if (object.memoryDataParam != null) {
-                    if (typeof object.memoryDataParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.memoryDataParam: object expected");
-                    message.memoryDataParam = $root.caffe.MemoryDataParameter.fromObject(object.memoryDataParam);
+                if (object.memory_data_param != null) {
+                    if (typeof object.memory_data_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.memory_data_param: object expected");
+                    message.memory_data_param = $root.caffe.MemoryDataParameter.fromObject(object.memory_data_param);
                 }
-                if (object.mvnParam != null) {
-                    if (typeof object.mvnParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.mvnParam: object expected");
-                    message.mvnParam = $root.caffe.MVNParameter.fromObject(object.mvnParam);
+                if (object.mvn_param != null) {
+                    if (typeof object.mvn_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.mvn_param: object expected");
+                    message.mvn_param = $root.caffe.MVNParameter.fromObject(object.mvn_param);
                 }
-                if (object.parameterParam != null) {
-                    if (typeof object.parameterParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.parameterParam: object expected");
-                    message.parameterParam = $root.caffe.ParameterParameter.fromObject(object.parameterParam);
+                if (object.parameter_param != null) {
+                    if (typeof object.parameter_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.parameter_param: object expected");
+                    message.parameter_param = $root.caffe.ParameterParameter.fromObject(object.parameter_param);
                 }
-                if (object.poolingParam != null) {
-                    if (typeof object.poolingParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.poolingParam: object expected");
-                    message.poolingParam = $root.caffe.PoolingParameter.fromObject(object.poolingParam);
+                if (object.pooling_param != null) {
+                    if (typeof object.pooling_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.pooling_param: object expected");
+                    message.pooling_param = $root.caffe.PoolingParameter.fromObject(object.pooling_param);
                 }
-                if (object.powerParam != null) {
-                    if (typeof object.powerParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.powerParam: object expected");
-                    message.powerParam = $root.caffe.PowerParameter.fromObject(object.powerParam);
+                if (object.power_param != null) {
+                    if (typeof object.power_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.power_param: object expected");
+                    message.power_param = $root.caffe.PowerParameter.fromObject(object.power_param);
                 }
-                if (object.preluParam != null) {
-                    if (typeof object.preluParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.preluParam: object expected");
-                    message.preluParam = $root.caffe.PReLUParameter.fromObject(object.preluParam);
+                if (object.prelu_param != null) {
+                    if (typeof object.prelu_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.prelu_param: object expected");
+                    message.prelu_param = $root.caffe.PReLUParameter.fromObject(object.prelu_param);
                 }
-                if (object.pythonParam != null) {
-                    if (typeof object.pythonParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.pythonParam: object expected");
-                    message.pythonParam = $root.caffe.PythonParameter.fromObject(object.pythonParam);
+                if (object.python_param != null) {
+                    if (typeof object.python_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.python_param: object expected");
+                    message.python_param = $root.caffe.PythonParameter.fromObject(object.python_param);
                 }
-                if (object.recurrentParam != null) {
-                    if (typeof object.recurrentParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.recurrentParam: object expected");
-                    message.recurrentParam = $root.caffe.RecurrentParameter.fromObject(object.recurrentParam);
+                if (object.recurrent_param != null) {
+                    if (typeof object.recurrent_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.recurrent_param: object expected");
+                    message.recurrent_param = $root.caffe.RecurrentParameter.fromObject(object.recurrent_param);
                 }
-                if (object.reductionParam != null) {
-                    if (typeof object.reductionParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.reductionParam: object expected");
-                    message.reductionParam = $root.caffe.ReductionParameter.fromObject(object.reductionParam);
+                if (object.reduction_param != null) {
+                    if (typeof object.reduction_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.reduction_param: object expected");
+                    message.reduction_param = $root.caffe.ReductionParameter.fromObject(object.reduction_param);
                 }
-                if (object.reluParam != null) {
-                    if (typeof object.reluParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.reluParam: object expected");
-                    message.reluParam = $root.caffe.ReLUParameter.fromObject(object.reluParam);
+                if (object.relu_param != null) {
+                    if (typeof object.relu_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.relu_param: object expected");
+                    message.relu_param = $root.caffe.ReLUParameter.fromObject(object.relu_param);
                 }
-                if (object.reshapeParam != null) {
-                    if (typeof object.reshapeParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.reshapeParam: object expected");
-                    message.reshapeParam = $root.caffe.ReshapeParameter.fromObject(object.reshapeParam);
+                if (object.reshape_param != null) {
+                    if (typeof object.reshape_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.reshape_param: object expected");
+                    message.reshape_param = $root.caffe.ReshapeParameter.fromObject(object.reshape_param);
                 }
-                if (object.scaleParam != null) {
-                    if (typeof object.scaleParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.scaleParam: object expected");
-                    message.scaleParam = $root.caffe.ScaleParameter.fromObject(object.scaleParam);
+                if (object.scale_param != null) {
+                    if (typeof object.scale_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.scale_param: object expected");
+                    message.scale_param = $root.caffe.ScaleParameter.fromObject(object.scale_param);
                 }
-                if (object.sigmoidParam != null) {
-                    if (typeof object.sigmoidParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.sigmoidParam: object expected");
-                    message.sigmoidParam = $root.caffe.SigmoidParameter.fromObject(object.sigmoidParam);
+                if (object.sigmoid_param != null) {
+                    if (typeof object.sigmoid_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.sigmoid_param: object expected");
+                    message.sigmoid_param = $root.caffe.SigmoidParameter.fromObject(object.sigmoid_param);
                 }
-                if (object.softmaxParam != null) {
-                    if (typeof object.softmaxParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.softmaxParam: object expected");
-                    message.softmaxParam = $root.caffe.SoftmaxParameter.fromObject(object.softmaxParam);
+                if (object.softmax_param != null) {
+                    if (typeof object.softmax_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.softmax_param: object expected");
+                    message.softmax_param = $root.caffe.SoftmaxParameter.fromObject(object.softmax_param);
                 }
-                if (object.sppParam != null) {
-                    if (typeof object.sppParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.sppParam: object expected");
-                    message.sppParam = $root.caffe.SPPParameter.fromObject(object.sppParam);
+                if (object.spp_param != null) {
+                    if (typeof object.spp_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.spp_param: object expected");
+                    message.spp_param = $root.caffe.SPPParameter.fromObject(object.spp_param);
                 }
-                if (object.sliceParam != null) {
-                    if (typeof object.sliceParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.sliceParam: object expected");
-                    message.sliceParam = $root.caffe.SliceParameter.fromObject(object.sliceParam);
+                if (object.slice_param != null) {
+                    if (typeof object.slice_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.slice_param: object expected");
+                    message.slice_param = $root.caffe.SliceParameter.fromObject(object.slice_param);
                 }
-                if (object.swishParam != null) {
-                    if (typeof object.swishParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.swishParam: object expected");
-                    message.swishParam = $root.caffe.SwishParameter.fromObject(object.swishParam);
+                if (object.swish_param != null) {
+                    if (typeof object.swish_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.swish_param: object expected");
+                    message.swish_param = $root.caffe.SwishParameter.fromObject(object.swish_param);
                 }
-                if (object.tanhParam != null) {
-                    if (typeof object.tanhParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.tanhParam: object expected");
-                    message.tanhParam = $root.caffe.TanHParameter.fromObject(object.tanhParam);
+                if (object.tanh_param != null) {
+                    if (typeof object.tanh_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.tanh_param: object expected");
+                    message.tanh_param = $root.caffe.TanHParameter.fromObject(object.tanh_param);
                 }
-                if (object.thresholdParam != null) {
-                    if (typeof object.thresholdParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.thresholdParam: object expected");
-                    message.thresholdParam = $root.caffe.ThresholdParameter.fromObject(object.thresholdParam);
+                if (object.threshold_param != null) {
+                    if (typeof object.threshold_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.threshold_param: object expected");
+                    message.threshold_param = $root.caffe.ThresholdParameter.fromObject(object.threshold_param);
                 }
-                if (object.tileParam != null) {
-                    if (typeof object.tileParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.tileParam: object expected");
-                    message.tileParam = $root.caffe.TileParameter.fromObject(object.tileParam);
+                if (object.tile_param != null) {
+                    if (typeof object.tile_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.tile_param: object expected");
+                    message.tile_param = $root.caffe.TileParameter.fromObject(object.tile_param);
                 }
-                if (object.windowDataParam != null) {
-                    if (typeof object.windowDataParam !== "object")
-                        throw TypeError(".caffe.LayerParameter.windowDataParam: object expected");
-                    message.windowDataParam = $root.caffe.WindowDataParameter.fromObject(object.windowDataParam);
+                if (object.window_data_param != null) {
+                    if (typeof object.window_data_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.window_data_param: object expected");
+                    message.window_data_param = $root.caffe.WindowDataParameter.fromObject(object.window_data_param);
                 }
                 return message;
             };
@@ -3390,66 +3390,66 @@
                 if (options.arrays || options.defaults) {
                     object.bottom = [];
                     object.top = [];
-                    object.lossWeight = [];
+                    object.loss_weight = [];
                     object.param = [];
                     object.blobs = [];
                     object.include = [];
                     object.exclude = [];
-                    object.propagateDown = [];
+                    object.propagate_down = [];
                 }
                 if (options.defaults) {
                     object.name = "";
                     object.type = "";
                     object.phase = options.enums === String ? "TRAIN" : 0;
-                    object.transformParam = null;
-                    object.lossParam = null;
-                    object.accuracyParam = null;
-                    object.argmaxParam = null;
-                    object.concatParam = null;
-                    object.contrastiveLossParam = null;
-                    object.convolutionParam = null;
-                    object.dataParam = null;
-                    object.dropoutParam = null;
-                    object.dummyDataParam = null;
-                    object.eltwiseParam = null;
-                    object.expParam = null;
-                    object.hdf5DataParam = null;
-                    object.hdf5OutputParam = null;
-                    object.hingeLossParam = null;
-                    object.imageDataParam = null;
-                    object.infogainLossParam = null;
-                    object.innerProductParam = null;
-                    object.lrnParam = null;
-                    object.memoryDataParam = null;
-                    object.mvnParam = null;
-                    object.poolingParam = null;
-                    object.powerParam = null;
-                    object.reluParam = null;
-                    object.sigmoidParam = null;
-                    object.softmaxParam = null;
-                    object.sliceParam = null;
-                    object.tanhParam = null;
-                    object.thresholdParam = null;
-                    object.windowDataParam = null;
-                    object.pythonParam = null;
-                    object.preluParam = null;
-                    object.sppParam = null;
-                    object.reshapeParam = null;
-                    object.logParam = null;
-                    object.flattenParam = null;
-                    object.reductionParam = null;
-                    object.embedParam = null;
-                    object.tileParam = null;
-                    object.batchNormParam = null;
-                    object.eluParam = null;
-                    object.biasParam = null;
-                    object.scaleParam = null;
-                    object.inputParam = null;
-                    object.cropParam = null;
-                    object.parameterParam = null;
-                    object.recurrentParam = null;
-                    object.swishParam = null;
-                    object.clipParam = null;
+                    object.transform_param = null;
+                    object.loss_param = null;
+                    object.accuracy_param = null;
+                    object.argmax_param = null;
+                    object.concat_param = null;
+                    object.contrastive_loss_param = null;
+                    object.convolution_param = null;
+                    object.data_param = null;
+                    object.dropout_param = null;
+                    object.dummy_data_param = null;
+                    object.eltwise_param = null;
+                    object.exp_param = null;
+                    object.hdf5_data_param = null;
+                    object.hdf5_output_param = null;
+                    object.hinge_loss_param = null;
+                    object.image_data_param = null;
+                    object.infogain_loss_param = null;
+                    object.inner_product_param = null;
+                    object.lrn_param = null;
+                    object.memory_data_param = null;
+                    object.mvn_param = null;
+                    object.pooling_param = null;
+                    object.power_param = null;
+                    object.relu_param = null;
+                    object.sigmoid_param = null;
+                    object.softmax_param = null;
+                    object.slice_param = null;
+                    object.tanh_param = null;
+                    object.threshold_param = null;
+                    object.window_data_param = null;
+                    object.python_param = null;
+                    object.prelu_param = null;
+                    object.spp_param = null;
+                    object.reshape_param = null;
+                    object.log_param = null;
+                    object.flatten_param = null;
+                    object.reduction_param = null;
+                    object.embed_param = null;
+                    object.tile_param = null;
+                    object.batch_norm_param = null;
+                    object.elu_param = null;
+                    object.bias_param = null;
+                    object.scale_param = null;
+                    object.input_param = null;
+                    object.crop_param = null;
+                    object.parameter_param = null;
+                    object.recurrent_param = null;
+                    object.swish_param = null;
+                    object.clip_param = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -3465,10 +3465,10 @@
                     for (var j = 0; j < message.top.length; ++j)
                         object.top[j] = message.top[j];
                 }
-                if (message.lossWeight && message.lossWeight.length) {
-                    object.lossWeight = [];
-                    for (var j = 0; j < message.lossWeight.length; ++j)
-                        object.lossWeight[j] = options.json && !isFinite(message.lossWeight[j]) ? String(message.lossWeight[j]) : message.lossWeight[j];
+                if (message.loss_weight && message.loss_weight.length) {
+                    object.loss_weight = [];
+                    for (var j = 0; j < message.loss_weight.length; ++j)
+                        object.loss_weight[j] = options.json && !isFinite(message.loss_weight[j]) ? String(message.loss_weight[j]) : message.loss_weight[j];
                 }
                 if (message.param && message.param.length) {
                     object.param = [];
@@ -3492,109 +3492,109 @@
                 }
                 if (message.phase != null && message.hasOwnProperty("phase"))
                     object.phase = options.enums === String ? $root.caffe.Phase[message.phase] : message.phase;
-                if (message.propagateDown && message.propagateDown.length) {
-                    object.propagateDown = [];
-                    for (var j = 0; j < message.propagateDown.length; ++j)
-                        object.propagateDown[j] = message.propagateDown[j];
+                if (message.propagate_down && message.propagate_down.length) {
+                    object.propagate_down = [];
+                    for (var j = 0; j < message.propagate_down.length; ++j)
+                        object.propagate_down[j] = message.propagate_down[j];
                 }
-                if (message.transformParam != null && message.hasOwnProperty("transformParam"))
-                    object.transformParam = $root.caffe.TransformationParameter.toObject(message.transformParam, options);
-                if (message.lossParam != null && message.hasOwnProperty("lossParam"))
-                    object.lossParam = $root.caffe.LossParameter.toObject(message.lossParam, options);
-                if (message.accuracyParam != null && message.hasOwnProperty("accuracyParam"))
-                    object.accuracyParam = $root.caffe.AccuracyParameter.toObject(message.accuracyParam, options);
-                if (message.argmaxParam != null && message.hasOwnProperty("argmaxParam"))
-                    object.argmaxParam = $root.caffe.ArgMaxParameter.toObject(message.argmaxParam, options);
-                if (message.concatParam != null && message.hasOwnProperty("concatParam"))
-                    object.concatParam = $root.caffe.ConcatParameter.toObject(message.concatParam, options);
-                if (message.contrastiveLossParam != null && message.hasOwnProperty("contrastiveLossParam"))
-                    object.contrastiveLossParam = $root.caffe.ContrastiveLossParameter.toObject(message.contrastiveLossParam, options);
-                if (message.convolutionParam != null && message.hasOwnProperty("convolutionParam"))
-                    object.convolutionParam = $root.caffe.ConvolutionParameter.toObject(message.convolutionParam, options);
-                if (message.dataParam != null && message.hasOwnProperty("dataParam"))
-                    object.dataParam = $root.caffe.DataParameter.toObject(message.dataParam, options);
-                if (message.dropoutParam != null && message.hasOwnProperty("dropoutParam"))
-                    object.dropoutParam = $root.caffe.DropoutParameter.toObject(message.dropoutParam, options);
-                if (message.dummyDataParam != null && message.hasOwnProperty("dummyDataParam"))
-                    object.dummyDataParam = $root.caffe.DummyDataParameter.toObject(message.dummyDataParam, options);
-                if (message.eltwiseParam != null && message.hasOwnProperty("eltwiseParam"))
-                    object.eltwiseParam = $root.caffe.EltwiseParameter.toObject(message.eltwiseParam, options);
-                if (message.expParam != null && message.hasOwnProperty("expParam"))
-                    object.expParam = $root.caffe.ExpParameter.toObject(message.expParam, options);
-                if (message.hdf5DataParam != null && message.hasOwnProperty("hdf5DataParam"))
-                    object.hdf5DataParam = $root.caffe.HDF5DataParameter.toObject(message.hdf5DataParam, options);
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam"))
-                    object.hdf5OutputParam = $root.caffe.HDF5OutputParameter.toObject(message.hdf5OutputParam, options);
-                if (message.hingeLossParam != null && message.hasOwnProperty("hingeLossParam"))
-                    object.hingeLossParam = $root.caffe.HingeLossParameter.toObject(message.hingeLossParam, options);
-                if (message.imageDataParam != null && message.hasOwnProperty("imageDataParam"))
-                    object.imageDataParam = $root.caffe.ImageDataParameter.toObject(message.imageDataParam, options);
-                if (message.infogainLossParam != null && message.hasOwnProperty("infogainLossParam"))
-                    object.infogainLossParam = $root.caffe.InfogainLossParameter.toObject(message.infogainLossParam, options);
-                if (message.innerProductParam != null && message.hasOwnProperty("innerProductParam"))
-                    object.innerProductParam = $root.caffe.InnerProductParameter.toObject(message.innerProductParam, options);
-                if (message.lrnParam != null && message.hasOwnProperty("lrnParam"))
-                    object.lrnParam = $root.caffe.LRNParameter.toObject(message.lrnParam, options);
-                if (message.memoryDataParam != null && message.hasOwnProperty("memoryDataParam"))
-                    object.memoryDataParam = $root.caffe.MemoryDataParameter.toObject(message.memoryDataParam, options);
-                if (message.mvnParam != null && message.hasOwnProperty("mvnParam"))
-                    object.mvnParam = $root.caffe.MVNParameter.toObject(message.mvnParam, options);
-                if (message.poolingParam != null && message.hasOwnProperty("poolingParam"))
-                    object.poolingParam = $root.caffe.PoolingParameter.toObject(message.poolingParam, options);
-                if (message.powerParam != null && message.hasOwnProperty("powerParam"))
-                    object.powerParam = $root.caffe.PowerParameter.toObject(message.powerParam, options);
-                if (message.reluParam != null && message.hasOwnProperty("reluParam"))
-                    object.reluParam = $root.caffe.ReLUParameter.toObject(message.reluParam, options);
-                if (message.sigmoidParam != null && message.hasOwnProperty("sigmoidParam"))
-                    object.sigmoidParam = $root.caffe.SigmoidParameter.toObject(message.sigmoidParam, options);
-                if (message.softmaxParam != null && message.hasOwnProperty("softmaxParam"))
-                    object.softmaxParam = $root.caffe.SoftmaxParameter.toObject(message.softmaxParam, options);
-                if (message.sliceParam != null && message.hasOwnProperty("sliceParam"))
-                    object.sliceParam = $root.caffe.SliceParameter.toObject(message.sliceParam, options);
-                if (message.tanhParam != null && message.hasOwnProperty("tanhParam"))
-                    object.tanhParam = $root.caffe.TanHParameter.toObject(message.tanhParam, options);
-                if (message.thresholdParam != null && message.hasOwnProperty("thresholdParam"))
-                    object.thresholdParam = $root.caffe.ThresholdParameter.toObject(message.thresholdParam, options);
-                if (message.windowDataParam != null && message.hasOwnProperty("windowDataParam"))
-                    object.windowDataParam = $root.caffe.WindowDataParameter.toObject(message.windowDataParam, options);
-                if (message.pythonParam != null && message.hasOwnProperty("pythonParam"))
-                    object.pythonParam = $root.caffe.PythonParameter.toObject(message.pythonParam, options);
-                if (message.preluParam != null && message.hasOwnProperty("preluParam"))
-                    object.preluParam = $root.caffe.PReLUParameter.toObject(message.preluParam, options);
-                if (message.sppParam != null && message.hasOwnProperty("sppParam"))
-                    object.sppParam = $root.caffe.SPPParameter.toObject(message.sppParam, options);
-                if (message.reshapeParam != null && message.hasOwnProperty("reshapeParam"))
-                    object.reshapeParam = $root.caffe.ReshapeParameter.toObject(message.reshapeParam, options);
-                if (message.logParam != null && message.hasOwnProperty("logParam"))
-                    object.logParam = $root.caffe.LogParameter.toObject(message.logParam, options);
-                if (message.flattenParam != null && message.hasOwnProperty("flattenParam"))
-                    object.flattenParam = $root.caffe.FlattenParameter.toObject(message.flattenParam, options);
-                if (message.reductionParam != null && message.hasOwnProperty("reductionParam"))
-                    object.reductionParam = $root.caffe.ReductionParameter.toObject(message.reductionParam, options);
-                if (message.embedParam != null && message.hasOwnProperty("embedParam"))
-                    object.embedParam = $root.caffe.EmbedParameter.toObject(message.embedParam, options);
-                if (message.tileParam != null && message.hasOwnProperty("tileParam"))
-                    object.tileParam = $root.caffe.TileParameter.toObject(message.tileParam, options);
-                if (message.batchNormParam != null && message.hasOwnProperty("batchNormParam"))
-                    object.batchNormParam = $root.caffe.BatchNormParameter.toObject(message.batchNormParam, options);
-                if (message.eluParam != null && message.hasOwnProperty("eluParam"))
-                    object.eluParam = $root.caffe.ELUParameter.toObject(message.eluParam, options);
-                if (message.biasParam != null && message.hasOwnProperty("biasParam"))
-                    object.biasParam = $root.caffe.BiasParameter.toObject(message.biasParam, options);
-                if (message.scaleParam != null && message.hasOwnProperty("scaleParam"))
-                    object.scaleParam = $root.caffe.ScaleParameter.toObject(message.scaleParam, options);
-                if (message.inputParam != null && message.hasOwnProperty("inputParam"))
-                    object.inputParam = $root.caffe.InputParameter.toObject(message.inputParam, options);
-                if (message.cropParam != null && message.hasOwnProperty("cropParam"))
-                    object.cropParam = $root.caffe.CropParameter.toObject(message.cropParam, options);
-                if (message.parameterParam != null && message.hasOwnProperty("parameterParam"))
-                    object.parameterParam = $root.caffe.ParameterParameter.toObject(message.parameterParam, options);
-                if (message.recurrentParam != null && message.hasOwnProperty("recurrentParam"))
-                    object.recurrentParam = $root.caffe.RecurrentParameter.toObject(message.recurrentParam, options);
-                if (message.swishParam != null && message.hasOwnProperty("swishParam"))
-                    object.swishParam = $root.caffe.SwishParameter.toObject(message.swishParam, options);
-                if (message.clipParam != null && message.hasOwnProperty("clipParam"))
-                    object.clipParam = $root.caffe.ClipParameter.toObject(message.clipParam, options);
+                if (message.transform_param != null && message.hasOwnProperty("transform_param"))
+                    object.transform_param = $root.caffe.TransformationParameter.toObject(message.transform_param, options);
+                if (message.loss_param != null && message.hasOwnProperty("loss_param"))
+                    object.loss_param = $root.caffe.LossParameter.toObject(message.loss_param, options);
+                if (message.accuracy_param != null && message.hasOwnProperty("accuracy_param"))
+                    object.accuracy_param = $root.caffe.AccuracyParameter.toObject(message.accuracy_param, options);
+                if (message.argmax_param != null && message.hasOwnProperty("argmax_param"))
+                    object.argmax_param = $root.caffe.ArgMaxParameter.toObject(message.argmax_param, options);
+                if (message.concat_param != null && message.hasOwnProperty("concat_param"))
+                    object.concat_param = $root.caffe.ConcatParameter.toObject(message.concat_param, options);
+                if (message.contrastive_loss_param != null && message.hasOwnProperty("contrastive_loss_param"))
+                    object.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.toObject(message.contrastive_loss_param, options);
+                if (message.convolution_param != null && message.hasOwnProperty("convolution_param"))
+                    object.convolution_param = $root.caffe.ConvolutionParameter.toObject(message.convolution_param, options);
+                if (message.data_param != null && message.hasOwnProperty("data_param"))
+                    object.data_param = $root.caffe.DataParameter.toObject(message.data_param, options);
+                if (message.dropout_param != null && message.hasOwnProperty("dropout_param"))
+                    object.dropout_param = $root.caffe.DropoutParameter.toObject(message.dropout_param, options);
+                if (message.dummy_data_param != null && message.hasOwnProperty("dummy_data_param"))
+                    object.dummy_data_param = $root.caffe.DummyDataParameter.toObject(message.dummy_data_param, options);
+                if (message.eltwise_param != null && message.hasOwnProperty("eltwise_param"))
+                    object.eltwise_param = $root.caffe.EltwiseParameter.toObject(message.eltwise_param, options);
+                if (message.exp_param != null && message.hasOwnProperty("exp_param"))
+                    object.exp_param = $root.caffe.ExpParameter.toObject(message.exp_param, options);
+                if (message.hdf5_data_param != null && message.hasOwnProperty("hdf5_data_param"))
+                    object.hdf5_data_param = $root.caffe.HDF5DataParameter.toObject(message.hdf5_data_param, options);
+                if (message.hdf5_output_param != null && message.hasOwnProperty("hdf5_output_param"))
+                    object.hdf5_output_param = $root.caffe.HDF5OutputParameter.toObject(message.hdf5_output_param, options);
+                if (message.hinge_loss_param != null && message.hasOwnProperty("hinge_loss_param"))
+                    object.hinge_loss_param = $root.caffe.HingeLossParameter.toObject(message.hinge_loss_param, options);
+                if (message.image_data_param != null && message.hasOwnProperty("image_data_param"))
+                    object.image_data_param = $root.caffe.ImageDataParameter.toObject(message.image_data_param, options);
+                if (message.infogain_loss_param != null && message.hasOwnProperty("infogain_loss_param"))
+                    object.infogain_loss_param = $root.caffe.InfogainLossParameter.toObject(message.infogain_loss_param, options);
+                if (message.inner_product_param != null && message.hasOwnProperty("inner_product_param"))
+                    object.inner_product_param = $root.caffe.InnerProductParameter.toObject(message.inner_product_param, options);
+                if (message.lrn_param != null && message.hasOwnProperty("lrn_param"))
+                    object.lrn_param = $root.caffe.LRNParameter.toObject(message.lrn_param, options);
+                if (message.memory_data_param != null && message.hasOwnProperty("memory_data_param"))
+                    object.memory_data_param = $root.caffe.MemoryDataParameter.toObject(message.memory_data_param, options);
+                if (message.mvn_param != null && message.hasOwnProperty("mvn_param"))
+                    object.mvn_param = $root.caffe.MVNParameter.toObject(message.mvn_param, options);
+                if (message.pooling_param != null && message.hasOwnProperty("pooling_param"))
+                    object.pooling_param = $root.caffe.PoolingParameter.toObject(message.pooling_param, options);
+                if (message.power_param != null && message.hasOwnProperty("power_param"))
+                    object.power_param = $root.caffe.PowerParameter.toObject(message.power_param, options);
+                if (message.relu_param != null && message.hasOwnProperty("relu_param"))
+                    object.relu_param = $root.caffe.ReLUParameter.toObject(message.relu_param, options);
+                if (message.sigmoid_param != null && message.hasOwnProperty("sigmoid_param"))
+                    object.sigmoid_param = $root.caffe.SigmoidParameter.toObject(message.sigmoid_param, options);
+                if (message.softmax_param != null && message.hasOwnProperty("softmax_param"))
+                    object.softmax_param = $root.caffe.SoftmaxParameter.toObject(message.softmax_param, options);
+                if (message.slice_param != null && message.hasOwnProperty("slice_param"))
+                    object.slice_param = $root.caffe.SliceParameter.toObject(message.slice_param, options);
+                if (message.tanh_param != null && message.hasOwnProperty("tanh_param"))
+                    object.tanh_param = $root.caffe.TanHParameter.toObject(message.tanh_param, options);
+                if (message.threshold_param != null && message.hasOwnProperty("threshold_param"))
+                    object.threshold_param = $root.caffe.ThresholdParameter.toObject(message.threshold_param, options);
+                if (message.window_data_param != null && message.hasOwnProperty("window_data_param"))
+                    object.window_data_param = $root.caffe.WindowDataParameter.toObject(message.window_data_param, options);
+                if (message.python_param != null && message.hasOwnProperty("python_param"))
+                    object.python_param = $root.caffe.PythonParameter.toObject(message.python_param, options);
+                if (message.prelu_param != null && message.hasOwnProperty("prelu_param"))
+                    object.prelu_param = $root.caffe.PReLUParameter.toObject(message.prelu_param, options);
+                if (message.spp_param != null && message.hasOwnProperty("spp_param"))
+                    object.spp_param = $root.caffe.SPPParameter.toObject(message.spp_param, options);
+                if (message.reshape_param != null && message.hasOwnProperty("reshape_param"))
+                    object.reshape_param = $root.caffe.ReshapeParameter.toObject(message.reshape_param, options);
+                if (message.log_param != null && message.hasOwnProperty("log_param"))
+                    object.log_param = $root.caffe.LogParameter.toObject(message.log_param, options);
+                if (message.flatten_param != null && message.hasOwnProperty("flatten_param"))
+                    object.flatten_param = $root.caffe.FlattenParameter.toObject(message.flatten_param, options);
+                if (message.reduction_param != null && message.hasOwnProperty("reduction_param"))
+                    object.reduction_param = $root.caffe.ReductionParameter.toObject(message.reduction_param, options);
+                if (message.embed_param != null && message.hasOwnProperty("embed_param"))
+                    object.embed_param = $root.caffe.EmbedParameter.toObject(message.embed_param, options);
+                if (message.tile_param != null && message.hasOwnProperty("tile_param"))
+                    object.tile_param = $root.caffe.TileParameter.toObject(message.tile_param, options);
+                if (message.batch_norm_param != null && message.hasOwnProperty("batch_norm_param"))
+                    object.batch_norm_param = $root.caffe.BatchNormParameter.toObject(message.batch_norm_param, options);
+                if (message.elu_param != null && message.hasOwnProperty("elu_param"))
+                    object.elu_param = $root.caffe.ELUParameter.toObject(message.elu_param, options);
+                if (message.bias_param != null && message.hasOwnProperty("bias_param"))
+                    object.bias_param = $root.caffe.BiasParameter.toObject(message.bias_param, options);
+                if (message.scale_param != null && message.hasOwnProperty("scale_param"))
+                    object.scale_param = $root.caffe.ScaleParameter.toObject(message.scale_param, options);
+                if (message.input_param != null && message.hasOwnProperty("input_param"))
+                    object.input_param = $root.caffe.InputParameter.toObject(message.input_param, options);
+                if (message.crop_param != null && message.hasOwnProperty("crop_param"))
+                    object.crop_param = $root.caffe.CropParameter.toObject(message.crop_param, options);
+                if (message.parameter_param != null && message.hasOwnProperty("parameter_param"))
+                    object.parameter_param = $root.caffe.ParameterParameter.toObject(message.parameter_param, options);
+                if (message.recurrent_param != null && message.hasOwnProperty("recurrent_param"))
+                    object.recurrent_param = $root.caffe.RecurrentParameter.toObject(message.recurrent_param, options);
+                if (message.swish_param != null && message.hasOwnProperty("swish_param"))
+                    object.swish_param = $root.caffe.SwishParameter.toObject(message.swish_param, options);
+                if (message.clip_param != null && message.hasOwnProperty("clip_param"))
+                    object.clip_param = $root.caffe.ClipParameter.toObject(message.clip_param, options);
                 return object;
             };
     
@@ -3608,7 +3608,7 @@
         caffe.TransformationParameter = (function() {
     
             function TransformationParameter(properties) {
-                this.meanValue = [];
+                this.mean_value = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -3617,11 +3617,11 @@
     
             TransformationParameter.prototype.scale = 1;
             TransformationParameter.prototype.mirror = false;
-            TransformationParameter.prototype.cropSize = 0;
-            TransformationParameter.prototype.meanFile = "";
-            TransformationParameter.prototype.meanValue = $util.emptyArray;
-            TransformationParameter.prototype.forceColor = false;
-            TransformationParameter.prototype.forceGray = false;
+            TransformationParameter.prototype.crop_size = 0;
+            TransformationParameter.prototype.mean_file = "";
+            TransformationParameter.prototype.mean_value = $util.emptyArray;
+            TransformationParameter.prototype.force_color = false;
+            TransformationParameter.prototype.force_gray = false;
     
             TransformationParameter.create = function create(properties) {
                 return new TransformationParameter(properties);
@@ -3641,26 +3641,26 @@
                         message.mirror = reader.bool();
                         break;
                     case 3:
-                        message.cropSize = reader.uint32();
+                        message.crop_size = reader.uint32();
                         break;
                     case 4:
-                        message.meanFile = reader.string();
+                        message.mean_file = reader.string();
                         break;
                     case 5:
-                        if (!(message.meanValue && message.meanValue.length))
-                            message.meanValue = [];
+                        if (!(message.mean_value && message.mean_value.length))
+                            message.mean_value = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.meanValue.push(reader.float());
+                                message.mean_value.push(reader.float());
                         } else
-                            message.meanValue.push(reader.float());
+                            message.mean_value.push(reader.float());
                         break;
                     case 6:
-                        message.forceColor = reader.bool();
+                        message.force_color = reader.bool();
                         break;
                     case 7:
-                        message.forceGray = reader.bool();
+                        message.force_gray = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3679,25 +3679,25 @@
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     if (typeof message.mirror !== "boolean")
                         return "mirror: boolean expected";
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    if (!$util.isInteger(message.cropSize))
-                        return "cropSize: integer expected";
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    if (!$util.isString(message.meanFile))
-                        return "meanFile: string expected";
-                if (message.meanValue != null && message.hasOwnProperty("meanValue")) {
-                    if (!Array.isArray(message.meanValue))
-                        return "meanValue: array expected";
-                    for (var i = 0; i < message.meanValue.length; ++i)
-                        if (typeof message.meanValue[i] !== "number")
-                            return "meanValue: number[] expected";
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    if (!$util.isInteger(message.crop_size))
+                        return "crop_size: integer expected";
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    if (!$util.isString(message.mean_file))
+                        return "mean_file: string expected";
+                if (message.mean_value != null && message.hasOwnProperty("mean_value")) {
+                    if (!Array.isArray(message.mean_value))
+                        return "mean_value: array expected";
+                    for (var i = 0; i < message.mean_value.length; ++i)
+                        if (typeof message.mean_value[i] !== "number")
+                            return "mean_value: number[] expected";
                 }
-                if (message.forceColor != null && message.hasOwnProperty("forceColor"))
-                    if (typeof message.forceColor !== "boolean")
-                        return "forceColor: boolean expected";
-                if (message.forceGray != null && message.hasOwnProperty("forceGray"))
-                    if (typeof message.forceGray !== "boolean")
-                        return "forceGray: boolean expected";
+                if (message.force_color != null && message.hasOwnProperty("force_color"))
+                    if (typeof message.force_color !== "boolean")
+                        return "force_color: boolean expected";
+                if (message.force_gray != null && message.hasOwnProperty("force_gray"))
+                    if (typeof message.force_gray !== "boolean")
+                        return "force_gray: boolean expected";
                 return null;
             };
     
@@ -3709,21 +3709,21 @@
                     message.scale = Number(object.scale);
                 if (object.mirror != null)
                     message.mirror = Boolean(object.mirror);
-                if (object.cropSize != null)
-                    message.cropSize = object.cropSize >>> 0;
-                if (object.meanFile != null)
-                    message.meanFile = String(object.meanFile);
-                if (object.meanValue) {
-                    if (!Array.isArray(object.meanValue))
-                        throw TypeError(".caffe.TransformationParameter.meanValue: array expected");
-                    message.meanValue = [];
-                    for (var i = 0; i < object.meanValue.length; ++i)
-                        message.meanValue[i] = Number(object.meanValue[i]);
+                if (object.crop_size != null)
+                    message.crop_size = object.crop_size >>> 0;
+                if (object.mean_file != null)
+                    message.mean_file = String(object.mean_file);
+                if (object.mean_value) {
+                    if (!Array.isArray(object.mean_value))
+                        throw TypeError(".caffe.TransformationParameter.mean_value: array expected");
+                    message.mean_value = [];
+                    for (var i = 0; i < object.mean_value.length; ++i)
+                        message.mean_value[i] = Number(object.mean_value[i]);
                 }
-                if (object.forceColor != null)
-                    message.forceColor = Boolean(object.forceColor);
-                if (object.forceGray != null)
-                    message.forceGray = Boolean(object.forceGray);
+                if (object.force_color != null)
+                    message.force_color = Boolean(object.force_color);
+                if (object.force_gray != null)
+                    message.force_gray = Boolean(object.force_gray);
                 return message;
             };
     
@@ -3732,32 +3732,32 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.meanValue = [];
+                    object.mean_value = [];
                 if (options.defaults) {
                     object.scale = 1;
                     object.mirror = false;
-                    object.cropSize = 0;
-                    object.meanFile = "";
-                    object.forceColor = false;
-                    object.forceGray = false;
+                    object.crop_size = 0;
+                    object.mean_file = "";
+                    object.force_color = false;
+                    object.force_gray = false;
                 }
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     object.scale = options.json && !isFinite(message.scale) ? String(message.scale) : message.scale;
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     object.mirror = message.mirror;
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    object.cropSize = message.cropSize;
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    object.meanFile = message.meanFile;
-                if (message.meanValue && message.meanValue.length) {
-                    object.meanValue = [];
-                    for (var j = 0; j < message.meanValue.length; ++j)
-                        object.meanValue[j] = options.json && !isFinite(message.meanValue[j]) ? String(message.meanValue[j]) : message.meanValue[j];
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    object.crop_size = message.crop_size;
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    object.mean_file = message.mean_file;
+                if (message.mean_value && message.mean_value.length) {
+                    object.mean_value = [];
+                    for (var j = 0; j < message.mean_value.length; ++j)
+                        object.mean_value[j] = options.json && !isFinite(message.mean_value[j]) ? String(message.mean_value[j]) : message.mean_value[j];
                 }
-                if (message.forceColor != null && message.hasOwnProperty("forceColor"))
-                    object.forceColor = message.forceColor;
-                if (message.forceGray != null && message.hasOwnProperty("forceGray"))
-                    object.forceGray = message.forceGray;
+                if (message.force_color != null && message.hasOwnProperty("force_color"))
+                    object.force_color = message.force_color;
+                if (message.force_gray != null && message.hasOwnProperty("force_gray"))
+                    object.force_gray = message.force_gray;
                 return object;
             };
     
@@ -3777,7 +3777,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            LossParameter.prototype.ignoreLabel = 0;
+            LossParameter.prototype.ignore_label = 0;
             LossParameter.prototype.normalization = 1;
             LossParameter.prototype.normalize = false;
     
@@ -3793,7 +3793,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.ignoreLabel = reader.int32();
+                        message.ignore_label = reader.int32();
                         break;
                     case 3:
                         message.normalization = reader.int32();
@@ -3812,9 +3812,9 @@
             LossParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.ignoreLabel != null && message.hasOwnProperty("ignoreLabel"))
-                    if (!$util.isInteger(message.ignoreLabel))
-                        return "ignoreLabel: integer expected";
+                if (message.ignore_label != null && message.hasOwnProperty("ignore_label"))
+                    if (!$util.isInteger(message.ignore_label))
+                        return "ignore_label: integer expected";
                 if (message.normalization != null && message.hasOwnProperty("normalization"))
                     switch (message.normalization) {
                     default:
@@ -3835,8 +3835,8 @@
                 if (object instanceof $root.caffe.LossParameter)
                     return object;
                 var message = new $root.caffe.LossParameter();
-                if (object.ignoreLabel != null)
-                    message.ignoreLabel = object.ignoreLabel | 0;
+                if (object.ignore_label != null)
+                    message.ignore_label = object.ignore_label | 0;
                 switch (object.normalization) {
                 case "FULL":
                 case 0:
@@ -3865,12 +3865,12 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.ignoreLabel = 0;
+                    object.ignore_label = 0;
                     object.normalize = false;
                     object.normalization = options.enums === String ? "VALID" : 1;
                 }
-                if (message.ignoreLabel != null && message.hasOwnProperty("ignoreLabel"))
-                    object.ignoreLabel = message.ignoreLabel;
+                if (message.ignore_label != null && message.hasOwnProperty("ignore_label"))
+                    object.ignore_label = message.ignore_label;
                 if (message.normalize != null && message.hasOwnProperty("normalize"))
                     object.normalize = message.normalize;
                 if (message.normalization != null && message.hasOwnProperty("normalization"))
@@ -3903,9 +3903,9 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            AccuracyParameter.prototype.topK = 1;
+            AccuracyParameter.prototype.top_k = 1;
             AccuracyParameter.prototype.axis = 1;
-            AccuracyParameter.prototype.ignoreLabel = 0;
+            AccuracyParameter.prototype.ignore_label = 0;
     
             AccuracyParameter.create = function create(properties) {
                 return new AccuracyParameter(properties);
@@ -3919,13 +3919,13 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.topK = reader.uint32();
+                        message.top_k = reader.uint32();
                         break;
                     case 2:
                         message.axis = reader.int32();
                         break;
                     case 3:
-                        message.ignoreLabel = reader.int32();
+                        message.ignore_label = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3938,15 +3938,15 @@
             AccuracyParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.topK != null && message.hasOwnProperty("topK"))
-                    if (!$util.isInteger(message.topK))
-                        return "topK: integer expected";
+                if (message.top_k != null && message.hasOwnProperty("top_k"))
+                    if (!$util.isInteger(message.top_k))
+                        return "top_k: integer expected";
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.ignoreLabel != null && message.hasOwnProperty("ignoreLabel"))
-                    if (!$util.isInteger(message.ignoreLabel))
-                        return "ignoreLabel: integer expected";
+                if (message.ignore_label != null && message.hasOwnProperty("ignore_label"))
+                    if (!$util.isInteger(message.ignore_label))
+                        return "ignore_label: integer expected";
                 return null;
             };
     
@@ -3954,12 +3954,12 @@
                 if (object instanceof $root.caffe.AccuracyParameter)
                     return object;
                 var message = new $root.caffe.AccuracyParameter();
-                if (object.topK != null)
-                    message.topK = object.topK >>> 0;
+                if (object.top_k != null)
+                    message.top_k = object.top_k >>> 0;
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.ignoreLabel != null)
-                    message.ignoreLabel = object.ignoreLabel | 0;
+                if (object.ignore_label != null)
+                    message.ignore_label = object.ignore_label | 0;
                 return message;
             };
     
@@ -3968,16 +3968,16 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.topK = 1;
+                    object.top_k = 1;
                     object.axis = 1;
-                    object.ignoreLabel = 0;
+                    object.ignore_label = 0;
                 }
-                if (message.topK != null && message.hasOwnProperty("topK"))
-                    object.topK = message.topK;
+                if (message.top_k != null && message.hasOwnProperty("top_k"))
+                    object.top_k = message.top_k;
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
-                if (message.ignoreLabel != null && message.hasOwnProperty("ignoreLabel"))
-                    object.ignoreLabel = message.ignoreLabel;
+                if (message.ignore_label != null && message.hasOwnProperty("ignore_label"))
+                    object.ignore_label = message.ignore_label;
                 return object;
             };
     
@@ -3997,8 +3997,8 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            ArgMaxParameter.prototype.outMaxVal = false;
-            ArgMaxParameter.prototype.topK = 1;
+            ArgMaxParameter.prototype.out_max_val = false;
+            ArgMaxParameter.prototype.top_k = 1;
             ArgMaxParameter.prototype.axis = 0;
     
             ArgMaxParameter.create = function create(properties) {
@@ -4013,10 +4013,10 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.outMaxVal = reader.bool();
+                        message.out_max_val = reader.bool();
                         break;
                     case 2:
-                        message.topK = reader.uint32();
+                        message.top_k = reader.uint32();
                         break;
                     case 3:
                         message.axis = reader.int32();
@@ -4032,12 +4032,12 @@
             ArgMaxParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.outMaxVal != null && message.hasOwnProperty("outMaxVal"))
-                    if (typeof message.outMaxVal !== "boolean")
-                        return "outMaxVal: boolean expected";
-                if (message.topK != null && message.hasOwnProperty("topK"))
-                    if (!$util.isInteger(message.topK))
-                        return "topK: integer expected";
+                if (message.out_max_val != null && message.hasOwnProperty("out_max_val"))
+                    if (typeof message.out_max_val !== "boolean")
+                        return "out_max_val: boolean expected";
+                if (message.top_k != null && message.hasOwnProperty("top_k"))
+                    if (!$util.isInteger(message.top_k))
+                        return "top_k: integer expected";
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
@@ -4048,10 +4048,10 @@
                 if (object instanceof $root.caffe.ArgMaxParameter)
                     return object;
                 var message = new $root.caffe.ArgMaxParameter();
-                if (object.outMaxVal != null)
-                    message.outMaxVal = Boolean(object.outMaxVal);
-                if (object.topK != null)
-                    message.topK = object.topK >>> 0;
+                if (object.out_max_val != null)
+                    message.out_max_val = Boolean(object.out_max_val);
+                if (object.top_k != null)
+                    message.top_k = object.top_k >>> 0;
                 if (object.axis != null)
                     message.axis = object.axis | 0;
                 return message;
@@ -4062,14 +4062,14 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.outMaxVal = false;
-                    object.topK = 1;
+                    object.out_max_val = false;
+                    object.top_k = 1;
                     object.axis = 0;
                 }
-                if (message.outMaxVal != null && message.hasOwnProperty("outMaxVal"))
-                    object.outMaxVal = message.outMaxVal;
-                if (message.topK != null && message.hasOwnProperty("topK"))
-                    object.topK = message.topK;
+                if (message.out_max_val != null && message.hasOwnProperty("out_max_val"))
+                    object.out_max_val = message.out_max_val;
+                if (message.top_k != null && message.hasOwnProperty("top_k"))
+                    object.top_k = message.top_k;
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
                 return object;
@@ -4176,7 +4176,7 @@
             }
     
             ConcatParameter.prototype.axis = 1;
-            ConcatParameter.prototype.concatDim = 1;
+            ConcatParameter.prototype.concat_dim = 1;
     
             ConcatParameter.create = function create(properties) {
                 return new ConcatParameter(properties);
@@ -4193,7 +4193,7 @@
                         message.axis = reader.int32();
                         break;
                     case 1:
-                        message.concatDim = reader.uint32();
+                        message.concat_dim = reader.uint32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4209,9 +4209,9 @@
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.concatDim != null && message.hasOwnProperty("concatDim"))
-                    if (!$util.isInteger(message.concatDim))
-                        return "concatDim: integer expected";
+                if (message.concat_dim != null && message.hasOwnProperty("concat_dim"))
+                    if (!$util.isInteger(message.concat_dim))
+                        return "concat_dim: integer expected";
                 return null;
             };
     
@@ -4221,8 +4221,8 @@
                 var message = new $root.caffe.ConcatParameter();
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.concatDim != null)
-                    message.concatDim = object.concatDim >>> 0;
+                if (object.concat_dim != null)
+                    message.concat_dim = object.concat_dim >>> 0;
                 return message;
             };
     
@@ -4231,11 +4231,11 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.concatDim = 1;
+                    object.concat_dim = 1;
                     object.axis = 1;
                 }
-                if (message.concatDim != null && message.hasOwnProperty("concatDim"))
-                    object.concatDim = message.concatDim;
+                if (message.concat_dim != null && message.hasOwnProperty("concat_dim"))
+                    object.concat_dim = message.concat_dim;
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
                 return object;
@@ -4257,8 +4257,8 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            BatchNormParameter.prototype.useGlobalStats = false;
-            BatchNormParameter.prototype.movingAverageFraction = 0.999;
+            BatchNormParameter.prototype.use_global_stats = false;
+            BatchNormParameter.prototype.moving_average_fraction = 0.999;
             BatchNormParameter.prototype.eps = 0.00001;
     
             BatchNormParameter.create = function create(properties) {
@@ -4273,10 +4273,10 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.useGlobalStats = reader.bool();
+                        message.use_global_stats = reader.bool();
                         break;
                     case 2:
-                        message.movingAverageFraction = reader.float();
+                        message.moving_average_fraction = reader.float();
                         break;
                     case 3:
                         message.eps = reader.float();
@@ -4292,12 +4292,12 @@
             BatchNormParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.useGlobalStats != null && message.hasOwnProperty("useGlobalStats"))
-                    if (typeof message.useGlobalStats !== "boolean")
-                        return "useGlobalStats: boolean expected";
-                if (message.movingAverageFraction != null && message.hasOwnProperty("movingAverageFraction"))
-                    if (typeof message.movingAverageFraction !== "number")
-                        return "movingAverageFraction: number expected";
+                if (message.use_global_stats != null && message.hasOwnProperty("use_global_stats"))
+                    if (typeof message.use_global_stats !== "boolean")
+                        return "use_global_stats: boolean expected";
+                if (message.moving_average_fraction != null && message.hasOwnProperty("moving_average_fraction"))
+                    if (typeof message.moving_average_fraction !== "number")
+                        return "moving_average_fraction: number expected";
                 if (message.eps != null && message.hasOwnProperty("eps"))
                     if (typeof message.eps !== "number")
                         return "eps: number expected";
@@ -4308,10 +4308,10 @@
                 if (object instanceof $root.caffe.BatchNormParameter)
                     return object;
                 var message = new $root.caffe.BatchNormParameter();
-                if (object.useGlobalStats != null)
-                    message.useGlobalStats = Boolean(object.useGlobalStats);
-                if (object.movingAverageFraction != null)
-                    message.movingAverageFraction = Number(object.movingAverageFraction);
+                if (object.use_global_stats != null)
+                    message.use_global_stats = Boolean(object.use_global_stats);
+                if (object.moving_average_fraction != null)
+                    message.moving_average_fraction = Number(object.moving_average_fraction);
                 if (object.eps != null)
                     message.eps = Number(object.eps);
                 return message;
@@ -4322,14 +4322,14 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.useGlobalStats = false;
-                    object.movingAverageFraction = 0.999;
+                    object.use_global_stats = false;
+                    object.moving_average_fraction = 0.999;
                     object.eps = 0.00001;
                 }
-                if (message.useGlobalStats != null && message.hasOwnProperty("useGlobalStats"))
-                    object.useGlobalStats = message.useGlobalStats;
-                if (message.movingAverageFraction != null && message.hasOwnProperty("movingAverageFraction"))
-                    object.movingAverageFraction = options.json && !isFinite(message.movingAverageFraction) ? String(message.movingAverageFraction) : message.movingAverageFraction;
+                if (message.use_global_stats != null && message.hasOwnProperty("use_global_stats"))
+                    object.use_global_stats = message.use_global_stats;
+                if (message.moving_average_fraction != null && message.hasOwnProperty("moving_average_fraction"))
+                    object.moving_average_fraction = options.json && !isFinite(message.moving_average_fraction) ? String(message.moving_average_fraction) : message.moving_average_fraction;
                 if (message.eps != null && message.hasOwnProperty("eps"))
                     object.eps = options.json && !isFinite(message.eps) ? String(message.eps) : message.eps;
                 return object;
@@ -4352,7 +4352,7 @@
             }
     
             BiasParameter.prototype.axis = 1;
-            BiasParameter.prototype.numAxes = 1;
+            BiasParameter.prototype.num_axes = 1;
             BiasParameter.prototype.filler = null;
     
             BiasParameter.create = function create(properties) {
@@ -4370,7 +4370,7 @@
                         message.axis = reader.int32();
                         break;
                     case 2:
-                        message.numAxes = reader.int32();
+                        message.num_axes = reader.int32();
                         break;
                     case 3:
                         message.filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
@@ -4389,9 +4389,9 @@
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    if (!$util.isInteger(message.numAxes))
-                        return "numAxes: integer expected";
+                if (message.num_axes != null && message.hasOwnProperty("num_axes"))
+                    if (!$util.isInteger(message.num_axes))
+                        return "num_axes: integer expected";
                 if (message.filler != null && message.hasOwnProperty("filler")) {
                     var error = $root.caffe.FillerParameter.verify(message.filler);
                     if (error)
@@ -4406,8 +4406,8 @@
                 var message = new $root.caffe.BiasParameter();
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.numAxes != null)
-                    message.numAxes = object.numAxes | 0;
+                if (object.num_axes != null)
+                    message.num_axes = object.num_axes | 0;
                 if (object.filler != null) {
                     if (typeof object.filler !== "object")
                         throw TypeError(".caffe.BiasParameter.filler: object expected");
@@ -4422,13 +4422,13 @@
                 var object = {};
                 if (options.defaults) {
                     object.axis = 1;
-                    object.numAxes = 1;
+                    object.num_axes = 1;
                     object.filler = null;
                 }
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    object.numAxes = message.numAxes;
+                if (message.num_axes != null && message.hasOwnProperty("num_axes"))
+                    object.num_axes = message.num_axes;
                 if (message.filler != null && message.hasOwnProperty("filler"))
                     object.filler = $root.caffe.FillerParameter.toObject(message.filler, options);
                 return object;
@@ -4451,7 +4451,7 @@
             }
     
             ContrastiveLossParameter.prototype.margin = 1;
-            ContrastiveLossParameter.prototype.legacyVersion = false;
+            ContrastiveLossParameter.prototype.legacy_version = false;
     
             ContrastiveLossParameter.create = function create(properties) {
                 return new ContrastiveLossParameter(properties);
@@ -4468,7 +4468,7 @@
                         message.margin = reader.float();
                         break;
                     case 2:
-                        message.legacyVersion = reader.bool();
+                        message.legacy_version = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4484,9 +4484,9 @@
                 if (message.margin != null && message.hasOwnProperty("margin"))
                     if (typeof message.margin !== "number")
                         return "margin: number expected";
-                if (message.legacyVersion != null && message.hasOwnProperty("legacyVersion"))
-                    if (typeof message.legacyVersion !== "boolean")
-                        return "legacyVersion: boolean expected";
+                if (message.legacy_version != null && message.hasOwnProperty("legacy_version"))
+                    if (typeof message.legacy_version !== "boolean")
+                        return "legacy_version: boolean expected";
                 return null;
             };
     
@@ -4496,8 +4496,8 @@
                 var message = new $root.caffe.ContrastiveLossParameter();
                 if (object.margin != null)
                     message.margin = Number(object.margin);
-                if (object.legacyVersion != null)
-                    message.legacyVersion = Boolean(object.legacyVersion);
+                if (object.legacy_version != null)
+                    message.legacy_version = Boolean(object.legacy_version);
                 return message;
             };
     
@@ -4507,12 +4507,12 @@
                 var object = {};
                 if (options.defaults) {
                     object.margin = 1;
-                    object.legacyVersion = false;
+                    object.legacy_version = false;
                 }
                 if (message.margin != null && message.hasOwnProperty("margin"))
                     object.margin = options.json && !isFinite(message.margin) ? String(message.margin) : message.margin;
-                if (message.legacyVersion != null && message.hasOwnProperty("legacyVersion"))
-                    object.legacyVersion = message.legacyVersion;
+                if (message.legacy_version != null && message.hasOwnProperty("legacy_version"))
+                    object.legacy_version = message.legacy_version;
                 return object;
             };
     
@@ -4527,7 +4527,7 @@
     
             function ConvolutionParameter(properties) {
                 this.pad = [];
-                this.kernelSize = [];
+                this.kernel_size = [];
                 this.stride = [];
                 this.dilation = [];
                 if (properties)
@@ -4536,24 +4536,24 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            ConvolutionParameter.prototype.numOutput = 0;
-            ConvolutionParameter.prototype.biasTerm = true;
+            ConvolutionParameter.prototype.num_output = 0;
+            ConvolutionParameter.prototype.bias_term = true;
             ConvolutionParameter.prototype.pad = $util.emptyArray;
-            ConvolutionParameter.prototype.kernelSize = $util.emptyArray;
+            ConvolutionParameter.prototype.kernel_size = $util.emptyArray;
             ConvolutionParameter.prototype.stride = $util.emptyArray;
             ConvolutionParameter.prototype.dilation = $util.emptyArray;
-            ConvolutionParameter.prototype.padH = 0;
-            ConvolutionParameter.prototype.padW = 0;
-            ConvolutionParameter.prototype.kernelH = 0;
-            ConvolutionParameter.prototype.kernelW = 0;
-            ConvolutionParameter.prototype.strideH = 0;
-            ConvolutionParameter.prototype.strideW = 0;
+            ConvolutionParameter.prototype.pad_h = 0;
+            ConvolutionParameter.prototype.pad_w = 0;
+            ConvolutionParameter.prototype.kernel_h = 0;
+            ConvolutionParameter.prototype.kernel_w = 0;
+            ConvolutionParameter.prototype.stride_h = 0;
+            ConvolutionParameter.prototype.stride_w = 0;
             ConvolutionParameter.prototype.group = 1;
-            ConvolutionParameter.prototype.weightFiller = null;
-            ConvolutionParameter.prototype.biasFiller = null;
+            ConvolutionParameter.prototype.weight_filler = null;
+            ConvolutionParameter.prototype.bias_filler = null;
             ConvolutionParameter.prototype.engine = 0;
             ConvolutionParameter.prototype.axis = 1;
-            ConvolutionParameter.prototype.forceNdIm2col = false;
+            ConvolutionParameter.prototype.force_nd_im2col = false;
     
             ConvolutionParameter.create = function create(properties) {
                 return new ConvolutionParameter(properties);
@@ -4567,10 +4567,10 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.numOutput = reader.uint32();
+                        message.num_output = reader.uint32();
                         break;
                     case 2:
-                        message.biasTerm = reader.bool();
+                        message.bias_term = reader.bool();
                         break;
                     case 3:
                         if (!(message.pad && message.pad.length))
@@ -4583,14 +4583,14 @@
                             message.pad.push(reader.uint32());
                         break;
                     case 4:
-                        if (!(message.kernelSize && message.kernelSize.length))
-                            message.kernelSize = [];
+                        if (!(message.kernel_size && message.kernel_size.length))
+                            message.kernel_size = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.kernelSize.push(reader.uint32());
+                                message.kernel_size.push(reader.uint32());
                         } else
-                            message.kernelSize.push(reader.uint32());
+                            message.kernel_size.push(reader.uint32());
                         break;
                     case 6:
                         if (!(message.stride && message.stride.length))
@@ -4613,31 +4613,31 @@
                             message.dilation.push(reader.uint32());
                         break;
                     case 9:
-                        message.padH = reader.uint32();
+                        message.pad_h = reader.uint32();
                         break;
                     case 10:
-                        message.padW = reader.uint32();
+                        message.pad_w = reader.uint32();
                         break;
                     case 11:
-                        message.kernelH = reader.uint32();
+                        message.kernel_h = reader.uint32();
                         break;
                     case 12:
-                        message.kernelW = reader.uint32();
+                        message.kernel_w = reader.uint32();
                         break;
                     case 13:
-                        message.strideH = reader.uint32();
+                        message.stride_h = reader.uint32();
                         break;
                     case 14:
-                        message.strideW = reader.uint32();
+                        message.stride_w = reader.uint32();
                         break;
                     case 5:
                         message.group = reader.uint32();
                         break;
                     case 7:
-                        message.weightFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.weight_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 8:
-                        message.biasFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 15:
                         message.engine = reader.int32();
@@ -4646,7 +4646,7 @@
                         message.axis = reader.int32();
                         break;
                     case 17:
-                        message.forceNdIm2col = reader.bool();
+                        message.force_nd_im2col = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4659,12 +4659,12 @@
             ConvolutionParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    if (!$util.isInteger(message.numOutput))
-                        return "numOutput: integer expected";
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    if (typeof message.biasTerm !== "boolean")
-                        return "biasTerm: boolean expected";
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    if (typeof message.bias_term !== "boolean")
+                        return "bias_term: boolean expected";
                 if (message.pad != null && message.hasOwnProperty("pad")) {
                     if (!Array.isArray(message.pad))
                         return "pad: array expected";
@@ -4672,12 +4672,12 @@
                         if (!$util.isInteger(message.pad[i]))
                             return "pad: integer[] expected";
                 }
-                if (message.kernelSize != null && message.hasOwnProperty("kernelSize")) {
-                    if (!Array.isArray(message.kernelSize))
-                        return "kernelSize: array expected";
-                    for (var i = 0; i < message.kernelSize.length; ++i)
-                        if (!$util.isInteger(message.kernelSize[i]))
-                            return "kernelSize: integer[] expected";
+                if (message.kernel_size != null && message.hasOwnProperty("kernel_size")) {
+                    if (!Array.isArray(message.kernel_size))
+                        return "kernel_size: array expected";
+                    for (var i = 0; i < message.kernel_size.length; ++i)
+                        if (!$util.isInteger(message.kernel_size[i]))
+                            return "kernel_size: integer[] expected";
                 }
                 if (message.stride != null && message.hasOwnProperty("stride")) {
                     if (!Array.isArray(message.stride))
@@ -4693,36 +4693,36 @@
                         if (!$util.isInteger(message.dilation[i]))
                             return "dilation: integer[] expected";
                 }
-                if (message.padH != null && message.hasOwnProperty("padH"))
-                    if (!$util.isInteger(message.padH))
-                        return "padH: integer expected";
-                if (message.padW != null && message.hasOwnProperty("padW"))
-                    if (!$util.isInteger(message.padW))
-                        return "padW: integer expected";
-                if (message.kernelH != null && message.hasOwnProperty("kernelH"))
-                    if (!$util.isInteger(message.kernelH))
-                        return "kernelH: integer expected";
-                if (message.kernelW != null && message.hasOwnProperty("kernelW"))
-                    if (!$util.isInteger(message.kernelW))
-                        return "kernelW: integer expected";
-                if (message.strideH != null && message.hasOwnProperty("strideH"))
-                    if (!$util.isInteger(message.strideH))
-                        return "strideH: integer expected";
-                if (message.strideW != null && message.hasOwnProperty("strideW"))
-                    if (!$util.isInteger(message.strideW))
-                        return "strideW: integer expected";
+                if (message.pad_h != null && message.hasOwnProperty("pad_h"))
+                    if (!$util.isInteger(message.pad_h))
+                        return "pad_h: integer expected";
+                if (message.pad_w != null && message.hasOwnProperty("pad_w"))
+                    if (!$util.isInteger(message.pad_w))
+                        return "pad_w: integer expected";
+                if (message.kernel_h != null && message.hasOwnProperty("kernel_h"))
+                    if (!$util.isInteger(message.kernel_h))
+                        return "kernel_h: integer expected";
+                if (message.kernel_w != null && message.hasOwnProperty("kernel_w"))
+                    if (!$util.isInteger(message.kernel_w))
+                        return "kernel_w: integer expected";
+                if (message.stride_h != null && message.hasOwnProperty("stride_h"))
+                    if (!$util.isInteger(message.stride_h))
+                        return "stride_h: integer expected";
+                if (message.stride_w != null && message.hasOwnProperty("stride_w"))
+                    if (!$util.isInteger(message.stride_w))
+                        return "stride_w: integer expected";
                 if (message.group != null && message.hasOwnProperty("group"))
                     if (!$util.isInteger(message.group))
                         return "group: integer expected";
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.weightFiller);
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_filler);
                     if (error)
-                        return "weightFiller." + error;
+                        return "weight_filler." + error;
                 }
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.biasFiller);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
                     if (error)
-                        return "biasFiller." + error;
+                        return "bias_filler." + error;
                 }
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     switch (message.engine) {
@@ -4736,9 +4736,9 @@
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.forceNdIm2col != null && message.hasOwnProperty("forceNdIm2col"))
-                    if (typeof message.forceNdIm2col !== "boolean")
-                        return "forceNdIm2col: boolean expected";
+                if (message.force_nd_im2col != null && message.hasOwnProperty("force_nd_im2col"))
+                    if (typeof message.force_nd_im2col !== "boolean")
+                        return "force_nd_im2col: boolean expected";
                 return null;
             };
     
@@ -4746,10 +4746,10 @@
                 if (object instanceof $root.caffe.ConvolutionParameter)
                     return object;
                 var message = new $root.caffe.ConvolutionParameter();
-                if (object.numOutput != null)
-                    message.numOutput = object.numOutput >>> 0;
-                if (object.biasTerm != null)
-                    message.biasTerm = Boolean(object.biasTerm);
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
+                if (object.bias_term != null)
+                    message.bias_term = Boolean(object.bias_term);
                 if (object.pad) {
                     if (!Array.isArray(object.pad))
                         throw TypeError(".caffe.ConvolutionParameter.pad: array expected");
@@ -4757,12 +4757,12 @@
                     for (var i = 0; i < object.pad.length; ++i)
                         message.pad[i] = object.pad[i] >>> 0;
                 }
-                if (object.kernelSize) {
-                    if (!Array.isArray(object.kernelSize))
-                        throw TypeError(".caffe.ConvolutionParameter.kernelSize: array expected");
-                    message.kernelSize = [];
-                    for (var i = 0; i < object.kernelSize.length; ++i)
-                        message.kernelSize[i] = object.kernelSize[i] >>> 0;
+                if (object.kernel_size) {
+                    if (!Array.isArray(object.kernel_size))
+                        throw TypeError(".caffe.ConvolutionParameter.kernel_size: array expected");
+                    message.kernel_size = [];
+                    for (var i = 0; i < object.kernel_size.length; ++i)
+                        message.kernel_size[i] = object.kernel_size[i] >>> 0;
                 }
                 if (object.stride) {
                     if (!Array.isArray(object.stride))
@@ -4778,29 +4778,29 @@
                     for (var i = 0; i < object.dilation.length; ++i)
                         message.dilation[i] = object.dilation[i] >>> 0;
                 }
-                if (object.padH != null)
-                    message.padH = object.padH >>> 0;
-                if (object.padW != null)
-                    message.padW = object.padW >>> 0;
-                if (object.kernelH != null)
-                    message.kernelH = object.kernelH >>> 0;
-                if (object.kernelW != null)
-                    message.kernelW = object.kernelW >>> 0;
-                if (object.strideH != null)
-                    message.strideH = object.strideH >>> 0;
-                if (object.strideW != null)
-                    message.strideW = object.strideW >>> 0;
+                if (object.pad_h != null)
+                    message.pad_h = object.pad_h >>> 0;
+                if (object.pad_w != null)
+                    message.pad_w = object.pad_w >>> 0;
+                if (object.kernel_h != null)
+                    message.kernel_h = object.kernel_h >>> 0;
+                if (object.kernel_w != null)
+                    message.kernel_w = object.kernel_w >>> 0;
+                if (object.stride_h != null)
+                    message.stride_h = object.stride_h >>> 0;
+                if (object.stride_w != null)
+                    message.stride_w = object.stride_w >>> 0;
                 if (object.group != null)
                     message.group = object.group >>> 0;
-                if (object.weightFiller != null) {
-                    if (typeof object.weightFiller !== "object")
-                        throw TypeError(".caffe.ConvolutionParameter.weightFiller: object expected");
-                    message.weightFiller = $root.caffe.FillerParameter.fromObject(object.weightFiller);
+                if (object.weight_filler != null) {
+                    if (typeof object.weight_filler !== "object")
+                        throw TypeError(".caffe.ConvolutionParameter.weight_filler: object expected");
+                    message.weight_filler = $root.caffe.FillerParameter.fromObject(object.weight_filler);
                 }
-                if (object.biasFiller != null) {
-                    if (typeof object.biasFiller !== "object")
-                        throw TypeError(".caffe.ConvolutionParameter.biasFiller: object expected");
-                    message.biasFiller = $root.caffe.FillerParameter.fromObject(object.biasFiller);
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.ConvolutionParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
                 }
                 switch (object.engine) {
                 case "DEFAULT":
@@ -4818,8 +4818,8 @@
                 }
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.forceNdIm2col != null)
-                    message.forceNdIm2col = Boolean(object.forceNdIm2col);
+                if (object.force_nd_im2col != null)
+                    message.force_nd_im2col = Boolean(object.force_nd_im2col);
                 return message;
             };
     
@@ -4829,39 +4829,39 @@
                 var object = {};
                 if (options.arrays || options.defaults) {
                     object.pad = [];
-                    object.kernelSize = [];
+                    object.kernel_size = [];
                     object.stride = [];
                     object.dilation = [];
                 }
                 if (options.defaults) {
-                    object.numOutput = 0;
-                    object.biasTerm = true;
+                    object.num_output = 0;
+                    object.bias_term = true;
                     object.group = 1;
-                    object.weightFiller = null;
-                    object.biasFiller = null;
-                    object.padH = 0;
-                    object.padW = 0;
-                    object.kernelH = 0;
-                    object.kernelW = 0;
-                    object.strideH = 0;
-                    object.strideW = 0;
+                    object.weight_filler = null;
+                    object.bias_filler = null;
+                    object.pad_h = 0;
+                    object.pad_w = 0;
+                    object.kernel_h = 0;
+                    object.kernel_w = 0;
+                    object.stride_h = 0;
+                    object.stride_w = 0;
                     object.engine = options.enums === String ? "DEFAULT" : 0;
                     object.axis = 1;
-                    object.forceNdIm2col = false;
+                    object.force_nd_im2col = false;
                 }
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    object.numOutput = message.numOutput;
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    object.biasTerm = message.biasTerm;
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    object.bias_term = message.bias_term;
                 if (message.pad && message.pad.length) {
                     object.pad = [];
                     for (var j = 0; j < message.pad.length; ++j)
                         object.pad[j] = message.pad[j];
                 }
-                if (message.kernelSize && message.kernelSize.length) {
-                    object.kernelSize = [];
-                    for (var j = 0; j < message.kernelSize.length; ++j)
-                        object.kernelSize[j] = message.kernelSize[j];
+                if (message.kernel_size && message.kernel_size.length) {
+                    object.kernel_size = [];
+                    for (var j = 0; j < message.kernel_size.length; ++j)
+                        object.kernel_size[j] = message.kernel_size[j];
                 }
                 if (message.group != null && message.hasOwnProperty("group"))
                     object.group = message.group;
@@ -4870,28 +4870,28 @@
                     for (var j = 0; j < message.stride.length; ++j)
                         object.stride[j] = message.stride[j];
                 }
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    object.weightFiller = $root.caffe.FillerParameter.toObject(message.weightFiller, options);
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    object.biasFiller = $root.caffe.FillerParameter.toObject(message.biasFiller, options);
-                if (message.padH != null && message.hasOwnProperty("padH"))
-                    object.padH = message.padH;
-                if (message.padW != null && message.hasOwnProperty("padW"))
-                    object.padW = message.padW;
-                if (message.kernelH != null && message.hasOwnProperty("kernelH"))
-                    object.kernelH = message.kernelH;
-                if (message.kernelW != null && message.hasOwnProperty("kernelW"))
-                    object.kernelW = message.kernelW;
-                if (message.strideH != null && message.hasOwnProperty("strideH"))
-                    object.strideH = message.strideH;
-                if (message.strideW != null && message.hasOwnProperty("strideW"))
-                    object.strideW = message.strideW;
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler"))
+                    object.weight_filler = $root.caffe.FillerParameter.toObject(message.weight_filler, options);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
+                if (message.pad_h != null && message.hasOwnProperty("pad_h"))
+                    object.pad_h = message.pad_h;
+                if (message.pad_w != null && message.hasOwnProperty("pad_w"))
+                    object.pad_w = message.pad_w;
+                if (message.kernel_h != null && message.hasOwnProperty("kernel_h"))
+                    object.kernel_h = message.kernel_h;
+                if (message.kernel_w != null && message.hasOwnProperty("kernel_w"))
+                    object.kernel_w = message.kernel_w;
+                if (message.stride_h != null && message.hasOwnProperty("stride_h"))
+                    object.stride_h = message.stride_h;
+                if (message.stride_w != null && message.hasOwnProperty("stride_w"))
+                    object.stride_w = message.stride_w;
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     object.engine = options.enums === String ? $root.caffe.ConvolutionParameter.Engine[message.engine] : message.engine;
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
-                if (message.forceNdIm2col != null && message.hasOwnProperty("forceNdIm2col"))
-                    object.forceNdIm2col = message.forceNdIm2col;
+                if (message.force_nd_im2col != null && message.hasOwnProperty("force_nd_im2col"))
+                    object.force_nd_im2col = message.force_nd_im2col;
                 if (message.dilation && message.dilation.length) {
                     object.dilation = [];
                     for (var j = 0; j < message.dilation.length; ++j)
@@ -5027,14 +5027,14 @@
             }
     
             DataParameter.prototype.source = "";
-            DataParameter.prototype.batchSize = 0;
-            DataParameter.prototype.randSkip = 0;
+            DataParameter.prototype.batch_size = 0;
+            DataParameter.prototype.rand_skip = 0;
             DataParameter.prototype.backend = 0;
             DataParameter.prototype.scale = 1;
-            DataParameter.prototype.meanFile = "";
-            DataParameter.prototype.cropSize = 0;
+            DataParameter.prototype.mean_file = "";
+            DataParameter.prototype.crop_size = 0;
             DataParameter.prototype.mirror = false;
-            DataParameter.prototype.forceEncodedColor = false;
+            DataParameter.prototype.force_encoded_color = false;
             DataParameter.prototype.prefetch = 4;
     
             DataParameter.create = function create(properties) {
@@ -5052,10 +5052,10 @@
                         message.source = reader.string();
                         break;
                     case 4:
-                        message.batchSize = reader.uint32();
+                        message.batch_size = reader.uint32();
                         break;
                     case 7:
-                        message.randSkip = reader.uint32();
+                        message.rand_skip = reader.uint32();
                         break;
                     case 8:
                         message.backend = reader.int32();
@@ -5064,16 +5064,16 @@
                         message.scale = reader.float();
                         break;
                     case 3:
-                        message.meanFile = reader.string();
+                        message.mean_file = reader.string();
                         break;
                     case 5:
-                        message.cropSize = reader.uint32();
+                        message.crop_size = reader.uint32();
                         break;
                     case 6:
                         message.mirror = reader.bool();
                         break;
                     case 9:
-                        message.forceEncodedColor = reader.bool();
+                        message.force_encoded_color = reader.bool();
                         break;
                     case 10:
                         message.prefetch = reader.uint32();
@@ -5092,12 +5092,12 @@
                 if (message.source != null && message.hasOwnProperty("source"))
                     if (!$util.isString(message.source))
                         return "source: string expected";
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    if (!$util.isInteger(message.batchSize))
-                        return "batchSize: integer expected";
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    if (!$util.isInteger(message.randSkip))
-                        return "randSkip: integer expected";
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    if (!$util.isInteger(message.batch_size))
+                        return "batch_size: integer expected";
+                if (message.rand_skip != null && message.hasOwnProperty("rand_skip"))
+                    if (!$util.isInteger(message.rand_skip))
+                        return "rand_skip: integer expected";
                 if (message.backend != null && message.hasOwnProperty("backend"))
                     switch (message.backend) {
                     default:
@@ -5109,18 +5109,18 @@
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     if (typeof message.scale !== "number")
                         return "scale: number expected";
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    if (!$util.isString(message.meanFile))
-                        return "meanFile: string expected";
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    if (!$util.isInteger(message.cropSize))
-                        return "cropSize: integer expected";
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    if (!$util.isString(message.mean_file))
+                        return "mean_file: string expected";
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    if (!$util.isInteger(message.crop_size))
+                        return "crop_size: integer expected";
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     if (typeof message.mirror !== "boolean")
                         return "mirror: boolean expected";
-                if (message.forceEncodedColor != null && message.hasOwnProperty("forceEncodedColor"))
-                    if (typeof message.forceEncodedColor !== "boolean")
-                        return "forceEncodedColor: boolean expected";
+                if (message.force_encoded_color != null && message.hasOwnProperty("force_encoded_color"))
+                    if (typeof message.force_encoded_color !== "boolean")
+                        return "force_encoded_color: boolean expected";
                 if (message.prefetch != null && message.hasOwnProperty("prefetch"))
                     if (!$util.isInteger(message.prefetch))
                         return "prefetch: integer expected";
@@ -5133,10 +5133,10 @@
                 var message = new $root.caffe.DataParameter();
                 if (object.source != null)
                     message.source = String(object.source);
-                if (object.batchSize != null)
-                    message.batchSize = object.batchSize >>> 0;
-                if (object.randSkip != null)
-                    message.randSkip = object.randSkip >>> 0;
+                if (object.batch_size != null)
+                    message.batch_size = object.batch_size >>> 0;
+                if (object.rand_skip != null)
+                    message.rand_skip = object.rand_skip >>> 0;
                 switch (object.backend) {
                 case "LEVELDB":
                 case 0:
@@ -5149,14 +5149,14 @@
                 }
                 if (object.scale != null)
                     message.scale = Number(object.scale);
-                if (object.meanFile != null)
-                    message.meanFile = String(object.meanFile);
-                if (object.cropSize != null)
-                    message.cropSize = object.cropSize >>> 0;
+                if (object.mean_file != null)
+                    message.mean_file = String(object.mean_file);
+                if (object.crop_size != null)
+                    message.crop_size = object.crop_size >>> 0;
                 if (object.mirror != null)
                     message.mirror = Boolean(object.mirror);
-                if (object.forceEncodedColor != null)
-                    message.forceEncodedColor = Boolean(object.forceEncodedColor);
+                if (object.force_encoded_color != null)
+                    message.force_encoded_color = Boolean(object.force_encoded_color);
                 if (object.prefetch != null)
                     message.prefetch = object.prefetch >>> 0;
                 return message;
@@ -5169,33 +5169,33 @@
                 if (options.defaults) {
                     object.source = "";
                     object.scale = 1;
-                    object.meanFile = "";
-                    object.batchSize = 0;
-                    object.cropSize = 0;
+                    object.mean_file = "";
+                    object.batch_size = 0;
+                    object.crop_size = 0;
                     object.mirror = false;
-                    object.randSkip = 0;
+                    object.rand_skip = 0;
                     object.backend = options.enums === String ? "LEVELDB" : 0;
-                    object.forceEncodedColor = false;
+                    object.force_encoded_color = false;
                     object.prefetch = 4;
                 }
                 if (message.source != null && message.hasOwnProperty("source"))
                     object.source = message.source;
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     object.scale = options.json && !isFinite(message.scale) ? String(message.scale) : message.scale;
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    object.meanFile = message.meanFile;
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    object.batchSize = message.batchSize;
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    object.cropSize = message.cropSize;
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    object.mean_file = message.mean_file;
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    object.batch_size = message.batch_size;
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    object.crop_size = message.crop_size;
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     object.mirror = message.mirror;
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    object.randSkip = message.randSkip;
+                if (message.rand_skip != null && message.hasOwnProperty("rand_skip"))
+                    object.rand_skip = message.rand_skip;
                 if (message.backend != null && message.hasOwnProperty("backend"))
                     object.backend = options.enums === String ? $root.caffe.DataParameter.DB[message.backend] : message.backend;
-                if (message.forceEncodedColor != null && message.hasOwnProperty("forceEncodedColor"))
-                    object.forceEncodedColor = message.forceEncodedColor;
+                if (message.force_encoded_color != null && message.hasOwnProperty("force_encoded_color"))
+                    object.force_encoded_color = message.force_encoded_color;
                 if (message.prefetch != null && message.hasOwnProperty("prefetch"))
                     object.prefetch = message.prefetch;
                 return object;
@@ -5224,7 +5224,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            DropoutParameter.prototype.dropoutRatio = 0.5;
+            DropoutParameter.prototype.dropout_ratio = 0.5;
     
             DropoutParameter.create = function create(properties) {
                 return new DropoutParameter(properties);
@@ -5238,7 +5238,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.dropoutRatio = reader.float();
+                        message.dropout_ratio = reader.float();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -5251,9 +5251,9 @@
             DropoutParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.dropoutRatio != null && message.hasOwnProperty("dropoutRatio"))
-                    if (typeof message.dropoutRatio !== "number")
-                        return "dropoutRatio: number expected";
+                if (message.dropout_ratio != null && message.hasOwnProperty("dropout_ratio"))
+                    if (typeof message.dropout_ratio !== "number")
+                        return "dropout_ratio: number expected";
                 return null;
             };
     
@@ -5261,8 +5261,8 @@
                 if (object instanceof $root.caffe.DropoutParameter)
                     return object;
                 var message = new $root.caffe.DropoutParameter();
-                if (object.dropoutRatio != null)
-                    message.dropoutRatio = Number(object.dropoutRatio);
+                if (object.dropout_ratio != null)
+                    message.dropout_ratio = Number(object.dropout_ratio);
                 return message;
             };
     
@@ -5271,9 +5271,9 @@
                     options = {};
                 var object = {};
                 if (options.defaults)
-                    object.dropoutRatio = 0.5;
-                if (message.dropoutRatio != null && message.hasOwnProperty("dropoutRatio"))
-                    object.dropoutRatio = options.json && !isFinite(message.dropoutRatio) ? String(message.dropoutRatio) : message.dropoutRatio;
+                    object.dropout_ratio = 0.5;
+                if (message.dropout_ratio != null && message.hasOwnProperty("dropout_ratio"))
+                    object.dropout_ratio = options.json && !isFinite(message.dropout_ratio) ? String(message.dropout_ratio) : message.dropout_ratio;
                 return object;
             };
     
@@ -5287,7 +5287,7 @@
         caffe.DummyDataParameter = (function() {
     
             function DummyDataParameter(properties) {
-                this.dataFiller = [];
+                this.data_filler = [];
                 this.shape = [];
                 this.num = [];
                 this.channels = [];
@@ -5299,7 +5299,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            DummyDataParameter.prototype.dataFiller = $util.emptyArray;
+            DummyDataParameter.prototype.data_filler = $util.emptyArray;
             DummyDataParameter.prototype.shape = $util.emptyArray;
             DummyDataParameter.prototype.num = $util.emptyArray;
             DummyDataParameter.prototype.channels = $util.emptyArray;
@@ -5318,9 +5318,9 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        if (!(message.dataFiller && message.dataFiller.length))
-                            message.dataFiller = [];
-                        message.dataFiller.push($root.caffe.FillerParameter.decode(reader, reader.uint32()));
+                        if (!(message.data_filler && message.data_filler.length))
+                            message.data_filler = [];
+                        message.data_filler.push($root.caffe.FillerParameter.decode(reader, reader.uint32()));
                         break;
                     case 6:
                         if (!(message.shape && message.shape.length))
@@ -5378,13 +5378,13 @@
             DummyDataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.dataFiller != null && message.hasOwnProperty("dataFiller")) {
-                    if (!Array.isArray(message.dataFiller))
-                        return "dataFiller: array expected";
-                    for (var i = 0; i < message.dataFiller.length; ++i) {
-                        var error = $root.caffe.FillerParameter.verify(message.dataFiller[i]);
+                if (message.data_filler != null && message.hasOwnProperty("data_filler")) {
+                    if (!Array.isArray(message.data_filler))
+                        return "data_filler: array expected";
+                    for (var i = 0; i < message.data_filler.length; ++i) {
+                        var error = $root.caffe.FillerParameter.verify(message.data_filler[i]);
                         if (error)
-                            return "dataFiller." + error;
+                            return "data_filler." + error;
                     }
                 }
                 if (message.shape != null && message.hasOwnProperty("shape")) {
@@ -5431,14 +5431,14 @@
                 if (object instanceof $root.caffe.DummyDataParameter)
                     return object;
                 var message = new $root.caffe.DummyDataParameter();
-                if (object.dataFiller) {
-                    if (!Array.isArray(object.dataFiller))
-                        throw TypeError(".caffe.DummyDataParameter.dataFiller: array expected");
-                    message.dataFiller = [];
-                    for (var i = 0; i < object.dataFiller.length; ++i) {
-                        if (typeof object.dataFiller[i] !== "object")
-                            throw TypeError(".caffe.DummyDataParameter.dataFiller: object expected");
-                        message.dataFiller[i] = $root.caffe.FillerParameter.fromObject(object.dataFiller[i]);
+                if (object.data_filler) {
+                    if (!Array.isArray(object.data_filler))
+                        throw TypeError(".caffe.DummyDataParameter.data_filler: array expected");
+                    message.data_filler = [];
+                    for (var i = 0; i < object.data_filler.length; ++i) {
+                        if (typeof object.data_filler[i] !== "object")
+                            throw TypeError(".caffe.DummyDataParameter.data_filler: object expected");
+                        message.data_filler[i] = $root.caffe.FillerParameter.fromObject(object.data_filler[i]);
                     }
                 }
                 if (object.shape) {
@@ -5487,17 +5487,17 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults) {
-                    object.dataFiller = [];
+                    object.data_filler = [];
                     object.num = [];
                     object.channels = [];
                     object.height = [];
                     object.width = [];
                     object.shape = [];
                 }
-                if (message.dataFiller && message.dataFiller.length) {
-                    object.dataFiller = [];
-                    for (var j = 0; j < message.dataFiller.length; ++j)
-                        object.dataFiller[j] = $root.caffe.FillerParameter.toObject(message.dataFiller[j], options);
+                if (message.data_filler && message.data_filler.length) {
+                    object.data_filler = [];
+                    for (var j = 0; j < message.data_filler.length; ++j)
+                        object.data_filler[j] = $root.caffe.FillerParameter.toObject(message.data_filler[j], options);
                 }
                 if (message.num && message.num.length) {
                     object.num = [];
@@ -5546,7 +5546,7 @@
     
             EltwiseParameter.prototype.operation = 1;
             EltwiseParameter.prototype.coeff = $util.emptyArray;
-            EltwiseParameter.prototype.stableProdGrad = true;
+            EltwiseParameter.prototype.stable_prod_grad = true;
     
             EltwiseParameter.create = function create(properties) {
                 return new EltwiseParameter(properties);
@@ -5573,7 +5573,7 @@
                             message.coeff.push(reader.float());
                         break;
                     case 3:
-                        message.stableProdGrad = reader.bool();
+                        message.stable_prod_grad = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -5602,9 +5602,9 @@
                         if (typeof message.coeff[i] !== "number")
                             return "coeff: number[] expected";
                 }
-                if (message.stableProdGrad != null && message.hasOwnProperty("stableProdGrad"))
-                    if (typeof message.stableProdGrad !== "boolean")
-                        return "stableProdGrad: boolean expected";
+                if (message.stable_prod_grad != null && message.hasOwnProperty("stable_prod_grad"))
+                    if (typeof message.stable_prod_grad !== "boolean")
+                        return "stable_prod_grad: boolean expected";
                 return null;
             };
     
@@ -5633,8 +5633,8 @@
                     for (var i = 0; i < object.coeff.length; ++i)
                         message.coeff[i] = Number(object.coeff[i]);
                 }
-                if (object.stableProdGrad != null)
-                    message.stableProdGrad = Boolean(object.stableProdGrad);
+                if (object.stable_prod_grad != null)
+                    message.stable_prod_grad = Boolean(object.stable_prod_grad);
                 return message;
             };
     
@@ -5646,7 +5646,7 @@
                     object.coeff = [];
                 if (options.defaults) {
                     object.operation = options.enums === String ? "SUM" : 1;
-                    object.stableProdGrad = true;
+                    object.stable_prod_grad = true;
                 }
                 if (message.operation != null && message.hasOwnProperty("operation"))
                     object.operation = options.enums === String ? $root.caffe.EltwiseParameter.EltwiseOp[message.operation] : message.operation;
@@ -5655,8 +5655,8 @@
                     for (var j = 0; j < message.coeff.length; ++j)
                         object.coeff[j] = options.json && !isFinite(message.coeff[j]) ? String(message.coeff[j]) : message.coeff[j];
                 }
-                if (message.stableProdGrad != null && message.hasOwnProperty("stableProdGrad"))
-                    object.stableProdGrad = message.stableProdGrad;
+                if (message.stable_prod_grad != null && message.hasOwnProperty("stable_prod_grad"))
+                    object.stable_prod_grad = message.stable_prod_grad;
                 return object;
             };
     
@@ -5753,11 +5753,11 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            EmbedParameter.prototype.numOutput = 0;
-            EmbedParameter.prototype.inputDim = 0;
-            EmbedParameter.prototype.biasTerm = true;
-            EmbedParameter.prototype.weightFiller = null;
-            EmbedParameter.prototype.biasFiller = null;
+            EmbedParameter.prototype.num_output = 0;
+            EmbedParameter.prototype.input_dim = 0;
+            EmbedParameter.prototype.bias_term = true;
+            EmbedParameter.prototype.weight_filler = null;
+            EmbedParameter.prototype.bias_filler = null;
     
             EmbedParameter.create = function create(properties) {
                 return new EmbedParameter(properties);
@@ -5771,19 +5771,19 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.numOutput = reader.uint32();
+                        message.num_output = reader.uint32();
                         break;
                     case 2:
-                        message.inputDim = reader.uint32();
+                        message.input_dim = reader.uint32();
                         break;
                     case 3:
-                        message.biasTerm = reader.bool();
+                        message.bias_term = reader.bool();
                         break;
                     case 4:
-                        message.weightFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.weight_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 5:
-                        message.biasFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -5796,24 +5796,24 @@
             EmbedParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    if (!$util.isInteger(message.numOutput))
-                        return "numOutput: integer expected";
-                if (message.inputDim != null && message.hasOwnProperty("inputDim"))
-                    if (!$util.isInteger(message.inputDim))
-                        return "inputDim: integer expected";
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    if (typeof message.biasTerm !== "boolean")
-                        return "biasTerm: boolean expected";
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.weightFiller);
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
+                if (message.input_dim != null && message.hasOwnProperty("input_dim"))
+                    if (!$util.isInteger(message.input_dim))
+                        return "input_dim: integer expected";
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    if (typeof message.bias_term !== "boolean")
+                        return "bias_term: boolean expected";
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_filler);
                     if (error)
-                        return "weightFiller." + error;
+                        return "weight_filler." + error;
                 }
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.biasFiller);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
                     if (error)
-                        return "biasFiller." + error;
+                        return "bias_filler." + error;
                 }
                 return null;
             };
@@ -5822,21 +5822,21 @@
                 if (object instanceof $root.caffe.EmbedParameter)
                     return object;
                 var message = new $root.caffe.EmbedParameter();
-                if (object.numOutput != null)
-                    message.numOutput = object.numOutput >>> 0;
-                if (object.inputDim != null)
-                    message.inputDim = object.inputDim >>> 0;
-                if (object.biasTerm != null)
-                    message.biasTerm = Boolean(object.biasTerm);
-                if (object.weightFiller != null) {
-                    if (typeof object.weightFiller !== "object")
-                        throw TypeError(".caffe.EmbedParameter.weightFiller: object expected");
-                    message.weightFiller = $root.caffe.FillerParameter.fromObject(object.weightFiller);
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
+                if (object.input_dim != null)
+                    message.input_dim = object.input_dim >>> 0;
+                if (object.bias_term != null)
+                    message.bias_term = Boolean(object.bias_term);
+                if (object.weight_filler != null) {
+                    if (typeof object.weight_filler !== "object")
+                        throw TypeError(".caffe.EmbedParameter.weight_filler: object expected");
+                    message.weight_filler = $root.caffe.FillerParameter.fromObject(object.weight_filler);
                 }
-                if (object.biasFiller != null) {
-                    if (typeof object.biasFiller !== "object")
-                        throw TypeError(".caffe.EmbedParameter.biasFiller: object expected");
-                    message.biasFiller = $root.caffe.FillerParameter.fromObject(object.biasFiller);
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.EmbedParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
                 }
                 return message;
             };
@@ -5846,22 +5846,22 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.numOutput = 0;
-                    object.inputDim = 0;
-                    object.biasTerm = true;
-                    object.weightFiller = null;
-                    object.biasFiller = null;
+                    object.num_output = 0;
+                    object.input_dim = 0;
+                    object.bias_term = true;
+                    object.weight_filler = null;
+                    object.bias_filler = null;
                 }
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    object.numOutput = message.numOutput;
-                if (message.inputDim != null && message.hasOwnProperty("inputDim"))
-                    object.inputDim = message.inputDim;
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    object.biasTerm = message.biasTerm;
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    object.weightFiller = $root.caffe.FillerParameter.toObject(message.weightFiller, options);
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    object.biasFiller = $root.caffe.FillerParameter.toObject(message.biasFiller, options);
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
+                if (message.input_dim != null && message.hasOwnProperty("input_dim"))
+                    object.input_dim = message.input_dim;
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    object.bias_term = message.bias_term;
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler"))
+                    object.weight_filler = $root.caffe.FillerParameter.toObject(message.weight_filler, options);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
                 return object;
             };
     
@@ -5976,7 +5976,7 @@
             }
     
             FlattenParameter.prototype.axis = 1;
-            FlattenParameter.prototype.endAxis = -1;
+            FlattenParameter.prototype.end_axis = -1;
     
             FlattenParameter.create = function create(properties) {
                 return new FlattenParameter(properties);
@@ -5993,7 +5993,7 @@
                         message.axis = reader.int32();
                         break;
                     case 2:
-                        message.endAxis = reader.int32();
+                        message.end_axis = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -6009,9 +6009,9 @@
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.endAxis != null && message.hasOwnProperty("endAxis"))
-                    if (!$util.isInteger(message.endAxis))
-                        return "endAxis: integer expected";
+                if (message.end_axis != null && message.hasOwnProperty("end_axis"))
+                    if (!$util.isInteger(message.end_axis))
+                        return "end_axis: integer expected";
                 return null;
             };
     
@@ -6021,8 +6021,8 @@
                 var message = new $root.caffe.FlattenParameter();
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.endAxis != null)
-                    message.endAxis = object.endAxis | 0;
+                if (object.end_axis != null)
+                    message.end_axis = object.end_axis | 0;
                 return message;
             };
     
@@ -6032,12 +6032,12 @@
                 var object = {};
                 if (options.defaults) {
                     object.axis = 1;
-                    object.endAxis = -1;
+                    object.end_axis = -1;
                 }
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
-                if (message.endAxis != null && message.hasOwnProperty("endAxis"))
-                    object.endAxis = message.endAxis;
+                if (message.end_axis != null && message.hasOwnProperty("end_axis"))
+                    object.end_axis = message.end_axis;
                 return object;
             };
     
@@ -6058,7 +6058,7 @@
             }
     
             HDF5DataParameter.prototype.source = "";
-            HDF5DataParameter.prototype.batchSize = 0;
+            HDF5DataParameter.prototype.batch_size = 0;
             HDF5DataParameter.prototype.shuffle = false;
     
             HDF5DataParameter.create = function create(properties) {
@@ -6076,7 +6076,7 @@
                         message.source = reader.string();
                         break;
                     case 2:
-                        message.batchSize = reader.uint32();
+                        message.batch_size = reader.uint32();
                         break;
                     case 3:
                         message.shuffle = reader.bool();
@@ -6095,9 +6095,9 @@
                 if (message.source != null && message.hasOwnProperty("source"))
                     if (!$util.isString(message.source))
                         return "source: string expected";
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    if (!$util.isInteger(message.batchSize))
-                        return "batchSize: integer expected";
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    if (!$util.isInteger(message.batch_size))
+                        return "batch_size: integer expected";
                 if (message.shuffle != null && message.hasOwnProperty("shuffle"))
                     if (typeof message.shuffle !== "boolean")
                         return "shuffle: boolean expected";
@@ -6110,8 +6110,8 @@
                 var message = new $root.caffe.HDF5DataParameter();
                 if (object.source != null)
                     message.source = String(object.source);
-                if (object.batchSize != null)
-                    message.batchSize = object.batchSize >>> 0;
+                if (object.batch_size != null)
+                    message.batch_size = object.batch_size >>> 0;
                 if (object.shuffle != null)
                     message.shuffle = Boolean(object.shuffle);
                 return message;
@@ -6123,13 +6123,13 @@
                 var object = {};
                 if (options.defaults) {
                     object.source = "";
-                    object.batchSize = 0;
+                    object.batch_size = 0;
                     object.shuffle = false;
                 }
                 if (message.source != null && message.hasOwnProperty("source"))
                     object.source = message.source;
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    object.batchSize = message.batchSize;
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    object.batch_size = message.batch_size;
                 if (message.shuffle != null && message.hasOwnProperty("shuffle"))
                     object.shuffle = message.shuffle;
                 return object;
@@ -6151,7 +6151,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            HDF5OutputParameter.prototype.fileName = "";
+            HDF5OutputParameter.prototype.file_name = "";
     
             HDF5OutputParameter.create = function create(properties) {
                 return new HDF5OutputParameter(properties);
@@ -6165,7 +6165,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.fileName = reader.string();
+                        message.file_name = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -6178,9 +6178,9 @@
             HDF5OutputParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.fileName != null && message.hasOwnProperty("fileName"))
-                    if (!$util.isString(message.fileName))
-                        return "fileName: string expected";
+                if (message.file_name != null && message.hasOwnProperty("file_name"))
+                    if (!$util.isString(message.file_name))
+                        return "file_name: string expected";
                 return null;
             };
     
@@ -6188,8 +6188,8 @@
                 if (object instanceof $root.caffe.HDF5OutputParameter)
                     return object;
                 var message = new $root.caffe.HDF5OutputParameter();
-                if (object.fileName != null)
-                    message.fileName = String(object.fileName);
+                if (object.file_name != null)
+                    message.file_name = String(object.file_name);
                 return message;
             };
     
@@ -6198,9 +6198,9 @@
                     options = {};
                 var object = {};
                 if (options.defaults)
-                    object.fileName = "";
-                if (message.fileName != null && message.hasOwnProperty("fileName"))
-                    object.fileName = message.fileName;
+                    object.file_name = "";
+                if (message.file_name != null && message.hasOwnProperty("file_name"))
+                    object.file_name = message.file_name;
                 return object;
             };
     
@@ -6310,17 +6310,17 @@
             }
     
             ImageDataParameter.prototype.source = "";
-            ImageDataParameter.prototype.batchSize = 1;
-            ImageDataParameter.prototype.randSkip = 0;
+            ImageDataParameter.prototype.batch_size = 1;
+            ImageDataParameter.prototype.rand_skip = 0;
             ImageDataParameter.prototype.shuffle = false;
-            ImageDataParameter.prototype.newHeight = 0;
-            ImageDataParameter.prototype.newWidth = 0;
-            ImageDataParameter.prototype.isColor = true;
+            ImageDataParameter.prototype.new_height = 0;
+            ImageDataParameter.prototype.new_width = 0;
+            ImageDataParameter.prototype.is_color = true;
             ImageDataParameter.prototype.scale = 1;
-            ImageDataParameter.prototype.meanFile = "";
-            ImageDataParameter.prototype.cropSize = 0;
+            ImageDataParameter.prototype.mean_file = "";
+            ImageDataParameter.prototype.crop_size = 0;
             ImageDataParameter.prototype.mirror = false;
-            ImageDataParameter.prototype.rootFolder = "";
+            ImageDataParameter.prototype.root_folder = "";
     
             ImageDataParameter.create = function create(properties) {
                 return new ImageDataParameter(properties);
@@ -6337,37 +6337,37 @@
                         message.source = reader.string();
                         break;
                     case 4:
-                        message.batchSize = reader.uint32();
+                        message.batch_size = reader.uint32();
                         break;
                     case 7:
-                        message.randSkip = reader.uint32();
+                        message.rand_skip = reader.uint32();
                         break;
                     case 8:
                         message.shuffle = reader.bool();
                         break;
                     case 9:
-                        message.newHeight = reader.uint32();
+                        message.new_height = reader.uint32();
                         break;
                     case 10:
-                        message.newWidth = reader.uint32();
+                        message.new_width = reader.uint32();
                         break;
                     case 11:
-                        message.isColor = reader.bool();
+                        message.is_color = reader.bool();
                         break;
                     case 2:
                         message.scale = reader.float();
                         break;
                     case 3:
-                        message.meanFile = reader.string();
+                        message.mean_file = reader.string();
                         break;
                     case 5:
-                        message.cropSize = reader.uint32();
+                        message.crop_size = reader.uint32();
                         break;
                     case 6:
                         message.mirror = reader.bool();
                         break;
                     case 12:
-                        message.rootFolder = reader.string();
+                        message.root_folder = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -6383,39 +6383,39 @@
                 if (message.source != null && message.hasOwnProperty("source"))
                     if (!$util.isString(message.source))
                         return "source: string expected";
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    if (!$util.isInteger(message.batchSize))
-                        return "batchSize: integer expected";
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    if (!$util.isInteger(message.randSkip))
-                        return "randSkip: integer expected";
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    if (!$util.isInteger(message.batch_size))
+                        return "batch_size: integer expected";
+                if (message.rand_skip != null && message.hasOwnProperty("rand_skip"))
+                    if (!$util.isInteger(message.rand_skip))
+                        return "rand_skip: integer expected";
                 if (message.shuffle != null && message.hasOwnProperty("shuffle"))
                     if (typeof message.shuffle !== "boolean")
                         return "shuffle: boolean expected";
-                if (message.newHeight != null && message.hasOwnProperty("newHeight"))
-                    if (!$util.isInteger(message.newHeight))
-                        return "newHeight: integer expected";
-                if (message.newWidth != null && message.hasOwnProperty("newWidth"))
-                    if (!$util.isInteger(message.newWidth))
-                        return "newWidth: integer expected";
-                if (message.isColor != null && message.hasOwnProperty("isColor"))
-                    if (typeof message.isColor !== "boolean")
-                        return "isColor: boolean expected";
+                if (message.new_height != null && message.hasOwnProperty("new_height"))
+                    if (!$util.isInteger(message.new_height))
+                        return "new_height: integer expected";
+                if (message.new_width != null && message.hasOwnProperty("new_width"))
+                    if (!$util.isInteger(message.new_width))
+                        return "new_width: integer expected";
+                if (message.is_color != null && message.hasOwnProperty("is_color"))
+                    if (typeof message.is_color !== "boolean")
+                        return "is_color: boolean expected";
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     if (typeof message.scale !== "number")
                         return "scale: number expected";
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    if (!$util.isString(message.meanFile))
-                        return "meanFile: string expected";
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    if (!$util.isInteger(message.cropSize))
-                        return "cropSize: integer expected";
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    if (!$util.isString(message.mean_file))
+                        return "mean_file: string expected";
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    if (!$util.isInteger(message.crop_size))
+                        return "crop_size: integer expected";
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     if (typeof message.mirror !== "boolean")
                         return "mirror: boolean expected";
-                if (message.rootFolder != null && message.hasOwnProperty("rootFolder"))
-                    if (!$util.isString(message.rootFolder))
-                        return "rootFolder: string expected";
+                if (message.root_folder != null && message.hasOwnProperty("root_folder"))
+                    if (!$util.isString(message.root_folder))
+                        return "root_folder: string expected";
                 return null;
             };
     
@@ -6425,28 +6425,28 @@
                 var message = new $root.caffe.ImageDataParameter();
                 if (object.source != null)
                     message.source = String(object.source);
-                if (object.batchSize != null)
-                    message.batchSize = object.batchSize >>> 0;
-                if (object.randSkip != null)
-                    message.randSkip = object.randSkip >>> 0;
+                if (object.batch_size != null)
+                    message.batch_size = object.batch_size >>> 0;
+                if (object.rand_skip != null)
+                    message.rand_skip = object.rand_skip >>> 0;
                 if (object.shuffle != null)
                     message.shuffle = Boolean(object.shuffle);
-                if (object.newHeight != null)
-                    message.newHeight = object.newHeight >>> 0;
-                if (object.newWidth != null)
-                    message.newWidth = object.newWidth >>> 0;
-                if (object.isColor != null)
-                    message.isColor = Boolean(object.isColor);
+                if (object.new_height != null)
+                    message.new_height = object.new_height >>> 0;
+                if (object.new_width != null)
+                    message.new_width = object.new_width >>> 0;
+                if (object.is_color != null)
+                    message.is_color = Boolean(object.is_color);
                 if (object.scale != null)
                     message.scale = Number(object.scale);
-                if (object.meanFile != null)
-                    message.meanFile = String(object.meanFile);
-                if (object.cropSize != null)
-                    message.cropSize = object.cropSize >>> 0;
+                if (object.mean_file != null)
+                    message.mean_file = String(object.mean_file);
+                if (object.crop_size != null)
+                    message.crop_size = object.crop_size >>> 0;
                 if (object.mirror != null)
                     message.mirror = Boolean(object.mirror);
-                if (object.rootFolder != null)
-                    message.rootFolder = String(object.rootFolder);
+                if (object.root_folder != null)
+                    message.root_folder = String(object.root_folder);
                 return message;
             };
     
@@ -6457,41 +6457,41 @@
                 if (options.defaults) {
                     object.source = "";
                     object.scale = 1;
-                    object.meanFile = "";
-                    object.batchSize = 1;
-                    object.cropSize = 0;
+                    object.mean_file = "";
+                    object.batch_size = 1;
+                    object.crop_size = 0;
                     object.mirror = false;
-                    object.randSkip = 0;
+                    object.rand_skip = 0;
                     object.shuffle = false;
-                    object.newHeight = 0;
-                    object.newWidth = 0;
-                    object.isColor = true;
-                    object.rootFolder = "";
+                    object.new_height = 0;
+                    object.new_width = 0;
+                    object.is_color = true;
+                    object.root_folder = "";
                 }
                 if (message.source != null && message.hasOwnProperty("source"))
                     object.source = message.source;
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     object.scale = options.json && !isFinite(message.scale) ? String(message.scale) : message.scale;
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    object.meanFile = message.meanFile;
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    object.batchSize = message.batchSize;
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    object.cropSize = message.cropSize;
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    object.mean_file = message.mean_file;
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    object.batch_size = message.batch_size;
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    object.crop_size = message.crop_size;
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     object.mirror = message.mirror;
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    object.randSkip = message.randSkip;
+                if (message.rand_skip != null && message.hasOwnProperty("rand_skip"))
+                    object.rand_skip = message.rand_skip;
                 if (message.shuffle != null && message.hasOwnProperty("shuffle"))
                     object.shuffle = message.shuffle;
-                if (message.newHeight != null && message.hasOwnProperty("newHeight"))
-                    object.newHeight = message.newHeight;
-                if (message.newWidth != null && message.hasOwnProperty("newWidth"))
-                    object.newWidth = message.newWidth;
-                if (message.isColor != null && message.hasOwnProperty("isColor"))
-                    object.isColor = message.isColor;
-                if (message.rootFolder != null && message.hasOwnProperty("rootFolder"))
-                    object.rootFolder = message.rootFolder;
+                if (message.new_height != null && message.hasOwnProperty("new_height"))
+                    object.new_height = message.new_height;
+                if (message.new_width != null && message.hasOwnProperty("new_width"))
+                    object.new_width = message.new_width;
+                if (message.is_color != null && message.hasOwnProperty("is_color"))
+                    object.is_color = message.is_color;
+                if (message.root_folder != null && message.hasOwnProperty("root_folder"))
+                    object.root_folder = message.root_folder;
                 return object;
             };
     
@@ -6593,10 +6593,10 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            InnerProductParameter.prototype.numOutput = 0;
-            InnerProductParameter.prototype.biasTerm = true;
-            InnerProductParameter.prototype.weightFiller = null;
-            InnerProductParameter.prototype.biasFiller = null;
+            InnerProductParameter.prototype.num_output = 0;
+            InnerProductParameter.prototype.bias_term = true;
+            InnerProductParameter.prototype.weight_filler = null;
+            InnerProductParameter.prototype.bias_filler = null;
             InnerProductParameter.prototype.axis = 1;
             InnerProductParameter.prototype.transpose = false;
     
@@ -6612,16 +6612,16 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.numOutput = reader.uint32();
+                        message.num_output = reader.uint32();
                         break;
                     case 2:
-                        message.biasTerm = reader.bool();
+                        message.bias_term = reader.bool();
                         break;
                     case 3:
-                        message.weightFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.weight_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 4:
-                        message.biasFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 5:
                         message.axis = reader.int32();
@@ -6640,21 +6640,21 @@
             InnerProductParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    if (!$util.isInteger(message.numOutput))
-                        return "numOutput: integer expected";
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    if (typeof message.biasTerm !== "boolean")
-                        return "biasTerm: boolean expected";
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.weightFiller);
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    if (typeof message.bias_term !== "boolean")
+                        return "bias_term: boolean expected";
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_filler);
                     if (error)
-                        return "weightFiller." + error;
+                        return "weight_filler." + error;
                 }
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.biasFiller);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
                     if (error)
-                        return "biasFiller." + error;
+                        return "bias_filler." + error;
                 }
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
@@ -6669,19 +6669,19 @@
                 if (object instanceof $root.caffe.InnerProductParameter)
                     return object;
                 var message = new $root.caffe.InnerProductParameter();
-                if (object.numOutput != null)
-                    message.numOutput = object.numOutput >>> 0;
-                if (object.biasTerm != null)
-                    message.biasTerm = Boolean(object.biasTerm);
-                if (object.weightFiller != null) {
-                    if (typeof object.weightFiller !== "object")
-                        throw TypeError(".caffe.InnerProductParameter.weightFiller: object expected");
-                    message.weightFiller = $root.caffe.FillerParameter.fromObject(object.weightFiller);
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
+                if (object.bias_term != null)
+                    message.bias_term = Boolean(object.bias_term);
+                if (object.weight_filler != null) {
+                    if (typeof object.weight_filler !== "object")
+                        throw TypeError(".caffe.InnerProductParameter.weight_filler: object expected");
+                    message.weight_filler = $root.caffe.FillerParameter.fromObject(object.weight_filler);
                 }
-                if (object.biasFiller != null) {
-                    if (typeof object.biasFiller !== "object")
-                        throw TypeError(".caffe.InnerProductParameter.biasFiller: object expected");
-                    message.biasFiller = $root.caffe.FillerParameter.fromObject(object.biasFiller);
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.InnerProductParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
                 }
                 if (object.axis != null)
                     message.axis = object.axis | 0;
@@ -6695,21 +6695,21 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.numOutput = 0;
-                    object.biasTerm = true;
-                    object.weightFiller = null;
-                    object.biasFiller = null;
+                    object.num_output = 0;
+                    object.bias_term = true;
+                    object.weight_filler = null;
+                    object.bias_filler = null;
                     object.axis = 1;
                     object.transpose = false;
                 }
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    object.numOutput = message.numOutput;
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    object.biasTerm = message.biasTerm;
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    object.weightFiller = $root.caffe.FillerParameter.toObject(message.weightFiller, options);
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    object.biasFiller = $root.caffe.FillerParameter.toObject(message.biasFiller, options);
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    object.bias_term = message.bias_term;
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler"))
+                    object.weight_filler = $root.caffe.FillerParameter.toObject(message.weight_filler, options);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
                 if (message.transpose != null && message.hasOwnProperty("transpose"))
@@ -6916,10 +6916,10 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            LRNParameter.prototype.localSize = 5;
+            LRNParameter.prototype.local_size = 5;
             LRNParameter.prototype.alpha = 1;
             LRNParameter.prototype.beta = 0.75;
-            LRNParameter.prototype.normRegion = 0;
+            LRNParameter.prototype.norm_region = 0;
             LRNParameter.prototype.k = 1;
             LRNParameter.prototype.engine = 0;
     
@@ -6935,7 +6935,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.localSize = reader.uint32();
+                        message.local_size = reader.uint32();
                         break;
                     case 2:
                         message.alpha = reader.float();
@@ -6944,7 +6944,7 @@
                         message.beta = reader.float();
                         break;
                     case 4:
-                        message.normRegion = reader.int32();
+                        message.norm_region = reader.int32();
                         break;
                     case 5:
                         message.k = reader.float();
@@ -6963,19 +6963,19 @@
             LRNParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.localSize != null && message.hasOwnProperty("localSize"))
-                    if (!$util.isInteger(message.localSize))
-                        return "localSize: integer expected";
+                if (message.local_size != null && message.hasOwnProperty("local_size"))
+                    if (!$util.isInteger(message.local_size))
+                        return "local_size: integer expected";
                 if (message.alpha != null && message.hasOwnProperty("alpha"))
                     if (typeof message.alpha !== "number")
                         return "alpha: number expected";
                 if (message.beta != null && message.hasOwnProperty("beta"))
                     if (typeof message.beta !== "number")
                         return "beta: number expected";
-                if (message.normRegion != null && message.hasOwnProperty("normRegion"))
-                    switch (message.normRegion) {
+                if (message.norm_region != null && message.hasOwnProperty("norm_region"))
+                    switch (message.norm_region) {
                     default:
-                        return "normRegion: enum value expected";
+                        return "norm_region: enum value expected";
                     case 0:
                     case 1:
                         break;
@@ -6999,20 +6999,20 @@
                 if (object instanceof $root.caffe.LRNParameter)
                     return object;
                 var message = new $root.caffe.LRNParameter();
-                if (object.localSize != null)
-                    message.localSize = object.localSize >>> 0;
+                if (object.local_size != null)
+                    message.local_size = object.local_size >>> 0;
                 if (object.alpha != null)
                     message.alpha = Number(object.alpha);
                 if (object.beta != null)
                     message.beta = Number(object.beta);
-                switch (object.normRegion) {
+                switch (object.norm_region) {
                 case "ACROSS_CHANNELS":
                 case 0:
-                    message.normRegion = 0;
+                    message.norm_region = 0;
                     break;
                 case "WITHIN_CHANNEL":
                 case 1:
-                    message.normRegion = 1;
+                    message.norm_region = 1;
                     break;
                 }
                 if (object.k != null)
@@ -7039,21 +7039,21 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.localSize = 5;
+                    object.local_size = 5;
                     object.alpha = 1;
                     object.beta = 0.75;
-                    object.normRegion = options.enums === String ? "ACROSS_CHANNELS" : 0;
+                    object.norm_region = options.enums === String ? "ACROSS_CHANNELS" : 0;
                     object.k = 1;
                     object.engine = options.enums === String ? "DEFAULT" : 0;
                 }
-                if (message.localSize != null && message.hasOwnProperty("localSize"))
-                    object.localSize = message.localSize;
+                if (message.local_size != null && message.hasOwnProperty("local_size"))
+                    object.local_size = message.local_size;
                 if (message.alpha != null && message.hasOwnProperty("alpha"))
                     object.alpha = options.json && !isFinite(message.alpha) ? String(message.alpha) : message.alpha;
                 if (message.beta != null && message.hasOwnProperty("beta"))
                     object.beta = options.json && !isFinite(message.beta) ? String(message.beta) : message.beta;
-                if (message.normRegion != null && message.hasOwnProperty("normRegion"))
-                    object.normRegion = options.enums === String ? $root.caffe.LRNParameter.NormRegion[message.normRegion] : message.normRegion;
+                if (message.norm_region != null && message.hasOwnProperty("norm_region"))
+                    object.norm_region = options.enums === String ? $root.caffe.LRNParameter.NormRegion[message.norm_region] : message.norm_region;
                 if (message.k != null && message.hasOwnProperty("k"))
                     object.k = options.json && !isFinite(message.k) ? String(message.k) : message.k;
                 if (message.engine != null && message.hasOwnProperty("engine"))
@@ -7092,7 +7092,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            MemoryDataParameter.prototype.batchSize = 0;
+            MemoryDataParameter.prototype.batch_size = 0;
             MemoryDataParameter.prototype.channels = 0;
             MemoryDataParameter.prototype.height = 0;
             MemoryDataParameter.prototype.width = 0;
@@ -7109,7 +7109,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.batchSize = reader.uint32();
+                        message.batch_size = reader.uint32();
                         break;
                     case 2:
                         message.channels = reader.uint32();
@@ -7131,9 +7131,9 @@
             MemoryDataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    if (!$util.isInteger(message.batchSize))
-                        return "batchSize: integer expected";
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    if (!$util.isInteger(message.batch_size))
+                        return "batch_size: integer expected";
                 if (message.channels != null && message.hasOwnProperty("channels"))
                     if (!$util.isInteger(message.channels))
                         return "channels: integer expected";
@@ -7150,8 +7150,8 @@
                 if (object instanceof $root.caffe.MemoryDataParameter)
                     return object;
                 var message = new $root.caffe.MemoryDataParameter();
-                if (object.batchSize != null)
-                    message.batchSize = object.batchSize >>> 0;
+                if (object.batch_size != null)
+                    message.batch_size = object.batch_size >>> 0;
                 if (object.channels != null)
                     message.channels = object.channels >>> 0;
                 if (object.height != null)
@@ -7166,13 +7166,13 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.batchSize = 0;
+                    object.batch_size = 0;
                     object.channels = 0;
                     object.height = 0;
                     object.width = 0;
                 }
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    object.batchSize = message.batchSize;
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    object.batch_size = message.batch_size;
                 if (message.channels != null && message.hasOwnProperty("channels"))
                     object.channels = message.channels;
                 if (message.height != null && message.hasOwnProperty("height"))
@@ -7198,8 +7198,8 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            MVNParameter.prototype.normalizeVariance = true;
-            MVNParameter.prototype.acrossChannels = false;
+            MVNParameter.prototype.normalize_variance = true;
+            MVNParameter.prototype.across_channels = false;
             MVNParameter.prototype.eps = 1e-9;
     
             MVNParameter.create = function create(properties) {
@@ -7214,10 +7214,10 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.normalizeVariance = reader.bool();
+                        message.normalize_variance = reader.bool();
                         break;
                     case 2:
-                        message.acrossChannels = reader.bool();
+                        message.across_channels = reader.bool();
                         break;
                     case 3:
                         message.eps = reader.float();
@@ -7233,12 +7233,12 @@
             MVNParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.normalizeVariance != null && message.hasOwnProperty("normalizeVariance"))
-                    if (typeof message.normalizeVariance !== "boolean")
-                        return "normalizeVariance: boolean expected";
-                if (message.acrossChannels != null && message.hasOwnProperty("acrossChannels"))
-                    if (typeof message.acrossChannels !== "boolean")
-                        return "acrossChannels: boolean expected";
+                if (message.normalize_variance != null && message.hasOwnProperty("normalize_variance"))
+                    if (typeof message.normalize_variance !== "boolean")
+                        return "normalize_variance: boolean expected";
+                if (message.across_channels != null && message.hasOwnProperty("across_channels"))
+                    if (typeof message.across_channels !== "boolean")
+                        return "across_channels: boolean expected";
                 if (message.eps != null && message.hasOwnProperty("eps"))
                     if (typeof message.eps !== "number")
                         return "eps: number expected";
@@ -7249,10 +7249,10 @@
                 if (object instanceof $root.caffe.MVNParameter)
                     return object;
                 var message = new $root.caffe.MVNParameter();
-                if (object.normalizeVariance != null)
-                    message.normalizeVariance = Boolean(object.normalizeVariance);
-                if (object.acrossChannels != null)
-                    message.acrossChannels = Boolean(object.acrossChannels);
+                if (object.normalize_variance != null)
+                    message.normalize_variance = Boolean(object.normalize_variance);
+                if (object.across_channels != null)
+                    message.across_channels = Boolean(object.across_channels);
                 if (object.eps != null)
                     message.eps = Number(object.eps);
                 return message;
@@ -7263,14 +7263,14 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.normalizeVariance = true;
-                    object.acrossChannels = false;
+                    object.normalize_variance = true;
+                    object.across_channels = false;
                     object.eps = 1e-9;
                 }
-                if (message.normalizeVariance != null && message.hasOwnProperty("normalizeVariance"))
-                    object.normalizeVariance = message.normalizeVariance;
-                if (message.acrossChannels != null && message.hasOwnProperty("acrossChannels"))
-                    object.acrossChannels = message.acrossChannels;
+                if (message.normalize_variance != null && message.hasOwnProperty("normalize_variance"))
+                    object.normalize_variance = message.normalize_variance;
+                if (message.across_channels != null && message.hasOwnProperty("across_channels"))
+                    object.across_channels = message.across_channels;
                 if (message.eps != null && message.hasOwnProperty("eps"))
                     object.eps = options.json && !isFinite(message.eps) ? String(message.eps) : message.eps;
                 return object;
@@ -7368,17 +7368,17 @@
     
             PoolingParameter.prototype.pool = 0;
             PoolingParameter.prototype.pad = 0;
-            PoolingParameter.prototype.padH = 0;
-            PoolingParameter.prototype.padW = 0;
-            PoolingParameter.prototype.kernelSize = 0;
-            PoolingParameter.prototype.kernelH = 0;
-            PoolingParameter.prototype.kernelW = 0;
+            PoolingParameter.prototype.pad_h = 0;
+            PoolingParameter.prototype.pad_w = 0;
+            PoolingParameter.prototype.kernel_size = 0;
+            PoolingParameter.prototype.kernel_h = 0;
+            PoolingParameter.prototype.kernel_w = 0;
             PoolingParameter.prototype.stride = 1;
-            PoolingParameter.prototype.strideH = 0;
-            PoolingParameter.prototype.strideW = 0;
+            PoolingParameter.prototype.stride_h = 0;
+            PoolingParameter.prototype.stride_w = 0;
             PoolingParameter.prototype.engine = 0;
-            PoolingParameter.prototype.globalPooling = false;
-            PoolingParameter.prototype.roundMode = 0;
+            PoolingParameter.prototype.global_pooling = false;
+            PoolingParameter.prototype.round_mode = 0;
     
             PoolingParameter.create = function create(properties) {
                 return new PoolingParameter(properties);
@@ -7398,37 +7398,37 @@
                         message.pad = reader.uint32();
                         break;
                     case 9:
-                        message.padH = reader.uint32();
+                        message.pad_h = reader.uint32();
                         break;
                     case 10:
-                        message.padW = reader.uint32();
+                        message.pad_w = reader.uint32();
                         break;
                     case 2:
-                        message.kernelSize = reader.uint32();
+                        message.kernel_size = reader.uint32();
                         break;
                     case 5:
-                        message.kernelH = reader.uint32();
+                        message.kernel_h = reader.uint32();
                         break;
                     case 6:
-                        message.kernelW = reader.uint32();
+                        message.kernel_w = reader.uint32();
                         break;
                     case 3:
                         message.stride = reader.uint32();
                         break;
                     case 7:
-                        message.strideH = reader.uint32();
+                        message.stride_h = reader.uint32();
                         break;
                     case 8:
-                        message.strideW = reader.uint32();
+                        message.stride_w = reader.uint32();
                         break;
                     case 11:
                         message.engine = reader.int32();
                         break;
                     case 12:
-                        message.globalPooling = reader.bool();
+                        message.global_pooling = reader.bool();
                         break;
                     case 13:
-                        message.roundMode = reader.int32();
+                        message.round_mode = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -7453,30 +7453,30 @@
                 if (message.pad != null && message.hasOwnProperty("pad"))
                     if (!$util.isInteger(message.pad))
                         return "pad: integer expected";
-                if (message.padH != null && message.hasOwnProperty("padH"))
-                    if (!$util.isInteger(message.padH))
-                        return "padH: integer expected";
-                if (message.padW != null && message.hasOwnProperty("padW"))
-                    if (!$util.isInteger(message.padW))
-                        return "padW: integer expected";
-                if (message.kernelSize != null && message.hasOwnProperty("kernelSize"))
-                    if (!$util.isInteger(message.kernelSize))
-                        return "kernelSize: integer expected";
-                if (message.kernelH != null && message.hasOwnProperty("kernelH"))
-                    if (!$util.isInteger(message.kernelH))
-                        return "kernelH: integer expected";
-                if (message.kernelW != null && message.hasOwnProperty("kernelW"))
-                    if (!$util.isInteger(message.kernelW))
-                        return "kernelW: integer expected";
+                if (message.pad_h != null && message.hasOwnProperty("pad_h"))
+                    if (!$util.isInteger(message.pad_h))
+                        return "pad_h: integer expected";
+                if (message.pad_w != null && message.hasOwnProperty("pad_w"))
+                    if (!$util.isInteger(message.pad_w))
+                        return "pad_w: integer expected";
+                if (message.kernel_size != null && message.hasOwnProperty("kernel_size"))
+                    if (!$util.isInteger(message.kernel_size))
+                        return "kernel_size: integer expected";
+                if (message.kernel_h != null && message.hasOwnProperty("kernel_h"))
+                    if (!$util.isInteger(message.kernel_h))
+                        return "kernel_h: integer expected";
+                if (message.kernel_w != null && message.hasOwnProperty("kernel_w"))
+                    if (!$util.isInteger(message.kernel_w))
+                        return "kernel_w: integer expected";
                 if (message.stride != null && message.hasOwnProperty("stride"))
                     if (!$util.isInteger(message.stride))
                         return "stride: integer expected";
-                if (message.strideH != null && message.hasOwnProperty("strideH"))
-                    if (!$util.isInteger(message.strideH))
-                        return "strideH: integer expected";
-                if (message.strideW != null && message.hasOwnProperty("strideW"))
-                    if (!$util.isInteger(message.strideW))
-                        return "strideW: integer expected";
+                if (message.stride_h != null && message.hasOwnProperty("stride_h"))
+                    if (!$util.isInteger(message.stride_h))
+                        return "stride_h: integer expected";
+                if (message.stride_w != null && message.hasOwnProperty("stride_w"))
+                    if (!$util.isInteger(message.stride_w))
+                        return "stride_w: integer expected";
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     switch (message.engine) {
                     default:
@@ -7486,13 +7486,13 @@
                     case 2:
                         break;
                     }
-                if (message.globalPooling != null && message.hasOwnProperty("globalPooling"))
-                    if (typeof message.globalPooling !== "boolean")
-                        return "globalPooling: boolean expected";
-                if (message.roundMode != null && message.hasOwnProperty("roundMode"))
-                    switch (message.roundMode) {
+                if (message.global_pooling != null && message.hasOwnProperty("global_pooling"))
+                    if (typeof message.global_pooling !== "boolean")
+                        return "global_pooling: boolean expected";
+                if (message.round_mode != null && message.hasOwnProperty("round_mode"))
+                    switch (message.round_mode) {
                     default:
-                        return "roundMode: enum value expected";
+                        return "round_mode: enum value expected";
                     case 0:
                     case 1:
                         break;
@@ -7520,22 +7520,22 @@
                 }
                 if (object.pad != null)
                     message.pad = object.pad >>> 0;
-                if (object.padH != null)
-                    message.padH = object.padH >>> 0;
-                if (object.padW != null)
-                    message.padW = object.padW >>> 0;
-                if (object.kernelSize != null)
-                    message.kernelSize = object.kernelSize >>> 0;
-                if (object.kernelH != null)
-                    message.kernelH = object.kernelH >>> 0;
-                if (object.kernelW != null)
-                    message.kernelW = object.kernelW >>> 0;
+                if (object.pad_h != null)
+                    message.pad_h = object.pad_h >>> 0;
+                if (object.pad_w != null)
+                    message.pad_w = object.pad_w >>> 0;
+                if (object.kernel_size != null)
+                    message.kernel_size = object.kernel_size >>> 0;
+                if (object.kernel_h != null)
+                    message.kernel_h = object.kernel_h >>> 0;
+                if (object.kernel_w != null)
+                    message.kernel_w = object.kernel_w >>> 0;
                 if (object.stride != null)
                     message.stride = object.stride >>> 0;
-                if (object.strideH != null)
-                    message.strideH = object.strideH >>> 0;
-                if (object.strideW != null)
-                    message.strideW = object.strideW >>> 0;
+                if (object.stride_h != null)
+                    message.stride_h = object.stride_h >>> 0;
+                if (object.stride_w != null)
+                    message.stride_w = object.stride_w >>> 0;
                 switch (object.engine) {
                 case "DEFAULT":
                 case 0:
@@ -7550,16 +7550,16 @@
                     message.engine = 2;
                     break;
                 }
-                if (object.globalPooling != null)
-                    message.globalPooling = Boolean(object.globalPooling);
-                switch (object.roundMode) {
+                if (object.global_pooling != null)
+                    message.global_pooling = Boolean(object.global_pooling);
+                switch (object.round_mode) {
                 case "CEIL":
                 case 0:
-                    message.roundMode = 0;
+                    message.round_mode = 0;
                     break;
                 case "FLOOR":
                 case 1:
-                    message.roundMode = 1;
+                    message.round_mode = 1;
                     break;
                 }
                 return message;
@@ -7571,45 +7571,45 @@
                 var object = {};
                 if (options.defaults) {
                     object.pool = options.enums === String ? "MAX" : 0;
-                    object.kernelSize = 0;
+                    object.kernel_size = 0;
                     object.stride = 1;
                     object.pad = 0;
-                    object.kernelH = 0;
-                    object.kernelW = 0;
-                    object.strideH = 0;
-                    object.strideW = 0;
-                    object.padH = 0;
-                    object.padW = 0;
+                    object.kernel_h = 0;
+                    object.kernel_w = 0;
+                    object.stride_h = 0;
+                    object.stride_w = 0;
+                    object.pad_h = 0;
+                    object.pad_w = 0;
                     object.engine = options.enums === String ? "DEFAULT" : 0;
-                    object.globalPooling = false;
-                    object.roundMode = options.enums === String ? "CEIL" : 0;
+                    object.global_pooling = false;
+                    object.round_mode = options.enums === String ? "CEIL" : 0;
                 }
                 if (message.pool != null && message.hasOwnProperty("pool"))
                     object.pool = options.enums === String ? $root.caffe.PoolingParameter.PoolMethod[message.pool] : message.pool;
-                if (message.kernelSize != null && message.hasOwnProperty("kernelSize"))
-                    object.kernelSize = message.kernelSize;
+                if (message.kernel_size != null && message.hasOwnProperty("kernel_size"))
+                    object.kernel_size = message.kernel_size;
                 if (message.stride != null && message.hasOwnProperty("stride"))
                     object.stride = message.stride;
                 if (message.pad != null && message.hasOwnProperty("pad"))
                     object.pad = message.pad;
-                if (message.kernelH != null && message.hasOwnProperty("kernelH"))
-                    object.kernelH = message.kernelH;
-                if (message.kernelW != null && message.hasOwnProperty("kernelW"))
-                    object.kernelW = message.kernelW;
-                if (message.strideH != null && message.hasOwnProperty("strideH"))
-                    object.strideH = message.strideH;
-                if (message.strideW != null && message.hasOwnProperty("strideW"))
-                    object.strideW = message.strideW;
-                if (message.padH != null && message.hasOwnProperty("padH"))
-                    object.padH = message.padH;
-                if (message.padW != null && message.hasOwnProperty("padW"))
-                    object.padW = message.padW;
+                if (message.kernel_h != null && message.hasOwnProperty("kernel_h"))
+                    object.kernel_h = message.kernel_h;
+                if (message.kernel_w != null && message.hasOwnProperty("kernel_w"))
+                    object.kernel_w = message.kernel_w;
+                if (message.stride_h != null && message.hasOwnProperty("stride_h"))
+                    object.stride_h = message.stride_h;
+                if (message.stride_w != null && message.hasOwnProperty("stride_w"))
+                    object.stride_w = message.stride_w;
+                if (message.pad_h != null && message.hasOwnProperty("pad_h"))
+                    object.pad_h = message.pad_h;
+                if (message.pad_w != null && message.hasOwnProperty("pad_w"))
+                    object.pad_w = message.pad_w;
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     object.engine = options.enums === String ? $root.caffe.PoolingParameter.Engine[message.engine] : message.engine;
-                if (message.globalPooling != null && message.hasOwnProperty("globalPooling"))
-                    object.globalPooling = message.globalPooling;
-                if (message.roundMode != null && message.hasOwnProperty("roundMode"))
-                    object.roundMode = options.enums === String ? $root.caffe.PoolingParameter.RoundMode[message.roundMode] : message.roundMode;
+                if (message.global_pooling != null && message.hasOwnProperty("global_pooling"))
+                    object.global_pooling = message.global_pooling;
+                if (message.round_mode != null && message.hasOwnProperty("round_mode"))
+                    object.round_mode = options.enums === String ? $root.caffe.PoolingParameter.RoundMode[message.round_mode] : message.round_mode;
                 return object;
             };
     
@@ -7748,8 +7748,8 @@
     
             PythonParameter.prototype.module = "";
             PythonParameter.prototype.layer = "";
-            PythonParameter.prototype.paramStr = "";
-            PythonParameter.prototype.shareInParallel = false;
+            PythonParameter.prototype.param_str = "";
+            PythonParameter.prototype.share_in_parallel = false;
     
             PythonParameter.create = function create(properties) {
                 return new PythonParameter(properties);
@@ -7769,10 +7769,10 @@
                         message.layer = reader.string();
                         break;
                     case 3:
-                        message.paramStr = reader.string();
+                        message.param_str = reader.string();
                         break;
                     case 4:
-                        message.shareInParallel = reader.bool();
+                        message.share_in_parallel = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -7791,12 +7791,12 @@
                 if (message.layer != null && message.hasOwnProperty("layer"))
                     if (!$util.isString(message.layer))
                         return "layer: string expected";
-                if (message.paramStr != null && message.hasOwnProperty("paramStr"))
-                    if (!$util.isString(message.paramStr))
-                        return "paramStr: string expected";
-                if (message.shareInParallel != null && message.hasOwnProperty("shareInParallel"))
-                    if (typeof message.shareInParallel !== "boolean")
-                        return "shareInParallel: boolean expected";
+                if (message.param_str != null && message.hasOwnProperty("param_str"))
+                    if (!$util.isString(message.param_str))
+                        return "param_str: string expected";
+                if (message.share_in_parallel != null && message.hasOwnProperty("share_in_parallel"))
+                    if (typeof message.share_in_parallel !== "boolean")
+                        return "share_in_parallel: boolean expected";
                 return null;
             };
     
@@ -7808,10 +7808,10 @@
                     message.module = String(object.module);
                 if (object.layer != null)
                     message.layer = String(object.layer);
-                if (object.paramStr != null)
-                    message.paramStr = String(object.paramStr);
-                if (object.shareInParallel != null)
-                    message.shareInParallel = Boolean(object.shareInParallel);
+                if (object.param_str != null)
+                    message.param_str = String(object.param_str);
+                if (object.share_in_parallel != null)
+                    message.share_in_parallel = Boolean(object.share_in_parallel);
                 return message;
             };
     
@@ -7822,17 +7822,17 @@
                 if (options.defaults) {
                     object.module = "";
                     object.layer = "";
-                    object.paramStr = "";
-                    object.shareInParallel = false;
+                    object.param_str = "";
+                    object.share_in_parallel = false;
                 }
                 if (message.module != null && message.hasOwnProperty("module"))
                     object.module = message.module;
                 if (message.layer != null && message.hasOwnProperty("layer"))
                     object.layer = message.layer;
-                if (message.paramStr != null && message.hasOwnProperty("paramStr"))
-                    object.paramStr = message.paramStr;
-                if (message.shareInParallel != null && message.hasOwnProperty("shareInParallel"))
-                    object.shareInParallel = message.shareInParallel;
+                if (message.param_str != null && message.hasOwnProperty("param_str"))
+                    object.param_str = message.param_str;
+                if (message.share_in_parallel != null && message.hasOwnProperty("share_in_parallel"))
+                    object.share_in_parallel = message.share_in_parallel;
                 return object;
             };
     
@@ -7852,11 +7852,11 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            RecurrentParameter.prototype.numOutput = 0;
-            RecurrentParameter.prototype.weightFiller = null;
-            RecurrentParameter.prototype.biasFiller = null;
-            RecurrentParameter.prototype.debugInfo = false;
-            RecurrentParameter.prototype.exposeHidden = false;
+            RecurrentParameter.prototype.num_output = 0;
+            RecurrentParameter.prototype.weight_filler = null;
+            RecurrentParameter.prototype.bias_filler = null;
+            RecurrentParameter.prototype.debug_info = false;
+            RecurrentParameter.prototype.expose_hidden = false;
     
             RecurrentParameter.create = function create(properties) {
                 return new RecurrentParameter(properties);
@@ -7870,19 +7870,19 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.numOutput = reader.uint32();
+                        message.num_output = reader.uint32();
                         break;
                     case 2:
-                        message.weightFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.weight_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.biasFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 4:
-                        message.debugInfo = reader.bool();
+                        message.debug_info = reader.bool();
                         break;
                     case 5:
-                        message.exposeHidden = reader.bool();
+                        message.expose_hidden = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -7895,25 +7895,25 @@
             RecurrentParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    if (!$util.isInteger(message.numOutput))
-                        return "numOutput: integer expected";
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.weightFiller);
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_filler);
                     if (error)
-                        return "weightFiller." + error;
+                        return "weight_filler." + error;
                 }
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.biasFiller);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
                     if (error)
-                        return "biasFiller." + error;
+                        return "bias_filler." + error;
                 }
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    if (typeof message.debugInfo !== "boolean")
-                        return "debugInfo: boolean expected";
-                if (message.exposeHidden != null && message.hasOwnProperty("exposeHidden"))
-                    if (typeof message.exposeHidden !== "boolean")
-                        return "exposeHidden: boolean expected";
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    if (typeof message.debug_info !== "boolean")
+                        return "debug_info: boolean expected";
+                if (message.expose_hidden != null && message.hasOwnProperty("expose_hidden"))
+                    if (typeof message.expose_hidden !== "boolean")
+                        return "expose_hidden: boolean expected";
                 return null;
             };
     
@@ -7921,22 +7921,22 @@
                 if (object instanceof $root.caffe.RecurrentParameter)
                     return object;
                 var message = new $root.caffe.RecurrentParameter();
-                if (object.numOutput != null)
-                    message.numOutput = object.numOutput >>> 0;
-                if (object.weightFiller != null) {
-                    if (typeof object.weightFiller !== "object")
-                        throw TypeError(".caffe.RecurrentParameter.weightFiller: object expected");
-                    message.weightFiller = $root.caffe.FillerParameter.fromObject(object.weightFiller);
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
+                if (object.weight_filler != null) {
+                    if (typeof object.weight_filler !== "object")
+                        throw TypeError(".caffe.RecurrentParameter.weight_filler: object expected");
+                    message.weight_filler = $root.caffe.FillerParameter.fromObject(object.weight_filler);
                 }
-                if (object.biasFiller != null) {
-                    if (typeof object.biasFiller !== "object")
-                        throw TypeError(".caffe.RecurrentParameter.biasFiller: object expected");
-                    message.biasFiller = $root.caffe.FillerParameter.fromObject(object.biasFiller);
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.RecurrentParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
                 }
-                if (object.debugInfo != null)
-                    message.debugInfo = Boolean(object.debugInfo);
-                if (object.exposeHidden != null)
-                    message.exposeHidden = Boolean(object.exposeHidden);
+                if (object.debug_info != null)
+                    message.debug_info = Boolean(object.debug_info);
+                if (object.expose_hidden != null)
+                    message.expose_hidden = Boolean(object.expose_hidden);
                 return message;
             };
     
@@ -7945,22 +7945,22 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.numOutput = 0;
-                    object.weightFiller = null;
-                    object.biasFiller = null;
-                    object.debugInfo = false;
-                    object.exposeHidden = false;
+                    object.num_output = 0;
+                    object.weight_filler = null;
+                    object.bias_filler = null;
+                    object.debug_info = false;
+                    object.expose_hidden = false;
                 }
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    object.numOutput = message.numOutput;
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    object.weightFiller = $root.caffe.FillerParameter.toObject(message.weightFiller, options);
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    object.biasFiller = $root.caffe.FillerParameter.toObject(message.biasFiller, options);
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    object.debugInfo = message.debugInfo;
-                if (message.exposeHidden != null && message.hasOwnProperty("exposeHidden"))
-                    object.exposeHidden = message.exposeHidden;
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler"))
+                    object.weight_filler = $root.caffe.FillerParameter.toObject(message.weight_filler, options);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    object.debug_info = message.debug_info;
+                if (message.expose_hidden != null && message.hasOwnProperty("expose_hidden"))
+                    object.expose_hidden = message.expose_hidden;
                 return object;
             };
     
@@ -8106,7 +8106,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            ReLUParameter.prototype.negativeSlope = 0;
+            ReLUParameter.prototype.negative_slope = 0;
             ReLUParameter.prototype.engine = 0;
     
             ReLUParameter.create = function create(properties) {
@@ -8121,7 +8121,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.negativeSlope = reader.float();
+                        message.negative_slope = reader.float();
                         break;
                     case 2:
                         message.engine = reader.int32();
@@ -8137,9 +8137,9 @@
             ReLUParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.negativeSlope != null && message.hasOwnProperty("negativeSlope"))
-                    if (typeof message.negativeSlope !== "number")
-                        return "negativeSlope: number expected";
+                if (message.negative_slope != null && message.hasOwnProperty("negative_slope"))
+                    if (typeof message.negative_slope !== "number")
+                        return "negative_slope: number expected";
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     switch (message.engine) {
                     default:
@@ -8156,8 +8156,8 @@
                 if (object instanceof $root.caffe.ReLUParameter)
                     return object;
                 var message = new $root.caffe.ReLUParameter();
-                if (object.negativeSlope != null)
-                    message.negativeSlope = Number(object.negativeSlope);
+                if (object.negative_slope != null)
+                    message.negative_slope = Number(object.negative_slope);
                 switch (object.engine) {
                 case "DEFAULT":
                 case 0:
@@ -8180,11 +8180,11 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.negativeSlope = 0;
+                    object.negative_slope = 0;
                     object.engine = options.enums === String ? "DEFAULT" : 0;
                 }
-                if (message.negativeSlope != null && message.hasOwnProperty("negativeSlope"))
-                    object.negativeSlope = options.json && !isFinite(message.negativeSlope) ? String(message.negativeSlope) : message.negativeSlope;
+                if (message.negative_slope != null && message.hasOwnProperty("negative_slope"))
+                    object.negative_slope = options.json && !isFinite(message.negative_slope) ? String(message.negative_slope) : message.negative_slope;
                 if (message.engine != null && message.hasOwnProperty("engine"))
                     object.engine = options.enums === String ? $root.caffe.ReLUParameter.Engine[message.engine] : message.engine;
                 return object;
@@ -8216,7 +8216,7 @@
     
             ReshapeParameter.prototype.shape = null;
             ReshapeParameter.prototype.axis = 0;
-            ReshapeParameter.prototype.numAxes = -1;
+            ReshapeParameter.prototype.num_axes = -1;
     
             ReshapeParameter.create = function create(properties) {
                 return new ReshapeParameter(properties);
@@ -8236,7 +8236,7 @@
                         message.axis = reader.int32();
                         break;
                     case 3:
-                        message.numAxes = reader.int32();
+                        message.num_axes = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -8257,9 +8257,9 @@
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    if (!$util.isInteger(message.numAxes))
-                        return "numAxes: integer expected";
+                if (message.num_axes != null && message.hasOwnProperty("num_axes"))
+                    if (!$util.isInteger(message.num_axes))
+                        return "num_axes: integer expected";
                 return null;
             };
     
@@ -8274,8 +8274,8 @@
                 }
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.numAxes != null)
-                    message.numAxes = object.numAxes | 0;
+                if (object.num_axes != null)
+                    message.num_axes = object.num_axes | 0;
                 return message;
             };
     
@@ -8286,14 +8286,14 @@
                 if (options.defaults) {
                     object.shape = null;
                     object.axis = 0;
-                    object.numAxes = -1;
+                    object.num_axes = -1;
                 }
                 if (message.shape != null && message.hasOwnProperty("shape"))
                     object.shape = $root.caffe.BlobShape.toObject(message.shape, options);
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    object.numAxes = message.numAxes;
+                if (message.num_axes != null && message.hasOwnProperty("num_axes"))
+                    object.num_axes = message.num_axes;
                 return object;
             };
     
@@ -8314,10 +8314,10 @@
             }
     
             ScaleParameter.prototype.axis = 1;
-            ScaleParameter.prototype.numAxes = 1;
+            ScaleParameter.prototype.num_axes = 1;
             ScaleParameter.prototype.filler = null;
-            ScaleParameter.prototype.biasTerm = false;
-            ScaleParameter.prototype.biasFiller = null;
+            ScaleParameter.prototype.bias_term = false;
+            ScaleParameter.prototype.bias_filler = null;
     
             ScaleParameter.create = function create(properties) {
                 return new ScaleParameter(properties);
@@ -8334,16 +8334,16 @@
                         message.axis = reader.int32();
                         break;
                     case 2:
-                        message.numAxes = reader.int32();
+                        message.num_axes = reader.int32();
                         break;
                     case 3:
                         message.filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 4:
-                        message.biasTerm = reader.bool();
+                        message.bias_term = reader.bool();
                         break;
                     case 5:
-                        message.biasFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -8359,21 +8359,21 @@
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    if (!$util.isInteger(message.numAxes))
-                        return "numAxes: integer expected";
+                if (message.num_axes != null && message.hasOwnProperty("num_axes"))
+                    if (!$util.isInteger(message.num_axes))
+                        return "num_axes: integer expected";
                 if (message.filler != null && message.hasOwnProperty("filler")) {
                     var error = $root.caffe.FillerParameter.verify(message.filler);
                     if (error)
                         return "filler." + error;
                 }
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    if (typeof message.biasTerm !== "boolean")
-                        return "biasTerm: boolean expected";
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.biasFiller);
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    if (typeof message.bias_term !== "boolean")
+                        return "bias_term: boolean expected";
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
                     if (error)
-                        return "biasFiller." + error;
+                        return "bias_filler." + error;
                 }
                 return null;
             };
@@ -8384,19 +8384,19 @@
                 var message = new $root.caffe.ScaleParameter();
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.numAxes != null)
-                    message.numAxes = object.numAxes | 0;
+                if (object.num_axes != null)
+                    message.num_axes = object.num_axes | 0;
                 if (object.filler != null) {
                     if (typeof object.filler !== "object")
                         throw TypeError(".caffe.ScaleParameter.filler: object expected");
                     message.filler = $root.caffe.FillerParameter.fromObject(object.filler);
                 }
-                if (object.biasTerm != null)
-                    message.biasTerm = Boolean(object.biasTerm);
-                if (object.biasFiller != null) {
-                    if (typeof object.biasFiller !== "object")
-                        throw TypeError(".caffe.ScaleParameter.biasFiller: object expected");
-                    message.biasFiller = $root.caffe.FillerParameter.fromObject(object.biasFiller);
+                if (object.bias_term != null)
+                    message.bias_term = Boolean(object.bias_term);
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.ScaleParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
                 }
                 return message;
             };
@@ -8407,21 +8407,21 @@
                 var object = {};
                 if (options.defaults) {
                     object.axis = 1;
-                    object.numAxes = 1;
+                    object.num_axes = 1;
                     object.filler = null;
-                    object.biasTerm = false;
-                    object.biasFiller = null;
+                    object.bias_term = false;
+                    object.bias_filler = null;
                 }
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    object.numAxes = message.numAxes;
+                if (message.num_axes != null && message.hasOwnProperty("num_axes"))
+                    object.num_axes = message.num_axes;
                 if (message.filler != null && message.hasOwnProperty("filler"))
                     object.filler = $root.caffe.FillerParameter.toObject(message.filler, options);
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    object.biasTerm = message.biasTerm;
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    object.biasFiller = $root.caffe.FillerParameter.toObject(message.biasFiller, options);
+                if (message.bias_term != null && message.hasOwnProperty("bias_term"))
+                    object.bias_term = message.bias_term;
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
                 return object;
             };
     
@@ -8530,7 +8530,7 @@
         caffe.SliceParameter = (function() {
     
             function SliceParameter(properties) {
-                this.slicePoint = [];
+                this.slice_point = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -8538,8 +8538,8 @@
             }
     
             SliceParameter.prototype.axis = 1;
-            SliceParameter.prototype.slicePoint = $util.emptyArray;
-            SliceParameter.prototype.sliceDim = 1;
+            SliceParameter.prototype.slice_point = $util.emptyArray;
+            SliceParameter.prototype.slice_dim = 1;
     
             SliceParameter.create = function create(properties) {
                 return new SliceParameter(properties);
@@ -8556,17 +8556,17 @@
                         message.axis = reader.int32();
                         break;
                     case 2:
-                        if (!(message.slicePoint && message.slicePoint.length))
-                            message.slicePoint = [];
+                        if (!(message.slice_point && message.slice_point.length))
+                            message.slice_point = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.slicePoint.push(reader.uint32());
+                                message.slice_point.push(reader.uint32());
                         } else
-                            message.slicePoint.push(reader.uint32());
+                            message.slice_point.push(reader.uint32());
                         break;
                     case 1:
-                        message.sliceDim = reader.uint32();
+                        message.slice_dim = reader.uint32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -8582,16 +8582,16 @@
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     if (!$util.isInteger(message.axis))
                         return "axis: integer expected";
-                if (message.slicePoint != null && message.hasOwnProperty("slicePoint")) {
-                    if (!Array.isArray(message.slicePoint))
-                        return "slicePoint: array expected";
-                    for (var i = 0; i < message.slicePoint.length; ++i)
-                        if (!$util.isInteger(message.slicePoint[i]))
-                            return "slicePoint: integer[] expected";
+                if (message.slice_point != null && message.hasOwnProperty("slice_point")) {
+                    if (!Array.isArray(message.slice_point))
+                        return "slice_point: array expected";
+                    for (var i = 0; i < message.slice_point.length; ++i)
+                        if (!$util.isInteger(message.slice_point[i]))
+                            return "slice_point: integer[] expected";
                 }
-                if (message.sliceDim != null && message.hasOwnProperty("sliceDim"))
-                    if (!$util.isInteger(message.sliceDim))
-                        return "sliceDim: integer expected";
+                if (message.slice_dim != null && message.hasOwnProperty("slice_dim"))
+                    if (!$util.isInteger(message.slice_dim))
+                        return "slice_dim: integer expected";
                 return null;
             };
     
@@ -8601,15 +8601,15 @@
                 var message = new $root.caffe.SliceParameter();
                 if (object.axis != null)
                     message.axis = object.axis | 0;
-                if (object.slicePoint) {
-                    if (!Array.isArray(object.slicePoint))
-                        throw TypeError(".caffe.SliceParameter.slicePoint: array expected");
-                    message.slicePoint = [];
-                    for (var i = 0; i < object.slicePoint.length; ++i)
-                        message.slicePoint[i] = object.slicePoint[i] >>> 0;
+                if (object.slice_point) {
+                    if (!Array.isArray(object.slice_point))
+                        throw TypeError(".caffe.SliceParameter.slice_point: array expected");
+                    message.slice_point = [];
+                    for (var i = 0; i < object.slice_point.length; ++i)
+                        message.slice_point[i] = object.slice_point[i] >>> 0;
                 }
-                if (object.sliceDim != null)
-                    message.sliceDim = object.sliceDim >>> 0;
+                if (object.slice_dim != null)
+                    message.slice_dim = object.slice_dim >>> 0;
                 return message;
             };
     
@@ -8618,17 +8618,17 @@
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.slicePoint = [];
+                    object.slice_point = [];
                 if (options.defaults) {
-                    object.sliceDim = 1;
+                    object.slice_dim = 1;
                     object.axis = 1;
                 }
-                if (message.sliceDim != null && message.hasOwnProperty("sliceDim"))
-                    object.sliceDim = message.sliceDim;
-                if (message.slicePoint && message.slicePoint.length) {
-                    object.slicePoint = [];
-                    for (var j = 0; j < message.slicePoint.length; ++j)
-                        object.slicePoint[j] = message.slicePoint[j];
+                if (message.slice_dim != null && message.hasOwnProperty("slice_dim"))
+                    object.slice_dim = message.slice_dim;
+                if (message.slice_point && message.slice_point.length) {
+                    object.slice_point = [];
+                    for (var j = 0; j < message.slice_point.length; ++j)
+                        object.slice_point[j] = message.slice_point[j];
                 }
                 if (message.axis != null && message.hasOwnProperty("axis"))
                     object.axis = message.axis;
@@ -9076,17 +9076,17 @@
     
             WindowDataParameter.prototype.source = "";
             WindowDataParameter.prototype.scale = 1;
-            WindowDataParameter.prototype.meanFile = "";
-            WindowDataParameter.prototype.batchSize = 0;
-            WindowDataParameter.prototype.cropSize = 0;
+            WindowDataParameter.prototype.mean_file = "";
+            WindowDataParameter.prototype.batch_size = 0;
+            WindowDataParameter.prototype.crop_size = 0;
             WindowDataParameter.prototype.mirror = false;
-            WindowDataParameter.prototype.fgThreshold = 0.5;
-            WindowDataParameter.prototype.bgThreshold = 0.5;
-            WindowDataParameter.prototype.fgFraction = 0.25;
-            WindowDataParameter.prototype.contextPad = 0;
-            WindowDataParameter.prototype.cropMode = "warp";
-            WindowDataParameter.prototype.cacheImages = false;
-            WindowDataParameter.prototype.rootFolder = "";
+            WindowDataParameter.prototype.fg_threshold = 0.5;
+            WindowDataParameter.prototype.bg_threshold = 0.5;
+            WindowDataParameter.prototype.fg_fraction = 0.25;
+            WindowDataParameter.prototype.context_pad = 0;
+            WindowDataParameter.prototype.crop_mode = "warp";
+            WindowDataParameter.prototype.cache_images = false;
+            WindowDataParameter.prototype.root_folder = "";
     
             WindowDataParameter.create = function create(properties) {
                 return new WindowDataParameter(properties);
@@ -9106,37 +9106,37 @@
                         message.scale = reader.float();
                         break;
                     case 3:
-                        message.meanFile = reader.string();
+                        message.mean_file = reader.string();
                         break;
                     case 4:
-                        message.batchSize = reader.uint32();
+                        message.batch_size = reader.uint32();
                         break;
                     case 5:
-                        message.cropSize = reader.uint32();
+                        message.crop_size = reader.uint32();
                         break;
                     case 6:
                         message.mirror = reader.bool();
                         break;
                     case 7:
-                        message.fgThreshold = reader.float();
+                        message.fg_threshold = reader.float();
                         break;
                     case 8:
-                        message.bgThreshold = reader.float();
+                        message.bg_threshold = reader.float();
                         break;
                     case 9:
-                        message.fgFraction = reader.float();
+                        message.fg_fraction = reader.float();
                         break;
                     case 10:
-                        message.contextPad = reader.uint32();
+                        message.context_pad = reader.uint32();
                         break;
                     case 11:
-                        message.cropMode = reader.string();
+                        message.crop_mode = reader.string();
                         break;
                     case 12:
-                        message.cacheImages = reader.bool();
+                        message.cache_images = reader.bool();
                         break;
                     case 13:
-                        message.rootFolder = reader.string();
+                        message.root_folder = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -9155,39 +9155,39 @@
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     if (typeof message.scale !== "number")
                         return "scale: number expected";
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    if (!$util.isString(message.meanFile))
-                        return "meanFile: string expected";
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    if (!$util.isInteger(message.batchSize))
-                        return "batchSize: integer expected";
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    if (!$util.isInteger(message.cropSize))
-                        return "cropSize: integer expected";
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    if (!$util.isString(message.mean_file))
+                        return "mean_file: string expected";
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    if (!$util.isInteger(message.batch_size))
+                        return "batch_size: integer expected";
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    if (!$util.isInteger(message.crop_size))
+                        return "crop_size: integer expected";
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     if (typeof message.mirror !== "boolean")
                         return "mirror: boolean expected";
-                if (message.fgThreshold != null && message.hasOwnProperty("fgThreshold"))
-                    if (typeof message.fgThreshold !== "number")
-                        return "fgThreshold: number expected";
-                if (message.bgThreshold != null && message.hasOwnProperty("bgThreshold"))
-                    if (typeof message.bgThreshold !== "number")
-                        return "bgThreshold: number expected";
-                if (message.fgFraction != null && message.hasOwnProperty("fgFraction"))
-                    if (typeof message.fgFraction !== "number")
-                        return "fgFraction: number expected";
-                if (message.contextPad != null && message.hasOwnProperty("contextPad"))
-                    if (!$util.isInteger(message.contextPad))
-                        return "contextPad: integer expected";
-                if (message.cropMode != null && message.hasOwnProperty("cropMode"))
-                    if (!$util.isString(message.cropMode))
-                        return "cropMode: string expected";
-                if (message.cacheImages != null && message.hasOwnProperty("cacheImages"))
-                    if (typeof message.cacheImages !== "boolean")
-                        return "cacheImages: boolean expected";
-                if (message.rootFolder != null && message.hasOwnProperty("rootFolder"))
-                    if (!$util.isString(message.rootFolder))
-                        return "rootFolder: string expected";
+                if (message.fg_threshold != null && message.hasOwnProperty("fg_threshold"))
+                    if (typeof message.fg_threshold !== "number")
+                        return "fg_threshold: number expected";
+                if (message.bg_threshold != null && message.hasOwnProperty("bg_threshold"))
+                    if (typeof message.bg_threshold !== "number")
+                        return "bg_threshold: number expected";
+                if (message.fg_fraction != null && message.hasOwnProperty("fg_fraction"))
+                    if (typeof message.fg_fraction !== "number")
+                        return "fg_fraction: number expected";
+                if (message.context_pad != null && message.hasOwnProperty("context_pad"))
+                    if (!$util.isInteger(message.context_pad))
+                        return "context_pad: integer expected";
+                if (message.crop_mode != null && message.hasOwnProperty("crop_mode"))
+                    if (!$util.isString(message.crop_mode))
+                        return "crop_mode: string expected";
+                if (message.cache_images != null && message.hasOwnProperty("cache_images"))
+                    if (typeof message.cache_images !== "boolean")
+                        return "cache_images: boolean expected";
+                if (message.root_folder != null && message.hasOwnProperty("root_folder"))
+                    if (!$util.isString(message.root_folder))
+                        return "root_folder: string expected";
                 return null;
             };
     
@@ -9199,28 +9199,28 @@
                     message.source = String(object.source);
                 if (object.scale != null)
                     message.scale = Number(object.scale);
-                if (object.meanFile != null)
-                    message.meanFile = String(object.meanFile);
-                if (object.batchSize != null)
-                    message.batchSize = object.batchSize >>> 0;
-                if (object.cropSize != null)
-                    message.cropSize = object.cropSize >>> 0;
+                if (object.mean_file != null)
+                    message.mean_file = String(object.mean_file);
+                if (object.batch_size != null)
+                    message.batch_size = object.batch_size >>> 0;
+                if (object.crop_size != null)
+                    message.crop_size = object.crop_size >>> 0;
                 if (object.mirror != null)
                     message.mirror = Boolean(object.mirror);
-                if (object.fgThreshold != null)
-                    message.fgThreshold = Number(object.fgThreshold);
-                if (object.bgThreshold != null)
-                    message.bgThreshold = Number(object.bgThreshold);
-                if (object.fgFraction != null)
-                    message.fgFraction = Number(object.fgFraction);
-                if (object.contextPad != null)
-                    message.contextPad = object.contextPad >>> 0;
-                if (object.cropMode != null)
-                    message.cropMode = String(object.cropMode);
-                if (object.cacheImages != null)
-                    message.cacheImages = Boolean(object.cacheImages);
-                if (object.rootFolder != null)
-                    message.rootFolder = String(object.rootFolder);
+                if (object.fg_threshold != null)
+                    message.fg_threshold = Number(object.fg_threshold);
+                if (object.bg_threshold != null)
+                    message.bg_threshold = Number(object.bg_threshold);
+                if (object.fg_fraction != null)
+                    message.fg_fraction = Number(object.fg_fraction);
+                if (object.context_pad != null)
+                    message.context_pad = object.context_pad >>> 0;
+                if (object.crop_mode != null)
+                    message.crop_mode = String(object.crop_mode);
+                if (object.cache_images != null)
+                    message.cache_images = Boolean(object.cache_images);
+                if (object.root_folder != null)
+                    message.root_folder = String(object.root_folder);
                 return message;
             };
     
@@ -9231,44 +9231,44 @@
                 if (options.defaults) {
                     object.source = "";
                     object.scale = 1;
-                    object.meanFile = "";
-                    object.batchSize = 0;
-                    object.cropSize = 0;
+                    object.mean_file = "";
+                    object.batch_size = 0;
+                    object.crop_size = 0;
                     object.mirror = false;
-                    object.fgThreshold = 0.5;
-                    object.bgThreshold = 0.5;
-                    object.fgFraction = 0.25;
-                    object.contextPad = 0;
-                    object.cropMode = "warp";
-                    object.cacheImages = false;
-                    object.rootFolder = "";
+                    object.fg_threshold = 0.5;
+                    object.bg_threshold = 0.5;
+                    object.fg_fraction = 0.25;
+                    object.context_pad = 0;
+                    object.crop_mode = "warp";
+                    object.cache_images = false;
+                    object.root_folder = "";
                 }
                 if (message.source != null && message.hasOwnProperty("source"))
                     object.source = message.source;
                 if (message.scale != null && message.hasOwnProperty("scale"))
                     object.scale = options.json && !isFinite(message.scale) ? String(message.scale) : message.scale;
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    object.meanFile = message.meanFile;
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    object.batchSize = message.batchSize;
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    object.cropSize = message.cropSize;
+                if (message.mean_file != null && message.hasOwnProperty("mean_file"))
+                    object.mean_file = message.mean_file;
+                if (message.batch_size != null && message.hasOwnProperty("batch_size"))
+                    object.batch_size = message.batch_size;
+                if (message.crop_size != null && message.hasOwnProperty("crop_size"))
+                    object.crop_size = message.crop_size;
                 if (message.mirror != null && message.hasOwnProperty("mirror"))
                     object.mirror = message.mirror;
-                if (message.fgThreshold != null && message.hasOwnProperty("fgThreshold"))
-                    object.fgThreshold = options.json && !isFinite(message.fgThreshold) ? String(message.fgThreshold) : message.fgThreshold;
-                if (message.bgThreshold != null && message.hasOwnProperty("bgThreshold"))
-                    object.bgThreshold = options.json && !isFinite(message.bgThreshold) ? String(message.bgThreshold) : message.bgThreshold;
-                if (message.fgFraction != null && message.hasOwnProperty("fgFraction"))
-                    object.fgFraction = options.json && !isFinite(message.fgFraction) ? String(message.fgFraction) : message.fgFraction;
-                if (message.contextPad != null && message.hasOwnProperty("contextPad"))
-                    object.contextPad = message.contextPad;
-                if (message.cropMode != null && message.hasOwnProperty("cropMode"))
-                    object.cropMode = message.cropMode;
-                if (message.cacheImages != null && message.hasOwnProperty("cacheImages"))
-                    object.cacheImages = message.cacheImages;
-                if (message.rootFolder != null && message.hasOwnProperty("rootFolder"))
-                    object.rootFolder = message.rootFolder;
+                if (message.fg_threshold != null && message.hasOwnProperty("fg_threshold"))
+                    object.fg_threshold = options.json && !isFinite(message.fg_threshold) ? String(message.fg_threshold) : message.fg_threshold;
+                if (message.bg_threshold != null && message.hasOwnProperty("bg_threshold"))
+                    object.bg_threshold = options.json && !isFinite(message.bg_threshold) ? String(message.bg_threshold) : message.bg_threshold;
+                if (message.fg_fraction != null && message.hasOwnProperty("fg_fraction"))
+                    object.fg_fraction = options.json && !isFinite(message.fg_fraction) ? String(message.fg_fraction) : message.fg_fraction;
+                if (message.context_pad != null && message.hasOwnProperty("context_pad"))
+                    object.context_pad = message.context_pad;
+                if (message.crop_mode != null && message.hasOwnProperty("crop_mode"))
+                    object.crop_mode = message.crop_mode;
+                if (message.cache_images != null && message.hasOwnProperty("cache_images"))
+                    object.cache_images = message.cache_images;
+                if (message.root_folder != null && message.hasOwnProperty("root_folder"))
+                    object.root_folder = message.root_folder;
                 return object;
             };
     
@@ -9288,7 +9288,7 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            SPPParameter.prototype.pyramidHeight = 0;
+            SPPParameter.prototype.pyramid_height = 0;
             SPPParameter.prototype.pool = 0;
             SPPParameter.prototype.engine = 0;
     
@@ -9304,7 +9304,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.pyramidHeight = reader.uint32();
+                        message.pyramid_height = reader.uint32();
                         break;
                     case 2:
                         message.pool = reader.int32();
@@ -9323,9 +9323,9 @@
             SPPParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.pyramidHeight != null && message.hasOwnProperty("pyramidHeight"))
-                    if (!$util.isInteger(message.pyramidHeight))
-                        return "pyramidHeight: integer expected";
+                if (message.pyramid_height != null && message.hasOwnProperty("pyramid_height"))
+                    if (!$util.isInteger(message.pyramid_height))
+                        return "pyramid_height: integer expected";
                 if (message.pool != null && message.hasOwnProperty("pool"))
                     switch (message.pool) {
                     default:
@@ -9351,8 +9351,8 @@
                 if (object instanceof $root.caffe.SPPParameter)
                     return object;
                 var message = new $root.caffe.SPPParameter();
-                if (object.pyramidHeight != null)
-                    message.pyramidHeight = object.pyramidHeight >>> 0;
+                if (object.pyramid_height != null)
+                    message.pyramid_height = object.pyramid_height >>> 0;
                 switch (object.pool) {
                 case "MAX":
                 case 0:
@@ -9389,12 +9389,12 @@
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.pyramidHeight = 0;
+                    object.pyramid_height = 0;
                     object.pool = options.enums === String ? "MAX" : 0;
                     object.engine = options.enums === String ? "DEFAULT" : 0;
                 }
-                if (message.pyramidHeight != null && message.hasOwnProperty("pyramidHeight"))
-                    object.pyramidHeight = message.pyramidHeight;
+                if (message.pyramid_height != null && message.hasOwnProperty("pyramid_height"))
+                    object.pyramid_height = message.pyramid_height;
                 if (message.pool != null && message.hasOwnProperty("pool"))
                     object.pool = options.enums === String ? $root.caffe.SPPParameter.PoolMethod[message.pool] : message.pool;
                 if (message.engine != null && message.hasOwnProperty("engine"))
@@ -9434,10 +9434,10 @@
                 this.exclude = [];
                 this.blobs = [];
                 this.param = [];
-                this.blobShareMode = [];
-                this.blobsLr = [];
-                this.weightDecay = [];
-                this.lossWeight = [];
+                this.blob_share_mode = [];
+                this.blobs_lr = [];
+                this.weight_decay = [];
+                this.loss_weight = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -9452,40 +9452,40 @@
             V1LayerParameter.prototype.type = 0;
             V1LayerParameter.prototype.blobs = $util.emptyArray;
             V1LayerParameter.prototype.param = $util.emptyArray;
-            V1LayerParameter.prototype.blobShareMode = $util.emptyArray;
-            V1LayerParameter.prototype.blobsLr = $util.emptyArray;
-            V1LayerParameter.prototype.weightDecay = $util.emptyArray;
-            V1LayerParameter.prototype.lossWeight = $util.emptyArray;
-            V1LayerParameter.prototype.accuracyParam = null;
-            V1LayerParameter.prototype.argmaxParam = null;
-            V1LayerParameter.prototype.concatParam = null;
-            V1LayerParameter.prototype.contrastiveLossParam = null;
-            V1LayerParameter.prototype.convolutionParam = null;
-            V1LayerParameter.prototype.dataParam = null;
-            V1LayerParameter.prototype.dropoutParam = null;
-            V1LayerParameter.prototype.dummyDataParam = null;
-            V1LayerParameter.prototype.eltwiseParam = null;
-            V1LayerParameter.prototype.expParam = null;
-            V1LayerParameter.prototype.hdf5DataParam = null;
-            V1LayerParameter.prototype.hdf5OutputParam = null;
-            V1LayerParameter.prototype.hingeLossParam = null;
-            V1LayerParameter.prototype.imageDataParam = null;
-            V1LayerParameter.prototype.infogainLossParam = null;
-            V1LayerParameter.prototype.innerProductParam = null;
-            V1LayerParameter.prototype.lrnParam = null;
-            V1LayerParameter.prototype.memoryDataParam = null;
-            V1LayerParameter.prototype.mvnParam = null;
-            V1LayerParameter.prototype.poolingParam = null;
-            V1LayerParameter.prototype.powerParam = null;
-            V1LayerParameter.prototype.reluParam = null;
-            V1LayerParameter.prototype.sigmoidParam = null;
-            V1LayerParameter.prototype.softmaxParam = null;
-            V1LayerParameter.prototype.sliceParam = null;
-            V1LayerParameter.prototype.tanhParam = null;
-            V1LayerParameter.prototype.thresholdParam = null;
-            V1LayerParameter.prototype.windowDataParam = null;
-            V1LayerParameter.prototype.transformParam = null;
-            V1LayerParameter.prototype.lossParam = null;
+            V1LayerParameter.prototype.blob_share_mode = $util.emptyArray;
+            V1LayerParameter.prototype.blobs_lr = $util.emptyArray;
+            V1LayerParameter.prototype.weight_decay = $util.emptyArray;
+            V1LayerParameter.prototype.loss_weight = $util.emptyArray;
+            V1LayerParameter.prototype.accuracy_param = null;
+            V1LayerParameter.prototype.argmax_param = null;
+            V1LayerParameter.prototype.concat_param = null;
+            V1LayerParameter.prototype.contrastive_loss_param = null;
+            V1LayerParameter.prototype.convolution_param = null;
+            V1LayerParameter.prototype.data_param = null;
+            V1LayerParameter.prototype.dropout_param = null;
+            V1LayerParameter.prototype.dummy_data_param = null;
+            V1LayerParameter.prototype.eltwise_param = null;
+            V1LayerParameter.prototype.exp_param = null;
+            V1LayerParameter.prototype.hdf5_data_param = null;
+            V1LayerParameter.prototype.hdf5_output_param = null;
+            V1LayerParameter.prototype.hinge_loss_param = null;
+            V1LayerParameter.prototype.image_data_param = null;
+            V1LayerParameter.prototype.infogain_loss_param = null;
+            V1LayerParameter.prototype.inner_product_param = null;
+            V1LayerParameter.prototype.lrn_param = null;
+            V1LayerParameter.prototype.memory_data_param = null;
+            V1LayerParameter.prototype.mvn_param = null;
+            V1LayerParameter.prototype.pooling_param = null;
+            V1LayerParameter.prototype.power_param = null;
+            V1LayerParameter.prototype.relu_param = null;
+            V1LayerParameter.prototype.sigmoid_param = null;
+            V1LayerParameter.prototype.softmax_param = null;
+            V1LayerParameter.prototype.slice_param = null;
+            V1LayerParameter.prototype.tanh_param = null;
+            V1LayerParameter.prototype.threshold_param = null;
+            V1LayerParameter.prototype.window_data_param = null;
+            V1LayerParameter.prototype.transform_param = null;
+            V1LayerParameter.prototype.loss_param = null;
             V1LayerParameter.prototype.layer = null;
     
             V1LayerParameter.create = function create(properties) {
@@ -9536,134 +9536,134 @@
                         message.param.push(reader.string());
                         break;
                     case 1002:
-                        if (!(message.blobShareMode && message.blobShareMode.length))
-                            message.blobShareMode = [];
+                        if (!(message.blob_share_mode && message.blob_share_mode.length))
+                            message.blob_share_mode = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.blobShareMode.push(reader.int32());
+                                message.blob_share_mode.push(reader.int32());
                         } else
-                            message.blobShareMode.push(reader.int32());
+                            message.blob_share_mode.push(reader.int32());
                         break;
                     case 7:
-                        if (!(message.blobsLr && message.blobsLr.length))
-                            message.blobsLr = [];
+                        if (!(message.blobs_lr && message.blobs_lr.length))
+                            message.blobs_lr = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.blobsLr.push(reader.float());
+                                message.blobs_lr.push(reader.float());
                         } else
-                            message.blobsLr.push(reader.float());
+                            message.blobs_lr.push(reader.float());
                         break;
                     case 8:
-                        if (!(message.weightDecay && message.weightDecay.length))
-                            message.weightDecay = [];
+                        if (!(message.weight_decay && message.weight_decay.length))
+                            message.weight_decay = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.weightDecay.push(reader.float());
+                                message.weight_decay.push(reader.float());
                         } else
-                            message.weightDecay.push(reader.float());
+                            message.weight_decay.push(reader.float());
                         break;
                     case 35:
-                        if (!(message.lossWeight && message.lossWeight.length))
-                            message.lossWeight = [];
+                        if (!(message.loss_weight && message.loss_weight.length))
+                            message.loss_weight = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.lossWeight.push(reader.float());
+                                message.loss_weight.push(reader.float());
                         } else
-                            message.lossWeight.push(reader.float());
+                            message.loss_weight.push(reader.float());
                         break;
                     case 27:
-                        message.accuracyParam = $root.caffe.AccuracyParameter.decode(reader, reader.uint32());
+                        message.accuracy_param = $root.caffe.AccuracyParameter.decode(reader, reader.uint32());
                         break;
                     case 23:
-                        message.argmaxParam = $root.caffe.ArgMaxParameter.decode(reader, reader.uint32());
+                        message.argmax_param = $root.caffe.ArgMaxParameter.decode(reader, reader.uint32());
                         break;
                     case 9:
-                        message.concatParam = $root.caffe.ConcatParameter.decode(reader, reader.uint32());
+                        message.concat_param = $root.caffe.ConcatParameter.decode(reader, reader.uint32());
                         break;
                     case 40:
-                        message.contrastiveLossParam = $root.caffe.ContrastiveLossParameter.decode(reader, reader.uint32());
+                        message.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.decode(reader, reader.uint32());
                         break;
                     case 10:
-                        message.convolutionParam = $root.caffe.ConvolutionParameter.decode(reader, reader.uint32());
+                        message.convolution_param = $root.caffe.ConvolutionParameter.decode(reader, reader.uint32());
                         break;
                     case 11:
-                        message.dataParam = $root.caffe.DataParameter.decode(reader, reader.uint32());
+                        message.data_param = $root.caffe.DataParameter.decode(reader, reader.uint32());
                         break;
                     case 12:
-                        message.dropoutParam = $root.caffe.DropoutParameter.decode(reader, reader.uint32());
+                        message.dropout_param = $root.caffe.DropoutParameter.decode(reader, reader.uint32());
                         break;
                     case 26:
-                        message.dummyDataParam = $root.caffe.DummyDataParameter.decode(reader, reader.uint32());
+                        message.dummy_data_param = $root.caffe.DummyDataParameter.decode(reader, reader.uint32());
                         break;
                     case 24:
-                        message.eltwiseParam = $root.caffe.EltwiseParameter.decode(reader, reader.uint32());
+                        message.eltwise_param = $root.caffe.EltwiseParameter.decode(reader, reader.uint32());
                         break;
                     case 41:
-                        message.expParam = $root.caffe.ExpParameter.decode(reader, reader.uint32());
+                        message.exp_param = $root.caffe.ExpParameter.decode(reader, reader.uint32());
                         break;
                     case 13:
-                        message.hdf5DataParam = $root.caffe.HDF5DataParameter.decode(reader, reader.uint32());
+                        message.hdf5_data_param = $root.caffe.HDF5DataParameter.decode(reader, reader.uint32());
                         break;
                     case 14:
-                        message.hdf5OutputParam = $root.caffe.HDF5OutputParameter.decode(reader, reader.uint32());
+                        message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decode(reader, reader.uint32());
                         break;
                     case 29:
-                        message.hingeLossParam = $root.caffe.HingeLossParameter.decode(reader, reader.uint32());
+                        message.hinge_loss_param = $root.caffe.HingeLossParameter.decode(reader, reader.uint32());
                         break;
                     case 15:
-                        message.imageDataParam = $root.caffe.ImageDataParameter.decode(reader, reader.uint32());
+                        message.image_data_param = $root.caffe.ImageDataParameter.decode(reader, reader.uint32());
                         break;
                     case 16:
-                        message.infogainLossParam = $root.caffe.InfogainLossParameter.decode(reader, reader.uint32());
+                        message.infogain_loss_param = $root.caffe.InfogainLossParameter.decode(reader, reader.uint32());
                         break;
                     case 17:
-                        message.innerProductParam = $root.caffe.InnerProductParameter.decode(reader, reader.uint32());
+                        message.inner_product_param = $root.caffe.InnerProductParameter.decode(reader, reader.uint32());
                         break;
                     case 18:
-                        message.lrnParam = $root.caffe.LRNParameter.decode(reader, reader.uint32());
+                        message.lrn_param = $root.caffe.LRNParameter.decode(reader, reader.uint32());
                         break;
                     case 22:
-                        message.memoryDataParam = $root.caffe.MemoryDataParameter.decode(reader, reader.uint32());
+                        message.memory_data_param = $root.caffe.MemoryDataParameter.decode(reader, reader.uint32());
                         break;
                     case 34:
-                        message.mvnParam = $root.caffe.MVNParameter.decode(reader, reader.uint32());
+                        message.mvn_param = $root.caffe.MVNParameter.decode(reader, reader.uint32());
                         break;
                     case 19:
-                        message.poolingParam = $root.caffe.PoolingParameter.decode(reader, reader.uint32());
+                        message.pooling_param = $root.caffe.PoolingParameter.decode(reader, reader.uint32());
                         break;
                     case 21:
-                        message.powerParam = $root.caffe.PowerParameter.decode(reader, reader.uint32());
+                        message.power_param = $root.caffe.PowerParameter.decode(reader, reader.uint32());
                         break;
                     case 30:
-                        message.reluParam = $root.caffe.ReLUParameter.decode(reader, reader.uint32());
+                        message.relu_param = $root.caffe.ReLUParameter.decode(reader, reader.uint32());
                         break;
                     case 38:
-                        message.sigmoidParam = $root.caffe.SigmoidParameter.decode(reader, reader.uint32());
+                        message.sigmoid_param = $root.caffe.SigmoidParameter.decode(reader, reader.uint32());
                         break;
                     case 39:
-                        message.softmaxParam = $root.caffe.SoftmaxParameter.decode(reader, reader.uint32());
+                        message.softmax_param = $root.caffe.SoftmaxParameter.decode(reader, reader.uint32());
                         break;
                     case 31:
-                        message.sliceParam = $root.caffe.SliceParameter.decode(reader, reader.uint32());
+                        message.slice_param = $root.caffe.SliceParameter.decode(reader, reader.uint32());
                         break;
                     case 37:
-                        message.tanhParam = $root.caffe.TanHParameter.decode(reader, reader.uint32());
+                        message.tanh_param = $root.caffe.TanHParameter.decode(reader, reader.uint32());
                         break;
                     case 25:
-                        message.thresholdParam = $root.caffe.ThresholdParameter.decode(reader, reader.uint32());
+                        message.threshold_param = $root.caffe.ThresholdParameter.decode(reader, reader.uint32());
                         break;
                     case 20:
-                        message.windowDataParam = $root.caffe.WindowDataParameter.decode(reader, reader.uint32());
+                        message.window_data_param = $root.caffe.WindowDataParameter.decode(reader, reader.uint32());
                         break;
                     case 36:
-                        message.transformParam = $root.caffe.TransformationParameter.decode(reader, reader.uint32());
+                        message.transform_param = $root.caffe.TransformationParameter.decode(reader, reader.uint32());
                         break;
                     case 42:
-                        message.lossParam = $root.caffe.LossParameter.decode(reader, reader.uint32());
+                        message.loss_param = $root.caffe.LossParameter.decode(reader, reader.uint32());
                         break;
                     case 1:
                         message.layer = $root.caffe.V0LayerParameter.decode(reader, reader.uint32());
@@ -9776,188 +9776,188 @@
                         if (!$util.isString(message.param[i]))
                             return "param: string[] expected";
                 }
-                if (message.blobShareMode != null && message.hasOwnProperty("blobShareMode")) {
-                    if (!Array.isArray(message.blobShareMode))
-                        return "blobShareMode: array expected";
-                    for (var i = 0; i < message.blobShareMode.length; ++i)
-                        switch (message.blobShareMode[i]) {
+                if (message.blob_share_mode != null && message.hasOwnProperty("blob_share_mode")) {
+                    if (!Array.isArray(message.blob_share_mode))
+                        return "blob_share_mode: array expected";
+                    for (var i = 0; i < message.blob_share_mode.length; ++i)
+                        switch (message.blob_share_mode[i]) {
                         default:
-                            return "blobShareMode: enum value[] expected";
+                            return "blob_share_mode: enum value[] expected";
                         case 0:
                         case 1:
                             break;
                         }
                 }
-                if (message.blobsLr != null && message.hasOwnProperty("blobsLr")) {
-                    if (!Array.isArray(message.blobsLr))
-                        return "blobsLr: array expected";
-                    for (var i = 0; i < message.blobsLr.length; ++i)
-                        if (typeof message.blobsLr[i] !== "number")
-                            return "blobsLr: number[] expected";
+                if (message.blobs_lr != null && message.hasOwnProperty("blobs_lr")) {
+                    if (!Array.isArray(message.blobs_lr))
+                        return "blobs_lr: array expected";
+                    for (var i = 0; i < message.blobs_lr.length; ++i)
+                        if (typeof message.blobs_lr[i] !== "number")
+                            return "blobs_lr: number[] expected";
                 }
-                if (message.weightDecay != null && message.hasOwnProperty("weightDecay")) {
-                    if (!Array.isArray(message.weightDecay))
-                        return "weightDecay: array expected";
-                    for (var i = 0; i < message.weightDecay.length; ++i)
-                        if (typeof message.weightDecay[i] !== "number")
-                            return "weightDecay: number[] expected";
+                if (message.weight_decay != null && message.hasOwnProperty("weight_decay")) {
+                    if (!Array.isArray(message.weight_decay))
+                        return "weight_decay: array expected";
+                    for (var i = 0; i < message.weight_decay.length; ++i)
+                        if (typeof message.weight_decay[i] !== "number")
+                            return "weight_decay: number[] expected";
                 }
-                if (message.lossWeight != null && message.hasOwnProperty("lossWeight")) {
-                    if (!Array.isArray(message.lossWeight))
-                        return "lossWeight: array expected";
-                    for (var i = 0; i < message.lossWeight.length; ++i)
-                        if (typeof message.lossWeight[i] !== "number")
-                            return "lossWeight: number[] expected";
+                if (message.loss_weight != null && message.hasOwnProperty("loss_weight")) {
+                    if (!Array.isArray(message.loss_weight))
+                        return "loss_weight: array expected";
+                    for (var i = 0; i < message.loss_weight.length; ++i)
+                        if (typeof message.loss_weight[i] !== "number")
+                            return "loss_weight: number[] expected";
                 }
-                if (message.accuracyParam != null && message.hasOwnProperty("accuracyParam")) {
-                    var error = $root.caffe.AccuracyParameter.verify(message.accuracyParam);
+                if (message.accuracy_param != null && message.hasOwnProperty("accuracy_param")) {
+                    var error = $root.caffe.AccuracyParameter.verify(message.accuracy_param);
                     if (error)
-                        return "accuracyParam." + error;
+                        return "accuracy_param." + error;
                 }
-                if (message.argmaxParam != null && message.hasOwnProperty("argmaxParam")) {
-                    var error = $root.caffe.ArgMaxParameter.verify(message.argmaxParam);
+                if (message.argmax_param != null && message.hasOwnProperty("argmax_param")) {
+                    var error = $root.caffe.ArgMaxParameter.verify(message.argmax_param);
                     if (error)
-                        return "argmaxParam." + error;
+                        return "argmax_param." + error;
                 }
-                if (message.concatParam != null && message.hasOwnProperty("concatParam")) {
-                    var error = $root.caffe.ConcatParameter.verify(message.concatParam);
+                if (message.concat_param != null && message.hasOwnProperty("concat_param")) {
+                    var error = $root.caffe.ConcatParameter.verify(message.concat_param);
                     if (error)
-                        return "concatParam." + error;
+                        return "concat_param." + error;
                 }
-                if (message.contrastiveLossParam != null && message.hasOwnProperty("contrastiveLossParam")) {
-                    var error = $root.caffe.ContrastiveLossParameter.verify(message.contrastiveLossParam);
+                if (message.contrastive_loss_param != null && message.hasOwnProperty("contrastive_loss_param")) {
+                    var error = $root.caffe.ContrastiveLossParameter.verify(message.contrastive_loss_param);
                     if (error)
-                        return "contrastiveLossParam." + error;
+                        return "contrastive_loss_param." + error;
                 }
-                if (message.convolutionParam != null && message.hasOwnProperty("convolutionParam")) {
-                    var error = $root.caffe.ConvolutionParameter.verify(message.convolutionParam);
+                if (message.convolution_param != null && message.hasOwnProperty("convolution_param")) {
+                    var error = $root.caffe.ConvolutionParameter.verify(message.convolution_param);
                     if (error)
-                        return "convolutionParam." + error;
+                        return "convolution_param." + error;
                 }
-                if (message.dataParam != null && message.hasOwnProperty("dataParam")) {
-                    var error = $root.caffe.DataParameter.verify(message.dataParam);
+                if (message.data_param != null && message.hasOwnProperty("data_param")) {
+                    var error = $root.caffe.DataParameter.verify(message.data_param);
                     if (error)
-                        return "dataParam." + error;
+                        return "data_param." + error;
                 }
-                if (message.dropoutParam != null && message.hasOwnProperty("dropoutParam")) {
-                    var error = $root.caffe.DropoutParameter.verify(message.dropoutParam);
+                if (message.dropout_param != null && message.hasOwnProperty("dropout_param")) {
+                    var error = $root.caffe.DropoutParameter.verify(message.dropout_param);
                     if (error)
-                        return "dropoutParam." + error;
+                        return "dropout_param." + error;
                 }
-                if (message.dummyDataParam != null && message.hasOwnProperty("dummyDataParam")) {
-                    var error = $root.caffe.DummyDataParameter.verify(message.dummyDataParam);
+                if (message.dummy_data_param != null && message.hasOwnProperty("dummy_data_param")) {
+                    var error = $root.caffe.DummyDataParameter.verify(message.dummy_data_param);
                     if (error)
-                        return "dummyDataParam." + error;
+                        return "dummy_data_param." + error;
                 }
-                if (message.eltwiseParam != null && message.hasOwnProperty("eltwiseParam")) {
-                    var error = $root.caffe.EltwiseParameter.verify(message.eltwiseParam);
+                if (message.eltwise_param != null && message.hasOwnProperty("eltwise_param")) {
+                    var error = $root.caffe.EltwiseParameter.verify(message.eltwise_param);
                     if (error)
-                        return "eltwiseParam." + error;
+                        return "eltwise_param." + error;
                 }
-                if (message.expParam != null && message.hasOwnProperty("expParam")) {
-                    var error = $root.caffe.ExpParameter.verify(message.expParam);
+                if (message.exp_param != null && message.hasOwnProperty("exp_param")) {
+                    var error = $root.caffe.ExpParameter.verify(message.exp_param);
                     if (error)
-                        return "expParam." + error;
+                        return "exp_param." + error;
                 }
-                if (message.hdf5DataParam != null && message.hasOwnProperty("hdf5DataParam")) {
-                    var error = $root.caffe.HDF5DataParameter.verify(message.hdf5DataParam);
+                if (message.hdf5_data_param != null && message.hasOwnProperty("hdf5_data_param")) {
+                    var error = $root.caffe.HDF5DataParameter.verify(message.hdf5_data_param);
                     if (error)
-                        return "hdf5DataParam." + error;
+                        return "hdf5_data_param." + error;
                 }
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam")) {
-                    var error = $root.caffe.HDF5OutputParameter.verify(message.hdf5OutputParam);
+                if (message.hdf5_output_param != null && message.hasOwnProperty("hdf5_output_param")) {
+                    var error = $root.caffe.HDF5OutputParameter.verify(message.hdf5_output_param);
                     if (error)
-                        return "hdf5OutputParam." + error;
+                        return "hdf5_output_param." + error;
                 }
-                if (message.hingeLossParam != null && message.hasOwnProperty("hingeLossParam")) {
-                    var error = $root.caffe.HingeLossParameter.verify(message.hingeLossParam);
+                if (message.hinge_loss_param != null && message.hasOwnProperty("hinge_loss_param")) {
+                    var error = $root.caffe.HingeLossParameter.verify(message.hinge_loss_param);
                     if (error)
-                        return "hingeLossParam." + error;
+                        return "hinge_loss_param." + error;
                 }
-                if (message.imageDataParam != null && message.hasOwnProperty("imageDataParam")) {
-                    var error = $root.caffe.ImageDataParameter.verify(message.imageDataParam);
+                if (message.image_data_param != null && message.hasOwnProperty("image_data_param")) {
+                    var error = $root.caffe.ImageDataParameter.verify(message.image_data_param);
                     if (error)
-                        return "imageDataParam." + error;
+                        return "image_data_param." + error;
                 }
-                if (message.infogainLossParam != null && message.hasOwnProperty("infogainLossParam")) {
-                    var error = $root.caffe.InfogainLossParameter.verify(message.infogainLossParam);
+                if (message.infogain_loss_param != null && message.hasOwnProperty("infogain_loss_param")) {
+                    var error = $root.caffe.InfogainLossParameter.verify(message.infogain_loss_param);
                     if (error)
-                        return "infogainLossParam." + error;
+                        return "infogain_loss_param." + error;
                 }
-                if (message.innerProductParam != null && message.hasOwnProperty("innerProductParam")) {
-                    var error = $root.caffe.InnerProductParameter.verify(message.innerProductParam);
+                if (message.inner_product_param != null && message.hasOwnProperty("inner_product_param")) {
+                    var error = $root.caffe.InnerProductParameter.verify(message.inner_product_param);
                     if (error)
-                        return "innerProductParam." + error;
+                        return "inner_product_param." + error;
                 }
-                if (message.lrnParam != null && message.hasOwnProperty("lrnParam")) {
-                    var error = $root.caffe.LRNParameter.verify(message.lrnParam);
+                if (message.lrn_param != null && message.hasOwnProperty("lrn_param")) {
+                    var error = $root.caffe.LRNParameter.verify(message.lrn_param);
                     if (error)
-                        return "lrnParam." + error;
+                        return "lrn_param." + error;
                 }
-                if (message.memoryDataParam != null && message.hasOwnProperty("memoryDataParam")) {
-                    var error = $root.caffe.MemoryDataParameter.verify(message.memoryDataParam);
+                if (message.memory_data_param != null && message.hasOwnProperty("memory_data_param")) {
+                    var error = $root.caffe.MemoryDataParameter.verify(message.memory_data_param);
                     if (error)
-                        return "memoryDataParam." + error;
+                        return "memory_data_param." + error;
                 }
-                if (message.mvnParam != null && message.hasOwnProperty("mvnParam")) {
-                    var error = $root.caffe.MVNParameter.verify(message.mvnParam);
+                if (message.mvn_param != null && message.hasOwnProperty("mvn_param")) {
+                    var error = $root.caffe.MVNParameter.verify(message.mvn_param);
                     if (error)
-                        return "mvnParam." + error;
+                        return "mvn_param." + error;
                 }
-                if (message.poolingParam != null && message.hasOwnProperty("poolingParam")) {
-                    var error = $root.caffe.PoolingParameter.verify(message.poolingParam);
+                if (message.pooling_param != null && message.hasOwnProperty("pooling_param")) {
+                    var error = $root.caffe.PoolingParameter.verify(message.pooling_param);
                     if (error)
-                        return "poolingParam." + error;
+                        return "pooling_param." + error;
                 }
-                if (message.powerParam != null && message.hasOwnProperty("powerParam")) {
-                    var error = $root.caffe.PowerParameter.verify(message.powerParam);
+                if (message.power_param != null && message.hasOwnProperty("power_param")) {
+                    var error = $root.caffe.PowerParameter.verify(message.power_param);
                     if (error)
-                        return "powerParam." + error;
+                        return "power_param." + error;
                 }
-                if (message.reluParam != null && message.hasOwnProperty("reluParam")) {
-                    var error = $root.caffe.ReLUParameter.verify(message.reluParam);
+                if (message.relu_param != null && message.hasOwnProperty("relu_param")) {
+                    var error = $root.caffe.ReLUParameter.verify(message.relu_param);
                     if (error)
-                        return "reluParam." + error;
+                        return "relu_param." + error;
                 }
-                if (message.sigmoidParam != null && message.hasOwnProperty("sigmoidParam")) {
-                    var error = $root.caffe.SigmoidParameter.verify(message.sigmoidParam);
+                if (message.sigmoid_param != null && message.hasOwnProperty("sigmoid_param")) {
+                    var error = $root.caffe.SigmoidParameter.verify(message.sigmoid_param);
                     if (error)
-                        return "sigmoidParam." + error;
+                        return "sigmoid_param." + error;
                 }
-                if (message.softmaxParam != null && message.hasOwnProperty("softmaxParam")) {
-                    var error = $root.caffe.SoftmaxParameter.verify(message.softmaxParam);
+                if (message.softmax_param != null && message.hasOwnProperty("softmax_param")) {
+                    var error = $root.caffe.SoftmaxParameter.verify(message.softmax_param);
                     if (error)
-                        return "softmaxParam." + error;
+                        return "softmax_param." + error;
                 }
-                if (message.sliceParam != null && message.hasOwnProperty("sliceParam")) {
-                    var error = $root.caffe.SliceParameter.verify(message.sliceParam);
+                if (message.slice_param != null && message.hasOwnProperty("slice_param")) {
+                    var error = $root.caffe.SliceParameter.verify(message.slice_param);
                     if (error)
-                        return "sliceParam." + error;
+                        return "slice_param." + error;
                 }
-                if (message.tanhParam != null && message.hasOwnProperty("tanhParam")) {
-                    var error = $root.caffe.TanHParameter.verify(message.tanhParam);
+                if (message.tanh_param != null && message.hasOwnProperty("tanh_param")) {
+                    var error = $root.caffe.TanHParameter.verify(message.tanh_param);
                     if (error)
-                        return "tanhParam." + error;
+                        return "tanh_param." + error;
                 }
-                if (message.thresholdParam != null && message.hasOwnProperty("thresholdParam")) {
-                    var error = $root.caffe.ThresholdParameter.verify(message.thresholdParam);
+                if (message.threshold_param != null && message.hasOwnProperty("threshold_param")) {
+                    var error = $root.caffe.ThresholdParameter.verify(message.threshold_param);
                     if (error)
-                        return "thresholdParam." + error;
+                        return "threshold_param." + error;
                 }
-                if (message.windowDataParam != null && message.hasOwnProperty("windowDataParam")) {
-                    var error = $root.caffe.WindowDataParameter.verify(message.windowDataParam);
+                if (message.window_data_param != null && message.hasOwnProperty("window_data_param")) {
+                    var error = $root.caffe.WindowDataParameter.verify(message.window_data_param);
                     if (error)
-                        return "windowDataParam." + error;
+                        return "window_data_param." + error;
                 }
-                if (message.transformParam != null && message.hasOwnProperty("transformParam")) {
-                    var error = $root.caffe.TransformationParameter.verify(message.transformParam);
+                if (message.transform_param != null && message.hasOwnProperty("transform_param")) {
+                    var error = $root.caffe.TransformationParameter.verify(message.transform_param);
                     if (error)
-                        return "transformParam." + error;
+                        return "transform_param." + error;
                 }
-                if (message.lossParam != null && message.hasOwnProperty("lossParam")) {
-                    var error = $root.caffe.LossParameter.verify(message.lossParam);
+                if (message.loss_param != null && message.hasOwnProperty("loss_param")) {
+                    var error = $root.caffe.LossParameter.verify(message.loss_param);
                     if (error)
-                        return "lossParam." + error;
+                        return "loss_param." + error;
                 }
                 if (message.layer != null && message.hasOwnProperty("layer")) {
                     var error = $root.caffe.V0LayerParameter.verify(message.layer);
@@ -10186,193 +10186,193 @@
                     for (var i = 0; i < object.param.length; ++i)
                         message.param[i] = String(object.param[i]);
                 }
-                if (object.blobShareMode) {
-                    if (!Array.isArray(object.blobShareMode))
-                        throw TypeError(".caffe.V1LayerParameter.blobShareMode: array expected");
-                    message.blobShareMode = [];
-                    for (var i = 0; i < object.blobShareMode.length; ++i)
-                        switch (object.blobShareMode[i]) {
+                if (object.blob_share_mode) {
+                    if (!Array.isArray(object.blob_share_mode))
+                        throw TypeError(".caffe.V1LayerParameter.blob_share_mode: array expected");
+                    message.blob_share_mode = [];
+                    for (var i = 0; i < object.blob_share_mode.length; ++i)
+                        switch (object.blob_share_mode[i]) {
                         default:
                         case "STRICT":
                         case 0:
-                            message.blobShareMode[i] = 0;
+                            message.blob_share_mode[i] = 0;
                             break;
                         case "PERMISSIVE":
                         case 1:
-                            message.blobShareMode[i] = 1;
+                            message.blob_share_mode[i] = 1;
                             break;
                         }
                 }
-                if (object.blobsLr) {
-                    if (!Array.isArray(object.blobsLr))
-                        throw TypeError(".caffe.V1LayerParameter.blobsLr: array expected");
-                    message.blobsLr = [];
-                    for (var i = 0; i < object.blobsLr.length; ++i)
-                        message.blobsLr[i] = Number(object.blobsLr[i]);
+                if (object.blobs_lr) {
+                    if (!Array.isArray(object.blobs_lr))
+                        throw TypeError(".caffe.V1LayerParameter.blobs_lr: array expected");
+                    message.blobs_lr = [];
+                    for (var i = 0; i < object.blobs_lr.length; ++i)
+                        message.blobs_lr[i] = Number(object.blobs_lr[i]);
                 }
-                if (object.weightDecay) {
-                    if (!Array.isArray(object.weightDecay))
-                        throw TypeError(".caffe.V1LayerParameter.weightDecay: array expected");
-                    message.weightDecay = [];
-                    for (var i = 0; i < object.weightDecay.length; ++i)
-                        message.weightDecay[i] = Number(object.weightDecay[i]);
+                if (object.weight_decay) {
+                    if (!Array.isArray(object.weight_decay))
+                        throw TypeError(".caffe.V1LayerParameter.weight_decay: array expected");
+                    message.weight_decay = [];
+                    for (var i = 0; i < object.weight_decay.length; ++i)
+                        message.weight_decay[i] = Number(object.weight_decay[i]);
                 }
-                if (object.lossWeight) {
-                    if (!Array.isArray(object.lossWeight))
-                        throw TypeError(".caffe.V1LayerParameter.lossWeight: array expected");
-                    message.lossWeight = [];
-                    for (var i = 0; i < object.lossWeight.length; ++i)
-                        message.lossWeight[i] = Number(object.lossWeight[i]);
+                if (object.loss_weight) {
+                    if (!Array.isArray(object.loss_weight))
+                        throw TypeError(".caffe.V1LayerParameter.loss_weight: array expected");
+                    message.loss_weight = [];
+                    for (var i = 0; i < object.loss_weight.length; ++i)
+                        message.loss_weight[i] = Number(object.loss_weight[i]);
                 }
-                if (object.accuracyParam != null) {
-                    if (typeof object.accuracyParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.accuracyParam: object expected");
-                    message.accuracyParam = $root.caffe.AccuracyParameter.fromObject(object.accuracyParam);
+                if (object.accuracy_param != null) {
+                    if (typeof object.accuracy_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.accuracy_param: object expected");
+                    message.accuracy_param = $root.caffe.AccuracyParameter.fromObject(object.accuracy_param);
                 }
-                if (object.argmaxParam != null) {
-                    if (typeof object.argmaxParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.argmaxParam: object expected");
-                    message.argmaxParam = $root.caffe.ArgMaxParameter.fromObject(object.argmaxParam);
+                if (object.argmax_param != null) {
+                    if (typeof object.argmax_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.argmax_param: object expected");
+                    message.argmax_param = $root.caffe.ArgMaxParameter.fromObject(object.argmax_param);
                 }
-                if (object.concatParam != null) {
-                    if (typeof object.concatParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.concatParam: object expected");
-                    message.concatParam = $root.caffe.ConcatParameter.fromObject(object.concatParam);
+                if (object.concat_param != null) {
+                    if (typeof object.concat_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.concat_param: object expected");
+                    message.concat_param = $root.caffe.ConcatParameter.fromObject(object.concat_param);
                 }
-                if (object.contrastiveLossParam != null) {
-                    if (typeof object.contrastiveLossParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.contrastiveLossParam: object expected");
-                    message.contrastiveLossParam = $root.caffe.ContrastiveLossParameter.fromObject(object.contrastiveLossParam);
+                if (object.contrastive_loss_param != null) {
+                    if (typeof object.contrastive_loss_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.contrastive_loss_param: object expected");
+                    message.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.fromObject(object.contrastive_loss_param);
                 }
-                if (object.convolutionParam != null) {
-                    if (typeof object.convolutionParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.convolutionParam: object expected");
-                    message.convolutionParam = $root.caffe.ConvolutionParameter.fromObject(object.convolutionParam);
+                if (object.convolution_param != null) {
+                    if (typeof object.convolution_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.convolution_param: object expected");
+                    message.convolution_param = $root.caffe.ConvolutionParameter.fromObject(object.convolution_param);
                 }
-                if (object.dataParam != null) {
-                    if (typeof object.dataParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.dataParam: object expected");
-                    message.dataParam = $root.caffe.DataParameter.fromObject(object.dataParam);
+                if (object.data_param != null) {
+                    if (typeof object.data_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.data_param: object expected");
+                    message.data_param = $root.caffe.DataParameter.fromObject(object.data_param);
                 }
-                if (object.dropoutParam != null) {
-                    if (typeof object.dropoutParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.dropoutParam: object expected");
-                    message.dropoutParam = $root.caffe.DropoutParameter.fromObject(object.dropoutParam);
+                if (object.dropout_param != null) {
+                    if (typeof object.dropout_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.dropout_param: object expected");
+                    message.dropout_param = $root.caffe.DropoutParameter.fromObject(object.dropout_param);
                 }
-                if (object.dummyDataParam != null) {
-                    if (typeof object.dummyDataParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.dummyDataParam: object expected");
-                    message.dummyDataParam = $root.caffe.DummyDataParameter.fromObject(object.dummyDataParam);
+                if (object.dummy_data_param != null) {
+                    if (typeof object.dummy_data_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.dummy_data_param: object expected");
+                    message.dummy_data_param = $root.caffe.DummyDataParameter.fromObject(object.dummy_data_param);
                 }
-                if (object.eltwiseParam != null) {
-                    if (typeof object.eltwiseParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.eltwiseParam: object expected");
-                    message.eltwiseParam = $root.caffe.EltwiseParameter.fromObject(object.eltwiseParam);
+                if (object.eltwise_param != null) {
+                    if (typeof object.eltwise_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.eltwise_param: object expected");
+                    message.eltwise_param = $root.caffe.EltwiseParameter.fromObject(object.eltwise_param);
                 }
-                if (object.expParam != null) {
-                    if (typeof object.expParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.expParam: object expected");
-                    message.expParam = $root.caffe.ExpParameter.fromObject(object.expParam);
+                if (object.exp_param != null) {
+                    if (typeof object.exp_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.exp_param: object expected");
+                    message.exp_param = $root.caffe.ExpParameter.fromObject(object.exp_param);
                 }
-                if (object.hdf5DataParam != null) {
-                    if (typeof object.hdf5DataParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.hdf5DataParam: object expected");
-                    message.hdf5DataParam = $root.caffe.HDF5DataParameter.fromObject(object.hdf5DataParam);
+                if (object.hdf5_data_param != null) {
+                    if (typeof object.hdf5_data_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.hdf5_data_param: object expected");
+                    message.hdf5_data_param = $root.caffe.HDF5DataParameter.fromObject(object.hdf5_data_param);
                 }
-                if (object.hdf5OutputParam != null) {
-                    if (typeof object.hdf5OutputParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.hdf5OutputParam: object expected");
-                    message.hdf5OutputParam = $root.caffe.HDF5OutputParameter.fromObject(object.hdf5OutputParam);
+                if (object.hdf5_output_param != null) {
+                    if (typeof object.hdf5_output_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.hdf5_output_param: object expected");
+                    message.hdf5_output_param = $root.caffe.HDF5OutputParameter.fromObject(object.hdf5_output_param);
                 }
-                if (object.hingeLossParam != null) {
-                    if (typeof object.hingeLossParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.hingeLossParam: object expected");
-                    message.hingeLossParam = $root.caffe.HingeLossParameter.fromObject(object.hingeLossParam);
+                if (object.hinge_loss_param != null) {
+                    if (typeof object.hinge_loss_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.hinge_loss_param: object expected");
+                    message.hinge_loss_param = $root.caffe.HingeLossParameter.fromObject(object.hinge_loss_param);
                 }
-                if (object.imageDataParam != null) {
-                    if (typeof object.imageDataParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.imageDataParam: object expected");
-                    message.imageDataParam = $root.caffe.ImageDataParameter.fromObject(object.imageDataParam);
+                if (object.image_data_param != null) {
+                    if (typeof object.image_data_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.image_data_param: object expected");
+                    message.image_data_param = $root.caffe.ImageDataParameter.fromObject(object.image_data_param);
                 }
-                if (object.infogainLossParam != null) {
-                    if (typeof object.infogainLossParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.infogainLossParam: object expected");
-                    message.infogainLossParam = $root.caffe.InfogainLossParameter.fromObject(object.infogainLossParam);
+                if (object.infogain_loss_param != null) {
+                    if (typeof object.infogain_loss_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.infogain_loss_param: object expected");
+                    message.infogain_loss_param = $root.caffe.InfogainLossParameter.fromObject(object.infogain_loss_param);
                 }
-                if (object.innerProductParam != null) {
-                    if (typeof object.innerProductParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.innerProductParam: object expected");
-                    message.innerProductParam = $root.caffe.InnerProductParameter.fromObject(object.innerProductParam);
+                if (object.inner_product_param != null) {
+                    if (typeof object.inner_product_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.inner_product_param: object expected");
+                    message.inner_product_param = $root.caffe.InnerProductParameter.fromObject(object.inner_product_param);
                 }
-                if (object.lrnParam != null) {
-                    if (typeof object.lrnParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.lrnParam: object expected");
-                    message.lrnParam = $root.caffe.LRNParameter.fromObject(object.lrnParam);
+                if (object.lrn_param != null) {
+                    if (typeof object.lrn_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.lrn_param: object expected");
+                    message.lrn_param = $root.caffe.LRNParameter.fromObject(object.lrn_param);
                 }
-                if (object.memoryDataParam != null) {
-                    if (typeof object.memoryDataParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.memoryDataParam: object expected");
-                    message.memoryDataParam = $root.caffe.MemoryDataParameter.fromObject(object.memoryDataParam);
+                if (object.memory_data_param != null) {
+                    if (typeof object.memory_data_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.memory_data_param: object expected");
+                    message.memory_data_param = $root.caffe.MemoryDataParameter.fromObject(object.memory_data_param);
                 }
-                if (object.mvnParam != null) {
-                    if (typeof object.mvnParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.mvnParam: object expected");
-                    message.mvnParam = $root.caffe.MVNParameter.fromObject(object.mvnParam);
+                if (object.mvn_param != null) {
+                    if (typeof object.mvn_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.mvn_param: object expected");
+                    message.mvn_param = $root.caffe.MVNParameter.fromObject(object.mvn_param);
                 }
-                if (object.poolingParam != null) {
-                    if (typeof object.poolingParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.poolingParam: object expected");
-                    message.poolingParam = $root.caffe.PoolingParameter.fromObject(object.poolingParam);
+                if (object.pooling_param != null) {
+                    if (typeof object.pooling_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.pooling_param: object expected");
+                    message.pooling_param = $root.caffe.PoolingParameter.fromObject(object.pooling_param);
                 }
-                if (object.powerParam != null) {
-                    if (typeof object.powerParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.powerParam: object expected");
-                    message.powerParam = $root.caffe.PowerParameter.fromObject(object.powerParam);
+                if (object.power_param != null) {
+                    if (typeof object.power_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.power_param: object expected");
+                    message.power_param = $root.caffe.PowerParameter.fromObject(object.power_param);
                 }
-                if (object.reluParam != null) {
-                    if (typeof object.reluParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.reluParam: object expected");
-                    message.reluParam = $root.caffe.ReLUParameter.fromObject(object.reluParam);
+                if (object.relu_param != null) {
+                    if (typeof object.relu_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.relu_param: object expected");
+                    message.relu_param = $root.caffe.ReLUParameter.fromObject(object.relu_param);
                 }
-                if (object.sigmoidParam != null) {
-                    if (typeof object.sigmoidParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.sigmoidParam: object expected");
-                    message.sigmoidParam = $root.caffe.SigmoidParameter.fromObject(object.sigmoidParam);
+                if (object.sigmoid_param != null) {
+                    if (typeof object.sigmoid_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.sigmoid_param: object expected");
+                    message.sigmoid_param = $root.caffe.SigmoidParameter.fromObject(object.sigmoid_param);
                 }
-                if (object.softmaxParam != null) {
-                    if (typeof object.softmaxParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.softmaxParam: object expected");
-                    message.softmaxParam = $root.caffe.SoftmaxParameter.fromObject(object.softmaxParam);
+                if (object.softmax_param != null) {
+                    if (typeof object.softmax_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.softmax_param: object expected");
+                    message.softmax_param = $root.caffe.SoftmaxParameter.fromObject(object.softmax_param);
                 }
-                if (object.sliceParam != null) {
-                    if (typeof object.sliceParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.sliceParam: object expected");
-                    message.sliceParam = $root.caffe.SliceParameter.fromObject(object.sliceParam);
+                if (object.slice_param != null) {
+                    if (typeof object.slice_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.slice_param: object expected");
+                    message.slice_param = $root.caffe.SliceParameter.fromObject(object.slice_param);
                 }
-                if (object.tanhParam != null) {
-                    if (typeof object.tanhParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.tanhParam: object expected");
-                    message.tanhParam = $root.caffe.TanHParameter.fromObject(object.tanhParam);
+                if (object.tanh_param != null) {
+                    if (typeof object.tanh_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.tanh_param: object expected");
+                    message.tanh_param = $root.caffe.TanHParameter.fromObject(object.tanh_param);
                 }
-                if (object.thresholdParam != null) {
-                    if (typeof object.thresholdParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.thresholdParam: object expected");
-                    message.thresholdParam = $root.caffe.ThresholdParameter.fromObject(object.thresholdParam);
+                if (object.threshold_param != null) {
+                    if (typeof object.threshold_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.threshold_param: object expected");
+                    message.threshold_param = $root.caffe.ThresholdParameter.fromObject(object.threshold_param);
                 }
-                if (object.windowDataParam != null) {
-                    if (typeof object.windowDataParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.windowDataParam: object expected");
-                    message.windowDataParam = $root.caffe.WindowDataParameter.fromObject(object.windowDataParam);
+                if (object.window_data_param != null) {
+                    if (typeof object.window_data_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.window_data_param: object expected");
+                    message.window_data_param = $root.caffe.WindowDataParameter.fromObject(object.window_data_param);
                 }
-                if (object.transformParam != null) {
-                    if (typeof object.transformParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.transformParam: object expected");
-                    message.transformParam = $root.caffe.TransformationParameter.fromObject(object.transformParam);
+                if (object.transform_param != null) {
+                    if (typeof object.transform_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.transform_param: object expected");
+                    message.transform_param = $root.caffe.TransformationParameter.fromObject(object.transform_param);
                 }
-                if (object.lossParam != null) {
-                    if (typeof object.lossParam !== "object")
-                        throw TypeError(".caffe.V1LayerParameter.lossParam: object expected");
-                    message.lossParam = $root.caffe.LossParameter.fromObject(object.lossParam);
+                if (object.loss_param != null) {
+                    if (typeof object.loss_param !== "object")
+                        throw TypeError(".caffe.V1LayerParameter.loss_param: object expected");
+                    message.loss_param = $root.caffe.LossParameter.fromObject(object.loss_param);
                 }
                 if (object.layer != null) {
                     if (typeof object.layer !== "object")
@@ -10390,48 +10390,48 @@
                     object.bottom = [];
                     object.top = [];
                     object.blobs = [];
-                    object.blobsLr = [];
-                    object.weightDecay = [];
+                    object.blobs_lr = [];
+                    object.weight_decay = [];
                     object.include = [];
                     object.exclude = [];
-                    object.lossWeight = [];
+                    object.loss_weight = [];
                     object.param = [];
-                    object.blobShareMode = [];
+                    object.blob_share_mode = [];
                 }
                 if (options.defaults) {
                     object.layer = null;
                     object.name = "";
                     object.type = options.enums === String ? "NONE" : 0;
-                    object.concatParam = null;
-                    object.convolutionParam = null;
-                    object.dataParam = null;
-                    object.dropoutParam = null;
-                    object.hdf5DataParam = null;
-                    object.hdf5OutputParam = null;
-                    object.imageDataParam = null;
-                    object.infogainLossParam = null;
-                    object.innerProductParam = null;
-                    object.lrnParam = null;
-                    object.poolingParam = null;
-                    object.windowDataParam = null;
-                    object.powerParam = null;
-                    object.memoryDataParam = null;
-                    object.argmaxParam = null;
-                    object.eltwiseParam = null;
-                    object.thresholdParam = null;
-                    object.dummyDataParam = null;
-                    object.accuracyParam = null;
-                    object.hingeLossParam = null;
-                    object.reluParam = null;
-                    object.sliceParam = null;
-                    object.mvnParam = null;
-                    object.transformParam = null;
-                    object.tanhParam = null;
-                    object.sigmoidParam = null;
-                    object.softmaxParam = null;
-                    object.contrastiveLossParam = null;
-                    object.expParam = null;
-                    object.lossParam = null;
+                    object.concat_param = null;
+                    object.convolution_param = null;
+                    object.data_param = null;
+                    object.dropout_param = null;
+                    object.hdf5_data_param = null;
+                    object.hdf5_output_param = null;
+                    object.image_data_param = null;
+                    object.infogain_loss_param = null;
+                    object.inner_product_param = null;
+                    object.lrn_param = null;
+                    object.pooling_param = null;
+                    object.window_data_param = null;
+                    object.power_param = null;
+                    object.memory_data_param = null;
+                    object.argmax_param = null;
+                    object.eltwise_param = null;
+                    object.threshold_param = null;
+                    object.dummy_data_param = null;
+                    object.accuracy_param = null;
+                    object.hinge_loss_param = null;
+                    object.relu_param = null;
+                    object.slice_param = null;
+                    object.mvn_param = null;
+                    object.transform_param = null;
+                    object.tanh_param = null;
+                    object.sigmoid_param = null;
+                    object.softmax_param = null;
+                    object.contrastive_loss_param = null;
+                    object.exp_param = null;
+                    object.loss_param = null;
                 }
                 if (message.layer != null && message.hasOwnProperty("layer"))
                     object.layer = $root.caffe.V0LayerParameter.toObject(message.layer, options);
@@ -10454,60 +10454,60 @@
                     for (var j = 0; j < message.blobs.length; ++j)
                         object.blobs[j] = $root.caffe.BlobProto.toObject(message.blobs[j], options);
                 }
-                if (message.blobsLr && message.blobsLr.length) {
-                    object.blobsLr = [];
-                    for (var j = 0; j < message.blobsLr.length; ++j)
-                        object.blobsLr[j] = options.json && !isFinite(message.blobsLr[j]) ? String(message.blobsLr[j]) : message.blobsLr[j];
+                if (message.blobs_lr && message.blobs_lr.length) {
+                    object.blobs_lr = [];
+                    for (var j = 0; j < message.blobs_lr.length; ++j)
+                        object.blobs_lr[j] = options.json && !isFinite(message.blobs_lr[j]) ? String(message.blobs_lr[j]) : message.blobs_lr[j];
                 }
-                if (message.weightDecay && message.weightDecay.length) {
-                    object.weightDecay = [];
-                    for (var j = 0; j < message.weightDecay.length; ++j)
-                        object.weightDecay[j] = options.json && !isFinite(message.weightDecay[j]) ? String(message.weightDecay[j]) : message.weightDecay[j];
+                if (message.weight_decay && message.weight_decay.length) {
+                    object.weight_decay = [];
+                    for (var j = 0; j < message.weight_decay.length; ++j)
+                        object.weight_decay[j] = options.json && !isFinite(message.weight_decay[j]) ? String(message.weight_decay[j]) : message.weight_decay[j];
                 }
-                if (message.concatParam != null && message.hasOwnProperty("concatParam"))
-                    object.concatParam = $root.caffe.ConcatParameter.toObject(message.concatParam, options);
-                if (message.convolutionParam != null && message.hasOwnProperty("convolutionParam"))
-                    object.convolutionParam = $root.caffe.ConvolutionParameter.toObject(message.convolutionParam, options);
-                if (message.dataParam != null && message.hasOwnProperty("dataParam"))
-                    object.dataParam = $root.caffe.DataParameter.toObject(message.dataParam, options);
-                if (message.dropoutParam != null && message.hasOwnProperty("dropoutParam"))
-                    object.dropoutParam = $root.caffe.DropoutParameter.toObject(message.dropoutParam, options);
-                if (message.hdf5DataParam != null && message.hasOwnProperty("hdf5DataParam"))
-                    object.hdf5DataParam = $root.caffe.HDF5DataParameter.toObject(message.hdf5DataParam, options);
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam"))
-                    object.hdf5OutputParam = $root.caffe.HDF5OutputParameter.toObject(message.hdf5OutputParam, options);
-                if (message.imageDataParam != null && message.hasOwnProperty("imageDataParam"))
-                    object.imageDataParam = $root.caffe.ImageDataParameter.toObject(message.imageDataParam, options);
-                if (message.infogainLossParam != null && message.hasOwnProperty("infogainLossParam"))
-                    object.infogainLossParam = $root.caffe.InfogainLossParameter.toObject(message.infogainLossParam, options);
-                if (message.innerProductParam != null && message.hasOwnProperty("innerProductParam"))
-                    object.innerProductParam = $root.caffe.InnerProductParameter.toObject(message.innerProductParam, options);
-                if (message.lrnParam != null && message.hasOwnProperty("lrnParam"))
-                    object.lrnParam = $root.caffe.LRNParameter.toObject(message.lrnParam, options);
-                if (message.poolingParam != null && message.hasOwnProperty("poolingParam"))
-                    object.poolingParam = $root.caffe.PoolingParameter.toObject(message.poolingParam, options);
-                if (message.windowDataParam != null && message.hasOwnProperty("windowDataParam"))
-                    object.windowDataParam = $root.caffe.WindowDataParameter.toObject(message.windowDataParam, options);
-                if (message.powerParam != null && message.hasOwnProperty("powerParam"))
-                    object.powerParam = $root.caffe.PowerParameter.toObject(message.powerParam, options);
-                if (message.memoryDataParam != null && message.hasOwnProperty("memoryDataParam"))
-                    object.memoryDataParam = $root.caffe.MemoryDataParameter.toObject(message.memoryDataParam, options);
-                if (message.argmaxParam != null && message.hasOwnProperty("argmaxParam"))
-                    object.argmaxParam = $root.caffe.ArgMaxParameter.toObject(message.argmaxParam, options);
-                if (message.eltwiseParam != null && message.hasOwnProperty("eltwiseParam"))
-                    object.eltwiseParam = $root.caffe.EltwiseParameter.toObject(message.eltwiseParam, options);
-                if (message.thresholdParam != null && message.hasOwnProperty("thresholdParam"))
-                    object.thresholdParam = $root.caffe.ThresholdParameter.toObject(message.thresholdParam, options);
-                if (message.dummyDataParam != null && message.hasOwnProperty("dummyDataParam"))
-                    object.dummyDataParam = $root.caffe.DummyDataParameter.toObject(message.dummyDataParam, options);
-                if (message.accuracyParam != null && message.hasOwnProperty("accuracyParam"))
-                    object.accuracyParam = $root.caffe.AccuracyParameter.toObject(message.accuracyParam, options);
-                if (message.hingeLossParam != null && message.hasOwnProperty("hingeLossParam"))
-                    object.hingeLossParam = $root.caffe.HingeLossParameter.toObject(message.hingeLossParam, options);
-                if (message.reluParam != null && message.hasOwnProperty("reluParam"))
-                    object.reluParam = $root.caffe.ReLUParameter.toObject(message.reluParam, options);
-                if (message.sliceParam != null && message.hasOwnProperty("sliceParam"))
-                    object.sliceParam = $root.caffe.SliceParameter.toObject(message.sliceParam, options);
+                if (message.concat_param != null && message.hasOwnProperty("concat_param"))
+                    object.concat_param = $root.caffe.ConcatParameter.toObject(message.concat_param, options);
+                if (message.convolution_param != null && message.hasOwnProperty("convolution_param"))
+                    object.convolution_param = $root.caffe.ConvolutionParameter.toObject(message.convolution_param, options);
+                if (message.data_param != null && message.hasOwnProperty("data_param"))
+                    object.data_param = $root.caffe.DataParameter.toObject(message.data_param, options);
+                if (message.dropout_param != null && message.hasOwnProperty("dropout_param"))
+                    object.dropout_param = $root.caffe.DropoutParameter.toObject(message.dropout_param, options);
+                if (message.hdf5_data_param != null && message.hasOwnProperty("hdf5_data_param"))
+                    object.hdf5_data_param = $root.caffe.HDF5DataParameter.toObject(message.hdf5_data_param, options);
+                if (message.hdf5_output_param != null && message.hasOwnProperty("hdf5_output_param"))
+                    object.hdf5_output_param = $root.caffe.HDF5OutputParameter.toObject(message.hdf5_output_param, options);
+                if (message.image_data_param != null && message.hasOwnProperty("image_data_param"))
+                    object.image_data_param = $root.caffe.ImageDataParameter.toObject(message.image_data_param, options);
+                if (message.infogain_loss_param != null && message.hasOwnProperty("infogain_loss_param"))
+                    object.infogain_loss_param = $root.caffe.InfogainLossParameter.toObject(message.infogain_loss_param, options);
+                if (message.inner_product_param != null && message.hasOwnProperty("inner_product_param"))
+                    object.inner_product_param = $root.caffe.InnerProductParameter.toObject(message.inner_product_param, options);
+                if (message.lrn_param != null && message.hasOwnProperty("lrn_param"))
+                    object.lrn_param = $root.caffe.LRNParameter.toObject(message.lrn_param, options);
+                if (message.pooling_param != null && message.hasOwnProperty("pooling_param"))
+                    object.pooling_param = $root.caffe.PoolingParameter.toObject(message.pooling_param, options);
+                if (message.window_data_param != null && message.hasOwnProperty("window_data_param"))
+                    object.window_data_param = $root.caffe.WindowDataParameter.toObject(message.window_data_param, options);
+                if (message.power_param != null && message.hasOwnProperty("power_param"))
+                    object.power_param = $root.caffe.PowerParameter.toObject(message.power_param, options);
+                if (message.memory_data_param != null && message.hasOwnProperty("memory_data_param"))
+                    object.memory_data_param = $root.caffe.MemoryDataParameter.toObject(message.memory_data_param, options);
+                if (message.argmax_param != null && message.hasOwnProperty("argmax_param"))
+                    object.argmax_param = $root.caffe.ArgMaxParameter.toObject(message.argmax_param, options);
+                if (message.eltwise_param != null && message.hasOwnProperty("eltwise_param"))
+                    object.eltwise_param = $root.caffe.EltwiseParameter.toObject(message.eltwise_param, options);
+                if (message.threshold_param != null && message.hasOwnProperty("threshold_param"))
+                    object.threshold_param = $root.caffe.ThresholdParameter.toObject(message.threshold_param, options);
+                if (message.dummy_data_param != null && message.hasOwnProperty("dummy_data_param"))
+                    object.dummy_data_param = $root.caffe.DummyDataParameter.toObject(message.dummy_data_param, options);
+                if (message.accuracy_param != null && message.hasOwnProperty("accuracy_param"))
+                    object.accuracy_param = $root.caffe.AccuracyParameter.toObject(message.accuracy_param, options);
+                if (message.hinge_loss_param != null && message.hasOwnProperty("hinge_loss_param"))
+                    object.hinge_loss_param = $root.caffe.HingeLossParameter.toObject(message.hinge_loss_param, options);
+                if (message.relu_param != null && message.hasOwnProperty("relu_param"))
+                    object.relu_param = $root.caffe.ReLUParameter.toObject(message.relu_param, options);
+                if (message.slice_param != null && message.hasOwnProperty("slice_param"))
+                    object.slice_param = $root.caffe.SliceParameter.toObject(message.slice_param, options);
                 if (message.include && message.include.length) {
                     object.include = [];
                     for (var j = 0; j < message.include.length; ++j)
@@ -10518,36 +10518,36 @@
                     for (var j = 0; j < message.exclude.length; ++j)
                         object.exclude[j] = $root.caffe.NetStateRule.toObject(message.exclude[j], options);
                 }
-                if (message.mvnParam != null && message.hasOwnProperty("mvnParam"))
-                    object.mvnParam = $root.caffe.MVNParameter.toObject(message.mvnParam, options);
-                if (message.lossWeight && message.lossWeight.length) {
-                    object.lossWeight = [];
-                    for (var j = 0; j < message.lossWeight.length; ++j)
-                        object.lossWeight[j] = options.json && !isFinite(message.lossWeight[j]) ? String(message.lossWeight[j]) : message.lossWeight[j];
+                if (message.mvn_param != null && message.hasOwnProperty("mvn_param"))
+                    object.mvn_param = $root.caffe.MVNParameter.toObject(message.mvn_param, options);
+                if (message.loss_weight && message.loss_weight.length) {
+                    object.loss_weight = [];
+                    for (var j = 0; j < message.loss_weight.length; ++j)
+                        object.loss_weight[j] = options.json && !isFinite(message.loss_weight[j]) ? String(message.loss_weight[j]) : message.loss_weight[j];
                 }
-                if (message.transformParam != null && message.hasOwnProperty("transformParam"))
-                    object.transformParam = $root.caffe.TransformationParameter.toObject(message.transformParam, options);
-                if (message.tanhParam != null && message.hasOwnProperty("tanhParam"))
-                    object.tanhParam = $root.caffe.TanHParameter.toObject(message.tanhParam, options);
-                if (message.sigmoidParam != null && message.hasOwnProperty("sigmoidParam"))
-                    object.sigmoidParam = $root.caffe.SigmoidParameter.toObject(message.sigmoidParam, options);
-                if (message.softmaxParam != null && message.hasOwnProperty("softmaxParam"))
-                    object.softmaxParam = $root.caffe.SoftmaxParameter.toObject(message.softmaxParam, options);
-                if (message.contrastiveLossParam != null && message.hasOwnProperty("contrastiveLossParam"))
-                    object.contrastiveLossParam = $root.caffe.ContrastiveLossParameter.toObject(message.contrastiveLossParam, options);
-                if (message.expParam != null && message.hasOwnProperty("expParam"))
-                    object.expParam = $root.caffe.ExpParameter.toObject(message.expParam, options);
-                if (message.lossParam != null && message.hasOwnProperty("lossParam"))
-                    object.lossParam = $root.caffe.LossParameter.toObject(message.lossParam, options);
+                if (message.transform_param != null && message.hasOwnProperty("transform_param"))
+                    object.transform_param = $root.caffe.TransformationParameter.toObject(message.transform_param, options);
+                if (message.tanh_param != null && message.hasOwnProperty("tanh_param"))
+                    object.tanh_param = $root.caffe.TanHParameter.toObject(message.tanh_param, options);
+                if (message.sigmoid_param != null && message.hasOwnProperty("sigmoid_param"))
+                    object.sigmoid_param = $root.caffe.SigmoidParameter.toObject(message.sigmoid_param, options);
+                if (message.softmax_param != null && message.hasOwnProperty("softmax_param"))
+                    object.softmax_param = $root.caffe.SoftmaxParameter.toObject(message.softmax_param, options);
+                if (message.contrastive_loss_param != null && message.hasOwnProperty("contrastive_loss_param"))
+                    object.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.toObject(message.contrastive_loss_param, options);
+                if (message.exp_param != null && message.hasOwnProperty("exp_param"))
+                    object.exp_param = $root.caffe.ExpParameter.toObject(message.exp_param, options);
+                if (message.loss_param != null && message.hasOwnProperty("loss_param"))
+                    object.loss_param = $root.caffe.LossParameter.toObject(message.loss_param, options);
                 if (message.param && message.param.length) {
                     object.param = [];
                     for (var j = 0; j < message.param.length; ++j)
                         object.param[j] = message.param[j];
                 }
-                if (message.blobShareMode && message.blobShareMode.length) {
-                    object.blobShareMode = [];
-                    for (var j = 0; j < message.blobShareMode.length; ++j)
-                        object.blobShareMode[j] = options.enums === String ? $root.caffe.V1LayerParameter.DimCheckMode[message.blobShareMode[j]] : message.blobShareMode[j];
+                if (message.blob_share_mode && message.blob_share_mode.length) {
+                    object.blob_share_mode = [];
+                    for (var j = 0; j < message.blob_share_mode.length; ++j)
+                        object.blob_share_mode[j] = options.enums === String ? $root.caffe.V1LayerParameter.DimCheckMode[message.blob_share_mode[j]] : message.blob_share_mode[j];
                 }
                 return object;
             };
@@ -10615,8 +10615,8 @@
     
             function V0LayerParameter(properties) {
                 this.blobs = [];
-                this.blobsLr = [];
-                this.weightDecay = [];
+                this.blobs_lr = [];
+                this.weight_decay = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -10625,17 +10625,17 @@
     
             V0LayerParameter.prototype.name = "";
             V0LayerParameter.prototype.type = "";
-            V0LayerParameter.prototype.numOutput = 0;
+            V0LayerParameter.prototype.num_output = 0;
             V0LayerParameter.prototype.biasterm = true;
-            V0LayerParameter.prototype.weightFiller = null;
-            V0LayerParameter.prototype.biasFiller = null;
+            V0LayerParameter.prototype.weight_filler = null;
+            V0LayerParameter.prototype.bias_filler = null;
             V0LayerParameter.prototype.pad = 0;
             V0LayerParameter.prototype.kernelsize = 0;
             V0LayerParameter.prototype.group = 1;
             V0LayerParameter.prototype.stride = 1;
             V0LayerParameter.prototype.pool = 0;
-            V0LayerParameter.prototype.dropoutRatio = 0.5;
-            V0LayerParameter.prototype.localSize = 5;
+            V0LayerParameter.prototype.dropout_ratio = 0.5;
+            V0LayerParameter.prototype.local_size = 5;
             V0LayerParameter.prototype.alpha = 1;
             V0LayerParameter.prototype.beta = 0.75;
             V0LayerParameter.prototype.k = 1;
@@ -10646,21 +10646,21 @@
             V0LayerParameter.prototype.cropsize = 0;
             V0LayerParameter.prototype.mirror = false;
             V0LayerParameter.prototype.blobs = $util.emptyArray;
-            V0LayerParameter.prototype.blobsLr = $util.emptyArray;
-            V0LayerParameter.prototype.weightDecay = $util.emptyArray;
-            V0LayerParameter.prototype.randSkip = 0;
-            V0LayerParameter.prototype.detFgThreshold = 0.5;
-            V0LayerParameter.prototype.detBgThreshold = 0.5;
-            V0LayerParameter.prototype.detFgFraction = 0.25;
-            V0LayerParameter.prototype.detContextPad = 0;
-            V0LayerParameter.prototype.detCropMode = "warp";
-            V0LayerParameter.prototype.newNum = 0;
-            V0LayerParameter.prototype.newChannels = 0;
-            V0LayerParameter.prototype.newHeight = 0;
-            V0LayerParameter.prototype.newWidth = 0;
-            V0LayerParameter.prototype.shuffleImages = false;
-            V0LayerParameter.prototype.concatDim = 1;
-            V0LayerParameter.prototype.hdf5OutputParam = null;
+            V0LayerParameter.prototype.blobs_lr = $util.emptyArray;
+            V0LayerParameter.prototype.weight_decay = $util.emptyArray;
+            V0LayerParameter.prototype.rand_skip = 0;
+            V0LayerParameter.prototype.det_fg_threshold = 0.5;
+            V0LayerParameter.prototype.det_bg_threshold = 0.5;
+            V0LayerParameter.prototype.det_fg_fraction = 0.25;
+            V0LayerParameter.prototype.det_context_pad = 0;
+            V0LayerParameter.prototype.det_crop_mode = "warp";
+            V0LayerParameter.prototype.new_num = 0;
+            V0LayerParameter.prototype.new_channels = 0;
+            V0LayerParameter.prototype.new_height = 0;
+            V0LayerParameter.prototype.new_width = 0;
+            V0LayerParameter.prototype.shuffle_images = false;
+            V0LayerParameter.prototype.concat_dim = 1;
+            V0LayerParameter.prototype.hdf5_output_param = null;
     
             V0LayerParameter.create = function create(properties) {
                 return new V0LayerParameter(properties);
@@ -10680,16 +10680,16 @@
                         message.type = reader.string();
                         break;
                     case 3:
-                        message.numOutput = reader.uint32();
+                        message.num_output = reader.uint32();
                         break;
                     case 4:
                         message.biasterm = reader.bool();
                         break;
                     case 5:
-                        message.weightFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.weight_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 6:
-                        message.biasFiller = $root.caffe.FillerParameter.decode(reader, reader.uint32());
+                        message.bias_filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 7:
                         message.pad = reader.uint32();
@@ -10707,10 +10707,10 @@
                         message.pool = reader.int32();
                         break;
                     case 12:
-                        message.dropoutRatio = reader.float();
+                        message.dropout_ratio = reader.float();
                         break;
                     case 13:
-                        message.localSize = reader.uint32();
+                        message.local_size = reader.uint32();
                         break;
                     case 14:
                         message.alpha = reader.float();
@@ -10745,63 +10745,63 @@
                         message.blobs.push($root.caffe.BlobProto.decode(reader, reader.uint32()));
                         break;
                     case 51:
-                        if (!(message.blobsLr && message.blobsLr.length))
-                            message.blobsLr = [];
+                        if (!(message.blobs_lr && message.blobs_lr.length))
+                            message.blobs_lr = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.blobsLr.push(reader.float());
+                                message.blobs_lr.push(reader.float());
                         } else
-                            message.blobsLr.push(reader.float());
+                            message.blobs_lr.push(reader.float());
                         break;
                     case 52:
-                        if (!(message.weightDecay && message.weightDecay.length))
-                            message.weightDecay = [];
+                        if (!(message.weight_decay && message.weight_decay.length))
+                            message.weight_decay = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.weightDecay.push(reader.float());
+                                message.weight_decay.push(reader.float());
                         } else
-                            message.weightDecay.push(reader.float());
+                            message.weight_decay.push(reader.float());
                         break;
                     case 53:
-                        message.randSkip = reader.uint32();
+                        message.rand_skip = reader.uint32();
                         break;
                     case 54:
-                        message.detFgThreshold = reader.float();
+                        message.det_fg_threshold = reader.float();
                         break;
                     case 55:
-                        message.detBgThreshold = reader.float();
+                        message.det_bg_threshold = reader.float();
                         break;
                     case 56:
-                        message.detFgFraction = reader.float();
+                        message.det_fg_fraction = reader.float();
                         break;
                     case 58:
-                        message.detContextPad = reader.uint32();
+                        message.det_context_pad = reader.uint32();
                         break;
                     case 59:
-                        message.detCropMode = reader.string();
+                        message.det_crop_mode = reader.string();
                         break;
                     case 60:
-                        message.newNum = reader.int32();
+                        message.new_num = reader.int32();
                         break;
                     case 61:
-                        message.newChannels = reader.int32();
+                        message.new_channels = reader.int32();
                         break;
                     case 62:
-                        message.newHeight = reader.int32();
+                        message.new_height = reader.int32();
                         break;
                     case 63:
-                        message.newWidth = reader.int32();
+                        message.new_width = reader.int32();
                         break;
                     case 64:
-                        message.shuffleImages = reader.bool();
+                        message.shuffle_images = reader.bool();
                         break;
                     case 65:
-                        message.concatDim = reader.uint32();
+                        message.concat_dim = reader.uint32();
                         break;
                     case 1001:
-                        message.hdf5OutputParam = $root.caffe.HDF5OutputParameter.decode(reader, reader.uint32());
+                        message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -10820,21 +10820,21 @@
                 if (message.type != null && message.hasOwnProperty("type"))
                     if (!$util.isString(message.type))
                         return "type: string expected";
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    if (!$util.isInteger(message.numOutput))
-                        return "numOutput: integer expected";
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    if (!$util.isInteger(message.num_output))
+                        return "num_output: integer expected";
                 if (message.biasterm != null && message.hasOwnProperty("biasterm"))
                     if (typeof message.biasterm !== "boolean")
                         return "biasterm: boolean expected";
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.weightFiller);
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.weight_filler);
                     if (error)
-                        return "weightFiller." + error;
+                        return "weight_filler." + error;
                 }
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller")) {
-                    var error = $root.caffe.FillerParameter.verify(message.biasFiller);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler")) {
+                    var error = $root.caffe.FillerParameter.verify(message.bias_filler);
                     if (error)
-                        return "biasFiller." + error;
+                        return "bias_filler." + error;
                 }
                 if (message.pad != null && message.hasOwnProperty("pad"))
                     if (!$util.isInteger(message.pad))
@@ -10857,12 +10857,12 @@
                     case 2:
                         break;
                     }
-                if (message.dropoutRatio != null && message.hasOwnProperty("dropoutRatio"))
-                    if (typeof message.dropoutRatio !== "number")
-                        return "dropoutRatio: number expected";
-                if (message.localSize != null && message.hasOwnProperty("localSize"))
-                    if (!$util.isInteger(message.localSize))
-                        return "localSize: integer expected";
+                if (message.dropout_ratio != null && message.hasOwnProperty("dropout_ratio"))
+                    if (typeof message.dropout_ratio !== "number")
+                        return "dropout_ratio: number expected";
+                if (message.local_size != null && message.hasOwnProperty("local_size"))
+                    if (!$util.isInteger(message.local_size))
+                        return "local_size: integer expected";
                 if (message.alpha != null && message.hasOwnProperty("alpha"))
                     if (typeof message.alpha !== "number")
                         return "alpha: number expected";
@@ -10899,60 +10899,60 @@
                             return "blobs." + error;
                     }
                 }
-                if (message.blobsLr != null && message.hasOwnProperty("blobsLr")) {
-                    if (!Array.isArray(message.blobsLr))
-                        return "blobsLr: array expected";
-                    for (var i = 0; i < message.blobsLr.length; ++i)
-                        if (typeof message.blobsLr[i] !== "number")
-                            return "blobsLr: number[] expected";
+                if (message.blobs_lr != null && message.hasOwnProperty("blobs_lr")) {
+                    if (!Array.isArray(message.blobs_lr))
+                        return "blobs_lr: array expected";
+                    for (var i = 0; i < message.blobs_lr.length; ++i)
+                        if (typeof message.blobs_lr[i] !== "number")
+                            return "blobs_lr: number[] expected";
                 }
-                if (message.weightDecay != null && message.hasOwnProperty("weightDecay")) {
-                    if (!Array.isArray(message.weightDecay))
-                        return "weightDecay: array expected";
-                    for (var i = 0; i < message.weightDecay.length; ++i)
-                        if (typeof message.weightDecay[i] !== "number")
-                            return "weightDecay: number[] expected";
+                if (message.weight_decay != null && message.hasOwnProperty("weight_decay")) {
+                    if (!Array.isArray(message.weight_decay))
+                        return "weight_decay: array expected";
+                    for (var i = 0; i < message.weight_decay.length; ++i)
+                        if (typeof message.weight_decay[i] !== "number")
+                            return "weight_decay: number[] expected";
                 }
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    if (!$util.isInteger(message.randSkip))
-                        return "randSkip: integer expected";
-                if (message.detFgThreshold != null && message.hasOwnProperty("detFgThreshold"))
-                    if (typeof message.detFgThreshold !== "number")
-                        return "detFgThreshold: number expected";
-                if (message.detBgThreshold != null && message.hasOwnProperty("detBgThreshold"))
-                    if (typeof message.detBgThreshold !== "number")
-                        return "detBgThreshold: number expected";
-                if (message.detFgFraction != null && message.hasOwnProperty("detFgFraction"))
-                    if (typeof message.detFgFraction !== "number")
-                        return "detFgFraction: number expected";
-                if (message.detContextPad != null && message.hasOwnProperty("detContextPad"))
-                    if (!$util.isInteger(message.detContextPad))
-                        return "detContextPad: integer expected";
-                if (message.detCropMode != null && message.hasOwnProperty("detCropMode"))
-                    if (!$util.isString(message.detCropMode))
-                        return "detCropMode: string expected";
-                if (message.newNum != null && message.hasOwnProperty("newNum"))
-                    if (!$util.isInteger(message.newNum))
-                        return "newNum: integer expected";
-                if (message.newChannels != null && message.hasOwnProperty("newChannels"))
-                    if (!$util.isInteger(message.newChannels))
-                        return "newChannels: integer expected";
-                if (message.newHeight != null && message.hasOwnProperty("newHeight"))
-                    if (!$util.isInteger(message.newHeight))
-                        return "newHeight: integer expected";
-                if (message.newWidth != null && message.hasOwnProperty("newWidth"))
-                    if (!$util.isInteger(message.newWidth))
-                        return "newWidth: integer expected";
-                if (message.shuffleImages != null && message.hasOwnProperty("shuffleImages"))
-                    if (typeof message.shuffleImages !== "boolean")
-                        return "shuffleImages: boolean expected";
-                if (message.concatDim != null && message.hasOwnProperty("concatDim"))
-                    if (!$util.isInteger(message.concatDim))
-                        return "concatDim: integer expected";
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam")) {
-                    var error = $root.caffe.HDF5OutputParameter.verify(message.hdf5OutputParam);
+                if (message.rand_skip != null && message.hasOwnProperty("rand_skip"))
+                    if (!$util.isInteger(message.rand_skip))
+                        return "rand_skip: integer expected";
+                if (message.det_fg_threshold != null && message.hasOwnProperty("det_fg_threshold"))
+                    if (typeof message.det_fg_threshold !== "number")
+                        return "det_fg_threshold: number expected";
+                if (message.det_bg_threshold != null && message.hasOwnProperty("det_bg_threshold"))
+                    if (typeof message.det_bg_threshold !== "number")
+                        return "det_bg_threshold: number expected";
+                if (message.det_fg_fraction != null && message.hasOwnProperty("det_fg_fraction"))
+                    if (typeof message.det_fg_fraction !== "number")
+                        return "det_fg_fraction: number expected";
+                if (message.det_context_pad != null && message.hasOwnProperty("det_context_pad"))
+                    if (!$util.isInteger(message.det_context_pad))
+                        return "det_context_pad: integer expected";
+                if (message.det_crop_mode != null && message.hasOwnProperty("det_crop_mode"))
+                    if (!$util.isString(message.det_crop_mode))
+                        return "det_crop_mode: string expected";
+                if (message.new_num != null && message.hasOwnProperty("new_num"))
+                    if (!$util.isInteger(message.new_num))
+                        return "new_num: integer expected";
+                if (message.new_channels != null && message.hasOwnProperty("new_channels"))
+                    if (!$util.isInteger(message.new_channels))
+                        return "new_channels: integer expected";
+                if (message.new_height != null && message.hasOwnProperty("new_height"))
+                    if (!$util.isInteger(message.new_height))
+                        return "new_height: integer expected";
+                if (message.new_width != null && message.hasOwnProperty("new_width"))
+                    if (!$util.isInteger(message.new_width))
+                        return "new_width: integer expected";
+                if (message.shuffle_images != null && message.hasOwnProperty("shuffle_images"))
+                    if (typeof message.shuffle_images !== "boolean")
+                        return "shuffle_images: boolean expected";
+                if (message.concat_dim != null && message.hasOwnProperty("concat_dim"))
+                    if (!$util.isInteger(message.concat_dim))
+                        return "concat_dim: integer expected";
+                if (message.hdf5_output_param != null && message.hasOwnProperty("hdf5_output_param")) {
+                    var error = $root.caffe.HDF5OutputParameter.verify(message.hdf5_output_param);
                     if (error)
-                        return "hdf5OutputParam." + error;
+                        return "hdf5_output_param." + error;
                 }
                 return null;
             };
@@ -10965,19 +10965,19 @@
                     message.name = String(object.name);
                 if (object.type != null)
                     message.type = String(object.type);
-                if (object.numOutput != null)
-                    message.numOutput = object.numOutput >>> 0;
+                if (object.num_output != null)
+                    message.num_output = object.num_output >>> 0;
                 if (object.biasterm != null)
                     message.biasterm = Boolean(object.biasterm);
-                if (object.weightFiller != null) {
-                    if (typeof object.weightFiller !== "object")
-                        throw TypeError(".caffe.V0LayerParameter.weightFiller: object expected");
-                    message.weightFiller = $root.caffe.FillerParameter.fromObject(object.weightFiller);
+                if (object.weight_filler != null) {
+                    if (typeof object.weight_filler !== "object")
+                        throw TypeError(".caffe.V0LayerParameter.weight_filler: object expected");
+                    message.weight_filler = $root.caffe.FillerParameter.fromObject(object.weight_filler);
                 }
-                if (object.biasFiller != null) {
-                    if (typeof object.biasFiller !== "object")
-                        throw TypeError(".caffe.V0LayerParameter.biasFiller: object expected");
-                    message.biasFiller = $root.caffe.FillerParameter.fromObject(object.biasFiller);
+                if (object.bias_filler != null) {
+                    if (typeof object.bias_filler !== "object")
+                        throw TypeError(".caffe.V0LayerParameter.bias_filler: object expected");
+                    message.bias_filler = $root.caffe.FillerParameter.fromObject(object.bias_filler);
                 }
                 if (object.pad != null)
                     message.pad = object.pad >>> 0;
@@ -11001,10 +11001,10 @@
                     message.pool = 2;
                     break;
                 }
-                if (object.dropoutRatio != null)
-                    message.dropoutRatio = Number(object.dropoutRatio);
-                if (object.localSize != null)
-                    message.localSize = object.localSize >>> 0;
+                if (object.dropout_ratio != null)
+                    message.dropout_ratio = Number(object.dropout_ratio);
+                if (object.local_size != null)
+                    message.local_size = object.local_size >>> 0;
                 if (object.alpha != null)
                     message.alpha = Number(object.alpha);
                 if (object.beta != null)
@@ -11033,48 +11033,48 @@
                         message.blobs[i] = $root.caffe.BlobProto.fromObject(object.blobs[i]);
                     }
                 }
-                if (object.blobsLr) {
-                    if (!Array.isArray(object.blobsLr))
-                        throw TypeError(".caffe.V0LayerParameter.blobsLr: array expected");
-                    message.blobsLr = [];
-                    for (var i = 0; i < object.blobsLr.length; ++i)
-                        message.blobsLr[i] = Number(object.blobsLr[i]);
+                if (object.blobs_lr) {
+                    if (!Array.isArray(object.blobs_lr))
+                        throw TypeError(".caffe.V0LayerParameter.blobs_lr: array expected");
+                    message.blobs_lr = [];
+                    for (var i = 0; i < object.blobs_lr.length; ++i)
+                        message.blobs_lr[i] = Number(object.blobs_lr[i]);
                 }
-                if (object.weightDecay) {
-                    if (!Array.isArray(object.weightDecay))
-                        throw TypeError(".caffe.V0LayerParameter.weightDecay: array expected");
-                    message.weightDecay = [];
-                    for (var i = 0; i < object.weightDecay.length; ++i)
-                        message.weightDecay[i] = Number(object.weightDecay[i]);
+                if (object.weight_decay) {
+                    if (!Array.isArray(object.weight_decay))
+                        throw TypeError(".caffe.V0LayerParameter.weight_decay: array expected");
+                    message.weight_decay = [];
+                    for (var i = 0; i < object.weight_decay.length; ++i)
+                        message.weight_decay[i] = Number(object.weight_decay[i]);
                 }
-                if (object.randSkip != null)
-                    message.randSkip = object.randSkip >>> 0;
-                if (object.detFgThreshold != null)
-                    message.detFgThreshold = Number(object.detFgThreshold);
-                if (object.detBgThreshold != null)
-                    message.detBgThreshold = Number(object.detBgThreshold);
-                if (object.detFgFraction != null)
-                    message.detFgFraction = Number(object.detFgFraction);
-                if (object.detContextPad != null)
-                    message.detContextPad = object.detContextPad >>> 0;
-                if (object.detCropMode != null)
-                    message.detCropMode = String(object.detCropMode);
-                if (object.newNum != null)
-                    message.newNum = object.newNum | 0;
-                if (object.newChannels != null)
-                    message.newChannels = object.newChannels | 0;
-                if (object.newHeight != null)
-                    message.newHeight = object.newHeight | 0;
-                if (object.newWidth != null)
-                    message.newWidth = object.newWidth | 0;
-                if (object.shuffleImages != null)
-                    message.shuffleImages = Boolean(object.shuffleImages);
-                if (object.concatDim != null)
-                    message.concatDim = object.concatDim >>> 0;
-                if (object.hdf5OutputParam != null) {
-                    if (typeof object.hdf5OutputParam !== "object")
-                        throw TypeError(".caffe.V0LayerParameter.hdf5OutputParam: object expected");
-                    message.hdf5OutputParam = $root.caffe.HDF5OutputParameter.fromObject(object.hdf5OutputParam);
+                if (object.rand_skip != null)
+                    message.rand_skip = object.rand_skip >>> 0;
+                if (object.det_fg_threshold != null)
+                    message.det_fg_threshold = Number(object.det_fg_threshold);
+                if (object.det_bg_threshold != null)
+                    message.det_bg_threshold = Number(object.det_bg_threshold);
+                if (object.det_fg_fraction != null)
+                    message.det_fg_fraction = Number(object.det_fg_fraction);
+                if (object.det_context_pad != null)
+                    message.det_context_pad = object.det_context_pad >>> 0;
+                if (object.det_crop_mode != null)
+                    message.det_crop_mode = String(object.det_crop_mode);
+                if (object.new_num != null)
+                    message.new_num = object.new_num | 0;
+                if (object.new_channels != null)
+                    message.new_channels = object.new_channels | 0;
+                if (object.new_height != null)
+                    message.new_height = object.new_height | 0;
+                if (object.new_width != null)
+                    message.new_width = object.new_width | 0;
+                if (object.shuffle_images != null)
+                    message.shuffle_images = Boolean(object.shuffle_images);
+                if (object.concat_dim != null)
+                    message.concat_dim = object.concat_dim >>> 0;
+                if (object.hdf5_output_param != null) {
+                    if (typeof object.hdf5_output_param !== "object")
+                        throw TypeError(".caffe.V0LayerParameter.hdf5_output_param: object expected");
+                    message.hdf5_output_param = $root.caffe.HDF5OutputParameter.fromObject(object.hdf5_output_param);
                 }
                 return message;
             };
@@ -11085,23 +11085,23 @@
                 var object = {};
                 if (options.arrays || options.defaults) {
                     object.blobs = [];
-                    object.blobsLr = [];
-                    object.weightDecay = [];
+                    object.blobs_lr = [];
+                    object.weight_decay = [];
                 }
                 if (options.defaults) {
                     object.name = "";
                     object.type = "";
-                    object.numOutput = 0;
+                    object.num_output = 0;
                     object.biasterm = true;
-                    object.weightFiller = null;
-                    object.biasFiller = null;
+                    object.weight_filler = null;
+                    object.bias_filler = null;
                     object.pad = 0;
                     object.kernelsize = 0;
                     object.group = 1;
                     object.stride = 1;
                     object.pool = options.enums === String ? "MAX" : 0;
-                    object.dropoutRatio = 0.5;
-                    object.localSize = 5;
+                    object.dropout_ratio = 0.5;
+                    object.local_size = 5;
                     object.alpha = 1;
                     object.beta = 0.75;
                     object.source = "";
@@ -11111,32 +11111,32 @@
                     object.cropsize = 0;
                     object.mirror = false;
                     object.k = 1;
-                    object.randSkip = 0;
-                    object.detFgThreshold = 0.5;
-                    object.detBgThreshold = 0.5;
-                    object.detFgFraction = 0.25;
-                    object.detContextPad = 0;
-                    object.detCropMode = "warp";
-                    object.newNum = 0;
-                    object.newChannels = 0;
-                    object.newHeight = 0;
-                    object.newWidth = 0;
-                    object.shuffleImages = false;
-                    object.concatDim = 1;
-                    object.hdf5OutputParam = null;
+                    object.rand_skip = 0;
+                    object.det_fg_threshold = 0.5;
+                    object.det_bg_threshold = 0.5;
+                    object.det_fg_fraction = 0.25;
+                    object.det_context_pad = 0;
+                    object.det_crop_mode = "warp";
+                    object.new_num = 0;
+                    object.new_channels = 0;
+                    object.new_height = 0;
+                    object.new_width = 0;
+                    object.shuffle_images = false;
+                    object.concat_dim = 1;
+                    object.hdf5_output_param = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = message.type;
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    object.numOutput = message.numOutput;
+                if (message.num_output != null && message.hasOwnProperty("num_output"))
+                    object.num_output = message.num_output;
                 if (message.biasterm != null && message.hasOwnProperty("biasterm"))
                     object.biasterm = message.biasterm;
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    object.weightFiller = $root.caffe.FillerParameter.toObject(message.weightFiller, options);
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    object.biasFiller = $root.caffe.FillerParameter.toObject(message.biasFiller, options);
+                if (message.weight_filler != null && message.hasOwnProperty("weight_filler"))
+                    object.weight_filler = $root.caffe.FillerParameter.toObject(message.weight_filler, options);
+                if (message.bias_filler != null && message.hasOwnProperty("bias_filler"))
+                    object.bias_filler = $root.caffe.FillerParameter.toObject(message.bias_filler, options);
                 if (message.pad != null && message.hasOwnProperty("pad"))
                     object.pad = message.pad;
                 if (message.kernelsize != null && message.hasOwnProperty("kernelsize"))
@@ -11147,10 +11147,10 @@
                     object.stride = message.stride;
                 if (message.pool != null && message.hasOwnProperty("pool"))
                     object.pool = options.enums === String ? $root.caffe.V0LayerParameter.PoolMethod[message.pool] : message.pool;
-                if (message.dropoutRatio != null && message.hasOwnProperty("dropoutRatio"))
-                    object.dropoutRatio = options.json && !isFinite(message.dropoutRatio) ? String(message.dropoutRatio) : message.dropoutRatio;
-                if (message.localSize != null && message.hasOwnProperty("localSize"))
-                    object.localSize = message.localSize;
+                if (message.dropout_ratio != null && message.hasOwnProperty("dropout_ratio"))
+                    object.dropout_ratio = options.json && !isFinite(message.dropout_ratio) ? String(message.dropout_ratio) : message.dropout_ratio;
+                if (message.local_size != null && message.hasOwnProperty("local_size"))
+                    object.local_size = message.local_size;
                 if (message.alpha != null && message.hasOwnProperty("alpha"))
                     object.alpha = options.json && !isFinite(message.alpha) ? String(message.alpha) : message.alpha;
                 if (message.beta != null && message.hasOwnProperty("beta"))
@@ -11174,42 +11174,42 @@
                     for (var j = 0; j < message.blobs.length; ++j)
                         object.blobs[j] = $root.caffe.BlobProto.toObject(message.blobs[j], options);
                 }
-                if (message.blobsLr && message.blobsLr.length) {
-                    object.blobsLr = [];
-                    for (var j = 0; j < message.blobsLr.length; ++j)
-                        object.blobsLr[j] = options.json && !isFinite(message.blobsLr[j]) ? String(message.blobsLr[j]) : message.blobsLr[j];
+                if (message.blobs_lr && message.blobs_lr.length) {
+                    object.blobs_lr = [];
+                    for (var j = 0; j < message.blobs_lr.length; ++j)
+                        object.blobs_lr[j] = options.json && !isFinite(message.blobs_lr[j]) ? String(message.blobs_lr[j]) : message.blobs_lr[j];
                 }
-                if (message.weightDecay && message.weightDecay.length) {
-                    object.weightDecay = [];
-                    for (var j = 0; j < message.weightDecay.length; ++j)
-                        object.weightDecay[j] = options.json && !isFinite(message.weightDecay[j]) ? String(message.weightDecay[j]) : message.weightDecay[j];
+                if (message.weight_decay && message.weight_decay.length) {
+                    object.weight_decay = [];
+                    for (var j = 0; j < message.weight_decay.length; ++j)
+                        object.weight_decay[j] = options.json && !isFinite(message.weight_decay[j]) ? String(message.weight_decay[j]) : message.weight_decay[j];
                 }
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    object.randSkip = message.randSkip;
-                if (message.detFgThreshold != null && message.hasOwnProperty("detFgThreshold"))
-                    object.detFgThreshold = options.json && !isFinite(message.detFgThreshold) ? String(message.detFgThreshold) : message.detFgThreshold;
-                if (message.detBgThreshold != null && message.hasOwnProperty("detBgThreshold"))
-                    object.detBgThreshold = options.json && !isFinite(message.detBgThreshold) ? String(message.detBgThreshold) : message.detBgThreshold;
-                if (message.detFgFraction != null && message.hasOwnProperty("detFgFraction"))
-                    object.detFgFraction = options.json && !isFinite(message.detFgFraction) ? String(message.detFgFraction) : message.detFgFraction;
-                if (message.detContextPad != null && message.hasOwnProperty("detContextPad"))
-                    object.detContextPad = message.detContextPad;
-                if (message.detCropMode != null && message.hasOwnProperty("detCropMode"))
-                    object.detCropMode = message.detCropMode;
-                if (message.newNum != null && message.hasOwnProperty("newNum"))
-                    object.newNum = message.newNum;
-                if (message.newChannels != null && message.hasOwnProperty("newChannels"))
-                    object.newChannels = message.newChannels;
-                if (message.newHeight != null && message.hasOwnProperty("newHeight"))
-                    object.newHeight = message.newHeight;
-                if (message.newWidth != null && message.hasOwnProperty("newWidth"))
-                    object.newWidth = message.newWidth;
-                if (message.shuffleImages != null && message.hasOwnProperty("shuffleImages"))
-                    object.shuffleImages = message.shuffleImages;
-                if (message.concatDim != null && message.hasOwnProperty("concatDim"))
-                    object.concatDim = message.concatDim;
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam"))
-                    object.hdf5OutputParam = $root.caffe.HDF5OutputParameter.toObject(message.hdf5OutputParam, options);
+                if (message.rand_skip != null && message.hasOwnProperty("rand_skip"))
+                    object.rand_skip = message.rand_skip;
+                if (message.det_fg_threshold != null && message.hasOwnProperty("det_fg_threshold"))
+                    object.det_fg_threshold = options.json && !isFinite(message.det_fg_threshold) ? String(message.det_fg_threshold) : message.det_fg_threshold;
+                if (message.det_bg_threshold != null && message.hasOwnProperty("det_bg_threshold"))
+                    object.det_bg_threshold = options.json && !isFinite(message.det_bg_threshold) ? String(message.det_bg_threshold) : message.det_bg_threshold;
+                if (message.det_fg_fraction != null && message.hasOwnProperty("det_fg_fraction"))
+                    object.det_fg_fraction = options.json && !isFinite(message.det_fg_fraction) ? String(message.det_fg_fraction) : message.det_fg_fraction;
+                if (message.det_context_pad != null && message.hasOwnProperty("det_context_pad"))
+                    object.det_context_pad = message.det_context_pad;
+                if (message.det_crop_mode != null && message.hasOwnProperty("det_crop_mode"))
+                    object.det_crop_mode = message.det_crop_mode;
+                if (message.new_num != null && message.hasOwnProperty("new_num"))
+                    object.new_num = message.new_num;
+                if (message.new_channels != null && message.hasOwnProperty("new_channels"))
+                    object.new_channels = message.new_channels;
+                if (message.new_height != null && message.hasOwnProperty("new_height"))
+                    object.new_height = message.new_height;
+                if (message.new_width != null && message.hasOwnProperty("new_width"))
+                    object.new_width = message.new_width;
+                if (message.shuffle_images != null && message.hasOwnProperty("shuffle_images"))
+                    object.shuffle_images = message.shuffle_images;
+                if (message.concat_dim != null && message.hasOwnProperty("concat_dim"))
+                    object.concat_dim = message.concat_dim;
+                if (message.hdf5_output_param != null && message.hasOwnProperty("hdf5_output_param"))
+                    object.hdf5_output_param = $root.caffe.HDF5OutputParameter.toObject(message.hdf5_output_param, options);
                 return object;
             };
     
@@ -11238,7 +11238,7 @@
             }
     
             PReLUParameter.prototype.filler = null;
-            PReLUParameter.prototype.channelShared = false;
+            PReLUParameter.prototype.channel_shared = false;
     
             PReLUParameter.create = function create(properties) {
                 return new PReLUParameter(properties);
@@ -11255,7 +11255,7 @@
                         message.filler = $root.caffe.FillerParameter.decode(reader, reader.uint32());
                         break;
                     case 2:
-                        message.channelShared = reader.bool();
+                        message.channel_shared = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -11273,9 +11273,9 @@
                     if (error)
                         return "filler." + error;
                 }
-                if (message.channelShared != null && message.hasOwnProperty("channelShared"))
-                    if (typeof message.channelShared !== "boolean")
-                        return "channelShared: boolean expected";
+                if (message.channel_shared != null && message.hasOwnProperty("channel_shared"))
+                    if (typeof message.channel_shared !== "boolean")
+                        return "channel_shared: boolean expected";
                 return null;
             };
     
@@ -11288,8 +11288,8 @@
                         throw TypeError(".caffe.PReLUParameter.filler: object expected");
                     message.filler = $root.caffe.FillerParameter.fromObject(object.filler);
                 }
-                if (object.channelShared != null)
-                    message.channelShared = Boolean(object.channelShared);
+                if (object.channel_shared != null)
+                    message.channel_shared = Boolean(object.channel_shared);
                 return message;
             };
     
@@ -11299,12 +11299,12 @@
                 var object = {};
                 if (options.defaults) {
                     object.filler = null;
-                    object.channelShared = false;
+                    object.channel_shared = false;
                 }
                 if (message.filler != null && message.hasOwnProperty("filler"))
                     object.filler = $root.caffe.FillerParameter.toObject(message.filler, options);
-                if (message.channelShared != null && message.hasOwnProperty("channelShared"))
-                    object.channelShared = message.channelShared;
+                if (message.channel_shared != null && message.hasOwnProperty("channel_shared"))
+                    object.channel_shared = message.channel_shared;
                 return object;
             };
     
