@@ -2,38 +2,16 @@
 (function($protobuf) {
     "use strict";
 
-    // Common aliases
-    var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $util = $protobuf.util;
     
-    // Exported root namespace
     var $root = $protobuf.roots.caffe || ($protobuf.roots.caffe = {});
     
     $root.caffe = (function() {
     
-        /**
-         * Namespace caffe.
-         * @exports caffe
-         * @namespace
-         */
         var caffe = {};
     
         caffe.BlobShape = (function() {
     
-            /**
-             * Properties of a BlobShape.
-             * @memberof caffe
-             * @interface IBlobShape
-             * @property {Array.<number|Long>|null} [dim] BlobShape dim
-             */
-    
-            /**
-             * Constructs a new BlobShape.
-             * @memberof caffe
-             * @classdesc Represents a BlobShape.
-             * @implements IBlobShape
-             * @constructor
-             * @param {caffe.IBlobShape=} [properties] Properties to set
-             */
             function BlobShape(properties) {
                 this.dim = [];
                 if (properties)
@@ -42,71 +20,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * BlobShape dim.
-             * @member {Array.<number|Long>} dim
-             * @memberof caffe.BlobShape
-             * @instance
-             */
             BlobShape.prototype.dim = $util.emptyArray;
     
-            /**
-             * Creates a new BlobShape instance using the specified properties.
-             * @function create
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {caffe.IBlobShape=} [properties] Properties to set
-             * @returns {caffe.BlobShape} BlobShape instance
-             */
             BlobShape.create = function create(properties) {
                 return new BlobShape(properties);
             };
     
-            /**
-             * Encodes the specified BlobShape message. Does not implicitly {@link caffe.BlobShape.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {caffe.IBlobShape} message BlobShape message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BlobShape.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.dim != null && message.dim.length) {
-                    writer.uint32(/* id 1, wireType 2 =*/10).fork();
-                    for (var i = 0; i < message.dim.length; ++i)
-                        writer.int64(message.dim[i]);
-                    writer.ldelim();
-                }
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified BlobShape message, length delimited. Does not implicitly {@link caffe.BlobShape.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {caffe.IBlobShape} message BlobShape message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BlobShape.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a BlobShape message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.BlobShape} BlobShape
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             BlobShape.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -132,30 +51,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a BlobShape message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.BlobShape} BlobShape
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            BlobShape.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a BlobShape message.
-             * @function verify
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             BlobShape.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -169,14 +64,6 @@
                 return null;
             };
     
-            /**
-             * Creates a BlobShape message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.BlobShape} BlobShape
-             */
             BlobShape.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.BlobShape)
                     return object;
@@ -198,15 +85,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a BlobShape message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.BlobShape
-             * @static
-             * @param {caffe.BlobShape} message BlobShape
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             BlobShape.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -224,13 +102,6 @@
                 return object;
             };
     
-            /**
-             * Converts this BlobShape to JSON.
-             * @function toJSON
-             * @memberof caffe.BlobShape
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             BlobShape.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -240,29 +111,6 @@
     
         caffe.BlobProto = (function() {
     
-            /**
-             * Properties of a BlobProto.
-             * @memberof caffe
-             * @interface IBlobProto
-             * @property {caffe.IBlobShape|null} [shape] BlobProto shape
-             * @property {Array.<number>|null} [data] BlobProto data
-             * @property {Array.<number>|null} [diff] BlobProto diff
-             * @property {Array.<number>|null} [doubleData] BlobProto doubleData
-             * @property {Array.<number>|null} [doubleDiff] BlobProto doubleDiff
-             * @property {number|null} [num] BlobProto num
-             * @property {number|null} [channels] BlobProto channels
-             * @property {number|null} [height] BlobProto height
-             * @property {number|null} [width] BlobProto width
-             */
-    
-            /**
-             * Constructs a new BlobProto.
-             * @memberof caffe
-             * @classdesc Represents a BlobProto.
-             * @implements IBlobProto
-             * @constructor
-             * @param {caffe.IBlobProto=} [properties] Properties to set
-             */
             function BlobProto(properties) {
                 this.data = [];
                 this.diff = [];
@@ -274,163 +122,20 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * BlobProto shape.
-             * @member {caffe.IBlobShape|null|undefined} shape
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.shape = null;
-    
-            /**
-             * BlobProto data.
-             * @member {Array.<number>} data
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.data = $util.emptyArray;
-    
-            /**
-             * BlobProto diff.
-             * @member {Array.<number>} diff
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.diff = $util.emptyArray;
-    
-            /**
-             * BlobProto doubleData.
-             * @member {Array.<number>} doubleData
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.doubleData = $util.emptyArray;
-    
-            /**
-             * BlobProto doubleDiff.
-             * @member {Array.<number>} doubleDiff
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.doubleDiff = $util.emptyArray;
-    
-            /**
-             * BlobProto num.
-             * @member {number} num
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.num = 0;
-    
-            /**
-             * BlobProto channels.
-             * @member {number} channels
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.channels = 0;
-    
-            /**
-             * BlobProto height.
-             * @member {number} height
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.height = 0;
-    
-            /**
-             * BlobProto width.
-             * @member {number} width
-             * @memberof caffe.BlobProto
-             * @instance
-             */
             BlobProto.prototype.width = 0;
     
-            /**
-             * Creates a new BlobProto instance using the specified properties.
-             * @function create
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {caffe.IBlobProto=} [properties] Properties to set
-             * @returns {caffe.BlobProto} BlobProto instance
-             */
             BlobProto.create = function create(properties) {
                 return new BlobProto(properties);
             };
     
-            /**
-             * Encodes the specified BlobProto message. Does not implicitly {@link caffe.BlobProto.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {caffe.IBlobProto} message BlobProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BlobProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.num != null && message.hasOwnProperty("num"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.num);
-                if (message.channels != null && message.hasOwnProperty("channels"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.channels);
-                if (message.height != null && message.hasOwnProperty("height"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.height);
-                if (message.width != null && message.hasOwnProperty("width"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).int32(message.width);
-                if (message.data != null && message.data.length) {
-                    writer.uint32(/* id 5, wireType 2 =*/42).fork();
-                    for (var i = 0; i < message.data.length; ++i)
-                        writer.float(message.data[i]);
-                    writer.ldelim();
-                }
-                if (message.diff != null && message.diff.length) {
-                    writer.uint32(/* id 6, wireType 2 =*/50).fork();
-                    for (var i = 0; i < message.diff.length; ++i)
-                        writer.float(message.diff[i]);
-                    writer.ldelim();
-                }
-                if (message.shape != null && message.hasOwnProperty("shape"))
-                    $root.caffe.BlobShape.encode(message.shape, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                if (message.doubleData != null && message.doubleData.length) {
-                    writer.uint32(/* id 8, wireType 2 =*/66).fork();
-                    for (var i = 0; i < message.doubleData.length; ++i)
-                        writer.double(message.doubleData[i]);
-                    writer.ldelim();
-                }
-                if (message.doubleDiff != null && message.doubleDiff.length) {
-                    writer.uint32(/* id 9, wireType 2 =*/74).fork();
-                    for (var i = 0; i < message.doubleDiff.length; ++i)
-                        writer.double(message.doubleDiff[i]);
-                    writer.ldelim();
-                }
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified BlobProto message, length delimited. Does not implicitly {@link caffe.BlobProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {caffe.IBlobProto} message BlobProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BlobProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a BlobProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.BlobProto} BlobProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             BlobProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -514,30 +219,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a BlobProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.BlobProto} BlobProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            BlobProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a BlobProto message.
-             * @function verify
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             BlobProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -589,14 +270,6 @@
                 return null;
             };
     
-            /**
-             * Creates a BlobProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.BlobProto} BlobProto
-             */
             BlobProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.BlobProto)
                     return object;
@@ -645,15 +318,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a BlobProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.BlobProto
-             * @static
-             * @param {caffe.BlobProto} message BlobProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             BlobProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -704,13 +368,6 @@
                 return object;
             };
     
-            /**
-             * Converts this BlobProto to JSON.
-             * @function toJSON
-             * @memberof caffe.BlobProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             BlobProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -720,21 +377,6 @@
     
         caffe.BlobProtoVector = (function() {
     
-            /**
-             * Properties of a BlobProtoVector.
-             * @memberof caffe
-             * @interface IBlobProtoVector
-             * @property {Array.<caffe.IBlobProto>|null} [blobs] BlobProtoVector blobs
-             */
-    
-            /**
-             * Constructs a new BlobProtoVector.
-             * @memberof caffe
-             * @classdesc Represents a BlobProtoVector.
-             * @implements IBlobProtoVector
-             * @constructor
-             * @param {caffe.IBlobProtoVector=} [properties] Properties to set
-             */
             function BlobProtoVector(properties) {
                 this.blobs = [];
                 if (properties)
@@ -743,68 +385,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * BlobProtoVector blobs.
-             * @member {Array.<caffe.IBlobProto>} blobs
-             * @memberof caffe.BlobProtoVector
-             * @instance
-             */
             BlobProtoVector.prototype.blobs = $util.emptyArray;
     
-            /**
-             * Creates a new BlobProtoVector instance using the specified properties.
-             * @function create
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {caffe.IBlobProtoVector=} [properties] Properties to set
-             * @returns {caffe.BlobProtoVector} BlobProtoVector instance
-             */
             BlobProtoVector.create = function create(properties) {
                 return new BlobProtoVector(properties);
             };
     
-            /**
-             * Encodes the specified BlobProtoVector message. Does not implicitly {@link caffe.BlobProtoVector.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {caffe.IBlobProtoVector} message BlobProtoVector message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BlobProtoVector.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.blobs != null && message.blobs.length)
-                    for (var i = 0; i < message.blobs.length; ++i)
-                        $root.caffe.BlobProto.encode(message.blobs[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified BlobProtoVector message, length delimited. Does not implicitly {@link caffe.BlobProtoVector.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {caffe.IBlobProtoVector} message BlobProtoVector message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BlobProtoVector.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a BlobProtoVector message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.BlobProtoVector} BlobProtoVector
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             BlobProtoVector.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -825,30 +411,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a BlobProtoVector message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.BlobProtoVector} BlobProtoVector
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            BlobProtoVector.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a BlobProtoVector message.
-             * @function verify
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             BlobProtoVector.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -864,14 +426,6 @@
                 return null;
             };
     
-            /**
-             * Creates a BlobProtoVector message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.BlobProtoVector} BlobProtoVector
-             */
             BlobProtoVector.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.BlobProtoVector)
                     return object;
@@ -889,15 +443,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a BlobProtoVector message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.BlobProtoVector
-             * @static
-             * @param {caffe.BlobProtoVector} message BlobProtoVector
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             BlobProtoVector.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -912,13 +457,6 @@
                 return object;
             };
     
-            /**
-             * Converts this BlobProtoVector to JSON.
-             * @function toJSON
-             * @memberof caffe.BlobProtoVector
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             BlobProtoVector.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -928,27 +466,6 @@
     
         caffe.Datum = (function() {
     
-            /**
-             * Properties of a Datum.
-             * @memberof caffe
-             * @interface IDatum
-             * @property {number|null} [channels] Datum channels
-             * @property {number|null} [height] Datum height
-             * @property {number|null} [width] Datum width
-             * @property {Uint8Array|null} [data] Datum data
-             * @property {number|null} [label] Datum label
-             * @property {Array.<number>|null} [floatData] Datum floatData
-             * @property {boolean|null} [encoded] Datum encoded
-             */
-    
-            /**
-             * Constructs a new Datum.
-             * @memberof caffe
-             * @classdesc Represents a Datum.
-             * @implements IDatum
-             * @constructor
-             * @param {caffe.IDatum=} [properties] Properties to set
-             */
             function Datum(properties) {
                 this.floatData = [];
                 if (properties)
@@ -957,128 +474,18 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * Datum channels.
-             * @member {number} channels
-             * @memberof caffe.Datum
-             * @instance
-             */
             Datum.prototype.channels = 0;
-    
-            /**
-             * Datum height.
-             * @member {number} height
-             * @memberof caffe.Datum
-             * @instance
-             */
             Datum.prototype.height = 0;
-    
-            /**
-             * Datum width.
-             * @member {number} width
-             * @memberof caffe.Datum
-             * @instance
-             */
             Datum.prototype.width = 0;
-    
-            /**
-             * Datum data.
-             * @member {Uint8Array} data
-             * @memberof caffe.Datum
-             * @instance
-             */
             Datum.prototype.data = $util.newBuffer([]);
-    
-            /**
-             * Datum label.
-             * @member {number} label
-             * @memberof caffe.Datum
-             * @instance
-             */
             Datum.prototype.label = 0;
-    
-            /**
-             * Datum floatData.
-             * @member {Array.<number>} floatData
-             * @memberof caffe.Datum
-             * @instance
-             */
             Datum.prototype.floatData = $util.emptyArray;
-    
-            /**
-             * Datum encoded.
-             * @member {boolean} encoded
-             * @memberof caffe.Datum
-             * @instance
-             */
             Datum.prototype.encoded = false;
     
-            /**
-             * Creates a new Datum instance using the specified properties.
-             * @function create
-             * @memberof caffe.Datum
-             * @static
-             * @param {caffe.IDatum=} [properties] Properties to set
-             * @returns {caffe.Datum} Datum instance
-             */
             Datum.create = function create(properties) {
                 return new Datum(properties);
             };
     
-            /**
-             * Encodes the specified Datum message. Does not implicitly {@link caffe.Datum.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.Datum
-             * @static
-             * @param {caffe.IDatum} message Datum message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            Datum.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.channels != null && message.hasOwnProperty("channels"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.channels);
-                if (message.height != null && message.hasOwnProperty("height"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.height);
-                if (message.width != null && message.hasOwnProperty("width"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.width);
-                if (message.data != null && message.hasOwnProperty("data"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.data);
-                if (message.label != null && message.hasOwnProperty("label"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).int32(message.label);
-                if (message.floatData != null && message.floatData.length)
-                    for (var i = 0; i < message.floatData.length; ++i)
-                        writer.uint32(/* id 6, wireType 5 =*/53).float(message.floatData[i]);
-                if (message.encoded != null && message.hasOwnProperty("encoded"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).bool(message.encoded);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified Datum message, length delimited. Does not implicitly {@link caffe.Datum.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.Datum
-             * @static
-             * @param {caffe.IDatum} message Datum message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            Datum.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a Datum message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.Datum
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.Datum} Datum
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             Datum.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -1122,30 +529,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a Datum message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.Datum
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.Datum} Datum
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            Datum.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a Datum message.
-             * @function verify
-             * @memberof caffe.Datum
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             Datum.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1177,14 +560,6 @@
                 return null;
             };
     
-            /**
-             * Creates a Datum message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.Datum
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.Datum} Datum
-             */
             Datum.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.Datum)
                     return object;
@@ -1214,15 +589,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a Datum message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.Datum
-             * @static
-             * @param {caffe.Datum} message Datum
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             Datum.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -1263,13 +629,6 @@
                 return object;
             };
     
-            /**
-             * Converts this Datum to JSON.
-             * @function toJSON
-             * @memberof caffe.Datum
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             Datum.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -1279,28 +638,6 @@
     
         caffe.FillerParameter = (function() {
     
-            /**
-             * Properties of a FillerParameter.
-             * @memberof caffe
-             * @interface IFillerParameter
-             * @property {string|null} [type] FillerParameter type
-             * @property {number|null} [value] FillerParameter value
-             * @property {number|null} [min] FillerParameter min
-             * @property {number|null} [max] FillerParameter max
-             * @property {number|null} [mean] FillerParameter mean
-             * @property {number|null} [std] FillerParameter std
-             * @property {number|null} [sparse] FillerParameter sparse
-             * @property {caffe.FillerParameter.VarianceNorm|null} [varianceNorm] FillerParameter varianceNorm
-             */
-    
-            /**
-             * Constructs a new FillerParameter.
-             * @memberof caffe
-             * @classdesc Represents a FillerParameter.
-             * @implements IFillerParameter
-             * @constructor
-             * @param {caffe.IFillerParameter=} [properties] Properties to set
-             */
             function FillerParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -1308,137 +645,19 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * FillerParameter type.
-             * @member {string} type
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.type = "constant";
-    
-            /**
-             * FillerParameter value.
-             * @member {number} value
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.value = 0;
-    
-            /**
-             * FillerParameter min.
-             * @member {number} min
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.min = 0;
-    
-            /**
-             * FillerParameter max.
-             * @member {number} max
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.max = 1;
-    
-            /**
-             * FillerParameter mean.
-             * @member {number} mean
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.mean = 0;
-    
-            /**
-             * FillerParameter std.
-             * @member {number} std
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.std = 1;
-    
-            /**
-             * FillerParameter sparse.
-             * @member {number} sparse
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.sparse = -1;
-    
-            /**
-             * FillerParameter varianceNorm.
-             * @member {caffe.FillerParameter.VarianceNorm} varianceNorm
-             * @memberof caffe.FillerParameter
-             * @instance
-             */
             FillerParameter.prototype.varianceNorm = 0;
     
-            /**
-             * Creates a new FillerParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {caffe.IFillerParameter=} [properties] Properties to set
-             * @returns {caffe.FillerParameter} FillerParameter instance
-             */
             FillerParameter.create = function create(properties) {
                 return new FillerParameter(properties);
             };
     
-            /**
-             * Encodes the specified FillerParameter message. Does not implicitly {@link caffe.FillerParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {caffe.IFillerParameter} message FillerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FillerParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.type);
-                if (message.value != null && message.hasOwnProperty("value"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.value);
-                if (message.min != null && message.hasOwnProperty("min"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.min);
-                if (message.max != null && message.hasOwnProperty("max"))
-                    writer.uint32(/* id 4, wireType 5 =*/37).float(message.max);
-                if (message.mean != null && message.hasOwnProperty("mean"))
-                    writer.uint32(/* id 5, wireType 5 =*/45).float(message.mean);
-                if (message.std != null && message.hasOwnProperty("std"))
-                    writer.uint32(/* id 6, wireType 5 =*/53).float(message.std);
-                if (message.sparse != null && message.hasOwnProperty("sparse"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).int32(message.sparse);
-                if (message.varianceNorm != null && message.hasOwnProperty("varianceNorm"))
-                    writer.uint32(/* id 8, wireType 0 =*/64).int32(message.varianceNorm);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified FillerParameter message, length delimited. Does not implicitly {@link caffe.FillerParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {caffe.IFillerParameter} message FillerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FillerParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a FillerParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.FillerParameter} FillerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             FillerParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -1478,30 +697,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a FillerParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.FillerParameter} FillerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            FillerParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a FillerParameter message.
-             * @function verify
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             FillerParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1538,14 +733,6 @@
                 return null;
             };
     
-            /**
-             * Creates a FillerParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.FillerParameter} FillerParameter
-             */
             FillerParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.FillerParameter)
                     return object;
@@ -1581,15 +768,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a FillerParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.FillerParameter
-             * @static
-             * @param {caffe.FillerParameter} message FillerParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             FillerParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -1623,25 +801,10 @@
                 return object;
             };
     
-            /**
-             * Converts this FillerParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.FillerParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             FillerParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * VarianceNorm enum.
-             * @name caffe.FillerParameter.VarianceNorm
-             * @enum {string}
-             * @property {number} FAN_IN=0 FAN_IN value
-             * @property {number} FAN_OUT=1 FAN_OUT value
-             * @property {number} AVERAGE=2 AVERAGE value
-             */
             FillerParameter.VarianceNorm = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "FAN_IN"] = 0;
@@ -1655,29 +818,6 @@
     
         caffe.NetParameter = (function() {
     
-            /**
-             * Properties of a NetParameter.
-             * @memberof caffe
-             * @interface INetParameter
-             * @property {string|null} [name] NetParameter name
-             * @property {Array.<string>|null} [input] NetParameter input
-             * @property {Array.<caffe.IBlobShape>|null} [inputShape] NetParameter inputShape
-             * @property {Array.<number>|null} [inputDim] NetParameter inputDim
-             * @property {boolean|null} [forceBackward] NetParameter forceBackward
-             * @property {caffe.INetState|null} [state] NetParameter state
-             * @property {boolean|null} [debugInfo] NetParameter debugInfo
-             * @property {Array.<caffe.ILayerParameter>|null} [layer] NetParameter layer
-             * @property {Array.<caffe.IV1LayerParameter>|null} [layers] NetParameter layers
-             */
-    
-            /**
-             * Constructs a new NetParameter.
-             * @memberof caffe
-             * @classdesc Represents a NetParameter.
-             * @implements INetParameter
-             * @constructor
-             * @param {caffe.INetParameter=} [properties] Properties to set
-             */
             function NetParameter(properties) {
                 this.input = [];
                 this.inputShape = [];
@@ -1690,152 +830,20 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * NetParameter name.
-             * @member {string} name
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.name = "";
-    
-            /**
-             * NetParameter input.
-             * @member {Array.<string>} input
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.input = $util.emptyArray;
-    
-            /**
-             * NetParameter inputShape.
-             * @member {Array.<caffe.IBlobShape>} inputShape
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.inputShape = $util.emptyArray;
-    
-            /**
-             * NetParameter inputDim.
-             * @member {Array.<number>} inputDim
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.inputDim = $util.emptyArray;
-    
-            /**
-             * NetParameter forceBackward.
-             * @member {boolean} forceBackward
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.forceBackward = false;
-    
-            /**
-             * NetParameter state.
-             * @member {caffe.INetState|null|undefined} state
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.state = null;
-    
-            /**
-             * NetParameter debugInfo.
-             * @member {boolean} debugInfo
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.debugInfo = false;
-    
-            /**
-             * NetParameter layer.
-             * @member {Array.<caffe.ILayerParameter>} layer
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.layer = $util.emptyArray;
-    
-            /**
-             * NetParameter layers.
-             * @member {Array.<caffe.IV1LayerParameter>} layers
-             * @memberof caffe.NetParameter
-             * @instance
-             */
             NetParameter.prototype.layers = $util.emptyArray;
     
-            /**
-             * Creates a new NetParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {caffe.INetParameter=} [properties] Properties to set
-             * @returns {caffe.NetParameter} NetParameter instance
-             */
             NetParameter.create = function create(properties) {
                 return new NetParameter(properties);
             };
     
-            /**
-             * Encodes the specified NetParameter message. Does not implicitly {@link caffe.NetParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {caffe.INetParameter} message NetParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NetParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.layers != null && message.layers.length)
-                    for (var i = 0; i < message.layers.length; ++i)
-                        $root.caffe.V1LayerParameter.encode(message.layers[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.input != null && message.input.length)
-                    for (var i = 0; i < message.input.length; ++i)
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.input[i]);
-                if (message.inputDim != null && message.inputDim.length)
-                    for (var i = 0; i < message.inputDim.length; ++i)
-                        writer.uint32(/* id 4, wireType 0 =*/32).int32(message.inputDim[i]);
-                if (message.forceBackward != null && message.hasOwnProperty("forceBackward"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).bool(message.forceBackward);
-                if (message.state != null && message.hasOwnProperty("state"))
-                    $root.caffe.NetState.encode(message.state, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).bool(message.debugInfo);
-                if (message.inputShape != null && message.inputShape.length)
-                    for (var i = 0; i < message.inputShape.length; ++i)
-                        $root.caffe.BlobShape.encode(message.inputShape[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                if (message.layer != null && message.layer.length)
-                    for (var i = 0; i < message.layer.length; ++i)
-                        $root.caffe.LayerParameter.encode(message.layer[i], writer.uint32(/* id 100, wireType 2 =*/802).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified NetParameter message, length delimited. Does not implicitly {@link caffe.NetParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {caffe.INetParameter} message NetParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NetParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a NetParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.NetParameter} NetParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             NetParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -1893,30 +901,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a NetParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.NetParameter} NetParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            NetParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a NetParameter message.
-             * @function verify
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             NetParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1978,14 +962,6 @@
                 return null;
             };
     
-            /**
-             * Creates a NetParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.NetParameter} NetParameter
-             */
             NetParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.NetParameter)
                     return object;
@@ -2048,15 +1024,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a NetParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.NetParameter
-             * @static
-             * @param {caffe.NetParameter} message NetParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             NetParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -2110,13 +1077,6 @@
                 return object;
             };
     
-            /**
-             * Converts this NetParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.NetParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             NetParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -2126,62 +1086,6 @@
     
         caffe.SolverParameter = (function() {
     
-            /**
-             * Properties of a SolverParameter.
-             * @memberof caffe
-             * @interface ISolverParameter
-             * @property {string|null} [net] SolverParameter net
-             * @property {caffe.INetParameter|null} [netParam] SolverParameter netParam
-             * @property {string|null} [trainNet] SolverParameter trainNet
-             * @property {Array.<string>|null} [testNet] SolverParameter testNet
-             * @property {caffe.INetParameter|null} [trainNetParam] SolverParameter trainNetParam
-             * @property {Array.<caffe.INetParameter>|null} [testNetParam] SolverParameter testNetParam
-             * @property {caffe.INetState|null} [trainState] SolverParameter trainState
-             * @property {Array.<caffe.INetState>|null} [testState] SolverParameter testState
-             * @property {Array.<number>|null} [testIter] SolverParameter testIter
-             * @property {number|null} [testInterval] SolverParameter testInterval
-             * @property {boolean|null} [testComputeLoss] SolverParameter testComputeLoss
-             * @property {boolean|null} [testInitialization] SolverParameter testInitialization
-             * @property {number|null} [baseLr] SolverParameter baseLr
-             * @property {number|null} [display] SolverParameter display
-             * @property {number|null} [averageLoss] SolverParameter averageLoss
-             * @property {number|null} [maxIter] SolverParameter maxIter
-             * @property {number|null} [iterSize] SolverParameter iterSize
-             * @property {string|null} [lrPolicy] SolverParameter lrPolicy
-             * @property {number|null} [gamma] SolverParameter gamma
-             * @property {number|null} [power] SolverParameter power
-             * @property {number|null} [momentum] SolverParameter momentum
-             * @property {number|null} [weightDecay] SolverParameter weightDecay
-             * @property {string|null} [regularizationType] SolverParameter regularizationType
-             * @property {number|null} [stepsize] SolverParameter stepsize
-             * @property {Array.<number>|null} [stepvalue] SolverParameter stepvalue
-             * @property {number|null} [clipGradients] SolverParameter clipGradients
-             * @property {number|null} [snapshot] SolverParameter snapshot
-             * @property {string|null} [snapshotPrefix] SolverParameter snapshotPrefix
-             * @property {boolean|null} [snapshotDiff] SolverParameter snapshotDiff
-             * @property {caffe.SolverParameter.SnapshotFormat|null} [snapshotFormat] SolverParameter snapshotFormat
-             * @property {caffe.SolverParameter.SolverMode|null} [solverMode] SolverParameter solverMode
-             * @property {number|null} [deviceId] SolverParameter deviceId
-             * @property {number|Long|null} [randomSeed] SolverParameter randomSeed
-             * @property {string|null} [type] SolverParameter type
-             * @property {number|null} [delta] SolverParameter delta
-             * @property {number|null} [momentum2] SolverParameter momentum2
-             * @property {number|null} [rmsDecay] SolverParameter rmsDecay
-             * @property {boolean|null} [debugInfo] SolverParameter debugInfo
-             * @property {boolean|null} [snapshotAfterTrain] SolverParameter snapshotAfterTrain
-             * @property {caffe.SolverParameter.SolverType|null} [solverType] SolverParameter solverType
-             * @property {boolean|null} [layerWiseReduce] SolverParameter layerWiseReduce
-             * @property {Array.<string>|null} [weights] SolverParameter weights
-             */
-    
-            /**
-             * Constructs a new SolverParameter.
-             * @memberof caffe
-             * @classdesc Represents a SolverParameter.
-             * @implements ISolverParameter
-             * @constructor
-             * @param {caffe.ISolverParameter=} [properties] Properties to set
-             */
             function SolverParameter(properties) {
                 this.testNet = [];
                 this.testNetParam = [];
@@ -2195,483 +1099,53 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SolverParameter net.
-             * @member {string} net
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.net = "";
-    
-            /**
-             * SolverParameter netParam.
-             * @member {caffe.INetParameter|null|undefined} netParam
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.netParam = null;
-    
-            /**
-             * SolverParameter trainNet.
-             * @member {string} trainNet
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.trainNet = "";
-    
-            /**
-             * SolverParameter testNet.
-             * @member {Array.<string>} testNet
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.testNet = $util.emptyArray;
-    
-            /**
-             * SolverParameter trainNetParam.
-             * @member {caffe.INetParameter|null|undefined} trainNetParam
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.trainNetParam = null;
-    
-            /**
-             * SolverParameter testNetParam.
-             * @member {Array.<caffe.INetParameter>} testNetParam
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.testNetParam = $util.emptyArray;
-    
-            /**
-             * SolverParameter trainState.
-             * @member {caffe.INetState|null|undefined} trainState
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.trainState = null;
-    
-            /**
-             * SolverParameter testState.
-             * @member {Array.<caffe.INetState>} testState
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.testState = $util.emptyArray;
-    
-            /**
-             * SolverParameter testIter.
-             * @member {Array.<number>} testIter
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.testIter = $util.emptyArray;
-    
-            /**
-             * SolverParameter testInterval.
-             * @member {number} testInterval
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.testInterval = 0;
-    
-            /**
-             * SolverParameter testComputeLoss.
-             * @member {boolean} testComputeLoss
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.testComputeLoss = false;
-    
-            /**
-             * SolverParameter testInitialization.
-             * @member {boolean} testInitialization
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.testInitialization = true;
-    
-            /**
-             * SolverParameter baseLr.
-             * @member {number} baseLr
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.baseLr = 0;
-    
-            /**
-             * SolverParameter display.
-             * @member {number} display
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.display = 0;
-    
-            /**
-             * SolverParameter averageLoss.
-             * @member {number} averageLoss
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.averageLoss = 1;
-    
-            /**
-             * SolverParameter maxIter.
-             * @member {number} maxIter
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.maxIter = 0;
-    
-            /**
-             * SolverParameter iterSize.
-             * @member {number} iterSize
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.iterSize = 1;
-    
-            /**
-             * SolverParameter lrPolicy.
-             * @member {string} lrPolicy
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.lrPolicy = "";
-    
-            /**
-             * SolverParameter gamma.
-             * @member {number} gamma
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.gamma = 0;
-    
-            /**
-             * SolverParameter power.
-             * @member {number} power
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.power = 0;
-    
-            /**
-             * SolverParameter momentum.
-             * @member {number} momentum
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.momentum = 0;
-    
-            /**
-             * SolverParameter weightDecay.
-             * @member {number} weightDecay
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.weightDecay = 0;
-    
-            /**
-             * SolverParameter regularizationType.
-             * @member {string} regularizationType
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.regularizationType = "L2";
-    
-            /**
-             * SolverParameter stepsize.
-             * @member {number} stepsize
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.stepsize = 0;
-    
-            /**
-             * SolverParameter stepvalue.
-             * @member {Array.<number>} stepvalue
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.stepvalue = $util.emptyArray;
-    
-            /**
-             * SolverParameter clipGradients.
-             * @member {number} clipGradients
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.clipGradients = -1;
-    
-            /**
-             * SolverParameter snapshot.
-             * @member {number} snapshot
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.snapshot = 0;
-    
-            /**
-             * SolverParameter snapshotPrefix.
-             * @member {string} snapshotPrefix
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.snapshotPrefix = "";
-    
-            /**
-             * SolverParameter snapshotDiff.
-             * @member {boolean} snapshotDiff
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.snapshotDiff = false;
-    
-            /**
-             * SolverParameter snapshotFormat.
-             * @member {caffe.SolverParameter.SnapshotFormat} snapshotFormat
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.snapshotFormat = 1;
-    
-            /**
-             * SolverParameter solverMode.
-             * @member {caffe.SolverParameter.SolverMode} solverMode
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.solverMode = 1;
-    
-            /**
-             * SolverParameter deviceId.
-             * @member {number} deviceId
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.deviceId = 0;
-    
-            /**
-             * SolverParameter randomSeed.
-             * @member {number|Long} randomSeed
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.randomSeed = $util.Long ? $util.Long.fromBits(-1,-1,false) : -1;
-    
-            /**
-             * SolverParameter type.
-             * @member {string} type
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.type = "SGD";
-    
-            /**
-             * SolverParameter delta.
-             * @member {number} delta
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.delta = 1e-8;
-    
-            /**
-             * SolverParameter momentum2.
-             * @member {number} momentum2
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.momentum2 = 0.999;
-    
-            /**
-             * SolverParameter rmsDecay.
-             * @member {number} rmsDecay
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.rmsDecay = 0.99;
-    
-            /**
-             * SolverParameter debugInfo.
-             * @member {boolean} debugInfo
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.debugInfo = false;
-    
-            /**
-             * SolverParameter snapshotAfterTrain.
-             * @member {boolean} snapshotAfterTrain
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.snapshotAfterTrain = true;
-    
-            /**
-             * SolverParameter solverType.
-             * @member {caffe.SolverParameter.SolverType} solverType
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.solverType = 0;
-    
-            /**
-             * SolverParameter layerWiseReduce.
-             * @member {boolean} layerWiseReduce
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.layerWiseReduce = true;
-    
-            /**
-             * SolverParameter weights.
-             * @member {Array.<string>} weights
-             * @memberof caffe.SolverParameter
-             * @instance
-             */
             SolverParameter.prototype.weights = $util.emptyArray;
     
-            /**
-             * Creates a new SolverParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {caffe.ISolverParameter=} [properties] Properties to set
-             * @returns {caffe.SolverParameter} SolverParameter instance
-             */
             SolverParameter.create = function create(properties) {
                 return new SolverParameter(properties);
             };
     
-            /**
-             * Encodes the specified SolverParameter message. Does not implicitly {@link caffe.SolverParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {caffe.ISolverParameter} message SolverParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SolverParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.trainNet != null && message.hasOwnProperty("trainNet"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.trainNet);
-                if (message.testNet != null && message.testNet.length)
-                    for (var i = 0; i < message.testNet.length; ++i)
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.testNet[i]);
-                if (message.testIter != null && message.testIter.length)
-                    for (var i = 0; i < message.testIter.length; ++i)
-                        writer.uint32(/* id 3, wireType 0 =*/24).int32(message.testIter[i]);
-                if (message.testInterval != null && message.hasOwnProperty("testInterval"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).int32(message.testInterval);
-                if (message.baseLr != null && message.hasOwnProperty("baseLr"))
-                    writer.uint32(/* id 5, wireType 5 =*/45).float(message.baseLr);
-                if (message.display != null && message.hasOwnProperty("display"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).int32(message.display);
-                if (message.maxIter != null && message.hasOwnProperty("maxIter"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).int32(message.maxIter);
-                if (message.lrPolicy != null && message.hasOwnProperty("lrPolicy"))
-                    writer.uint32(/* id 8, wireType 2 =*/66).string(message.lrPolicy);
-                if (message.gamma != null && message.hasOwnProperty("gamma"))
-                    writer.uint32(/* id 9, wireType 5 =*/77).float(message.gamma);
-                if (message.power != null && message.hasOwnProperty("power"))
-                    writer.uint32(/* id 10, wireType 5 =*/85).float(message.power);
-                if (message.momentum != null && message.hasOwnProperty("momentum"))
-                    writer.uint32(/* id 11, wireType 5 =*/93).float(message.momentum);
-                if (message.weightDecay != null && message.hasOwnProperty("weightDecay"))
-                    writer.uint32(/* id 12, wireType 5 =*/101).float(message.weightDecay);
-                if (message.stepsize != null && message.hasOwnProperty("stepsize"))
-                    writer.uint32(/* id 13, wireType 0 =*/104).int32(message.stepsize);
-                if (message.snapshot != null && message.hasOwnProperty("snapshot"))
-                    writer.uint32(/* id 14, wireType 0 =*/112).int32(message.snapshot);
-                if (message.snapshotPrefix != null && message.hasOwnProperty("snapshotPrefix"))
-                    writer.uint32(/* id 15, wireType 2 =*/122).string(message.snapshotPrefix);
-                if (message.snapshotDiff != null && message.hasOwnProperty("snapshotDiff"))
-                    writer.uint32(/* id 16, wireType 0 =*/128).bool(message.snapshotDiff);
-                if (message.solverMode != null && message.hasOwnProperty("solverMode"))
-                    writer.uint32(/* id 17, wireType 0 =*/136).int32(message.solverMode);
-                if (message.deviceId != null && message.hasOwnProperty("deviceId"))
-                    writer.uint32(/* id 18, wireType 0 =*/144).int32(message.deviceId);
-                if (message.testComputeLoss != null && message.hasOwnProperty("testComputeLoss"))
-                    writer.uint32(/* id 19, wireType 0 =*/152).bool(message.testComputeLoss);
-                if (message.randomSeed != null && message.hasOwnProperty("randomSeed"))
-                    writer.uint32(/* id 20, wireType 0 =*/160).int64(message.randomSeed);
-                if (message.trainNetParam != null && message.hasOwnProperty("trainNetParam"))
-                    $root.caffe.NetParameter.encode(message.trainNetParam, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
-                if (message.testNetParam != null && message.testNetParam.length)
-                    for (var i = 0; i < message.testNetParam.length; ++i)
-                        $root.caffe.NetParameter.encode(message.testNetParam[i], writer.uint32(/* id 22, wireType 2 =*/178).fork()).ldelim();
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    writer.uint32(/* id 23, wireType 0 =*/184).bool(message.debugInfo);
-                if (message.net != null && message.hasOwnProperty("net"))
-                    writer.uint32(/* id 24, wireType 2 =*/194).string(message.net);
-                if (message.netParam != null && message.hasOwnProperty("netParam"))
-                    $root.caffe.NetParameter.encode(message.netParam, writer.uint32(/* id 25, wireType 2 =*/202).fork()).ldelim();
-                if (message.trainState != null && message.hasOwnProperty("trainState"))
-                    $root.caffe.NetState.encode(message.trainState, writer.uint32(/* id 26, wireType 2 =*/210).fork()).ldelim();
-                if (message.testState != null && message.testState.length)
-                    for (var i = 0; i < message.testState.length; ++i)
-                        $root.caffe.NetState.encode(message.testState[i], writer.uint32(/* id 27, wireType 2 =*/218).fork()).ldelim();
-                if (message.snapshotAfterTrain != null && message.hasOwnProperty("snapshotAfterTrain"))
-                    writer.uint32(/* id 28, wireType 0 =*/224).bool(message.snapshotAfterTrain);
-                if (message.regularizationType != null && message.hasOwnProperty("regularizationType"))
-                    writer.uint32(/* id 29, wireType 2 =*/234).string(message.regularizationType);
-                if (message.solverType != null && message.hasOwnProperty("solverType"))
-                    writer.uint32(/* id 30, wireType 0 =*/240).int32(message.solverType);
-                if (message.delta != null && message.hasOwnProperty("delta"))
-                    writer.uint32(/* id 31, wireType 5 =*/253).float(message.delta);
-                if (message.testInitialization != null && message.hasOwnProperty("testInitialization"))
-                    writer.uint32(/* id 32, wireType 0 =*/256).bool(message.testInitialization);
-                if (message.averageLoss != null && message.hasOwnProperty("averageLoss"))
-                    writer.uint32(/* id 33, wireType 0 =*/264).int32(message.averageLoss);
-                if (message.stepvalue != null && message.stepvalue.length)
-                    for (var i = 0; i < message.stepvalue.length; ++i)
-                        writer.uint32(/* id 34, wireType 0 =*/272).int32(message.stepvalue[i]);
-                if (message.clipGradients != null && message.hasOwnProperty("clipGradients"))
-                    writer.uint32(/* id 35, wireType 5 =*/285).float(message.clipGradients);
-                if (message.iterSize != null && message.hasOwnProperty("iterSize"))
-                    writer.uint32(/* id 36, wireType 0 =*/288).int32(message.iterSize);
-                if (message.snapshotFormat != null && message.hasOwnProperty("snapshotFormat"))
-                    writer.uint32(/* id 37, wireType 0 =*/296).int32(message.snapshotFormat);
-                if (message.rmsDecay != null && message.hasOwnProperty("rmsDecay"))
-                    writer.uint32(/* id 38, wireType 5 =*/309).float(message.rmsDecay);
-                if (message.momentum2 != null && message.hasOwnProperty("momentum2"))
-                    writer.uint32(/* id 39, wireType 5 =*/317).float(message.momentum2);
-                if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 40, wireType 2 =*/322).string(message.type);
-                if (message.layerWiseReduce != null && message.hasOwnProperty("layerWiseReduce"))
-                    writer.uint32(/* id 41, wireType 0 =*/328).bool(message.layerWiseReduce);
-                if (message.weights != null && message.weights.length)
-                    for (var i = 0; i < message.weights.length; ++i)
-                        writer.uint32(/* id 42, wireType 2 =*/338).string(message.weights[i]);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SolverParameter message, length delimited. Does not implicitly {@link caffe.SolverParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {caffe.ISolverParameter} message SolverParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SolverParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SolverParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.SolverParameter} SolverParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SolverParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -2835,30 +1309,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a SolverParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.SolverParameter} SolverParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SolverParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SolverParameter message.
-             * @function verify
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SolverParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3044,14 +1494,6 @@
                 return null;
             };
     
-            /**
-             * Creates a SolverParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.SolverParameter} SolverParameter
-             */
             SolverParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.SolverParameter)
                     return object;
@@ -3235,15 +1677,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SolverParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.SolverParameter
-             * @static
-             * @param {caffe.SolverParameter} message SolverParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SolverParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -3406,24 +1839,10 @@
                 return object;
             };
     
-            /**
-             * Converts this SolverParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.SolverParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SolverParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * SnapshotFormat enum.
-             * @name caffe.SolverParameter.SnapshotFormat
-             * @enum {string}
-             * @property {number} HDF5=0 HDF5 value
-             * @property {number} BINARYPROTO=1 BINARYPROTO value
-             */
             SolverParameter.SnapshotFormat = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "HDF5"] = 0;
@@ -3431,13 +1850,6 @@
                 return values;
             })();
     
-            /**
-             * SolverMode enum.
-             * @name caffe.SolverParameter.SolverMode
-             * @enum {string}
-             * @property {number} CPU=0 CPU value
-             * @property {number} GPU=1 GPU value
-             */
             SolverParameter.SolverMode = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "CPU"] = 0;
@@ -3445,17 +1857,6 @@
                 return values;
             })();
     
-            /**
-             * SolverType enum.
-             * @name caffe.SolverParameter.SolverType
-             * @enum {string}
-             * @property {number} SGD=0 SGD value
-             * @property {number} NESTEROV=1 NESTEROV value
-             * @property {number} ADAGRAD=2 ADAGRAD value
-             * @property {number} RMSPROP=3 RMSPROP value
-             * @property {number} ADADELTA=4 ADADELTA value
-             * @property {number} ADAM=5 ADAM value
-             */
             SolverParameter.SolverType = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "SGD"] = 0;
@@ -3472,24 +1873,6 @@
     
         caffe.SolverState = (function() {
     
-            /**
-             * Properties of a SolverState.
-             * @memberof caffe
-             * @interface ISolverState
-             * @property {number|null} [iter] SolverState iter
-             * @property {string|null} [learnedNet] SolverState learnedNet
-             * @property {Array.<caffe.IBlobProto>|null} [history] SolverState history
-             * @property {number|null} [currentStep] SolverState currentStep
-             */
-    
-            /**
-             * Constructs a new SolverState.
-             * @memberof caffe
-             * @classdesc Represents a SolverState.
-             * @implements ISolverState
-             * @constructor
-             * @param {caffe.ISolverState=} [properties] Properties to set
-             */
             function SolverState(properties) {
                 this.history = [];
                 if (properties)
@@ -3498,98 +1881,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SolverState iter.
-             * @member {number} iter
-             * @memberof caffe.SolverState
-             * @instance
-             */
             SolverState.prototype.iter = 0;
-    
-            /**
-             * SolverState learnedNet.
-             * @member {string} learnedNet
-             * @memberof caffe.SolverState
-             * @instance
-             */
             SolverState.prototype.learnedNet = "";
-    
-            /**
-             * SolverState history.
-             * @member {Array.<caffe.IBlobProto>} history
-             * @memberof caffe.SolverState
-             * @instance
-             */
             SolverState.prototype.history = $util.emptyArray;
-    
-            /**
-             * SolverState currentStep.
-             * @member {number} currentStep
-             * @memberof caffe.SolverState
-             * @instance
-             */
             SolverState.prototype.currentStep = 0;
     
-            /**
-             * Creates a new SolverState instance using the specified properties.
-             * @function create
-             * @memberof caffe.SolverState
-             * @static
-             * @param {caffe.ISolverState=} [properties] Properties to set
-             * @returns {caffe.SolverState} SolverState instance
-             */
             SolverState.create = function create(properties) {
                 return new SolverState(properties);
             };
     
-            /**
-             * Encodes the specified SolverState message. Does not implicitly {@link caffe.SolverState.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.SolverState
-             * @static
-             * @param {caffe.ISolverState} message SolverState message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SolverState.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.iter != null && message.hasOwnProperty("iter"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.iter);
-                if (message.learnedNet != null && message.hasOwnProperty("learnedNet"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.learnedNet);
-                if (message.history != null && message.history.length)
-                    for (var i = 0; i < message.history.length; ++i)
-                        $root.caffe.BlobProto.encode(message.history[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.currentStep != null && message.hasOwnProperty("currentStep"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).int32(message.currentStep);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SolverState message, length delimited. Does not implicitly {@link caffe.SolverState.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.SolverState
-             * @static
-             * @param {caffe.ISolverState} message SolverState message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SolverState.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SolverState message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.SolverState
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.SolverState} SolverState
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SolverState.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -3619,30 +1919,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a SolverState message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.SolverState
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.SolverState} SolverState
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SolverState.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SolverState message.
-             * @function verify
-             * @memberof caffe.SolverState
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SolverState.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3667,14 +1943,6 @@
                 return null;
             };
     
-            /**
-             * Creates a SolverState message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.SolverState
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.SolverState} SolverState
-             */
             SolverState.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.SolverState)
                     return object;
@@ -3698,15 +1966,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SolverState message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.SolverState
-             * @static
-             * @param {caffe.SolverState} message SolverState
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SolverState.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -3732,13 +1991,6 @@
                 return object;
             };
     
-            /**
-             * Converts this SolverState to JSON.
-             * @function toJSON
-             * @memberof caffe.SolverState
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SolverState.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -3746,13 +1998,6 @@
             return SolverState;
         })();
     
-        /**
-         * Phase enum.
-         * @name caffe.Phase
-         * @enum {string}
-         * @property {number} TRAIN=0 TRAIN value
-         * @property {number} TEST=1 TEST value
-         */
         caffe.Phase = (function() {
             var valuesById = {}, values = Object.create(valuesById);
             values[valuesById[0] = "TRAIN"] = 0;
@@ -3762,23 +2007,6 @@
     
         caffe.NetState = (function() {
     
-            /**
-             * Properties of a NetState.
-             * @memberof caffe
-             * @interface INetState
-             * @property {caffe.Phase|null} [phase] NetState phase
-             * @property {number|null} [level] NetState level
-             * @property {Array.<string>|null} [stage] NetState stage
-             */
-    
-            /**
-             * Constructs a new NetState.
-             * @memberof caffe
-             * @classdesc Represents a NetState.
-             * @implements INetState
-             * @constructor
-             * @param {caffe.INetState=} [properties] Properties to set
-             */
             function NetState(properties) {
                 this.stage = [];
                 if (properties)
@@ -3787,88 +2015,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * NetState phase.
-             * @member {caffe.Phase} phase
-             * @memberof caffe.NetState
-             * @instance
-             */
             NetState.prototype.phase = 1;
-    
-            /**
-             * NetState level.
-             * @member {number} level
-             * @memberof caffe.NetState
-             * @instance
-             */
             NetState.prototype.level = 0;
-    
-            /**
-             * NetState stage.
-             * @member {Array.<string>} stage
-             * @memberof caffe.NetState
-             * @instance
-             */
             NetState.prototype.stage = $util.emptyArray;
     
-            /**
-             * Creates a new NetState instance using the specified properties.
-             * @function create
-             * @memberof caffe.NetState
-             * @static
-             * @param {caffe.INetState=} [properties] Properties to set
-             * @returns {caffe.NetState} NetState instance
-             */
             NetState.create = function create(properties) {
                 return new NetState(properties);
             };
     
-            /**
-             * Encodes the specified NetState message. Does not implicitly {@link caffe.NetState.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.NetState
-             * @static
-             * @param {caffe.INetState} message NetState message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NetState.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.phase != null && message.hasOwnProperty("phase"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.phase);
-                if (message.level != null && message.hasOwnProperty("level"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.level);
-                if (message.stage != null && message.stage.length)
-                    for (var i = 0; i < message.stage.length; ++i)
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.stage[i]);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified NetState message, length delimited. Does not implicitly {@link caffe.NetState.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.NetState
-             * @static
-             * @param {caffe.INetState} message NetState message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NetState.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a NetState message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.NetState
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.NetState} NetState
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             NetState.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -3895,30 +2049,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a NetState message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.NetState
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.NetState} NetState
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            NetState.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a NetState message.
-             * @function verify
-             * @memberof caffe.NetState
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             NetState.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3943,14 +2073,6 @@
                 return null;
             };
     
-            /**
-             * Creates a NetState message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.NetState
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.NetState} NetState
-             */
             NetState.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.NetState)
                     return object;
@@ -3977,15 +2099,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a NetState message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.NetState
-             * @static
-             * @param {caffe.NetState} message NetState
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             NetState.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -4008,13 +2121,6 @@
                 return object;
             };
     
-            /**
-             * Converts this NetState to JSON.
-             * @function toJSON
-             * @memberof caffe.NetState
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             NetState.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -4024,25 +2130,6 @@
     
         caffe.NetStateRule = (function() {
     
-            /**
-             * Properties of a NetStateRule.
-             * @memberof caffe
-             * @interface INetStateRule
-             * @property {caffe.Phase|null} [phase] NetStateRule phase
-             * @property {number|null} [minLevel] NetStateRule minLevel
-             * @property {number|null} [maxLevel] NetStateRule maxLevel
-             * @property {Array.<string>|null} [stage] NetStateRule stage
-             * @property {Array.<string>|null} [notStage] NetStateRule notStage
-             */
-    
-            /**
-             * Constructs a new NetStateRule.
-             * @memberof caffe
-             * @classdesc Represents a NetStateRule.
-             * @implements INetStateRule
-             * @constructor
-             * @param {caffe.INetStateRule=} [properties] Properties to set
-             */
             function NetStateRule(properties) {
                 this.stage = [];
                 this.notStage = [];
@@ -4052,109 +2139,16 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * NetStateRule phase.
-             * @member {caffe.Phase} phase
-             * @memberof caffe.NetStateRule
-             * @instance
-             */
             NetStateRule.prototype.phase = 0;
-    
-            /**
-             * NetStateRule minLevel.
-             * @member {number} minLevel
-             * @memberof caffe.NetStateRule
-             * @instance
-             */
             NetStateRule.prototype.minLevel = 0;
-    
-            /**
-             * NetStateRule maxLevel.
-             * @member {number} maxLevel
-             * @memberof caffe.NetStateRule
-             * @instance
-             */
             NetStateRule.prototype.maxLevel = 0;
-    
-            /**
-             * NetStateRule stage.
-             * @member {Array.<string>} stage
-             * @memberof caffe.NetStateRule
-             * @instance
-             */
             NetStateRule.prototype.stage = $util.emptyArray;
-    
-            /**
-             * NetStateRule notStage.
-             * @member {Array.<string>} notStage
-             * @memberof caffe.NetStateRule
-             * @instance
-             */
             NetStateRule.prototype.notStage = $util.emptyArray;
     
-            /**
-             * Creates a new NetStateRule instance using the specified properties.
-             * @function create
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {caffe.INetStateRule=} [properties] Properties to set
-             * @returns {caffe.NetStateRule} NetStateRule instance
-             */
             NetStateRule.create = function create(properties) {
                 return new NetStateRule(properties);
             };
     
-            /**
-             * Encodes the specified NetStateRule message. Does not implicitly {@link caffe.NetStateRule.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {caffe.INetStateRule} message NetStateRule message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NetStateRule.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.phase != null && message.hasOwnProperty("phase"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.phase);
-                if (message.minLevel != null && message.hasOwnProperty("minLevel"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.minLevel);
-                if (message.maxLevel != null && message.hasOwnProperty("maxLevel"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.maxLevel);
-                if (message.stage != null && message.stage.length)
-                    for (var i = 0; i < message.stage.length; ++i)
-                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.stage[i]);
-                if (message.notStage != null && message.notStage.length)
-                    for (var i = 0; i < message.notStage.length; ++i)
-                        writer.uint32(/* id 5, wireType 2 =*/42).string(message.notStage[i]);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified NetStateRule message, length delimited. Does not implicitly {@link caffe.NetStateRule.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {caffe.INetStateRule} message NetStateRule message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NetStateRule.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a NetStateRule message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.NetStateRule} NetStateRule
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             NetStateRule.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -4189,30 +2183,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a NetStateRule message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.NetStateRule} NetStateRule
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            NetStateRule.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a NetStateRule message.
-             * @function verify
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             NetStateRule.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -4247,14 +2217,6 @@
                 return null;
             };
     
-            /**
-             * Creates a NetStateRule message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.NetStateRule} NetStateRule
-             */
             NetStateRule.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.NetStateRule)
                     return object;
@@ -4290,15 +2252,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a NetStateRule message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.NetStateRule
-             * @static
-             * @param {caffe.NetStateRule} message NetStateRule
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             NetStateRule.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -4331,13 +2284,6 @@
                 return object;
             };
     
-            /**
-             * Converts this NetStateRule to JSON.
-             * @function toJSON
-             * @memberof caffe.NetStateRule
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             NetStateRule.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -4347,24 +2293,6 @@
     
         caffe.ParamSpec = (function() {
     
-            /**
-             * Properties of a ParamSpec.
-             * @memberof caffe
-             * @interface IParamSpec
-             * @property {string|null} [name] ParamSpec name
-             * @property {caffe.ParamSpec.DimCheckMode|null} [shareMode] ParamSpec shareMode
-             * @property {number|null} [lrMult] ParamSpec lrMult
-             * @property {number|null} [decayMult] ParamSpec decayMult
-             */
-    
-            /**
-             * Constructs a new ParamSpec.
-             * @memberof caffe
-             * @classdesc Represents a ParamSpec.
-             * @implements IParamSpec
-             * @constructor
-             * @param {caffe.IParamSpec=} [properties] Properties to set
-             */
             function ParamSpec(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -4372,97 +2300,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ParamSpec name.
-             * @member {string} name
-             * @memberof caffe.ParamSpec
-             * @instance
-             */
             ParamSpec.prototype.name = "";
-    
-            /**
-             * ParamSpec shareMode.
-             * @member {caffe.ParamSpec.DimCheckMode} shareMode
-             * @memberof caffe.ParamSpec
-             * @instance
-             */
             ParamSpec.prototype.shareMode = 0;
-    
-            /**
-             * ParamSpec lrMult.
-             * @member {number} lrMult
-             * @memberof caffe.ParamSpec
-             * @instance
-             */
             ParamSpec.prototype.lrMult = 1;
-    
-            /**
-             * ParamSpec decayMult.
-             * @member {number} decayMult
-             * @memberof caffe.ParamSpec
-             * @instance
-             */
             ParamSpec.prototype.decayMult = 1;
     
-            /**
-             * Creates a new ParamSpec instance using the specified properties.
-             * @function create
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {caffe.IParamSpec=} [properties] Properties to set
-             * @returns {caffe.ParamSpec} ParamSpec instance
-             */
             ParamSpec.create = function create(properties) {
                 return new ParamSpec(properties);
             };
     
-            /**
-             * Encodes the specified ParamSpec message. Does not implicitly {@link caffe.ParamSpec.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {caffe.IParamSpec} message ParamSpec message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ParamSpec.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.shareMode != null && message.hasOwnProperty("shareMode"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.shareMode);
-                if (message.lrMult != null && message.hasOwnProperty("lrMult"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.lrMult);
-                if (message.decayMult != null && message.hasOwnProperty("decayMult"))
-                    writer.uint32(/* id 4, wireType 5 =*/37).float(message.decayMult);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ParamSpec message, length delimited. Does not implicitly {@link caffe.ParamSpec.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {caffe.IParamSpec} message ParamSpec message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ParamSpec.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ParamSpec message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ParamSpec} ParamSpec
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ParamSpec.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -4490,30 +2336,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ParamSpec message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ParamSpec} ParamSpec
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ParamSpec.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ParamSpec message.
-             * @function verify
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ParamSpec.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -4537,14 +2359,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ParamSpec message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ParamSpec} ParamSpec
-             */
             ParamSpec.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ParamSpec)
                     return object;
@@ -4568,15 +2382,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ParamSpec message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ParamSpec
-             * @static
-             * @param {caffe.ParamSpec} message ParamSpec
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ParamSpec.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -4598,24 +2403,10 @@
                 return object;
             };
     
-            /**
-             * Converts this ParamSpec to JSON.
-             * @function toJSON
-             * @memberof caffe.ParamSpec
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ParamSpec.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * DimCheckMode enum.
-             * @name caffe.ParamSpec.DimCheckMode
-             * @enum {string}
-             * @property {number} STRICT=0 STRICT value
-             * @property {number} PERMISSIVE=1 PERMISSIVE value
-             */
             ParamSpec.DimCheckMode = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "STRICT"] = 0;
@@ -4628,80 +2419,6 @@
     
         caffe.LayerParameter = (function() {
     
-            /**
-             * Properties of a LayerParameter.
-             * @memberof caffe
-             * @interface ILayerParameter
-             * @property {string|null} [name] LayerParameter name
-             * @property {string|null} [type] LayerParameter type
-             * @property {Array.<string>|null} [bottom] LayerParameter bottom
-             * @property {Array.<string>|null} [top] LayerParameter top
-             * @property {caffe.Phase|null} [phase] LayerParameter phase
-             * @property {Array.<number>|null} [lossWeight] LayerParameter lossWeight
-             * @property {Array.<caffe.IParamSpec>|null} [param] LayerParameter param
-             * @property {Array.<caffe.IBlobProto>|null} [blobs] LayerParameter blobs
-             * @property {Array.<boolean>|null} [propagateDown] LayerParameter propagateDown
-             * @property {Array.<caffe.INetStateRule>|null} [include] LayerParameter include
-             * @property {Array.<caffe.INetStateRule>|null} [exclude] LayerParameter exclude
-             * @property {caffe.ITransformationParameter|null} [transformParam] LayerParameter transformParam
-             * @property {caffe.ILossParameter|null} [lossParam] LayerParameter lossParam
-             * @property {caffe.IAccuracyParameter|null} [accuracyParam] LayerParameter accuracyParam
-             * @property {caffe.IArgMaxParameter|null} [argmaxParam] LayerParameter argmaxParam
-             * @property {caffe.IBatchNormParameter|null} [batchNormParam] LayerParameter batchNormParam
-             * @property {caffe.IBiasParameter|null} [biasParam] LayerParameter biasParam
-             * @property {caffe.IClipParameter|null} [clipParam] LayerParameter clipParam
-             * @property {caffe.IConcatParameter|null} [concatParam] LayerParameter concatParam
-             * @property {caffe.IContrastiveLossParameter|null} [contrastiveLossParam] LayerParameter contrastiveLossParam
-             * @property {caffe.IConvolutionParameter|null} [convolutionParam] LayerParameter convolutionParam
-             * @property {caffe.ICropParameter|null} [cropParam] LayerParameter cropParam
-             * @property {caffe.IDataParameter|null} [dataParam] LayerParameter dataParam
-             * @property {caffe.IDropoutParameter|null} [dropoutParam] LayerParameter dropoutParam
-             * @property {caffe.IDummyDataParameter|null} [dummyDataParam] LayerParameter dummyDataParam
-             * @property {caffe.IEltwiseParameter|null} [eltwiseParam] LayerParameter eltwiseParam
-             * @property {caffe.IELUParameter|null} [eluParam] LayerParameter eluParam
-             * @property {caffe.IEmbedParameter|null} [embedParam] LayerParameter embedParam
-             * @property {caffe.IExpParameter|null} [expParam] LayerParameter expParam
-             * @property {caffe.IFlattenParameter|null} [flattenParam] LayerParameter flattenParam
-             * @property {caffe.IHDF5DataParameter|null} [hdf5DataParam] LayerParameter hdf5DataParam
-             * @property {caffe.IHDF5OutputParameter|null} [hdf5OutputParam] LayerParameter hdf5OutputParam
-             * @property {caffe.IHingeLossParameter|null} [hingeLossParam] LayerParameter hingeLossParam
-             * @property {caffe.IImageDataParameter|null} [imageDataParam] LayerParameter imageDataParam
-             * @property {caffe.IInfogainLossParameter|null} [infogainLossParam] LayerParameter infogainLossParam
-             * @property {caffe.IInnerProductParameter|null} [innerProductParam] LayerParameter innerProductParam
-             * @property {caffe.IInputParameter|null} [inputParam] LayerParameter inputParam
-             * @property {caffe.ILogParameter|null} [logParam] LayerParameter logParam
-             * @property {caffe.ILRNParameter|null} [lrnParam] LayerParameter lrnParam
-             * @property {caffe.IMemoryDataParameter|null} [memoryDataParam] LayerParameter memoryDataParam
-             * @property {caffe.IMVNParameter|null} [mvnParam] LayerParameter mvnParam
-             * @property {caffe.IParameterParameter|null} [parameterParam] LayerParameter parameterParam
-             * @property {caffe.IPoolingParameter|null} [poolingParam] LayerParameter poolingParam
-             * @property {caffe.IPowerParameter|null} [powerParam] LayerParameter powerParam
-             * @property {caffe.IPReLUParameter|null} [preluParam] LayerParameter preluParam
-             * @property {caffe.IPythonParameter|null} [pythonParam] LayerParameter pythonParam
-             * @property {caffe.IRecurrentParameter|null} [recurrentParam] LayerParameter recurrentParam
-             * @property {caffe.IReductionParameter|null} [reductionParam] LayerParameter reductionParam
-             * @property {caffe.IReLUParameter|null} [reluParam] LayerParameter reluParam
-             * @property {caffe.IReshapeParameter|null} [reshapeParam] LayerParameter reshapeParam
-             * @property {caffe.IScaleParameter|null} [scaleParam] LayerParameter scaleParam
-             * @property {caffe.ISigmoidParameter|null} [sigmoidParam] LayerParameter sigmoidParam
-             * @property {caffe.ISoftmaxParameter|null} [softmaxParam] LayerParameter softmaxParam
-             * @property {caffe.ISPPParameter|null} [sppParam] LayerParameter sppParam
-             * @property {caffe.ISliceParameter|null} [sliceParam] LayerParameter sliceParam
-             * @property {caffe.ISwishParameter|null} [swishParam] LayerParameter swishParam
-             * @property {caffe.ITanHParameter|null} [tanhParam] LayerParameter tanhParam
-             * @property {caffe.IThresholdParameter|null} [thresholdParam] LayerParameter thresholdParam
-             * @property {caffe.ITileParameter|null} [tileParam] LayerParameter tileParam
-             * @property {caffe.IWindowDataParameter|null} [windowDataParam] LayerParameter windowDataParam
-             */
-    
-            /**
-             * Constructs a new LayerParameter.
-             * @memberof caffe
-             * @classdesc Represents a LayerParameter.
-             * @implements ILayerParameter
-             * @constructor
-             * @param {caffe.ILayerParameter=} [properties] Properties to set
-             */
             function LayerParameter(properties) {
                 this.bottom = [];
                 this.top = [];
@@ -4717,665 +2434,71 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * LayerParameter name.
-             * @member {string} name
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.name = "";
-    
-            /**
-             * LayerParameter type.
-             * @member {string} type
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.type = "";
-    
-            /**
-             * LayerParameter bottom.
-             * @member {Array.<string>} bottom
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.bottom = $util.emptyArray;
-    
-            /**
-             * LayerParameter top.
-             * @member {Array.<string>} top
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.top = $util.emptyArray;
-    
-            /**
-             * LayerParameter phase.
-             * @member {caffe.Phase} phase
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.phase = 0;
-    
-            /**
-             * LayerParameter lossWeight.
-             * @member {Array.<number>} lossWeight
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.lossWeight = $util.emptyArray;
-    
-            /**
-             * LayerParameter param.
-             * @member {Array.<caffe.IParamSpec>} param
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.param = $util.emptyArray;
-    
-            /**
-             * LayerParameter blobs.
-             * @member {Array.<caffe.IBlobProto>} blobs
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.blobs = $util.emptyArray;
-    
-            /**
-             * LayerParameter propagateDown.
-             * @member {Array.<boolean>} propagateDown
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.propagateDown = $util.emptyArray;
-    
-            /**
-             * LayerParameter include.
-             * @member {Array.<caffe.INetStateRule>} include
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.include = $util.emptyArray;
-    
-            /**
-             * LayerParameter exclude.
-             * @member {Array.<caffe.INetStateRule>} exclude
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.exclude = $util.emptyArray;
-    
-            /**
-             * LayerParameter transformParam.
-             * @member {caffe.ITransformationParameter|null|undefined} transformParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.transformParam = null;
-    
-            /**
-             * LayerParameter lossParam.
-             * @member {caffe.ILossParameter|null|undefined} lossParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.lossParam = null;
-    
-            /**
-             * LayerParameter accuracyParam.
-             * @member {caffe.IAccuracyParameter|null|undefined} accuracyParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.accuracyParam = null;
-    
-            /**
-             * LayerParameter argmaxParam.
-             * @member {caffe.IArgMaxParameter|null|undefined} argmaxParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.argmaxParam = null;
-    
-            /**
-             * LayerParameter batchNormParam.
-             * @member {caffe.IBatchNormParameter|null|undefined} batchNormParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.batchNormParam = null;
-    
-            /**
-             * LayerParameter biasParam.
-             * @member {caffe.IBiasParameter|null|undefined} biasParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.biasParam = null;
-    
-            /**
-             * LayerParameter clipParam.
-             * @member {caffe.IClipParameter|null|undefined} clipParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.clipParam = null;
-    
-            /**
-             * LayerParameter concatParam.
-             * @member {caffe.IConcatParameter|null|undefined} concatParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.concatParam = null;
-    
-            /**
-             * LayerParameter contrastiveLossParam.
-             * @member {caffe.IContrastiveLossParameter|null|undefined} contrastiveLossParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.contrastiveLossParam = null;
-    
-            /**
-             * LayerParameter convolutionParam.
-             * @member {caffe.IConvolutionParameter|null|undefined} convolutionParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.convolutionParam = null;
-    
-            /**
-             * LayerParameter cropParam.
-             * @member {caffe.ICropParameter|null|undefined} cropParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.cropParam = null;
-    
-            /**
-             * LayerParameter dataParam.
-             * @member {caffe.IDataParameter|null|undefined} dataParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.dataParam = null;
-    
-            /**
-             * LayerParameter dropoutParam.
-             * @member {caffe.IDropoutParameter|null|undefined} dropoutParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.dropoutParam = null;
-    
-            /**
-             * LayerParameter dummyDataParam.
-             * @member {caffe.IDummyDataParameter|null|undefined} dummyDataParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.dummyDataParam = null;
-    
-            /**
-             * LayerParameter eltwiseParam.
-             * @member {caffe.IEltwiseParameter|null|undefined} eltwiseParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.eltwiseParam = null;
-    
-            /**
-             * LayerParameter eluParam.
-             * @member {caffe.IELUParameter|null|undefined} eluParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.eluParam = null;
-    
-            /**
-             * LayerParameter embedParam.
-             * @member {caffe.IEmbedParameter|null|undefined} embedParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.embedParam = null;
-    
-            /**
-             * LayerParameter expParam.
-             * @member {caffe.IExpParameter|null|undefined} expParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.expParam = null;
-    
-            /**
-             * LayerParameter flattenParam.
-             * @member {caffe.IFlattenParameter|null|undefined} flattenParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.flattenParam = null;
-    
-            /**
-             * LayerParameter hdf5DataParam.
-             * @member {caffe.IHDF5DataParameter|null|undefined} hdf5DataParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.hdf5DataParam = null;
-    
-            /**
-             * LayerParameter hdf5OutputParam.
-             * @member {caffe.IHDF5OutputParameter|null|undefined} hdf5OutputParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.hdf5OutputParam = null;
-    
-            /**
-             * LayerParameter hingeLossParam.
-             * @member {caffe.IHingeLossParameter|null|undefined} hingeLossParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.hingeLossParam = null;
-    
-            /**
-             * LayerParameter imageDataParam.
-             * @member {caffe.IImageDataParameter|null|undefined} imageDataParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.imageDataParam = null;
-    
-            /**
-             * LayerParameter infogainLossParam.
-             * @member {caffe.IInfogainLossParameter|null|undefined} infogainLossParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.infogainLossParam = null;
-    
-            /**
-             * LayerParameter innerProductParam.
-             * @member {caffe.IInnerProductParameter|null|undefined} innerProductParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.innerProductParam = null;
-    
-            /**
-             * LayerParameter inputParam.
-             * @member {caffe.IInputParameter|null|undefined} inputParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.inputParam = null;
-    
-            /**
-             * LayerParameter logParam.
-             * @member {caffe.ILogParameter|null|undefined} logParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.logParam = null;
-    
-            /**
-             * LayerParameter lrnParam.
-             * @member {caffe.ILRNParameter|null|undefined} lrnParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.lrnParam = null;
-    
-            /**
-             * LayerParameter memoryDataParam.
-             * @member {caffe.IMemoryDataParameter|null|undefined} memoryDataParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.memoryDataParam = null;
-    
-            /**
-             * LayerParameter mvnParam.
-             * @member {caffe.IMVNParameter|null|undefined} mvnParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.mvnParam = null;
-    
-            /**
-             * LayerParameter parameterParam.
-             * @member {caffe.IParameterParameter|null|undefined} parameterParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.parameterParam = null;
-    
-            /**
-             * LayerParameter poolingParam.
-             * @member {caffe.IPoolingParameter|null|undefined} poolingParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.poolingParam = null;
-    
-            /**
-             * LayerParameter powerParam.
-             * @member {caffe.IPowerParameter|null|undefined} powerParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.powerParam = null;
-    
-            /**
-             * LayerParameter preluParam.
-             * @member {caffe.IPReLUParameter|null|undefined} preluParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.preluParam = null;
-    
-            /**
-             * LayerParameter pythonParam.
-             * @member {caffe.IPythonParameter|null|undefined} pythonParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.pythonParam = null;
-    
-            /**
-             * LayerParameter recurrentParam.
-             * @member {caffe.IRecurrentParameter|null|undefined} recurrentParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.recurrentParam = null;
-    
-            /**
-             * LayerParameter reductionParam.
-             * @member {caffe.IReductionParameter|null|undefined} reductionParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.reductionParam = null;
-    
-            /**
-             * LayerParameter reluParam.
-             * @member {caffe.IReLUParameter|null|undefined} reluParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.reluParam = null;
-    
-            /**
-             * LayerParameter reshapeParam.
-             * @member {caffe.IReshapeParameter|null|undefined} reshapeParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.reshapeParam = null;
-    
-            /**
-             * LayerParameter scaleParam.
-             * @member {caffe.IScaleParameter|null|undefined} scaleParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.scaleParam = null;
-    
-            /**
-             * LayerParameter sigmoidParam.
-             * @member {caffe.ISigmoidParameter|null|undefined} sigmoidParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.sigmoidParam = null;
-    
-            /**
-             * LayerParameter softmaxParam.
-             * @member {caffe.ISoftmaxParameter|null|undefined} softmaxParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.softmaxParam = null;
-    
-            /**
-             * LayerParameter sppParam.
-             * @member {caffe.ISPPParameter|null|undefined} sppParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.sppParam = null;
-    
-            /**
-             * LayerParameter sliceParam.
-             * @member {caffe.ISliceParameter|null|undefined} sliceParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.sliceParam = null;
-    
-            /**
-             * LayerParameter swishParam.
-             * @member {caffe.ISwishParameter|null|undefined} swishParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.swishParam = null;
-    
-            /**
-             * LayerParameter tanhParam.
-             * @member {caffe.ITanHParameter|null|undefined} tanhParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.tanhParam = null;
-    
-            /**
-             * LayerParameter thresholdParam.
-             * @member {caffe.IThresholdParameter|null|undefined} thresholdParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.thresholdParam = null;
-    
-            /**
-             * LayerParameter tileParam.
-             * @member {caffe.ITileParameter|null|undefined} tileParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.tileParam = null;
-    
-            /**
-             * LayerParameter windowDataParam.
-             * @member {caffe.IWindowDataParameter|null|undefined} windowDataParam
-             * @memberof caffe.LayerParameter
-             * @instance
-             */
             LayerParameter.prototype.windowDataParam = null;
     
-            /**
-             * Creates a new LayerParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {caffe.ILayerParameter=} [properties] Properties to set
-             * @returns {caffe.LayerParameter} LayerParameter instance
-             */
             LayerParameter.create = function create(properties) {
                 return new LayerParameter(properties);
             };
     
-            /**
-             * Encodes the specified LayerParameter message. Does not implicitly {@link caffe.LayerParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {caffe.ILayerParameter} message LayerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LayerParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.type);
-                if (message.bottom != null && message.bottom.length)
-                    for (var i = 0; i < message.bottom.length; ++i)
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.bottom[i]);
-                if (message.top != null && message.top.length)
-                    for (var i = 0; i < message.top.length; ++i)
-                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.top[i]);
-                if (message.lossWeight != null && message.lossWeight.length)
-                    for (var i = 0; i < message.lossWeight.length; ++i)
-                        writer.uint32(/* id 5, wireType 5 =*/45).float(message.lossWeight[i]);
-                if (message.param != null && message.param.length)
-                    for (var i = 0; i < message.param.length; ++i)
-                        $root.caffe.ParamSpec.encode(message.param[i], writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                if (message.blobs != null && message.blobs.length)
-                    for (var i = 0; i < message.blobs.length; ++i)
-                        $root.caffe.BlobProto.encode(message.blobs[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                if (message.include != null && message.include.length)
-                    for (var i = 0; i < message.include.length; ++i)
-                        $root.caffe.NetStateRule.encode(message.include[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                if (message.exclude != null && message.exclude.length)
-                    for (var i = 0; i < message.exclude.length; ++i)
-                        $root.caffe.NetStateRule.encode(message.exclude[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
-                if (message.phase != null && message.hasOwnProperty("phase"))
-                    writer.uint32(/* id 10, wireType 0 =*/80).int32(message.phase);
-                if (message.propagateDown != null && message.propagateDown.length)
-                    for (var i = 0; i < message.propagateDown.length; ++i)
-                        writer.uint32(/* id 11, wireType 0 =*/88).bool(message.propagateDown[i]);
-                if (message.transformParam != null && message.hasOwnProperty("transformParam"))
-                    $root.caffe.TransformationParameter.encode(message.transformParam, writer.uint32(/* id 100, wireType 2 =*/802).fork()).ldelim();
-                if (message.lossParam != null && message.hasOwnProperty("lossParam"))
-                    $root.caffe.LossParameter.encode(message.lossParam, writer.uint32(/* id 101, wireType 2 =*/810).fork()).ldelim();
-                if (message.accuracyParam != null && message.hasOwnProperty("accuracyParam"))
-                    $root.caffe.AccuracyParameter.encode(message.accuracyParam, writer.uint32(/* id 102, wireType 2 =*/818).fork()).ldelim();
-                if (message.argmaxParam != null && message.hasOwnProperty("argmaxParam"))
-                    $root.caffe.ArgMaxParameter.encode(message.argmaxParam, writer.uint32(/* id 103, wireType 2 =*/826).fork()).ldelim();
-                if (message.concatParam != null && message.hasOwnProperty("concatParam"))
-                    $root.caffe.ConcatParameter.encode(message.concatParam, writer.uint32(/* id 104, wireType 2 =*/834).fork()).ldelim();
-                if (message.contrastiveLossParam != null && message.hasOwnProperty("contrastiveLossParam"))
-                    $root.caffe.ContrastiveLossParameter.encode(message.contrastiveLossParam, writer.uint32(/* id 105, wireType 2 =*/842).fork()).ldelim();
-                if (message.convolutionParam != null && message.hasOwnProperty("convolutionParam"))
-                    $root.caffe.ConvolutionParameter.encode(message.convolutionParam, writer.uint32(/* id 106, wireType 2 =*/850).fork()).ldelim();
-                if (message.dataParam != null && message.hasOwnProperty("dataParam"))
-                    $root.caffe.DataParameter.encode(message.dataParam, writer.uint32(/* id 107, wireType 2 =*/858).fork()).ldelim();
-                if (message.dropoutParam != null && message.hasOwnProperty("dropoutParam"))
-                    $root.caffe.DropoutParameter.encode(message.dropoutParam, writer.uint32(/* id 108, wireType 2 =*/866).fork()).ldelim();
-                if (message.dummyDataParam != null && message.hasOwnProperty("dummyDataParam"))
-                    $root.caffe.DummyDataParameter.encode(message.dummyDataParam, writer.uint32(/* id 109, wireType 2 =*/874).fork()).ldelim();
-                if (message.eltwiseParam != null && message.hasOwnProperty("eltwiseParam"))
-                    $root.caffe.EltwiseParameter.encode(message.eltwiseParam, writer.uint32(/* id 110, wireType 2 =*/882).fork()).ldelim();
-                if (message.expParam != null && message.hasOwnProperty("expParam"))
-                    $root.caffe.ExpParameter.encode(message.expParam, writer.uint32(/* id 111, wireType 2 =*/890).fork()).ldelim();
-                if (message.hdf5DataParam != null && message.hasOwnProperty("hdf5DataParam"))
-                    $root.caffe.HDF5DataParameter.encode(message.hdf5DataParam, writer.uint32(/* id 112, wireType 2 =*/898).fork()).ldelim();
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam"))
-                    $root.caffe.HDF5OutputParameter.encode(message.hdf5OutputParam, writer.uint32(/* id 113, wireType 2 =*/906).fork()).ldelim();
-                if (message.hingeLossParam != null && message.hasOwnProperty("hingeLossParam"))
-                    $root.caffe.HingeLossParameter.encode(message.hingeLossParam, writer.uint32(/* id 114, wireType 2 =*/914).fork()).ldelim();
-                if (message.imageDataParam != null && message.hasOwnProperty("imageDataParam"))
-                    $root.caffe.ImageDataParameter.encode(message.imageDataParam, writer.uint32(/* id 115, wireType 2 =*/922).fork()).ldelim();
-                if (message.infogainLossParam != null && message.hasOwnProperty("infogainLossParam"))
-                    $root.caffe.InfogainLossParameter.encode(message.infogainLossParam, writer.uint32(/* id 116, wireType 2 =*/930).fork()).ldelim();
-                if (message.innerProductParam != null && message.hasOwnProperty("innerProductParam"))
-                    $root.caffe.InnerProductParameter.encode(message.innerProductParam, writer.uint32(/* id 117, wireType 2 =*/938).fork()).ldelim();
-                if (message.lrnParam != null && message.hasOwnProperty("lrnParam"))
-                    $root.caffe.LRNParameter.encode(message.lrnParam, writer.uint32(/* id 118, wireType 2 =*/946).fork()).ldelim();
-                if (message.memoryDataParam != null && message.hasOwnProperty("memoryDataParam"))
-                    $root.caffe.MemoryDataParameter.encode(message.memoryDataParam, writer.uint32(/* id 119, wireType 2 =*/954).fork()).ldelim();
-                if (message.mvnParam != null && message.hasOwnProperty("mvnParam"))
-                    $root.caffe.MVNParameter.encode(message.mvnParam, writer.uint32(/* id 120, wireType 2 =*/962).fork()).ldelim();
-                if (message.poolingParam != null && message.hasOwnProperty("poolingParam"))
-                    $root.caffe.PoolingParameter.encode(message.poolingParam, writer.uint32(/* id 121, wireType 2 =*/970).fork()).ldelim();
-                if (message.powerParam != null && message.hasOwnProperty("powerParam"))
-                    $root.caffe.PowerParameter.encode(message.powerParam, writer.uint32(/* id 122, wireType 2 =*/978).fork()).ldelim();
-                if (message.reluParam != null && message.hasOwnProperty("reluParam"))
-                    $root.caffe.ReLUParameter.encode(message.reluParam, writer.uint32(/* id 123, wireType 2 =*/986).fork()).ldelim();
-                if (message.sigmoidParam != null && message.hasOwnProperty("sigmoidParam"))
-                    $root.caffe.SigmoidParameter.encode(message.sigmoidParam, writer.uint32(/* id 124, wireType 2 =*/994).fork()).ldelim();
-                if (message.softmaxParam != null && message.hasOwnProperty("softmaxParam"))
-                    $root.caffe.SoftmaxParameter.encode(message.softmaxParam, writer.uint32(/* id 125, wireType 2 =*/1002).fork()).ldelim();
-                if (message.sliceParam != null && message.hasOwnProperty("sliceParam"))
-                    $root.caffe.SliceParameter.encode(message.sliceParam, writer.uint32(/* id 126, wireType 2 =*/1010).fork()).ldelim();
-                if (message.tanhParam != null && message.hasOwnProperty("tanhParam"))
-                    $root.caffe.TanHParameter.encode(message.tanhParam, writer.uint32(/* id 127, wireType 2 =*/1018).fork()).ldelim();
-                if (message.thresholdParam != null && message.hasOwnProperty("thresholdParam"))
-                    $root.caffe.ThresholdParameter.encode(message.thresholdParam, writer.uint32(/* id 128, wireType 2 =*/1026).fork()).ldelim();
-                if (message.windowDataParam != null && message.hasOwnProperty("windowDataParam"))
-                    $root.caffe.WindowDataParameter.encode(message.windowDataParam, writer.uint32(/* id 129, wireType 2 =*/1034).fork()).ldelim();
-                if (message.pythonParam != null && message.hasOwnProperty("pythonParam"))
-                    $root.caffe.PythonParameter.encode(message.pythonParam, writer.uint32(/* id 130, wireType 2 =*/1042).fork()).ldelim();
-                if (message.preluParam != null && message.hasOwnProperty("preluParam"))
-                    $root.caffe.PReLUParameter.encode(message.preluParam, writer.uint32(/* id 131, wireType 2 =*/1050).fork()).ldelim();
-                if (message.sppParam != null && message.hasOwnProperty("sppParam"))
-                    $root.caffe.SPPParameter.encode(message.sppParam, writer.uint32(/* id 132, wireType 2 =*/1058).fork()).ldelim();
-                if (message.reshapeParam != null && message.hasOwnProperty("reshapeParam"))
-                    $root.caffe.ReshapeParameter.encode(message.reshapeParam, writer.uint32(/* id 133, wireType 2 =*/1066).fork()).ldelim();
-                if (message.logParam != null && message.hasOwnProperty("logParam"))
-                    $root.caffe.LogParameter.encode(message.logParam, writer.uint32(/* id 134, wireType 2 =*/1074).fork()).ldelim();
-                if (message.flattenParam != null && message.hasOwnProperty("flattenParam"))
-                    $root.caffe.FlattenParameter.encode(message.flattenParam, writer.uint32(/* id 135, wireType 2 =*/1082).fork()).ldelim();
-                if (message.reductionParam != null && message.hasOwnProperty("reductionParam"))
-                    $root.caffe.ReductionParameter.encode(message.reductionParam, writer.uint32(/* id 136, wireType 2 =*/1090).fork()).ldelim();
-                if (message.embedParam != null && message.hasOwnProperty("embedParam"))
-                    $root.caffe.EmbedParameter.encode(message.embedParam, writer.uint32(/* id 137, wireType 2 =*/1098).fork()).ldelim();
-                if (message.tileParam != null && message.hasOwnProperty("tileParam"))
-                    $root.caffe.TileParameter.encode(message.tileParam, writer.uint32(/* id 138, wireType 2 =*/1106).fork()).ldelim();
-                if (message.batchNormParam != null && message.hasOwnProperty("batchNormParam"))
-                    $root.caffe.BatchNormParameter.encode(message.batchNormParam, writer.uint32(/* id 139, wireType 2 =*/1114).fork()).ldelim();
-                if (message.eluParam != null && message.hasOwnProperty("eluParam"))
-                    $root.caffe.ELUParameter.encode(message.eluParam, writer.uint32(/* id 140, wireType 2 =*/1122).fork()).ldelim();
-                if (message.biasParam != null && message.hasOwnProperty("biasParam"))
-                    $root.caffe.BiasParameter.encode(message.biasParam, writer.uint32(/* id 141, wireType 2 =*/1130).fork()).ldelim();
-                if (message.scaleParam != null && message.hasOwnProperty("scaleParam"))
-                    $root.caffe.ScaleParameter.encode(message.scaleParam, writer.uint32(/* id 142, wireType 2 =*/1138).fork()).ldelim();
-                if (message.inputParam != null && message.hasOwnProperty("inputParam"))
-                    $root.caffe.InputParameter.encode(message.inputParam, writer.uint32(/* id 143, wireType 2 =*/1146).fork()).ldelim();
-                if (message.cropParam != null && message.hasOwnProperty("cropParam"))
-                    $root.caffe.CropParameter.encode(message.cropParam, writer.uint32(/* id 144, wireType 2 =*/1154).fork()).ldelim();
-                if (message.parameterParam != null && message.hasOwnProperty("parameterParam"))
-                    $root.caffe.ParameterParameter.encode(message.parameterParam, writer.uint32(/* id 145, wireType 2 =*/1162).fork()).ldelim();
-                if (message.recurrentParam != null && message.hasOwnProperty("recurrentParam"))
-                    $root.caffe.RecurrentParameter.encode(message.recurrentParam, writer.uint32(/* id 146, wireType 2 =*/1170).fork()).ldelim();
-                if (message.swishParam != null && message.hasOwnProperty("swishParam"))
-                    $root.caffe.SwishParameter.encode(message.swishParam, writer.uint32(/* id 147, wireType 2 =*/1178).fork()).ldelim();
-                if (message.clipParam != null && message.hasOwnProperty("clipParam"))
-                    $root.caffe.ClipParameter.encode(message.clipParam, writer.uint32(/* id 148, wireType 2 =*/1186).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified LayerParameter message, length delimited. Does not implicitly {@link caffe.LayerParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {caffe.ILayerParameter} message LayerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LayerParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a LayerParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.LayerParameter} LayerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             LayerParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -5597,30 +2720,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a LayerParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.LayerParameter} LayerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            LayerParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a LayerParameter message.
-             * @function verify
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             LayerParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5950,14 +3049,6 @@
                 return null;
             };
     
-            /**
-             * Creates a LayerParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.LayerParameter} LayerParameter
-             */
             LayerParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.LayerParameter)
                     return object;
@@ -6292,15 +3383,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a LayerParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.LayerParameter
-             * @static
-             * @param {caffe.LayerParameter} message LayerParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             LayerParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -6516,13 +3598,6 @@
                 return object;
             };
     
-            /**
-             * Converts this LayerParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.LayerParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             LayerParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -6532,27 +3607,6 @@
     
         caffe.TransformationParameter = (function() {
     
-            /**
-             * Properties of a TransformationParameter.
-             * @memberof caffe
-             * @interface ITransformationParameter
-             * @property {number|null} [scale] TransformationParameter scale
-             * @property {boolean|null} [mirror] TransformationParameter mirror
-             * @property {number|null} [cropSize] TransformationParameter cropSize
-             * @property {string|null} [meanFile] TransformationParameter meanFile
-             * @property {Array.<number>|null} [meanValue] TransformationParameter meanValue
-             * @property {boolean|null} [forceColor] TransformationParameter forceColor
-             * @property {boolean|null} [forceGray] TransformationParameter forceGray
-             */
-    
-            /**
-             * Constructs a new TransformationParameter.
-             * @memberof caffe
-             * @classdesc Represents a TransformationParameter.
-             * @implements ITransformationParameter
-             * @constructor
-             * @param {caffe.ITransformationParameter=} [properties] Properties to set
-             */
             function TransformationParameter(properties) {
                 this.meanValue = [];
                 if (properties)
@@ -6561,128 +3615,18 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TransformationParameter scale.
-             * @member {number} scale
-             * @memberof caffe.TransformationParameter
-             * @instance
-             */
             TransformationParameter.prototype.scale = 1;
-    
-            /**
-             * TransformationParameter mirror.
-             * @member {boolean} mirror
-             * @memberof caffe.TransformationParameter
-             * @instance
-             */
             TransformationParameter.prototype.mirror = false;
-    
-            /**
-             * TransformationParameter cropSize.
-             * @member {number} cropSize
-             * @memberof caffe.TransformationParameter
-             * @instance
-             */
             TransformationParameter.prototype.cropSize = 0;
-    
-            /**
-             * TransformationParameter meanFile.
-             * @member {string} meanFile
-             * @memberof caffe.TransformationParameter
-             * @instance
-             */
             TransformationParameter.prototype.meanFile = "";
-    
-            /**
-             * TransformationParameter meanValue.
-             * @member {Array.<number>} meanValue
-             * @memberof caffe.TransformationParameter
-             * @instance
-             */
             TransformationParameter.prototype.meanValue = $util.emptyArray;
-    
-            /**
-             * TransformationParameter forceColor.
-             * @member {boolean} forceColor
-             * @memberof caffe.TransformationParameter
-             * @instance
-             */
             TransformationParameter.prototype.forceColor = false;
-    
-            /**
-             * TransformationParameter forceGray.
-             * @member {boolean} forceGray
-             * @memberof caffe.TransformationParameter
-             * @instance
-             */
             TransformationParameter.prototype.forceGray = false;
     
-            /**
-             * Creates a new TransformationParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {caffe.ITransformationParameter=} [properties] Properties to set
-             * @returns {caffe.TransformationParameter} TransformationParameter instance
-             */
             TransformationParameter.create = function create(properties) {
                 return new TransformationParameter(properties);
             };
     
-            /**
-             * Encodes the specified TransformationParameter message. Does not implicitly {@link caffe.TransformationParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {caffe.ITransformationParameter} message TransformationParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TransformationParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.scale);
-                if (message.mirror != null && message.hasOwnProperty("mirror"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).bool(message.mirror);
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.cropSize);
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.meanFile);
-                if (message.meanValue != null && message.meanValue.length)
-                    for (var i = 0; i < message.meanValue.length; ++i)
-                        writer.uint32(/* id 5, wireType 5 =*/45).float(message.meanValue[i]);
-                if (message.forceColor != null && message.hasOwnProperty("forceColor"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).bool(message.forceColor);
-                if (message.forceGray != null && message.hasOwnProperty("forceGray"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).bool(message.forceGray);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TransformationParameter message, length delimited. Does not implicitly {@link caffe.TransformationParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {caffe.ITransformationParameter} message TransformationParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TransformationParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TransformationParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.TransformationParameter} TransformationParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TransformationParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -6726,30 +3670,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a TransformationParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.TransformationParameter} TransformationParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TransformationParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a TransformationParameter message.
-             * @function verify
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TransformationParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6781,14 +3701,6 @@
                 return null;
             };
     
-            /**
-             * Creates a TransformationParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.TransformationParameter} TransformationParameter
-             */
             TransformationParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.TransformationParameter)
                     return object;
@@ -6815,15 +3727,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TransformationParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.TransformationParameter
-             * @static
-             * @param {caffe.TransformationParameter} message TransformationParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TransformationParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -6858,13 +3761,6 @@
                 return object;
             };
     
-            /**
-             * Converts this TransformationParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.TransformationParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TransformationParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -6874,23 +3770,6 @@
     
         caffe.LossParameter = (function() {
     
-            /**
-             * Properties of a LossParameter.
-             * @memberof caffe
-             * @interface ILossParameter
-             * @property {number|null} [ignoreLabel] LossParameter ignoreLabel
-             * @property {caffe.LossParameter.NormalizationMode|null} [normalization] LossParameter normalization
-             * @property {boolean|null} [normalize] LossParameter normalize
-             */
-    
-            /**
-             * Constructs a new LossParameter.
-             * @memberof caffe
-             * @classdesc Represents a LossParameter.
-             * @implements ILossParameter
-             * @constructor
-             * @param {caffe.ILossParameter=} [properties] Properties to set
-             */
             function LossParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -6898,87 +3777,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * LossParameter ignoreLabel.
-             * @member {number} ignoreLabel
-             * @memberof caffe.LossParameter
-             * @instance
-             */
             LossParameter.prototype.ignoreLabel = 0;
-    
-            /**
-             * LossParameter normalization.
-             * @member {caffe.LossParameter.NormalizationMode} normalization
-             * @memberof caffe.LossParameter
-             * @instance
-             */
             LossParameter.prototype.normalization = 1;
-    
-            /**
-             * LossParameter normalize.
-             * @member {boolean} normalize
-             * @memberof caffe.LossParameter
-             * @instance
-             */
             LossParameter.prototype.normalize = false;
     
-            /**
-             * Creates a new LossParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {caffe.ILossParameter=} [properties] Properties to set
-             * @returns {caffe.LossParameter} LossParameter instance
-             */
             LossParameter.create = function create(properties) {
                 return new LossParameter(properties);
             };
     
-            /**
-             * Encodes the specified LossParameter message. Does not implicitly {@link caffe.LossParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {caffe.ILossParameter} message LossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LossParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.ignoreLabel != null && message.hasOwnProperty("ignoreLabel"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.ignoreLabel);
-                if (message.normalize != null && message.hasOwnProperty("normalize"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).bool(message.normalize);
-                if (message.normalization != null && message.hasOwnProperty("normalization"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.normalization);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified LossParameter message, length delimited. Does not implicitly {@link caffe.LossParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {caffe.ILossParameter} message LossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LossParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a LossParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.LossParameter} LossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             LossParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7003,30 +3809,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a LossParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.LossParameter} LossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            LossParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a LossParameter message.
-             * @function verify
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             LossParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7049,14 +3831,6 @@
                 return null;
             };
     
-            /**
-             * Creates a LossParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.LossParameter} LossParameter
-             */
             LossParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.LossParameter)
                     return object;
@@ -7086,15 +3860,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a LossParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.LossParameter
-             * @static
-             * @param {caffe.LossParameter} message LossParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             LossParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -7113,26 +3878,10 @@
                 return object;
             };
     
-            /**
-             * Converts this LossParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.LossParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             LossParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * NormalizationMode enum.
-             * @name caffe.LossParameter.NormalizationMode
-             * @enum {string}
-             * @property {number} FULL=0 FULL value
-             * @property {number} VALID=1 VALID value
-             * @property {number} BATCH_SIZE=2 BATCH_SIZE value
-             * @property {number} NONE=3 NONE value
-             */
             LossParameter.NormalizationMode = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "FULL"] = 0;
@@ -7147,23 +3896,6 @@
     
         caffe.AccuracyParameter = (function() {
     
-            /**
-             * Properties of an AccuracyParameter.
-             * @memberof caffe
-             * @interface IAccuracyParameter
-             * @property {number|null} [topK] AccuracyParameter topK
-             * @property {number|null} [axis] AccuracyParameter axis
-             * @property {number|null} [ignoreLabel] AccuracyParameter ignoreLabel
-             */
-    
-            /**
-             * Constructs a new AccuracyParameter.
-             * @memberof caffe
-             * @classdesc Represents an AccuracyParameter.
-             * @implements IAccuracyParameter
-             * @constructor
-             * @param {caffe.IAccuracyParameter=} [properties] Properties to set
-             */
             function AccuracyParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -7171,87 +3903,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * AccuracyParameter topK.
-             * @member {number} topK
-             * @memberof caffe.AccuracyParameter
-             * @instance
-             */
             AccuracyParameter.prototype.topK = 1;
-    
-            /**
-             * AccuracyParameter axis.
-             * @member {number} axis
-             * @memberof caffe.AccuracyParameter
-             * @instance
-             */
             AccuracyParameter.prototype.axis = 1;
-    
-            /**
-             * AccuracyParameter ignoreLabel.
-             * @member {number} ignoreLabel
-             * @memberof caffe.AccuracyParameter
-             * @instance
-             */
             AccuracyParameter.prototype.ignoreLabel = 0;
     
-            /**
-             * Creates a new AccuracyParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {caffe.IAccuracyParameter=} [properties] Properties to set
-             * @returns {caffe.AccuracyParameter} AccuracyParameter instance
-             */
             AccuracyParameter.create = function create(properties) {
                 return new AccuracyParameter(properties);
             };
     
-            /**
-             * Encodes the specified AccuracyParameter message. Does not implicitly {@link caffe.AccuracyParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {caffe.IAccuracyParameter} message AccuracyParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AccuracyParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.topK != null && message.hasOwnProperty("topK"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.topK);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.axis);
-                if (message.ignoreLabel != null && message.hasOwnProperty("ignoreLabel"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.ignoreLabel);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified AccuracyParameter message, length delimited. Does not implicitly {@link caffe.AccuracyParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {caffe.IAccuracyParameter} message AccuracyParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AccuracyParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an AccuracyParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.AccuracyParameter} AccuracyParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             AccuracyParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7276,30 +3935,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an AccuracyParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.AccuracyParameter} AccuracyParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            AccuracyParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an AccuracyParameter message.
-             * @function verify
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             AccuracyParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7315,14 +3950,6 @@
                 return null;
             };
     
-            /**
-             * Creates an AccuracyParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.AccuracyParameter} AccuracyParameter
-             */
             AccuracyParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.AccuracyParameter)
                     return object;
@@ -7336,15 +3963,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an AccuracyParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.AccuracyParameter
-             * @static
-             * @param {caffe.AccuracyParameter} message AccuracyParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             AccuracyParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -7363,13 +3981,6 @@
                 return object;
             };
     
-            /**
-             * Converts this AccuracyParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.AccuracyParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             AccuracyParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -7379,23 +3990,6 @@
     
         caffe.ArgMaxParameter = (function() {
     
-            /**
-             * Properties of an ArgMaxParameter.
-             * @memberof caffe
-             * @interface IArgMaxParameter
-             * @property {boolean|null} [outMaxVal] ArgMaxParameter outMaxVal
-             * @property {number|null} [topK] ArgMaxParameter topK
-             * @property {number|null} [axis] ArgMaxParameter axis
-             */
-    
-            /**
-             * Constructs a new ArgMaxParameter.
-             * @memberof caffe
-             * @classdesc Represents an ArgMaxParameter.
-             * @implements IArgMaxParameter
-             * @constructor
-             * @param {caffe.IArgMaxParameter=} [properties] Properties to set
-             */
             function ArgMaxParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -7403,87 +3997,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ArgMaxParameter outMaxVal.
-             * @member {boolean} outMaxVal
-             * @memberof caffe.ArgMaxParameter
-             * @instance
-             */
             ArgMaxParameter.prototype.outMaxVal = false;
-    
-            /**
-             * ArgMaxParameter topK.
-             * @member {number} topK
-             * @memberof caffe.ArgMaxParameter
-             * @instance
-             */
             ArgMaxParameter.prototype.topK = 1;
-    
-            /**
-             * ArgMaxParameter axis.
-             * @member {number} axis
-             * @memberof caffe.ArgMaxParameter
-             * @instance
-             */
             ArgMaxParameter.prototype.axis = 0;
     
-            /**
-             * Creates a new ArgMaxParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {caffe.IArgMaxParameter=} [properties] Properties to set
-             * @returns {caffe.ArgMaxParameter} ArgMaxParameter instance
-             */
             ArgMaxParameter.create = function create(properties) {
                 return new ArgMaxParameter(properties);
             };
     
-            /**
-             * Encodes the specified ArgMaxParameter message. Does not implicitly {@link caffe.ArgMaxParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {caffe.IArgMaxParameter} message ArgMaxParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ArgMaxParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.outMaxVal != null && message.hasOwnProperty("outMaxVal"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).bool(message.outMaxVal);
-                if (message.topK != null && message.hasOwnProperty("topK"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.topK);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.axis);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ArgMaxParameter message, length delimited. Does not implicitly {@link caffe.ArgMaxParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {caffe.IArgMaxParameter} message ArgMaxParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ArgMaxParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an ArgMaxParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ArgMaxParameter} ArgMaxParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ArgMaxParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7508,30 +4029,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an ArgMaxParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ArgMaxParameter} ArgMaxParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ArgMaxParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an ArgMaxParameter message.
-             * @function verify
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ArgMaxParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7547,14 +4044,6 @@
                 return null;
             };
     
-            /**
-             * Creates an ArgMaxParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ArgMaxParameter} ArgMaxParameter
-             */
             ArgMaxParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ArgMaxParameter)
                     return object;
@@ -7568,15 +4057,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an ArgMaxParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ArgMaxParameter
-             * @static
-             * @param {caffe.ArgMaxParameter} message ArgMaxParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ArgMaxParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -7595,13 +4075,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ArgMaxParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ArgMaxParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ArgMaxParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -7611,22 +4084,6 @@
     
         caffe.ClipParameter = (function() {
     
-            /**
-             * Properties of a ClipParameter.
-             * @memberof caffe
-             * @interface IClipParameter
-             * @property {number} min ClipParameter min
-             * @property {number} max ClipParameter max
-             */
-    
-            /**
-             * Constructs a new ClipParameter.
-             * @memberof caffe
-             * @classdesc Represents a ClipParameter.
-             * @implements IClipParameter
-             * @constructor
-             * @param {caffe.IClipParameter=} [properties] Properties to set
-             */
             function ClipParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -7634,75 +4091,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ClipParameter min.
-             * @member {number} min
-             * @memberof caffe.ClipParameter
-             * @instance
-             */
             ClipParameter.prototype.min = 0;
-    
-            /**
-             * ClipParameter max.
-             * @member {number} max
-             * @memberof caffe.ClipParameter
-             * @instance
-             */
             ClipParameter.prototype.max = 0;
     
-            /**
-             * Creates a new ClipParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {caffe.IClipParameter=} [properties] Properties to set
-             * @returns {caffe.ClipParameter} ClipParameter instance
-             */
             ClipParameter.create = function create(properties) {
                 return new ClipParameter(properties);
             };
     
-            /**
-             * Encodes the specified ClipParameter message. Does not implicitly {@link caffe.ClipParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {caffe.IClipParameter} message ClipParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ClipParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                writer.uint32(/* id 1, wireType 5 =*/13).float(message.min);
-                writer.uint32(/* id 2, wireType 5 =*/21).float(message.max);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ClipParameter message, length delimited. Does not implicitly {@link caffe.ClipParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {caffe.IClipParameter} message ClipParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ClipParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ClipParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ClipParameter} ClipParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ClipParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7728,30 +4123,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ClipParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ClipParameter} ClipParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ClipParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ClipParameter message.
-             * @function verify
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ClipParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7762,14 +4133,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ClipParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ClipParameter} ClipParameter
-             */
             ClipParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ClipParameter)
                     return object;
@@ -7781,15 +4144,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ClipParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ClipParameter
-             * @static
-             * @param {caffe.ClipParameter} message ClipParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ClipParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -7805,13 +4159,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ClipParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ClipParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ClipParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -7821,22 +4168,6 @@
     
         caffe.ConcatParameter = (function() {
     
-            /**
-             * Properties of a ConcatParameter.
-             * @memberof caffe
-             * @interface IConcatParameter
-             * @property {number|null} [axis] ConcatParameter axis
-             * @property {number|null} [concatDim] ConcatParameter concatDim
-             */
-    
-            /**
-             * Constructs a new ConcatParameter.
-             * @memberof caffe
-             * @classdesc Represents a ConcatParameter.
-             * @implements IConcatParameter
-             * @constructor
-             * @param {caffe.IConcatParameter=} [properties] Properties to set
-             */
             function ConcatParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -7844,77 +4175,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ConcatParameter axis.
-             * @member {number} axis
-             * @memberof caffe.ConcatParameter
-             * @instance
-             */
             ConcatParameter.prototype.axis = 1;
-    
-            /**
-             * ConcatParameter concatDim.
-             * @member {number} concatDim
-             * @memberof caffe.ConcatParameter
-             * @instance
-             */
             ConcatParameter.prototype.concatDim = 1;
     
-            /**
-             * Creates a new ConcatParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {caffe.IConcatParameter=} [properties] Properties to set
-             * @returns {caffe.ConcatParameter} ConcatParameter instance
-             */
             ConcatParameter.create = function create(properties) {
                 return new ConcatParameter(properties);
             };
     
-            /**
-             * Encodes the specified ConcatParameter message. Does not implicitly {@link caffe.ConcatParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {caffe.IConcatParameter} message ConcatParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ConcatParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.concatDim != null && message.hasOwnProperty("concatDim"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.concatDim);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.axis);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ConcatParameter message, length delimited. Does not implicitly {@link caffe.ConcatParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {caffe.IConcatParameter} message ConcatParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ConcatParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ConcatParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ConcatParameter} ConcatParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ConcatParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7936,30 +4203,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ConcatParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ConcatParameter} ConcatParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ConcatParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ConcatParameter message.
-             * @function verify
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ConcatParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7972,14 +4215,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ConcatParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ConcatParameter} ConcatParameter
-             */
             ConcatParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ConcatParameter)
                     return object;
@@ -7991,15 +4226,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ConcatParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ConcatParameter
-             * @static
-             * @param {caffe.ConcatParameter} message ConcatParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ConcatParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -8015,13 +4241,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ConcatParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ConcatParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ConcatParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -8031,23 +4250,6 @@
     
         caffe.BatchNormParameter = (function() {
     
-            /**
-             * Properties of a BatchNormParameter.
-             * @memberof caffe
-             * @interface IBatchNormParameter
-             * @property {boolean|null} [useGlobalStats] BatchNormParameter useGlobalStats
-             * @property {number|null} [movingAverageFraction] BatchNormParameter movingAverageFraction
-             * @property {number|null} [eps] BatchNormParameter eps
-             */
-    
-            /**
-             * Constructs a new BatchNormParameter.
-             * @memberof caffe
-             * @classdesc Represents a BatchNormParameter.
-             * @implements IBatchNormParameter
-             * @constructor
-             * @param {caffe.IBatchNormParameter=} [properties] Properties to set
-             */
             function BatchNormParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -8055,87 +4257,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * BatchNormParameter useGlobalStats.
-             * @member {boolean} useGlobalStats
-             * @memberof caffe.BatchNormParameter
-             * @instance
-             */
             BatchNormParameter.prototype.useGlobalStats = false;
-    
-            /**
-             * BatchNormParameter movingAverageFraction.
-             * @member {number} movingAverageFraction
-             * @memberof caffe.BatchNormParameter
-             * @instance
-             */
             BatchNormParameter.prototype.movingAverageFraction = 0.999;
-    
-            /**
-             * BatchNormParameter eps.
-             * @member {number} eps
-             * @memberof caffe.BatchNormParameter
-             * @instance
-             */
             BatchNormParameter.prototype.eps = 0.00001;
     
-            /**
-             * Creates a new BatchNormParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {caffe.IBatchNormParameter=} [properties] Properties to set
-             * @returns {caffe.BatchNormParameter} BatchNormParameter instance
-             */
             BatchNormParameter.create = function create(properties) {
                 return new BatchNormParameter(properties);
             };
     
-            /**
-             * Encodes the specified BatchNormParameter message. Does not implicitly {@link caffe.BatchNormParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {caffe.IBatchNormParameter} message BatchNormParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BatchNormParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.useGlobalStats != null && message.hasOwnProperty("useGlobalStats"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).bool(message.useGlobalStats);
-                if (message.movingAverageFraction != null && message.hasOwnProperty("movingAverageFraction"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.movingAverageFraction);
-                if (message.eps != null && message.hasOwnProperty("eps"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.eps);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified BatchNormParameter message, length delimited. Does not implicitly {@link caffe.BatchNormParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {caffe.IBatchNormParameter} message BatchNormParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BatchNormParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a BatchNormParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.BatchNormParameter} BatchNormParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             BatchNormParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -8160,30 +4289,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a BatchNormParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.BatchNormParameter} BatchNormParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            BatchNormParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a BatchNormParameter message.
-             * @function verify
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             BatchNormParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8199,14 +4304,6 @@
                 return null;
             };
     
-            /**
-             * Creates a BatchNormParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.BatchNormParameter} BatchNormParameter
-             */
             BatchNormParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.BatchNormParameter)
                     return object;
@@ -8220,15 +4317,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a BatchNormParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.BatchNormParameter
-             * @static
-             * @param {caffe.BatchNormParameter} message BatchNormParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             BatchNormParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -8247,13 +4335,6 @@
                 return object;
             };
     
-            /**
-             * Converts this BatchNormParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.BatchNormParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             BatchNormParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -8263,23 +4344,6 @@
     
         caffe.BiasParameter = (function() {
     
-            /**
-             * Properties of a BiasParameter.
-             * @memberof caffe
-             * @interface IBiasParameter
-             * @property {number|null} [axis] BiasParameter axis
-             * @property {number|null} [numAxes] BiasParameter numAxes
-             * @property {caffe.IFillerParameter|null} [filler] BiasParameter filler
-             */
-    
-            /**
-             * Constructs a new BiasParameter.
-             * @memberof caffe
-             * @classdesc Represents a BiasParameter.
-             * @implements IBiasParameter
-             * @constructor
-             * @param {caffe.IBiasParameter=} [properties] Properties to set
-             */
             function BiasParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -8287,87 +4351,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * BiasParameter axis.
-             * @member {number} axis
-             * @memberof caffe.BiasParameter
-             * @instance
-             */
             BiasParameter.prototype.axis = 1;
-    
-            /**
-             * BiasParameter numAxes.
-             * @member {number} numAxes
-             * @memberof caffe.BiasParameter
-             * @instance
-             */
             BiasParameter.prototype.numAxes = 1;
-    
-            /**
-             * BiasParameter filler.
-             * @member {caffe.IFillerParameter|null|undefined} filler
-             * @memberof caffe.BiasParameter
-             * @instance
-             */
             BiasParameter.prototype.filler = null;
     
-            /**
-             * Creates a new BiasParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {caffe.IBiasParameter=} [properties] Properties to set
-             * @returns {caffe.BiasParameter} BiasParameter instance
-             */
             BiasParameter.create = function create(properties) {
                 return new BiasParameter(properties);
             };
     
-            /**
-             * Encodes the specified BiasParameter message. Does not implicitly {@link caffe.BiasParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {caffe.IBiasParameter} message BiasParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BiasParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.axis);
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.numAxes);
-                if (message.filler != null && message.hasOwnProperty("filler"))
-                    $root.caffe.FillerParameter.encode(message.filler, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified BiasParameter message, length delimited. Does not implicitly {@link caffe.BiasParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {caffe.IBiasParameter} message BiasParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            BiasParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a BiasParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.BiasParameter} BiasParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             BiasParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -8392,30 +4383,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a BiasParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.BiasParameter} BiasParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            BiasParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a BiasParameter message.
-             * @function verify
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             BiasParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8433,14 +4400,6 @@
                 return null;
             };
     
-            /**
-             * Creates a BiasParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.BiasParameter} BiasParameter
-             */
             BiasParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.BiasParameter)
                     return object;
@@ -8457,15 +4416,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a BiasParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.BiasParameter
-             * @static
-             * @param {caffe.BiasParameter} message BiasParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             BiasParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -8484,13 +4434,6 @@
                 return object;
             };
     
-            /**
-             * Converts this BiasParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.BiasParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             BiasParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -8500,22 +4443,6 @@
     
         caffe.ContrastiveLossParameter = (function() {
     
-            /**
-             * Properties of a ContrastiveLossParameter.
-             * @memberof caffe
-             * @interface IContrastiveLossParameter
-             * @property {number|null} [margin] ContrastiveLossParameter margin
-             * @property {boolean|null} [legacyVersion] ContrastiveLossParameter legacyVersion
-             */
-    
-            /**
-             * Constructs a new ContrastiveLossParameter.
-             * @memberof caffe
-             * @classdesc Represents a ContrastiveLossParameter.
-             * @implements IContrastiveLossParameter
-             * @constructor
-             * @param {caffe.IContrastiveLossParameter=} [properties] Properties to set
-             */
             function ContrastiveLossParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -8523,77 +4450,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ContrastiveLossParameter margin.
-             * @member {number} margin
-             * @memberof caffe.ContrastiveLossParameter
-             * @instance
-             */
             ContrastiveLossParameter.prototype.margin = 1;
-    
-            /**
-             * ContrastiveLossParameter legacyVersion.
-             * @member {boolean} legacyVersion
-             * @memberof caffe.ContrastiveLossParameter
-             * @instance
-             */
             ContrastiveLossParameter.prototype.legacyVersion = false;
     
-            /**
-             * Creates a new ContrastiveLossParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {caffe.IContrastiveLossParameter=} [properties] Properties to set
-             * @returns {caffe.ContrastiveLossParameter} ContrastiveLossParameter instance
-             */
             ContrastiveLossParameter.create = function create(properties) {
                 return new ContrastiveLossParameter(properties);
             };
     
-            /**
-             * Encodes the specified ContrastiveLossParameter message. Does not implicitly {@link caffe.ContrastiveLossParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {caffe.IContrastiveLossParameter} message ContrastiveLossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ContrastiveLossParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.margin != null && message.hasOwnProperty("margin"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.margin);
-                if (message.legacyVersion != null && message.hasOwnProperty("legacyVersion"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).bool(message.legacyVersion);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ContrastiveLossParameter message, length delimited. Does not implicitly {@link caffe.ContrastiveLossParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {caffe.IContrastiveLossParameter} message ContrastiveLossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ContrastiveLossParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ContrastiveLossParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ContrastiveLossParameter} ContrastiveLossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ContrastiveLossParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -8615,30 +4478,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ContrastiveLossParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ContrastiveLossParameter} ContrastiveLossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ContrastiveLossParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ContrastiveLossParameter message.
-             * @function verify
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ContrastiveLossParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8651,14 +4490,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ContrastiveLossParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ContrastiveLossParameter} ContrastiveLossParameter
-             */
             ContrastiveLossParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ContrastiveLossParameter)
                     return object;
@@ -8670,15 +4501,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ContrastiveLossParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ContrastiveLossParameter
-             * @static
-             * @param {caffe.ContrastiveLossParameter} message ContrastiveLossParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ContrastiveLossParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -8694,13 +4516,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ContrastiveLossParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ContrastiveLossParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ContrastiveLossParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -8710,38 +4525,6 @@
     
         caffe.ConvolutionParameter = (function() {
     
-            /**
-             * Properties of a ConvolutionParameter.
-             * @memberof caffe
-             * @interface IConvolutionParameter
-             * @property {number|null} [numOutput] ConvolutionParameter numOutput
-             * @property {boolean|null} [biasTerm] ConvolutionParameter biasTerm
-             * @property {Array.<number>|null} [pad] ConvolutionParameter pad
-             * @property {Array.<number>|null} [kernelSize] ConvolutionParameter kernelSize
-             * @property {Array.<number>|null} [stride] ConvolutionParameter stride
-             * @property {Array.<number>|null} [dilation] ConvolutionParameter dilation
-             * @property {number|null} [padH] ConvolutionParameter padH
-             * @property {number|null} [padW] ConvolutionParameter padW
-             * @property {number|null} [kernelH] ConvolutionParameter kernelH
-             * @property {number|null} [kernelW] ConvolutionParameter kernelW
-             * @property {number|null} [strideH] ConvolutionParameter strideH
-             * @property {number|null} [strideW] ConvolutionParameter strideW
-             * @property {number|null} [group] ConvolutionParameter group
-             * @property {caffe.IFillerParameter|null} [weightFiller] ConvolutionParameter weightFiller
-             * @property {caffe.IFillerParameter|null} [biasFiller] ConvolutionParameter biasFiller
-             * @property {caffe.ConvolutionParameter.Engine|null} [engine] ConvolutionParameter engine
-             * @property {number|null} [axis] ConvolutionParameter axis
-             * @property {boolean|null} [forceNdIm2col] ConvolutionParameter forceNdIm2col
-             */
-    
-            /**
-             * Constructs a new ConvolutionParameter.
-             * @memberof caffe
-             * @classdesc Represents a ConvolutionParameter.
-             * @implements IConvolutionParameter
-             * @constructor
-             * @param {caffe.IConvolutionParameter=} [properties] Properties to set
-             */
             function ConvolutionParameter(properties) {
                 this.pad = [];
                 this.kernelSize = [];
@@ -8753,241 +4536,29 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ConvolutionParameter numOutput.
-             * @member {number} numOutput
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.numOutput = 0;
-    
-            /**
-             * ConvolutionParameter biasTerm.
-             * @member {boolean} biasTerm
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.biasTerm = true;
-    
-            /**
-             * ConvolutionParameter pad.
-             * @member {Array.<number>} pad
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.pad = $util.emptyArray;
-    
-            /**
-             * ConvolutionParameter kernelSize.
-             * @member {Array.<number>} kernelSize
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.kernelSize = $util.emptyArray;
-    
-            /**
-             * ConvolutionParameter stride.
-             * @member {Array.<number>} stride
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.stride = $util.emptyArray;
-    
-            /**
-             * ConvolutionParameter dilation.
-             * @member {Array.<number>} dilation
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.dilation = $util.emptyArray;
-    
-            /**
-             * ConvolutionParameter padH.
-             * @member {number} padH
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.padH = 0;
-    
-            /**
-             * ConvolutionParameter padW.
-             * @member {number} padW
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.padW = 0;
-    
-            /**
-             * ConvolutionParameter kernelH.
-             * @member {number} kernelH
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.kernelH = 0;
-    
-            /**
-             * ConvolutionParameter kernelW.
-             * @member {number} kernelW
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.kernelW = 0;
-    
-            /**
-             * ConvolutionParameter strideH.
-             * @member {number} strideH
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.strideH = 0;
-    
-            /**
-             * ConvolutionParameter strideW.
-             * @member {number} strideW
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.strideW = 0;
-    
-            /**
-             * ConvolutionParameter group.
-             * @member {number} group
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.group = 1;
-    
-            /**
-             * ConvolutionParameter weightFiller.
-             * @member {caffe.IFillerParameter|null|undefined} weightFiller
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.weightFiller = null;
-    
-            /**
-             * ConvolutionParameter biasFiller.
-             * @member {caffe.IFillerParameter|null|undefined} biasFiller
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.biasFiller = null;
-    
-            /**
-             * ConvolutionParameter engine.
-             * @member {caffe.ConvolutionParameter.Engine} engine
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.engine = 0;
-    
-            /**
-             * ConvolutionParameter axis.
-             * @member {number} axis
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.axis = 1;
-    
-            /**
-             * ConvolutionParameter forceNdIm2col.
-             * @member {boolean} forceNdIm2col
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             */
             ConvolutionParameter.prototype.forceNdIm2col = false;
     
-            /**
-             * Creates a new ConvolutionParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {caffe.IConvolutionParameter=} [properties] Properties to set
-             * @returns {caffe.ConvolutionParameter} ConvolutionParameter instance
-             */
             ConvolutionParameter.create = function create(properties) {
                 return new ConvolutionParameter(properties);
             };
     
-            /**
-             * Encodes the specified ConvolutionParameter message. Does not implicitly {@link caffe.ConvolutionParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {caffe.IConvolutionParameter} message ConvolutionParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ConvolutionParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.numOutput);
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).bool(message.biasTerm);
-                if (message.pad != null && message.pad.length)
-                    for (var i = 0; i < message.pad.length; ++i)
-                        writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.pad[i]);
-                if (message.kernelSize != null && message.kernelSize.length)
-                    for (var i = 0; i < message.kernelSize.length; ++i)
-                        writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.kernelSize[i]);
-                if (message.group != null && message.hasOwnProperty("group"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.group);
-                if (message.stride != null && message.stride.length)
-                    for (var i = 0; i < message.stride.length; ++i)
-                        writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.stride[i]);
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    $root.caffe.FillerParameter.encode(message.weightFiller, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    $root.caffe.FillerParameter.encode(message.biasFiller, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                if (message.padH != null && message.hasOwnProperty("padH"))
-                    writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.padH);
-                if (message.padW != null && message.hasOwnProperty("padW"))
-                    writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.padW);
-                if (message.kernelH != null && message.hasOwnProperty("kernelH"))
-                    writer.uint32(/* id 11, wireType 0 =*/88).uint32(message.kernelH);
-                if (message.kernelW != null && message.hasOwnProperty("kernelW"))
-                    writer.uint32(/* id 12, wireType 0 =*/96).uint32(message.kernelW);
-                if (message.strideH != null && message.hasOwnProperty("strideH"))
-                    writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.strideH);
-                if (message.strideW != null && message.hasOwnProperty("strideW"))
-                    writer.uint32(/* id 14, wireType 0 =*/112).uint32(message.strideW);
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 15, wireType 0 =*/120).int32(message.engine);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 16, wireType 0 =*/128).int32(message.axis);
-                if (message.forceNdIm2col != null && message.hasOwnProperty("forceNdIm2col"))
-                    writer.uint32(/* id 17, wireType 0 =*/136).bool(message.forceNdIm2col);
-                if (message.dilation != null && message.dilation.length)
-                    for (var i = 0; i < message.dilation.length; ++i)
-                        writer.uint32(/* id 18, wireType 0 =*/144).uint32(message.dilation[i]);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ConvolutionParameter message, length delimited. Does not implicitly {@link caffe.ConvolutionParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {caffe.IConvolutionParameter} message ConvolutionParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ConvolutionParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ConvolutionParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ConvolutionParameter} ConvolutionParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ConvolutionParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -9085,30 +4656,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ConvolutionParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ConvolutionParameter} ConvolutionParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ConvolutionParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ConvolutionParameter message.
-             * @function verify
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ConvolutionParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -9195,14 +4742,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ConvolutionParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ConvolutionParameter} ConvolutionParameter
-             */
             ConvolutionParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ConvolutionParameter)
                     return object;
@@ -9284,15 +4823,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ConvolutionParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ConvolutionParameter
-             * @static
-             * @param {caffe.ConvolutionParameter} message ConvolutionParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ConvolutionParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -9370,25 +4900,10 @@
                 return object;
             };
     
-            /**
-             * Converts this ConvolutionParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ConvolutionParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ConvolutionParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * Engine enum.
-             * @name caffe.ConvolutionParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             ConvolutionParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -9402,22 +4917,6 @@
     
         caffe.CropParameter = (function() {
     
-            /**
-             * Properties of a CropParameter.
-             * @memberof caffe
-             * @interface ICropParameter
-             * @property {number|null} [axis] CropParameter axis
-             * @property {Array.<number>|null} [offset] CropParameter offset
-             */
-    
-            /**
-             * Constructs a new CropParameter.
-             * @memberof caffe
-             * @classdesc Represents a CropParameter.
-             * @implements ICropParameter
-             * @constructor
-             * @param {caffe.ICropParameter=} [properties] Properties to set
-             */
             function CropParameter(properties) {
                 this.offset = [];
                 if (properties)
@@ -9426,78 +4925,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * CropParameter axis.
-             * @member {number} axis
-             * @memberof caffe.CropParameter
-             * @instance
-             */
             CropParameter.prototype.axis = 2;
-    
-            /**
-             * CropParameter offset.
-             * @member {Array.<number>} offset
-             * @memberof caffe.CropParameter
-             * @instance
-             */
             CropParameter.prototype.offset = $util.emptyArray;
     
-            /**
-             * Creates a new CropParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {caffe.ICropParameter=} [properties] Properties to set
-             * @returns {caffe.CropParameter} CropParameter instance
-             */
             CropParameter.create = function create(properties) {
                 return new CropParameter(properties);
             };
     
-            /**
-             * Encodes the specified CropParameter message. Does not implicitly {@link caffe.CropParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {caffe.ICropParameter} message CropParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            CropParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.axis);
-                if (message.offset != null && message.offset.length)
-                    for (var i = 0; i < message.offset.length; ++i)
-                        writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.offset[i]);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified CropParameter message, length delimited. Does not implicitly {@link caffe.CropParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {caffe.ICropParameter} message CropParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            CropParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a CropParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.CropParameter} CropParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             CropParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -9526,30 +4960,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a CropParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.CropParameter} CropParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            CropParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a CropParameter message.
-             * @function verify
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             CropParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -9566,14 +4976,6 @@
                 return null;
             };
     
-            /**
-             * Creates a CropParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.CropParameter} CropParameter
-             */
             CropParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.CropParameter)
                     return object;
@@ -9590,15 +4992,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a CropParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.CropParameter
-             * @static
-             * @param {caffe.CropParameter} message CropParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             CropParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -9617,13 +5010,6 @@
                 return object;
             };
     
-            /**
-             * Converts this CropParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.CropParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             CropParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -9633,30 +5019,6 @@
     
         caffe.DataParameter = (function() {
     
-            /**
-             * Properties of a DataParameter.
-             * @memberof caffe
-             * @interface IDataParameter
-             * @property {string|null} [source] DataParameter source
-             * @property {number|null} [batchSize] DataParameter batchSize
-             * @property {number|null} [randSkip] DataParameter randSkip
-             * @property {caffe.DataParameter.DB|null} [backend] DataParameter backend
-             * @property {number|null} [scale] DataParameter scale
-             * @property {string|null} [meanFile] DataParameter meanFile
-             * @property {number|null} [cropSize] DataParameter cropSize
-             * @property {boolean|null} [mirror] DataParameter mirror
-             * @property {boolean|null} [forceEncodedColor] DataParameter forceEncodedColor
-             * @property {number|null} [prefetch] DataParameter prefetch
-             */
-    
-            /**
-             * Constructs a new DataParameter.
-             * @memberof caffe
-             * @classdesc Represents a DataParameter.
-             * @implements IDataParameter
-             * @constructor
-             * @param {caffe.IDataParameter=} [properties] Properties to set
-             */
             function DataParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -9664,157 +5026,21 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * DataParameter source.
-             * @member {string} source
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.source = "";
-    
-            /**
-             * DataParameter batchSize.
-             * @member {number} batchSize
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.batchSize = 0;
-    
-            /**
-             * DataParameter randSkip.
-             * @member {number} randSkip
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.randSkip = 0;
-    
-            /**
-             * DataParameter backend.
-             * @member {caffe.DataParameter.DB} backend
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.backend = 0;
-    
-            /**
-             * DataParameter scale.
-             * @member {number} scale
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.scale = 1;
-    
-            /**
-             * DataParameter meanFile.
-             * @member {string} meanFile
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.meanFile = "";
-    
-            /**
-             * DataParameter cropSize.
-             * @member {number} cropSize
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.cropSize = 0;
-    
-            /**
-             * DataParameter mirror.
-             * @member {boolean} mirror
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.mirror = false;
-    
-            /**
-             * DataParameter forceEncodedColor.
-             * @member {boolean} forceEncodedColor
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.forceEncodedColor = false;
-    
-            /**
-             * DataParameter prefetch.
-             * @member {number} prefetch
-             * @memberof caffe.DataParameter
-             * @instance
-             */
             DataParameter.prototype.prefetch = 4;
     
-            /**
-             * Creates a new DataParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {caffe.IDataParameter=} [properties] Properties to set
-             * @returns {caffe.DataParameter} DataParameter instance
-             */
             DataParameter.create = function create(properties) {
                 return new DataParameter(properties);
             };
     
-            /**
-             * Encodes the specified DataParameter message. Does not implicitly {@link caffe.DataParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {caffe.IDataParameter} message DataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            DataParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.source != null && message.hasOwnProperty("source"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.source);
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.scale);
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.meanFile);
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.batchSize);
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.cropSize);
-                if (message.mirror != null && message.hasOwnProperty("mirror"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).bool(message.mirror);
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.randSkip);
-                if (message.backend != null && message.hasOwnProperty("backend"))
-                    writer.uint32(/* id 8, wireType 0 =*/64).int32(message.backend);
-                if (message.forceEncodedColor != null && message.hasOwnProperty("forceEncodedColor"))
-                    writer.uint32(/* id 9, wireType 0 =*/72).bool(message.forceEncodedColor);
-                if (message.prefetch != null && message.hasOwnProperty("prefetch"))
-                    writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.prefetch);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified DataParameter message, length delimited. Does not implicitly {@link caffe.DataParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {caffe.IDataParameter} message DataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            DataParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a DataParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.DataParameter} DataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             DataParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -9860,30 +5086,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a DataParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.DataParameter} DataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            DataParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a DataParameter message.
-             * @function verify
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             DataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -9925,14 +5127,6 @@
                 return null;
             };
     
-            /**
-             * Creates a DataParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.DataParameter} DataParameter
-             */
             DataParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.DataParameter)
                     return object;
@@ -9968,15 +5162,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a DataParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.DataParameter
-             * @static
-             * @param {caffe.DataParameter} message DataParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             DataParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -10016,24 +5201,10 @@
                 return object;
             };
     
-            /**
-             * Converts this DataParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.DataParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             DataParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * DB enum.
-             * @name caffe.DataParameter.DB
-             * @enum {string}
-             * @property {number} LEVELDB=0 LEVELDB value
-             * @property {number} LMDB=1 LMDB value
-             */
             DataParameter.DB = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "LEVELDB"] = 0;
@@ -10046,21 +5217,6 @@
     
         caffe.DropoutParameter = (function() {
     
-            /**
-             * Properties of a DropoutParameter.
-             * @memberof caffe
-             * @interface IDropoutParameter
-             * @property {number|null} [dropoutRatio] DropoutParameter dropoutRatio
-             */
-    
-            /**
-             * Constructs a new DropoutParameter.
-             * @memberof caffe
-             * @classdesc Represents a DropoutParameter.
-             * @implements IDropoutParameter
-             * @constructor
-             * @param {caffe.IDropoutParameter=} [properties] Properties to set
-             */
             function DropoutParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -10068,67 +5224,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * DropoutParameter dropoutRatio.
-             * @member {number} dropoutRatio
-             * @memberof caffe.DropoutParameter
-             * @instance
-             */
             DropoutParameter.prototype.dropoutRatio = 0.5;
     
-            /**
-             * Creates a new DropoutParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {caffe.IDropoutParameter=} [properties] Properties to set
-             * @returns {caffe.DropoutParameter} DropoutParameter instance
-             */
             DropoutParameter.create = function create(properties) {
                 return new DropoutParameter(properties);
             };
     
-            /**
-             * Encodes the specified DropoutParameter message. Does not implicitly {@link caffe.DropoutParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {caffe.IDropoutParameter} message DropoutParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            DropoutParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.dropoutRatio != null && message.hasOwnProperty("dropoutRatio"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.dropoutRatio);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified DropoutParameter message, length delimited. Does not implicitly {@link caffe.DropoutParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {caffe.IDropoutParameter} message DropoutParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            DropoutParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a DropoutParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.DropoutParameter} DropoutParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             DropoutParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -10147,30 +5248,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a DropoutParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.DropoutParameter} DropoutParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            DropoutParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a DropoutParameter message.
-             * @function verify
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             DropoutParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -10180,14 +5257,6 @@
                 return null;
             };
     
-            /**
-             * Creates a DropoutParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.DropoutParameter} DropoutParameter
-             */
             DropoutParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.DropoutParameter)
                     return object;
@@ -10197,15 +5266,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a DropoutParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.DropoutParameter
-             * @static
-             * @param {caffe.DropoutParameter} message DropoutParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             DropoutParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -10217,13 +5277,6 @@
                 return object;
             };
     
-            /**
-             * Converts this DropoutParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.DropoutParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             DropoutParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -10233,26 +5286,6 @@
     
         caffe.DummyDataParameter = (function() {
     
-            /**
-             * Properties of a DummyDataParameter.
-             * @memberof caffe
-             * @interface IDummyDataParameter
-             * @property {Array.<caffe.IFillerParameter>|null} [dataFiller] DummyDataParameter dataFiller
-             * @property {Array.<caffe.IBlobShape>|null} [shape] DummyDataParameter shape
-             * @property {Array.<number>|null} [num] DummyDataParameter num
-             * @property {Array.<number>|null} [channels] DummyDataParameter channels
-             * @property {Array.<number>|null} [height] DummyDataParameter height
-             * @property {Array.<number>|null} [width] DummyDataParameter width
-             */
-    
-            /**
-             * Constructs a new DummyDataParameter.
-             * @memberof caffe
-             * @classdesc Represents a DummyDataParameter.
-             * @implements IDummyDataParameter
-             * @constructor
-             * @param {caffe.IDummyDataParameter=} [properties] Properties to set
-             */
             function DummyDataParameter(properties) {
                 this.dataFiller = [];
                 this.shape = [];
@@ -10266,123 +5299,17 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * DummyDataParameter dataFiller.
-             * @member {Array.<caffe.IFillerParameter>} dataFiller
-             * @memberof caffe.DummyDataParameter
-             * @instance
-             */
             DummyDataParameter.prototype.dataFiller = $util.emptyArray;
-    
-            /**
-             * DummyDataParameter shape.
-             * @member {Array.<caffe.IBlobShape>} shape
-             * @memberof caffe.DummyDataParameter
-             * @instance
-             */
             DummyDataParameter.prototype.shape = $util.emptyArray;
-    
-            /**
-             * DummyDataParameter num.
-             * @member {Array.<number>} num
-             * @memberof caffe.DummyDataParameter
-             * @instance
-             */
             DummyDataParameter.prototype.num = $util.emptyArray;
-    
-            /**
-             * DummyDataParameter channels.
-             * @member {Array.<number>} channels
-             * @memberof caffe.DummyDataParameter
-             * @instance
-             */
             DummyDataParameter.prototype.channels = $util.emptyArray;
-    
-            /**
-             * DummyDataParameter height.
-             * @member {Array.<number>} height
-             * @memberof caffe.DummyDataParameter
-             * @instance
-             */
             DummyDataParameter.prototype.height = $util.emptyArray;
-    
-            /**
-             * DummyDataParameter width.
-             * @member {Array.<number>} width
-             * @memberof caffe.DummyDataParameter
-             * @instance
-             */
             DummyDataParameter.prototype.width = $util.emptyArray;
     
-            /**
-             * Creates a new DummyDataParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {caffe.IDummyDataParameter=} [properties] Properties to set
-             * @returns {caffe.DummyDataParameter} DummyDataParameter instance
-             */
             DummyDataParameter.create = function create(properties) {
                 return new DummyDataParameter(properties);
             };
     
-            /**
-             * Encodes the specified DummyDataParameter message. Does not implicitly {@link caffe.DummyDataParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {caffe.IDummyDataParameter} message DummyDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            DummyDataParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.dataFiller != null && message.dataFiller.length)
-                    for (var i = 0; i < message.dataFiller.length; ++i)
-                        $root.caffe.FillerParameter.encode(message.dataFiller[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.num != null && message.num.length)
-                    for (var i = 0; i < message.num.length; ++i)
-                        writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.num[i]);
-                if (message.channels != null && message.channels.length)
-                    for (var i = 0; i < message.channels.length; ++i)
-                        writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.channels[i]);
-                if (message.height != null && message.height.length)
-                    for (var i = 0; i < message.height.length; ++i)
-                        writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.height[i]);
-                if (message.width != null && message.width.length)
-                    for (var i = 0; i < message.width.length; ++i)
-                        writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.width[i]);
-                if (message.shape != null && message.shape.length)
-                    for (var i = 0; i < message.shape.length; ++i)
-                        $root.caffe.BlobShape.encode(message.shape[i], writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified DummyDataParameter message, length delimited. Does not implicitly {@link caffe.DummyDataParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {caffe.IDummyDataParameter} message DummyDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            DummyDataParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a DummyDataParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.DummyDataParameter} DummyDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             DummyDataParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -10448,30 +5375,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a DummyDataParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.DummyDataParameter} DummyDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            DummyDataParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a DummyDataParameter message.
-             * @function verify
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             DummyDataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -10524,14 +5427,6 @@
                 return null;
             };
     
-            /**
-             * Creates a DummyDataParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.DummyDataParameter} DummyDataParameter
-             */
             DummyDataParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.DummyDataParameter)
                     return object;
@@ -10587,15 +5482,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a DummyDataParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.DummyDataParameter
-             * @static
-             * @param {caffe.DummyDataParameter} message DummyDataParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             DummyDataParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -10641,13 +5527,6 @@
                 return object;
             };
     
-            /**
-             * Converts this DummyDataParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.DummyDataParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             DummyDataParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -10657,23 +5536,6 @@
     
         caffe.EltwiseParameter = (function() {
     
-            /**
-             * Properties of an EltwiseParameter.
-             * @memberof caffe
-             * @interface IEltwiseParameter
-             * @property {caffe.EltwiseParameter.EltwiseOp|null} [operation] EltwiseParameter operation
-             * @property {Array.<number>|null} [coeff] EltwiseParameter coeff
-             * @property {boolean|null} [stableProdGrad] EltwiseParameter stableProdGrad
-             */
-    
-            /**
-             * Constructs a new EltwiseParameter.
-             * @memberof caffe
-             * @classdesc Represents an EltwiseParameter.
-             * @implements IEltwiseParameter
-             * @constructor
-             * @param {caffe.IEltwiseParameter=} [properties] Properties to set
-             */
             function EltwiseParameter(properties) {
                 this.coeff = [];
                 if (properties)
@@ -10682,88 +5544,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * EltwiseParameter operation.
-             * @member {caffe.EltwiseParameter.EltwiseOp} operation
-             * @memberof caffe.EltwiseParameter
-             * @instance
-             */
             EltwiseParameter.prototype.operation = 1;
-    
-            /**
-             * EltwiseParameter coeff.
-             * @member {Array.<number>} coeff
-             * @memberof caffe.EltwiseParameter
-             * @instance
-             */
             EltwiseParameter.prototype.coeff = $util.emptyArray;
-    
-            /**
-             * EltwiseParameter stableProdGrad.
-             * @member {boolean} stableProdGrad
-             * @memberof caffe.EltwiseParameter
-             * @instance
-             */
             EltwiseParameter.prototype.stableProdGrad = true;
     
-            /**
-             * Creates a new EltwiseParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {caffe.IEltwiseParameter=} [properties] Properties to set
-             * @returns {caffe.EltwiseParameter} EltwiseParameter instance
-             */
             EltwiseParameter.create = function create(properties) {
                 return new EltwiseParameter(properties);
             };
     
-            /**
-             * Encodes the specified EltwiseParameter message. Does not implicitly {@link caffe.EltwiseParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {caffe.IEltwiseParameter} message EltwiseParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            EltwiseParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.operation != null && message.hasOwnProperty("operation"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.operation);
-                if (message.coeff != null && message.coeff.length)
-                    for (var i = 0; i < message.coeff.length; ++i)
-                        writer.uint32(/* id 2, wireType 5 =*/21).float(message.coeff[i]);
-                if (message.stableProdGrad != null && message.hasOwnProperty("stableProdGrad"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).bool(message.stableProdGrad);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified EltwiseParameter message, length delimited. Does not implicitly {@link caffe.EltwiseParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {caffe.IEltwiseParameter} message EltwiseParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            EltwiseParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an EltwiseParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.EltwiseParameter} EltwiseParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             EltwiseParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -10795,30 +5583,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an EltwiseParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.EltwiseParameter} EltwiseParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            EltwiseParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an EltwiseParameter message.
-             * @function verify
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             EltwiseParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -10844,14 +5608,6 @@
                 return null;
             };
     
-            /**
-             * Creates an EltwiseParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.EltwiseParameter} EltwiseParameter
-             */
             EltwiseParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.EltwiseParameter)
                     return object;
@@ -10882,15 +5638,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an EltwiseParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.EltwiseParameter
-             * @static
-             * @param {caffe.EltwiseParameter} message EltwiseParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             EltwiseParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -10913,25 +5660,10 @@
                 return object;
             };
     
-            /**
-             * Converts this EltwiseParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.EltwiseParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             EltwiseParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * EltwiseOp enum.
-             * @name caffe.EltwiseParameter.EltwiseOp
-             * @enum {string}
-             * @property {number} PROD=0 PROD value
-             * @property {number} SUM=1 SUM value
-             * @property {number} MAX=2 MAX value
-             */
             EltwiseParameter.EltwiseOp = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "PROD"] = 0;
@@ -10945,21 +5677,6 @@
     
         caffe.ELUParameter = (function() {
     
-            /**
-             * Properties of a ELUParameter.
-             * @memberof caffe
-             * @interface IELUParameter
-             * @property {number|null} [alpha] ELUParameter alpha
-             */
-    
-            /**
-             * Constructs a new ELUParameter.
-             * @memberof caffe
-             * @classdesc Represents a ELUParameter.
-             * @implements IELUParameter
-             * @constructor
-             * @param {caffe.IELUParameter=} [properties] Properties to set
-             */
             function ELUParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -10967,67 +5684,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ELUParameter alpha.
-             * @member {number} alpha
-             * @memberof caffe.ELUParameter
-             * @instance
-             */
             ELUParameter.prototype.alpha = 1;
     
-            /**
-             * Creates a new ELUParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {caffe.IELUParameter=} [properties] Properties to set
-             * @returns {caffe.ELUParameter} ELUParameter instance
-             */
             ELUParameter.create = function create(properties) {
                 return new ELUParameter(properties);
             };
     
-            /**
-             * Encodes the specified ELUParameter message. Does not implicitly {@link caffe.ELUParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {caffe.IELUParameter} message ELUParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ELUParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.alpha != null && message.hasOwnProperty("alpha"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.alpha);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ELUParameter message, length delimited. Does not implicitly {@link caffe.ELUParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {caffe.IELUParameter} message ELUParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ELUParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ELUParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ELUParameter} ELUParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ELUParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -11046,30 +5708,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ELUParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ELUParameter} ELUParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ELUParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ELUParameter message.
-             * @function verify
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ELUParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -11079,14 +5717,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ELUParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ELUParameter} ELUParameter
-             */
             ELUParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ELUParameter)
                     return object;
@@ -11096,15 +5726,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ELUParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ELUParameter
-             * @static
-             * @param {caffe.ELUParameter} message ELUParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ELUParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -11116,13 +5737,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ELUParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ELUParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ELUParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -11132,25 +5746,6 @@
     
         caffe.EmbedParameter = (function() {
     
-            /**
-             * Properties of an EmbedParameter.
-             * @memberof caffe
-             * @interface IEmbedParameter
-             * @property {number|null} [numOutput] EmbedParameter numOutput
-             * @property {number|null} [inputDim] EmbedParameter inputDim
-             * @property {boolean|null} [biasTerm] EmbedParameter biasTerm
-             * @property {caffe.IFillerParameter|null} [weightFiller] EmbedParameter weightFiller
-             * @property {caffe.IFillerParameter|null} [biasFiller] EmbedParameter biasFiller
-             */
-    
-            /**
-             * Constructs a new EmbedParameter.
-             * @memberof caffe
-             * @classdesc Represents an EmbedParameter.
-             * @implements IEmbedParameter
-             * @constructor
-             * @param {caffe.IEmbedParameter=} [properties] Properties to set
-             */
             function EmbedParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -11158,107 +5753,16 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * EmbedParameter numOutput.
-             * @member {number} numOutput
-             * @memberof caffe.EmbedParameter
-             * @instance
-             */
             EmbedParameter.prototype.numOutput = 0;
-    
-            /**
-             * EmbedParameter inputDim.
-             * @member {number} inputDim
-             * @memberof caffe.EmbedParameter
-             * @instance
-             */
             EmbedParameter.prototype.inputDim = 0;
-    
-            /**
-             * EmbedParameter biasTerm.
-             * @member {boolean} biasTerm
-             * @memberof caffe.EmbedParameter
-             * @instance
-             */
             EmbedParameter.prototype.biasTerm = true;
-    
-            /**
-             * EmbedParameter weightFiller.
-             * @member {caffe.IFillerParameter|null|undefined} weightFiller
-             * @memberof caffe.EmbedParameter
-             * @instance
-             */
             EmbedParameter.prototype.weightFiller = null;
-    
-            /**
-             * EmbedParameter biasFiller.
-             * @member {caffe.IFillerParameter|null|undefined} biasFiller
-             * @memberof caffe.EmbedParameter
-             * @instance
-             */
             EmbedParameter.prototype.biasFiller = null;
     
-            /**
-             * Creates a new EmbedParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {caffe.IEmbedParameter=} [properties] Properties to set
-             * @returns {caffe.EmbedParameter} EmbedParameter instance
-             */
             EmbedParameter.create = function create(properties) {
                 return new EmbedParameter(properties);
             };
     
-            /**
-             * Encodes the specified EmbedParameter message. Does not implicitly {@link caffe.EmbedParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {caffe.IEmbedParameter} message EmbedParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            EmbedParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.numOutput);
-                if (message.inputDim != null && message.hasOwnProperty("inputDim"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.inputDim);
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).bool(message.biasTerm);
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    $root.caffe.FillerParameter.encode(message.weightFiller, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    $root.caffe.FillerParameter.encode(message.biasFiller, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified EmbedParameter message, length delimited. Does not implicitly {@link caffe.EmbedParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {caffe.IEmbedParameter} message EmbedParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            EmbedParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an EmbedParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.EmbedParameter} EmbedParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             EmbedParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -11289,30 +5793,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an EmbedParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.EmbedParameter} EmbedParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            EmbedParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an EmbedParameter message.
-             * @function verify
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             EmbedParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -11338,14 +5818,6 @@
                 return null;
             };
     
-            /**
-             * Creates an EmbedParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.EmbedParameter} EmbedParameter
-             */
             EmbedParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.EmbedParameter)
                     return object;
@@ -11369,15 +5841,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an EmbedParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.EmbedParameter
-             * @static
-             * @param {caffe.EmbedParameter} message EmbedParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             EmbedParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -11402,13 +5865,6 @@
                 return object;
             };
     
-            /**
-             * Converts this EmbedParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.EmbedParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             EmbedParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -11418,23 +5874,6 @@
     
         caffe.ExpParameter = (function() {
     
-            /**
-             * Properties of an ExpParameter.
-             * @memberof caffe
-             * @interface IExpParameter
-             * @property {number|null} [base] ExpParameter base
-             * @property {number|null} [scale] ExpParameter scale
-             * @property {number|null} [shift] ExpParameter shift
-             */
-    
-            /**
-             * Constructs a new ExpParameter.
-             * @memberof caffe
-             * @classdesc Represents an ExpParameter.
-             * @implements IExpParameter
-             * @constructor
-             * @param {caffe.IExpParameter=} [properties] Properties to set
-             */
             function ExpParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -11442,87 +5881,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ExpParameter base.
-             * @member {number} base
-             * @memberof caffe.ExpParameter
-             * @instance
-             */
             ExpParameter.prototype.base = -1;
-    
-            /**
-             * ExpParameter scale.
-             * @member {number} scale
-             * @memberof caffe.ExpParameter
-             * @instance
-             */
             ExpParameter.prototype.scale = 1;
-    
-            /**
-             * ExpParameter shift.
-             * @member {number} shift
-             * @memberof caffe.ExpParameter
-             * @instance
-             */
             ExpParameter.prototype.shift = 0;
     
-            /**
-             * Creates a new ExpParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {caffe.IExpParameter=} [properties] Properties to set
-             * @returns {caffe.ExpParameter} ExpParameter instance
-             */
             ExpParameter.create = function create(properties) {
                 return new ExpParameter(properties);
             };
     
-            /**
-             * Encodes the specified ExpParameter message. Does not implicitly {@link caffe.ExpParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {caffe.IExpParameter} message ExpParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ExpParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.base != null && message.hasOwnProperty("base"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.base);
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.scale);
-                if (message.shift != null && message.hasOwnProperty("shift"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.shift);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ExpParameter message, length delimited. Does not implicitly {@link caffe.ExpParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {caffe.IExpParameter} message ExpParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ExpParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an ExpParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ExpParameter} ExpParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ExpParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -11547,30 +5913,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an ExpParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ExpParameter} ExpParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ExpParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an ExpParameter message.
-             * @function verify
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ExpParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -11586,14 +5928,6 @@
                 return null;
             };
     
-            /**
-             * Creates an ExpParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ExpParameter} ExpParameter
-             */
             ExpParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ExpParameter)
                     return object;
@@ -11607,15 +5941,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an ExpParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ExpParameter
-             * @static
-             * @param {caffe.ExpParameter} message ExpParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ExpParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -11634,13 +5959,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ExpParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ExpParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ExpParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -11650,22 +5968,6 @@
     
         caffe.FlattenParameter = (function() {
     
-            /**
-             * Properties of a FlattenParameter.
-             * @memberof caffe
-             * @interface IFlattenParameter
-             * @property {number|null} [axis] FlattenParameter axis
-             * @property {number|null} [endAxis] FlattenParameter endAxis
-             */
-    
-            /**
-             * Constructs a new FlattenParameter.
-             * @memberof caffe
-             * @classdesc Message that stores parameters used by FlattenLayer
-             * @implements IFlattenParameter
-             * @constructor
-             * @param {caffe.IFlattenParameter=} [properties] Properties to set
-             */
             function FlattenParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -11673,77 +5975,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * FlattenParameter axis.
-             * @member {number} axis
-             * @memberof caffe.FlattenParameter
-             * @instance
-             */
             FlattenParameter.prototype.axis = 1;
-    
-            /**
-             * FlattenParameter endAxis.
-             * @member {number} endAxis
-             * @memberof caffe.FlattenParameter
-             * @instance
-             */
             FlattenParameter.prototype.endAxis = -1;
     
-            /**
-             * Creates a new FlattenParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {caffe.IFlattenParameter=} [properties] Properties to set
-             * @returns {caffe.FlattenParameter} FlattenParameter instance
-             */
             FlattenParameter.create = function create(properties) {
                 return new FlattenParameter(properties);
             };
     
-            /**
-             * Encodes the specified FlattenParameter message. Does not implicitly {@link caffe.FlattenParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {caffe.IFlattenParameter} message FlattenParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FlattenParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.axis);
-                if (message.endAxis != null && message.hasOwnProperty("endAxis"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.endAxis);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified FlattenParameter message, length delimited. Does not implicitly {@link caffe.FlattenParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {caffe.IFlattenParameter} message FlattenParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FlattenParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a FlattenParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.FlattenParameter} FlattenParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             FlattenParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -11765,30 +6003,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a FlattenParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.FlattenParameter} FlattenParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            FlattenParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a FlattenParameter message.
-             * @function verify
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             FlattenParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -11801,14 +6015,6 @@
                 return null;
             };
     
-            /**
-             * Creates a FlattenParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.FlattenParameter} FlattenParameter
-             */
             FlattenParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.FlattenParameter)
                     return object;
@@ -11820,15 +6026,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a FlattenParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.FlattenParameter
-             * @static
-             * @param {caffe.FlattenParameter} message FlattenParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             FlattenParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -11844,13 +6041,6 @@
                 return object;
             };
     
-            /**
-             * Converts this FlattenParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.FlattenParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             FlattenParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -11860,23 +6050,6 @@
     
         caffe.HDF5DataParameter = (function() {
     
-            /**
-             * Properties of a HDF5DataParameter.
-             * @memberof caffe
-             * @interface IHDF5DataParameter
-             * @property {string|null} [source] HDF5DataParameter source
-             * @property {number|null} [batchSize] HDF5DataParameter batchSize
-             * @property {boolean|null} [shuffle] HDF5DataParameter shuffle
-             */
-    
-            /**
-             * Constructs a new HDF5DataParameter.
-             * @memberof caffe
-             * @classdesc Represents a HDF5DataParameter.
-             * @implements IHDF5DataParameter
-             * @constructor
-             * @param {caffe.IHDF5DataParameter=} [properties] Properties to set
-             */
             function HDF5DataParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -11884,87 +6057,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * HDF5DataParameter source.
-             * @member {string} source
-             * @memberof caffe.HDF5DataParameter
-             * @instance
-             */
             HDF5DataParameter.prototype.source = "";
-    
-            /**
-             * HDF5DataParameter batchSize.
-             * @member {number} batchSize
-             * @memberof caffe.HDF5DataParameter
-             * @instance
-             */
             HDF5DataParameter.prototype.batchSize = 0;
-    
-            /**
-             * HDF5DataParameter shuffle.
-             * @member {boolean} shuffle
-             * @memberof caffe.HDF5DataParameter
-             * @instance
-             */
             HDF5DataParameter.prototype.shuffle = false;
     
-            /**
-             * Creates a new HDF5DataParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {caffe.IHDF5DataParameter=} [properties] Properties to set
-             * @returns {caffe.HDF5DataParameter} HDF5DataParameter instance
-             */
             HDF5DataParameter.create = function create(properties) {
                 return new HDF5DataParameter(properties);
             };
     
-            /**
-             * Encodes the specified HDF5DataParameter message. Does not implicitly {@link caffe.HDF5DataParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {caffe.IHDF5DataParameter} message HDF5DataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            HDF5DataParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.source != null && message.hasOwnProperty("source"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.source);
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.batchSize);
-                if (message.shuffle != null && message.hasOwnProperty("shuffle"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).bool(message.shuffle);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified HDF5DataParameter message, length delimited. Does not implicitly {@link caffe.HDF5DataParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {caffe.IHDF5DataParameter} message HDF5DataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            HDF5DataParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a HDF5DataParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.HDF5DataParameter} HDF5DataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             HDF5DataParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -11989,30 +6089,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a HDF5DataParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.HDF5DataParameter} HDF5DataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            HDF5DataParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a HDF5DataParameter message.
-             * @function verify
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             HDF5DataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -12028,14 +6104,6 @@
                 return null;
             };
     
-            /**
-             * Creates a HDF5DataParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.HDF5DataParameter} HDF5DataParameter
-             */
             HDF5DataParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.HDF5DataParameter)
                     return object;
@@ -12049,15 +6117,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a HDF5DataParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.HDF5DataParameter
-             * @static
-             * @param {caffe.HDF5DataParameter} message HDF5DataParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             HDF5DataParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -12076,13 +6135,6 @@
                 return object;
             };
     
-            /**
-             * Converts this HDF5DataParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.HDF5DataParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             HDF5DataParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -12092,21 +6144,6 @@
     
         caffe.HDF5OutputParameter = (function() {
     
-            /**
-             * Properties of a HDF5OutputParameter.
-             * @memberof caffe
-             * @interface IHDF5OutputParameter
-             * @property {string|null} [fileName] HDF5OutputParameter fileName
-             */
-    
-            /**
-             * Constructs a new HDF5OutputParameter.
-             * @memberof caffe
-             * @classdesc Represents a HDF5OutputParameter.
-             * @implements IHDF5OutputParameter
-             * @constructor
-             * @param {caffe.IHDF5OutputParameter=} [properties] Properties to set
-             */
             function HDF5OutputParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -12114,67 +6151,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * HDF5OutputParameter fileName.
-             * @member {string} fileName
-             * @memberof caffe.HDF5OutputParameter
-             * @instance
-             */
             HDF5OutputParameter.prototype.fileName = "";
     
-            /**
-             * Creates a new HDF5OutputParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {caffe.IHDF5OutputParameter=} [properties] Properties to set
-             * @returns {caffe.HDF5OutputParameter} HDF5OutputParameter instance
-             */
             HDF5OutputParameter.create = function create(properties) {
                 return new HDF5OutputParameter(properties);
             };
     
-            /**
-             * Encodes the specified HDF5OutputParameter message. Does not implicitly {@link caffe.HDF5OutputParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {caffe.IHDF5OutputParameter} message HDF5OutputParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            HDF5OutputParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.fileName != null && message.hasOwnProperty("fileName"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.fileName);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified HDF5OutputParameter message, length delimited. Does not implicitly {@link caffe.HDF5OutputParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {caffe.IHDF5OutputParameter} message HDF5OutputParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            HDF5OutputParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a HDF5OutputParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.HDF5OutputParameter} HDF5OutputParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             HDF5OutputParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -12193,30 +6175,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a HDF5OutputParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.HDF5OutputParameter} HDF5OutputParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            HDF5OutputParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a HDF5OutputParameter message.
-             * @function verify
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             HDF5OutputParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -12226,14 +6184,6 @@
                 return null;
             };
     
-            /**
-             * Creates a HDF5OutputParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.HDF5OutputParameter} HDF5OutputParameter
-             */
             HDF5OutputParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.HDF5OutputParameter)
                     return object;
@@ -12243,15 +6193,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a HDF5OutputParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.HDF5OutputParameter
-             * @static
-             * @param {caffe.HDF5OutputParameter} message HDF5OutputParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             HDF5OutputParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -12263,13 +6204,6 @@
                 return object;
             };
     
-            /**
-             * Converts this HDF5OutputParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.HDF5OutputParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             HDF5OutputParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -12279,21 +6213,6 @@
     
         caffe.HingeLossParameter = (function() {
     
-            /**
-             * Properties of a HingeLossParameter.
-             * @memberof caffe
-             * @interface IHingeLossParameter
-             * @property {caffe.HingeLossParameter.Norm|null} [norm] HingeLossParameter norm
-             */
-    
-            /**
-             * Constructs a new HingeLossParameter.
-             * @memberof caffe
-             * @classdesc Represents a HingeLossParameter.
-             * @implements IHingeLossParameter
-             * @constructor
-             * @param {caffe.IHingeLossParameter=} [properties] Properties to set
-             */
             function HingeLossParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -12301,67 +6220,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * HingeLossParameter norm.
-             * @member {caffe.HingeLossParameter.Norm} norm
-             * @memberof caffe.HingeLossParameter
-             * @instance
-             */
             HingeLossParameter.prototype.norm = 1;
     
-            /**
-             * Creates a new HingeLossParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {caffe.IHingeLossParameter=} [properties] Properties to set
-             * @returns {caffe.HingeLossParameter} HingeLossParameter instance
-             */
             HingeLossParameter.create = function create(properties) {
                 return new HingeLossParameter(properties);
             };
     
-            /**
-             * Encodes the specified HingeLossParameter message. Does not implicitly {@link caffe.HingeLossParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {caffe.IHingeLossParameter} message HingeLossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            HingeLossParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.norm != null && message.hasOwnProperty("norm"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.norm);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified HingeLossParameter message, length delimited. Does not implicitly {@link caffe.HingeLossParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {caffe.IHingeLossParameter} message HingeLossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            HingeLossParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a HingeLossParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.HingeLossParameter} HingeLossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             HingeLossParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -12380,30 +6244,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a HingeLossParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.HingeLossParameter} HingeLossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            HingeLossParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a HingeLossParameter message.
-             * @function verify
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             HingeLossParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -12418,14 +6258,6 @@
                 return null;
             };
     
-            /**
-             * Creates a HingeLossParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.HingeLossParameter} HingeLossParameter
-             */
             HingeLossParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.HingeLossParameter)
                     return object;
@@ -12443,15 +6275,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a HingeLossParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.HingeLossParameter
-             * @static
-             * @param {caffe.HingeLossParameter} message HingeLossParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             HingeLossParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -12463,24 +6286,10 @@
                 return object;
             };
     
-            /**
-             * Converts this HingeLossParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.HingeLossParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             HingeLossParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * Norm enum.
-             * @name caffe.HingeLossParameter.Norm
-             * @enum {string}
-             * @property {number} L1=1 L1 value
-             * @property {number} L2=2 L2 value
-             */
             HingeLossParameter.Norm = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[1] = "L1"] = 1;
@@ -12493,32 +6302,6 @@
     
         caffe.ImageDataParameter = (function() {
     
-            /**
-             * Properties of an ImageDataParameter.
-             * @memberof caffe
-             * @interface IImageDataParameter
-             * @property {string|null} [source] ImageDataParameter source
-             * @property {number|null} [batchSize] ImageDataParameter batchSize
-             * @property {number|null} [randSkip] ImageDataParameter randSkip
-             * @property {boolean|null} [shuffle] ImageDataParameter shuffle
-             * @property {number|null} [newHeight] ImageDataParameter newHeight
-             * @property {number|null} [newWidth] ImageDataParameter newWidth
-             * @property {boolean|null} [isColor] ImageDataParameter isColor
-             * @property {number|null} [scale] ImageDataParameter scale
-             * @property {string|null} [meanFile] ImageDataParameter meanFile
-             * @property {number|null} [cropSize] ImageDataParameter cropSize
-             * @property {boolean|null} [mirror] ImageDataParameter mirror
-             * @property {string|null} [rootFolder] ImageDataParameter rootFolder
-             */
-    
-            /**
-             * Constructs a new ImageDataParameter.
-             * @memberof caffe
-             * @classdesc Represents an ImageDataParameter.
-             * @implements IImageDataParameter
-             * @constructor
-             * @param {caffe.IImageDataParameter=} [properties] Properties to set
-             */
             function ImageDataParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -12526,177 +6309,23 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ImageDataParameter source.
-             * @member {string} source
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.source = "";
-    
-            /**
-             * ImageDataParameter batchSize.
-             * @member {number} batchSize
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.batchSize = 1;
-    
-            /**
-             * ImageDataParameter randSkip.
-             * @member {number} randSkip
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.randSkip = 0;
-    
-            /**
-             * ImageDataParameter shuffle.
-             * @member {boolean} shuffle
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.shuffle = false;
-    
-            /**
-             * ImageDataParameter newHeight.
-             * @member {number} newHeight
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.newHeight = 0;
-    
-            /**
-             * ImageDataParameter newWidth.
-             * @member {number} newWidth
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.newWidth = 0;
-    
-            /**
-             * ImageDataParameter isColor.
-             * @member {boolean} isColor
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.isColor = true;
-    
-            /**
-             * ImageDataParameter scale.
-             * @member {number} scale
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.scale = 1;
-    
-            /**
-             * ImageDataParameter meanFile.
-             * @member {string} meanFile
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.meanFile = "";
-    
-            /**
-             * ImageDataParameter cropSize.
-             * @member {number} cropSize
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.cropSize = 0;
-    
-            /**
-             * ImageDataParameter mirror.
-             * @member {boolean} mirror
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.mirror = false;
-    
-            /**
-             * ImageDataParameter rootFolder.
-             * @member {string} rootFolder
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             */
             ImageDataParameter.prototype.rootFolder = "";
     
-            /**
-             * Creates a new ImageDataParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {caffe.IImageDataParameter=} [properties] Properties to set
-             * @returns {caffe.ImageDataParameter} ImageDataParameter instance
-             */
             ImageDataParameter.create = function create(properties) {
                 return new ImageDataParameter(properties);
             };
     
-            /**
-             * Encodes the specified ImageDataParameter message. Does not implicitly {@link caffe.ImageDataParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {caffe.IImageDataParameter} message ImageDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ImageDataParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.source != null && message.hasOwnProperty("source"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.source);
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.scale);
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.meanFile);
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.batchSize);
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.cropSize);
-                if (message.mirror != null && message.hasOwnProperty("mirror"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).bool(message.mirror);
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.randSkip);
-                if (message.shuffle != null && message.hasOwnProperty("shuffle"))
-                    writer.uint32(/* id 8, wireType 0 =*/64).bool(message.shuffle);
-                if (message.newHeight != null && message.hasOwnProperty("newHeight"))
-                    writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.newHeight);
-                if (message.newWidth != null && message.hasOwnProperty("newWidth"))
-                    writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.newWidth);
-                if (message.isColor != null && message.hasOwnProperty("isColor"))
-                    writer.uint32(/* id 11, wireType 0 =*/88).bool(message.isColor);
-                if (message.rootFolder != null && message.hasOwnProperty("rootFolder"))
-                    writer.uint32(/* id 12, wireType 2 =*/98).string(message.rootFolder);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ImageDataParameter message, length delimited. Does not implicitly {@link caffe.ImageDataParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {caffe.IImageDataParameter} message ImageDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ImageDataParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an ImageDataParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ImageDataParameter} ImageDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ImageDataParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -12748,30 +6377,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an ImageDataParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ImageDataParameter} ImageDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ImageDataParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an ImageDataParameter message.
-             * @function verify
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ImageDataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -12814,14 +6419,6 @@
                 return null;
             };
     
-            /**
-             * Creates an ImageDataParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ImageDataParameter} ImageDataParameter
-             */
             ImageDataParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ImageDataParameter)
                     return object;
@@ -12853,15 +6450,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an ImageDataParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ImageDataParameter
-             * @static
-             * @param {caffe.ImageDataParameter} message ImageDataParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ImageDataParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -12907,13 +6495,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ImageDataParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ImageDataParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ImageDataParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -12923,22 +6504,6 @@
     
         caffe.InfogainLossParameter = (function() {
     
-            /**
-             * Properties of an InfogainLossParameter.
-             * @memberof caffe
-             * @interface IInfogainLossParameter
-             * @property {string|null} [source] InfogainLossParameter source
-             * @property {number|null} [axis] InfogainLossParameter axis
-             */
-    
-            /**
-             * Constructs a new InfogainLossParameter.
-             * @memberof caffe
-             * @classdesc Represents an InfogainLossParameter.
-             * @implements IInfogainLossParameter
-             * @constructor
-             * @param {caffe.IInfogainLossParameter=} [properties] Properties to set
-             */
             function InfogainLossParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -12946,77 +6511,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * InfogainLossParameter source.
-             * @member {string} source
-             * @memberof caffe.InfogainLossParameter
-             * @instance
-             */
             InfogainLossParameter.prototype.source = "";
-    
-            /**
-             * InfogainLossParameter axis.
-             * @member {number} axis
-             * @memberof caffe.InfogainLossParameter
-             * @instance
-             */
             InfogainLossParameter.prototype.axis = 1;
     
-            /**
-             * Creates a new InfogainLossParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {caffe.IInfogainLossParameter=} [properties] Properties to set
-             * @returns {caffe.InfogainLossParameter} InfogainLossParameter instance
-             */
             InfogainLossParameter.create = function create(properties) {
                 return new InfogainLossParameter(properties);
             };
     
-            /**
-             * Encodes the specified InfogainLossParameter message. Does not implicitly {@link caffe.InfogainLossParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {caffe.IInfogainLossParameter} message InfogainLossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            InfogainLossParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.source != null && message.hasOwnProperty("source"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.source);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.axis);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified InfogainLossParameter message, length delimited. Does not implicitly {@link caffe.InfogainLossParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {caffe.IInfogainLossParameter} message InfogainLossParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            InfogainLossParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an InfogainLossParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.InfogainLossParameter} InfogainLossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             InfogainLossParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -13038,30 +6539,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an InfogainLossParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.InfogainLossParameter} InfogainLossParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            InfogainLossParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an InfogainLossParameter message.
-             * @function verify
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             InfogainLossParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -13074,14 +6551,6 @@
                 return null;
             };
     
-            /**
-             * Creates an InfogainLossParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.InfogainLossParameter} InfogainLossParameter
-             */
             InfogainLossParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.InfogainLossParameter)
                     return object;
@@ -13093,15 +6562,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an InfogainLossParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.InfogainLossParameter
-             * @static
-             * @param {caffe.InfogainLossParameter} message InfogainLossParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             InfogainLossParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -13117,13 +6577,6 @@
                 return object;
             };
     
-            /**
-             * Converts this InfogainLossParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.InfogainLossParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             InfogainLossParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -13133,26 +6586,6 @@
     
         caffe.InnerProductParameter = (function() {
     
-            /**
-             * Properties of an InnerProductParameter.
-             * @memberof caffe
-             * @interface IInnerProductParameter
-             * @property {number|null} [numOutput] InnerProductParameter numOutput
-             * @property {boolean|null} [biasTerm] InnerProductParameter biasTerm
-             * @property {caffe.IFillerParameter|null} [weightFiller] InnerProductParameter weightFiller
-             * @property {caffe.IFillerParameter|null} [biasFiller] InnerProductParameter biasFiller
-             * @property {number|null} [axis] InnerProductParameter axis
-             * @property {boolean|null} [transpose] InnerProductParameter transpose
-             */
-    
-            /**
-             * Constructs a new InnerProductParameter.
-             * @memberof caffe
-             * @classdesc Represents an InnerProductParameter.
-             * @implements IInnerProductParameter
-             * @constructor
-             * @param {caffe.IInnerProductParameter=} [properties] Properties to set
-             */
             function InnerProductParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -13160,117 +6593,17 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * InnerProductParameter numOutput.
-             * @member {number} numOutput
-             * @memberof caffe.InnerProductParameter
-             * @instance
-             */
             InnerProductParameter.prototype.numOutput = 0;
-    
-            /**
-             * InnerProductParameter biasTerm.
-             * @member {boolean} biasTerm
-             * @memberof caffe.InnerProductParameter
-             * @instance
-             */
             InnerProductParameter.prototype.biasTerm = true;
-    
-            /**
-             * InnerProductParameter weightFiller.
-             * @member {caffe.IFillerParameter|null|undefined} weightFiller
-             * @memberof caffe.InnerProductParameter
-             * @instance
-             */
             InnerProductParameter.prototype.weightFiller = null;
-    
-            /**
-             * InnerProductParameter biasFiller.
-             * @member {caffe.IFillerParameter|null|undefined} biasFiller
-             * @memberof caffe.InnerProductParameter
-             * @instance
-             */
             InnerProductParameter.prototype.biasFiller = null;
-    
-            /**
-             * InnerProductParameter axis.
-             * @member {number} axis
-             * @memberof caffe.InnerProductParameter
-             * @instance
-             */
             InnerProductParameter.prototype.axis = 1;
-    
-            /**
-             * InnerProductParameter transpose.
-             * @member {boolean} transpose
-             * @memberof caffe.InnerProductParameter
-             * @instance
-             */
             InnerProductParameter.prototype.transpose = false;
     
-            /**
-             * Creates a new InnerProductParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {caffe.IInnerProductParameter=} [properties] Properties to set
-             * @returns {caffe.InnerProductParameter} InnerProductParameter instance
-             */
             InnerProductParameter.create = function create(properties) {
                 return new InnerProductParameter(properties);
             };
     
-            /**
-             * Encodes the specified InnerProductParameter message. Does not implicitly {@link caffe.InnerProductParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {caffe.IInnerProductParameter} message InnerProductParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            InnerProductParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.numOutput);
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).bool(message.biasTerm);
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    $root.caffe.FillerParameter.encode(message.weightFiller, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    $root.caffe.FillerParameter.encode(message.biasFiller, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).int32(message.axis);
-                if (message.transpose != null && message.hasOwnProperty("transpose"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).bool(message.transpose);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified InnerProductParameter message, length delimited. Does not implicitly {@link caffe.InnerProductParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {caffe.IInnerProductParameter} message InnerProductParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            InnerProductParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an InnerProductParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.InnerProductParameter} InnerProductParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             InnerProductParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -13304,30 +6637,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an InnerProductParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.InnerProductParameter} InnerProductParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            InnerProductParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an InnerProductParameter message.
-             * @function verify
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             InnerProductParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -13356,14 +6665,6 @@
                 return null;
             };
     
-            /**
-             * Creates an InnerProductParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.InnerProductParameter} InnerProductParameter
-             */
             InnerProductParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.InnerProductParameter)
                     return object;
@@ -13389,15 +6690,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an InnerProductParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.InnerProductParameter
-             * @static
-             * @param {caffe.InnerProductParameter} message InnerProductParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             InnerProductParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -13425,13 +6717,6 @@
                 return object;
             };
     
-            /**
-             * Converts this InnerProductParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.InnerProductParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             InnerProductParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -13441,21 +6726,6 @@
     
         caffe.InputParameter = (function() {
     
-            /**
-             * Properties of an InputParameter.
-             * @memberof caffe
-             * @interface IInputParameter
-             * @property {Array.<caffe.IBlobShape>|null} [shape] InputParameter shape
-             */
-    
-            /**
-             * Constructs a new InputParameter.
-             * @memberof caffe
-             * @classdesc Represents an InputParameter.
-             * @implements IInputParameter
-             * @constructor
-             * @param {caffe.IInputParameter=} [properties] Properties to set
-             */
             function InputParameter(properties) {
                 this.shape = [];
                 if (properties)
@@ -13464,68 +6734,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * InputParameter shape.
-             * @member {Array.<caffe.IBlobShape>} shape
-             * @memberof caffe.InputParameter
-             * @instance
-             */
             InputParameter.prototype.shape = $util.emptyArray;
     
-            /**
-             * Creates a new InputParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {caffe.IInputParameter=} [properties] Properties to set
-             * @returns {caffe.InputParameter} InputParameter instance
-             */
             InputParameter.create = function create(properties) {
                 return new InputParameter(properties);
             };
     
-            /**
-             * Encodes the specified InputParameter message. Does not implicitly {@link caffe.InputParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {caffe.IInputParameter} message InputParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            InputParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.shape != null && message.shape.length)
-                    for (var i = 0; i < message.shape.length; ++i)
-                        $root.caffe.BlobShape.encode(message.shape[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified InputParameter message, length delimited. Does not implicitly {@link caffe.InputParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {caffe.IInputParameter} message InputParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            InputParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an InputParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.InputParameter} InputParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             InputParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -13546,30 +6760,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an InputParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.InputParameter} InputParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            InputParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an InputParameter message.
-             * @function verify
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             InputParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -13585,14 +6775,6 @@
                 return null;
             };
     
-            /**
-             * Creates an InputParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.InputParameter} InputParameter
-             */
             InputParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.InputParameter)
                     return object;
@@ -13610,15 +6792,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an InputParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.InputParameter
-             * @static
-             * @param {caffe.InputParameter} message InputParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             InputParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -13633,13 +6806,6 @@
                 return object;
             };
     
-            /**
-             * Converts this InputParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.InputParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             InputParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -13649,23 +6815,6 @@
     
         caffe.LogParameter = (function() {
     
-            /**
-             * Properties of a LogParameter.
-             * @memberof caffe
-             * @interface ILogParameter
-             * @property {number|null} [base] LogParameter base
-             * @property {number|null} [scale] LogParameter scale
-             * @property {number|null} [shift] LogParameter shift
-             */
-    
-            /**
-             * Constructs a new LogParameter.
-             * @memberof caffe
-             * @classdesc Represents a LogParameter.
-             * @implements ILogParameter
-             * @constructor
-             * @param {caffe.ILogParameter=} [properties] Properties to set
-             */
             function LogParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -13673,87 +6822,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * LogParameter base.
-             * @member {number} base
-             * @memberof caffe.LogParameter
-             * @instance
-             */
             LogParameter.prototype.base = -1;
-    
-            /**
-             * LogParameter scale.
-             * @member {number} scale
-             * @memberof caffe.LogParameter
-             * @instance
-             */
             LogParameter.prototype.scale = 1;
-    
-            /**
-             * LogParameter shift.
-             * @member {number} shift
-             * @memberof caffe.LogParameter
-             * @instance
-             */
             LogParameter.prototype.shift = 0;
     
-            /**
-             * Creates a new LogParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {caffe.ILogParameter=} [properties] Properties to set
-             * @returns {caffe.LogParameter} LogParameter instance
-             */
             LogParameter.create = function create(properties) {
                 return new LogParameter(properties);
             };
     
-            /**
-             * Encodes the specified LogParameter message. Does not implicitly {@link caffe.LogParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {caffe.ILogParameter} message LogParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LogParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.base != null && message.hasOwnProperty("base"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.base);
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.scale);
-                if (message.shift != null && message.hasOwnProperty("shift"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.shift);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified LogParameter message, length delimited. Does not implicitly {@link caffe.LogParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {caffe.ILogParameter} message LogParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LogParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a LogParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.LogParameter} LogParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             LogParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -13778,30 +6854,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a LogParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.LogParameter} LogParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            LogParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a LogParameter message.
-             * @function verify
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             LogParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -13817,14 +6869,6 @@
                 return null;
             };
     
-            /**
-             * Creates a LogParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.LogParameter} LogParameter
-             */
             LogParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.LogParameter)
                     return object;
@@ -13838,15 +6882,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a LogParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.LogParameter
-             * @static
-             * @param {caffe.LogParameter} message LogParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             LogParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -13865,13 +6900,6 @@
                 return object;
             };
     
-            /**
-             * Converts this LogParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.LogParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             LogParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -13881,26 +6909,6 @@
     
         caffe.LRNParameter = (function() {
     
-            /**
-             * Properties of a LRNParameter.
-             * @memberof caffe
-             * @interface ILRNParameter
-             * @property {number|null} [localSize] LRNParameter localSize
-             * @property {number|null} [alpha] LRNParameter alpha
-             * @property {number|null} [beta] LRNParameter beta
-             * @property {caffe.LRNParameter.NormRegion|null} [normRegion] LRNParameter normRegion
-             * @property {number|null} [k] LRNParameter k
-             * @property {caffe.LRNParameter.Engine|null} [engine] LRNParameter engine
-             */
-    
-            /**
-             * Constructs a new LRNParameter.
-             * @memberof caffe
-             * @classdesc Represents a LRNParameter.
-             * @implements ILRNParameter
-             * @constructor
-             * @param {caffe.ILRNParameter=} [properties] Properties to set
-             */
             function LRNParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -13908,117 +6916,17 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * LRNParameter localSize.
-             * @member {number} localSize
-             * @memberof caffe.LRNParameter
-             * @instance
-             */
             LRNParameter.prototype.localSize = 5;
-    
-            /**
-             * LRNParameter alpha.
-             * @member {number} alpha
-             * @memberof caffe.LRNParameter
-             * @instance
-             */
             LRNParameter.prototype.alpha = 1;
-    
-            /**
-             * LRNParameter beta.
-             * @member {number} beta
-             * @memberof caffe.LRNParameter
-             * @instance
-             */
             LRNParameter.prototype.beta = 0.75;
-    
-            /**
-             * LRNParameter normRegion.
-             * @member {caffe.LRNParameter.NormRegion} normRegion
-             * @memberof caffe.LRNParameter
-             * @instance
-             */
             LRNParameter.prototype.normRegion = 0;
-    
-            /**
-             * LRNParameter k.
-             * @member {number} k
-             * @memberof caffe.LRNParameter
-             * @instance
-             */
             LRNParameter.prototype.k = 1;
-    
-            /**
-             * LRNParameter engine.
-             * @member {caffe.LRNParameter.Engine} engine
-             * @memberof caffe.LRNParameter
-             * @instance
-             */
             LRNParameter.prototype.engine = 0;
     
-            /**
-             * Creates a new LRNParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {caffe.ILRNParameter=} [properties] Properties to set
-             * @returns {caffe.LRNParameter} LRNParameter instance
-             */
             LRNParameter.create = function create(properties) {
                 return new LRNParameter(properties);
             };
     
-            /**
-             * Encodes the specified LRNParameter message. Does not implicitly {@link caffe.LRNParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {caffe.ILRNParameter} message LRNParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LRNParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.localSize != null && message.hasOwnProperty("localSize"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.localSize);
-                if (message.alpha != null && message.hasOwnProperty("alpha"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.alpha);
-                if (message.beta != null && message.hasOwnProperty("beta"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.beta);
-                if (message.normRegion != null && message.hasOwnProperty("normRegion"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).int32(message.normRegion);
-                if (message.k != null && message.hasOwnProperty("k"))
-                    writer.uint32(/* id 5, wireType 5 =*/45).float(message.k);
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).int32(message.engine);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified LRNParameter message, length delimited. Does not implicitly {@link caffe.LRNParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {caffe.ILRNParameter} message LRNParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            LRNParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a LRNParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.LRNParameter} LRNParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             LRNParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -14052,30 +6960,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a LRNParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.LRNParameter} LRNParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            LRNParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a LRNParameter message.
-             * @function verify
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             LRNParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -14111,14 +6995,6 @@
                 return null;
             };
     
-            /**
-             * Creates a LRNParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.LRNParameter} LRNParameter
-             */
             LRNParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.LRNParameter)
                     return object;
@@ -14158,15 +7034,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a LRNParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.LRNParameter
-             * @static
-             * @param {caffe.LRNParameter} message LRNParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             LRNParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -14194,24 +7061,10 @@
                 return object;
             };
     
-            /**
-             * Converts this LRNParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.LRNParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             LRNParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * NormRegion enum.
-             * @name caffe.LRNParameter.NormRegion
-             * @enum {string}
-             * @property {number} ACROSS_CHANNELS=0 ACROSS_CHANNELS value
-             * @property {number} WITHIN_CHANNEL=1 WITHIN_CHANNEL value
-             */
             LRNParameter.NormRegion = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "ACROSS_CHANNELS"] = 0;
@@ -14219,14 +7072,6 @@
                 return values;
             })();
     
-            /**
-             * Engine enum.
-             * @name caffe.LRNParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             LRNParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -14240,24 +7085,6 @@
     
         caffe.MemoryDataParameter = (function() {
     
-            /**
-             * Properties of a MemoryDataParameter.
-             * @memberof caffe
-             * @interface IMemoryDataParameter
-             * @property {number|null} [batchSize] MemoryDataParameter batchSize
-             * @property {number|null} [channels] MemoryDataParameter channels
-             * @property {number|null} [height] MemoryDataParameter height
-             * @property {number|null} [width] MemoryDataParameter width
-             */
-    
-            /**
-             * Constructs a new MemoryDataParameter.
-             * @memberof caffe
-             * @classdesc Represents a MemoryDataParameter.
-             * @implements IMemoryDataParameter
-             * @constructor
-             * @param {caffe.IMemoryDataParameter=} [properties] Properties to set
-             */
             function MemoryDataParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -14265,97 +7092,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * MemoryDataParameter batchSize.
-             * @member {number} batchSize
-             * @memberof caffe.MemoryDataParameter
-             * @instance
-             */
             MemoryDataParameter.prototype.batchSize = 0;
-    
-            /**
-             * MemoryDataParameter channels.
-             * @member {number} channels
-             * @memberof caffe.MemoryDataParameter
-             * @instance
-             */
             MemoryDataParameter.prototype.channels = 0;
-    
-            /**
-             * MemoryDataParameter height.
-             * @member {number} height
-             * @memberof caffe.MemoryDataParameter
-             * @instance
-             */
             MemoryDataParameter.prototype.height = 0;
-    
-            /**
-             * MemoryDataParameter width.
-             * @member {number} width
-             * @memberof caffe.MemoryDataParameter
-             * @instance
-             */
             MemoryDataParameter.prototype.width = 0;
     
-            /**
-             * Creates a new MemoryDataParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {caffe.IMemoryDataParameter=} [properties] Properties to set
-             * @returns {caffe.MemoryDataParameter} MemoryDataParameter instance
-             */
             MemoryDataParameter.create = function create(properties) {
                 return new MemoryDataParameter(properties);
             };
     
-            /**
-             * Encodes the specified MemoryDataParameter message. Does not implicitly {@link caffe.MemoryDataParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {caffe.IMemoryDataParameter} message MemoryDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            MemoryDataParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.batchSize);
-                if (message.channels != null && message.hasOwnProperty("channels"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.channels);
-                if (message.height != null && message.hasOwnProperty("height"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.height);
-                if (message.width != null && message.hasOwnProperty("width"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.width);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified MemoryDataParameter message, length delimited. Does not implicitly {@link caffe.MemoryDataParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {caffe.IMemoryDataParameter} message MemoryDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            MemoryDataParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a MemoryDataParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.MemoryDataParameter} MemoryDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             MemoryDataParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -14383,30 +7128,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a MemoryDataParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.MemoryDataParameter} MemoryDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            MemoryDataParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a MemoryDataParameter message.
-             * @function verify
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             MemoryDataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -14425,14 +7146,6 @@
                 return null;
             };
     
-            /**
-             * Creates a MemoryDataParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.MemoryDataParameter} MemoryDataParameter
-             */
             MemoryDataParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.MemoryDataParameter)
                     return object;
@@ -14448,15 +7161,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a MemoryDataParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.MemoryDataParameter
-             * @static
-             * @param {caffe.MemoryDataParameter} message MemoryDataParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             MemoryDataParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -14478,13 +7182,6 @@
                 return object;
             };
     
-            /**
-             * Converts this MemoryDataParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.MemoryDataParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             MemoryDataParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -14494,23 +7191,6 @@
     
         caffe.MVNParameter = (function() {
     
-            /**
-             * Properties of a MVNParameter.
-             * @memberof caffe
-             * @interface IMVNParameter
-             * @property {boolean|null} [normalizeVariance] MVNParameter normalizeVariance
-             * @property {boolean|null} [acrossChannels] MVNParameter acrossChannels
-             * @property {number|null} [eps] MVNParameter eps
-             */
-    
-            /**
-             * Constructs a new MVNParameter.
-             * @memberof caffe
-             * @classdesc Represents a MVNParameter.
-             * @implements IMVNParameter
-             * @constructor
-             * @param {caffe.IMVNParameter=} [properties] Properties to set
-             */
             function MVNParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -14518,87 +7198,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * MVNParameter normalizeVariance.
-             * @member {boolean} normalizeVariance
-             * @memberof caffe.MVNParameter
-             * @instance
-             */
             MVNParameter.prototype.normalizeVariance = true;
-    
-            /**
-             * MVNParameter acrossChannels.
-             * @member {boolean} acrossChannels
-             * @memberof caffe.MVNParameter
-             * @instance
-             */
             MVNParameter.prototype.acrossChannels = false;
-    
-            /**
-             * MVNParameter eps.
-             * @member {number} eps
-             * @memberof caffe.MVNParameter
-             * @instance
-             */
             MVNParameter.prototype.eps = 1e-9;
     
-            /**
-             * Creates a new MVNParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {caffe.IMVNParameter=} [properties] Properties to set
-             * @returns {caffe.MVNParameter} MVNParameter instance
-             */
             MVNParameter.create = function create(properties) {
                 return new MVNParameter(properties);
             };
     
-            /**
-             * Encodes the specified MVNParameter message. Does not implicitly {@link caffe.MVNParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {caffe.IMVNParameter} message MVNParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            MVNParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.normalizeVariance != null && message.hasOwnProperty("normalizeVariance"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).bool(message.normalizeVariance);
-                if (message.acrossChannels != null && message.hasOwnProperty("acrossChannels"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).bool(message.acrossChannels);
-                if (message.eps != null && message.hasOwnProperty("eps"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.eps);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified MVNParameter message, length delimited. Does not implicitly {@link caffe.MVNParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {caffe.IMVNParameter} message MVNParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            MVNParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a MVNParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.MVNParameter} MVNParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             MVNParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -14623,30 +7230,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a MVNParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.MVNParameter} MVNParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            MVNParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a MVNParameter message.
-             * @function verify
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             MVNParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -14662,14 +7245,6 @@
                 return null;
             };
     
-            /**
-             * Creates a MVNParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.MVNParameter} MVNParameter
-             */
             MVNParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.MVNParameter)
                     return object;
@@ -14683,15 +7258,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a MVNParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.MVNParameter
-             * @static
-             * @param {caffe.MVNParameter} message MVNParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             MVNParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -14710,13 +7276,6 @@
                 return object;
             };
     
-            /**
-             * Converts this MVNParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.MVNParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             MVNParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -14726,21 +7285,6 @@
     
         caffe.ParameterParameter = (function() {
     
-            /**
-             * Properties of a ParameterParameter.
-             * @memberof caffe
-             * @interface IParameterParameter
-             * @property {caffe.IBlobShape|null} [shape] ParameterParameter shape
-             */
-    
-            /**
-             * Constructs a new ParameterParameter.
-             * @memberof caffe
-             * @classdesc Represents a ParameterParameter.
-             * @implements IParameterParameter
-             * @constructor
-             * @param {caffe.IParameterParameter=} [properties] Properties to set
-             */
             function ParameterParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -14748,67 +7292,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ParameterParameter shape.
-             * @member {caffe.IBlobShape|null|undefined} shape
-             * @memberof caffe.ParameterParameter
-             * @instance
-             */
             ParameterParameter.prototype.shape = null;
     
-            /**
-             * Creates a new ParameterParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {caffe.IParameterParameter=} [properties] Properties to set
-             * @returns {caffe.ParameterParameter} ParameterParameter instance
-             */
             ParameterParameter.create = function create(properties) {
                 return new ParameterParameter(properties);
             };
     
-            /**
-             * Encodes the specified ParameterParameter message. Does not implicitly {@link caffe.ParameterParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {caffe.IParameterParameter} message ParameterParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ParameterParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.shape != null && message.hasOwnProperty("shape"))
-                    $root.caffe.BlobShape.encode(message.shape, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ParameterParameter message, length delimited. Does not implicitly {@link caffe.ParameterParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {caffe.IParameterParameter} message ParameterParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ParameterParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ParameterParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ParameterParameter} ParameterParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ParameterParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -14827,30 +7316,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ParameterParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ParameterParameter} ParameterParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ParameterParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ParameterParameter message.
-             * @function verify
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ParameterParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -14862,14 +7327,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ParameterParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ParameterParameter} ParameterParameter
-             */
             ParameterParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ParameterParameter)
                     return object;
@@ -14882,15 +7339,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ParameterParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ParameterParameter
-             * @static
-             * @param {caffe.ParameterParameter} message ParameterParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ParameterParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -14902,13 +7350,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ParameterParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ParameterParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ParameterParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -14918,33 +7359,6 @@
     
         caffe.PoolingParameter = (function() {
     
-            /**
-             * Properties of a PoolingParameter.
-             * @memberof caffe
-             * @interface IPoolingParameter
-             * @property {caffe.PoolingParameter.PoolMethod|null} [pool] PoolingParameter pool
-             * @property {number|null} [pad] PoolingParameter pad
-             * @property {number|null} [padH] PoolingParameter padH
-             * @property {number|null} [padW] PoolingParameter padW
-             * @property {number|null} [kernelSize] PoolingParameter kernelSize
-             * @property {number|null} [kernelH] PoolingParameter kernelH
-             * @property {number|null} [kernelW] PoolingParameter kernelW
-             * @property {number|null} [stride] PoolingParameter stride
-             * @property {number|null} [strideH] PoolingParameter strideH
-             * @property {number|null} [strideW] PoolingParameter strideW
-             * @property {caffe.PoolingParameter.Engine|null} [engine] PoolingParameter engine
-             * @property {boolean|null} [globalPooling] PoolingParameter globalPooling
-             * @property {caffe.PoolingParameter.RoundMode|null} [roundMode] PoolingParameter roundMode
-             */
-    
-            /**
-             * Constructs a new PoolingParameter.
-             * @memberof caffe
-             * @classdesc Represents a PoolingParameter.
-             * @implements IPoolingParameter
-             * @constructor
-             * @param {caffe.IPoolingParameter=} [properties] Properties to set
-             */
             function PoolingParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -14952,187 +7366,24 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * PoolingParameter pool.
-             * @member {caffe.PoolingParameter.PoolMethod} pool
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.pool = 0;
-    
-            /**
-             * PoolingParameter pad.
-             * @member {number} pad
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.pad = 0;
-    
-            /**
-             * PoolingParameter padH.
-             * @member {number} padH
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.padH = 0;
-    
-            /**
-             * PoolingParameter padW.
-             * @member {number} padW
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.padW = 0;
-    
-            /**
-             * PoolingParameter kernelSize.
-             * @member {number} kernelSize
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.kernelSize = 0;
-    
-            /**
-             * PoolingParameter kernelH.
-             * @member {number} kernelH
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.kernelH = 0;
-    
-            /**
-             * PoolingParameter kernelW.
-             * @member {number} kernelW
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.kernelW = 0;
-    
-            /**
-             * PoolingParameter stride.
-             * @member {number} stride
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.stride = 1;
-    
-            /**
-             * PoolingParameter strideH.
-             * @member {number} strideH
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.strideH = 0;
-    
-            /**
-             * PoolingParameter strideW.
-             * @member {number} strideW
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.strideW = 0;
-    
-            /**
-             * PoolingParameter engine.
-             * @member {caffe.PoolingParameter.Engine} engine
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.engine = 0;
-    
-            /**
-             * PoolingParameter globalPooling.
-             * @member {boolean} globalPooling
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.globalPooling = false;
-    
-            /**
-             * PoolingParameter roundMode.
-             * @member {caffe.PoolingParameter.RoundMode} roundMode
-             * @memberof caffe.PoolingParameter
-             * @instance
-             */
             PoolingParameter.prototype.roundMode = 0;
     
-            /**
-             * Creates a new PoolingParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {caffe.IPoolingParameter=} [properties] Properties to set
-             * @returns {caffe.PoolingParameter} PoolingParameter instance
-             */
             PoolingParameter.create = function create(properties) {
                 return new PoolingParameter(properties);
             };
     
-            /**
-             * Encodes the specified PoolingParameter message. Does not implicitly {@link caffe.PoolingParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {caffe.IPoolingParameter} message PoolingParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PoolingParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.pool != null && message.hasOwnProperty("pool"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.pool);
-                if (message.kernelSize != null && message.hasOwnProperty("kernelSize"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.kernelSize);
-                if (message.stride != null && message.hasOwnProperty("stride"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.stride);
-                if (message.pad != null && message.hasOwnProperty("pad"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.pad);
-                if (message.kernelH != null && message.hasOwnProperty("kernelH"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.kernelH);
-                if (message.kernelW != null && message.hasOwnProperty("kernelW"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).uint32(message.kernelW);
-                if (message.strideH != null && message.hasOwnProperty("strideH"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.strideH);
-                if (message.strideW != null && message.hasOwnProperty("strideW"))
-                    writer.uint32(/* id 8, wireType 0 =*/64).uint32(message.strideW);
-                if (message.padH != null && message.hasOwnProperty("padH"))
-                    writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.padH);
-                if (message.padW != null && message.hasOwnProperty("padW"))
-                    writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.padW);
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 11, wireType 0 =*/88).int32(message.engine);
-                if (message.globalPooling != null && message.hasOwnProperty("globalPooling"))
-                    writer.uint32(/* id 12, wireType 0 =*/96).bool(message.globalPooling);
-                if (message.roundMode != null && message.hasOwnProperty("roundMode"))
-                    writer.uint32(/* id 13, wireType 0 =*/104).int32(message.roundMode);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified PoolingParameter message, length delimited. Does not implicitly {@link caffe.PoolingParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {caffe.IPoolingParameter} message PoolingParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PoolingParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a PoolingParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.PoolingParameter} PoolingParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             PoolingParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -15187,30 +7438,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a PoolingParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.PoolingParameter} PoolingParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            PoolingParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a PoolingParameter message.
-             * @function verify
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             PoolingParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -15273,14 +7500,6 @@
                 return null;
             };
     
-            /**
-             * Creates a PoolingParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.PoolingParameter} PoolingParameter
-             */
             PoolingParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.PoolingParameter)
                     return object;
@@ -15346,15 +7565,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a PoolingParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.PoolingParameter
-             * @static
-             * @param {caffe.PoolingParameter} message PoolingParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             PoolingParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -15403,25 +7613,10 @@
                 return object;
             };
     
-            /**
-             * Converts this PoolingParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.PoolingParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             PoolingParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * PoolMethod enum.
-             * @name caffe.PoolingParameter.PoolMethod
-             * @enum {string}
-             * @property {number} MAX=0 MAX value
-             * @property {number} AVE=1 AVE value
-             * @property {number} STOCHASTIC=2 STOCHASTIC value
-             */
             PoolingParameter.PoolMethod = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "MAX"] = 0;
@@ -15430,14 +7625,6 @@
                 return values;
             })();
     
-            /**
-             * Engine enum.
-             * @name caffe.PoolingParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             PoolingParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -15446,13 +7633,6 @@
                 return values;
             })();
     
-            /**
-             * RoundMode enum.
-             * @name caffe.PoolingParameter.RoundMode
-             * @enum {string}
-             * @property {number} CEIL=0 CEIL value
-             * @property {number} FLOOR=1 FLOOR value
-             */
             PoolingParameter.RoundMode = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "CEIL"] = 0;
@@ -15465,23 +7645,6 @@
     
         caffe.PowerParameter = (function() {
     
-            /**
-             * Properties of a PowerParameter.
-             * @memberof caffe
-             * @interface IPowerParameter
-             * @property {number|null} [power] PowerParameter power
-             * @property {number|null} [scale] PowerParameter scale
-             * @property {number|null} [shift] PowerParameter shift
-             */
-    
-            /**
-             * Constructs a new PowerParameter.
-             * @memberof caffe
-             * @classdesc Represents a PowerParameter.
-             * @implements IPowerParameter
-             * @constructor
-             * @param {caffe.IPowerParameter=} [properties] Properties to set
-             */
             function PowerParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -15489,87 +7652,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * PowerParameter power.
-             * @member {number} power
-             * @memberof caffe.PowerParameter
-             * @instance
-             */
             PowerParameter.prototype.power = 1;
-    
-            /**
-             * PowerParameter scale.
-             * @member {number} scale
-             * @memberof caffe.PowerParameter
-             * @instance
-             */
             PowerParameter.prototype.scale = 1;
-    
-            /**
-             * PowerParameter shift.
-             * @member {number} shift
-             * @memberof caffe.PowerParameter
-             * @instance
-             */
             PowerParameter.prototype.shift = 0;
     
-            /**
-             * Creates a new PowerParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {caffe.IPowerParameter=} [properties] Properties to set
-             * @returns {caffe.PowerParameter} PowerParameter instance
-             */
             PowerParameter.create = function create(properties) {
                 return new PowerParameter(properties);
             };
     
-            /**
-             * Encodes the specified PowerParameter message. Does not implicitly {@link caffe.PowerParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {caffe.IPowerParameter} message PowerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PowerParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.power != null && message.hasOwnProperty("power"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.power);
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.scale);
-                if (message.shift != null && message.hasOwnProperty("shift"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.shift);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified PowerParameter message, length delimited. Does not implicitly {@link caffe.PowerParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {caffe.IPowerParameter} message PowerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PowerParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a PowerParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.PowerParameter} PowerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             PowerParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -15594,30 +7684,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a PowerParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.PowerParameter} PowerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            PowerParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a PowerParameter message.
-             * @function verify
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             PowerParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -15633,14 +7699,6 @@
                 return null;
             };
     
-            /**
-             * Creates a PowerParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.PowerParameter} PowerParameter
-             */
             PowerParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.PowerParameter)
                     return object;
@@ -15654,15 +7712,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a PowerParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.PowerParameter
-             * @static
-             * @param {caffe.PowerParameter} message PowerParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             PowerParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -15681,13 +7730,6 @@
                 return object;
             };
     
-            /**
-             * Converts this PowerParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.PowerParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             PowerParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -15697,24 +7739,6 @@
     
         caffe.PythonParameter = (function() {
     
-            /**
-             * Properties of a PythonParameter.
-             * @memberof caffe
-             * @interface IPythonParameter
-             * @property {string|null} [module] PythonParameter module
-             * @property {string|null} [layer] PythonParameter layer
-             * @property {string|null} [paramStr] PythonParameter paramStr
-             * @property {boolean|null} [shareInParallel] PythonParameter shareInParallel
-             */
-    
-            /**
-             * Constructs a new PythonParameter.
-             * @memberof caffe
-             * @classdesc Represents a PythonParameter.
-             * @implements IPythonParameter
-             * @constructor
-             * @param {caffe.IPythonParameter=} [properties] Properties to set
-             */
             function PythonParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -15722,97 +7746,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * PythonParameter module.
-             * @member {string} module
-             * @memberof caffe.PythonParameter
-             * @instance
-             */
             PythonParameter.prototype.module = "";
-    
-            /**
-             * PythonParameter layer.
-             * @member {string} layer
-             * @memberof caffe.PythonParameter
-             * @instance
-             */
             PythonParameter.prototype.layer = "";
-    
-            /**
-             * PythonParameter paramStr.
-             * @member {string} paramStr
-             * @memberof caffe.PythonParameter
-             * @instance
-             */
             PythonParameter.prototype.paramStr = "";
-    
-            /**
-             * PythonParameter shareInParallel.
-             * @member {boolean} shareInParallel
-             * @memberof caffe.PythonParameter
-             * @instance
-             */
             PythonParameter.prototype.shareInParallel = false;
     
-            /**
-             * Creates a new PythonParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {caffe.IPythonParameter=} [properties] Properties to set
-             * @returns {caffe.PythonParameter} PythonParameter instance
-             */
             PythonParameter.create = function create(properties) {
                 return new PythonParameter(properties);
             };
     
-            /**
-             * Encodes the specified PythonParameter message. Does not implicitly {@link caffe.PythonParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {caffe.IPythonParameter} message PythonParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PythonParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.module != null && message.hasOwnProperty("module"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.module);
-                if (message.layer != null && message.hasOwnProperty("layer"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.layer);
-                if (message.paramStr != null && message.hasOwnProperty("paramStr"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.paramStr);
-                if (message.shareInParallel != null && message.hasOwnProperty("shareInParallel"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).bool(message.shareInParallel);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified PythonParameter message, length delimited. Does not implicitly {@link caffe.PythonParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {caffe.IPythonParameter} message PythonParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PythonParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a PythonParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.PythonParameter} PythonParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             PythonParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -15840,30 +7782,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a PythonParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.PythonParameter} PythonParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            PythonParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a PythonParameter message.
-             * @function verify
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             PythonParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -15882,14 +7800,6 @@
                 return null;
             };
     
-            /**
-             * Creates a PythonParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.PythonParameter} PythonParameter
-             */
             PythonParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.PythonParameter)
                     return object;
@@ -15905,15 +7815,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a PythonParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.PythonParameter
-             * @static
-             * @param {caffe.PythonParameter} message PythonParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             PythonParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -15935,13 +7836,6 @@
                 return object;
             };
     
-            /**
-             * Converts this PythonParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.PythonParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             PythonParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -15951,25 +7845,6 @@
     
         caffe.RecurrentParameter = (function() {
     
-            /**
-             * Properties of a RecurrentParameter.
-             * @memberof caffe
-             * @interface IRecurrentParameter
-             * @property {number|null} [numOutput] RecurrentParameter numOutput
-             * @property {caffe.IFillerParameter|null} [weightFiller] RecurrentParameter weightFiller
-             * @property {caffe.IFillerParameter|null} [biasFiller] RecurrentParameter biasFiller
-             * @property {boolean|null} [debugInfo] RecurrentParameter debugInfo
-             * @property {boolean|null} [exposeHidden] RecurrentParameter exposeHidden
-             */
-    
-            /**
-             * Constructs a new RecurrentParameter.
-             * @memberof caffe
-             * @classdesc Represents a RecurrentParameter.
-             * @implements IRecurrentParameter
-             * @constructor
-             * @param {caffe.IRecurrentParameter=} [properties] Properties to set
-             */
             function RecurrentParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -15977,107 +7852,16 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * RecurrentParameter numOutput.
-             * @member {number} numOutput
-             * @memberof caffe.RecurrentParameter
-             * @instance
-             */
             RecurrentParameter.prototype.numOutput = 0;
-    
-            /**
-             * RecurrentParameter weightFiller.
-             * @member {caffe.IFillerParameter|null|undefined} weightFiller
-             * @memberof caffe.RecurrentParameter
-             * @instance
-             */
             RecurrentParameter.prototype.weightFiller = null;
-    
-            /**
-             * RecurrentParameter biasFiller.
-             * @member {caffe.IFillerParameter|null|undefined} biasFiller
-             * @memberof caffe.RecurrentParameter
-             * @instance
-             */
             RecurrentParameter.prototype.biasFiller = null;
-    
-            /**
-             * RecurrentParameter debugInfo.
-             * @member {boolean} debugInfo
-             * @memberof caffe.RecurrentParameter
-             * @instance
-             */
             RecurrentParameter.prototype.debugInfo = false;
-    
-            /**
-             * RecurrentParameter exposeHidden.
-             * @member {boolean} exposeHidden
-             * @memberof caffe.RecurrentParameter
-             * @instance
-             */
             RecurrentParameter.prototype.exposeHidden = false;
     
-            /**
-             * Creates a new RecurrentParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {caffe.IRecurrentParameter=} [properties] Properties to set
-             * @returns {caffe.RecurrentParameter} RecurrentParameter instance
-             */
             RecurrentParameter.create = function create(properties) {
                 return new RecurrentParameter(properties);
             };
     
-            /**
-             * Encodes the specified RecurrentParameter message. Does not implicitly {@link caffe.RecurrentParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {caffe.IRecurrentParameter} message RecurrentParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            RecurrentParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.numOutput);
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    $root.caffe.FillerParameter.encode(message.weightFiller, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    $root.caffe.FillerParameter.encode(message.biasFiller, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.debugInfo != null && message.hasOwnProperty("debugInfo"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).bool(message.debugInfo);
-                if (message.exposeHidden != null && message.hasOwnProperty("exposeHidden"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).bool(message.exposeHidden);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified RecurrentParameter message, length delimited. Does not implicitly {@link caffe.RecurrentParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {caffe.IRecurrentParameter} message RecurrentParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            RecurrentParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a RecurrentParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.RecurrentParameter} RecurrentParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             RecurrentParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -16108,30 +7892,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a RecurrentParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.RecurrentParameter} RecurrentParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            RecurrentParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a RecurrentParameter message.
-             * @function verify
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             RecurrentParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -16157,14 +7917,6 @@
                 return null;
             };
     
-            /**
-             * Creates a RecurrentParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.RecurrentParameter} RecurrentParameter
-             */
             RecurrentParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.RecurrentParameter)
                     return object;
@@ -16188,15 +7940,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a RecurrentParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.RecurrentParameter
-             * @static
-             * @param {caffe.RecurrentParameter} message RecurrentParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             RecurrentParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -16221,13 +7964,6 @@
                 return object;
             };
     
-            /**
-             * Converts this RecurrentParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.RecurrentParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             RecurrentParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -16237,23 +7973,6 @@
     
         caffe.ReductionParameter = (function() {
     
-            /**
-             * Properties of a ReductionParameter.
-             * @memberof caffe
-             * @interface IReductionParameter
-             * @property {caffe.ReductionParameter.ReductionOp|null} [operation] ReductionParameter operation
-             * @property {number|null} [axis] ReductionParameter axis
-             * @property {number|null} [coeff] ReductionParameter coeff
-             */
-    
-            /**
-             * Constructs a new ReductionParameter.
-             * @memberof caffe
-             * @classdesc Represents a ReductionParameter.
-             * @implements IReductionParameter
-             * @constructor
-             * @param {caffe.IReductionParameter=} [properties] Properties to set
-             */
             function ReductionParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -16261,87 +7980,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ReductionParameter operation.
-             * @member {caffe.ReductionParameter.ReductionOp} operation
-             * @memberof caffe.ReductionParameter
-             * @instance
-             */
             ReductionParameter.prototype.operation = 1;
-    
-            /**
-             * ReductionParameter axis.
-             * @member {number} axis
-             * @memberof caffe.ReductionParameter
-             * @instance
-             */
             ReductionParameter.prototype.axis = 0;
-    
-            /**
-             * ReductionParameter coeff.
-             * @member {number} coeff
-             * @memberof caffe.ReductionParameter
-             * @instance
-             */
             ReductionParameter.prototype.coeff = 1;
     
-            /**
-             * Creates a new ReductionParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {caffe.IReductionParameter=} [properties] Properties to set
-             * @returns {caffe.ReductionParameter} ReductionParameter instance
-             */
             ReductionParameter.create = function create(properties) {
                 return new ReductionParameter(properties);
             };
     
-            /**
-             * Encodes the specified ReductionParameter message. Does not implicitly {@link caffe.ReductionParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {caffe.IReductionParameter} message ReductionParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ReductionParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.operation != null && message.hasOwnProperty("operation"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.operation);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.axis);
-                if (message.coeff != null && message.hasOwnProperty("coeff"))
-                    writer.uint32(/* id 3, wireType 5 =*/29).float(message.coeff);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ReductionParameter message, length delimited. Does not implicitly {@link caffe.ReductionParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {caffe.IReductionParameter} message ReductionParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ReductionParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ReductionParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ReductionParameter} ReductionParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ReductionParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -16366,30 +8012,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ReductionParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ReductionParameter} ReductionParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ReductionParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ReductionParameter message.
-             * @function verify
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ReductionParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -16412,14 +8034,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ReductionParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ReductionParameter} ReductionParameter
-             */
             ReductionParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ReductionParameter)
                     return object;
@@ -16449,15 +8063,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ReductionParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ReductionParameter
-             * @static
-             * @param {caffe.ReductionParameter} message ReductionParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ReductionParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -16476,26 +8081,10 @@
                 return object;
             };
     
-            /**
-             * Converts this ReductionParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ReductionParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ReductionParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * ReductionOp enum.
-             * @name caffe.ReductionParameter.ReductionOp
-             * @enum {string}
-             * @property {number} SUM=1 SUM value
-             * @property {number} ASUM=2 ASUM value
-             * @property {number} SUMSQ=3 SUMSQ value
-             * @property {number} MEAN=4 MEAN value
-             */
             ReductionParameter.ReductionOp = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[1] = "SUM"] = 1;
@@ -16510,22 +8099,6 @@
     
         caffe.ReLUParameter = (function() {
     
-            /**
-             * Properties of a ReLUParameter.
-             * @memberof caffe
-             * @interface IReLUParameter
-             * @property {number|null} [negativeSlope] ReLUParameter negativeSlope
-             * @property {caffe.ReLUParameter.Engine|null} [engine] ReLUParameter engine
-             */
-    
-            /**
-             * Constructs a new ReLUParameter.
-             * @memberof caffe
-             * @classdesc Represents a ReLUParameter.
-             * @implements IReLUParameter
-             * @constructor
-             * @param {caffe.IReLUParameter=} [properties] Properties to set
-             */
             function ReLUParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -16533,77 +8106,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ReLUParameter negativeSlope.
-             * @member {number} negativeSlope
-             * @memberof caffe.ReLUParameter
-             * @instance
-             */
             ReLUParameter.prototype.negativeSlope = 0;
-    
-            /**
-             * ReLUParameter engine.
-             * @member {caffe.ReLUParameter.Engine} engine
-             * @memberof caffe.ReLUParameter
-             * @instance
-             */
             ReLUParameter.prototype.engine = 0;
     
-            /**
-             * Creates a new ReLUParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {caffe.IReLUParameter=} [properties] Properties to set
-             * @returns {caffe.ReLUParameter} ReLUParameter instance
-             */
             ReLUParameter.create = function create(properties) {
                 return new ReLUParameter(properties);
             };
     
-            /**
-             * Encodes the specified ReLUParameter message. Does not implicitly {@link caffe.ReLUParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {caffe.IReLUParameter} message ReLUParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ReLUParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.negativeSlope != null && message.hasOwnProperty("negativeSlope"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.negativeSlope);
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.engine);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ReLUParameter message, length delimited. Does not implicitly {@link caffe.ReLUParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {caffe.IReLUParameter} message ReLUParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ReLUParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ReLUParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ReLUParameter} ReLUParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ReLUParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -16625,30 +8134,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ReLUParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ReLUParameter} ReLUParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ReLUParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ReLUParameter message.
-             * @function verify
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ReLUParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -16667,14 +8152,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ReLUParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ReLUParameter} ReLUParameter
-             */
             ReLUParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ReLUParameter)
                     return object;
@@ -16698,15 +8175,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ReLUParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ReLUParameter
-             * @static
-             * @param {caffe.ReLUParameter} message ReLUParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ReLUParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -16722,25 +8190,10 @@
                 return object;
             };
     
-            /**
-             * Converts this ReLUParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ReLUParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ReLUParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * Engine enum.
-             * @name caffe.ReLUParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             ReLUParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -16754,23 +8207,6 @@
     
         caffe.ReshapeParameter = (function() {
     
-            /**
-             * Properties of a ReshapeParameter.
-             * @memberof caffe
-             * @interface IReshapeParameter
-             * @property {caffe.IBlobShape|null} [shape] ReshapeParameter shape
-             * @property {number|null} [axis] ReshapeParameter axis
-             * @property {number|null} [numAxes] ReshapeParameter numAxes
-             */
-    
-            /**
-             * Constructs a new ReshapeParameter.
-             * @memberof caffe
-             * @classdesc Represents a ReshapeParameter.
-             * @implements IReshapeParameter
-             * @constructor
-             * @param {caffe.IReshapeParameter=} [properties] Properties to set
-             */
             function ReshapeParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -16778,87 +8214,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ReshapeParameter shape.
-             * @member {caffe.IBlobShape|null|undefined} shape
-             * @memberof caffe.ReshapeParameter
-             * @instance
-             */
             ReshapeParameter.prototype.shape = null;
-    
-            /**
-             * ReshapeParameter axis.
-             * @member {number} axis
-             * @memberof caffe.ReshapeParameter
-             * @instance
-             */
             ReshapeParameter.prototype.axis = 0;
-    
-            /**
-             * ReshapeParameter numAxes.
-             * @member {number} numAxes
-             * @memberof caffe.ReshapeParameter
-             * @instance
-             */
             ReshapeParameter.prototype.numAxes = -1;
     
-            /**
-             * Creates a new ReshapeParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {caffe.IReshapeParameter=} [properties] Properties to set
-             * @returns {caffe.ReshapeParameter} ReshapeParameter instance
-             */
             ReshapeParameter.create = function create(properties) {
                 return new ReshapeParameter(properties);
             };
     
-            /**
-             * Encodes the specified ReshapeParameter message. Does not implicitly {@link caffe.ReshapeParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {caffe.IReshapeParameter} message ReshapeParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ReshapeParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.shape != null && message.hasOwnProperty("shape"))
-                    $root.caffe.BlobShape.encode(message.shape, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.axis);
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.numAxes);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ReshapeParameter message, length delimited. Does not implicitly {@link caffe.ReshapeParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {caffe.IReshapeParameter} message ReshapeParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ReshapeParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ReshapeParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ReshapeParameter} ReshapeParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ReshapeParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -16883,30 +8246,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ReshapeParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ReshapeParameter} ReshapeParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ReshapeParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ReshapeParameter message.
-             * @function verify
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ReshapeParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -16924,14 +8263,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ReshapeParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ReshapeParameter} ReshapeParameter
-             */
             ReshapeParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ReshapeParameter)
                     return object;
@@ -16948,15 +8279,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ReshapeParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ReshapeParameter
-             * @static
-             * @param {caffe.ReshapeParameter} message ReshapeParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ReshapeParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -16975,13 +8297,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ReshapeParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ReshapeParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ReshapeParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -16991,25 +8306,6 @@
     
         caffe.ScaleParameter = (function() {
     
-            /**
-             * Properties of a ScaleParameter.
-             * @memberof caffe
-             * @interface IScaleParameter
-             * @property {number|null} [axis] ScaleParameter axis
-             * @property {number|null} [numAxes] ScaleParameter numAxes
-             * @property {caffe.IFillerParameter|null} [filler] ScaleParameter filler
-             * @property {boolean|null} [biasTerm] ScaleParameter biasTerm
-             * @property {caffe.IFillerParameter|null} [biasFiller] ScaleParameter biasFiller
-             */
-    
-            /**
-             * Constructs a new ScaleParameter.
-             * @memberof caffe
-             * @classdesc Represents a ScaleParameter.
-             * @implements IScaleParameter
-             * @constructor
-             * @param {caffe.IScaleParameter=} [properties] Properties to set
-             */
             function ScaleParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -17017,107 +8313,16 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ScaleParameter axis.
-             * @member {number} axis
-             * @memberof caffe.ScaleParameter
-             * @instance
-             */
             ScaleParameter.prototype.axis = 1;
-    
-            /**
-             * ScaleParameter numAxes.
-             * @member {number} numAxes
-             * @memberof caffe.ScaleParameter
-             * @instance
-             */
             ScaleParameter.prototype.numAxes = 1;
-    
-            /**
-             * ScaleParameter filler.
-             * @member {caffe.IFillerParameter|null|undefined} filler
-             * @memberof caffe.ScaleParameter
-             * @instance
-             */
             ScaleParameter.prototype.filler = null;
-    
-            /**
-             * ScaleParameter biasTerm.
-             * @member {boolean} biasTerm
-             * @memberof caffe.ScaleParameter
-             * @instance
-             */
             ScaleParameter.prototype.biasTerm = false;
-    
-            /**
-             * ScaleParameter biasFiller.
-             * @member {caffe.IFillerParameter|null|undefined} biasFiller
-             * @memberof caffe.ScaleParameter
-             * @instance
-             */
             ScaleParameter.prototype.biasFiller = null;
     
-            /**
-             * Creates a new ScaleParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {caffe.IScaleParameter=} [properties] Properties to set
-             * @returns {caffe.ScaleParameter} ScaleParameter instance
-             */
             ScaleParameter.create = function create(properties) {
                 return new ScaleParameter(properties);
             };
     
-            /**
-             * Encodes the specified ScaleParameter message. Does not implicitly {@link caffe.ScaleParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {caffe.IScaleParameter} message ScaleParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ScaleParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.axis);
-                if (message.numAxes != null && message.hasOwnProperty("numAxes"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.numAxes);
-                if (message.filler != null && message.hasOwnProperty("filler"))
-                    $root.caffe.FillerParameter.encode(message.filler, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.biasTerm != null && message.hasOwnProperty("biasTerm"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).bool(message.biasTerm);
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    $root.caffe.FillerParameter.encode(message.biasFiller, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ScaleParameter message, length delimited. Does not implicitly {@link caffe.ScaleParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {caffe.IScaleParameter} message ScaleParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ScaleParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ScaleParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ScaleParameter} ScaleParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ScaleParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -17148,30 +8353,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ScaleParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ScaleParameter} ScaleParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ScaleParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ScaleParameter message.
-             * @function verify
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ScaleParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -17197,14 +8378,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ScaleParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ScaleParameter} ScaleParameter
-             */
             ScaleParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ScaleParameter)
                     return object;
@@ -17228,15 +8401,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ScaleParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ScaleParameter
-             * @static
-             * @param {caffe.ScaleParameter} message ScaleParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ScaleParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -17261,13 +8425,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ScaleParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ScaleParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ScaleParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -17277,21 +8434,6 @@
     
         caffe.SigmoidParameter = (function() {
     
-            /**
-             * Properties of a SigmoidParameter.
-             * @memberof caffe
-             * @interface ISigmoidParameter
-             * @property {caffe.SigmoidParameter.Engine|null} [engine] SigmoidParameter engine
-             */
-    
-            /**
-             * Constructs a new SigmoidParameter.
-             * @memberof caffe
-             * @classdesc Represents a SigmoidParameter.
-             * @implements ISigmoidParameter
-             * @constructor
-             * @param {caffe.ISigmoidParameter=} [properties] Properties to set
-             */
             function SigmoidParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -17299,67 +8441,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SigmoidParameter engine.
-             * @member {caffe.SigmoidParameter.Engine} engine
-             * @memberof caffe.SigmoidParameter
-             * @instance
-             */
             SigmoidParameter.prototype.engine = 0;
     
-            /**
-             * Creates a new SigmoidParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {caffe.ISigmoidParameter=} [properties] Properties to set
-             * @returns {caffe.SigmoidParameter} SigmoidParameter instance
-             */
             SigmoidParameter.create = function create(properties) {
                 return new SigmoidParameter(properties);
             };
     
-            /**
-             * Encodes the specified SigmoidParameter message. Does not implicitly {@link caffe.SigmoidParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {caffe.ISigmoidParameter} message SigmoidParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SigmoidParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.engine);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SigmoidParameter message, length delimited. Does not implicitly {@link caffe.SigmoidParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {caffe.ISigmoidParameter} message SigmoidParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SigmoidParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SigmoidParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.SigmoidParameter} SigmoidParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SigmoidParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -17378,30 +8465,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a SigmoidParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.SigmoidParameter} SigmoidParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SigmoidParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SigmoidParameter message.
-             * @function verify
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SigmoidParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -17417,14 +8480,6 @@
                 return null;
             };
     
-            /**
-             * Creates a SigmoidParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.SigmoidParameter} SigmoidParameter
-             */
             SigmoidParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.SigmoidParameter)
                     return object;
@@ -17446,15 +8501,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SigmoidParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.SigmoidParameter
-             * @static
-             * @param {caffe.SigmoidParameter} message SigmoidParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SigmoidParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -17466,25 +8512,10 @@
                 return object;
             };
     
-            /**
-             * Converts this SigmoidParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.SigmoidParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SigmoidParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * Engine enum.
-             * @name caffe.SigmoidParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             SigmoidParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -17498,23 +8529,6 @@
     
         caffe.SliceParameter = (function() {
     
-            /**
-             * Properties of a SliceParameter.
-             * @memberof caffe
-             * @interface ISliceParameter
-             * @property {number|null} [axis] SliceParameter axis
-             * @property {Array.<number>|null} [slicePoint] SliceParameter slicePoint
-             * @property {number|null} [sliceDim] SliceParameter sliceDim
-             */
-    
-            /**
-             * Constructs a new SliceParameter.
-             * @memberof caffe
-             * @classdesc Represents a SliceParameter.
-             * @implements ISliceParameter
-             * @constructor
-             * @param {caffe.ISliceParameter=} [properties] Properties to set
-             */
             function SliceParameter(properties) {
                 this.slicePoint = [];
                 if (properties)
@@ -17523,88 +8537,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SliceParameter axis.
-             * @member {number} axis
-             * @memberof caffe.SliceParameter
-             * @instance
-             */
             SliceParameter.prototype.axis = 1;
-    
-            /**
-             * SliceParameter slicePoint.
-             * @member {Array.<number>} slicePoint
-             * @memberof caffe.SliceParameter
-             * @instance
-             */
             SliceParameter.prototype.slicePoint = $util.emptyArray;
-    
-            /**
-             * SliceParameter sliceDim.
-             * @member {number} sliceDim
-             * @memberof caffe.SliceParameter
-             * @instance
-             */
             SliceParameter.prototype.sliceDim = 1;
     
-            /**
-             * Creates a new SliceParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {caffe.ISliceParameter=} [properties] Properties to set
-             * @returns {caffe.SliceParameter} SliceParameter instance
-             */
             SliceParameter.create = function create(properties) {
                 return new SliceParameter(properties);
             };
     
-            /**
-             * Encodes the specified SliceParameter message. Does not implicitly {@link caffe.SliceParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {caffe.ISliceParameter} message SliceParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SliceParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.sliceDim != null && message.hasOwnProperty("sliceDim"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.sliceDim);
-                if (message.slicePoint != null && message.slicePoint.length)
-                    for (var i = 0; i < message.slicePoint.length; ++i)
-                        writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.slicePoint[i]);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.axis);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SliceParameter message, length delimited. Does not implicitly {@link caffe.SliceParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {caffe.ISliceParameter} message SliceParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SliceParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SliceParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.SliceParameter} SliceParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SliceParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -17636,30 +8576,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a SliceParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.SliceParameter} SliceParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SliceParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SliceParameter message.
-             * @function verify
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SliceParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -17679,14 +8595,6 @@
                 return null;
             };
     
-            /**
-             * Creates a SliceParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.SliceParameter} SliceParameter
-             */
             SliceParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.SliceParameter)
                     return object;
@@ -17705,15 +8613,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SliceParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.SliceParameter
-             * @static
-             * @param {caffe.SliceParameter} message SliceParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SliceParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -17736,13 +8635,6 @@
                 return object;
             };
     
-            /**
-             * Converts this SliceParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.SliceParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SliceParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -17752,22 +8644,6 @@
     
         caffe.SoftmaxParameter = (function() {
     
-            /**
-             * Properties of a SoftmaxParameter.
-             * @memberof caffe
-             * @interface ISoftmaxParameter
-             * @property {caffe.SoftmaxParameter.Engine|null} [engine] SoftmaxParameter engine
-             * @property {number|null} [axis] SoftmaxParameter axis
-             */
-    
-            /**
-             * Constructs a new SoftmaxParameter.
-             * @memberof caffe
-             * @classdesc Represents a SoftmaxParameter.
-             * @implements ISoftmaxParameter
-             * @constructor
-             * @param {caffe.ISoftmaxParameter=} [properties] Properties to set
-             */
             function SoftmaxParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -17775,77 +8651,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SoftmaxParameter engine.
-             * @member {caffe.SoftmaxParameter.Engine} engine
-             * @memberof caffe.SoftmaxParameter
-             * @instance
-             */
             SoftmaxParameter.prototype.engine = 0;
-    
-            /**
-             * SoftmaxParameter axis.
-             * @member {number} axis
-             * @memberof caffe.SoftmaxParameter
-             * @instance
-             */
             SoftmaxParameter.prototype.axis = 1;
     
-            /**
-             * Creates a new SoftmaxParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {caffe.ISoftmaxParameter=} [properties] Properties to set
-             * @returns {caffe.SoftmaxParameter} SoftmaxParameter instance
-             */
             SoftmaxParameter.create = function create(properties) {
                 return new SoftmaxParameter(properties);
             };
     
-            /**
-             * Encodes the specified SoftmaxParameter message. Does not implicitly {@link caffe.SoftmaxParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {caffe.ISoftmaxParameter} message SoftmaxParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SoftmaxParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.engine);
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.axis);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SoftmaxParameter message, length delimited. Does not implicitly {@link caffe.SoftmaxParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {caffe.ISoftmaxParameter} message SoftmaxParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SoftmaxParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SoftmaxParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.SoftmaxParameter} SoftmaxParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SoftmaxParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -17867,30 +8679,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a SoftmaxParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.SoftmaxParameter} SoftmaxParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SoftmaxParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SoftmaxParameter message.
-             * @function verify
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SoftmaxParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -17909,14 +8697,6 @@
                 return null;
             };
     
-            /**
-             * Creates a SoftmaxParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.SoftmaxParameter} SoftmaxParameter
-             */
             SoftmaxParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.SoftmaxParameter)
                     return object;
@@ -17940,15 +8720,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SoftmaxParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.SoftmaxParameter
-             * @static
-             * @param {caffe.SoftmaxParameter} message SoftmaxParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SoftmaxParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -17964,25 +8735,10 @@
                 return object;
             };
     
-            /**
-             * Converts this SoftmaxParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.SoftmaxParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SoftmaxParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * Engine enum.
-             * @name caffe.SoftmaxParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             SoftmaxParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -17996,21 +8752,6 @@
     
         caffe.SwishParameter = (function() {
     
-            /**
-             * Properties of a SwishParameter.
-             * @memberof caffe
-             * @interface ISwishParameter
-             * @property {number|null} [beta] SwishParameter beta
-             */
-    
-            /**
-             * Constructs a new SwishParameter.
-             * @memberof caffe
-             * @classdesc Represents a SwishParameter.
-             * @implements ISwishParameter
-             * @constructor
-             * @param {caffe.ISwishParameter=} [properties] Properties to set
-             */
             function SwishParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -18018,67 +8759,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SwishParameter beta.
-             * @member {number} beta
-             * @memberof caffe.SwishParameter
-             * @instance
-             */
             SwishParameter.prototype.beta = 1;
     
-            /**
-             * Creates a new SwishParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {caffe.ISwishParameter=} [properties] Properties to set
-             * @returns {caffe.SwishParameter} SwishParameter instance
-             */
             SwishParameter.create = function create(properties) {
                 return new SwishParameter(properties);
             };
     
-            /**
-             * Encodes the specified SwishParameter message. Does not implicitly {@link caffe.SwishParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {caffe.ISwishParameter} message SwishParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SwishParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.beta != null && message.hasOwnProperty("beta"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.beta);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SwishParameter message, length delimited. Does not implicitly {@link caffe.SwishParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {caffe.ISwishParameter} message SwishParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SwishParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SwishParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.SwishParameter} SwishParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SwishParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -18097,30 +8783,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a SwishParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.SwishParameter} SwishParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SwishParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SwishParameter message.
-             * @function verify
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SwishParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -18130,14 +8792,6 @@
                 return null;
             };
     
-            /**
-             * Creates a SwishParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.SwishParameter} SwishParameter
-             */
             SwishParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.SwishParameter)
                     return object;
@@ -18147,15 +8801,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SwishParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.SwishParameter
-             * @static
-             * @param {caffe.SwishParameter} message SwishParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SwishParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -18167,13 +8812,6 @@
                 return object;
             };
     
-            /**
-             * Converts this SwishParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.SwishParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SwishParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -18183,21 +8821,6 @@
     
         caffe.TanHParameter = (function() {
     
-            /**
-             * Properties of a TanHParameter.
-             * @memberof caffe
-             * @interface ITanHParameter
-             * @property {caffe.TanHParameter.Engine|null} [engine] TanHParameter engine
-             */
-    
-            /**
-             * Constructs a new TanHParameter.
-             * @memberof caffe
-             * @classdesc Represents a TanHParameter.
-             * @implements ITanHParameter
-             * @constructor
-             * @param {caffe.ITanHParameter=} [properties] Properties to set
-             */
             function TanHParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -18205,67 +8828,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TanHParameter engine.
-             * @member {caffe.TanHParameter.Engine} engine
-             * @memberof caffe.TanHParameter
-             * @instance
-             */
             TanHParameter.prototype.engine = 0;
     
-            /**
-             * Creates a new TanHParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {caffe.ITanHParameter=} [properties] Properties to set
-             * @returns {caffe.TanHParameter} TanHParameter instance
-             */
             TanHParameter.create = function create(properties) {
                 return new TanHParameter(properties);
             };
     
-            /**
-             * Encodes the specified TanHParameter message. Does not implicitly {@link caffe.TanHParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {caffe.ITanHParameter} message TanHParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TanHParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.engine);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TanHParameter message, length delimited. Does not implicitly {@link caffe.TanHParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {caffe.ITanHParameter} message TanHParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TanHParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TanHParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.TanHParameter} TanHParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TanHParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -18284,30 +8852,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a TanHParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.TanHParameter} TanHParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TanHParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a TanHParameter message.
-             * @function verify
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TanHParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -18323,14 +8867,6 @@
                 return null;
             };
     
-            /**
-             * Creates a TanHParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.TanHParameter} TanHParameter
-             */
             TanHParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.TanHParameter)
                     return object;
@@ -18352,15 +8888,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TanHParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.TanHParameter
-             * @static
-             * @param {caffe.TanHParameter} message TanHParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TanHParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -18372,25 +8899,10 @@
                 return object;
             };
     
-            /**
-             * Converts this TanHParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.TanHParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TanHParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * Engine enum.
-             * @name caffe.TanHParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             TanHParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -18404,22 +8916,6 @@
     
         caffe.TileParameter = (function() {
     
-            /**
-             * Properties of a TileParameter.
-             * @memberof caffe
-             * @interface ITileParameter
-             * @property {number|null} [axis] TileParameter axis
-             * @property {number|null} [tiles] TileParameter tiles
-             */
-    
-            /**
-             * Constructs a new TileParameter.
-             * @memberof caffe
-             * @classdesc Represents a TileParameter.
-             * @implements ITileParameter
-             * @constructor
-             * @param {caffe.ITileParameter=} [properties] Properties to set
-             */
             function TileParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -18427,77 +8923,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TileParameter axis.
-             * @member {number} axis
-             * @memberof caffe.TileParameter
-             * @instance
-             */
             TileParameter.prototype.axis = 1;
-    
-            /**
-             * TileParameter tiles.
-             * @member {number} tiles
-             * @memberof caffe.TileParameter
-             * @instance
-             */
             TileParameter.prototype.tiles = 0;
     
-            /**
-             * Creates a new TileParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {caffe.ITileParameter=} [properties] Properties to set
-             * @returns {caffe.TileParameter} TileParameter instance
-             */
             TileParameter.create = function create(properties) {
                 return new TileParameter(properties);
             };
     
-            /**
-             * Encodes the specified TileParameter message. Does not implicitly {@link caffe.TileParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {caffe.ITileParameter} message TileParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TileParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.axis != null && message.hasOwnProperty("axis"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.axis);
-                if (message.tiles != null && message.hasOwnProperty("tiles"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.tiles);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TileParameter message, length delimited. Does not implicitly {@link caffe.TileParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {caffe.ITileParameter} message TileParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TileParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TileParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.TileParameter} TileParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TileParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -18519,30 +8951,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a TileParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.TileParameter} TileParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TileParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a TileParameter message.
-             * @function verify
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TileParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -18555,14 +8963,6 @@
                 return null;
             };
     
-            /**
-             * Creates a TileParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.TileParameter} TileParameter
-             */
             TileParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.TileParameter)
                     return object;
@@ -18574,15 +8974,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TileParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.TileParameter
-             * @static
-             * @param {caffe.TileParameter} message TileParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TileParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -18598,13 +8989,6 @@
                 return object;
             };
     
-            /**
-             * Converts this TileParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.TileParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TileParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -18614,21 +8998,6 @@
     
         caffe.ThresholdParameter = (function() {
     
-            /**
-             * Properties of a ThresholdParameter.
-             * @memberof caffe
-             * @interface IThresholdParameter
-             * @property {number|null} [threshold] ThresholdParameter threshold
-             */
-    
-            /**
-             * Constructs a new ThresholdParameter.
-             * @memberof caffe
-             * @classdesc Represents a ThresholdParameter.
-             * @implements IThresholdParameter
-             * @constructor
-             * @param {caffe.IThresholdParameter=} [properties] Properties to set
-             */
             function ThresholdParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -18636,67 +9005,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ThresholdParameter threshold.
-             * @member {number} threshold
-             * @memberof caffe.ThresholdParameter
-             * @instance
-             */
             ThresholdParameter.prototype.threshold = 0;
     
-            /**
-             * Creates a new ThresholdParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {caffe.IThresholdParameter=} [properties] Properties to set
-             * @returns {caffe.ThresholdParameter} ThresholdParameter instance
-             */
             ThresholdParameter.create = function create(properties) {
                 return new ThresholdParameter(properties);
             };
     
-            /**
-             * Encodes the specified ThresholdParameter message. Does not implicitly {@link caffe.ThresholdParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {caffe.IThresholdParameter} message ThresholdParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ThresholdParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.threshold != null && message.hasOwnProperty("threshold"))
-                    writer.uint32(/* id 1, wireType 5 =*/13).float(message.threshold);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ThresholdParameter message, length delimited. Does not implicitly {@link caffe.ThresholdParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {caffe.IThresholdParameter} message ThresholdParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ThresholdParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ThresholdParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.ThresholdParameter} ThresholdParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ThresholdParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -18715,30 +9029,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ThresholdParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.ThresholdParameter} ThresholdParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ThresholdParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ThresholdParameter message.
-             * @function verify
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ThresholdParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -18748,14 +9038,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ThresholdParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.ThresholdParameter} ThresholdParameter
-             */
             ThresholdParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.ThresholdParameter)
                     return object;
@@ -18765,15 +9047,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ThresholdParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.ThresholdParameter
-             * @static
-             * @param {caffe.ThresholdParameter} message ThresholdParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ThresholdParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -18785,13 +9058,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ThresholdParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.ThresholdParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ThresholdParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -18801,33 +9067,6 @@
     
         caffe.WindowDataParameter = (function() {
     
-            /**
-             * Properties of a WindowDataParameter.
-             * @memberof caffe
-             * @interface IWindowDataParameter
-             * @property {string|null} [source] WindowDataParameter source
-             * @property {number|null} [scale] WindowDataParameter scale
-             * @property {string|null} [meanFile] WindowDataParameter meanFile
-             * @property {number|null} [batchSize] WindowDataParameter batchSize
-             * @property {number|null} [cropSize] WindowDataParameter cropSize
-             * @property {boolean|null} [mirror] WindowDataParameter mirror
-             * @property {number|null} [fgThreshold] WindowDataParameter fgThreshold
-             * @property {number|null} [bgThreshold] WindowDataParameter bgThreshold
-             * @property {number|null} [fgFraction] WindowDataParameter fgFraction
-             * @property {number|null} [contextPad] WindowDataParameter contextPad
-             * @property {string|null} [cropMode] WindowDataParameter cropMode
-             * @property {boolean|null} [cacheImages] WindowDataParameter cacheImages
-             * @property {string|null} [rootFolder] WindowDataParameter rootFolder
-             */
-    
-            /**
-             * Constructs a new WindowDataParameter.
-             * @memberof caffe
-             * @classdesc Represents a WindowDataParameter.
-             * @implements IWindowDataParameter
-             * @constructor
-             * @param {caffe.IWindowDataParameter=} [properties] Properties to set
-             */
             function WindowDataParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -18835,187 +9074,24 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * WindowDataParameter source.
-             * @member {string} source
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.source = "";
-    
-            /**
-             * WindowDataParameter scale.
-             * @member {number} scale
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.scale = 1;
-    
-            /**
-             * WindowDataParameter meanFile.
-             * @member {string} meanFile
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.meanFile = "";
-    
-            /**
-             * WindowDataParameter batchSize.
-             * @member {number} batchSize
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.batchSize = 0;
-    
-            /**
-             * WindowDataParameter cropSize.
-             * @member {number} cropSize
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.cropSize = 0;
-    
-            /**
-             * WindowDataParameter mirror.
-             * @member {boolean} mirror
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.mirror = false;
-    
-            /**
-             * WindowDataParameter fgThreshold.
-             * @member {number} fgThreshold
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.fgThreshold = 0.5;
-    
-            /**
-             * WindowDataParameter bgThreshold.
-             * @member {number} bgThreshold
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.bgThreshold = 0.5;
-    
-            /**
-             * WindowDataParameter fgFraction.
-             * @member {number} fgFraction
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.fgFraction = 0.25;
-    
-            /**
-             * WindowDataParameter contextPad.
-             * @member {number} contextPad
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.contextPad = 0;
-    
-            /**
-             * WindowDataParameter cropMode.
-             * @member {string} cropMode
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.cropMode = "warp";
-    
-            /**
-             * WindowDataParameter cacheImages.
-             * @member {boolean} cacheImages
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.cacheImages = false;
-    
-            /**
-             * WindowDataParameter rootFolder.
-             * @member {string} rootFolder
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             */
             WindowDataParameter.prototype.rootFolder = "";
     
-            /**
-             * Creates a new WindowDataParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {caffe.IWindowDataParameter=} [properties] Properties to set
-             * @returns {caffe.WindowDataParameter} WindowDataParameter instance
-             */
             WindowDataParameter.create = function create(properties) {
                 return new WindowDataParameter(properties);
             };
     
-            /**
-             * Encodes the specified WindowDataParameter message. Does not implicitly {@link caffe.WindowDataParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {caffe.IWindowDataParameter} message WindowDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            WindowDataParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.source != null && message.hasOwnProperty("source"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.source);
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.scale);
-                if (message.meanFile != null && message.hasOwnProperty("meanFile"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.meanFile);
-                if (message.batchSize != null && message.hasOwnProperty("batchSize"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).uint32(message.batchSize);
-                if (message.cropSize != null && message.hasOwnProperty("cropSize"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).uint32(message.cropSize);
-                if (message.mirror != null && message.hasOwnProperty("mirror"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).bool(message.mirror);
-                if (message.fgThreshold != null && message.hasOwnProperty("fgThreshold"))
-                    writer.uint32(/* id 7, wireType 5 =*/61).float(message.fgThreshold);
-                if (message.bgThreshold != null && message.hasOwnProperty("bgThreshold"))
-                    writer.uint32(/* id 8, wireType 5 =*/69).float(message.bgThreshold);
-                if (message.fgFraction != null && message.hasOwnProperty("fgFraction"))
-                    writer.uint32(/* id 9, wireType 5 =*/77).float(message.fgFraction);
-                if (message.contextPad != null && message.hasOwnProperty("contextPad"))
-                    writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.contextPad);
-                if (message.cropMode != null && message.hasOwnProperty("cropMode"))
-                    writer.uint32(/* id 11, wireType 2 =*/90).string(message.cropMode);
-                if (message.cacheImages != null && message.hasOwnProperty("cacheImages"))
-                    writer.uint32(/* id 12, wireType 0 =*/96).bool(message.cacheImages);
-                if (message.rootFolder != null && message.hasOwnProperty("rootFolder"))
-                    writer.uint32(/* id 13, wireType 2 =*/106).string(message.rootFolder);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified WindowDataParameter message, length delimited. Does not implicitly {@link caffe.WindowDataParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {caffe.IWindowDataParameter} message WindowDataParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            WindowDataParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a WindowDataParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.WindowDataParameter} WindowDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             WindowDataParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -19070,30 +9146,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a WindowDataParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.WindowDataParameter} WindowDataParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            WindowDataParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a WindowDataParameter message.
-             * @function verify
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             WindowDataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -19139,14 +9191,6 @@
                 return null;
             };
     
-            /**
-             * Creates a WindowDataParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.WindowDataParameter} WindowDataParameter
-             */
             WindowDataParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.WindowDataParameter)
                     return object;
@@ -19180,15 +9224,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a WindowDataParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.WindowDataParameter
-             * @static
-             * @param {caffe.WindowDataParameter} message WindowDataParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             WindowDataParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -19237,13 +9272,6 @@
                 return object;
             };
     
-            /**
-             * Converts this WindowDataParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.WindowDataParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             WindowDataParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -19253,23 +9281,6 @@
     
         caffe.SPPParameter = (function() {
     
-            /**
-             * Properties of a SPPParameter.
-             * @memberof caffe
-             * @interface ISPPParameter
-             * @property {number|null} [pyramidHeight] SPPParameter pyramidHeight
-             * @property {caffe.SPPParameter.PoolMethod|null} [pool] SPPParameter pool
-             * @property {caffe.SPPParameter.Engine|null} [engine] SPPParameter engine
-             */
-    
-            /**
-             * Constructs a new SPPParameter.
-             * @memberof caffe
-             * @classdesc Represents a SPPParameter.
-             * @implements ISPPParameter
-             * @constructor
-             * @param {caffe.ISPPParameter=} [properties] Properties to set
-             */
             function SPPParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -19277,87 +9288,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SPPParameter pyramidHeight.
-             * @member {number} pyramidHeight
-             * @memberof caffe.SPPParameter
-             * @instance
-             */
             SPPParameter.prototype.pyramidHeight = 0;
-    
-            /**
-             * SPPParameter pool.
-             * @member {caffe.SPPParameter.PoolMethod} pool
-             * @memberof caffe.SPPParameter
-             * @instance
-             */
             SPPParameter.prototype.pool = 0;
-    
-            /**
-             * SPPParameter engine.
-             * @member {caffe.SPPParameter.Engine} engine
-             * @memberof caffe.SPPParameter
-             * @instance
-             */
             SPPParameter.prototype.engine = 0;
     
-            /**
-             * Creates a new SPPParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {caffe.ISPPParameter=} [properties] Properties to set
-             * @returns {caffe.SPPParameter} SPPParameter instance
-             */
             SPPParameter.create = function create(properties) {
                 return new SPPParameter(properties);
             };
     
-            /**
-             * Encodes the specified SPPParameter message. Does not implicitly {@link caffe.SPPParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {caffe.ISPPParameter} message SPPParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SPPParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.pyramidHeight != null && message.hasOwnProperty("pyramidHeight"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.pyramidHeight);
-                if (message.pool != null && message.hasOwnProperty("pool"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.pool);
-                if (message.engine != null && message.hasOwnProperty("engine"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).int32(message.engine);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SPPParameter message, length delimited. Does not implicitly {@link caffe.SPPParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {caffe.ISPPParameter} message SPPParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SPPParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SPPParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.SPPParameter} SPPParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SPPParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -19382,30 +9320,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a SPPParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.SPPParameter} SPPParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SPPParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SPPParameter message.
-             * @function verify
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SPPParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -19433,14 +9347,6 @@
                 return null;
             };
     
-            /**
-             * Creates a SPPParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.SPPParameter} SPPParameter
-             */
             SPPParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.SPPParameter)
                     return object;
@@ -19478,15 +9384,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SPPParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.SPPParameter
-             * @static
-             * @param {caffe.SPPParameter} message SPPParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SPPParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -19505,25 +9402,10 @@
                 return object;
             };
     
-            /**
-             * Converts this SPPParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.SPPParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SPPParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * PoolMethod enum.
-             * @name caffe.SPPParameter.PoolMethod
-             * @enum {string}
-             * @property {number} MAX=0 MAX value
-             * @property {number} AVE=1 AVE value
-             * @property {number} STOCHASTIC=2 STOCHASTIC value
-             */
             SPPParameter.PoolMethod = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "MAX"] = 0;
@@ -19532,14 +9414,6 @@
                 return values;
             })();
     
-            /**
-             * Engine enum.
-             * @name caffe.SPPParameter.Engine
-             * @enum {string}
-             * @property {number} DEFAULT=0 DEFAULT value
-             * @property {number} CAFFE=1 CAFFE value
-             * @property {number} CUDNN=2 CUDNN value
-             */
             SPPParameter.Engine = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "DEFAULT"] = 0;
@@ -19553,63 +9427,6 @@
     
         caffe.V1LayerParameter = (function() {
     
-            /**
-             * Properties of a V1LayerParameter.
-             * @memberof caffe
-             * @interface IV1LayerParameter
-             * @property {Array.<string>|null} [bottom] V1LayerParameter bottom
-             * @property {Array.<string>|null} [top] V1LayerParameter top
-             * @property {string|null} [name] V1LayerParameter name
-             * @property {Array.<caffe.INetStateRule>|null} [include] V1LayerParameter include
-             * @property {Array.<caffe.INetStateRule>|null} [exclude] V1LayerParameter exclude
-             * @property {caffe.V1LayerParameter.LayerType|null} [type] V1LayerParameter type
-             * @property {Array.<caffe.IBlobProto>|null} [blobs] V1LayerParameter blobs
-             * @property {Array.<string>|null} [param] V1LayerParameter param
-             * @property {Array.<caffe.V1LayerParameter.DimCheckMode>|null} [blobShareMode] V1LayerParameter blobShareMode
-             * @property {Array.<number>|null} [blobsLr] V1LayerParameter blobsLr
-             * @property {Array.<number>|null} [weightDecay] V1LayerParameter weightDecay
-             * @property {Array.<number>|null} [lossWeight] V1LayerParameter lossWeight
-             * @property {caffe.IAccuracyParameter|null} [accuracyParam] V1LayerParameter accuracyParam
-             * @property {caffe.IArgMaxParameter|null} [argmaxParam] V1LayerParameter argmaxParam
-             * @property {caffe.IConcatParameter|null} [concatParam] V1LayerParameter concatParam
-             * @property {caffe.IContrastiveLossParameter|null} [contrastiveLossParam] V1LayerParameter contrastiveLossParam
-             * @property {caffe.IConvolutionParameter|null} [convolutionParam] V1LayerParameter convolutionParam
-             * @property {caffe.IDataParameter|null} [dataParam] V1LayerParameter dataParam
-             * @property {caffe.IDropoutParameter|null} [dropoutParam] V1LayerParameter dropoutParam
-             * @property {caffe.IDummyDataParameter|null} [dummyDataParam] V1LayerParameter dummyDataParam
-             * @property {caffe.IEltwiseParameter|null} [eltwiseParam] V1LayerParameter eltwiseParam
-             * @property {caffe.IExpParameter|null} [expParam] V1LayerParameter expParam
-             * @property {caffe.IHDF5DataParameter|null} [hdf5DataParam] V1LayerParameter hdf5DataParam
-             * @property {caffe.IHDF5OutputParameter|null} [hdf5OutputParam] V1LayerParameter hdf5OutputParam
-             * @property {caffe.IHingeLossParameter|null} [hingeLossParam] V1LayerParameter hingeLossParam
-             * @property {caffe.IImageDataParameter|null} [imageDataParam] V1LayerParameter imageDataParam
-             * @property {caffe.IInfogainLossParameter|null} [infogainLossParam] V1LayerParameter infogainLossParam
-             * @property {caffe.IInnerProductParameter|null} [innerProductParam] V1LayerParameter innerProductParam
-             * @property {caffe.ILRNParameter|null} [lrnParam] V1LayerParameter lrnParam
-             * @property {caffe.IMemoryDataParameter|null} [memoryDataParam] V1LayerParameter memoryDataParam
-             * @property {caffe.IMVNParameter|null} [mvnParam] V1LayerParameter mvnParam
-             * @property {caffe.IPoolingParameter|null} [poolingParam] V1LayerParameter poolingParam
-             * @property {caffe.IPowerParameter|null} [powerParam] V1LayerParameter powerParam
-             * @property {caffe.IReLUParameter|null} [reluParam] V1LayerParameter reluParam
-             * @property {caffe.ISigmoidParameter|null} [sigmoidParam] V1LayerParameter sigmoidParam
-             * @property {caffe.ISoftmaxParameter|null} [softmaxParam] V1LayerParameter softmaxParam
-             * @property {caffe.ISliceParameter|null} [sliceParam] V1LayerParameter sliceParam
-             * @property {caffe.ITanHParameter|null} [tanhParam] V1LayerParameter tanhParam
-             * @property {caffe.IThresholdParameter|null} [thresholdParam] V1LayerParameter thresholdParam
-             * @property {caffe.IWindowDataParameter|null} [windowDataParam] V1LayerParameter windowDataParam
-             * @property {caffe.ITransformationParameter|null} [transformParam] V1LayerParameter transformParam
-             * @property {caffe.ILossParameter|null} [lossParam] V1LayerParameter lossParam
-             * @property {caffe.IV0LayerParameter|null} [layer] V1LayerParameter layer
-             */
-    
-            /**
-             * Constructs a new V1LayerParameter.
-             * @memberof caffe
-             * @classdesc Represents a V1LayerParameter.
-             * @implements IV1LayerParameter
-             * @constructor
-             * @param {caffe.IV1LayerParameter=} [properties] Properties to set
-             */
             function V1LayerParameter(properties) {
                 this.bottom = [];
                 this.top = [];
@@ -19627,497 +9444,54 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * V1LayerParameter bottom.
-             * @member {Array.<string>} bottom
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.bottom = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter top.
-             * @member {Array.<string>} top
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.top = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter name.
-             * @member {string} name
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.name = "";
-    
-            /**
-             * V1LayerParameter include.
-             * @member {Array.<caffe.INetStateRule>} include
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.include = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter exclude.
-             * @member {Array.<caffe.INetStateRule>} exclude
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.exclude = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter type.
-             * @member {caffe.V1LayerParameter.LayerType} type
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.type = 0;
-    
-            /**
-             * V1LayerParameter blobs.
-             * @member {Array.<caffe.IBlobProto>} blobs
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.blobs = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter param.
-             * @member {Array.<string>} param
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.param = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter blobShareMode.
-             * @member {Array.<caffe.V1LayerParameter.DimCheckMode>} blobShareMode
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.blobShareMode = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter blobsLr.
-             * @member {Array.<number>} blobsLr
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.blobsLr = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter weightDecay.
-             * @member {Array.<number>} weightDecay
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.weightDecay = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter lossWeight.
-             * @member {Array.<number>} lossWeight
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.lossWeight = $util.emptyArray;
-    
-            /**
-             * V1LayerParameter accuracyParam.
-             * @member {caffe.IAccuracyParameter|null|undefined} accuracyParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.accuracyParam = null;
-    
-            /**
-             * V1LayerParameter argmaxParam.
-             * @member {caffe.IArgMaxParameter|null|undefined} argmaxParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.argmaxParam = null;
-    
-            /**
-             * V1LayerParameter concatParam.
-             * @member {caffe.IConcatParameter|null|undefined} concatParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.concatParam = null;
-    
-            /**
-             * V1LayerParameter contrastiveLossParam.
-             * @member {caffe.IContrastiveLossParameter|null|undefined} contrastiveLossParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.contrastiveLossParam = null;
-    
-            /**
-             * V1LayerParameter convolutionParam.
-             * @member {caffe.IConvolutionParameter|null|undefined} convolutionParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.convolutionParam = null;
-    
-            /**
-             * V1LayerParameter dataParam.
-             * @member {caffe.IDataParameter|null|undefined} dataParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.dataParam = null;
-    
-            /**
-             * V1LayerParameter dropoutParam.
-             * @member {caffe.IDropoutParameter|null|undefined} dropoutParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.dropoutParam = null;
-    
-            /**
-             * V1LayerParameter dummyDataParam.
-             * @member {caffe.IDummyDataParameter|null|undefined} dummyDataParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.dummyDataParam = null;
-    
-            /**
-             * V1LayerParameter eltwiseParam.
-             * @member {caffe.IEltwiseParameter|null|undefined} eltwiseParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.eltwiseParam = null;
-    
-            /**
-             * V1LayerParameter expParam.
-             * @member {caffe.IExpParameter|null|undefined} expParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.expParam = null;
-    
-            /**
-             * V1LayerParameter hdf5DataParam.
-             * @member {caffe.IHDF5DataParameter|null|undefined} hdf5DataParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.hdf5DataParam = null;
-    
-            /**
-             * V1LayerParameter hdf5OutputParam.
-             * @member {caffe.IHDF5OutputParameter|null|undefined} hdf5OutputParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.hdf5OutputParam = null;
-    
-            /**
-             * V1LayerParameter hingeLossParam.
-             * @member {caffe.IHingeLossParameter|null|undefined} hingeLossParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.hingeLossParam = null;
-    
-            /**
-             * V1LayerParameter imageDataParam.
-             * @member {caffe.IImageDataParameter|null|undefined} imageDataParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.imageDataParam = null;
-    
-            /**
-             * V1LayerParameter infogainLossParam.
-             * @member {caffe.IInfogainLossParameter|null|undefined} infogainLossParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.infogainLossParam = null;
-    
-            /**
-             * V1LayerParameter innerProductParam.
-             * @member {caffe.IInnerProductParameter|null|undefined} innerProductParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.innerProductParam = null;
-    
-            /**
-             * V1LayerParameter lrnParam.
-             * @member {caffe.ILRNParameter|null|undefined} lrnParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.lrnParam = null;
-    
-            /**
-             * V1LayerParameter memoryDataParam.
-             * @member {caffe.IMemoryDataParameter|null|undefined} memoryDataParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.memoryDataParam = null;
-    
-            /**
-             * V1LayerParameter mvnParam.
-             * @member {caffe.IMVNParameter|null|undefined} mvnParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.mvnParam = null;
-    
-            /**
-             * V1LayerParameter poolingParam.
-             * @member {caffe.IPoolingParameter|null|undefined} poolingParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.poolingParam = null;
-    
-            /**
-             * V1LayerParameter powerParam.
-             * @member {caffe.IPowerParameter|null|undefined} powerParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.powerParam = null;
-    
-            /**
-             * V1LayerParameter reluParam.
-             * @member {caffe.IReLUParameter|null|undefined} reluParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.reluParam = null;
-    
-            /**
-             * V1LayerParameter sigmoidParam.
-             * @member {caffe.ISigmoidParameter|null|undefined} sigmoidParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.sigmoidParam = null;
-    
-            /**
-             * V1LayerParameter softmaxParam.
-             * @member {caffe.ISoftmaxParameter|null|undefined} softmaxParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.softmaxParam = null;
-    
-            /**
-             * V1LayerParameter sliceParam.
-             * @member {caffe.ISliceParameter|null|undefined} sliceParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.sliceParam = null;
-    
-            /**
-             * V1LayerParameter tanhParam.
-             * @member {caffe.ITanHParameter|null|undefined} tanhParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.tanhParam = null;
-    
-            /**
-             * V1LayerParameter thresholdParam.
-             * @member {caffe.IThresholdParameter|null|undefined} thresholdParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.thresholdParam = null;
-    
-            /**
-             * V1LayerParameter windowDataParam.
-             * @member {caffe.IWindowDataParameter|null|undefined} windowDataParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.windowDataParam = null;
-    
-            /**
-             * V1LayerParameter transformParam.
-             * @member {caffe.ITransformationParameter|null|undefined} transformParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.transformParam = null;
-    
-            /**
-             * V1LayerParameter lossParam.
-             * @member {caffe.ILossParameter|null|undefined} lossParam
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.lossParam = null;
-    
-            /**
-             * V1LayerParameter layer.
-             * @member {caffe.IV0LayerParameter|null|undefined} layer
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             */
             V1LayerParameter.prototype.layer = null;
     
-            /**
-             * Creates a new V1LayerParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {caffe.IV1LayerParameter=} [properties] Properties to set
-             * @returns {caffe.V1LayerParameter} V1LayerParameter instance
-             */
             V1LayerParameter.create = function create(properties) {
                 return new V1LayerParameter(properties);
             };
     
-            /**
-             * Encodes the specified V1LayerParameter message. Does not implicitly {@link caffe.V1LayerParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {caffe.IV1LayerParameter} message V1LayerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            V1LayerParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.layer != null && message.hasOwnProperty("layer"))
-                    $root.caffe.V0LayerParameter.encode(message.layer, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.bottom != null && message.bottom.length)
-                    for (var i = 0; i < message.bottom.length; ++i)
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.bottom[i]);
-                if (message.top != null && message.top.length)
-                    for (var i = 0; i < message.top.length; ++i)
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.top[i]);
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.name);
-                if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).int32(message.type);
-                if (message.blobs != null && message.blobs.length)
-                    for (var i = 0; i < message.blobs.length; ++i)
-                        $root.caffe.BlobProto.encode(message.blobs[i], writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                if (message.blobsLr != null && message.blobsLr.length)
-                    for (var i = 0; i < message.blobsLr.length; ++i)
-                        writer.uint32(/* id 7, wireType 5 =*/61).float(message.blobsLr[i]);
-                if (message.weightDecay != null && message.weightDecay.length)
-                    for (var i = 0; i < message.weightDecay.length; ++i)
-                        writer.uint32(/* id 8, wireType 5 =*/69).float(message.weightDecay[i]);
-                if (message.concatParam != null && message.hasOwnProperty("concatParam"))
-                    $root.caffe.ConcatParameter.encode(message.concatParam, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
-                if (message.convolutionParam != null && message.hasOwnProperty("convolutionParam"))
-                    $root.caffe.ConvolutionParameter.encode(message.convolutionParam, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
-                if (message.dataParam != null && message.hasOwnProperty("dataParam"))
-                    $root.caffe.DataParameter.encode(message.dataParam, writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
-                if (message.dropoutParam != null && message.hasOwnProperty("dropoutParam"))
-                    $root.caffe.DropoutParameter.encode(message.dropoutParam, writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
-                if (message.hdf5DataParam != null && message.hasOwnProperty("hdf5DataParam"))
-                    $root.caffe.HDF5DataParameter.encode(message.hdf5DataParam, writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam"))
-                    $root.caffe.HDF5OutputParameter.encode(message.hdf5OutputParam, writer.uint32(/* id 14, wireType 2 =*/114).fork()).ldelim();
-                if (message.imageDataParam != null && message.hasOwnProperty("imageDataParam"))
-                    $root.caffe.ImageDataParameter.encode(message.imageDataParam, writer.uint32(/* id 15, wireType 2 =*/122).fork()).ldelim();
-                if (message.infogainLossParam != null && message.hasOwnProperty("infogainLossParam"))
-                    $root.caffe.InfogainLossParameter.encode(message.infogainLossParam, writer.uint32(/* id 16, wireType 2 =*/130).fork()).ldelim();
-                if (message.innerProductParam != null && message.hasOwnProperty("innerProductParam"))
-                    $root.caffe.InnerProductParameter.encode(message.innerProductParam, writer.uint32(/* id 17, wireType 2 =*/138).fork()).ldelim();
-                if (message.lrnParam != null && message.hasOwnProperty("lrnParam"))
-                    $root.caffe.LRNParameter.encode(message.lrnParam, writer.uint32(/* id 18, wireType 2 =*/146).fork()).ldelim();
-                if (message.poolingParam != null && message.hasOwnProperty("poolingParam"))
-                    $root.caffe.PoolingParameter.encode(message.poolingParam, writer.uint32(/* id 19, wireType 2 =*/154).fork()).ldelim();
-                if (message.windowDataParam != null && message.hasOwnProperty("windowDataParam"))
-                    $root.caffe.WindowDataParameter.encode(message.windowDataParam, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
-                if (message.powerParam != null && message.hasOwnProperty("powerParam"))
-                    $root.caffe.PowerParameter.encode(message.powerParam, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
-                if (message.memoryDataParam != null && message.hasOwnProperty("memoryDataParam"))
-                    $root.caffe.MemoryDataParameter.encode(message.memoryDataParam, writer.uint32(/* id 22, wireType 2 =*/178).fork()).ldelim();
-                if (message.argmaxParam != null && message.hasOwnProperty("argmaxParam"))
-                    $root.caffe.ArgMaxParameter.encode(message.argmaxParam, writer.uint32(/* id 23, wireType 2 =*/186).fork()).ldelim();
-                if (message.eltwiseParam != null && message.hasOwnProperty("eltwiseParam"))
-                    $root.caffe.EltwiseParameter.encode(message.eltwiseParam, writer.uint32(/* id 24, wireType 2 =*/194).fork()).ldelim();
-                if (message.thresholdParam != null && message.hasOwnProperty("thresholdParam"))
-                    $root.caffe.ThresholdParameter.encode(message.thresholdParam, writer.uint32(/* id 25, wireType 2 =*/202).fork()).ldelim();
-                if (message.dummyDataParam != null && message.hasOwnProperty("dummyDataParam"))
-                    $root.caffe.DummyDataParameter.encode(message.dummyDataParam, writer.uint32(/* id 26, wireType 2 =*/210).fork()).ldelim();
-                if (message.accuracyParam != null && message.hasOwnProperty("accuracyParam"))
-                    $root.caffe.AccuracyParameter.encode(message.accuracyParam, writer.uint32(/* id 27, wireType 2 =*/218).fork()).ldelim();
-                if (message.hingeLossParam != null && message.hasOwnProperty("hingeLossParam"))
-                    $root.caffe.HingeLossParameter.encode(message.hingeLossParam, writer.uint32(/* id 29, wireType 2 =*/234).fork()).ldelim();
-                if (message.reluParam != null && message.hasOwnProperty("reluParam"))
-                    $root.caffe.ReLUParameter.encode(message.reluParam, writer.uint32(/* id 30, wireType 2 =*/242).fork()).ldelim();
-                if (message.sliceParam != null && message.hasOwnProperty("sliceParam"))
-                    $root.caffe.SliceParameter.encode(message.sliceParam, writer.uint32(/* id 31, wireType 2 =*/250).fork()).ldelim();
-                if (message.include != null && message.include.length)
-                    for (var i = 0; i < message.include.length; ++i)
-                        $root.caffe.NetStateRule.encode(message.include[i], writer.uint32(/* id 32, wireType 2 =*/258).fork()).ldelim();
-                if (message.exclude != null && message.exclude.length)
-                    for (var i = 0; i < message.exclude.length; ++i)
-                        $root.caffe.NetStateRule.encode(message.exclude[i], writer.uint32(/* id 33, wireType 2 =*/266).fork()).ldelim();
-                if (message.mvnParam != null && message.hasOwnProperty("mvnParam"))
-                    $root.caffe.MVNParameter.encode(message.mvnParam, writer.uint32(/* id 34, wireType 2 =*/274).fork()).ldelim();
-                if (message.lossWeight != null && message.lossWeight.length)
-                    for (var i = 0; i < message.lossWeight.length; ++i)
-                        writer.uint32(/* id 35, wireType 5 =*/285).float(message.lossWeight[i]);
-                if (message.transformParam != null && message.hasOwnProperty("transformParam"))
-                    $root.caffe.TransformationParameter.encode(message.transformParam, writer.uint32(/* id 36, wireType 2 =*/290).fork()).ldelim();
-                if (message.tanhParam != null && message.hasOwnProperty("tanhParam"))
-                    $root.caffe.TanHParameter.encode(message.tanhParam, writer.uint32(/* id 37, wireType 2 =*/298).fork()).ldelim();
-                if (message.sigmoidParam != null && message.hasOwnProperty("sigmoidParam"))
-                    $root.caffe.SigmoidParameter.encode(message.sigmoidParam, writer.uint32(/* id 38, wireType 2 =*/306).fork()).ldelim();
-                if (message.softmaxParam != null && message.hasOwnProperty("softmaxParam"))
-                    $root.caffe.SoftmaxParameter.encode(message.softmaxParam, writer.uint32(/* id 39, wireType 2 =*/314).fork()).ldelim();
-                if (message.contrastiveLossParam != null && message.hasOwnProperty("contrastiveLossParam"))
-                    $root.caffe.ContrastiveLossParameter.encode(message.contrastiveLossParam, writer.uint32(/* id 40, wireType 2 =*/322).fork()).ldelim();
-                if (message.expParam != null && message.hasOwnProperty("expParam"))
-                    $root.caffe.ExpParameter.encode(message.expParam, writer.uint32(/* id 41, wireType 2 =*/330).fork()).ldelim();
-                if (message.lossParam != null && message.hasOwnProperty("lossParam"))
-                    $root.caffe.LossParameter.encode(message.lossParam, writer.uint32(/* id 42, wireType 2 =*/338).fork()).ldelim();
-                if (message.param != null && message.param.length)
-                    for (var i = 0; i < message.param.length; ++i)
-                        writer.uint32(/* id 1001, wireType 2 =*/8010).string(message.param[i]);
-                if (message.blobShareMode != null && message.blobShareMode.length)
-                    for (var i = 0; i < message.blobShareMode.length; ++i)
-                        writer.uint32(/* id 1002, wireType 0 =*/8016).int32(message.blobShareMode[i]);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified V1LayerParameter message, length delimited. Does not implicitly {@link caffe.V1LayerParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {caffe.IV1LayerParameter} message V1LayerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            V1LayerParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a V1LayerParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.V1LayerParameter} V1LayerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             V1LayerParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -20302,30 +9676,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a V1LayerParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.V1LayerParameter} V1LayerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            V1LayerParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a V1LayerParameter message.
-             * @function verify
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             V1LayerParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -20617,14 +9967,6 @@
                 return null;
             };
     
-            /**
-             * Creates a V1LayerParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.V1LayerParameter} V1LayerParameter
-             */
             V1LayerParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.V1LayerParameter)
                     return object;
@@ -21040,15 +10382,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a V1LayerParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.V1LayerParameter
-             * @static
-             * @param {caffe.V1LayerParameter} message V1LayerParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             V1LayerParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -21219,62 +10552,10 @@
                 return object;
             };
     
-            /**
-             * Converts this V1LayerParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.V1LayerParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             V1LayerParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * LayerType enum.
-             * @name caffe.V1LayerParameter.LayerType
-             * @enum {string}
-             * @property {number} NONE=0 NONE value
-             * @property {number} ABSVAL=35 ABSVAL value
-             * @property {number} ACCURACY=1 ACCURACY value
-             * @property {number} ARGMAX=30 ARGMAX value
-             * @property {number} BNLL=2 BNLL value
-             * @property {number} CONCAT=3 CONCAT value
-             * @property {number} CONTRASTIVE_LOSS=37 CONTRASTIVE_LOSS value
-             * @property {number} CONVOLUTION=4 CONVOLUTION value
-             * @property {number} DATA=5 DATA value
-             * @property {number} DECONVOLUTION=39 DECONVOLUTION value
-             * @property {number} DROPOUT=6 DROPOUT value
-             * @property {number} DUMMY_DATA=32 DUMMY_DATA value
-             * @property {number} EUCLIDEAN_LOSS=7 EUCLIDEAN_LOSS value
-             * @property {number} ELTWISE=25 ELTWISE value
-             * @property {number} EXP=38 EXP value
-             * @property {number} FLATTEN=8 FLATTEN value
-             * @property {number} HDF5_DATA=9 HDF5_DATA value
-             * @property {number} HDF5_OUTPUT=10 HDF5_OUTPUT value
-             * @property {number} HINGE_LOSS=28 HINGE_LOSS value
-             * @property {number} IM2COL=11 IM2COL value
-             * @property {number} IMAGE_DATA=12 IMAGE_DATA value
-             * @property {number} INFOGAIN_LOSS=13 INFOGAIN_LOSS value
-             * @property {number} INNER_PRODUCT=14 INNER_PRODUCT value
-             * @property {number} LRN=15 LRN value
-             * @property {number} MEMORY_DATA=29 MEMORY_DATA value
-             * @property {number} MULTINOMIAL_LOGISTIC_LOSS=16 MULTINOMIAL_LOGISTIC_LOSS value
-             * @property {number} MVN=34 MVN value
-             * @property {number} POOLING=17 POOLING value
-             * @property {number} POWER=26 POWER value
-             * @property {number} RELU=18 RELU value
-             * @property {number} SIGMOID=19 SIGMOID value
-             * @property {number} SIGMOID_CROSS_ENTROPY_LOSS=27 SIGMOID_CROSS_ENTROPY_LOSS value
-             * @property {number} SILENCE=36 SILENCE value
-             * @property {number} SOFTMAX=20 SOFTMAX value
-             * @property {number} SOFTMAX_LOSS=21 SOFTMAX_LOSS value
-             * @property {number} SPLIT=22 SPLIT value
-             * @property {number} SLICE=33 SLICE value
-             * @property {number} TANH=23 TANH value
-             * @property {number} WINDOW_DATA=24 WINDOW_DATA value
-             * @property {number} THRESHOLD=31 THRESHOLD value
-             */
             V1LayerParameter.LayerType = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "NONE"] = 0;
@@ -21320,13 +10601,6 @@
                 return values;
             })();
     
-            /**
-             * DimCheckMode enum.
-             * @name caffe.V1LayerParameter.DimCheckMode
-             * @enum {string}
-             * @property {number} STRICT=0 STRICT value
-             * @property {number} PERMISSIVE=1 PERMISSIVE value
-             */
             V1LayerParameter.DimCheckMode = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "STRICT"] = 0;
@@ -21339,58 +10613,6 @@
     
         caffe.V0LayerParameter = (function() {
     
-            /**
-             * Properties of a V0LayerParameter.
-             * @memberof caffe
-             * @interface IV0LayerParameter
-             * @property {string|null} [name] V0LayerParameter name
-             * @property {string|null} [type] V0LayerParameter type
-             * @property {number|null} [numOutput] V0LayerParameter numOutput
-             * @property {boolean|null} [biasterm] V0LayerParameter biasterm
-             * @property {caffe.IFillerParameter|null} [weightFiller] V0LayerParameter weightFiller
-             * @property {caffe.IFillerParameter|null} [biasFiller] V0LayerParameter biasFiller
-             * @property {number|null} [pad] V0LayerParameter pad
-             * @property {number|null} [kernelsize] V0LayerParameter kernelsize
-             * @property {number|null} [group] V0LayerParameter group
-             * @property {number|null} [stride] V0LayerParameter stride
-             * @property {caffe.V0LayerParameter.PoolMethod|null} [pool] V0LayerParameter pool
-             * @property {number|null} [dropoutRatio] V0LayerParameter dropoutRatio
-             * @property {number|null} [localSize] V0LayerParameter localSize
-             * @property {number|null} [alpha] V0LayerParameter alpha
-             * @property {number|null} [beta] V0LayerParameter beta
-             * @property {number|null} [k] V0LayerParameter k
-             * @property {string|null} [source] V0LayerParameter source
-             * @property {number|null} [scale] V0LayerParameter scale
-             * @property {string|null} [meanfile] V0LayerParameter meanfile
-             * @property {number|null} [batchsize] V0LayerParameter batchsize
-             * @property {number|null} [cropsize] V0LayerParameter cropsize
-             * @property {boolean|null} [mirror] V0LayerParameter mirror
-             * @property {Array.<caffe.IBlobProto>|null} [blobs] V0LayerParameter blobs
-             * @property {Array.<number>|null} [blobsLr] V0LayerParameter blobsLr
-             * @property {Array.<number>|null} [weightDecay] V0LayerParameter weightDecay
-             * @property {number|null} [randSkip] V0LayerParameter randSkip
-             * @property {number|null} [detFgThreshold] V0LayerParameter detFgThreshold
-             * @property {number|null} [detBgThreshold] V0LayerParameter detBgThreshold
-             * @property {number|null} [detFgFraction] V0LayerParameter detFgFraction
-             * @property {number|null} [detContextPad] V0LayerParameter detContextPad
-             * @property {string|null} [detCropMode] V0LayerParameter detCropMode
-             * @property {number|null} [newNum] V0LayerParameter newNum
-             * @property {number|null} [newChannels] V0LayerParameter newChannels
-             * @property {number|null} [newHeight] V0LayerParameter newHeight
-             * @property {number|null} [newWidth] V0LayerParameter newWidth
-             * @property {boolean|null} [shuffleImages] V0LayerParameter shuffleImages
-             * @property {number|null} [concatDim] V0LayerParameter concatDim
-             * @property {caffe.IHDF5OutputParameter|null} [hdf5OutputParam] V0LayerParameter hdf5OutputParam
-             */
-    
-            /**
-             * Constructs a new V0LayerParameter.
-             * @memberof caffe
-             * @classdesc Represents a V0LayerParameter.
-             * @implements IV0LayerParameter
-             * @constructor
-             * @param {caffe.IV0LayerParameter=} [properties] Properties to set
-             */
             function V0LayerParameter(properties) {
                 this.blobs = [];
                 this.blobsLr = [];
@@ -21401,440 +10623,49 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * V0LayerParameter name.
-             * @member {string} name
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.name = "";
-    
-            /**
-             * V0LayerParameter type.
-             * @member {string} type
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.type = "";
-    
-            /**
-             * V0LayerParameter numOutput.
-             * @member {number} numOutput
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.numOutput = 0;
-    
-            /**
-             * V0LayerParameter biasterm.
-             * @member {boolean} biasterm
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.biasterm = true;
-    
-            /**
-             * V0LayerParameter weightFiller.
-             * @member {caffe.IFillerParameter|null|undefined} weightFiller
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.weightFiller = null;
-    
-            /**
-             * V0LayerParameter biasFiller.
-             * @member {caffe.IFillerParameter|null|undefined} biasFiller
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.biasFiller = null;
-    
-            /**
-             * V0LayerParameter pad.
-             * @member {number} pad
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.pad = 0;
-    
-            /**
-             * V0LayerParameter kernelsize.
-             * @member {number} kernelsize
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.kernelsize = 0;
-    
-            /**
-             * V0LayerParameter group.
-             * @member {number} group
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.group = 1;
-    
-            /**
-             * V0LayerParameter stride.
-             * @member {number} stride
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.stride = 1;
-    
-            /**
-             * V0LayerParameter pool.
-             * @member {caffe.V0LayerParameter.PoolMethod} pool
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.pool = 0;
-    
-            /**
-             * V0LayerParameter dropoutRatio.
-             * @member {number} dropoutRatio
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.dropoutRatio = 0.5;
-    
-            /**
-             * V0LayerParameter localSize.
-             * @member {number} localSize
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.localSize = 5;
-    
-            /**
-             * V0LayerParameter alpha.
-             * @member {number} alpha
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.alpha = 1;
-    
-            /**
-             * V0LayerParameter beta.
-             * @member {number} beta
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.beta = 0.75;
-    
-            /**
-             * V0LayerParameter k.
-             * @member {number} k
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.k = 1;
-    
-            /**
-             * V0LayerParameter source.
-             * @member {string} source
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.source = "";
-    
-            /**
-             * V0LayerParameter scale.
-             * @member {number} scale
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.scale = 1;
-    
-            /**
-             * V0LayerParameter meanfile.
-             * @member {string} meanfile
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.meanfile = "";
-    
-            /**
-             * V0LayerParameter batchsize.
-             * @member {number} batchsize
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.batchsize = 0;
-    
-            /**
-             * V0LayerParameter cropsize.
-             * @member {number} cropsize
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.cropsize = 0;
-    
-            /**
-             * V0LayerParameter mirror.
-             * @member {boolean} mirror
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.mirror = false;
-    
-            /**
-             * V0LayerParameter blobs.
-             * @member {Array.<caffe.IBlobProto>} blobs
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.blobs = $util.emptyArray;
-    
-            /**
-             * V0LayerParameter blobsLr.
-             * @member {Array.<number>} blobsLr
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.blobsLr = $util.emptyArray;
-    
-            /**
-             * V0LayerParameter weightDecay.
-             * @member {Array.<number>} weightDecay
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.weightDecay = $util.emptyArray;
-    
-            /**
-             * V0LayerParameter randSkip.
-             * @member {number} randSkip
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.randSkip = 0;
-    
-            /**
-             * V0LayerParameter detFgThreshold.
-             * @member {number} detFgThreshold
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.detFgThreshold = 0.5;
-    
-            /**
-             * V0LayerParameter detBgThreshold.
-             * @member {number} detBgThreshold
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.detBgThreshold = 0.5;
-    
-            /**
-             * V0LayerParameter detFgFraction.
-             * @member {number} detFgFraction
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.detFgFraction = 0.25;
-    
-            /**
-             * V0LayerParameter detContextPad.
-             * @member {number} detContextPad
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.detContextPad = 0;
-    
-            /**
-             * V0LayerParameter detCropMode.
-             * @member {string} detCropMode
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.detCropMode = "warp";
-    
-            /**
-             * V0LayerParameter newNum.
-             * @member {number} newNum
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.newNum = 0;
-    
-            /**
-             * V0LayerParameter newChannels.
-             * @member {number} newChannels
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.newChannels = 0;
-    
-            /**
-             * V0LayerParameter newHeight.
-             * @member {number} newHeight
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.newHeight = 0;
-    
-            /**
-             * V0LayerParameter newWidth.
-             * @member {number} newWidth
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.newWidth = 0;
-    
-            /**
-             * V0LayerParameter shuffleImages.
-             * @member {boolean} shuffleImages
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.shuffleImages = false;
-    
-            /**
-             * V0LayerParameter concatDim.
-             * @member {number} concatDim
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.concatDim = 1;
-    
-            /**
-             * V0LayerParameter hdf5OutputParam.
-             * @member {caffe.IHDF5OutputParameter|null|undefined} hdf5OutputParam
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             */
             V0LayerParameter.prototype.hdf5OutputParam = null;
     
-            /**
-             * Creates a new V0LayerParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {caffe.IV0LayerParameter=} [properties] Properties to set
-             * @returns {caffe.V0LayerParameter} V0LayerParameter instance
-             */
             V0LayerParameter.create = function create(properties) {
                 return new V0LayerParameter(properties);
             };
     
-            /**
-             * Encodes the specified V0LayerParameter message. Does not implicitly {@link caffe.V0LayerParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {caffe.IV0LayerParameter} message V0LayerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            V0LayerParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.type);
-                if (message.numOutput != null && message.hasOwnProperty("numOutput"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.numOutput);
-                if (message.biasterm != null && message.hasOwnProperty("biasterm"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).bool(message.biasterm);
-                if (message.weightFiller != null && message.hasOwnProperty("weightFiller"))
-                    $root.caffe.FillerParameter.encode(message.weightFiller, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                if (message.biasFiller != null && message.hasOwnProperty("biasFiller"))
-                    $root.caffe.FillerParameter.encode(message.biasFiller, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                if (message.pad != null && message.hasOwnProperty("pad"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).uint32(message.pad);
-                if (message.kernelsize != null && message.hasOwnProperty("kernelsize"))
-                    writer.uint32(/* id 8, wireType 0 =*/64).uint32(message.kernelsize);
-                if (message.group != null && message.hasOwnProperty("group"))
-                    writer.uint32(/* id 9, wireType 0 =*/72).uint32(message.group);
-                if (message.stride != null && message.hasOwnProperty("stride"))
-                    writer.uint32(/* id 10, wireType 0 =*/80).uint32(message.stride);
-                if (message.pool != null && message.hasOwnProperty("pool"))
-                    writer.uint32(/* id 11, wireType 0 =*/88).int32(message.pool);
-                if (message.dropoutRatio != null && message.hasOwnProperty("dropoutRatio"))
-                    writer.uint32(/* id 12, wireType 5 =*/101).float(message.dropoutRatio);
-                if (message.localSize != null && message.hasOwnProperty("localSize"))
-                    writer.uint32(/* id 13, wireType 0 =*/104).uint32(message.localSize);
-                if (message.alpha != null && message.hasOwnProperty("alpha"))
-                    writer.uint32(/* id 14, wireType 5 =*/117).float(message.alpha);
-                if (message.beta != null && message.hasOwnProperty("beta"))
-                    writer.uint32(/* id 15, wireType 5 =*/125).float(message.beta);
-                if (message.source != null && message.hasOwnProperty("source"))
-                    writer.uint32(/* id 16, wireType 2 =*/130).string(message.source);
-                if (message.scale != null && message.hasOwnProperty("scale"))
-                    writer.uint32(/* id 17, wireType 5 =*/141).float(message.scale);
-                if (message.meanfile != null && message.hasOwnProperty("meanfile"))
-                    writer.uint32(/* id 18, wireType 2 =*/146).string(message.meanfile);
-                if (message.batchsize != null && message.hasOwnProperty("batchsize"))
-                    writer.uint32(/* id 19, wireType 0 =*/152).uint32(message.batchsize);
-                if (message.cropsize != null && message.hasOwnProperty("cropsize"))
-                    writer.uint32(/* id 20, wireType 0 =*/160).uint32(message.cropsize);
-                if (message.mirror != null && message.hasOwnProperty("mirror"))
-                    writer.uint32(/* id 21, wireType 0 =*/168).bool(message.mirror);
-                if (message.k != null && message.hasOwnProperty("k"))
-                    writer.uint32(/* id 22, wireType 5 =*/181).float(message.k);
-                if (message.blobs != null && message.blobs.length)
-                    for (var i = 0; i < message.blobs.length; ++i)
-                        $root.caffe.BlobProto.encode(message.blobs[i], writer.uint32(/* id 50, wireType 2 =*/402).fork()).ldelim();
-                if (message.blobsLr != null && message.blobsLr.length)
-                    for (var i = 0; i < message.blobsLr.length; ++i)
-                        writer.uint32(/* id 51, wireType 5 =*/413).float(message.blobsLr[i]);
-                if (message.weightDecay != null && message.weightDecay.length)
-                    for (var i = 0; i < message.weightDecay.length; ++i)
-                        writer.uint32(/* id 52, wireType 5 =*/421).float(message.weightDecay[i]);
-                if (message.randSkip != null && message.hasOwnProperty("randSkip"))
-                    writer.uint32(/* id 53, wireType 0 =*/424).uint32(message.randSkip);
-                if (message.detFgThreshold != null && message.hasOwnProperty("detFgThreshold"))
-                    writer.uint32(/* id 54, wireType 5 =*/437).float(message.detFgThreshold);
-                if (message.detBgThreshold != null && message.hasOwnProperty("detBgThreshold"))
-                    writer.uint32(/* id 55, wireType 5 =*/445).float(message.detBgThreshold);
-                if (message.detFgFraction != null && message.hasOwnProperty("detFgFraction"))
-                    writer.uint32(/* id 56, wireType 5 =*/453).float(message.detFgFraction);
-                if (message.detContextPad != null && message.hasOwnProperty("detContextPad"))
-                    writer.uint32(/* id 58, wireType 0 =*/464).uint32(message.detContextPad);
-                if (message.detCropMode != null && message.hasOwnProperty("detCropMode"))
-                    writer.uint32(/* id 59, wireType 2 =*/474).string(message.detCropMode);
-                if (message.newNum != null && message.hasOwnProperty("newNum"))
-                    writer.uint32(/* id 60, wireType 0 =*/480).int32(message.newNum);
-                if (message.newChannels != null && message.hasOwnProperty("newChannels"))
-                    writer.uint32(/* id 61, wireType 0 =*/488).int32(message.newChannels);
-                if (message.newHeight != null && message.hasOwnProperty("newHeight"))
-                    writer.uint32(/* id 62, wireType 0 =*/496).int32(message.newHeight);
-                if (message.newWidth != null && message.hasOwnProperty("newWidth"))
-                    writer.uint32(/* id 63, wireType 0 =*/504).int32(message.newWidth);
-                if (message.shuffleImages != null && message.hasOwnProperty("shuffleImages"))
-                    writer.uint32(/* id 64, wireType 0 =*/512).bool(message.shuffleImages);
-                if (message.concatDim != null && message.hasOwnProperty("concatDim"))
-                    writer.uint32(/* id 65, wireType 0 =*/520).uint32(message.concatDim);
-                if (message.hdf5OutputParam != null && message.hasOwnProperty("hdf5OutputParam"))
-                    $root.caffe.HDF5OutputParameter.encode(message.hdf5OutputParam, writer.uint32(/* id 1001, wireType 2 =*/8010).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified V0LayerParameter message, length delimited. Does not implicitly {@link caffe.V0LayerParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {caffe.IV0LayerParameter} message V0LayerParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            V0LayerParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a V0LayerParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.V0LayerParameter} V0LayerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             V0LayerParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -21980,30 +10811,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a V0LayerParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.V0LayerParameter} V0LayerParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            V0LayerParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a V0LayerParameter message.
-             * @function verify
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             V0LayerParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -22150,14 +10957,6 @@
                 return null;
             };
     
-            /**
-             * Creates a V0LayerParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.V0LayerParameter} V0LayerParameter
-             */
             V0LayerParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.V0LayerParameter)
                     return object;
@@ -22280,15 +11079,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a V0LayerParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.V0LayerParameter
-             * @static
-             * @param {caffe.V0LayerParameter} message V0LayerParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             V0LayerParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -22423,25 +11213,10 @@
                 return object;
             };
     
-            /**
-             * Converts this V0LayerParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.V0LayerParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             V0LayerParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * PoolMethod enum.
-             * @name caffe.V0LayerParameter.PoolMethod
-             * @enum {string}
-             * @property {number} MAX=0 MAX value
-             * @property {number} AVE=1 AVE value
-             * @property {number} STOCHASTIC=2 STOCHASTIC value
-             */
             V0LayerParameter.PoolMethod = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "MAX"] = 0;
@@ -22455,22 +11230,6 @@
     
         caffe.PReLUParameter = (function() {
     
-            /**
-             * Properties of a PReLUParameter.
-             * @memberof caffe
-             * @interface IPReLUParameter
-             * @property {caffe.IFillerParameter|null} [filler] PReLUParameter filler
-             * @property {boolean|null} [channelShared] PReLUParameter channelShared
-             */
-    
-            /**
-             * Constructs a new PReLUParameter.
-             * @memberof caffe
-             * @classdesc Represents a PReLUParameter.
-             * @implements IPReLUParameter
-             * @constructor
-             * @param {caffe.IPReLUParameter=} [properties] Properties to set
-             */
             function PReLUParameter(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -22478,77 +11237,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * PReLUParameter filler.
-             * @member {caffe.IFillerParameter|null|undefined} filler
-             * @memberof caffe.PReLUParameter
-             * @instance
-             */
             PReLUParameter.prototype.filler = null;
-    
-            /**
-             * PReLUParameter channelShared.
-             * @member {boolean} channelShared
-             * @memberof caffe.PReLUParameter
-             * @instance
-             */
             PReLUParameter.prototype.channelShared = false;
     
-            /**
-             * Creates a new PReLUParameter instance using the specified properties.
-             * @function create
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {caffe.IPReLUParameter=} [properties] Properties to set
-             * @returns {caffe.PReLUParameter} PReLUParameter instance
-             */
             PReLUParameter.create = function create(properties) {
                 return new PReLUParameter(properties);
             };
     
-            /**
-             * Encodes the specified PReLUParameter message. Does not implicitly {@link caffe.PReLUParameter.verify|verify} messages.
-             * @function encode
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {caffe.IPReLUParameter} message PReLUParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PReLUParameter.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.filler != null && message.hasOwnProperty("filler"))
-                    $root.caffe.FillerParameter.encode(message.filler, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.channelShared != null && message.hasOwnProperty("channelShared"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).bool(message.channelShared);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified PReLUParameter message, length delimited. Does not implicitly {@link caffe.PReLUParameter.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {caffe.IPReLUParameter} message PReLUParameter message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            PReLUParameter.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a PReLUParameter message from the specified reader or buffer.
-             * @function decode
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {caffe.PReLUParameter} PReLUParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             PReLUParameter.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -22570,30 +11265,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a PReLUParameter message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {caffe.PReLUParameter} PReLUParameter
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            PReLUParameter.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a PReLUParameter message.
-             * @function verify
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             PReLUParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -22608,14 +11279,6 @@
                 return null;
             };
     
-            /**
-             * Creates a PReLUParameter message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {caffe.PReLUParameter} PReLUParameter
-             */
             PReLUParameter.fromObject = function fromObject(object) {
                 if (object instanceof $root.caffe.PReLUParameter)
                     return object;
@@ -22630,15 +11293,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a PReLUParameter message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof caffe.PReLUParameter
-             * @static
-             * @param {caffe.PReLUParameter} message PReLUParameter
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             PReLUParameter.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -22654,13 +11308,6 @@
                 return object;
             };
     
-            /**
-             * Converts this PReLUParameter to JSON.
-             * @function toJSON
-             * @memberof caffe.PReLUParameter
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             PReLUParameter.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
