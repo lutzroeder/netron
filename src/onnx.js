@@ -2,30 +2,14 @@
 (function($protobuf) {
     "use strict";
 
-    // Common aliases
-    var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $util = $protobuf.util;
     
-    // Exported root namespace
     var $root = $protobuf.roots.onnx || ($protobuf.roots.onnx = {});
     
     $root.onnx = (function() {
     
-        /**
-         * Namespace onnx.
-         * @exports onnx
-         * @namespace
-         */
         var onnx = {};
     
-        /**
-         * Version enum.
-         * @name onnx.Version
-         * @enum {string}
-         * @property {number} _START_VERSION=0 _START_VERSION value
-         * @property {number} IR_VERSION_2017_10_10=1 IR_VERSION_2017_10_10 value
-         * @property {number} IR_VERSION_2017_10_30=2 IR_VERSION_2017_10_30 value
-         * @property {number} IR_VERSION=3 IR_VERSION value
-         */
         onnx.Version = (function() {
             var valuesById = {}, values = Object.create(valuesById);
             values[valuesById[0] = "_START_VERSION"] = 0;
@@ -37,34 +21,6 @@
     
         onnx.AttributeProto = (function() {
     
-            /**
-             * Properties of an AttributeProto.
-             * @memberof onnx
-             * @interface IAttributeProto
-             * @property {string|null} [name] AttributeProto name
-             * @property {string|null} [refAttrName] AttributeProto refAttrName
-             * @property {string|null} [docString] AttributeProto docString
-             * @property {onnx.AttributeProto.AttributeType|null} [type] AttributeProto type
-             * @property {number|null} [f] AttributeProto f
-             * @property {number|Long|null} [i] AttributeProto i
-             * @property {Uint8Array|null} [s] AttributeProto s
-             * @property {onnx.ITensorProto|null} [t] AttributeProto t
-             * @property {onnx.IGraphProto|null} [g] AttributeProto g
-             * @property {Array.<number>|null} [floats] AttributeProto floats
-             * @property {Array.<number|Long>|null} [ints] AttributeProto ints
-             * @property {Array.<Uint8Array>|null} [strings] AttributeProto strings
-             * @property {Array.<onnx.ITensorProto>|null} [tensors] AttributeProto tensors
-             * @property {Array.<onnx.IGraphProto>|null} [graphs] AttributeProto graphs
-             */
-    
-            /**
-             * Constructs a new AttributeProto.
-             * @memberof onnx
-             * @classdesc Represents an AttributeProto.
-             * @implements IAttributeProto
-             * @constructor
-             * @param {onnx.IAttributeProto=} [properties] Properties to set
-             */
             function AttributeProto(properties) {
                 this.floats = [];
                 this.ints = [];
@@ -77,202 +33,25 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * AttributeProto name.
-             * @member {string} name
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.name = "";
-    
-            /**
-             * AttributeProto refAttrName.
-             * @member {string} refAttrName
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.refAttrName = "";
-    
-            /**
-             * AttributeProto docString.
-             * @member {string} docString
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.docString = "";
-    
-            /**
-             * AttributeProto type.
-             * @member {onnx.AttributeProto.AttributeType} type
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.type = 0;
-    
-            /**
-             * AttributeProto f.
-             * @member {number} f
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.f = 0;
-    
-            /**
-             * AttributeProto i.
-             * @member {number|Long} i
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.i = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-            /**
-             * AttributeProto s.
-             * @member {Uint8Array} s
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.s = $util.newBuffer([]);
-    
-            /**
-             * AttributeProto t.
-             * @member {onnx.ITensorProto|null|undefined} t
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.t = null;
-    
-            /**
-             * AttributeProto g.
-             * @member {onnx.IGraphProto|null|undefined} g
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.g = null;
-    
-            /**
-             * AttributeProto floats.
-             * @member {Array.<number>} floats
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.floats = $util.emptyArray;
-    
-            /**
-             * AttributeProto ints.
-             * @member {Array.<number|Long>} ints
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.ints = $util.emptyArray;
-    
-            /**
-             * AttributeProto strings.
-             * @member {Array.<Uint8Array>} strings
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.strings = $util.emptyArray;
-    
-            /**
-             * AttributeProto tensors.
-             * @member {Array.<onnx.ITensorProto>} tensors
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.tensors = $util.emptyArray;
-    
-            /**
-             * AttributeProto graphs.
-             * @member {Array.<onnx.IGraphProto>} graphs
-             * @memberof onnx.AttributeProto
-             * @instance
-             */
             AttributeProto.prototype.graphs = $util.emptyArray;
     
-            /**
-             * Creates a new AttributeProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {onnx.IAttributeProto=} [properties] Properties to set
-             * @returns {onnx.AttributeProto} AttributeProto instance
-             */
             AttributeProto.create = function create(properties) {
                 return new AttributeProto(properties);
             };
     
-            /**
-             * Encodes the specified AttributeProto message. Does not implicitly {@link onnx.AttributeProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {onnx.IAttributeProto} message AttributeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AttributeProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.f != null && message.hasOwnProperty("f"))
-                    writer.uint32(/* id 2, wireType 5 =*/21).float(message.f);
-                if (message.i != null && message.hasOwnProperty("i"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int64(message.i);
-                if (message.s != null && message.hasOwnProperty("s"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.s);
-                if (message.t != null && message.hasOwnProperty("t"))
-                    $root.onnx.TensorProto.encode(message.t, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                if (message.g != null && message.hasOwnProperty("g"))
-                    $root.onnx.GraphProto.encode(message.g, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                if (message.floats != null && message.floats.length)
-                    for (var i = 0; i < message.floats.length; ++i)
-                        writer.uint32(/* id 7, wireType 5 =*/61).float(message.floats[i]);
-                if (message.ints != null && message.ints.length)
-                    for (var i = 0; i < message.ints.length; ++i)
-                        writer.uint32(/* id 8, wireType 0 =*/64).int64(message.ints[i]);
-                if (message.strings != null && message.strings.length)
-                    for (var i = 0; i < message.strings.length; ++i)
-                        writer.uint32(/* id 9, wireType 2 =*/74).bytes(message.strings[i]);
-                if (message.tensors != null && message.tensors.length)
-                    for (var i = 0; i < message.tensors.length; ++i)
-                        $root.onnx.TensorProto.encode(message.tensors[i], writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
-                if (message.graphs != null && message.graphs.length)
-                    for (var i = 0; i < message.graphs.length; ++i)
-                        $root.onnx.GraphProto.encode(message.graphs[i], writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 13, wireType 2 =*/106).string(message.docString);
-                if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 20, wireType 0 =*/160).int32(message.type);
-                if (message.refAttrName != null && message.hasOwnProperty("refAttrName"))
-                    writer.uint32(/* id 21, wireType 2 =*/170).string(message.refAttrName);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified AttributeProto message, length delimited. Does not implicitly {@link onnx.AttributeProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {onnx.IAttributeProto} message AttributeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AttributeProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an AttributeProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.AttributeProto} AttributeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             AttributeProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -350,30 +129,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an AttributeProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.AttributeProto} AttributeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            AttributeProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an AttributeProto message.
-             * @function verify
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             AttributeProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -464,14 +219,6 @@
                 return null;
             };
     
-            /**
-             * Creates an AttributeProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.AttributeProto} AttributeProto
-             */
             AttributeProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.AttributeProto)
                     return object;
@@ -608,15 +355,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an AttributeProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.AttributeProto
-             * @static
-             * @param {onnx.AttributeProto} message AttributeProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             AttributeProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -701,33 +439,10 @@
                 return object;
             };
     
-            /**
-             * Converts this AttributeProto to JSON.
-             * @function toJSON
-             * @memberof onnx.AttributeProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             AttributeProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * AttributeType enum.
-             * @name onnx.AttributeProto.AttributeType
-             * @enum {string}
-             * @property {number} UNDEFINED=0 UNDEFINED value
-             * @property {number} FLOAT=1 FLOAT value
-             * @property {number} INT=2 INT value
-             * @property {number} STRING=3 STRING value
-             * @property {number} TENSOR=4 TENSOR value
-             * @property {number} GRAPH=5 GRAPH value
-             * @property {number} FLOATS=6 FLOATS value
-             * @property {number} INTS=7 INTS value
-             * @property {number} STRINGS=8 STRINGS value
-             * @property {number} TENSORS=9 TENSORS value
-             * @property {number} GRAPHS=10 GRAPHS value
-             */
             AttributeProto.AttributeType = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "UNDEFINED"] = 0;
@@ -749,23 +464,6 @@
     
         onnx.ValueInfoProto = (function() {
     
-            /**
-             * Properties of a ValueInfoProto.
-             * @memberof onnx
-             * @interface IValueInfoProto
-             * @property {string|null} [name] ValueInfoProto name
-             * @property {onnx.ITypeProto|null} [type] ValueInfoProto type
-             * @property {string|null} [docString] ValueInfoProto docString
-             */
-    
-            /**
-             * Constructs a new ValueInfoProto.
-             * @memberof onnx
-             * @classdesc Represents a ValueInfoProto.
-             * @implements IValueInfoProto
-             * @constructor
-             * @param {onnx.IValueInfoProto=} [properties] Properties to set
-             */
             function ValueInfoProto(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -773,87 +471,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ValueInfoProto name.
-             * @member {string} name
-             * @memberof onnx.ValueInfoProto
-             * @instance
-             */
             ValueInfoProto.prototype.name = "";
-    
-            /**
-             * ValueInfoProto type.
-             * @member {onnx.ITypeProto|null|undefined} type
-             * @memberof onnx.ValueInfoProto
-             * @instance
-             */
             ValueInfoProto.prototype.type = null;
-    
-            /**
-             * ValueInfoProto docString.
-             * @member {string} docString
-             * @memberof onnx.ValueInfoProto
-             * @instance
-             */
             ValueInfoProto.prototype.docString = "";
     
-            /**
-             * Creates a new ValueInfoProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {onnx.IValueInfoProto=} [properties] Properties to set
-             * @returns {onnx.ValueInfoProto} ValueInfoProto instance
-             */
             ValueInfoProto.create = function create(properties) {
                 return new ValueInfoProto(properties);
             };
     
-            /**
-             * Encodes the specified ValueInfoProto message. Does not implicitly {@link onnx.ValueInfoProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {onnx.IValueInfoProto} message ValueInfoProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ValueInfoProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.type != null && message.hasOwnProperty("type"))
-                    $root.onnx.TypeProto.encode(message.type, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.docString);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ValueInfoProto message, length delimited. Does not implicitly {@link onnx.ValueInfoProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {onnx.IValueInfoProto} message ValueInfoProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ValueInfoProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ValueInfoProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.ValueInfoProto} ValueInfoProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ValueInfoProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -878,30 +503,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ValueInfoProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.ValueInfoProto} ValueInfoProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ValueInfoProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ValueInfoProto message.
-             * @function verify
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ValueInfoProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -919,14 +520,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ValueInfoProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.ValueInfoProto} ValueInfoProto
-             */
             ValueInfoProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.ValueInfoProto)
                     return object;
@@ -943,15 +536,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ValueInfoProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.ValueInfoProto
-             * @static
-             * @param {onnx.ValueInfoProto} message ValueInfoProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ValueInfoProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -970,13 +554,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ValueInfoProto to JSON.
-             * @function toJSON
-             * @memberof onnx.ValueInfoProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ValueInfoProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -986,27 +563,6 @@
     
         onnx.NodeProto = (function() {
     
-            /**
-             * Properties of a NodeProto.
-             * @memberof onnx
-             * @interface INodeProto
-             * @property {Array.<string>|null} [input] NodeProto input
-             * @property {Array.<string>|null} [output] NodeProto output
-             * @property {string|null} [name] NodeProto name
-             * @property {string|null} [opType] NodeProto opType
-             * @property {string|null} [domain] NodeProto domain
-             * @property {Array.<onnx.IAttributeProto>|null} [attribute] NodeProto attribute
-             * @property {string|null} [docString] NodeProto docString
-             */
-    
-            /**
-             * Constructs a new NodeProto.
-             * @memberof onnx
-             * @classdesc Represents a NodeProto.
-             * @implements INodeProto
-             * @constructor
-             * @param {onnx.INodeProto=} [properties] Properties to set
-             */
             function NodeProto(properties) {
                 this.input = [];
                 this.output = [];
@@ -1017,130 +573,18 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * NodeProto input.
-             * @member {Array.<string>} input
-             * @memberof onnx.NodeProto
-             * @instance
-             */
             NodeProto.prototype.input = $util.emptyArray;
-    
-            /**
-             * NodeProto output.
-             * @member {Array.<string>} output
-             * @memberof onnx.NodeProto
-             * @instance
-             */
             NodeProto.prototype.output = $util.emptyArray;
-    
-            /**
-             * NodeProto name.
-             * @member {string} name
-             * @memberof onnx.NodeProto
-             * @instance
-             */
             NodeProto.prototype.name = "";
-    
-            /**
-             * NodeProto opType.
-             * @member {string} opType
-             * @memberof onnx.NodeProto
-             * @instance
-             */
             NodeProto.prototype.opType = "";
-    
-            /**
-             * NodeProto domain.
-             * @member {string} domain
-             * @memberof onnx.NodeProto
-             * @instance
-             */
             NodeProto.prototype.domain = "";
-    
-            /**
-             * NodeProto attribute.
-             * @member {Array.<onnx.IAttributeProto>} attribute
-             * @memberof onnx.NodeProto
-             * @instance
-             */
             NodeProto.prototype.attribute = $util.emptyArray;
-    
-            /**
-             * NodeProto docString.
-             * @member {string} docString
-             * @memberof onnx.NodeProto
-             * @instance
-             */
             NodeProto.prototype.docString = "";
     
-            /**
-             * Creates a new NodeProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {onnx.INodeProto=} [properties] Properties to set
-             * @returns {onnx.NodeProto} NodeProto instance
-             */
             NodeProto.create = function create(properties) {
                 return new NodeProto(properties);
             };
     
-            /**
-             * Encodes the specified NodeProto message. Does not implicitly {@link onnx.NodeProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {onnx.INodeProto} message NodeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NodeProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.input != null && message.input.length)
-                    for (var i = 0; i < message.input.length; ++i)
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.input[i]);
-                if (message.output != null && message.output.length)
-                    for (var i = 0; i < message.output.length; ++i)
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.output[i]);
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.name);
-                if (message.opType != null && message.hasOwnProperty("opType"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.opType);
-                if (message.attribute != null && message.attribute.length)
-                    for (var i = 0; i < message.attribute.length; ++i)
-                        $root.onnx.AttributeProto.encode(message.attribute[i], writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.docString);
-                if (message.domain != null && message.hasOwnProperty("domain"))
-                    writer.uint32(/* id 7, wireType 2 =*/58).string(message.domain);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified NodeProto message, length delimited. Does not implicitly {@link onnx.NodeProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {onnx.INodeProto} message NodeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NodeProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a NodeProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.NodeProto} NodeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             NodeProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -1183,30 +627,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a NodeProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.NodeProto} NodeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            NodeProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a NodeProto message.
-             * @function verify
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             NodeProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1248,14 +668,6 @@
                 return null;
             };
     
-            /**
-             * Creates a NodeProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.NodeProto} NodeProto
-             */
             NodeProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.NodeProto)
                     return object;
@@ -1295,15 +707,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a NodeProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.NodeProto
-             * @static
-             * @param {onnx.NodeProto} message NodeProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             NodeProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -1345,13 +748,6 @@
                 return object;
             };
     
-            /**
-             * Converts this NodeProto to JSON.
-             * @function toJSON
-             * @memberof onnx.NodeProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             NodeProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -1361,29 +757,6 @@
     
         onnx.ModelProto = (function() {
     
-            /**
-             * Properties of a ModelProto.
-             * @memberof onnx
-             * @interface IModelProto
-             * @property {number|Long|null} [irVersion] ModelProto irVersion
-             * @property {Array.<onnx.IOperatorSetIdProto>|null} [opsetImport] ModelProto opsetImport
-             * @property {string|null} [producerName] ModelProto producerName
-             * @property {string|null} [producerVersion] ModelProto producerVersion
-             * @property {string|null} [domain] ModelProto domain
-             * @property {number|Long|null} [modelVersion] ModelProto modelVersion
-             * @property {string|null} [docString] ModelProto docString
-             * @property {onnx.IGraphProto|null} [graph] ModelProto graph
-             * @property {Array.<onnx.IStringStringEntryProto>|null} [metadataProps] ModelProto metadataProps
-             */
-    
-            /**
-             * Constructs a new ModelProto.
-             * @memberof onnx
-             * @classdesc Represents a ModelProto.
-             * @implements IModelProto
-             * @constructor
-             * @param {onnx.IModelProto=} [properties] Properties to set
-             */
             function ModelProto(properties) {
                 this.opsetImport = [];
                 this.metadataProps = [];
@@ -1393,149 +766,20 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ModelProto irVersion.
-             * @member {number|Long} irVersion
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.irVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-            /**
-             * ModelProto opsetImport.
-             * @member {Array.<onnx.IOperatorSetIdProto>} opsetImport
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.opsetImport = $util.emptyArray;
-    
-            /**
-             * ModelProto producerName.
-             * @member {string} producerName
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.producerName = "";
-    
-            /**
-             * ModelProto producerVersion.
-             * @member {string} producerVersion
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.producerVersion = "";
-    
-            /**
-             * ModelProto domain.
-             * @member {string} domain
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.domain = "";
-    
-            /**
-             * ModelProto modelVersion.
-             * @member {number|Long} modelVersion
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.modelVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-            /**
-             * ModelProto docString.
-             * @member {string} docString
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.docString = "";
-    
-            /**
-             * ModelProto graph.
-             * @member {onnx.IGraphProto|null|undefined} graph
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.graph = null;
-    
-            /**
-             * ModelProto metadataProps.
-             * @member {Array.<onnx.IStringStringEntryProto>} metadataProps
-             * @memberof onnx.ModelProto
-             * @instance
-             */
             ModelProto.prototype.metadataProps = $util.emptyArray;
     
-            /**
-             * Creates a new ModelProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {onnx.IModelProto=} [properties] Properties to set
-             * @returns {onnx.ModelProto} ModelProto instance
-             */
             ModelProto.create = function create(properties) {
                 return new ModelProto(properties);
             };
     
-            /**
-             * Encodes the specified ModelProto message. Does not implicitly {@link onnx.ModelProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {onnx.IModelProto} message ModelProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ModelProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int64(message.irVersion);
-                if (message.producerName != null && message.hasOwnProperty("producerName"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.producerName);
-                if (message.producerVersion != null && message.hasOwnProperty("producerVersion"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.producerVersion);
-                if (message.domain != null && message.hasOwnProperty("domain"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.domain);
-                if (message.modelVersion != null && message.hasOwnProperty("modelVersion"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).int64(message.modelVersion);
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.docString);
-                if (message.graph != null && message.hasOwnProperty("graph"))
-                    $root.onnx.GraphProto.encode(message.graph, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                if (message.opsetImport != null && message.opsetImport.length)
-                    for (var i = 0; i < message.opsetImport.length; ++i)
-                        $root.onnx.OperatorSetIdProto.encode(message.opsetImport[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                if (message.metadataProps != null && message.metadataProps.length)
-                    for (var i = 0; i < message.metadataProps.length; ++i)
-                        $root.onnx.StringStringEntryProto.encode(message.metadataProps[i], writer.uint32(/* id 14, wireType 2 =*/114).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ModelProto message, length delimited. Does not implicitly {@link onnx.ModelProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {onnx.IModelProto} message ModelProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ModelProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ModelProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.ModelProto} ModelProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ModelProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -1582,30 +826,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a ModelProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.ModelProto} ModelProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ModelProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a ModelProto message.
-             * @function verify
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ModelProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1653,14 +873,6 @@
                 return null;
             };
     
-            /**
-             * Creates a ModelProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.ModelProto} ModelProto
-             */
             ModelProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.ModelProto)
                     return object;
@@ -1719,15 +931,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ModelProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.ModelProto
-             * @static
-             * @param {onnx.ModelProto} message ModelProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ModelProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -1786,13 +989,6 @@
                 return object;
             };
     
-            /**
-             * Converts this ModelProto to JSON.
-             * @function toJSON
-             * @memberof onnx.ModelProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ModelProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -1802,22 +998,6 @@
     
         onnx.StringStringEntryProto = (function() {
     
-            /**
-             * Properties of a StringStringEntryProto.
-             * @memberof onnx
-             * @interface IStringStringEntryProto
-             * @property {string|null} [key] StringStringEntryProto key
-             * @property {string|null} [value] StringStringEntryProto value
-             */
-    
-            /**
-             * Constructs a new StringStringEntryProto.
-             * @memberof onnx
-             * @classdesc Represents a StringStringEntryProto.
-             * @implements IStringStringEntryProto
-             * @constructor
-             * @param {onnx.IStringStringEntryProto=} [properties] Properties to set
-             */
             function StringStringEntryProto(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -1825,77 +1005,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * StringStringEntryProto key.
-             * @member {string} key
-             * @memberof onnx.StringStringEntryProto
-             * @instance
-             */
             StringStringEntryProto.prototype.key = "";
-    
-            /**
-             * StringStringEntryProto value.
-             * @member {string} value
-             * @memberof onnx.StringStringEntryProto
-             * @instance
-             */
             StringStringEntryProto.prototype.value = "";
     
-            /**
-             * Creates a new StringStringEntryProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {onnx.IStringStringEntryProto=} [properties] Properties to set
-             * @returns {onnx.StringStringEntryProto} StringStringEntryProto instance
-             */
             StringStringEntryProto.create = function create(properties) {
                 return new StringStringEntryProto(properties);
             };
     
-            /**
-             * Encodes the specified StringStringEntryProto message. Does not implicitly {@link onnx.StringStringEntryProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {onnx.IStringStringEntryProto} message StringStringEntryProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            StringStringEntryProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.key != null && message.hasOwnProperty("key"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.key);
-                if (message.value != null && message.hasOwnProperty("value"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.value);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified StringStringEntryProto message, length delimited. Does not implicitly {@link onnx.StringStringEntryProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {onnx.IStringStringEntryProto} message StringStringEntryProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            StringStringEntryProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a StringStringEntryProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.StringStringEntryProto} StringStringEntryProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             StringStringEntryProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -1917,30 +1033,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a StringStringEntryProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.StringStringEntryProto} StringStringEntryProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            StringStringEntryProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a StringStringEntryProto message.
-             * @function verify
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             StringStringEntryProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1953,14 +1045,6 @@
                 return null;
             };
     
-            /**
-             * Creates a StringStringEntryProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.StringStringEntryProto} StringStringEntryProto
-             */
             StringStringEntryProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.StringStringEntryProto)
                     return object;
@@ -1972,15 +1056,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a StringStringEntryProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.StringStringEntryProto
-             * @static
-             * @param {onnx.StringStringEntryProto} message StringStringEntryProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             StringStringEntryProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -1996,13 +1071,6 @@
                 return object;
             };
     
-            /**
-             * Converts this StringStringEntryProto to JSON.
-             * @function toJSON
-             * @memberof onnx.StringStringEntryProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             StringStringEntryProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -2012,27 +1080,6 @@
     
         onnx.GraphProto = (function() {
     
-            /**
-             * Properties of a GraphProto.
-             * @memberof onnx
-             * @interface IGraphProto
-             * @property {Array.<onnx.INodeProto>|null} [node] GraphProto node
-             * @property {string|null} [name] GraphProto name
-             * @property {Array.<onnx.ITensorProto>|null} [initializer] GraphProto initializer
-             * @property {string|null} [docString] GraphProto docString
-             * @property {Array.<onnx.IValueInfoProto>|null} [input] GraphProto input
-             * @property {Array.<onnx.IValueInfoProto>|null} [output] GraphProto output
-             * @property {Array.<onnx.IValueInfoProto>|null} [valueInfo] GraphProto valueInfo
-             */
-    
-            /**
-             * Constructs a new GraphProto.
-             * @memberof onnx
-             * @classdesc Represents a GraphProto.
-             * @implements IGraphProto
-             * @constructor
-             * @param {onnx.IGraphProto=} [properties] Properties to set
-             */
             function GraphProto(properties) {
                 this.node = [];
                 this.initializer = [];
@@ -2045,132 +1092,18 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * GraphProto node.
-             * @member {Array.<onnx.INodeProto>} node
-             * @memberof onnx.GraphProto
-             * @instance
-             */
             GraphProto.prototype.node = $util.emptyArray;
-    
-            /**
-             * GraphProto name.
-             * @member {string} name
-             * @memberof onnx.GraphProto
-             * @instance
-             */
             GraphProto.prototype.name = "";
-    
-            /**
-             * GraphProto initializer.
-             * @member {Array.<onnx.ITensorProto>} initializer
-             * @memberof onnx.GraphProto
-             * @instance
-             */
             GraphProto.prototype.initializer = $util.emptyArray;
-    
-            /**
-             * GraphProto docString.
-             * @member {string} docString
-             * @memberof onnx.GraphProto
-             * @instance
-             */
             GraphProto.prototype.docString = "";
-    
-            /**
-             * GraphProto input.
-             * @member {Array.<onnx.IValueInfoProto>} input
-             * @memberof onnx.GraphProto
-             * @instance
-             */
             GraphProto.prototype.input = $util.emptyArray;
-    
-            /**
-             * GraphProto output.
-             * @member {Array.<onnx.IValueInfoProto>} output
-             * @memberof onnx.GraphProto
-             * @instance
-             */
             GraphProto.prototype.output = $util.emptyArray;
-    
-            /**
-             * GraphProto valueInfo.
-             * @member {Array.<onnx.IValueInfoProto>} valueInfo
-             * @memberof onnx.GraphProto
-             * @instance
-             */
             GraphProto.prototype.valueInfo = $util.emptyArray;
     
-            /**
-             * Creates a new GraphProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {onnx.IGraphProto=} [properties] Properties to set
-             * @returns {onnx.GraphProto} GraphProto instance
-             */
             GraphProto.create = function create(properties) {
                 return new GraphProto(properties);
             };
     
-            /**
-             * Encodes the specified GraphProto message. Does not implicitly {@link onnx.GraphProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {onnx.IGraphProto} message GraphProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            GraphProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.node != null && message.node.length)
-                    for (var i = 0; i < message.node.length; ++i)
-                        $root.onnx.NodeProto.encode(message.node[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
-                if (message.initializer != null && message.initializer.length)
-                    for (var i = 0; i < message.initializer.length; ++i)
-                        $root.onnx.TensorProto.encode(message.initializer[i], writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 10, wireType 2 =*/82).string(message.docString);
-                if (message.input != null && message.input.length)
-                    for (var i = 0; i < message.input.length; ++i)
-                        $root.onnx.ValueInfoProto.encode(message.input[i], writer.uint32(/* id 11, wireType 2 =*/90).fork()).ldelim();
-                if (message.output != null && message.output.length)
-                    for (var i = 0; i < message.output.length; ++i)
-                        $root.onnx.ValueInfoProto.encode(message.output[i], writer.uint32(/* id 12, wireType 2 =*/98).fork()).ldelim();
-                if (message.valueInfo != null && message.valueInfo.length)
-                    for (var i = 0; i < message.valueInfo.length; ++i)
-                        $root.onnx.ValueInfoProto.encode(message.valueInfo[i], writer.uint32(/* id 13, wireType 2 =*/106).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified GraphProto message, length delimited. Does not implicitly {@link onnx.GraphProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {onnx.IGraphProto} message GraphProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            GraphProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a GraphProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.GraphProto} GraphProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             GraphProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -2217,30 +1150,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a GraphProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.GraphProto} GraphProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            GraphProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a GraphProto message.
-             * @function verify
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             GraphProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -2298,14 +1207,6 @@
                 return null;
             };
     
-            /**
-             * Creates a GraphProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.GraphProto} GraphProto
-             */
             GraphProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.GraphProto)
                     return object;
@@ -2367,15 +1268,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a GraphProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.GraphProto
-             * @static
-             * @param {onnx.GraphProto} message GraphProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             GraphProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -2423,13 +1315,6 @@
                 return object;
             };
     
-            /**
-             * Converts this GraphProto to JSON.
-             * @function toJSON
-             * @memberof onnx.GraphProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             GraphProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -2439,32 +1324,6 @@
     
         onnx.TensorProto = (function() {
     
-            /**
-             * Properties of a TensorProto.
-             * @memberof onnx
-             * @interface ITensorProto
-             * @property {Array.<number|Long>|null} [dims] TensorProto dims
-             * @property {onnx.TensorProto.DataType|null} [dataType] TensorProto dataType
-             * @property {onnx.TensorProto.ISegment|null} [segment] TensorProto segment
-             * @property {Array.<number>|null} [floatData] TensorProto floatData
-             * @property {Array.<number>|null} [int32Data] TensorProto int32Data
-             * @property {Array.<Uint8Array>|null} [stringData] TensorProto stringData
-             * @property {Array.<number|Long>|null} [int64Data] TensorProto int64Data
-             * @property {string|null} [name] TensorProto name
-             * @property {string|null} [docString] TensorProto docString
-             * @property {Uint8Array|null} [rawData] TensorProto rawData
-             * @property {Array.<number>|null} [doubleData] TensorProto doubleData
-             * @property {Array.<number|Long>|null} [uint64Data] TensorProto uint64Data
-             */
-    
-            /**
-             * Constructs a new TensorProto.
-             * @memberof onnx
-             * @classdesc Represents a TensorProto.
-             * @implements ITensorProto
-             * @constructor
-             * @param {onnx.ITensorProto=} [properties] Properties to set
-             */
             function TensorProto(properties) {
                 this.dims = [];
                 this.floatData = [];
@@ -2479,199 +1338,23 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TensorProto dims.
-             * @member {Array.<number|Long>} dims
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.dims = $util.emptyArray;
-    
-            /**
-             * TensorProto dataType.
-             * @member {onnx.TensorProto.DataType} dataType
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.dataType = 0;
-    
-            /**
-             * TensorProto segment.
-             * @member {onnx.TensorProto.ISegment|null|undefined} segment
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.segment = null;
-    
-            /**
-             * TensorProto floatData.
-             * @member {Array.<number>} floatData
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.floatData = $util.emptyArray;
-    
-            /**
-             * TensorProto int32Data.
-             * @member {Array.<number>} int32Data
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.int32Data = $util.emptyArray;
-    
-            /**
-             * TensorProto stringData.
-             * @member {Array.<Uint8Array>} stringData
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.stringData = $util.emptyArray;
-    
-            /**
-             * TensorProto int64Data.
-             * @member {Array.<number|Long>} int64Data
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.int64Data = $util.emptyArray;
-    
-            /**
-             * TensorProto name.
-             * @member {string} name
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.name = "";
-    
-            /**
-             * TensorProto docString.
-             * @member {string} docString
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.docString = "";
-    
-            /**
-             * TensorProto rawData.
-             * @member {Uint8Array} rawData
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.rawData = $util.newBuffer([]);
-    
-            /**
-             * TensorProto doubleData.
-             * @member {Array.<number>} doubleData
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.doubleData = $util.emptyArray;
-    
-            /**
-             * TensorProto uint64Data.
-             * @member {Array.<number|Long>} uint64Data
-             * @memberof onnx.TensorProto
-             * @instance
-             */
             TensorProto.prototype.uint64Data = $util.emptyArray;
     
-            /**
-             * Creates a new TensorProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {onnx.ITensorProto=} [properties] Properties to set
-             * @returns {onnx.TensorProto} TensorProto instance
-             */
             TensorProto.create = function create(properties) {
                 return new TensorProto(properties);
             };
     
-            /**
-             * Encodes the specified TensorProto message. Does not implicitly {@link onnx.TensorProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {onnx.ITensorProto} message TensorProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.dims != null && message.dims.length)
-                    for (var i = 0; i < message.dims.length; ++i)
-                        writer.uint32(/* id 1, wireType 0 =*/8).int64(message.dims[i]);
-                if (message.dataType != null && message.hasOwnProperty("dataType"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.dataType);
-                if (message.segment != null && message.hasOwnProperty("segment"))
-                    $root.onnx.TensorProto.Segment.encode(message.segment, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.floatData != null && message.floatData.length) {
-                    writer.uint32(/* id 4, wireType 2 =*/34).fork();
-                    for (var i = 0; i < message.floatData.length; ++i)
-                        writer.float(message.floatData[i]);
-                    writer.ldelim();
-                }
-                if (message.int32Data != null && message.int32Data.length) {
-                    writer.uint32(/* id 5, wireType 2 =*/42).fork();
-                    for (var i = 0; i < message.int32Data.length; ++i)
-                        writer.int32(message.int32Data[i]);
-                    writer.ldelim();
-                }
-                if (message.stringData != null && message.stringData.length)
-                    for (var i = 0; i < message.stringData.length; ++i)
-                        writer.uint32(/* id 6, wireType 2 =*/50).bytes(message.stringData[i]);
-                if (message.int64Data != null && message.int64Data.length) {
-                    writer.uint32(/* id 7, wireType 2 =*/58).fork();
-                    for (var i = 0; i < message.int64Data.length; ++i)
-                        writer.int64(message.int64Data[i]);
-                    writer.ldelim();
-                }
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 8, wireType 2 =*/66).string(message.name);
-                if (message.rawData != null && message.hasOwnProperty("rawData"))
-                    writer.uint32(/* id 9, wireType 2 =*/74).bytes(message.rawData);
-                if (message.doubleData != null && message.doubleData.length) {
-                    writer.uint32(/* id 10, wireType 2 =*/82).fork();
-                    for (var i = 0; i < message.doubleData.length; ++i)
-                        writer.double(message.doubleData[i]);
-                    writer.ldelim();
-                }
-                if (message.uint64Data != null && message.uint64Data.length) {
-                    writer.uint32(/* id 11, wireType 2 =*/90).fork();
-                    for (var i = 0; i < message.uint64Data.length; ++i)
-                        writer.uint64(message.uint64Data[i]);
-                    writer.ldelim();
-                }
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 12, wireType 2 =*/98).string(message.docString);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TensorProto message, length delimited. Does not implicitly {@link onnx.TensorProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {onnx.ITensorProto} message TensorProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TensorProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.TensorProto} TensorProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TensorProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -2793,30 +1476,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a TensorProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.TensorProto} TensorProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TensorProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a TensorProto message.
-             * @function verify
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TensorProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -2908,14 +1567,6 @@
                 return null;
             };
     
-            /**
-             * Creates a TensorProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.TensorProto} TensorProto
-             */
             TensorProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.TensorProto)
                     return object;
@@ -3076,15 +1727,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TensorProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.TensorProto
-             * @static
-             * @param {onnx.TensorProto} message TensorProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TensorProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -3168,38 +1810,10 @@
                 return object;
             };
     
-            /**
-             * Converts this TensorProto to JSON.
-             * @function toJSON
-             * @memberof onnx.TensorProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TensorProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * DataType enum.
-             * @name onnx.TensorProto.DataType
-             * @enum {string}
-             * @property {number} UNDEFINED=0 UNDEFINED value
-             * @property {number} FLOAT=1 FLOAT value
-             * @property {number} UINT8=2 UINT8 value
-             * @property {number} INT8=3 INT8 value
-             * @property {number} UINT16=4 UINT16 value
-             * @property {number} INT16=5 INT16 value
-             * @property {number} INT32=6 INT32 value
-             * @property {number} INT64=7 INT64 value
-             * @property {number} STRING=8 STRING value
-             * @property {number} BOOL=9 BOOL value
-             * @property {number} FLOAT16=10 FLOAT16 value
-             * @property {number} DOUBLE=11 DOUBLE value
-             * @property {number} UINT32=12 UINT32 value
-             * @property {number} UINT64=13 UINT64 value
-             * @property {number} COMPLEX64=14 COMPLEX64 value
-             * @property {number} COMPLEX128=15 COMPLEX128 value
-             */
             TensorProto.DataType = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "UNDEFINED"] = 0;
@@ -3223,22 +1837,6 @@
     
             TensorProto.Segment = (function() {
     
-                /**
-                 * Properties of a Segment.
-                 * @memberof onnx.TensorProto
-                 * @interface ISegment
-                 * @property {number|Long|null} [begin] Segment begin
-                 * @property {number|Long|null} [end] Segment end
-                 */
-    
-                /**
-                 * Constructs a new Segment.
-                 * @memberof onnx.TensorProto
-                 * @classdesc Represents a Segment.
-                 * @implements ISegment
-                 * @constructor
-                 * @param {onnx.TensorProto.ISegment=} [properties] Properties to set
-                 */
                 function Segment(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -3246,77 +1844,13 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Segment begin.
-                 * @member {number|Long} begin
-                 * @memberof onnx.TensorProto.Segment
-                 * @instance
-                 */
                 Segment.prototype.begin = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-                /**
-                 * Segment end.
-                 * @member {number|Long} end
-                 * @memberof onnx.TensorProto.Segment
-                 * @instance
-                 */
                 Segment.prototype.end = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
-                /**
-                 * Creates a new Segment instance using the specified properties.
-                 * @function create
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {onnx.TensorProto.ISegment=} [properties] Properties to set
-                 * @returns {onnx.TensorProto.Segment} Segment instance
-                 */
                 Segment.create = function create(properties) {
                     return new Segment(properties);
                 };
     
-                /**
-                 * Encodes the specified Segment message. Does not implicitly {@link onnx.TensorProto.Segment.verify|verify} messages.
-                 * @function encode
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {onnx.TensorProto.ISegment} message Segment message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Segment.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.begin != null && message.hasOwnProperty("begin"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).int64(message.begin);
-                    if (message.end != null && message.hasOwnProperty("end"))
-                        writer.uint32(/* id 2, wireType 0 =*/16).int64(message.end);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Segment message, length delimited. Does not implicitly {@link onnx.TensorProto.Segment.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {onnx.TensorProto.ISegment} message Segment message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Segment.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a Segment message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {onnx.TensorProto.Segment} Segment
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Segment.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -3338,30 +1872,6 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a Segment message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {onnx.TensorProto.Segment} Segment
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Segment.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-    
-                /**
-                 * Verifies a Segment message.
-                 * @function verify
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Segment.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -3374,14 +1884,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a Segment message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {onnx.TensorProto.Segment} Segment
-                 */
                 Segment.fromObject = function fromObject(object) {
                     if (object instanceof $root.onnx.TensorProto.Segment)
                         return object;
@@ -3407,15 +1909,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a Segment message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof onnx.TensorProto.Segment
-                 * @static
-                 * @param {onnx.TensorProto.Segment} message Segment
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Segment.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -3445,13 +1938,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Segment to JSON.
-                 * @function toJSON
-                 * @memberof onnx.TensorProto.Segment
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Segment.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -3464,21 +1950,6 @@
     
         onnx.TensorShapeProto = (function() {
     
-            /**
-             * Properties of a TensorShapeProto.
-             * @memberof onnx
-             * @interface ITensorShapeProto
-             * @property {Array.<onnx.TensorShapeProto.IDimension>|null} [dim] TensorShapeProto dim
-             */
-    
-            /**
-             * Constructs a new TensorShapeProto.
-             * @memberof onnx
-             * @classdesc Represents a TensorShapeProto.
-             * @implements ITensorShapeProto
-             * @constructor
-             * @param {onnx.ITensorShapeProto=} [properties] Properties to set
-             */
             function TensorShapeProto(properties) {
                 this.dim = [];
                 if (properties)
@@ -3487,68 +1958,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TensorShapeProto dim.
-             * @member {Array.<onnx.TensorShapeProto.IDimension>} dim
-             * @memberof onnx.TensorShapeProto
-             * @instance
-             */
             TensorShapeProto.prototype.dim = $util.emptyArray;
     
-            /**
-             * Creates a new TensorShapeProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {onnx.ITensorShapeProto=} [properties] Properties to set
-             * @returns {onnx.TensorShapeProto} TensorShapeProto instance
-             */
             TensorShapeProto.create = function create(properties) {
                 return new TensorShapeProto(properties);
             };
     
-            /**
-             * Encodes the specified TensorShapeProto message. Does not implicitly {@link onnx.TensorShapeProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {onnx.ITensorShapeProto} message TensorShapeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorShapeProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.dim != null && message.dim.length)
-                    for (var i = 0; i < message.dim.length; ++i)
-                        $root.onnx.TensorShapeProto.Dimension.encode(message.dim[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TensorShapeProto message, length delimited. Does not implicitly {@link onnx.TensorShapeProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {onnx.ITensorShapeProto} message TensorShapeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorShapeProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TensorShapeProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.TensorShapeProto} TensorShapeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TensorShapeProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -3569,30 +1984,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a TensorShapeProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.TensorShapeProto} TensorShapeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TensorShapeProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a TensorShapeProto message.
-             * @function verify
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TensorShapeProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3608,14 +1999,6 @@
                 return null;
             };
     
-            /**
-             * Creates a TensorShapeProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.TensorShapeProto} TensorShapeProto
-             */
             TensorShapeProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.TensorShapeProto)
                     return object;
@@ -3633,15 +2016,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TensorShapeProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.TensorShapeProto
-             * @static
-             * @param {onnx.TensorShapeProto} message TensorShapeProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TensorShapeProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -3656,36 +2030,12 @@
                 return object;
             };
     
-            /**
-             * Converts this TensorShapeProto to JSON.
-             * @function toJSON
-             * @memberof onnx.TensorShapeProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TensorShapeProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             TensorShapeProto.Dimension = (function() {
     
-                /**
-                 * Properties of a Dimension.
-                 * @memberof onnx.TensorShapeProto
-                 * @interface IDimension
-                 * @property {number|Long|null} [dimValue] Dimension dimValue
-                 * @property {string|null} [dimParam] Dimension dimParam
-                 * @property {string|null} [denotation] Dimension denotation
-                 */
-    
-                /**
-                 * Constructs a new Dimension.
-                 * @memberof onnx.TensorShapeProto
-                 * @classdesc Represents a Dimension.
-                 * @implements IDimension
-                 * @constructor
-                 * @param {onnx.TensorShapeProto.IDimension=} [properties] Properties to set
-                 */
                 function Dimension(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -3693,101 +2043,21 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Dimension dimValue.
-                 * @member {number|Long} dimValue
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @instance
-                 */
                 Dimension.prototype.dimValue = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-                /**
-                 * Dimension dimParam.
-                 * @member {string} dimParam
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @instance
-                 */
                 Dimension.prototype.dimParam = "";
-    
-                /**
-                 * Dimension denotation.
-                 * @member {string} denotation
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @instance
-                 */
                 Dimension.prototype.denotation = "";
     
-                // OneOf field names bound to virtual getters and setters
                 var $oneOfFields;
     
-                /**
-                 * Dimension value.
-                 * @member {"dimValue"|"dimParam"|undefined} value
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @instance
-                 */
                 Object.defineProperty(Dimension.prototype, "value", {
                     get: $util.oneOfGetter($oneOfFields = ["dimValue", "dimParam"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
-                /**
-                 * Creates a new Dimension instance using the specified properties.
-                 * @function create
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {onnx.TensorShapeProto.IDimension=} [properties] Properties to set
-                 * @returns {onnx.TensorShapeProto.Dimension} Dimension instance
-                 */
                 Dimension.create = function create(properties) {
                     return new Dimension(properties);
                 };
     
-                /**
-                 * Encodes the specified Dimension message. Does not implicitly {@link onnx.TensorShapeProto.Dimension.verify|verify} messages.
-                 * @function encode
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {onnx.TensorShapeProto.IDimension} message Dimension message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Dimension.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.dimValue != null && message.hasOwnProperty("dimValue"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).int64(message.dimValue);
-                    if (message.dimParam != null && message.hasOwnProperty("dimParam"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.dimParam);
-                    if (message.denotation != null && message.hasOwnProperty("denotation"))
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.denotation);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Dimension message, length delimited. Does not implicitly {@link onnx.TensorShapeProto.Dimension.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {onnx.TensorShapeProto.IDimension} message Dimension message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Dimension.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a Dimension message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {onnx.TensorShapeProto.Dimension} Dimension
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Dimension.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -3812,30 +2082,6 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a Dimension message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {onnx.TensorShapeProto.Dimension} Dimension
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Dimension.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-    
-                /**
-                 * Verifies a Dimension message.
-                 * @function verify
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Dimension.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -3858,14 +2104,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a Dimension message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {onnx.TensorShapeProto.Dimension} Dimension
-                 */
                 Dimension.fromObject = function fromObject(object) {
                     if (object instanceof $root.onnx.TensorShapeProto.Dimension)
                         return object;
@@ -3886,15 +2124,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a Dimension message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @static
-                 * @param {onnx.TensorShapeProto.Dimension} message Dimension
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Dimension.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -3919,13 +2148,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Dimension to JSON.
-                 * @function toJSON
-                 * @memberof onnx.TensorShapeProto.Dimension
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Dimension.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -3938,24 +2160,6 @@
     
         onnx.TypeProto = (function() {
     
-            /**
-             * Properties of a TypeProto.
-             * @memberof onnx
-             * @interface ITypeProto
-             * @property {onnx.TypeProto.ITensor|null} [tensorType] TypeProto tensorType
-             * @property {onnx.TypeProto.ISequence|null} [sequenceType] TypeProto sequenceType
-             * @property {onnx.TypeProto.IMap|null} [mapType] TypeProto mapType
-             * @property {string|null} [denotation] TypeProto denotation
-             */
-    
-            /**
-             * Constructs a new TypeProto.
-             * @memberof onnx
-             * @classdesc Represents a TypeProto.
-             * @implements ITypeProto
-             * @constructor
-             * @param {onnx.ITypeProto=} [properties] Properties to set
-             */
             function TypeProto(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -3963,111 +2167,22 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TypeProto tensorType.
-             * @member {onnx.TypeProto.ITensor|null|undefined} tensorType
-             * @memberof onnx.TypeProto
-             * @instance
-             */
             TypeProto.prototype.tensorType = null;
-    
-            /**
-             * TypeProto sequenceType.
-             * @member {onnx.TypeProto.ISequence|null|undefined} sequenceType
-             * @memberof onnx.TypeProto
-             * @instance
-             */
             TypeProto.prototype.sequenceType = null;
-    
-            /**
-             * TypeProto mapType.
-             * @member {onnx.TypeProto.IMap|null|undefined} mapType
-             * @memberof onnx.TypeProto
-             * @instance
-             */
             TypeProto.prototype.mapType = null;
-    
-            /**
-             * TypeProto denotation.
-             * @member {string} denotation
-             * @memberof onnx.TypeProto
-             * @instance
-             */
             TypeProto.prototype.denotation = "";
     
-            // OneOf field names bound to virtual getters and setters
             var $oneOfFields;
     
-            /**
-             * TypeProto value.
-             * @member {"tensorType"|"sequenceType"|"mapType"|undefined} value
-             * @memberof onnx.TypeProto
-             * @instance
-             */
             Object.defineProperty(TypeProto.prototype, "value", {
                 get: $util.oneOfGetter($oneOfFields = ["tensorType", "sequenceType", "mapType"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
-            /**
-             * Creates a new TypeProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {onnx.ITypeProto=} [properties] Properties to set
-             * @returns {onnx.TypeProto} TypeProto instance
-             */
             TypeProto.create = function create(properties) {
                 return new TypeProto(properties);
             };
     
-            /**
-             * Encodes the specified TypeProto message. Does not implicitly {@link onnx.TypeProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {onnx.ITypeProto} message TypeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TypeProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.tensorType != null && message.hasOwnProperty("tensorType"))
-                    $root.onnx.TypeProto.Tensor.encode(message.tensorType, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.sequenceType != null && message.hasOwnProperty("sequenceType"))
-                    $root.onnx.TypeProto.Sequence.encode(message.sequenceType, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                if (message.mapType != null && message.hasOwnProperty("mapType"))
-                    $root.onnx.TypeProto.Map.encode(message.mapType, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                if (message.denotation != null && message.hasOwnProperty("denotation"))
-                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.denotation);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TypeProto message, length delimited. Does not implicitly {@link onnx.TypeProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {onnx.ITypeProto} message TypeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TypeProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TypeProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.TypeProto} TypeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TypeProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -4095,30 +2210,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a TypeProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.TypeProto} TypeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TypeProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a TypeProto message.
-             * @function verify
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TypeProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -4157,14 +2248,6 @@
                 return null;
             };
     
-            /**
-             * Creates a TypeProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.TypeProto} TypeProto
-             */
             TypeProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.TypeProto)
                     return object;
@@ -4189,15 +2272,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TypeProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.TypeProto
-             * @static
-             * @param {onnx.TypeProto} message TypeProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TypeProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -4224,35 +2298,12 @@
                 return object;
             };
     
-            /**
-             * Converts this TypeProto to JSON.
-             * @function toJSON
-             * @memberof onnx.TypeProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TypeProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             TypeProto.Tensor = (function() {
     
-                /**
-                 * Properties of a Tensor.
-                 * @memberof onnx.TypeProto
-                 * @interface ITensor
-                 * @property {onnx.TensorProto.DataType|null} [elemType] Tensor elemType
-                 * @property {onnx.ITensorShapeProto|null} [shape] Tensor shape
-                 */
-    
-                /**
-                 * Constructs a new Tensor.
-                 * @memberof onnx.TypeProto
-                 * @classdesc Represents a Tensor.
-                 * @implements ITensor
-                 * @constructor
-                 * @param {onnx.TypeProto.ITensor=} [properties] Properties to set
-                 */
                 function Tensor(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -4260,77 +2311,13 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Tensor elemType.
-                 * @member {onnx.TensorProto.DataType} elemType
-                 * @memberof onnx.TypeProto.Tensor
-                 * @instance
-                 */
                 Tensor.prototype.elemType = 0;
-    
-                /**
-                 * Tensor shape.
-                 * @member {onnx.ITensorShapeProto|null|undefined} shape
-                 * @memberof onnx.TypeProto.Tensor
-                 * @instance
-                 */
                 Tensor.prototype.shape = null;
     
-                /**
-                 * Creates a new Tensor instance using the specified properties.
-                 * @function create
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {onnx.TypeProto.ITensor=} [properties] Properties to set
-                 * @returns {onnx.TypeProto.Tensor} Tensor instance
-                 */
                 Tensor.create = function create(properties) {
                     return new Tensor(properties);
                 };
     
-                /**
-                 * Encodes the specified Tensor message. Does not implicitly {@link onnx.TypeProto.Tensor.verify|verify} messages.
-                 * @function encode
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {onnx.TypeProto.ITensor} message Tensor message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Tensor.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.elemType != null && message.hasOwnProperty("elemType"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.elemType);
-                    if (message.shape != null && message.hasOwnProperty("shape"))
-                        $root.onnx.TensorShapeProto.encode(message.shape, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Tensor message, length delimited. Does not implicitly {@link onnx.TypeProto.Tensor.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {onnx.TypeProto.ITensor} message Tensor message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Tensor.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a Tensor message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {onnx.TypeProto.Tensor} Tensor
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Tensor.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -4352,30 +2339,6 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a Tensor message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {onnx.TypeProto.Tensor} Tensor
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Tensor.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-    
-                /**
-                 * Verifies a Tensor message.
-                 * @function verify
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Tensor.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -4409,14 +2372,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a Tensor message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {onnx.TypeProto.Tensor} Tensor
-                 */
                 Tensor.fromObject = function fromObject(object) {
                     if (object instanceof $root.onnx.TypeProto.Tensor)
                         return object;
@@ -4495,15 +2450,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a Tensor message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof onnx.TypeProto.Tensor
-                 * @static
-                 * @param {onnx.TypeProto.Tensor} message Tensor
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Tensor.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -4519,13 +2465,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Tensor to JSON.
-                 * @function toJSON
-                 * @memberof onnx.TypeProto.Tensor
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Tensor.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -4535,21 +2474,6 @@
     
             TypeProto.Sequence = (function() {
     
-                /**
-                 * Properties of a Sequence.
-                 * @memberof onnx.TypeProto
-                 * @interface ISequence
-                 * @property {onnx.ITypeProto|null} [elemType] Sequence elemType
-                 */
-    
-                /**
-                 * Constructs a new Sequence.
-                 * @memberof onnx.TypeProto
-                 * @classdesc Represents a Sequence.
-                 * @implements ISequence
-                 * @constructor
-                 * @param {onnx.TypeProto.ISequence=} [properties] Properties to set
-                 */
                 function Sequence(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -4557,67 +2481,12 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Sequence elemType.
-                 * @member {onnx.ITypeProto|null|undefined} elemType
-                 * @memberof onnx.TypeProto.Sequence
-                 * @instance
-                 */
                 Sequence.prototype.elemType = null;
     
-                /**
-                 * Creates a new Sequence instance using the specified properties.
-                 * @function create
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {onnx.TypeProto.ISequence=} [properties] Properties to set
-                 * @returns {onnx.TypeProto.Sequence} Sequence instance
-                 */
                 Sequence.create = function create(properties) {
                     return new Sequence(properties);
                 };
     
-                /**
-                 * Encodes the specified Sequence message. Does not implicitly {@link onnx.TypeProto.Sequence.verify|verify} messages.
-                 * @function encode
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {onnx.TypeProto.ISequence} message Sequence message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Sequence.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.elemType != null && message.hasOwnProperty("elemType"))
-                        $root.onnx.TypeProto.encode(message.elemType, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Sequence message, length delimited. Does not implicitly {@link onnx.TypeProto.Sequence.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {onnx.TypeProto.ISequence} message Sequence message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Sequence.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a Sequence message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {onnx.TypeProto.Sequence} Sequence
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Sequence.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -4636,30 +2505,6 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a Sequence message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {onnx.TypeProto.Sequence} Sequence
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Sequence.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-    
-                /**
-                 * Verifies a Sequence message.
-                 * @function verify
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Sequence.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -4671,14 +2516,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a Sequence message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {onnx.TypeProto.Sequence} Sequence
-                 */
                 Sequence.fromObject = function fromObject(object) {
                     if (object instanceof $root.onnx.TypeProto.Sequence)
                         return object;
@@ -4691,15 +2528,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a Sequence message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof onnx.TypeProto.Sequence
-                 * @static
-                 * @param {onnx.TypeProto.Sequence} message Sequence
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Sequence.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -4711,13 +2539,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Sequence to JSON.
-                 * @function toJSON
-                 * @memberof onnx.TypeProto.Sequence
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Sequence.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -4727,22 +2548,6 @@
     
             TypeProto.Map = (function() {
     
-                /**
-                 * Properties of a Map.
-                 * @memberof onnx.TypeProto
-                 * @interface IMap
-                 * @property {onnx.TensorProto.DataType|null} [keyType] Map keyType
-                 * @property {onnx.ITypeProto|null} [valueType] Map valueType
-                 */
-    
-                /**
-                 * Constructs a new Map.
-                 * @memberof onnx.TypeProto
-                 * @classdesc Represents a Map.
-                 * @implements IMap
-                 * @constructor
-                 * @param {onnx.TypeProto.IMap=} [properties] Properties to set
-                 */
                 function Map(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -4750,77 +2555,13 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Map keyType.
-                 * @member {onnx.TensorProto.DataType} keyType
-                 * @memberof onnx.TypeProto.Map
-                 * @instance
-                 */
                 Map.prototype.keyType = 0;
-    
-                /**
-                 * Map valueType.
-                 * @member {onnx.ITypeProto|null|undefined} valueType
-                 * @memberof onnx.TypeProto.Map
-                 * @instance
-                 */
                 Map.prototype.valueType = null;
     
-                /**
-                 * Creates a new Map instance using the specified properties.
-                 * @function create
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {onnx.TypeProto.IMap=} [properties] Properties to set
-                 * @returns {onnx.TypeProto.Map} Map instance
-                 */
                 Map.create = function create(properties) {
                     return new Map(properties);
                 };
     
-                /**
-                 * Encodes the specified Map message. Does not implicitly {@link onnx.TypeProto.Map.verify|verify} messages.
-                 * @function encode
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {onnx.TypeProto.IMap} message Map message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Map.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.keyType != null && message.hasOwnProperty("keyType"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).int32(message.keyType);
-                    if (message.valueType != null && message.hasOwnProperty("valueType"))
-                        $root.onnx.TypeProto.encode(message.valueType, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Map message, length delimited. Does not implicitly {@link onnx.TypeProto.Map.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {onnx.TypeProto.IMap} message Map message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Map.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a Map message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {onnx.TypeProto.Map} Map
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Map.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -4842,30 +2583,6 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a Map message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {onnx.TypeProto.Map} Map
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Map.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
-                };
-    
-                /**
-                 * Verifies a Map message.
-                 * @function verify
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Map.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -4899,14 +2616,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a Map message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {onnx.TypeProto.Map} Map
-                 */
                 Map.fromObject = function fromObject(object) {
                     if (object instanceof $root.onnx.TypeProto.Map)
                         return object;
@@ -4985,15 +2694,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a Map message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof onnx.TypeProto.Map
-                 * @static
-                 * @param {onnx.TypeProto.Map} message Map
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Map.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -5009,13 +2709,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Map to JSON.
-                 * @function toJSON
-                 * @memberof onnx.TypeProto.Map
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Map.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -5028,22 +2721,6 @@
     
         onnx.OperatorSetIdProto = (function() {
     
-            /**
-             * Properties of an OperatorSetIdProto.
-             * @memberof onnx
-             * @interface IOperatorSetIdProto
-             * @property {string|null} [domain] OperatorSetIdProto domain
-             * @property {number|Long|null} [version] OperatorSetIdProto version
-             */
-    
-            /**
-             * Constructs a new OperatorSetIdProto.
-             * @memberof onnx
-             * @classdesc Represents an OperatorSetIdProto.
-             * @implements IOperatorSetIdProto
-             * @constructor
-             * @param {onnx.IOperatorSetIdProto=} [properties] Properties to set
-             */
             function OperatorSetIdProto(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -5051,77 +2728,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * OperatorSetIdProto domain.
-             * @member {string} domain
-             * @memberof onnx.OperatorSetIdProto
-             * @instance
-             */
             OperatorSetIdProto.prototype.domain = "";
-    
-            /**
-             * OperatorSetIdProto version.
-             * @member {number|Long} version
-             * @memberof onnx.OperatorSetIdProto
-             * @instance
-             */
             OperatorSetIdProto.prototype.version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
-            /**
-             * Creates a new OperatorSetIdProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {onnx.IOperatorSetIdProto=} [properties] Properties to set
-             * @returns {onnx.OperatorSetIdProto} OperatorSetIdProto instance
-             */
             OperatorSetIdProto.create = function create(properties) {
                 return new OperatorSetIdProto(properties);
             };
     
-            /**
-             * Encodes the specified OperatorSetIdProto message. Does not implicitly {@link onnx.OperatorSetIdProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {onnx.IOperatorSetIdProto} message OperatorSetIdProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OperatorSetIdProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.domain != null && message.hasOwnProperty("domain"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.domain);
-                if (message.version != null && message.hasOwnProperty("version"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int64(message.version);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified OperatorSetIdProto message, length delimited. Does not implicitly {@link onnx.OperatorSetIdProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {onnx.IOperatorSetIdProto} message OperatorSetIdProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OperatorSetIdProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an OperatorSetIdProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.OperatorSetIdProto} OperatorSetIdProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             OperatorSetIdProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -5143,30 +2756,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an OperatorSetIdProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.OperatorSetIdProto} OperatorSetIdProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            OperatorSetIdProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an OperatorSetIdProto message.
-             * @function verify
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             OperatorSetIdProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5179,14 +2768,6 @@
                 return null;
             };
     
-            /**
-             * Creates an OperatorSetIdProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.OperatorSetIdProto} OperatorSetIdProto
-             */
             OperatorSetIdProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.OperatorSetIdProto)
                     return object;
@@ -5205,15 +2786,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an OperatorSetIdProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.OperatorSetIdProto
-             * @static
-             * @param {onnx.OperatorSetIdProto} message OperatorSetIdProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             OperatorSetIdProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -5236,13 +2808,6 @@
                 return object;
             };
     
-            /**
-             * Converts this OperatorSetIdProto to JSON.
-             * @function toJSON
-             * @memberof onnx.OperatorSetIdProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             OperatorSetIdProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -5250,13 +2815,6 @@
             return OperatorSetIdProto;
         })();
     
-        /**
-         * OperatorStatus enum.
-         * @name onnx.OperatorStatus
-         * @enum {string}
-         * @property {number} EXPERIMENTAL=0 EXPERIMENTAL value
-         * @property {number} STABLE=1 STABLE value
-         */
         onnx.OperatorStatus = (function() {
             var valuesById = {}, values = Object.create(valuesById);
             values[valuesById[0] = "EXPERIMENTAL"] = 0;
@@ -5266,28 +2824,6 @@
     
         onnx.FunctionProto = (function() {
     
-            /**
-             * Properties of a FunctionProto.
-             * @memberof onnx
-             * @interface IFunctionProto
-             * @property {string|null} [name] FunctionProto name
-             * @property {number|Long|null} [sinceVersion] FunctionProto sinceVersion
-             * @property {onnx.OperatorStatus|null} [status] FunctionProto status
-             * @property {Array.<string>|null} [input] FunctionProto input
-             * @property {Array.<string>|null} [output] FunctionProto output
-             * @property {Array.<string>|null} [attribute] FunctionProto attribute
-             * @property {Array.<onnx.INodeProto>|null} [node] FunctionProto node
-             * @property {string|null} [docString] FunctionProto docString
-             */
-    
-            /**
-             * Constructs a new FunctionProto.
-             * @memberof onnx
-             * @classdesc Represents a FunctionProto.
-             * @implements IFunctionProto
-             * @constructor
-             * @param {onnx.IFunctionProto=} [properties] Properties to set
-             */
             function FunctionProto(properties) {
                 this.input = [];
                 this.output = [];
@@ -5299,141 +2835,19 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * FunctionProto name.
-             * @member {string} name
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.name = "";
-    
-            /**
-             * FunctionProto sinceVersion.
-             * @member {number|Long} sinceVersion
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.sinceVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-            /**
-             * FunctionProto status.
-             * @member {onnx.OperatorStatus} status
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.status = 0;
-    
-            /**
-             * FunctionProto input.
-             * @member {Array.<string>} input
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.input = $util.emptyArray;
-    
-            /**
-             * FunctionProto output.
-             * @member {Array.<string>} output
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.output = $util.emptyArray;
-    
-            /**
-             * FunctionProto attribute.
-             * @member {Array.<string>} attribute
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.attribute = $util.emptyArray;
-    
-            /**
-             * FunctionProto node.
-             * @member {Array.<onnx.INodeProto>} node
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.node = $util.emptyArray;
-    
-            /**
-             * FunctionProto docString.
-             * @member {string} docString
-             * @memberof onnx.FunctionProto
-             * @instance
-             */
             FunctionProto.prototype.docString = "";
     
-            /**
-             * Creates a new FunctionProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {onnx.IFunctionProto=} [properties] Properties to set
-             * @returns {onnx.FunctionProto} FunctionProto instance
-             */
             FunctionProto.create = function create(properties) {
                 return new FunctionProto(properties);
             };
     
-            /**
-             * Encodes the specified FunctionProto message. Does not implicitly {@link onnx.FunctionProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {onnx.IFunctionProto} message FunctionProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FunctionProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int64(message.sinceVersion);
-                if (message.status != null && message.hasOwnProperty("status"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.status);
-                if (message.input != null && message.input.length)
-                    for (var i = 0; i < message.input.length; ++i)
-                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.input[i]);
-                if (message.output != null && message.output.length)
-                    for (var i = 0; i < message.output.length; ++i)
-                        writer.uint32(/* id 5, wireType 2 =*/42).string(message.output[i]);
-                if (message.attribute != null && message.attribute.length)
-                    for (var i = 0; i < message.attribute.length; ++i)
-                        writer.uint32(/* id 6, wireType 2 =*/50).string(message.attribute[i]);
-                if (message.node != null && message.node.length)
-                    for (var i = 0; i < message.node.length; ++i)
-                        $root.onnx.NodeProto.encode(message.node[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 8, wireType 2 =*/66).string(message.docString);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified FunctionProto message, length delimited. Does not implicitly {@link onnx.FunctionProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {onnx.IFunctionProto} message FunctionProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FunctionProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a FunctionProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.FunctionProto} FunctionProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             FunctionProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -5481,30 +2895,6 @@
                 return message;
             };
     
-            /**
-             * Decodes a FunctionProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.FunctionProto} FunctionProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            FunctionProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a FunctionProto message.
-             * @function verify
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             FunctionProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5558,14 +2948,6 @@
                 return null;
             };
     
-            /**
-             * Creates a FunctionProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.FunctionProto} FunctionProto
-             */
             FunctionProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.FunctionProto)
                     return object;
@@ -5627,15 +3009,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a FunctionProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.FunctionProto
-             * @static
-             * @param {onnx.FunctionProto} message FunctionProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             FunctionProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -5690,13 +3063,6 @@
                 return object;
             };
     
-            /**
-             * Converts this FunctionProto to JSON.
-             * @function toJSON
-             * @memberof onnx.FunctionProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             FunctionProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -5706,24 +3072,6 @@
     
         onnx.OperatorProto = (function() {
     
-            /**
-             * Properties of an OperatorProto.
-             * @memberof onnx
-             * @interface IOperatorProto
-             * @property {string|null} [opType] OperatorProto opType
-             * @property {number|Long|null} [sinceVersion] OperatorProto sinceVersion
-             * @property {onnx.OperatorStatus|null} [status] OperatorProto status
-             * @property {string|null} [docString] OperatorProto docString
-             */
-    
-            /**
-             * Constructs a new OperatorProto.
-             * @memberof onnx
-             * @classdesc Represents an OperatorProto.
-             * @implements IOperatorProto
-             * @constructor
-             * @param {onnx.IOperatorProto=} [properties] Properties to set
-             */
             function OperatorProto(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -5731,97 +3079,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * OperatorProto opType.
-             * @member {string} opType
-             * @memberof onnx.OperatorProto
-             * @instance
-             */
             OperatorProto.prototype.opType = "";
-    
-            /**
-             * OperatorProto sinceVersion.
-             * @member {number|Long} sinceVersion
-             * @memberof onnx.OperatorProto
-             * @instance
-             */
             OperatorProto.prototype.sinceVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-            /**
-             * OperatorProto status.
-             * @member {onnx.OperatorStatus} status
-             * @memberof onnx.OperatorProto
-             * @instance
-             */
             OperatorProto.prototype.status = 0;
-    
-            /**
-             * OperatorProto docString.
-             * @member {string} docString
-             * @memberof onnx.OperatorProto
-             * @instance
-             */
             OperatorProto.prototype.docString = "";
     
-            /**
-             * Creates a new OperatorProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {onnx.IOperatorProto=} [properties] Properties to set
-             * @returns {onnx.OperatorProto} OperatorProto instance
-             */
             OperatorProto.create = function create(properties) {
                 return new OperatorProto(properties);
             };
     
-            /**
-             * Encodes the specified OperatorProto message. Does not implicitly {@link onnx.OperatorProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {onnx.IOperatorProto} message OperatorProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OperatorProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.opType != null && message.hasOwnProperty("opType"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.opType);
-                if (message.sinceVersion != null && message.hasOwnProperty("sinceVersion"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int64(message.sinceVersion);
-                if (message.status != null && message.hasOwnProperty("status"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.status);
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 10, wireType 2 =*/82).string(message.docString);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified OperatorProto message, length delimited. Does not implicitly {@link onnx.OperatorProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {onnx.IOperatorProto} message OperatorProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OperatorProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an OperatorProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.OperatorProto} OperatorProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             OperatorProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -5849,30 +3115,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an OperatorProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.OperatorProto} OperatorProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            OperatorProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an OperatorProto message.
-             * @function verify
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             OperatorProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5896,14 +3138,6 @@
                 return null;
             };
     
-            /**
-             * Creates an OperatorProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.OperatorProto} OperatorProto
-             */
             OperatorProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.OperatorProto)
                     return object;
@@ -5934,15 +3168,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an OperatorProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.OperatorProto
-             * @static
-             * @param {onnx.OperatorProto} message OperatorProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             OperatorProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -5971,13 +3196,6 @@
                 return object;
             };
     
-            /**
-             * Converts this OperatorProto to JSON.
-             * @function toJSON
-             * @memberof onnx.OperatorProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             OperatorProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -5987,29 +3205,6 @@
     
         onnx.OperatorSetProto = (function() {
     
-            /**
-             * Properties of an OperatorSetProto.
-             * @memberof onnx
-             * @interface IOperatorSetProto
-             * @property {string|null} [magic] OperatorSetProto magic
-             * @property {number|null} [irVersion] OperatorSetProto irVersion
-             * @property {string|null} [irVersionPrerelease] OperatorSetProto irVersionPrerelease
-             * @property {string|null} [irBuildMetadata] OperatorSetProto irBuildMetadata
-             * @property {string|null} [domain] OperatorSetProto domain
-             * @property {number|Long|null} [opsetVersion] OperatorSetProto opsetVersion
-             * @property {string|null} [docString] OperatorSetProto docString
-             * @property {Array.<onnx.IOperatorProto>|null} [operator] OperatorSetProto operator
-             * @property {Array.<onnx.IFunctionProto>|null} [functions] OperatorSetProto functions
-             */
-    
-            /**
-             * Constructs a new OperatorSetProto.
-             * @memberof onnx
-             * @classdesc Represents an OperatorSetProto.
-             * @implements IOperatorSetProto
-             * @constructor
-             * @param {onnx.IOperatorSetProto=} [properties] Properties to set
-             */
             function OperatorSetProto(properties) {
                 this.operator = [];
                 this.functions = [];
@@ -6019,149 +3214,20 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * OperatorSetProto magic.
-             * @member {string} magic
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.magic = "";
-    
-            /**
-             * OperatorSetProto irVersion.
-             * @member {number} irVersion
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.irVersion = 0;
-    
-            /**
-             * OperatorSetProto irVersionPrerelease.
-             * @member {string} irVersionPrerelease
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.irVersionPrerelease = "";
-    
-            /**
-             * OperatorSetProto irBuildMetadata.
-             * @member {string} irBuildMetadata
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.irBuildMetadata = "";
-    
-            /**
-             * OperatorSetProto domain.
-             * @member {string} domain
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.domain = "";
-    
-            /**
-             * OperatorSetProto opsetVersion.
-             * @member {number|Long} opsetVersion
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.opsetVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-            /**
-             * OperatorSetProto docString.
-             * @member {string} docString
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.docString = "";
-    
-            /**
-             * OperatorSetProto operator.
-             * @member {Array.<onnx.IOperatorProto>} operator
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.operator = $util.emptyArray;
-    
-            /**
-             * OperatorSetProto functions.
-             * @member {Array.<onnx.IFunctionProto>} functions
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             */
             OperatorSetProto.prototype.functions = $util.emptyArray;
     
-            /**
-             * Creates a new OperatorSetProto instance using the specified properties.
-             * @function create
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {onnx.IOperatorSetProto=} [properties] Properties to set
-             * @returns {onnx.OperatorSetProto} OperatorSetProto instance
-             */
             OperatorSetProto.create = function create(properties) {
                 return new OperatorSetProto(properties);
             };
     
-            /**
-             * Encodes the specified OperatorSetProto message. Does not implicitly {@link onnx.OperatorSetProto.verify|verify} messages.
-             * @function encode
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {onnx.IOperatorSetProto} message OperatorSetProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OperatorSetProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.magic != null && message.hasOwnProperty("magic"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.magic);
-                if (message.irVersion != null && message.hasOwnProperty("irVersion"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.irVersion);
-                if (message.irVersionPrerelease != null && message.hasOwnProperty("irVersionPrerelease"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.irVersionPrerelease);
-                if (message.domain != null && message.hasOwnProperty("domain"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.domain);
-                if (message.opsetVersion != null && message.hasOwnProperty("opsetVersion"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).int64(message.opsetVersion);
-                if (message.docString != null && message.hasOwnProperty("docString"))
-                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.docString);
-                if (message.irBuildMetadata != null && message.hasOwnProperty("irBuildMetadata"))
-                    writer.uint32(/* id 7, wireType 2 =*/58).string(message.irBuildMetadata);
-                if (message.operator != null && message.operator.length)
-                    for (var i = 0; i < message.operator.length; ++i)
-                        $root.onnx.OperatorProto.encode(message.operator[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                if (message.functions != null && message.functions.length)
-                    for (var i = 0; i < message.functions.length; ++i)
-                        $root.onnx.FunctionProto.encode(message.functions[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified OperatorSetProto message, length delimited. Does not implicitly {@link onnx.OperatorSetProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {onnx.IOperatorSetProto} message OperatorSetProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OperatorSetProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an OperatorSetProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {onnx.OperatorSetProto} OperatorSetProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             OperatorSetProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -6208,30 +3274,6 @@
                 return message;
             };
     
-            /**
-             * Decodes an OperatorSetProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {onnx.OperatorSetProto} OperatorSetProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            OperatorSetProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies an OperatorSetProto message.
-             * @function verify
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             OperatorSetProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6277,14 +3319,6 @@
                 return null;
             };
     
-            /**
-             * Creates an OperatorSetProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {onnx.OperatorSetProto} OperatorSetProto
-             */
             OperatorSetProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.onnx.OperatorSetProto)
                     return object;
@@ -6333,15 +3367,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an OperatorSetProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof onnx.OperatorSetProto
-             * @static
-             * @param {onnx.OperatorSetProto} message OperatorSetProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             OperatorSetProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -6393,13 +3418,6 @@
                 return object;
             };
     
-            /**
-             * Converts this OperatorSetProto to JSON.
-             * @function toJSON
-             * @memberof onnx.OperatorSetProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             OperatorSetProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };

@@ -7,9 +7,21 @@ class OnnxModelFactory {
     match(context) {
         var identifier = context.identifier;
         var extension = context.identifier.split('.').pop();
-        return (identifier != 'saved_model.pb') && 
-               (identifier != 'predict_net.pb') && (identifier != 'init_net.pb') && 
-               (extension == 'onnx' || extension == 'pb');
+        switch (identifier) {
+            case 'saved_model.pb':
+            case 'predict_net.pb':
+            case 'init_net.pb':
+                return false;
+        }
+        switch (extension) {
+            case 'onnx':
+            case 'pb':
+                return true;
+            // case 'pbtxt':
+            // case 'prototxt':
+            //    return true;
+        }
+        return false;
     }
 
     open(context, host, callback) { 
@@ -21,7 +33,14 @@ class OnnxModelFactory {
             var model = null;
             try {
                 onnx = protobuf.roots.onnx.onnx;
-                model = onnx.ModelProto.decode(context.buffer);
+                var extension = context.identifier.split('.').pop();
+                if (extension == 'pbtxt' || extension == 'prototxt') {
+                    var text = new TextDecoder('utf-8').decode(context.buffer);
+                    model = onnx.ModelProto.decodeText(text);
+                }
+                else {
+                    model = onnx.ModelProto.decode(context.buffer);
+                }
             }
             catch (error) {
                 callback(new OnnxError('File format is not onnx.ModelProto (' + error.message + ').'), null);
@@ -466,7 +485,7 @@ class OnnxAttribute {
         if (attributeType) {
             return attributeType;
         }
-        return OnnxTensor._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED];
+        return OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED];
     }
 
     get value() {
