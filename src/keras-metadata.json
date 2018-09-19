@@ -109,7 +109,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Rectifier Nonlinearities Improve Neural Network Acoustic Models](https://web.stanford.edu/~awni/papers/relu_hybrid_icml2013_final.pdf)"
+          "description": "[Rectifier Nonlinearities Improve Neural Network Acoustic Models]"
+        },
+        {
+          "description": "(https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf)"
         }
       ]
     }
@@ -156,7 +159,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification](https://arxiv.org/abs/1502.01852)"
+          "description": "[Delving Deep into Rectifiers: Surpassing Human-Level Performance on"
+        },
+        {
+          "description": "ImageNet Classification](https://arxiv.org/abs/1502.01852)"
         }
       ]
     }
@@ -187,7 +193,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)](https://arxiv.org/abs/1511.07289v1)"
+          "description": "[Fast and Accurate Deep Network Learning by Exponential Linear Units"
+        },
+        {
+          "description": "(ELUs)](https://arxiv.org/abs/1511.07289v1)"
         }
       ]
     }
@@ -218,7 +227,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Zero-Bias Autoencoders and the Benefits of Co-Adapting Features](http://arxiv.org/abs/1402.3337)"
+          "description": "[Zero-Bias Autoencoders and the Benefits of Co-Adapting Features]"
+        },
+        {
+          "description": "(https://arxiv.org/abs/1402.3337)"
         }
       ]
     }
@@ -513,7 +525,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to height and width.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_pad, right_dim1_pad), (left_dim2_pad, right_dim2_pad), (left_dim3_pad, right_dim3_pad))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to height and width.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_pad, right_dim1_pad),\n(left_dim2_pad, right_dim2_pad),\n(left_dim3_pad, right_dim3_pad))`",
           "name": "padding"
         },
         {
@@ -525,13 +537,13 @@
       "description": "Zero-padding layer for 3D data (spatial or spatio-temporal).\n",
       "inputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad, depth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_axis_to_pad, second_axis_to_pad, third_axis_to_pad)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_padded_axis, second_padded_axis, third_axis_to_pad, depth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth, first_padded_axis, second_padded_axis, third_axis_to_pad)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_padded_axis, second_padded_axis, third_axis_to_pad,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_padded_axis, second_padded_axis, third_axis_to_pad)`\n",
           "name": "output"
         }
       ],
@@ -870,7 +882,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)"
+          "description": "[Batch Normalization: Accelerating Deep Network Training by"
+        },
+        {
+          "description": "Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)"
         }
       ]
     }
@@ -1266,7 +1281,7 @@
       "description": "Locally-connected layer for 2D inputs.\n\nThe `LocallyConnected2D` layer works similarly\nto the `Conv2D` layer, except that weights are unshared,\nthat is, a different set of filters is applied at each\ndifferent patch of the input.\n",
       "examples": [
         {
-          "code": "# apply a 3x3 unshared weights convolution with 64 output filters on a 32x32 image\n# with `data_format=\"channels_last\"`:\nmodel = Sequential()\nmodel.add(LocallyConnected2D(64, (3, 3), input_shape=(32, 32, 3)))\n# now model.output_shape == (None, 30, 30, 64)\n# notice that this layer will consume (30*30)*(3*3*3*64) + (30*30)*64 parameters\n\n# add a 3x3 unshared weights convolution on top, with 32 output filters:\nmodel.add(LocallyConnected2D(32, (3, 3)))\n# now model.output_shape == (None, 28, 28, 32)"
+          "code": "# apply a 3x3 unshared weights convolution with 64 output filters\n# on a 32x32 image with `data_format=\"channels_last\"`:\nmodel = Sequential()\nmodel.add(LocallyConnected2D(64, (3, 3), input_shape=(32, 32, 3)))\n# now model.output_shape == (None, 30, 30, 64)\n# notice that this layer will consume (30*30)*(3*3*3*64)\n# + (30*30)*64 parameters\n\n# add a 3x3 unshared weights convolution on top, with 32 output filters:\nmodel.add(LocallyConnected2D(32, (3, 3)))\n# now model.output_shape == (None, 28, 28, 32)"
         }
       ],
       "inputs": [
@@ -1325,7 +1340,7 @@
         },
         {
           "default": true,
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
@@ -1449,16 +1464,28 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Long short-term memory](http://www.bioinf.jku.at/publications/older/2604.pdf) (original 1997 paper)"
+          "description": "[Long short-term memory]"
         },
         {
-          "description": "[Learning to forget: Continual prediction with LSTM](http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)"
+          "description": "(http://www.bioinf.jku.at/publications/older/2604.pdf)"
         },
         {
-          "description": "[Supervised sequence labeling with recurrent neural networks](http://www.cs.toronto.edu/~graves/preprint.pdf)"
+          "description": "[Learning to forget: Continual prediction with LSTM]"
         },
         {
-          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
+          "description": "(http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)"
+        },
+        {
+          "description": "[Supervised sequence labeling with recurrent neural networks]"
+        },
+        {
+          "description": "(http://www.cs.toronto.edu/~graves/preprint.pdf)"
+        },
+        {
+          "description": "[A Theoretically Grounded Application of Dropout in"
+        },
+        {
+          "description": "Recurrent Neural Networks](https://arxiv.org/abs/1512.05287)"
         }
       ]
     }
@@ -1626,16 +1653,28 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation](https://arxiv.org/abs/1406.1078)"
+          "description": "[Learning Phrase Representations using RNN Encoder-Decoder for"
         },
         {
-          "description": "[On the Properties of Neural Machine Translation: Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)"
+          "description": "Statistical Machine Translation](https://arxiv.org/abs/1406.1078)"
         },
         {
-          "description": "[Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling](http://arxiv.org/abs/1412.3555v1)"
+          "description": "[On the Properties of Neural Machine Translation:"
         },
         {
-          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
+          "description": "Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)"
+        },
+        {
+          "description": "[Empirical Evaluation of Gated Recurrent Neural Networks on"
+        },
+        {
+          "description": "Sequence Modeling](https://arxiv.org/abs/1412.3555v1)"
+        },
+        {
+          "description": "[A Theoretically Grounded Application of Dropout in"
+        },
+        {
+          "description": "Recurrent Neural Networks](https://arxiv.org/abs/1512.05287)"
         }
       ]
     }
@@ -1697,7 +1736,7 @@
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nUse in combination with `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nUse in combination with `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
@@ -1869,7 +1908,7 @@
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
@@ -1927,7 +1966,7 @@
           "name": "stateful"
         }
       ],
-      "description": "Fast LSTM implementation backed by [CuDNN](https://developer.nvidia.com/cudnn).\n\nCan only be run on GPU, with the TensorFlow backend.\n",
+      "description": "Fast LSTM implementation with [CuDNN](https://developer.nvidia.com/cudnn).\n\nCan only be run on GPU, with the TensorFlow backend.\n",
       "package": "keras.layers"
     }
   },
@@ -2346,7 +2385,7 @@
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.](http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
@@ -2509,7 +2548,7 @@
           "name": "bias_constraint"
         },
         {
-          "description": "A Generative Model for Raw Audio, section 2.1](https://arxiv.org/abs/1609.03499).",
+          "description": "A Generative Model for Raw Audio, section 2.1]\n(https://arxiv.org/abs/1609.03499).",
           "name": "[WaveNet"
         }
       ],
@@ -2738,7 +2777,7 @@
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n`(batch, filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(batch, new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)`\nif `data_format` is `\"channels_last\"`.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have changed due to padding.\n",
+          "description": "\n5D tensor with shape:\n`(batch, filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(batch, new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)`\nif `data_format` is `\"channels_last\"`.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have\nchanged due to padding.\n",
           "name": "output"
         }
       ],
@@ -2851,17 +2890,23 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\nIf `output_padding` is specified:\n\n```\nnew_rows = (rows - 1) * strides[0] + kernel_size[0] - 2 * padding[0] + output_padding[0]\nnew_cols = (cols - 1) * strides[1] + kernel_size[1] - 2 * padding[1] + output_padding[1]\n```\n",
+          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\nIf `output_padding` is specified:\n\n```\nnew_rows = ((rows - 1) * strides[0] + kernel_size[0]\n            - 2 * padding[0] + output_padding[0])\nnew_cols = ((cols - 1) * strides[1] + kernel_size[1]\n            - 2 * padding[1] + output_padding[1])\n```\n",
           "name": "output"
         }
       ],
       "package": "keras.layers",
       "references": [
         {
-          "description": "[A guide to convolution arithmetic for deep learning](https://arxiv.org/abs/1603.07285v1)"
+          "description": "[A guide to convolution arithmetic for deep learning]"
         },
         {
-          "description": "[Deconvolutional Networks](http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf)"
+          "description": "(https://arxiv.org/abs/1603.07285v1)"
+        },
+        {
+          "description": "[Deconvolutional Networks]"
+        },
+        {
+          "description": "(http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf)"
         }
       ]
     }
@@ -2932,7 +2977,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric cropping\nis applied to depth, height, and width.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric cropping values for depth, height, and width:\n`(symmetric_dim1_crop, symmetric_dim2_crop, symmetric_dim3_crop)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_crop, right_dim1_crop), (left_dim2_crop, right_dim2_crop), (left_dim3_crop, right_dim3_crop))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric cropping\nis applied to depth, height, and width.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric cropping values for depth, height, and width:\n`(symmetric_dim1_crop, symmetric_dim2_crop, symmetric_dim3_crop)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_crop, right_dim1_crop),\n(left_dim2_crop, right_dim2_crop),\n(left_dim3_crop, right_dim3_crop))`",
           "name": "cropping"
         },
         {
@@ -2944,13 +2989,13 @@
       "description": "Cropping layer for 3D data (e.g. spatial or spatio-temporal).\n",
       "inputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop, depth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_axis_to_crop, second_axis_to_crop, third_axis_to_crop)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_cropped_axis, second_cropped_axis, third_cropped_axis, depth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth, first_cropped_axis, second_cropped_axis, third_cropped_axis)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_cropped_axis, second_cropped_axis, third_cropped_axis,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_cropped_axis, second_cropped_axis, third_cropped_axis)`\n",
           "name": "output"
         }
       ],
@@ -3572,7 +3617,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Dropout: A Simple Way to Prevent Neural Networks from Overfitting](http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf)"
+          "description": "[Dropout: A Simple Way to Prevent Neural Networks from Overfitting]"
+        },
+        {
+          "description": "(http://www.jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf)"
         }
       ]
     }
@@ -3625,7 +3673,7 @@
       "description": "Turns positive integers (indexes) into dense vectors of fixed size.\neg. [[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]\n\nThis layer can only be used as the first layer in a model.\n",
       "examples": [
         {
-          "code": "model = Sequential()\nmodel.add(Embedding(1000, 64, input_length=10))\n# the model will take as input an integer matrix of size (batch, input_length).\n# the largest integer (i.e. word index) in the input should be no larger than 999 (vocabulary size).\n# now model.output_shape == (None, 10, 64), where None is the batch dimension.\n\ninput_array = np.random.randint(1000, size=(32, 10))\n\nmodel.compile('rmsprop', 'mse')\noutput_array = model.predict(input_array)\nassert output_array.shape == (32, 10, 64)"
+          "code": "model = Sequential()\nmodel.add(Embedding(1000, 64, input_length=10))\n# the model will take as input an integer matrix of size (batch, input_length).\n# the largest integer (i.e. word index) in the input should be\n# no larger than 999 (vocabulary size).\n# now model.output_shape == (None, 10, 64), where None is the batch dimension.\n\ninput_array = np.random.randint(1000, size=(32, 10))\n\nmodel.compile('rmsprop', 'mse')\noutput_array = model.predict(input_array)\nassert output_array.shape == (32, 10, 64)"
         }
       ],
       "inputs": [
@@ -3646,7 +3694,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
+          "description": "[A Theoretically Grounded Application of Dropout in"
+        },
+        {
+          "description": "Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
         }
       ]
     }
@@ -3657,7 +3708,7 @@
       "description": "Layer that adds a list of inputs.\n\nIt takes as input a list of tensors,\nall of the same shape, and returns\na single tensor (also of the same shape).\n",
       "examples": [
         {
-          "code": "import keras\n\ninput1 = keras.layers.Input(shape=(16,))\nx1 = keras.layers.Dense(8, activation='relu')(input1)\ninput2 = keras.layers.Input(shape=(32,))\nx2 = keras.layers.Dense(8, activation='relu')(input2)\nadded = keras.layers.Add()([x1, x2])  # equivalent to added = keras.layers.add([x1, x2])\n\nout = keras.layers.Dense(4)(added)\nmodel = keras.models.Model(inputs=[input1, input2], outputs=out)"
+          "code": "import keras\n\ninput1 = keras.layers.Input(shape=(16,))\nx1 = keras.layers.Dense(8, activation='relu')(input1)\ninput2 = keras.layers.Input(shape=(32,))\nx2 = keras.layers.Dense(8, activation='relu')(input2)\n# equivalent to added = keras.layers.add([x1, x2])\nadded = keras.layers.Add()([x1, x2])\n\nout = keras.layers.Dense(4)(added)\nmodel = keras.models.Model(inputs=[input1, input2], outputs=out)"
         }
       ],
       "inputs": [
