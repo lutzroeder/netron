@@ -8,7 +8,13 @@ class CaffeModelFactory {
 
     match(context) {
         var extension = context.identifier.split('.').pop();
-        return extension == 'caffemodel';
+        switch (extension) {
+            case 'caffemodel':
+                return true;
+            // case 'prototxt':
+            //    return true;
+        }
+        return false;
     }
 
     open(context, host, callback) { 
@@ -20,7 +26,14 @@ class CaffeModelFactory {
             var netParameter = null;
             try {
                 caffe = protobuf.roots.caffe.caffe;
-                netParameter = caffe.NetParameter.decode(context.buffer);
+                var extension = context.identifier.split('.').pop();
+                if (extension == 'prototxt') {
+                    var text = new TextDecoder('utf-8').decode(context.buffer);
+                    netParameter = caffe.NetParameter.decodeText(text);
+                }
+                else {
+                    netParameter = caffe.NetParameter.decode(context.buffer);
+                }
             }
             catch (error) {
                 callback(new CaffeError('File format is not caffe.NetParameter (' + error.message + ').'), null);
@@ -182,16 +195,18 @@ class CaffeGraph {
     }
 
     translateInput(node) {
-        if (node.operator == 'Input' && node._inputs.length == 0 && node._outputs.length == 1) {
-            var input = node._outputs[0];
-            var attributes = node.attributes;
-            if (attributes.length == 1) {
-                var attribute = attributes[0];
-                if (attribute.name == 'shape') {
-                    if (attribute._value.length == 1 && attribute._value[0].dim) {
-                        var type = new CaffeTensorType(null, attribute._value[0].dim);
-                        this._inputs.push(new CaffeArgument(input, [ new CaffeConnection(input, type) ]));
-                        return true;
+        if (node.operator == 'Input' || node.operator == 'Data') {
+            if (node._inputs.length == 0 && node._outputs.length == 1) {
+                var input = node._outputs[0];
+                var attributes = node.attributes;
+                if (attributes.length == 1) {
+                    var attribute = attributes[0];
+                    if (attribute.name == 'shape') {
+                        if (attribute._value.length == 1 && attribute._value[0].dim) {
+                            var type = new CaffeTensorType(null, attribute._value[0].dim);
+                            this._inputs.push(new CaffeArgument(input, [ new CaffeConnection(input, type) ]));
+                            return true;
+                        }
                     }
                 }
             }
@@ -286,6 +301,9 @@ class CaffeNode {
                         var type = this._type;
                         if (type == 'Deconvolution') {
                             type = 'Convolution';
+                        }
+                        if (type == 'Data') {
+                            type = 'Input';
                         }
                         if (param.constructor.name == type + 'Parameter') {
                             Object.keys(param).forEach((attributeName) => {
