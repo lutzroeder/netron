@@ -28937,6 +28937,35 @@
     }
   },
   {
+    "name": "PrintV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            "stdout",
+            "stderr",
+            "log(info)",
+            "log(warning)",
+            "log(error)"
+          ],
+          "default": "stderr",
+          "description": "A string specifying the output stream or logging level to print to.",
+          "name": "output_stream",
+          "type": "string"
+        }
+      ],
+      "description": "Prints a string scalar to the desired output_stream.",
+      "inputs": [
+        {
+          "description": "The string scalar to print.",
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "summary": "Prints a string scalar."
+    }
+  },
+  {
     "name": "PriorityQueue",
     "schema": {
       "attributes": [
@@ -51163,6 +51192,52 @@
         }
       ],
       "summary": "Returns the gradient of `StridedSlice`."
+    }
+  },
+  {
+    "name": "StringFormat",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "T",
+          "type": "list(type)"
+        },
+        {
+          "default": "%s",
+          "description": "A string, the template to format tensor summaries into.",
+          "name": "template",
+          "type": "string"
+        },
+        {
+          "default": "%s",
+          "description": "A string, at each placeholder in the template a subsequent tensor summary will be inserted.",
+          "name": "placeholder",
+          "type": "string"
+        },
+        {
+          "default": 3,
+          "description": "When formatting the tensor summaries print the first and last summarize entries of each tensor dimension.",
+          "name": "summarize",
+          "type": "int"
+        }
+      ],
+      "description": "Formats a string template using a list of tensors, pretty-printing tensor summaries.",
+      "inputs": [
+        {
+          "description": "The list of tensors to format into the placeholder string.",
+          "name": "inputs",
+          "typeListAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "= The resulting string scalar.",
+          "name": "output",
+          "type": 7
+        }
+      ],
+      "summary": "Formats a string template using a list of tensors."
     }
   },
   {
