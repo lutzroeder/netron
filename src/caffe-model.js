@@ -11,8 +11,9 @@ class CaffeModelFactory {
         switch (extension) {
             case 'caffemodel':
                 return true;
+            // case 'pbtxt':
             // case 'prototxt':
-            //    return true;
+            //     return true;
         }
         return false;
     }
@@ -195,7 +196,7 @@ class CaffeGraph {
     }
 
     translateInput(node) {
-        if (node.operator == 'Input' || node.operator == 'Data') {
+        if (node.operator == 'Input') {
             if (node._inputs.length == 0 && node._outputs.length == 1) {
                 var input = node._outputs[0];
                 var attributes = node.attributes;
@@ -301,9 +302,6 @@ class CaffeNode {
                         var type = this._type;
                         if (type == 'Deconvolution') {
                             type = 'Convolution';
-                        }
-                        if (type == 'Data') {
-                            type = 'Input';
                         }
                         if (param.constructor.name == type + 'Parameter') {
                             Object.keys(param).forEach((attributeName) => {
