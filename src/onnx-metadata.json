@@ -13410,7 +13410,7 @@
       "examples": [
         {
           "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.expand_dims(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze')",
-          "summary": "squeeze"
+          "summary": "unsqueeze"
         }
       ],
       "inputs": [
