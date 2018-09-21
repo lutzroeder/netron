@@ -21903,6 +21903,56 @@
     }
   },
   {
+    "name": "LowerBound",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "out_type",
+          "type": "type"
+        }
+      ],
+      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='left')`.\n\nThe result is not a global index to the entire \n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = LowerBound(sorted_sequence, values)\n\n  result == [[1, 2, 2],\n             [0, 1, 5]]",
+      "inputs": [
+        {
+          "description": "2-D Tensor where each row is ordered.",
+          "name": "sorted_inputs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2-D Tensor with the same numbers of rows as `sorted_search_values`. Contains\nthe values that will be searched for in `sorted_search_values`.",
+          "name": "values",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A `Tensor` with the same shape as `values`.  It contains the first scalar index\ninto the last dimension where values can be inserted without changing the\nordered property.",
+          "name": "output",
+          "typeAttr": "out_type"
+        }
+      ],
+      "summary": "Applies lower_bound(sorted_search_values, values) along each row."
+    }
+  },
+  {
     "name": "MakeIterator",
     "schema": {
       "description": "This operation may be executed multiple times. Each execution will reset the\niterator in `iterator` to the first element of `dataset`.",
@@ -55888,6 +55938,56 @@
         }
       ],
       "summary": "Op is similar to a lightweight Dequeue."
+    }
+  },
+  {
+    "name": "UpperBound",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "out_type",
+          "type": "type"
+        }
+      ],
+      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='right')`.\n\nThe result is not a global index to the entire \n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = UpperBound(sorted_sequence, values)\n\n  result == [[1, 2, 4],\n             [0, 2, 5]]",
+      "inputs": [
+        {
+          "description": "2-D Tensor where each row is ordered.",
+          "name": "sorted_inputs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2-D Tensor with the same numbers of rows as `sorted_search_values`. Contains\nthe values that will be searched for in `sorted_search_values`.",
+          "name": "values",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A `Tensor` with the same shape as `values`.  It contains the last scalar index\ninto the last dimension where values can be inserted without changing the\nordered property.",
+          "name": "output",
+          "typeAttr": "out_type"
+        }
+      ],
+      "summary": "Applies upper_bound(sorted_search_values, values) along each row."
     }
   },
   {
