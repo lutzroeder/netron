@@ -4,7 +4,7 @@ var onnx = null;
 
 class OnnxModelFactory {
 
-    match(context) {
+    match(context, host) {
         var identifier = context.identifier;
         var extension = context.identifier.split('.').pop();
         switch (identifier) {
@@ -13,13 +13,11 @@ class OnnxModelFactory {
             case 'init_net.pb':
                 return false;
         }
-        switch (extension) {
-            case 'onnx':
-            case 'pb':
-                return true;
-            // case 'pbtxt':
-            // case 'prototxt':
-            //    return true;
+        if (extension == 'onnx' || extension == 'pb') {
+            return true;
+        }
+        if (extension == 'pbtxt' || extension == 'prototxt') {
+            return host.environment('PROTOTXT') ? true : false;
         }
         return false;
     }
@@ -817,12 +815,14 @@ class OnnxTensor {
                     shape = type.tensor_type.shape.dim.map((dim) => {
                         return dim.dim_param ? dim.dim_param : dim.dim_value;
                     });
-                }                
+                }
                 return new OnnxTensorType(type.tensor_type.elem_type, shape, denotation);
             case 'map_type':
                 return new OnnxMapType(type.map_type.key_type, OnnxTensor._formatType(type.map_type.value_type, imageFormat), denotation);
             case 'sequence_type':
                 return new OnnxSequenceType(OnnxTensor._formatType(type.sequence_type.elem_type, imageFormat), denotation);
+            case 'opaque_type':
+                return new OnnxOpaqueType(type.opaque_type.domain, type.opaque_type.name, type.opaque_type.parameters.map((parameter) => OnnxTensor._formatType(parameter, imageFormat)));
         }
         return null;
     }
@@ -895,6 +895,19 @@ class OnnxMapType {
 
     toString() {
         return 'map<' + this._keyType + ',' + this._valueType.toString() + '>';
+    }
+}
+
+class OnnxOpaqueType {
+
+    constructor(domain, name, parameters) {
+        this._domain = domain;
+        this._name = name;
+        this._parameters = parameters;
+    }
+
+    toString() {
+        return (this._name ? this._name : 'opaque') + '<' + this._parameters.map((parameter) => parameter.toString()).join(',') + '>';
     }
 }
 

@@ -2170,12 +2170,13 @@
             TypeProto.prototype.tensor_type = null;
             TypeProto.prototype.sequence_type = null;
             TypeProto.prototype.map_type = null;
+            TypeProto.prototype.opaque_type = null;
             TypeProto.prototype.denotation = "";
     
             var $oneOfFields;
     
             Object.defineProperty(TypeProto.prototype, "value", {
-                get: $util.oneOfGetter($oneOfFields = ["tensor_type", "sequence_type", "map_type"]),
+                get: $util.oneOfGetter($oneOfFields = ["tensor_type", "sequence_type", "map_type", "opaque_type"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
@@ -2198,6 +2199,9 @@
                         break;
                     case 5:
                         message.map_type = $root.onnx.TypeProto.Map.decode(reader, reader.uint32());
+                        break;
+                    case 7:
+                        message.opaque_type = $root.onnx.TypeProto.Opaque.decode(reader, reader.uint32());
                         break;
                     case 6:
                         message.denotation = reader.string();
@@ -2242,6 +2246,16 @@
                             return "map_type." + error;
                     }
                 }
+                if (message.opaque_type != null && message.hasOwnProperty("opaque_type")) {
+                    if (properties.value === 1)
+                        return "value: multiple values";
+                    properties.value = 1;
+                    {
+                        var error = $root.onnx.TypeProto.Opaque.verify(message.opaque_type);
+                        if (error)
+                            return "opaque_type." + error;
+                    }
+                }
                 if (message.denotation != null && message.hasOwnProperty("denotation"))
                     if (!$util.isString(message.denotation))
                         return "denotation: string expected";
@@ -2266,6 +2280,11 @@
                     if (typeof object.map_type !== "object")
                         throw TypeError(".onnx.TypeProto.map_type: object expected");
                     message.map_type = $root.onnx.TypeProto.Map.fromObject(object.map_type);
+                }
+                if (object.opaque_type != null) {
+                    if (typeof object.opaque_type !== "object")
+                        throw TypeError(".onnx.TypeProto.opaque_type: object expected");
+                    message.opaque_type = $root.onnx.TypeProto.Opaque.fromObject(object.opaque_type);
                 }
                 if (object.denotation != null)
                     message.denotation = String(object.denotation);
@@ -2295,6 +2314,11 @@
                 }
                 if (message.denotation != null && message.hasOwnProperty("denotation"))
                     object.denotation = message.denotation;
+                if (message.opaque_type != null && message.hasOwnProperty("opaque_type")) {
+                    object.opaque_type = $root.onnx.TypeProto.Opaque.toObject(message.opaque_type, options);
+                    if (options.oneofs)
+                        object.value = "opaque_type";
+                }
                 return object;
             };
     
@@ -2714,6 +2738,121 @@
                 };
     
                 return Map;
+            })();
+    
+            TypeProto.Opaque = (function() {
+    
+                function Opaque(properties) {
+                    this.parameters = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Opaque.prototype.domain = "";
+                Opaque.prototype.name = "";
+                Opaque.prototype.parameters = $util.emptyArray;
+    
+                Opaque.create = function create(properties) {
+                    return new Opaque(properties);
+                };
+    
+                Opaque.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.onnx.TypeProto.Opaque();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.domain = reader.string();
+                            break;
+                        case 2:
+                            message.name = reader.string();
+                            break;
+                        case 3:
+                            if (!(message.parameters && message.parameters.length))
+                                message.parameters = [];
+                            message.parameters.push($root.onnx.TypeProto.decode(reader, reader.uint32()));
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                Opaque.verify = function verify(message) {
+                    if (typeof message !== "object" || message === null)
+                        return "object expected";
+                    if (message.domain != null && message.hasOwnProperty("domain"))
+                        if (!$util.isString(message.domain))
+                            return "domain: string expected";
+                    if (message.name != null && message.hasOwnProperty("name"))
+                        if (!$util.isString(message.name))
+                            return "name: string expected";
+                    if (message.parameters != null && message.hasOwnProperty("parameters")) {
+                        if (!Array.isArray(message.parameters))
+                            return "parameters: array expected";
+                        for (var i = 0; i < message.parameters.length; ++i) {
+                            var error = $root.onnx.TypeProto.verify(message.parameters[i]);
+                            if (error)
+                                return "parameters." + error;
+                        }
+                    }
+                    return null;
+                };
+    
+                Opaque.fromObject = function fromObject(object) {
+                    if (object instanceof $root.onnx.TypeProto.Opaque)
+                        return object;
+                    var message = new $root.onnx.TypeProto.Opaque();
+                    if (object.domain != null)
+                        message.domain = String(object.domain);
+                    if (object.name != null)
+                        message.name = String(object.name);
+                    if (object.parameters) {
+                        if (!Array.isArray(object.parameters))
+                            throw TypeError(".onnx.TypeProto.Opaque.parameters: array expected");
+                        message.parameters = [];
+                        for (var i = 0; i < object.parameters.length; ++i) {
+                            if (typeof object.parameters[i] !== "object")
+                                throw TypeError(".onnx.TypeProto.Opaque.parameters: object expected");
+                            message.parameters[i] = $root.onnx.TypeProto.fromObject(object.parameters[i]);
+                        }
+                    }
+                    return message;
+                };
+    
+                Opaque.toObject = function toObject(message, options) {
+                    if (!options)
+                        options = {};
+                    var object = {};
+                    if (options.arrays || options.defaults)
+                        object.parameters = [];
+                    if (options.defaults) {
+                        object.domain = "";
+                        object.name = "";
+                    }
+                    if (message.domain != null && message.hasOwnProperty("domain"))
+                        object.domain = message.domain;
+                    if (message.name != null && message.hasOwnProperty("name"))
+                        object.name = message.name;
+                    if (message.parameters && message.parameters.length) {
+                        object.parameters = [];
+                        for (var j = 0; j < message.parameters.length; ++j)
+                            object.parameters[j] = $root.onnx.TypeProto.toObject(message.parameters[j], options);
+                    }
+                    return object;
+                };
+    
+                Opaque.prototype.toJSON = function toJSON() {
+                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                };
+    
+                return Opaque;
             })();
     
             return TypeProto;
