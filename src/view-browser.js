@@ -94,6 +94,10 @@ class BrowserHost {
         });
     }
 
+    environment(name) {
+        return null;
+    }
+
     error(message, detail) {
         alert(message + ' ' + detail);
     }

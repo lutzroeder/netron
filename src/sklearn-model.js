@@ -1,8 +1,10 @@
 /*jshint esversion: 6 */
 
+// Experimental
+
 class SklearnModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         return extension == 'pkl' || extension == 'joblib';
     }

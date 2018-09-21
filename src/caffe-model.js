@@ -1,19 +1,16 @@
 /*jshint esversion: 6 */
 
-// Experimental
-
 var caffe = null;
 
 class CaffeModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
-        switch (extension) {
-            case 'caffemodel':
-                return true;
-            // case 'pbtxt':
-            // case 'prototxt':
-            //     return true;
+        if (extension == 'caffemodel') {
+            return true;
+        }
+        if (extension == 'pbtxt' || extension == 'prototxt') {
+            return host.environment('PROTOTXT') ? true : false;
         }
         return false;
     }
@@ -28,7 +25,7 @@ class CaffeModelFactory {
             try {
                 caffe = protobuf.roots.caffe.caffe;
                 var extension = context.identifier.split('.').pop();
-                if (extension == 'prototxt') {
+                if (extension == 'pbtxt' || extension == 'prototxt') {
                     var text = new TextDecoder('utf-8').decode(context.buffer);
                     netParameter = caffe.NetParameter.decodeText(text);
                 }
@@ -400,8 +397,14 @@ class CaffeNode {
             CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.EXP] = 'Exp';
             CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.DECONVOLUTION] = 'Deconvolution';
         }
+        if (index === undefined) {
+            return '?';
+        }
         var type = CaffeNode._operatorMap[index];
-        return type ? type : index.toString();
+        if (type) {
+            return type;
+        }
+        return index.toString();
     }
 }
 

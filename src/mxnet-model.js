@@ -1,10 +1,8 @@
 /*jshint esversion: 6 */
 
-// Experimental
-
 class MXNetModelFactory {
 
-    match(context) {
+    match(context, host) {
         if (context.identifier.endsWith('-symbol.json')) {
             return true;
         }

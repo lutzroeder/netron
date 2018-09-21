@@ -108,6 +108,13 @@ class ElectronHost {
         });
     }
 
+    environment(name) {
+        if (name == 'PROTOTXT') {
+            // return true;
+        }
+        return null;
+    }
+
     error(message, detail) {
         var owner = electron.remote.getCurrentWindow();
         var options = {

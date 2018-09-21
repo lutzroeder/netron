@@ -4,7 +4,7 @@ var coreml = null;
 
 class CoreMLModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         return extension == 'mlmodel';
     }

@@ -271,7 +271,7 @@ class View {
                     if (entry.name.startsWith(rootFolder)) {
                         var identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                            return modelFactoryRegistry.some((factory) => factory.match(new ArchiveContext(null, rootFolder, identifier, entry.data)));
+                            return modelFactoryRegistry.some((factory) => factory.match(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host));
                         }
                     }
                     return false;
@@ -295,7 +295,7 @@ class View {
             return;
         }
 
-        var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context));
+        var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context, this._host));
         var next = () => {
             if (factoryList.length > 0) {
                 var modelFactory = factoryList.shift();

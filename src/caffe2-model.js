@@ -1,13 +1,18 @@
 /*jshint esversion: 6 */
 
-// Experimental
-
 var caffe2 = null;
 
 class Caffe2ModelFactory {
 
-    match(context) {
-        return context.identifier.endsWith('predict_net.pb');
+    match(context, host) {
+        var identifier = context.identifier;
+        if (identifier.endsWith('predict_net.pb')) {
+            return true;
+        }
+        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+            return host.environment('PROTOTXT') ? true : false;
+        }
+        return false;
     }    
 
     open(context, host, callback) {
@@ -19,7 +24,14 @@ class Caffe2ModelFactory {
             var netDef = null;
             try {
                 caffe2 = protobuf.roots.caffe2.caffe2;
-                netDef = caffe2.NetDef.decode(context.buffer);
+                var extension = context.identifier.split('.').pop();
+                if (extension == 'pbtxt' || extension == 'prototxt') {
+                    var text = new TextDecoder('utf-8').decode(context.buffer);
+                    netDef = caffe2.NetDef.decodeText(text);
+                }
+                else {
+                    netDef = caffe2.NetDef.decode(context.buffer);
+                }
             }
             catch (error) {
                 callback(new Caffe2Error('File format is not caffe2.NetDef (' + error.message + ').'), null);

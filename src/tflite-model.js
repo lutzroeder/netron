@@ -3,7 +3,7 @@
 class TensorFlowLiteModelFactory {
 
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         return extension == 'tflite' || extension == 'lite';
     }

@@ -6,7 +6,7 @@ var tensorflow = null;
 
 class TensorFlowModelFactory {
 
-    match(context) {
+    match(context, host) {
         var identifier = context.identifier;
         var extension = identifier.split('.').pop();
         switch (identifier) {
@@ -14,13 +14,11 @@ class TensorFlowModelFactory {
             case 'init_net.pb':
                 return false;
         }
-        switch (extension) {
-            case 'pb':
-            case 'meta':
-                return true;
-            // case 'pbtxt':
-            // case 'prototxt':
-            //   return true;
+        if (extension == 'meta' || extension == 'pb') {
+            return true;
+        }
+        if (extension == 'pbtxt' || extension == 'prototxt') {
+            return host.environment('PROTOTXT') ? true : false;
         }
         return false;
     }

@@ -1,8 +1,10 @@
 /*jshint esversion: 6 */
 
+// Experimental
+
 class PyTorchModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         return extension == 'pt' || extension == 'pth';
     }

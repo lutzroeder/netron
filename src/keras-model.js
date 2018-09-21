@@ -2,7 +2,7 @@
 
 class KerasModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
             return true;
