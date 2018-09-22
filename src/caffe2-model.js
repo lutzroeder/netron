@@ -10,6 +10,12 @@ class Caffe2ModelFactory {
             return true;
         }
         if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+            if (context.text) {
+                var lines = context.text.split('\n');
+                if (lines.some((line) => line.startsWith('ir_version') || line.startsWith('graph_def') || line.startsWith('layers') || line.startsWith('layer'))) {
+                    return false;
+                }
+            }
             return host.environment('PROTOTXT') ? true : false;
         }
         return false;
@@ -26,8 +32,7 @@ class Caffe2ModelFactory {
                 caffe2 = protobuf.roots.caffe2.caffe2;
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    var text = new TextDecoder('utf-8').decode(context.buffer);
-                    netDef = caffe2.NetDef.decodeText(text);
+                    netDef = caffe2.NetDef.decodeText(context.text);
                 }
                 else {
                     netDef = caffe2.NetDef.decode(context.buffer);

@@ -614,8 +614,7 @@ class SklearnTensor {
                 return SklearnTensor._escapeMap[specialCharacter];
             }
         });
-    };
-
+    }
 }
 
 class SklearnTensorType {

@@ -371,6 +371,14 @@ class ElectonContext {
     get buffer() {
         return this._buffer;
     }
+
+    get text() {
+        if (!this._text) {
+            var decoder = new TextDecoder('utf-8');
+            this._text = decoder.decode(this._buffer);
+        }
+        return this._text;
+    }
 }
 
 window.host = new ElectronHost();

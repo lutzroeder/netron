@@ -18,6 +18,15 @@ class TensorFlowModelFactory {
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+                return false;
+            }
+            if (context.text) {
+                var lines = context.text.split('\n');
+                if (lines.some((line) => line.startsWith('ir_version') || (line.startsWith('op') && !line.startsWith('opset_import')) || line.startsWith('layers') || line.startsWith('layer'))) {
+                    return false;
+                }
+            }
             return host.environment('PROTOTXT') ? true : false;
         }
         return false;
@@ -37,17 +46,9 @@ class TensorFlowModelFactory {
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop();
             if (extension == 'pbtxt' || extension == 'prototxt') {
-                var text = null;
-                try {
-                    text = new TextDecoder('utf-8').decode(context.buffer);
-                }
-                catch (error) {
-                    callback(new TensorFlowError(error.message), null);
-                    return;
-                }
                 try {
                     if (identifier == 'saved_model.pbtxt') {
-                        savedModel = tensorflow.SavedModel.decodeText(text);
+                        savedModel = tensorflow.SavedModel.decodeText(context.text);
                         format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
                     }
                 }
@@ -57,7 +58,7 @@ class TensorFlowModelFactory {
                 }
                 try {
                     if (!savedModel) {
-                        metaGraph = tensorflow.MetaGraphDef.decodeText(text);
+                        metaGraph = tensorflow.MetaGraphDef.decodeText(context.text);
                         savedModel = new tensorflow.SavedModel();
                         savedModel.meta_graphs.push(metaGraph);
                         format = 'TensorFlow MetaGraph';
@@ -67,7 +68,7 @@ class TensorFlowModelFactory {
                 }
                 try {
                     if (!savedModel) {
-                        graph = tensorflow.GraphDef.decodeText(text);
+                        graph = tensorflow.GraphDef.decodeText(context.text);
                         metaGraph = new tensorflow.MetaGraphDef();
                         metaGraph.graph_def = graph;
                         metaGraph.any_info = identifier;

@@ -5,11 +5,24 @@ var caffe = null;
 class CaffeModelFactory {
 
     match(context, host) {
-        var extension = context.identifier.split('.').pop();
+        var identifier = context.identifier;
+        var extension = identifier.split('.').pop();
         if (extension == 'caffemodel') {
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
+            if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt') {
+                return false;
+            }
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+                return false;
+            }
+            if (context.text) {
+                var lines = context.text.split('\n');
+                if (lines.some((line) => line.startsWith('ir_version') || line.startsWith('graph_def') || (line.startsWith('op') && !line.startsWith('opset_import')) || line.startsWith('node'))) {
+                    return false;
+                }
+            }
             return host.environment('PROTOTXT') ? true : false;
         }
         return false;
@@ -26,8 +39,7 @@ class CaffeModelFactory {
                 caffe = protobuf.roots.caffe.caffe;
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    var text = new TextDecoder('utf-8').decode(context.buffer);
-                    netParameter = caffe.NetParameter.decodeText(text);
+                    netParameter = caffe.NetParameter.decodeText(context.text);
                 }
                 else {
                     netParameter = caffe.NetParameter.decode(context.buffer);

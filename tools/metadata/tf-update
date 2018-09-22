@@ -39,7 +39,7 @@ ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no
     ${third_party}/${identifier}/tensorflow/core/framework/function.proto \
     ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto \
     ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
-    ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
+    ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto
 
 echo "Install protobuf"
 virtualenv=${build}/virtualenv/${identifier}

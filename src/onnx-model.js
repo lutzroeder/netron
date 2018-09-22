@@ -17,6 +17,18 @@ class OnnxModelFactory {
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
+            if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt') {
+                return false;
+            }
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+                return false;
+            }
+            if (context.text) {
+                var lines = context.text.split('\n');
+                if (lines.some((line) => line.startsWith('graph_def') || (line.startsWith('op') && !line.startsWith('opset_import')) || line.startsWith('node') || line.startsWith('layers') || line.startsWith('layer'))) {
+                    return false;
+                }
+            }
             return host.environment('PROTOTXT') ? true : false;
         }
         return false;
@@ -33,8 +45,7 @@ class OnnxModelFactory {
                 onnx = protobuf.roots.onnx.onnx;
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    var text = new TextDecoder('utf-8').decode(context.buffer);
-                    model = onnx.ModelProto.decodeText(text);
+                    model = onnx.ModelProto.decodeText(context.text);
                 }
                 else {
                     model = onnx.ModelProto.decode(context.buffer);

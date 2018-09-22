@@ -8,8 +8,7 @@ class KerasModelFactory {
             return true;
         }
         if (extension == 'json' && !context.identifier.endsWith('-symbol.json')) {
-            var decoder = new TextDecoder('utf-8');
-            var json = decoder.decode(context.buffer);
+            var json = context.text;
             if (json.indexOf('\"mxnet_version\":', 0) == -1) {
                 try {
                     var model_config = JSON.parse(json);
@@ -49,8 +48,7 @@ class KerasModelFactory {
                     model_config = JSON.parse(rootGroup.attributes.model_config);
                 }
                 else if (extension == 'json') {
-                    var decoder = new window.TextDecoder('utf-8');
-                    var json = decoder.decode(context.buffer);
+                    var json = context.text;
                     model_config = JSON.parse(json);
                     if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
                         format = 'TensorFlow.js ' + format;

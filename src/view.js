@@ -295,13 +295,23 @@ class View {
             return;
         }
 
+        var errorList = [];
         var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context, this._host));
+        var factoryCount = factoryList.length;
         var next = () => {
             if (factoryList.length > 0) {
                 var modelFactory = factoryList.shift();
                 modelFactory.open(context, this._host, (err, model) => {
+                    if (err) {
+                        errorList.push(err);
+                    }
                     if (model || factoryList.length == 0) {
-                        callback(err, model);
+                        if (!model && factoryCount > 1 && errorList.length > 1) {
+                            callback(new NameError(errorList.map((err) => err.message).join('\n'), "Error loading model."), null);
+                        }
+                        else {
+                            callback(err, model);
+                        }
                     }
                     else {
                         next();
@@ -313,10 +323,10 @@ class View {
                 switch (extension) {
                     case 'json':
                     case 'pb':
-                        callback(new Error('Unsupported file content for extension \'.' + extension + '\'.'), null);
+                        callback(new NameError('Unsupported file content for extension \'.' + extension + '\'.', "Error loading model."), null);
                         break;
                     default:
-                        callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
+                        callback(new NameError('Unsupported file extension \'.' + extension + '\'.', "Error loading model."), null);
                         break;
                 }
             }
@@ -1053,11 +1063,25 @@ class ArchiveContext {
         return this._buffer;
     }
 
+    get text() {
+        if (!this._text) {
+            var decoder = new TextDecoder('utf-8');
+            this._text = decoder.decode(this._buffer);
+        }
+        return this._text;
+    }
 }
 
 class ArchiveError extends Error {
     constructor(message) {
         super(message);
         this.name = "Error loading archive";
+    }
+}
+
+class NameError extends Error {
+    constructor(message, name) {
+        super(message);
+        this.name = name; 
     }
 }

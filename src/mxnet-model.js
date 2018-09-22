@@ -11,8 +11,7 @@ class MXNetModelFactory {
             return true;
         }
         if (extension == 'json') {
-            var decoder = new TextDecoder('utf-8');
-            var json = decoder.decode(context.buffer);
+            var json = context.text;
             if (json.indexOf('\"mxnet_version\":', 0) != -1) {
                 return true;
             }
@@ -37,8 +36,7 @@ class MXNetModelFactory {
 
     _openSymbol(context, callback) {
         try {
-            var decoder = new TextDecoder('utf-8');
-            var symbol = JSON.parse(decoder.decode(context.buffer));
+            var symbol = JSON.parse(context.text);
             var model = new MXNetModel(null, symbol, null, {});
             MXNetOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
