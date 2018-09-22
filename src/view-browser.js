@@ -16,6 +16,9 @@ class BrowserHost {
         window.addEventListener('error', (e) => {
             this.exception(e.error, true);
         });
+        window.eval = global.eval = () => {
+            throw new Error('window.eval() not supported.');
+        };
     }
 
     get name() {

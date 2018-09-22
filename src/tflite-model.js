@@ -217,9 +217,9 @@ class TensorFlowLiteNode {
             var node = this._node;
             var operator = this._operator;
             var optionsTypeName = 'tflite.' + operator + 'Options';
-            var optionsType = eval(optionsTypeName);
+            var optionsType = TensorFlowLiteNode._getType(optionsTypeName);
             if (typeof optionsType === 'function') {
-                var options = eval('new ' + optionsTypeName + '()');
+                var options = Reflect.construct(optionsType, []);
                 node.builtinOptions(options);
                 var attributeNames = [];
                 Object.keys(Object.getPrototypeOf(options)).forEach(function (attributeName) {
@@ -323,6 +323,22 @@ class TensorFlowLiteNode {
             attributeValue = attributeValue.toString();
         }
         return attributeValue;
+    }
+
+    static _getType(name) {
+        var list = name.split('.');
+        var type = window;
+        while (list.length > 0) {
+            var item = list.shift();
+            type = type[item];
+            if (!type) {
+                return null;
+            }
+        }
+        if (type == window) {
+            return null;
+        }
+        return type;
     }
 }
 

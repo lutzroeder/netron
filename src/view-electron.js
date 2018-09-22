@@ -23,6 +23,9 @@ class ElectronHost {
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
         });
+        window.eval = global.eval = () => {
+            throw new Error('window.eval() not supported.');
+        };
     }
 
     get name() {
