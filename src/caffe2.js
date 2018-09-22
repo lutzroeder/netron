@@ -2,7 +2,7 @@
 (function($protobuf) {
     "use strict";
 
-    var $Reader = $protobuf.Reader, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
     
     var $root = $protobuf.roots.caffe2 || ($protobuf.roots.caffe2 = {});
     
@@ -120,6 +120,67 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.TensorProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dims":
+                        if (!(message.dims && message.dims.length))
+                            message.dims = [];
+                        message.dims.push(reader.int64());
+                        break;
+                    case "data_type":
+                        message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                        break;
+                    case "float_data":
+                        if (!(message.float_data && message.float_data.length))
+                            message.float_data = [];
+                        message.float_data.push(reader.float());
+                        break;
+                    case "int32_data":
+                        if (!(message.int32_data && message.int32_data.length))
+                            message.int32_data = [];
+                        message.int32_data.push(reader.int32());
+                        break;
+                    case "byte_data":
+                        message.byte_data = reader.bytes();
+                        break;
+                    case "string_data":
+                        if (!(message.string_data && message.string_data.length))
+                            message.string_data = [];
+                        message.string_data.push(reader.bytes());
+                        break;
+                    case "double_data":
+                        if (!(message.double_data && message.double_data.length))
+                            message.double_data = [];
+                        message.double_data.push(reader.double());
+                        break;
+                    case "int64_data":
+                        if (!(message.int64_data && message.int64_data.length))
+                            message.int64_data = [];
+                        message.int64_data.push(reader.int64());
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "device_detail":
+                        message.device_detail = $root.caffe2.DeviceOption.decodeText(reader, true);
+                        break;
+                    case "segment":
+                        message.segment = $root.caffe2.TensorProto.Segment.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -483,6 +544,32 @@
                     return message;
                 };
     
+                Segment.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.caffe2.TensorProto.Segment();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "begin":
+                            message.begin = reader.int64();
+                            break;
+                        case "end":
+                            message.end = reader.int64();
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    if (!message.hasOwnProperty("begin"))
+                        throw $util.ProtocolError("missing required 'begin'", { instance: message });
+                    if (!message.hasOwnProperty("end"))
+                        throw $util.ProtocolError("missing required 'end'", { instance: message });
+                    return message;
+                };
+    
                 Segment.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -628,6 +715,58 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("precision"))
+                    throw $util.ProtocolError("missing required 'precision'", { instance: message });
+                if (!message.hasOwnProperty("scale"))
+                    throw $util.ProtocolError("missing required 'scale'", { instance: message });
+                if (!message.hasOwnProperty("bias"))
+                    throw $util.ProtocolError("missing required 'bias'", { instance: message });
+                if (!message.hasOwnProperty("is_signed"))
+                    throw $util.ProtocolError("missing required 'is_signed'", { instance: message });
+                return message;
+            };
+    
+            QTensorProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.QTensorProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dims":
+                        if (!(message.dims && message.dims.length))
+                            message.dims = [];
+                        message.dims.push(reader.int64());
+                        break;
+                    case "precision":
+                        message.precision = reader.int32();
+                        break;
+                    case "scale":
+                        message.scale = reader.double();
+                        break;
+                    case "bias":
+                        message.bias = reader.double();
+                        break;
+                    case "is_signed":
+                        message.is_signed = reader.bool();
+                        break;
+                    case "data":
+                        if (!(message.data && message.data.length))
+                            message.data = [];
+                        message.data.push(reader.int32());
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "data_type":
+                        message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -871,6 +1010,27 @@
                 return message;
             };
     
+            TensorProtos.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.TensorProtos();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "protos":
+                        if (!(message.protos && message.protos.length))
+                            message.protos = [];
+                        message.protos.push($root.caffe2.TensorProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             TensorProtos.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -983,6 +1143,41 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorShape.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.TensorShape();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dims":
+                        if (!(message.dims && message.dims.length))
+                            message.dims = [];
+                        message.dims.push(reader.int64());
+                        break;
+                    case "data_type":
+                        message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                        break;
+                    case "unknown_dims":
+                        if (!(message.unknown_dims && message.unknown_dims.length))
+                            message.unknown_dims = [];
+                        message.unknown_dims.push(reader.int32());
+                        break;
+                    case "unknown_shape":
+                        message.unknown_shape = reader.bool();
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -1198,6 +1393,27 @@
                 return message;
             };
     
+            TensorShapes.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.TensorShapes();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "shapes":
+                        if (!(message.shapes && message.shapes.length))
+                            message.shapes = [];
+                        message.shapes.push($root.caffe2.TensorShape.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             TensorShapes.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1354,6 +1570,57 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            Argument.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.Argument();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "f":
+                        message.f = reader.float();
+                        break;
+                    case "i":
+                        message.i = reader.int64();
+                        break;
+                    case "s":
+                        message.s = reader.bytes();
+                        break;
+                    case "n":
+                        message.n = $root.caffe2.NetDef.decodeText(reader, true);
+                        break;
+                    case "floats":
+                        if (!(message.floats && message.floats.length))
+                            message.floats = [];
+                        message.floats.push(reader.float());
+                        break;
+                    case "ints":
+                        if (!(message.ints && message.ints.length))
+                            message.ints = [];
+                        message.ints.push(reader.int64());
+                        break;
+                    case "strings":
+                        if (!(message.strings && message.strings.length))
+                            message.strings = [];
+                        message.strings.push(reader.bytes());
+                        break;
+                    case "nets":
+                        if (!(message.nets && message.nets.length))
+                            message.nets = [];
+                        message.nets.push($root.caffe2.NetDef.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -1631,6 +1898,45 @@
                 return message;
             };
     
+            DeviceOption.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.DeviceOption();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "device_type":
+                        message.device_type = reader.int32();
+                        break;
+                    case "cuda_gpu_id":
+                        message.cuda_gpu_id = reader.int32();
+                        break;
+                    case "random_seed":
+                        message.random_seed = reader.uint32();
+                        break;
+                    case "node_name":
+                        message.node_name = reader.string();
+                        break;
+                    case "numa_node_id":
+                        message.numa_node_id = reader.int32();
+                        break;
+                    case "extra_info":
+                        if (!(message.extra_info && message.extra_info.length))
+                            message.extra_info = [];
+                        message.extra_info.push(reader.string());
+                        break;
+                    case "hip_gpu_id":
+                        message.hip_gpu_id = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             DeviceOption.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1804,6 +2110,60 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            OperatorDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.OperatorDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "input":
+                        if (!(message.input && message.input.length))
+                            message.input = [];
+                        message.input.push(reader.string());
+                        break;
+                    case "output":
+                        if (!(message.output && message.output.length))
+                            message.output = [];
+                        message.output.push(reader.string());
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "type":
+                        message.type = reader.string();
+                        break;
+                    case "arg":
+                        if (!(message.arg && message.arg.length))
+                            message.arg = [];
+                        message.arg.push($root.caffe2.Argument.decodeText(reader, true));
+                        break;
+                    case "device_option":
+                        message.device_option = $root.caffe2.DeviceOption.decodeText(reader, true);
+                        break;
+                    case "engine":
+                        message.engine = reader.string();
+                        break;
+                    case "control_input":
+                        if (!(message.control_input && message.control_input.length))
+                            message.control_input = [];
+                        message.control_input.push(reader.string());
+                        break;
+                    case "is_gradient_op":
+                        message.is_gradient_op = reader.bool();
+                        break;
+                    case "debug_info":
+                        message.debug_info = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -2046,6 +2406,54 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NetDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.NetDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "op":
+                        if (!(message.op && message.op.length))
+                            message.op = [];
+                        message.op.push($root.caffe2.OperatorDef.decodeText(reader, true));
+                        break;
+                    case "type":
+                        message.type = reader.string();
+                        break;
+                    case "num_workers":
+                        message.num_workers = reader.int32();
+                        break;
+                    case "device_option":
+                        message.device_option = $root.caffe2.DeviceOption.decodeText(reader, true);
+                        break;
+                    case "arg":
+                        if (!(message.arg && message.arg.length))
+                            message.arg = [];
+                        message.arg.push($root.caffe2.Argument.decodeText(reader, true));
+                        break;
+                    case "external_input":
+                        if (!(message.external_input && message.external_input.length))
+                            message.external_input = [];
+                        message.external_input.push(reader.string());
+                        break;
+                    case "external_output":
+                        if (!(message.external_output && message.external_output.length))
+                            message.external_output = [];
+                        message.external_output.push(reader.string());
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -2297,6 +2705,65 @@
                 return message;
             };
     
+            ExecutionStep.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.ExecutionStep();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "substep":
+                        if (!(message.substep && message.substep.length))
+                            message.substep = [];
+                        message.substep.push($root.caffe2.ExecutionStep.decodeText(reader, true));
+                        break;
+                    case "network":
+                        if (!(message.network && message.network.length))
+                            message.network = [];
+                        message.network.push(reader.string());
+                        break;
+                    case "num_iter":
+                        message.num_iter = reader.int64();
+                        break;
+                    case "criteria_network":
+                        message.criteria_network = reader.string();
+                        break;
+                    case "report_net":
+                        message.report_net = reader.string();
+                        break;
+                    case "report_interval":
+                        message.report_interval = reader.int32();
+                        break;
+                    case "run_every_ms":
+                        message.run_every_ms = reader.int64();
+                        break;
+                    case "concurrent_substeps":
+                        message.concurrent_substeps = reader.bool();
+                        break;
+                    case "should_stop_blob":
+                        message.should_stop_blob = reader.string();
+                        break;
+                    case "only_once":
+                        message.only_once = reader.bool();
+                        break;
+                    case "create_workspace":
+                        message.create_workspace = reader.bool();
+                        break;
+                    case "num_concurrent_instances":
+                        message.num_concurrent_instances = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             ExecutionStep.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -2536,6 +3003,35 @@
                 return message;
             };
     
+            PlanDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.PlanDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "network":
+                        if (!(message.network && message.network.length))
+                            message.network = [];
+                        message.network.push($root.caffe2.NetDef.decodeText(reader, true));
+                        break;
+                    case "execution_step":
+                        if (!(message.execution_step && message.execution_step.length))
+                            message.execution_step = [];
+                        message.execution_step.push($root.caffe2.ExecutionStep.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             PlanDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -2675,6 +3171,43 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BlobProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.BlobProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "type":
+                        message.type = reader.string();
+                        break;
+                    case "tensor":
+                        message.tensor = $root.caffe2.TensorProto.decodeText(reader, true);
+                        break;
+                    case "content":
+                        message.content = reader.bytes();
+                        break;
+                    case "qtensor":
+                        message.qtensor = $root.caffe2.QTensorProto.decodeText(reader, true);
+                        break;
+                    case "content_num_chunks":
+                        message.content_num_chunks = reader.int32();
+                        break;
+                    case "content_chunk_id":
+                        message.content_chunk_id = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -2824,6 +3357,34 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            DBReaderProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.DBReaderProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "source":
+                        message.source = reader.string();
+                        break;
+                    case "db_type":
+                        message.db_type = reader.string();
+                        break;
+                    case "key":
+                        message.key = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }

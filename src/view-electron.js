@@ -113,7 +113,7 @@ class ElectronHost {
 
     environment(name) {
         if (name == 'PROTOTXT') {
-            // return true;
+            return true;
         }
         return null;
     }

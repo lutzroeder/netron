@@ -2,7 +2,7 @@
 (function($protobuf) {
     "use strict";
 
-    var $Reader = $protobuf.Reader, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
     
     var $root = $protobuf.roots.caffe || ($protobuf.roots.caffe = {});
     
@@ -45,6 +45,27 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BlobShape.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.BlobShape();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dim":
+                        if (!(message.dim && message.dim.length))
+                            message.dim = [];
+                        message.dim.push(reader.int64());
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -213,6 +234,57 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BlobProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.BlobProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "shape":
+                        message.shape = $root.caffe.BlobShape.decodeText(reader, true);
+                        break;
+                    case "data":
+                        if (!(message.data && message.data.length))
+                            message.data = [];
+                        message.data.push(reader.float());
+                        break;
+                    case "diff":
+                        if (!(message.diff && message.diff.length))
+                            message.diff = [];
+                        message.diff.push(reader.float());
+                        break;
+                    case "double_data":
+                        if (!(message.double_data && message.double_data.length))
+                            message.double_data = [];
+                        message.double_data.push(reader.double());
+                        break;
+                    case "double_diff":
+                        if (!(message.double_diff && message.double_diff.length))
+                            message.double_diff = [];
+                        message.double_diff.push(reader.double());
+                        break;
+                    case "num":
+                        message.num = reader.int32();
+                        break;
+                    case "channels":
+                        message.channels = reader.int32();
+                        break;
+                    case "height":
+                        message.height = reader.int32();
+                        break;
+                    case "width":
+                        message.width = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -411,6 +483,27 @@
                 return message;
             };
     
+            BlobProtoVector.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.BlobProtoVector();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "blobs":
+                        if (!(message.blobs && message.blobs.length))
+                            message.blobs = [];
+                        message.blobs.push($root.caffe.BlobProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             BlobProtoVector.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -523,6 +616,45 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            Datum.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.Datum();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "channels":
+                        message.channels = reader.int32();
+                        break;
+                    case "height":
+                        message.height = reader.int32();
+                        break;
+                    case "width":
+                        message.width = reader.int32();
+                        break;
+                    case "data":
+                        message.data = reader.bytes();
+                        break;
+                    case "label":
+                        message.label = reader.int32();
+                        break;
+                    case "float_data":
+                        if (!(message.float_data && message.float_data.length))
+                            message.float_data = [];
+                        message.float_data.push(reader.float());
+                        break;
+                    case "encoded":
+                        message.encoded = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -691,6 +823,46 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            FillerParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.FillerParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "type":
+                        message.type = reader.string();
+                        break;
+                    case "value":
+                        message.value = reader.float();
+                        break;
+                    case "min":
+                        message.min = reader.float();
+                        break;
+                    case "max":
+                        message.max = reader.float();
+                        break;
+                    case "mean":
+                        message.mean = reader.float();
+                        break;
+                    case "std":
+                        message.std = reader.float();
+                        break;
+                    case "sparse":
+                        message.sparse = reader.int32();
+                        break;
+                    case "variance_norm":
+                        message.variance_norm = reader.enum($root.caffe.FillerParameter.VarianceNorm);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -895,6 +1067,59 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NetParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.NetParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "input":
+                        if (!(message.input && message.input.length))
+                            message.input = [];
+                        message.input.push(reader.string());
+                        break;
+                    case "input_shape":
+                        if (!(message.input_shape && message.input_shape.length))
+                            message.input_shape = [];
+                        message.input_shape.push($root.caffe.BlobShape.decodeText(reader, true));
+                        break;
+                    case "input_dim":
+                        if (!(message.input_dim && message.input_dim.length))
+                            message.input_dim = [];
+                        message.input_dim.push(reader.int32());
+                        break;
+                    case "force_backward":
+                        message.force_backward = reader.bool();
+                        break;
+                    case "state":
+                        message.state = $root.caffe.NetState.decodeText(reader, true);
+                        break;
+                    case "debug_info":
+                        message.debug_info = reader.bool();
+                        break;
+                    case "layer":
+                        if (!(message.layer && message.layer.length))
+                            message.layer = [];
+                        message.layer.push($root.caffe.LayerParameter.decodeText(reader, true));
+                        break;
+                    case "layers":
+                        if (!(message.layers && message.layers.length))
+                            message.layers = [];
+                        message.layers.push($root.caffe.V1LayerParameter.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -1303,6 +1528,160 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SolverParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SolverParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "net":
+                        message.net = reader.string();
+                        break;
+                    case "net_param":
+                        message.net_param = $root.caffe.NetParameter.decodeText(reader, true);
+                        break;
+                    case "train_net":
+                        message.train_net = reader.string();
+                        break;
+                    case "test_net":
+                        if (!(message.test_net && message.test_net.length))
+                            message.test_net = [];
+                        message.test_net.push(reader.string());
+                        break;
+                    case "train_net_param":
+                        message.train_net_param = $root.caffe.NetParameter.decodeText(reader, true);
+                        break;
+                    case "test_net_param":
+                        if (!(message.test_net_param && message.test_net_param.length))
+                            message.test_net_param = [];
+                        message.test_net_param.push($root.caffe.NetParameter.decodeText(reader, true));
+                        break;
+                    case "train_state":
+                        message.train_state = $root.caffe.NetState.decodeText(reader, true);
+                        break;
+                    case "test_state":
+                        if (!(message.test_state && message.test_state.length))
+                            message.test_state = [];
+                        message.test_state.push($root.caffe.NetState.decodeText(reader, true));
+                        break;
+                    case "test_iter":
+                        if (!(message.test_iter && message.test_iter.length))
+                            message.test_iter = [];
+                        message.test_iter.push(reader.int32());
+                        break;
+                    case "test_interval":
+                        message.test_interval = reader.int32();
+                        break;
+                    case "test_compute_loss":
+                        message.test_compute_loss = reader.bool();
+                        break;
+                    case "test_initialization":
+                        message.test_initialization = reader.bool();
+                        break;
+                    case "base_lr":
+                        message.base_lr = reader.float();
+                        break;
+                    case "display":
+                        message.display = reader.int32();
+                        break;
+                    case "average_loss":
+                        message.average_loss = reader.int32();
+                        break;
+                    case "max_iter":
+                        message.max_iter = reader.int32();
+                        break;
+                    case "iter_size":
+                        message.iter_size = reader.int32();
+                        break;
+                    case "lr_policy":
+                        message.lr_policy = reader.string();
+                        break;
+                    case "gamma":
+                        message.gamma = reader.float();
+                        break;
+                    case "power":
+                        message.power = reader.float();
+                        break;
+                    case "momentum":
+                        message.momentum = reader.float();
+                        break;
+                    case "weight_decay":
+                        message.weight_decay = reader.float();
+                        break;
+                    case "regularization_type":
+                        message.regularization_type = reader.string();
+                        break;
+                    case "stepsize":
+                        message.stepsize = reader.int32();
+                        break;
+                    case "stepvalue":
+                        if (!(message.stepvalue && message.stepvalue.length))
+                            message.stepvalue = [];
+                        message.stepvalue.push(reader.int32());
+                        break;
+                    case "clip_gradients":
+                        message.clip_gradients = reader.float();
+                        break;
+                    case "snapshot":
+                        message.snapshot = reader.int32();
+                        break;
+                    case "snapshot_prefix":
+                        message.snapshot_prefix = reader.string();
+                        break;
+                    case "snapshot_diff":
+                        message.snapshot_diff = reader.bool();
+                        break;
+                    case "snapshot_format":
+                        message.snapshot_format = reader.enum($root.caffe.SolverParameter.SnapshotFormat);
+                        break;
+                    case "solver_mode":
+                        message.solver_mode = reader.enum($root.caffe.SolverParameter.SolverMode);
+                        break;
+                    case "device_id":
+                        message.device_id = reader.int32();
+                        break;
+                    case "random_seed":
+                        message.random_seed = reader.int64();
+                        break;
+                    case "type":
+                        message.type = reader.string();
+                        break;
+                    case "delta":
+                        message.delta = reader.float();
+                        break;
+                    case "momentum2":
+                        message.momentum2 = reader.float();
+                        break;
+                    case "rms_decay":
+                        message.rms_decay = reader.float();
+                        break;
+                    case "debug_info":
+                        message.debug_info = reader.bool();
+                        break;
+                    case "snapshot_after_train":
+                        message.snapshot_after_train = reader.bool();
+                        break;
+                    case "solver_type":
+                        message.solver_type = reader.enum($root.caffe.SolverParameter.SolverType);
+                        break;
+                    case "layer_wise_reduce":
+                        message.layer_wise_reduce = reader.bool();
+                        break;
+                    case "weights":
+                        if (!(message.weights && message.weights.length))
+                            message.weights = [];
+                        message.weights.push(reader.string());
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -1919,6 +2298,36 @@
                 return message;
             };
     
+            SolverState.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SolverState();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "iter":
+                        message.iter = reader.int32();
+                        break;
+                    case "learned_net":
+                        message.learned_net = reader.string();
+                        break;
+                    case "history":
+                        if (!(message.history && message.history.length))
+                            message.history = [];
+                        message.history.push($root.caffe.BlobProto.decodeText(reader, true));
+                        break;
+                    case "current_step":
+                        message.current_step = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             SolverState.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -2043,6 +2452,33 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NetState.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.NetState();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "phase":
+                        message.phase = reader.enum($root.caffe.Phase);
+                        break;
+                    case "level":
+                        message.level = reader.int32();
+                        break;
+                    case "stage":
+                        if (!(message.stage && message.stage.length))
+                            message.stage = [];
+                        message.stage.push(reader.string());
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -2177,6 +2613,41 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NetStateRule.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.NetStateRule();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "phase":
+                        message.phase = reader.enum($root.caffe.Phase);
+                        break;
+                    case "min_level":
+                        message.min_level = reader.int32();
+                        break;
+                    case "max_level":
+                        message.max_level = reader.int32();
+                        break;
+                    case "stage":
+                        if (!(message.stage && message.stage.length))
+                            message.stage = [];
+                        message.stage.push(reader.string());
+                        break;
+                    case "not_stage":
+                        if (!(message.not_stage && message.not_stage.length))
+                            message.not_stage = [];
+                        message.not_stage.push(reader.string());
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -2330,6 +2801,34 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ParamSpec.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ParamSpec();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "share_mode":
+                        message.share_mode = reader.enum($root.caffe.ParamSpec.DimCheckMode);
+                        break;
+                    case "lr_mult":
+                        message.lr_mult = reader.float();
+                        break;
+                    case "decay_mult":
+                        message.decay_mult = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -2714,6 +3213,218 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LayerParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LayerParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "type":
+                        message.type = reader.string();
+                        break;
+                    case "bottom":
+                        if (!(message.bottom && message.bottom.length))
+                            message.bottom = [];
+                        message.bottom.push(reader.string());
+                        break;
+                    case "top":
+                        if (!(message.top && message.top.length))
+                            message.top = [];
+                        message.top.push(reader.string());
+                        break;
+                    case "phase":
+                        message.phase = reader.enum($root.caffe.Phase);
+                        break;
+                    case "loss_weight":
+                        if (!(message.loss_weight && message.loss_weight.length))
+                            message.loss_weight = [];
+                        message.loss_weight.push(reader.float());
+                        break;
+                    case "param":
+                        if (!(message.param && message.param.length))
+                            message.param = [];
+                        message.param.push($root.caffe.ParamSpec.decodeText(reader, true));
+                        break;
+                    case "blobs":
+                        if (!(message.blobs && message.blobs.length))
+                            message.blobs = [];
+                        message.blobs.push($root.caffe.BlobProto.decodeText(reader, true));
+                        break;
+                    case "propagate_down":
+                        if (!(message.propagate_down && message.propagate_down.length))
+                            message.propagate_down = [];
+                        message.propagate_down.push(reader.bool());
+                        break;
+                    case "include":
+                        if (!(message.include && message.include.length))
+                            message.include = [];
+                        message.include.push($root.caffe.NetStateRule.decodeText(reader, true));
+                        break;
+                    case "exclude":
+                        if (!(message.exclude && message.exclude.length))
+                            message.exclude = [];
+                        message.exclude.push($root.caffe.NetStateRule.decodeText(reader, true));
+                        break;
+                    case "transform_param":
+                        message.transform_param = $root.caffe.TransformationParameter.decodeText(reader, true);
+                        break;
+                    case "loss_param":
+                        message.loss_param = $root.caffe.LossParameter.decodeText(reader, true);
+                        break;
+                    case "accuracy_param":
+                        message.accuracy_param = $root.caffe.AccuracyParameter.decodeText(reader, true);
+                        break;
+                    case "argmax_param":
+                        message.argmax_param = $root.caffe.ArgMaxParameter.decodeText(reader, true);
+                        break;
+                    case "batch_norm_param":
+                        message.batch_norm_param = $root.caffe.BatchNormParameter.decodeText(reader, true);
+                        break;
+                    case "bias_param":
+                        message.bias_param = $root.caffe.BiasParameter.decodeText(reader, true);
+                        break;
+                    case "clip_param":
+                        message.clip_param = $root.caffe.ClipParameter.decodeText(reader, true);
+                        break;
+                    case "concat_param":
+                        message.concat_param = $root.caffe.ConcatParameter.decodeText(reader, true);
+                        break;
+                    case "contrastive_loss_param":
+                        message.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.decodeText(reader, true);
+                        break;
+                    case "convolution_param":
+                        message.convolution_param = $root.caffe.ConvolutionParameter.decodeText(reader, true);
+                        break;
+                    case "crop_param":
+                        message.crop_param = $root.caffe.CropParameter.decodeText(reader, true);
+                        break;
+                    case "data_param":
+                        message.data_param = $root.caffe.DataParameter.decodeText(reader, true);
+                        break;
+                    case "dropout_param":
+                        message.dropout_param = $root.caffe.DropoutParameter.decodeText(reader, true);
+                        break;
+                    case "dummy_data_param":
+                        message.dummy_data_param = $root.caffe.DummyDataParameter.decodeText(reader, true);
+                        break;
+                    case "eltwise_param":
+                        message.eltwise_param = $root.caffe.EltwiseParameter.decodeText(reader, true);
+                        break;
+                    case "elu_param":
+                        message.elu_param = $root.caffe.ELUParameter.decodeText(reader, true);
+                        break;
+                    case "embed_param":
+                        message.embed_param = $root.caffe.EmbedParameter.decodeText(reader, true);
+                        break;
+                    case "exp_param":
+                        message.exp_param = $root.caffe.ExpParameter.decodeText(reader, true);
+                        break;
+                    case "flatten_param":
+                        message.flatten_param = $root.caffe.FlattenParameter.decodeText(reader, true);
+                        break;
+                    case "hdf5_data_param":
+                        message.hdf5_data_param = $root.caffe.HDF5DataParameter.decodeText(reader, true);
+                        break;
+                    case "hdf5_output_param":
+                        message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decodeText(reader, true);
+                        break;
+                    case "hinge_loss_param":
+                        message.hinge_loss_param = $root.caffe.HingeLossParameter.decodeText(reader, true);
+                        break;
+                    case "image_data_param":
+                        message.image_data_param = $root.caffe.ImageDataParameter.decodeText(reader, true);
+                        break;
+                    case "infogain_loss_param":
+                        message.infogain_loss_param = $root.caffe.InfogainLossParameter.decodeText(reader, true);
+                        break;
+                    case "inner_product_param":
+                        message.inner_product_param = $root.caffe.InnerProductParameter.decodeText(reader, true);
+                        break;
+                    case "input_param":
+                        message.input_param = $root.caffe.InputParameter.decodeText(reader, true);
+                        break;
+                    case "log_param":
+                        message.log_param = $root.caffe.LogParameter.decodeText(reader, true);
+                        break;
+                    case "lrn_param":
+                        message.lrn_param = $root.caffe.LRNParameter.decodeText(reader, true);
+                        break;
+                    case "memory_data_param":
+                        message.memory_data_param = $root.caffe.MemoryDataParameter.decodeText(reader, true);
+                        break;
+                    case "mvn_param":
+                        message.mvn_param = $root.caffe.MVNParameter.decodeText(reader, true);
+                        break;
+                    case "parameter_param":
+                        message.parameter_param = $root.caffe.ParameterParameter.decodeText(reader, true);
+                        break;
+                    case "pooling_param":
+                        message.pooling_param = $root.caffe.PoolingParameter.decodeText(reader, true);
+                        break;
+                    case "power_param":
+                        message.power_param = $root.caffe.PowerParameter.decodeText(reader, true);
+                        break;
+                    case "prelu_param":
+                        message.prelu_param = $root.caffe.PReLUParameter.decodeText(reader, true);
+                        break;
+                    case "python_param":
+                        message.python_param = $root.caffe.PythonParameter.decodeText(reader, true);
+                        break;
+                    case "recurrent_param":
+                        message.recurrent_param = $root.caffe.RecurrentParameter.decodeText(reader, true);
+                        break;
+                    case "reduction_param":
+                        message.reduction_param = $root.caffe.ReductionParameter.decodeText(reader, true);
+                        break;
+                    case "relu_param":
+                        message.relu_param = $root.caffe.ReLUParameter.decodeText(reader, true);
+                        break;
+                    case "reshape_param":
+                        message.reshape_param = $root.caffe.ReshapeParameter.decodeText(reader, true);
+                        break;
+                    case "scale_param":
+                        message.scale_param = $root.caffe.ScaleParameter.decodeText(reader, true);
+                        break;
+                    case "sigmoid_param":
+                        message.sigmoid_param = $root.caffe.SigmoidParameter.decodeText(reader, true);
+                        break;
+                    case "softmax_param":
+                        message.softmax_param = $root.caffe.SoftmaxParameter.decodeText(reader, true);
+                        break;
+                    case "spp_param":
+                        message.spp_param = $root.caffe.SPPParameter.decodeText(reader, true);
+                        break;
+                    case "slice_param":
+                        message.slice_param = $root.caffe.SliceParameter.decodeText(reader, true);
+                        break;
+                    case "swish_param":
+                        message.swish_param = $root.caffe.SwishParameter.decodeText(reader, true);
+                        break;
+                    case "tanh_param":
+                        message.tanh_param = $root.caffe.TanHParameter.decodeText(reader, true);
+                        break;
+                    case "threshold_param":
+                        message.threshold_param = $root.caffe.ThresholdParameter.decodeText(reader, true);
+                        break;
+                    case "tile_param":
+                        message.tile_param = $root.caffe.TileParameter.decodeText(reader, true);
+                        break;
+                    case "window_data_param":
+                        message.window_data_param = $root.caffe.WindowDataParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -3670,6 +4381,45 @@
                 return message;
             };
     
+            TransformationParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.TransformationParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "mirror":
+                        message.mirror = reader.bool();
+                        break;
+                    case "crop_size":
+                        message.crop_size = reader.uint32();
+                        break;
+                    case "mean_file":
+                        message.mean_file = reader.string();
+                        break;
+                    case "mean_value":
+                        if (!(message.mean_value && message.mean_value.length))
+                            message.mean_value = [];
+                        message.mean_value.push(reader.float());
+                        break;
+                    case "force_color":
+                        message.force_color = reader.bool();
+                        break;
+                    case "force_gray":
+                        message.force_gray = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             TransformationParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3809,6 +4559,31 @@
                 return message;
             };
     
+            LossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "ignore_label":
+                        message.ignore_label = reader.int32();
+                        break;
+                    case "normalization":
+                        message.normalization = reader.enum($root.caffe.LossParameter.NormalizationMode);
+                        break;
+                    case "normalize":
+                        message.normalize = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             LossParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3935,6 +4710,31 @@
                 return message;
             };
     
+            AccuracyParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.AccuracyParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "top_k":
+                        message.top_k = reader.uint32();
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "ignore_label":
+                        message.ignore_label = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             AccuracyParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -4023,6 +4823,31 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ArgMaxParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ArgMaxParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "out_max_val":
+                        message.out_max_val = reader.bool();
+                        break;
+                    case "top_k":
+                        message.top_k = reader.uint32();
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -4123,6 +4948,32 @@
                 return message;
             };
     
+            ClipParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ClipParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "min":
+                        message.min = reader.float();
+                        break;
+                    case "max":
+                        message.max = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("min"))
+                    throw $util.ProtocolError("missing required 'min'", { instance: message });
+                if (!message.hasOwnProperty("max"))
+                    throw $util.ProtocolError("missing required 'max'", { instance: message });
+                return message;
+            };
+    
             ClipParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -4197,6 +5048,28 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ConcatParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ConcatParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "concat_dim":
+                        message.concat_dim = reader.uint32();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -4283,6 +5156,31 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BatchNormParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.BatchNormParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "use_global_stats":
+                        message.use_global_stats = reader.bool();
+                        break;
+                    case "moving_average_fraction":
+                        message.moving_average_fraction = reader.float();
+                        break;
+                    case "eps":
+                        message.eps = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -4383,6 +5281,31 @@
                 return message;
             };
     
+            BiasParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.BiasParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "num_axes":
+                        message.num_axes = reader.int32();
+                        break;
+                    case "filler":
+                        message.filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             BiasParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -4472,6 +5395,28 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ContrastiveLossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ContrastiveLossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "margin":
+                        message.margin = reader.float();
+                        break;
+                    case "legacy_version":
+                        message.legacy_version = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -4650,6 +5595,84 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ConvolutionParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ConvolutionParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "bias_term":
+                        message.bias_term = reader.bool();
+                        break;
+                    case "pad":
+                        if (!(message.pad && message.pad.length))
+                            message.pad = [];
+                        message.pad.push(reader.uint32());
+                        break;
+                    case "kernel_size":
+                        if (!(message.kernel_size && message.kernel_size.length))
+                            message.kernel_size = [];
+                        message.kernel_size.push(reader.uint32());
+                        break;
+                    case "stride":
+                        if (!(message.stride && message.stride.length))
+                            message.stride = [];
+                        message.stride.push(reader.uint32());
+                        break;
+                    case "dilation":
+                        if (!(message.dilation && message.dilation.length))
+                            message.dilation = [];
+                        message.dilation.push(reader.uint32());
+                        break;
+                    case "pad_h":
+                        message.pad_h = reader.uint32();
+                        break;
+                    case "pad_w":
+                        message.pad_w = reader.uint32();
+                        break;
+                    case "kernel_h":
+                        message.kernel_h = reader.uint32();
+                        break;
+                    case "kernel_w":
+                        message.kernel_w = reader.uint32();
+                        break;
+                    case "stride_h":
+                        message.stride_h = reader.uint32();
+                        break;
+                    case "stride_w":
+                        message.stride_w = reader.uint32();
+                        break;
+                    case "group":
+                        message.group = reader.uint32();
+                        break;
+                    case "weight_filler":
+                        message.weight_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.ConvolutionParameter.Engine);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "force_nd_im2col":
+                        message.force_nd_im2col = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -4960,6 +5983,30 @@
                 return message;
             };
     
+            CropParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.CropParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "offset":
+                        if (!(message.offset && message.offset.length))
+                            message.offset = [];
+                        message.offset.push(reader.uint32());
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             CropParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5080,6 +6127,52 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            DataParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.DataParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "source":
+                        message.source = reader.string();
+                        break;
+                    case "batch_size":
+                        message.batch_size = reader.uint32();
+                        break;
+                    case "rand_skip":
+                        message.rand_skip = reader.uint32();
+                        break;
+                    case "backend":
+                        message.backend = reader.enum($root.caffe.DataParameter.DB);
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "mean_file":
+                        message.mean_file = reader.string();
+                        break;
+                    case "crop_size":
+                        message.crop_size = reader.uint32();
+                        break;
+                    case "mirror":
+                        message.mirror = reader.bool();
+                        break;
+                    case "force_encoded_color":
+                        message.force_encoded_color = reader.bool();
+                        break;
+                    case "prefetch":
+                        message.prefetch = reader.uint32();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -5248,6 +6341,25 @@
                 return message;
             };
     
+            DropoutParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.DropoutParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dropout_ratio":
+                        message.dropout_ratio = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             DropoutParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5369,6 +6481,52 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            DummyDataParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.DummyDataParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "data_filler":
+                        if (!(message.data_filler && message.data_filler.length))
+                            message.data_filler = [];
+                        message.data_filler.push($root.caffe.FillerParameter.decodeText(reader, true));
+                        break;
+                    case "shape":
+                        if (!(message.shape && message.shape.length))
+                            message.shape = [];
+                        message.shape.push($root.caffe.BlobShape.decodeText(reader, true));
+                        break;
+                    case "num":
+                        if (!(message.num && message.num.length))
+                            message.num = [];
+                        message.num.push(reader.uint32());
+                        break;
+                    case "channels":
+                        if (!(message.channels && message.channels.length))
+                            message.channels = [];
+                        message.channels.push(reader.uint32());
+                        break;
+                    case "height":
+                        if (!(message.height && message.height.length))
+                            message.height = [];
+                        message.height.push(reader.uint32());
+                        break;
+                    case "width":
+                        if (!(message.width && message.width.length))
+                            message.width = [];
+                        message.width.push(reader.uint32());
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -5583,6 +6741,33 @@
                 return message;
             };
     
+            EltwiseParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.EltwiseParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "operation":
+                        message.operation = reader.enum($root.caffe.EltwiseParameter.EltwiseOp);
+                        break;
+                    case "coeff":
+                        if (!(message.coeff && message.coeff.length))
+                            message.coeff = [];
+                        message.coeff.push(reader.float());
+                        break;
+                    case "stable_prod_grad":
+                        message.stable_prod_grad = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             EltwiseParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5708,6 +6893,25 @@
                 return message;
             };
     
+            ELUParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ELUParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "alpha":
+                        message.alpha = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             ELUParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5787,6 +6991,37 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            EmbedParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.EmbedParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "input_dim":
+                        message.input_dim = reader.uint32();
+                        break;
+                    case "bias_term":
+                        message.bias_term = reader.bool();
+                        break;
+                    case "weight_filler":
+                        message.weight_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -5913,6 +7148,31 @@
                 return message;
             };
     
+            ExpParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ExpParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "base":
+                        message.base = reader.float();
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "shift":
+                        message.shift = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             ExpParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5997,6 +7257,28 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            FlattenParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.FlattenParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "end_axis":
+                        message.end_axis = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -6089,6 +7371,31 @@
                 return message;
             };
     
+            HDF5DataParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.HDF5DataParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "source":
+                        message.source = reader.string();
+                        break;
+                    case "batch_size":
+                        message.batch_size = reader.uint32();
+                        break;
+                    case "shuffle":
+                        message.shuffle = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             HDF5DataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6175,6 +7482,25 @@
                 return message;
             };
     
+            HDF5OutputParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.HDF5OutputParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "file_name":
+                        message.file_name = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             HDF5OutputParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6238,6 +7564,25 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            HingeLossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.HingeLossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "norm":
+                        message.norm = reader.enum($root.caffe.HingeLossParameter.Norm);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -6371,6 +7716,58 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ImageDataParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ImageDataParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "source":
+                        message.source = reader.string();
+                        break;
+                    case "batch_size":
+                        message.batch_size = reader.uint32();
+                        break;
+                    case "rand_skip":
+                        message.rand_skip = reader.uint32();
+                        break;
+                    case "shuffle":
+                        message.shuffle = reader.bool();
+                        break;
+                    case "new_height":
+                        message.new_height = reader.uint32();
+                        break;
+                    case "new_width":
+                        message.new_width = reader.uint32();
+                        break;
+                    case "is_color":
+                        message.is_color = reader.bool();
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "mean_file":
+                        message.mean_file = reader.string();
+                        break;
+                    case "crop_size":
+                        message.crop_size = reader.uint32();
+                        break;
+                    case "mirror":
+                        message.mirror = reader.bool();
+                        break;
+                    case "root_folder":
+                        message.root_folder = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -6539,6 +7936,28 @@
                 return message;
             };
     
+            InfogainLossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.InfogainLossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "source":
+                        message.source = reader.string();
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             InfogainLossParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6631,6 +8050,40 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            InnerProductParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.InnerProductParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "bias_term":
+                        message.bias_term = reader.bool();
+                        break;
+                    case "weight_filler":
+                        message.weight_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "transpose":
+                        message.transpose = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -6760,6 +8213,27 @@
                 return message;
             };
     
+            InputParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.InputParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "shape":
+                        if (!(message.shape && message.shape.length))
+                            message.shape = [];
+                        message.shape.push($root.caffe.BlobShape.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             InputParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6848,6 +8322,31 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LogParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LogParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "base":
+                        message.base = reader.float();
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "shift":
+                        message.shift = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -6954,6 +8453,40 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LRNParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LRNParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "local_size":
+                        message.local_size = reader.uint32();
+                        break;
+                    case "alpha":
+                        message.alpha = reader.float();
+                        break;
+                    case "beta":
+                        message.beta = reader.float();
+                        break;
+                    case "norm_region":
+                        message.norm_region = reader.enum($root.caffe.LRNParameter.NormRegion);
+                        break;
+                    case "k":
+                        message.k = reader.float();
+                        break;
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.LRNParameter.Engine);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -7128,6 +8661,34 @@
                 return message;
             };
     
+            MemoryDataParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.MemoryDataParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "batch_size":
+                        message.batch_size = reader.uint32();
+                        break;
+                    case "channels":
+                        message.channels = reader.uint32();
+                        break;
+                    case "height":
+                        message.height = reader.uint32();
+                        break;
+                    case "width":
+                        message.width = reader.uint32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             MemoryDataParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7230,6 +8791,31 @@
                 return message;
             };
     
+            MVNParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.MVNParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "normalize_variance":
+                        message.normalize_variance = reader.bool();
+                        break;
+                    case "across_channels":
+                        message.across_channels = reader.bool();
+                        break;
+                    case "eps":
+                        message.eps = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             MVNParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7310,6 +8896,25 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ParameterParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ParameterParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "shape":
+                        message.shape = $root.caffe.BlobShape.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -7432,6 +9037,61 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            PoolingParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.PoolingParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "pool":
+                        message.pool = reader.enum($root.caffe.PoolingParameter.PoolMethod);
+                        break;
+                    case "pad":
+                        message.pad = reader.uint32();
+                        break;
+                    case "pad_h":
+                        message.pad_h = reader.uint32();
+                        break;
+                    case "pad_w":
+                        message.pad_w = reader.uint32();
+                        break;
+                    case "kernel_size":
+                        message.kernel_size = reader.uint32();
+                        break;
+                    case "kernel_h":
+                        message.kernel_h = reader.uint32();
+                        break;
+                    case "kernel_w":
+                        message.kernel_w = reader.uint32();
+                        break;
+                    case "stride":
+                        message.stride = reader.uint32();
+                        break;
+                    case "stride_h":
+                        message.stride_h = reader.uint32();
+                        break;
+                    case "stride_w":
+                        message.stride_w = reader.uint32();
+                        break;
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.PoolingParameter.Engine);
+                        break;
+                    case "global_pooling":
+                        message.global_pooling = reader.bool();
+                        break;
+                    case "round_mode":
+                        message.round_mode = reader.enum($root.caffe.PoolingParameter.RoundMode);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -7684,6 +9344,31 @@
                 return message;
             };
     
+            PowerParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.PowerParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "power":
+                        message.power = reader.float();
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "shift":
+                        message.shift = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             PowerParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7776,6 +9461,34 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            PythonParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.PythonParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "module":
+                        message.module = reader.string();
+                        break;
+                    case "layer":
+                        message.layer = reader.string();
+                        break;
+                    case "param_str":
+                        message.param_str = reader.string();
+                        break;
+                    case "share_in_parallel":
+                        message.share_in_parallel = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -7886,6 +9599,37 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            RecurrentParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.RecurrentParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "weight_filler":
+                        message.weight_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "debug_info":
+                        message.debug_info = reader.bool();
+                        break;
+                    case "expose_hidden":
+                        message.expose_hidden = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -8006,6 +9750,31 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ReductionParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ReductionParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "operation":
+                        message.operation = reader.enum($root.caffe.ReductionParameter.ReductionOp);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "coeff":
+                        message.coeff = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -8134,6 +9903,28 @@
                 return message;
             };
     
+            ReLUParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ReLUParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "negative_slope":
+                        message.negative_slope = reader.float();
+                        break;
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.ReLUParameter.Engine);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             ReLUParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8246,6 +10037,31 @@
                 return message;
             };
     
+            ReshapeParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ReshapeParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "shape":
+                        message.shape = $root.caffe.BlobShape.decodeText(reader, true);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "num_axes":
+                        message.num_axes = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             ReshapeParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8347,6 +10163,37 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ScaleParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ScaleParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "num_axes":
+                        message.num_axes = reader.int32();
+                        break;
+                    case "filler":
+                        message.filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_term":
+                        message.bias_term = reader.bool();
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -8465,6 +10312,25 @@
                 return message;
             };
     
+            SigmoidParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SigmoidParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.SigmoidParameter.Engine);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             SigmoidParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8576,6 +10442,33 @@
                 return message;
             };
     
+            SliceParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SliceParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "slice_point":
+                        if (!(message.slice_point && message.slice_point.length))
+                            message.slice_point = [];
+                        message.slice_point.push(reader.uint32());
+                        break;
+                    case "slice_dim":
+                        message.slice_dim = reader.uint32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             SliceParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8673,6 +10566,28 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SoftmaxParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SoftmaxParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.SoftmaxParameter.Engine);
+                        break;
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -8783,6 +10698,25 @@
                 return message;
             };
     
+            SwishParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SwishParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "beta":
+                        message.beta = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             SwishParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8846,6 +10780,25 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TanHParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.TanHParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.TanHParameter.Engine);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -8951,6 +10904,28 @@
                 return message;
             };
     
+            TileParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.TileParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "tiles":
+                        message.tiles = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             TileParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -9023,6 +10998,25 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ThresholdParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ThresholdParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "threshold":
+                        message.threshold = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -9140,6 +11134,61 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            WindowDataParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.WindowDataParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "source":
+                        message.source = reader.string();
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "mean_file":
+                        message.mean_file = reader.string();
+                        break;
+                    case "batch_size":
+                        message.batch_size = reader.uint32();
+                        break;
+                    case "crop_size":
+                        message.crop_size = reader.uint32();
+                        break;
+                    case "mirror":
+                        message.mirror = reader.bool();
+                        break;
+                    case "fg_threshold":
+                        message.fg_threshold = reader.float();
+                        break;
+                    case "bg_threshold":
+                        message.bg_threshold = reader.float();
+                        break;
+                    case "fg_fraction":
+                        message.fg_fraction = reader.float();
+                        break;
+                    case "context_pad":
+                        message.context_pad = reader.uint32();
+                        break;
+                    case "crop_mode":
+                        message.crop_mode = reader.string();
+                        break;
+                    case "cache_images":
+                        message.cache_images = reader.bool();
+                        break;
+                    case "root_folder":
+                        message.root_folder = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -9314,6 +11363,31 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SPPParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.SPPParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "pyramid_height":
+                        message.pyramid_height = reader.uint32();
+                        break;
+                    case "pool":
+                        message.pool = reader.enum($root.caffe.SPPParameter.PoolMethod);
+                        break;
+                    case "engine":
+                        message.engine = reader.enum($root.caffe.SPPParameter.Engine);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -9670,6 +11744,171 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            V1LayerParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.V1LayerParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "bottom":
+                        if (!(message.bottom && message.bottom.length))
+                            message.bottom = [];
+                        message.bottom.push(reader.string());
+                        break;
+                    case "top":
+                        if (!(message.top && message.top.length))
+                            message.top = [];
+                        message.top.push(reader.string());
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "include":
+                        if (!(message.include && message.include.length))
+                            message.include = [];
+                        message.include.push($root.caffe.NetStateRule.decodeText(reader, true));
+                        break;
+                    case "exclude":
+                        if (!(message.exclude && message.exclude.length))
+                            message.exclude = [];
+                        message.exclude.push($root.caffe.NetStateRule.decodeText(reader, true));
+                        break;
+                    case "type":
+                        message.type = reader.enum($root.caffe.V1LayerParameter.LayerType);
+                        break;
+                    case "blobs":
+                        if (!(message.blobs && message.blobs.length))
+                            message.blobs = [];
+                        message.blobs.push($root.caffe.BlobProto.decodeText(reader, true));
+                        break;
+                    case "param":
+                        if (!(message.param && message.param.length))
+                            message.param = [];
+                        message.param.push(reader.string());
+                        break;
+                    case "blob_share_mode":
+                        if (!(message.blob_share_mode && message.blob_share_mode.length))
+                            message.blob_share_mode = [];
+                        message.blob_share_mode.push(reader.enum($root.caffe.V1LayerParameter.DimCheckMode));
+                        break;
+                    case "blobs_lr":
+                        if (!(message.blobs_lr && message.blobs_lr.length))
+                            message.blobs_lr = [];
+                        message.blobs_lr.push(reader.float());
+                        break;
+                    case "weight_decay":
+                        if (!(message.weight_decay && message.weight_decay.length))
+                            message.weight_decay = [];
+                        message.weight_decay.push(reader.float());
+                        break;
+                    case "loss_weight":
+                        if (!(message.loss_weight && message.loss_weight.length))
+                            message.loss_weight = [];
+                        message.loss_weight.push(reader.float());
+                        break;
+                    case "accuracy_param":
+                        message.accuracy_param = $root.caffe.AccuracyParameter.decodeText(reader, true);
+                        break;
+                    case "argmax_param":
+                        message.argmax_param = $root.caffe.ArgMaxParameter.decodeText(reader, true);
+                        break;
+                    case "concat_param":
+                        message.concat_param = $root.caffe.ConcatParameter.decodeText(reader, true);
+                        break;
+                    case "contrastive_loss_param":
+                        message.contrastive_loss_param = $root.caffe.ContrastiveLossParameter.decodeText(reader, true);
+                        break;
+                    case "convolution_param":
+                        message.convolution_param = $root.caffe.ConvolutionParameter.decodeText(reader, true);
+                        break;
+                    case "data_param":
+                        message.data_param = $root.caffe.DataParameter.decodeText(reader, true);
+                        break;
+                    case "dropout_param":
+                        message.dropout_param = $root.caffe.DropoutParameter.decodeText(reader, true);
+                        break;
+                    case "dummy_data_param":
+                        message.dummy_data_param = $root.caffe.DummyDataParameter.decodeText(reader, true);
+                        break;
+                    case "eltwise_param":
+                        message.eltwise_param = $root.caffe.EltwiseParameter.decodeText(reader, true);
+                        break;
+                    case "exp_param":
+                        message.exp_param = $root.caffe.ExpParameter.decodeText(reader, true);
+                        break;
+                    case "hdf5_data_param":
+                        message.hdf5_data_param = $root.caffe.HDF5DataParameter.decodeText(reader, true);
+                        break;
+                    case "hdf5_output_param":
+                        message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decodeText(reader, true);
+                        break;
+                    case "hinge_loss_param":
+                        message.hinge_loss_param = $root.caffe.HingeLossParameter.decodeText(reader, true);
+                        break;
+                    case "image_data_param":
+                        message.image_data_param = $root.caffe.ImageDataParameter.decodeText(reader, true);
+                        break;
+                    case "infogain_loss_param":
+                        message.infogain_loss_param = $root.caffe.InfogainLossParameter.decodeText(reader, true);
+                        break;
+                    case "inner_product_param":
+                        message.inner_product_param = $root.caffe.InnerProductParameter.decodeText(reader, true);
+                        break;
+                    case "lrn_param":
+                        message.lrn_param = $root.caffe.LRNParameter.decodeText(reader, true);
+                        break;
+                    case "memory_data_param":
+                        message.memory_data_param = $root.caffe.MemoryDataParameter.decodeText(reader, true);
+                        break;
+                    case "mvn_param":
+                        message.mvn_param = $root.caffe.MVNParameter.decodeText(reader, true);
+                        break;
+                    case "pooling_param":
+                        message.pooling_param = $root.caffe.PoolingParameter.decodeText(reader, true);
+                        break;
+                    case "power_param":
+                        message.power_param = $root.caffe.PowerParameter.decodeText(reader, true);
+                        break;
+                    case "relu_param":
+                        message.relu_param = $root.caffe.ReLUParameter.decodeText(reader, true);
+                        break;
+                    case "sigmoid_param":
+                        message.sigmoid_param = $root.caffe.SigmoidParameter.decodeText(reader, true);
+                        break;
+                    case "softmax_param":
+                        message.softmax_param = $root.caffe.SoftmaxParameter.decodeText(reader, true);
+                        break;
+                    case "slice_param":
+                        message.slice_param = $root.caffe.SliceParameter.decodeText(reader, true);
+                        break;
+                    case "tanh_param":
+                        message.tanh_param = $root.caffe.TanHParameter.decodeText(reader, true);
+                        break;
+                    case "threshold_param":
+                        message.threshold_param = $root.caffe.ThresholdParameter.decodeText(reader, true);
+                        break;
+                    case "window_data_param":
+                        message.window_data_param = $root.caffe.WindowDataParameter.decodeText(reader, true);
+                        break;
+                    case "transform_param":
+                        message.transform_param = $root.caffe.TransformationParameter.decodeText(reader, true);
+                        break;
+                    case "loss_param":
+                        message.loss_param = $root.caffe.LossParameter.decodeText(reader, true);
+                        break;
+                    case "layer":
+                        message.layer = $root.caffe.V0LayerParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -10811,6 +13050,142 @@
                 return message;
             };
     
+            V0LayerParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.V0LayerParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "type":
+                        message.type = reader.string();
+                        break;
+                    case "num_output":
+                        message.num_output = reader.uint32();
+                        break;
+                    case "biasterm":
+                        message.biasterm = reader.bool();
+                        break;
+                    case "weight_filler":
+                        message.weight_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "bias_filler":
+                        message.bias_filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "pad":
+                        message.pad = reader.uint32();
+                        break;
+                    case "kernelsize":
+                        message.kernelsize = reader.uint32();
+                        break;
+                    case "group":
+                        message.group = reader.uint32();
+                        break;
+                    case "stride":
+                        message.stride = reader.uint32();
+                        break;
+                    case "pool":
+                        message.pool = reader.enum($root.caffe.V0LayerParameter.PoolMethod);
+                        break;
+                    case "dropout_ratio":
+                        message.dropout_ratio = reader.float();
+                        break;
+                    case "local_size":
+                        message.local_size = reader.uint32();
+                        break;
+                    case "alpha":
+                        message.alpha = reader.float();
+                        break;
+                    case "beta":
+                        message.beta = reader.float();
+                        break;
+                    case "k":
+                        message.k = reader.float();
+                        break;
+                    case "source":
+                        message.source = reader.string();
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    case "meanfile":
+                        message.meanfile = reader.string();
+                        break;
+                    case "batchsize":
+                        message.batchsize = reader.uint32();
+                        break;
+                    case "cropsize":
+                        message.cropsize = reader.uint32();
+                        break;
+                    case "mirror":
+                        message.mirror = reader.bool();
+                        break;
+                    case "blobs":
+                        if (!(message.blobs && message.blobs.length))
+                            message.blobs = [];
+                        message.blobs.push($root.caffe.BlobProto.decodeText(reader, true));
+                        break;
+                    case "blobs_lr":
+                        if (!(message.blobs_lr && message.blobs_lr.length))
+                            message.blobs_lr = [];
+                        message.blobs_lr.push(reader.float());
+                        break;
+                    case "weight_decay":
+                        if (!(message.weight_decay && message.weight_decay.length))
+                            message.weight_decay = [];
+                        message.weight_decay.push(reader.float());
+                        break;
+                    case "rand_skip":
+                        message.rand_skip = reader.uint32();
+                        break;
+                    case "det_fg_threshold":
+                        message.det_fg_threshold = reader.float();
+                        break;
+                    case "det_bg_threshold":
+                        message.det_bg_threshold = reader.float();
+                        break;
+                    case "det_fg_fraction":
+                        message.det_fg_fraction = reader.float();
+                        break;
+                    case "det_context_pad":
+                        message.det_context_pad = reader.uint32();
+                        break;
+                    case "det_crop_mode":
+                        message.det_crop_mode = reader.string();
+                        break;
+                    case "new_num":
+                        message.new_num = reader.int32();
+                        break;
+                    case "new_channels":
+                        message.new_channels = reader.int32();
+                        break;
+                    case "new_height":
+                        message.new_height = reader.int32();
+                        break;
+                    case "new_width":
+                        message.new_width = reader.int32();
+                        break;
+                    case "shuffle_images":
+                        message.shuffle_images = reader.bool();
+                        break;
+                    case "concat_dim":
+                        message.concat_dim = reader.uint32();
+                        break;
+                    case "hdf5_output_param":
+                        message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             V0LayerParameter.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -11259,6 +13634,28 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            PReLUParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.PReLUParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "filler":
+                        message.filler = $root.caffe.FillerParameter.decodeText(reader, true);
+                        break;
+                    case "channel_shared":
+                        message.channel_shared = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }

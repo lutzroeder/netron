@@ -98,6 +98,9 @@ class BrowserHost {
     }
 
     environment(name) {
+        if (name == 'PROTOTXT') {
+            return true;
+        }
         return null;
     }
 

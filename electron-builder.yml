@@ -30,6 +30,26 @@ fileAssociations:
     ext: pb
   - name: "Caffe2 Model"
     ext: pb
+  - name: "TensorFlow Graph"
+    ext: pbtxt
+  - name: "TensorFlow Saved Model"
+    ext: pbtxt
+  - name: "ONNX Model"
+    ext: pbtxt
+  - name: "Caffe2 Model"
+    ext: pbtxt
+  - name: "Caffe Model"
+    ext: pbtxt
+  - name: "TensorFlow Graph"
+    ext: prototxt
+  - name: "TensorFlow Saved Model"
+    ext: prototxt
+  - name: "ONNX Model"
+    ext: prototxt
+  - name: "Caffe2 Model"
+    ext: prototxt
+  - name: "Caffe Model"
+    ext: prototxt
 publish:
   - provider: github
     releaseType: release

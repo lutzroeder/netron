@@ -22,7 +22,7 @@
         "marked": "latest",
         "npm-font-open-sans": "latest",
         "pako": "latest",
-        "protobufjs": "latest",
+        "protobufjs": "lutzroeder/protobuf.js#pbtxt",
         "universal-analytics": "latest"
     },
     "devDependencies": {

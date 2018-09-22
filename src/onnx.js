@@ -2,7 +2,7 @@
 (function($protobuf) {
     "use strict";
 
-    var $Reader = $protobuf.Reader, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
     
     var $root = $protobuf.roots.onnx || ($protobuf.roots.onnx = {});
     
@@ -123,6 +123,74 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            AttributeProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.AttributeProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "ref_attr_name":
+                        message.ref_attr_name = reader.string();
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    case "type":
+                        message.type = reader.enum($root.onnx.AttributeProto.AttributeType);
+                        break;
+                    case "f":
+                        message.f = reader.float();
+                        break;
+                    case "i":
+                        message.i = reader.int64();
+                        break;
+                    case "s":
+                        message.s = reader.bytes();
+                        break;
+                    case "t":
+                        message.t = $root.onnx.TensorProto.decodeText(reader, true);
+                        break;
+                    case "g":
+                        message.g = $root.onnx.GraphProto.decodeText(reader, true);
+                        break;
+                    case "floats":
+                        if (!(message.floats && message.floats.length))
+                            message.floats = [];
+                        message.floats.push(reader.float());
+                        break;
+                    case "ints":
+                        if (!(message.ints && message.ints.length))
+                            message.ints = [];
+                        message.ints.push(reader.int64());
+                        break;
+                    case "strings":
+                        if (!(message.strings && message.strings.length))
+                            message.strings = [];
+                        message.strings.push(reader.bytes());
+                        break;
+                    case "tensors":
+                        if (!(message.tensors && message.tensors.length))
+                            message.tensors = [];
+                        message.tensors.push($root.onnx.TensorProto.decodeText(reader, true));
+                        break;
+                    case "graphs":
+                        if (!(message.graphs && message.graphs.length))
+                            message.graphs = [];
+                        message.graphs.push($root.onnx.GraphProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -503,6 +571,31 @@
                 return message;
             };
     
+            ValueInfoProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.ValueInfoProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "type":
+                        message.type = $root.onnx.TypeProto.decodeText(reader, true);
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             ValueInfoProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -621,6 +714,49 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            NodeProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.NodeProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "input":
+                        if (!(message.input && message.input.length))
+                            message.input = [];
+                        message.input.push(reader.string());
+                        break;
+                    case "output":
+                        if (!(message.output && message.output.length))
+                            message.output = [];
+                        message.output.push(reader.string());
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "op_type":
+                        message.op_type = reader.string();
+                        break;
+                    case "domain":
+                        message.domain = reader.string();
+                        break;
+                    case "attribute":
+                        if (!(message.attribute && message.attribute.length))
+                            message.attribute = [];
+                        message.attribute.push($root.onnx.AttributeProto.decodeText(reader, true));
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -820,6 +956,53 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ModelProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.ModelProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "ir_version":
+                        message.ir_version = reader.int64();
+                        break;
+                    case "opset_import":
+                        if (!(message.opset_import && message.opset_import.length))
+                            message.opset_import = [];
+                        message.opset_import.push($root.onnx.OperatorSetIdProto.decodeText(reader, true));
+                        break;
+                    case "producer_name":
+                        message.producer_name = reader.string();
+                        break;
+                    case "producer_version":
+                        message.producer_version = reader.string();
+                        break;
+                    case "domain":
+                        message.domain = reader.string();
+                        break;
+                    case "model_version":
+                        message.model_version = reader.int64();
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    case "graph":
+                        message.graph = $root.onnx.GraphProto.decodeText(reader, true);
+                        break;
+                    case "metadata_props":
+                        if (!(message.metadata_props && message.metadata_props.length))
+                            message.metadata_props = [];
+                        message.metadata_props.push($root.onnx.StringStringEntryProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -1033,6 +1216,28 @@
                 return message;
             };
     
+            StringStringEntryProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.StringStringEntryProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "key":
+                        message.key = reader.string();
+                        break;
+                    case "value":
+                        message.value = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             StringStringEntryProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -1144,6 +1349,53 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            GraphProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.GraphProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "node":
+                        if (!(message.node && message.node.length))
+                            message.node = [];
+                        message.node.push($root.onnx.NodeProto.decodeText(reader, true));
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "initializer":
+                        if (!(message.initializer && message.initializer.length))
+                            message.initializer = [];
+                        message.initializer.push($root.onnx.TensorProto.decodeText(reader, true));
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    case "input":
+                        if (!(message.input && message.input.length))
+                            message.input = [];
+                        message.input.push($root.onnx.ValueInfoProto.decodeText(reader, true));
+                        break;
+                    case "output":
+                        if (!(message.output && message.output.length))
+                            message.output = [];
+                        message.output.push($root.onnx.ValueInfoProto.decodeText(reader, true));
+                        break;
+                    case "value_info":
+                        if (!(message.value_info && message.value_info.length))
+                            message.value_info = [];
+                        message.value_info.push($root.onnx.ValueInfoProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -1470,6 +1722,72 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TensorProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.TensorProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dims":
+                        if (!(message.dims && message.dims.length))
+                            message.dims = [];
+                        message.dims.push(reader.int64());
+                        break;
+                    case "data_type":
+                        message.data_type = reader.enum($root.onnx.TensorProto.DataType);
+                        break;
+                    case "segment":
+                        message.segment = $root.onnx.TensorProto.Segment.decodeText(reader, true);
+                        break;
+                    case "float_data":
+                        if (!(message.float_data && message.float_data.length))
+                            message.float_data = [];
+                        message.float_data.push(reader.float());
+                        break;
+                    case "int32_data":
+                        if (!(message.int32_data && message.int32_data.length))
+                            message.int32_data = [];
+                        message.int32_data.push(reader.int32());
+                        break;
+                    case "string_data":
+                        if (!(message.string_data && message.string_data.length))
+                            message.string_data = [];
+                        message.string_data.push(reader.bytes());
+                        break;
+                    case "int64_data":
+                        if (!(message.int64_data && message.int64_data.length))
+                            message.int64_data = [];
+                        message.int64_data.push(reader.int64());
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    case "raw_data":
+                        message.raw_data = reader.bytes();
+                        break;
+                    case "double_data":
+                        if (!(message.double_data && message.double_data.length))
+                            message.double_data = [];
+                        message.double_data.push(reader.double());
+                        break;
+                    case "uint64_data":
+                        if (!(message.uint64_data && message.uint64_data.length))
+                            message.uint64_data = [];
+                        message.uint64_data.push(reader.uint64());
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -1872,6 +2190,28 @@
                     return message;
                 };
     
+                Segment.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.onnx.TensorProto.Segment();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "begin":
+                            message.begin = reader.int64();
+                            break;
+                        case "end":
+                            message.end = reader.int64();
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
                 Segment.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -1984,6 +2324,27 @@
                 return message;
             };
     
+            TensorShapeProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.TensorShapeProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dim":
+                        if (!(message.dim && message.dim.length))
+                            message.dim = [];
+                        message.dim.push($root.onnx.TensorShapeProto.Dimension.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             TensorShapeProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -2076,6 +2437,31 @@
                             break;
                         default:
                             reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                Dimension.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.onnx.TensorShapeProto.Dimension();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "dim_value":
+                            message.dim_value = reader.int64();
+                            break;
+                        case "dim_param":
+                            message.dim_param = reader.string();
+                            break;
+                        case "denotation":
+                            message.denotation = reader.string();
+                            break;
+                        default:
+                            reader.handle(tag);
                             break;
                         }
                     }
@@ -2208,6 +2594,37 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            TypeProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.TypeProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "tensor_type":
+                        message.tensor_type = $root.onnx.TypeProto.Tensor.decodeText(reader, true);
+                        break;
+                    case "sequence_type":
+                        message.sequence_type = $root.onnx.TypeProto.Sequence.decodeText(reader, true);
+                        break;
+                    case "map_type":
+                        message.map_type = $root.onnx.TypeProto.Map.decodeText(reader, true);
+                        break;
+                    case "opaque_type":
+                        message.opaque_type = $root.onnx.TypeProto.Opaque.decodeText(reader, true);
+                        break;
+                    case "denotation":
+                        message.denotation = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -2357,6 +2774,28 @@
                             break;
                         default:
                             reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                Tensor.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.onnx.TypeProto.Tensor();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "elem_type":
+                            message.elem_type = reader.enum($root.onnx.TensorProto.DataType);
+                            break;
+                        case "shape":
+                            message.shape = $root.onnx.TensorShapeProto.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.handle(tag);
                             break;
                         }
                     }
@@ -2529,6 +2968,25 @@
                     return message;
                 };
     
+                Sequence.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.onnx.TypeProto.Sequence();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "elem_type":
+                            message.elem_type = $root.onnx.TypeProto.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
                 Sequence.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -2601,6 +3059,28 @@
                             break;
                         default:
                             reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                Map.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.onnx.TypeProto.Map();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "key_type":
+                            message.key_type = reader.enum($root.onnx.TensorProto.DataType);
+                            break;
+                        case "value_type":
+                            message.value_type = $root.onnx.TypeProto.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.handle(tag);
                             break;
                         }
                     }
@@ -2784,6 +3264,33 @@
                     return message;
                 };
     
+                Opaque.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.onnx.TypeProto.Opaque();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "domain":
+                            message.domain = reader.string();
+                            break;
+                        case "name":
+                            message.name = reader.string();
+                            break;
+                        case "parameters":
+                            if (!(message.parameters && message.parameters.length))
+                                message.parameters = [];
+                            message.parameters.push($root.onnx.TypeProto.decodeText(reader, true));
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
                 Opaque.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -2889,6 +3396,28 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            OperatorSetIdProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.OperatorSetIdProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "domain":
+                        message.domain = reader.string();
+                        break;
+                    case "version":
+                        message.version = reader.int64();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -3028,6 +3557,54 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            FunctionProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.FunctionProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "since_version":
+                        message.since_version = reader.int64();
+                        break;
+                    case "status":
+                        message.status = reader.enum($root.onnx.OperatorStatus);
+                        break;
+                    case "input":
+                        if (!(message.input && message.input.length))
+                            message.input = [];
+                        message.input.push(reader.string());
+                        break;
+                    case "output":
+                        if (!(message.output && message.output.length))
+                            message.output = [];
+                        message.output.push(reader.string());
+                        break;
+                    case "attribute":
+                        if (!(message.attribute && message.attribute.length))
+                            message.attribute = [];
+                        message.attribute.push(reader.string());
+                        break;
+                    case "node":
+                        if (!(message.node && message.node.length))
+                            message.node = [];
+                        message.node.push($root.onnx.NodeProto.decodeText(reader, true));
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }
@@ -3254,6 +3831,34 @@
                 return message;
             };
     
+            OperatorProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.OperatorProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "op_type":
+                        message.op_type = reader.string();
+                        break;
+                    case "since_version":
+                        message.since_version = reader.int64();
+                        break;
+                    case "status":
+                        message.status = reader.enum($root.onnx.OperatorStatus);
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
             OperatorProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3407,6 +4012,53 @@
                         break;
                     default:
                         reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            OperatorSetProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.onnx.OperatorSetProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "magic":
+                        message.magic = reader.string();
+                        break;
+                    case "ir_version":
+                        message.ir_version = reader.int32();
+                        break;
+                    case "ir_version_prerelease":
+                        message.ir_version_prerelease = reader.string();
+                        break;
+                    case "ir_build_metadata":
+                        message.ir_build_metadata = reader.string();
+                        break;
+                    case "domain":
+                        message.domain = reader.string();
+                        break;
+                    case "opset_version":
+                        message.opset_version = reader.int64();
+                        break;
+                    case "doc_string":
+                        message.doc_string = reader.string();
+                        break;
+                    case "operator":
+                        if (!(message.operator && message.operator.length))
+                            message.operator = [];
+                        message.operator.push($root.onnx.OperatorProto.decodeText(reader, true));
+                        break;
+                    case "functions":
+                        if (!(message.functions && message.functions.length))
+                            message.functions = [];
+                        message.functions.push($root.onnx.FunctionProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
                         break;
                     }
                 }

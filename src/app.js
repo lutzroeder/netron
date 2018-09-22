@@ -111,17 +111,17 @@ class Application {
         var showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
-                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth', 'pkl', 'joblib' ] }
+                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth', 'pkl', 'joblib', 'pbtxt', 'prototxt' ] }
                 /* 
-                { name: 'ONNX Model', extensions: [ 'onnx', 'pb' ] },
+                { name: 'ONNX Model', extensions: [ 'onnx', 'pb', 'pbtxt' ] },
                 { name: 'Keras Model', extensions: [ 'h5', 'hdf5', 'json', 'keras' ] },
                 { name: 'CoreML Model', extensions: [ 'mlmodel' ] },
-                { name: 'Caffe Model', extensions: [ 'caffemodel' ] },
-                { name: 'Caffe2 Model', extensions: [ 'pb' ] },
+                { name: 'Caffe Model', extensions: [ 'caffemodel', 'pbtxt' ] },
+                { name: 'Caffe2 Model', extensions: [ 'pb', 'pbtxt' ] },
                 { name: 'MXNet Model', extensions: [ 'model', 'json' ] },
                 { name: 'PyTorch Model', extensions: [ 'pt', 'pth' ] },
-                { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta' ] },
-                { name: 'TensorFlow Saved Model', extensions: [ 'pb' ] },
+                { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta', 'pbtxt' ] },
+                { name: 'TensorFlow Saved Model', extensions: [ 'pb', 'pbtxt' ] },
                 { name: 'TensorFlow Lite Model', extensions: [ 'tflite', 'lite' ] } 
                 */
             ]
