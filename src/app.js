@@ -18,9 +18,24 @@ class Application {
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
 
-        if (this._makeSingleInstance()) {
+        if (!electron.app.requestSingleInstanceLock()) {
             electron.app.quit();
         }
+
+        electron.app.on('second-instance', (event, commandLine, workingDirectory) => {
+            var currentDirectory = process.cwd();
+            process.chdir(workingDirectory);
+            var open = this._parseCommandLine(commandLine);
+            process.chdir(currentDirectory);
+            if (!open) {
+                if (this._views.count > 0) {
+                    var view = this._views.item(0);
+                    if (view) {
+                        view.restore();
+                    }
+                }
+            }
+        });
 
         electron.ipcMain.on('open-file-dialog', (e, data) => {
             this._openFileDialog();
@@ -52,23 +67,6 @@ class Application {
 
         this._parseCommandLine(process.argv);
         this._checkForUpdates();
-    }
-
-    _makeSingleInstance() {
-        return electron.app.makeSingleInstance((argv, workingDirectory) => { 
-            var currentDirectory = process.cwd();
-            process.chdir(workingDirectory);
-            var open = this._parseCommandLine(argv);
-            process.chdir(currentDirectory);
-            if (!open) {
-                if (this._views.count > 0) {
-                    var view = this._views.item(0);
-                    if (view) {
-                        view.restore();
-                    }
-                }
-            }
-        });
     }
 
     _parseCommandLine(argv) {
