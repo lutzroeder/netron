@@ -1,0 +1,139 @@
+[
+  {
+    "name": "Convolution",
+    "schema": {
+      "category": "Layer",
+      "operator": 33
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "category": "Activation",
+      "operator": 3
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "operator": 4
+    }
+  },
+  {
+    "name": "Log",
+    "schema": {
+      "operator": 5
+    }
+  },
+  {
+    "name": "Log",
+    "schema": {
+      "operator": 5
+    }
+  },
+  {
+    "name": "Reciprocal",
+    "schema": {
+      "operator": 9
+    }
+  },
+  {
+    "name": "Softmax",
+    "schema": {
+      "category": "Activation",
+      "operator": 10
+    }
+  },
+  {
+    "name": "Hardmax",
+    "schema": {
+      "category": "Activation",
+      "operator": 11
+    }
+  },
+  {
+    "name": "Slice",
+    "schema": {
+      "category": "Tensor",
+      "operator": 14
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "category": "Dropout",
+      "operator": 15
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "category": "Shape",
+      "operator": 16
+    }
+  },
+  {
+    "name": "Pooling",
+    "schema": {
+      "category": "Pool",
+      "operator": 17
+    }
+  },
+  {
+    "name": "Plus",
+    "schema": {
+      "operator": 19
+    }
+  },
+  {
+    "name": "Minus",
+    "schema": {
+      "operator": 20
+    }
+  },
+  {
+    "name": "ElementTimes",
+    "schema": {
+      "operator": 21
+    }
+  },
+  {
+    "name": "Times",
+    "schema": {
+      "operator": 31
+    }
+  },
+  {
+    "name": "TransposeTimes",
+    "schema": {
+      "operator": 32
+    }
+  },
+  {
+    "name": "ReduceElements",
+    "schema": {
+      "operator": 39
+    }
+  },
+  {
+    "name": "BatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "operator": 40
+    }
+  },
+  {
+    "name": "Splice",
+    "schema": {
+      "category": "Tensor",
+      "operator": 43
+    }
+  },
+  {
+    "name": "Combine",
+    "schema": {
+      "category": "Tensor",
+      "operator": 44
+    }
+  }
+]

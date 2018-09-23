@@ -289,7 +289,7 @@ class NodeAttributeView {
         if (this._attribute.tensor) {
             value = '[...]';
         }
-        if (value && typeof value !== 'string') {
+        if ((value || value === false || value === 0) && typeof value !== 'string') {
             value = value.toString();
         }
         if (value && value.length > 1000) {

@@ -216,7 +216,8 @@ class View {
             new PyTorchModelFactory(),
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),
-            new SklearnModelFactory()
+            new SklearnModelFactory(),
+            new CntkModelFactory()
         ];
 
         try {
@@ -323,6 +324,7 @@ class View {
                 switch (extension) {
                     case 'json':
                     case 'pb':
+                    case 'model':
                         callback(new NameError('Unsupported file content for extension \'.' + extension + '\'.', "Error loading model."), null);
                         break;
                     default:

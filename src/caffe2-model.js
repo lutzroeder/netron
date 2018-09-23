@@ -624,63 +624,6 @@ class Caffe2OperatorMetadata
         }
         return true;
     }
-    
-    static isEquivalent(a, b) {
-        if (a === b) {
-            return a !== 0 || 1 / a === 1 / b;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        if (a !== a) {
-            return b !== b;
-        }
-        var type = typeof a;
-        if (type !== 'function' && type !== 'object' && typeof b != 'object') {
-            return false;
-        }
-        var className = toString.call(a);
-        if (className !== toString.call(b)) {
-            return false;
-        }
-        switch (className) {
-            case '[object RegExp]':
-            case '[object String]':
-                return '' + a === '' + b;
-            case '[object Number]':
-                if (+a !== +a) {
-                    return +b !== +b;
-                }
-                return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-            case '[object Date]':
-            case '[object Boolean]':
-                return +a === +b;
-            case '[object Array]':
-                var length = a.length;
-                if (length !== b.length) {
-                    return false;
-                }
-                while (length--) {
-                    if (!Caffe2OperatorMetadata.isEquivalent(a[length], b[length])) {
-                        return false;
-                    }
-                }
-                return true;
-        }
-
-        var keys = Object.keys(a);
-        var size = keys.length;
-        if (Object.keys(b).length != size) {
-            return false;
-        } 
-        while (size--) {
-            var key = keys[size];
-            if (!(b.hasOwnProperty(key) && Caffe2OperatorMetadata.isEquivalent(a[key], b[key]))) {
-                return false;
-            }
-        }
-        return true;
-    }
 }
 
 class Caffe2Error extends Error {

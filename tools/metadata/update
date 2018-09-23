@@ -34,5 +34,8 @@ ${tools}/metadata/tflite-update
 echo "Update scikit-learn"
 ${tools}/metadata/sklearn-update
 
+echo "Update CNTK"
+${tools}/metadata/cntk-update
+
 echo "Update PyTorch"
 ${tools}/metadata/pytorch-update
