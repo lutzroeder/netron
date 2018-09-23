@@ -8,7 +8,10 @@ class MXNetModelFactory {
         }
         var extension = context.identifier.split('.').pop();
         if (extension == 'model') {
-            return true;
+            var buffer = context.buffer;
+            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+                return true;
+            }
         }
         if (extension == 'json') {
             var json = context.text;
