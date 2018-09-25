@@ -7,17 +7,17 @@ class OnnxModelFactory {
     match(context, host) {
         var identifier = context.identifier;
         var extension = context.identifier.split('.').pop();
-        switch (identifier) {
-            case 'saved_model.pb':
-            case 'predict_net.pb':
-            case 'init_net.pb':
-                return false;
-        }
         if (extension == 'onnx' || extension == 'pb') {
+            if (identifier.endsWith('saved_model.pb')) {
+                return false;
+            }
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('predict_net.pb') || identifier == 'init_net.pb') {
+                return false;
+            }
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt') {
+            if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
                 return false;
             }
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
@@ -43,7 +43,8 @@ class OnnxModelFactory {
             var model = null;
             try {
                 onnx = protobuf.roots.onnx.onnx;
-                var extension = context.identifier.split('.').pop();
+                var identifier = context.identifier; 
+                var extension = identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
                     model = onnx.ModelProto.decodeText(context.text);
                 }

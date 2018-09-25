@@ -47,13 +47,13 @@ class TensorFlowModelFactory {
             var extension = identifier.split('.').pop();
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
-                    if (identifier == 'saved_model.pbtxt') {
+                    if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
                         savedModel = tensorflow.SavedModel.decodeText(context.text);
                         format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
                     }
                 }
                 catch (error) {
-                    callback(new TensorFlowError('File format is not tensorflow.GraphDef (' + error.message + ').'), null);
+                    callback(new TensorFlowError('File text format is not tensorflow.SavedModel (' + error.message + ').'), null);
                     return;
                 }
                 try {
@@ -71,20 +71,19 @@ class TensorFlowModelFactory {
                         graph = tensorflow.GraphDef.decodeText(context.text);
                         metaGraph = new tensorflow.MetaGraphDef();
                         metaGraph.graph_def = graph;
-                        metaGraph.any_info = identifier;
                         savedModel = new tensorflow.SavedModel();
                         savedModel.meta_graphs.push(metaGraph);
                         format = 'TensorFlow Graph';
                     }
                 }
                 catch (error) {
-                    callback(new TensorFlowError('File format is not tensorflow.GraphDef (' + error.message + ').'), null);
+                    callback(new TensorFlowError('File text format is not tensorflow.GraphDef (' + error.message + ').'), null);
                     return;
                 }
             }
             else {
                 try {
-                    if (identifier == 'saved_model.pb') {
+                    if (identifier.endsWith('saved_model.pb')) {
                         savedModel = tensorflow.SavedModel.decode(context.buffer);
                         format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
                     }
@@ -93,7 +92,6 @@ class TensorFlowModelFactory {
                     callback(new TensorFlowError('File format is not tensorflow.SavedModel (' + error.message + ').'), null);
                     return;
                 }
-    
                 try {
                     if (!savedModel && extension == 'meta') {
                         metaGraph = tensorflow.MetaGraphDef.decode(context.buffer);
@@ -106,13 +104,11 @@ class TensorFlowModelFactory {
                     callback(new TensorFlowError('File format is not tensorflow.MetaGraphDef (' + error.message + ').'), null);
                     return;
                 }
-    
                 try {
                     if (!savedModel) {
                         graph = tensorflow.GraphDef.decode(context.buffer);
                         metaGraph = new tensorflow.MetaGraphDef();
                         metaGraph.graph_def = graph;
-                        metaGraph.any_info = identifier;
                         savedModel = new tensorflow.SavedModel();
                         savedModel.meta_graphs.push(metaGraph);
                         format = 'TensorFlow Graph';
@@ -146,7 +142,15 @@ class TensorFlowModel {
         this._format = format;
         this._graphs = [];
         for (var i = 0; i < this._model.meta_graphs.length; i++) {
-            this._graphs.push(new TensorFlowGraph(this, this._model.meta_graphs[i], i));
+            var metaGraph = this._model.meta_graphs[i];
+            var name = null;
+            if (metaGraph.any_info) {
+                name = metaGraph.any_info.toString();
+            }
+            else if (this._model.meta_graphs.length > 1) {
+                name = '(' + index.toString() + ')';
+            }
+            this._graphs.push(new TensorFlowGraph(this, metaGraph, name));
         }
         this._activeGraph = (this._graphs.length > 0) ? this._graphs[0] : null;
     }
@@ -166,15 +170,29 @@ class TensorFlowModel {
 
 class TensorFlowGraph {
 
-    constructor(model, graph, index) {
+    constructor(model, metaGraph, name) {
         this._model = model;
-        this._graph = graph;
-        this._metadata = new TensorFlowGraphOperatorMetadata(graph.meta_info_def);
-        this._name = this._graph.any_info ? this._graph.any_info.toString() : ('(' + index.toString() + ')');
+        this._metaGraph = metaGraph;
+        this._version = null;
+        this._metadata = new TensorFlowGraphOperatorMetadata(metaGraph.meta_info_def);
+        this._name = name;
         this._operators = {};
         this._inputMap = {};
-        if (this._graph.graph_def) {
-            this._graph.graph_def.node.forEach((node) => {
+        if (metaGraph.graph_def) {
+            var graph = metaGraph.graph_def;
+            if (graph.versions) {
+                this._version = 'v' + graph.versions.producer.toString();
+            }
+            else if (graph.version) {
+                debugger;
+            }
+            else if (metaGraph.meta_info_def && metaGraph.meta_info_def.tensorflow_version) {
+                this._version = metaGraph.meta_info_def.tensorflow_version;
+            }
+            if (metaGraph.meta_info_def && metaGraph.meta_info_def.tags) {
+                this._tags = metaGraph.meta_info_def.tags.join(', ');
+            }
+                graph.node.forEach((node) => {
                 this._operators[node.op] = (this._operators[node.op] || 0) + 1;
             });
         }
@@ -193,17 +211,11 @@ class TensorFlowGraph {
     }
 
     get version() {
-        if (this._graph.meta_info_def && this._graph.meta_info_def.tensorflow_version) {
-            return this._graph.meta_info_def.tensorflow_version;
-        }
-        return null;
+        return this._version;
     }
 
     get tags() {
-        if (this._graph.meta_info_def && this._graph.meta_info_def.tags) {
-            return this._graph.meta_info_def.tags.join(', ');
-        }
-        return null;
+        return this._tags;
     }
 
     get groups() {
@@ -226,8 +238,8 @@ class TensorFlowGraph {
     get nodes() {
         this._update();
         var results = [];
-        if (this._graph.graph_def) {
-            this._graph.graph_def.node.forEach((node) => {
+        if (this._metaGraph.graph_def) {
+            this._metaGraph.graph_def.node.forEach((node) => {
                 if (node.output.filter(output => !output.startsWith('^')) != 0 ||
                     node.input.filter(input => !input.startsWith('^')).length > 0) {
                     var id = node.name;
@@ -249,10 +261,10 @@ class TensorFlowGraph {
     }
 
     _update() {
-        if (!this._nodeMap && this._graph.graph_def.node) {
+        if (!this._nodeMap && this._metaGraph.graph_def.node) {
             this._nodeMap = {};
             this._namespaces = {};
-            var nodes = this._graph.graph_def.node;
+            var nodes = this._metaGraph.graph_def.node;
             nodes.forEach((node) => {
                 var name = node.name;
                 this._nodeMap[name] = node;   
@@ -328,7 +340,7 @@ class TensorFlowGraph {
             });
 
             this._initializerMap = {};
-            this._graph.graph_def.node.forEach((node) => {
+            this._metaGraph.graph_def.node.forEach((node) => {
                 if (node.op == 'Const' && this._checkEmptyInput(node) && this._checkSingleOutput(node)) {
                     var value = node.attr.value;
                     if (value && value.hasOwnProperty('tensor')) {
@@ -339,7 +351,7 @@ class TensorFlowGraph {
                     }
                 }
             });
-            this._graph.graph_def.node.forEach((node) => {
+            this._metaGraph.graph_def.node.forEach((node) => {
                 if (node.op == 'Identity' && node.input.length == 1 && this._checkSingleOutput(node)) {
                     var input = node.input[0];
                     var tensor = this._initializerMap[input];
@@ -353,7 +365,7 @@ class TensorFlowGraph {
             });
 
             this._inputMap = {};
-            this._graph.graph_def.node.forEach((node) => {
+            this._metaGraph.graph_def.node.forEach((node) => {
                 if (node.op == 'Placeholder' && node.input.length == 0 && node.output.length == 1) {
                     var dtype = node.attr.dtype;
                     var shape = node.attr.shape;
