@@ -41,20 +41,28 @@ class OnnxModelFactory {
                 return;
             }
             var model = null;
-            try {
-                onnx = protobuf.roots.onnx.onnx;
-                var identifier = context.identifier; 
-                var extension = identifier.split('.').pop();
-                if (extension == 'pbtxt' || extension == 'prototxt') {
+            var identifier = context.identifier; 
+            var extension = identifier.split('.').pop();
+            if (extension == 'pbtxt' || extension == 'prototxt') {
+                try {
+                    onnx = protobuf.roots.onnx.onnx;
                     model = onnx.ModelProto.decodeText(context.text);
                 }
-                else {
-                    model = onnx.ModelProto.decode(context.buffer);
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new OnnxError('File text format is not onnx.ModelProto (' + error.message + ').'), null);
+                    return;
                 }
             }
-            catch (error) {
-                callback(new OnnxError('File format is not onnx.ModelProto (' + error.message + ').'), null);
-                return;
+            else {
+                try {
+                    onnx = protobuf.roots.onnx.onnx;
+                    model = onnx.ModelProto.decode(context.buffer);
+                }
+                catch (error) {
+                    callback(new OnnxError('File format is not onnx.ModelProto (' + error.message + ').'), null);
+                    return;
+                }
             }
             var result = null;
             try {

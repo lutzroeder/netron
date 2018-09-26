@@ -35,19 +35,28 @@ class CaffeModelFactory {
                 return;
             }
             var netParameter = null;
-            try {
-                caffe = protobuf.roots.caffe.caffe;
-                var extension = context.identifier.split('.').pop();
-                if (extension == 'pbtxt' || extension == 'prototxt') {
+            var extension = context.identifier.split('.').pop();
+            if (extension == 'pbtxt' || extension == 'prototxt') {
+                try {
+                    caffe = protobuf.roots.caffe.caffe;
                     netParameter = caffe.NetParameter.decodeText(context.text);
                 }
-                else {
-                    netParameter = caffe.NetParameter.decode(context.buffer);
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new CaffeError('File text format is not caffe.NetParameter (' + error.message + ').'), null);
+                    return;    
                 }
             }
-            catch (error) {
-                callback(new CaffeError('File format is not caffe.NetParameter (' + error.message + ').'), null);
-                return;
+            else {
+                try {
+                    caffe = protobuf.roots.caffe.caffe;
+                    netParameter = caffe.NetParameter.decode(context.buffer);
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new CaffeError('File format is not caffe.NetParameter (' + error.message + ').'), null);
+                    return;    
+                }
             }
             var model = null;
             try {

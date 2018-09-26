@@ -28,20 +28,29 @@ class Caffe2ModelFactory {
                 return;
             }
             var netDef = null;
-            try {
-                caffe2 = protobuf.roots.caffe2.caffe2;
-                var extension = context.identifier.split('.').pop();
-                if (extension == 'pbtxt' || extension == 'prototxt') {
+            var extension = context.identifier.split('.').pop();
+            if (extension == 'pbtxt' || extension == 'prototxt') {
+                try {
+                    caffe2 = protobuf.roots.caffe2.caffe2;
                     netDef = caffe2.NetDef.decodeText(context.text);
                 }
-                else {
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new Caffe2Error('File text format is not caffe2.NetDef (' + error.message + ').'), null);
+                    return;
+                }    
+            }
+            else {
+                try {
+                    caffe2 = protobuf.roots.caffe2.caffe2;
                     netDef = caffe2.NetDef.decode(context.buffer);
                 }
+                catch (error) {
+                    callback(new Caffe2Error('File format is not caffe2.NetDef (' + error.message + ').'), null);
+                    return;
+                }    
             }
-            catch (error) {
-                callback(new Caffe2Error('File format is not caffe2.NetDef (' + error.message + ').'), null);
-                return;
-            }
+
             context.request('init_net.pb', null, (err, data) => {
 
                 var init = null;
