@@ -109,7 +109,7 @@ class TensorFlowLiteGraph {
             var operator = this._graph.operators(j);
             var opcodeIndex = operator.opcodeIndex();
             var operatorName = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : ('(' + opcodeIndex.toString() + ')');
-            var node = new TensorFlowLiteNode(this, operator, operatorName, connections);
+            var node = new TensorFlowLiteNode(operator, operatorName, connections);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             this._nodes.push(node);
         }
@@ -150,23 +150,48 @@ class TensorFlowLiteGraph {
 
 class TensorFlowLiteNode {
 
-    constructor(graph, node, operator, connections) {
-        this._graph = graph;
-        this._node = node;
+    constructor(node, operator, connections) {
         this._operator = operator;
 
-        var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(this._node, this.operator);
+        var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(node, this.operator);
         this._inputs = inputs.map((input) => {
             return new TensorFlowLiteArgument(input.name, input.visible != false, input.connections.map((connection) => {
                 return connections[connection.id];
             }));
         });
         this._outputs = [];
-        for (var i = 0; i < this._node.outputsLength(); i++) {
-            var index = this._node.outputs(i);
+        for (var i = 0; i < node.outputsLength(); i++) {
+            var index = node.outputs(i);
             var connection = connections[index];
             var name = TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i);
             this._outputs.push(new TensorFlowLiteArgument(name, true, [ connection ]));
+        }
+
+        this._attributes = [];
+        var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
+        var optionsTypeName = 'tflite.' + this._operator + 'Options';
+        var optionsType = TensorFlowLiteNode._getType(optionsTypeName);
+        if (typeof optionsType === 'function') {
+            var options = Reflect.construct(optionsType, []);
+            node.builtinOptions(options);
+            var attributeNames = [];
+            Object.keys(Object.getPrototypeOf(options)).forEach(function (attributeName) {
+                if (attributeName != '__init') {
+                    attributeNames.push(attributeName);
+                }
+            });
+            attributeNames.forEach((name) => {
+                if (options[name] && typeof options[name] == 'function') {
+                    var value = options[name]();
+                    value = TensorFlowLiteNode._formatAttributeValue(value, name, optionsTypeName);
+                    if (value != null) {
+                        name = TensorFlowLiteNode._formatAttributeName(name);
+                        var type = metadata.getAttributeType(operator, name);
+                        var visible = metadata.getAttributeVisible(operator, name, value);
+                        this._attributes.push(new TensorFlowLiteAttribute(name, type, value, visible));
+                    }
+                }
+            });
         }
     }
 
@@ -211,40 +236,10 @@ class TensorFlowLiteNode {
     }
 
     get attributes() {
-        if (!this._attributes) {
-            this._attributes = [];
-            var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
-            var node = this._node;
-            var operator = this._operator;
-            var optionsTypeName = 'tflite.' + operator + 'Options';
-            var optionsType = TensorFlowLiteNode._getType(optionsTypeName);
-            if (typeof optionsType === 'function') {
-                var options = Reflect.construct(optionsType, []);
-                node.builtinOptions(options);
-                var attributeNames = [];
-                Object.keys(Object.getPrototypeOf(options)).forEach(function (attributeName) {
-                    if (attributeName != '__init') {
-                        attributeNames.push(attributeName);
-                    }
-                });
-                attributeNames.forEach((name) => {
-                    if (options[name] && typeof options[name] == 'function') {
-                        var value = options[name]();
-                        value = this.formatAttributeValue(value, name, optionsTypeName);
-                        if (value != null) {
-                            name = this.formatAttributeName(name);
-                            var type = metadata.getAttributeType(operator, name);
-                            var visible = metadata.getAttributeVisible(operator, name, value);
-                            this._attributes.push(new TensorFlowLiteAttribute(name, type, value, visible));
-                        }
-                    }
-                });
-            }
-        }
         return this._attributes;
     }
 
-    formatAttributeName(name) {
+    static _formatAttributeName(name) {
         var lower = name.toLowerCase();
         var result = '';
         for (var i = 0; i < name.length; i++) {
@@ -253,7 +248,7 @@ class TensorFlowLiteNode {
         return result;
     }
 
-    formatAttributeValue(attributeValue, attributeName, optionsTypeName) {
+    static _formatAttributeValue(attributeValue, attributeName, optionsTypeName) {
         if (!TensorFlowLiteNode._optionsEnumTypeMap) {
             TensorFlowLiteNode._optionsEnumTypeMap = {};
             var optionsEnumTypeMap = TensorFlowLiteNode._optionsEnumTypeMap;
