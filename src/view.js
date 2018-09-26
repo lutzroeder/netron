@@ -174,10 +174,7 @@ class View {
             var x = 0;
             var y = 0;
             selection.forEach((element) => {
-                var classAttribute = element.getAttribute('class');
-                var classList = classAttribute ? classAttribute.split(' ') : [];
-                classList.push('select');
-                element.setAttribute('class', classList.join(' '));
+                element.classList.add('select');
                 this._selection.push(element);
                 var box = element.getBBox();
                 var ex = box.x + (box.width / 2);
@@ -199,9 +196,7 @@ class View {
     clearSelection() {
         while (this._selection.length > 0) {
             var element = this._selection.pop();
-            var classes = element.getAttribute('class').split(' ');
-            classes = classes.filter((className) => className != 'select');
-            element.setAttribute('class', classes.join(' '));
+            element.classList.remove('select');
         }
     }
 
