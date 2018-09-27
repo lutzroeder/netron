@@ -25,7 +25,6 @@ else
     git -C "${third_party}" clone --recursive ${repository}
 fi
 
-
 echo "Install ONNX"
 virtualenv=${build}/virtualenv/${identifier}
 virtualenv -p ${python} ${virtualenv}
@@ -42,6 +41,6 @@ popd > /dev/null
 deactivate
 
 echo "Generate 'onnx.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r onnx -o ${src}/onnx.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
-node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js floatData float 1
-node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js doubleData double 1
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
+node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js float_data float 1
+node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js double_data double 1

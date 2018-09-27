@@ -16,6 +16,9 @@ class BrowserHost {
         window.addEventListener('error', (e) => {
             this.exception(e.error, true);
         });
+        window.eval = () => {
+            throw new Error('window.eval() not supported.');
+        };
     }
 
     get name() {
@@ -59,6 +62,12 @@ class BrowserHost {
             return;
         }
 
+        var gistParam = this._getQueryParameter('gist');
+        if (gistParam) {
+            this._openGist(gistParam);
+            return;
+        }
+
         this._view.show('Welcome');
         var openFileButton = document.getElementById('open-file-button');
         var openFileDialog = document.getElementById('open-file-dialog');
@@ -86,6 +95,16 @@ class BrowserHost {
             }
             return false;
         });
+    }
+
+    environment(name) {
+        if (name == 'PROTOTXT') {
+            return true;
+        }
+        if (name == 'CNTK') {
+            // return true;
+        }
+        return null;
     }
 
     error(message, detail) {
@@ -235,7 +254,6 @@ class BrowserHost {
                 var buffer = new Uint8Array(request.response);
                 var context = new BrowserContext(this, url, identifier, buffer);
                 this._view.openContext(context, (err, model) => {
-                    this._view.show(null);
                     if (err) {
                         this.exception(err, false);
                         this.error(err.name, err.message);
@@ -268,6 +286,51 @@ class BrowserHost {
                 document.title = file.name;
             }
         });
+    }
+
+    _openGist(gist) {
+        this._view.show('Spinner');
+        var url = 'https://api.github.com/gists/' + gist;
+        var request = new XMLHttpRequest();
+        request.onload = () => {
+            var identifier = null;
+            var buffer = null;
+            var json = JSON.parse(request.response);
+            if (json.message) {
+                this.error('Error while loading Gist.', json.message);
+                return;
+            }
+            if (json.files) {
+                Object.keys(json.files).forEach((key) => {
+                    var file = json.files[key];
+                    identifier = file.filename;
+                    var extension = identifier.split('.').pop();
+                    if (extension == 'json' || extension == 'pbtxt' || extension == 'prototxt') {
+                        var encoder = new TextEncoder();
+                        buffer = encoder.encode(file.content);
+                    }
+                });
+            }
+            if (buffer == null || identifier == null) {
+                this.error('Error while loading Gist.', 'Gist does not contain model file.');
+                return;
+            }
+            var context = new BrowserContext(this, '', identifier, buffer);
+            this._view.openContext(context, (err, model) => {
+                if (err) {
+                    this.exception(err, false);
+                    this.error(err.name, err.message);
+                }
+                if (model) {
+                    document.title = identifier;
+                }
+            });
+        };
+        request.onerror = () => {
+            this.error('Error while requesting Gist.', request.status);
+        };
+        request.open('GET', url, true);
+        request.send();
     }
 
     _openBuffer(file, callback) {
@@ -393,6 +456,14 @@ class BrowserContext {
 
     get buffer() {
         return this._buffer;
+    }
+
+    get text() {
+        if (!this._text) {
+            var decoder = new TextDecoder('utf-8');
+            this._text = decoder.decode(this._buffer);
+        }
+        return this._text;
     }
 }
 

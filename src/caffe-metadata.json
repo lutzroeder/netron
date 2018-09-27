@@ -16,9 +16,9 @@
         { "name": "weight_filler", "visible": false },
         { "name": "bias_filler", "visible": false },
         { "name": "num_output", "visible": false },
-        { "name": "pad", "default": [] },
+        { "name": "pad", "default": [0] },
         { "name": "kernel_size", "default": [] },
-        { "name": "stride", "default": [] },
+        { "name": "stride", "default": [1] },
         { "name": "dilation", "default": [] },
         { "name": "group", "default": 1 }
       ]

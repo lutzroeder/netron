@@ -5,12 +5,12 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "lutzroeder.com"
     },
-    "version": "2.1.1",
+    "version": "2.1.8",
     "description": "Viewer neural network models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
-    "scripts": { 
+    "scripts": {
         "start": "npx electron ."
     },
     "dependencies": {
@@ -22,7 +22,7 @@
         "marked": "latest",
         "npm-font-open-sans": "latest",
         "pako": "latest",
-        "protobufjs": "latest",
+        "protobufjs": "lutzroeder/protobuf.js#pbtxt",
         "universal-analytics": "latest"
     },
     "devDependencies": {

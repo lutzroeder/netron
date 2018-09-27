@@ -1,8 +1,10 @@
 /*jshint esversion: 6 */
 
+// Experimental
+
 class SklearnModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         return extension == 'pkl' || extension == 'joblib';
     }
@@ -276,6 +278,48 @@ class SklearnGraph {
 
 }
 
+class SklearnArgument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get visible() {
+        return true;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class SklearnConnection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type || null;
+        this._initializer = initializer || null;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
+    }
+}
+
 class SklearnNode {
 
     constructor(group, name, obj, inputs, outputs) {
@@ -330,33 +374,18 @@ class SklearnNode {
     }
 
     get inputs() {
-
         var inputs = this._inputs.map((input) => {
-            return {
-                name: input,
-                connections: [ { id: input } ]
-            };
+            return new SklearnArgument(input, [ new SklearnConnection(input, null, null) ]);
         });
-
         this._initializers.forEach((initializer) => {
-            var input = { connections: [] };
-            input.name = initializer.name;
-            input.connections.push({
-                initializer: initializer,
-                type: initializer.type
-            });
-            inputs.push(input);
+            inputs.push(new SklearnArgument(initializer.name, [ new SklearnConnection(null, null, initializer) ]));
         });
-
         return inputs;
     }
 
     get outputs() {
         return this._outputs.map((output) => {
-            return {
-                name: output,
-                connections: [ { id: output } ]
-            };
+            return new SklearnArgument(output, [ new SklearnConnection(output, null, null) ]);
         });
     }
 
@@ -585,8 +614,7 @@ class SklearnTensor {
                 return SklearnTensor._escapeMap[specialCharacter];
             }
         });
-    };
-
+    }
 }
 
 class SklearnTensorType {

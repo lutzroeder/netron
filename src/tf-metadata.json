@@ -12608,7 +12608,7 @@
           "type": 7
         },
         {
-          "description": "One tensor per column of the input record, with either a\nscalar default value for that column or empty if the column is required.",
+          "description": "One tensor per column of the input record, with either a\nscalar default value for that column or an empty vector if the column is\nrequired.",
           "name": "record_defaults",
           "typeListAttr": "OUT_TYPE"
         }
@@ -15615,6 +15615,103 @@
     }
   },
   {
+    "name": "ExtractVolumePatches",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The size of the sliding window for each dimension of `input`.",
+          "minimum": 5,
+          "name": "ksizes",
+          "type": "list(int)"
+        },
+        {
+          "description": "1-D of length 5. How far the centers of two consecutive patches are in\n`input`. Must be: `[1, stride_planes, stride_rows, stride_cols, 1]`.",
+          "minimum": 5,
+          "name": "strides",
+          "type": "list(int)"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 4
+            },
+            {
+              "type": "type",
+              "value": 5
+            },
+            {
+              "type": "type",
+              "value": 6
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
+              "value": 17
+            },
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 22
+            },
+            {
+              "type": "type",
+              "value": 23
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            "SAME",
+            "VALID"
+          ],
+          "description": "The type of padding algorithm to use.\n\nWe specify the size-related attributes as:\n\n```python\n      ksizes = [1, ksize_planes, ksize_rows, ksize_cols, 1]\n      strides = [1, stride_planes, strides_rows, strides_cols, 1]\n```",
+          "name": "padding",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "5-D Tensor with shape `[batch, in_planes, in_rows, in_cols, depth]`.",
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "5-D Tensor with shape `[batch, out_planes, out_rows, out_cols,\nksize_planes * ksize_rows * ksize_cols * depth]` containing patches\nwith size `ksize_planes x ksize_rows x ksize_cols x depth` vectorized\nin the \"depth\" dimension. Note `out_planes`, `out_rows` and `out_cols`\nare the dimensions of the output patches.",
+          "name": "patches",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Extract `patches` from `input` and put them in the \"depth\" output\ndimension. 3D extension of `extract_image_patches`."
+    }
+  },
+  {
     "name": "FFT",
     "schema": {
       "attributes": [
@@ -17163,6 +17260,10 @@
           "type": "float"
         },
         {
+          "allowedValues": [
+            "NHWC",
+            "NCHW"
+          ],
           "default": "NHWC",
           "description": "The data format for x and y. Either \"NHWC\" (default) or \"NCHW\".",
           "name": "data_format",
@@ -17256,6 +17357,10 @@
           "type": "float"
         },
         {
+          "allowedValues": [
+            "NHWC",
+            "NCHW"
+          ],
           "default": "NHWC",
           "description": "The data format for y_backprop, x, x_backprop.\nEither \"NHWC\" (default) or \"NCHW\".",
           "name": "data_format",
@@ -17367,6 +17472,10 @@
           "type": "float"
         },
         {
+          "allowedValues": [
+            "NHWC",
+            "NCHW"
+          ],
           "default": "NHWC",
           "description": "The data format for y_backprop, x, x_backprop.\nEither \"NHWC\" (default) or \"NCHW\".",
           "name": "data_format",
@@ -17478,6 +17587,10 @@
           "type": "float"
         },
         {
+          "allowedValues": [
+            "NHWC",
+            "NCHW"
+          ],
           "default": "NHWC",
           "description": "The data format for x and y. Either \"NHWC\" (default) or \"NCHW\".",
           "name": "data_format",
@@ -21903,6 +22016,56 @@
     }
   },
   {
+    "name": "LowerBound",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "out_type",
+          "type": "type"
+        }
+      ],
+      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='left')`.\n\nThe result is not a global index to the entire \n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = LowerBound(sorted_sequence, values)\n\n  result == [[1, 2, 2],\n             [0, 1, 5]]",
+      "inputs": [
+        {
+          "description": "2-D Tensor where each row is ordered.",
+          "name": "sorted_inputs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2-D Tensor with the same numbers of rows as `sorted_search_values`. Contains\nthe values that will be searched for in `sorted_search_values`.",
+          "name": "values",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A `Tensor` with the same shape as `values`.  It contains the first scalar index\ninto the last dimension where values can be inserted without changing the\nordered property.",
+          "name": "output",
+          "typeAttr": "out_type"
+        }
+      ],
+      "summary": "Applies lower_bound(sorted_search_values, values) along each row."
+    }
+  },
+  {
     "name": "MakeIterator",
     "schema": {
       "description": "This operation may be executed multiple times. Each execution will reset the\niterator in `iterator` to the first element of `dataset`.",
@@ -25312,6 +25475,179 @@
         }
       ],
       "summary": "Returns x * y element-wise."
+    }
+  },
+  {
+    "name": "MultiDeviceIterator",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of devices the iterator works across.",
+          "minimum": 1,
+          "name": "devices",
+          "type": "list(string)"
+        },
+        {
+          "description": "If non-empty, this resource will be shared under the given name\nacross multiple sessions.",
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "description": "If non-empty, this resource is placed in the given container.\nOtherwise, a default container is used.",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "description": "The type list for the return values.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "description": "The list of shapes being produced.",
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Handle to the resource created.",
+          "name": "handle",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a MultiDeviceIterator resource."
+    }
+  },
+  {
+    "name": "MultiDeviceIteratorFromStringHandle",
+    "schema": {
+      "attributes": [
+        {
+          "default": [],
+          "description": "The type list for the return values.",
+          "minimum": 0,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "default": [],
+          "description": "The list of shapes being produced.",
+          "minimum": 0,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "String representing the resource.",
+          "name": "string_handle",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A MultiDeviceIterator resource.",
+          "name": "multi_device_iterator",
+          "type": 20
+        }
+      ],
+      "summary": "Generates a MultiDeviceIterator resource from its provided string handle."
+    }
+  },
+  {
+    "name": "MultiDeviceIteratorGetNextFromShard",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type list for the return values.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "description": "The list of shapes being produced.",
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A MultiDeviceIterator resource.",
+          "name": "multi_device_iterator",
+          "type": 20
+        },
+        {
+          "description": "Integer representing which shard to fetch data for.",
+          "name": "shard_num",
+          "type": 3
+        },
+        {
+          "description": "Which incarnation of the MultiDeviceIterator is running.",
+          "name": "incarnation_id",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Result of the get_next on the dataset.",
+          "name": "components",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "Gets next element for the provided shard number."
+    }
+  },
+  {
+    "name": "MultiDeviceIteratorInit",
+    "schema": {
+      "inputs": [
+        {
+          "description": "Dataset to be iterated upon.",
+          "name": "dataset",
+          "type": 21
+        },
+        {
+          "description": "A MultiDeviceIteratorResource.",
+          "name": "multi_device_iterator",
+          "type": 20
+        },
+        {
+          "description": "The maximum size of the host side per device buffer to keep.",
+          "name": "max_buffer_size",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "An int64 indicating which incarnation of the MultiDeviceIterator\nis running.",
+          "name": "incarnation_id",
+          "type": 9
+        }
+      ],
+      "summary": "Initializes the multi device iterator with the given dataset."
+    }
+  },
+  {
+    "name": "MultiDeviceIteratorToStringHandle",
+    "schema": {
+      "inputs": [
+        {
+          "description": "A MultiDeviceIterator resource.",
+          "name": "multi_device_iterator",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A string representing the resource.",
+          "name": "string_handle",
+          "type": 7
+        }
+      ],
+      "summary": "Produces a string handle for the given MultiDeviceIterator."
     }
   },
   {
@@ -28934,6 +29270,35 @@
         }
       ],
       "summary": "Prints a list of tensors."
+    }
+  },
+  {
+    "name": "PrintV2",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            "stdout",
+            "stderr",
+            "log(info)",
+            "log(warning)",
+            "log(error)"
+          ],
+          "default": "stderr",
+          "description": "A string specifying the output stream or logging level to print to.",
+          "name": "output_stream",
+          "type": "string"
+        }
+      ],
+      "description": "Prints a string scalar to the desired output_stream.",
+      "inputs": [
+        {
+          "description": "The string scalar to print.",
+          "name": "input",
+          "type": 7
+        }
+      ],
+      "summary": "Prints a string scalar."
     }
   },
   {
@@ -43953,31 +44318,7 @@
           "allowedValues": [
             {
               "type": "type",
-              "value": 1
-            },
-            {
-              "type": "type",
-              "value": 2
-            },
-            {
-              "type": "type",
-              "value": 3
-            },
-            {
-              "type": "type",
-              "value": 4
-            },
-            {
-              "type": "type",
-              "value": 5
-            },
-            {
-              "type": "type",
-              "value": 6
-            },
-            {
-              "type": "type",
-              "value": 9
+              "value": 19
             },
             {
               "type": "type",
@@ -43985,19 +44326,11 @@
             },
             {
               "type": "type",
-              "value": 17
+              "value": 1
             },
             {
               "type": "type",
-              "value": 19
-            },
-            {
-              "type": "type",
-              "value": 22
-            },
-            {
-              "type": "type",
-              "value": 23
+              "value": 2
             }
           ],
           "name": "T",
@@ -44027,31 +44360,7 @@
           "allowedValues": [
             {
               "type": "type",
-              "value": 1
-            },
-            {
-              "type": "type",
-              "value": 2
-            },
-            {
-              "type": "type",
-              "value": 3
-            },
-            {
-              "type": "type",
-              "value": 4
-            },
-            {
-              "type": "type",
-              "value": 5
-            },
-            {
-              "type": "type",
-              "value": 6
-            },
-            {
-              "type": "type",
-              "value": 9
+              "value": 19
             },
             {
               "type": "type",
@@ -44059,19 +44368,11 @@
             },
             {
               "type": "type",
-              "value": 17
+              "value": 1
             },
             {
               "type": "type",
-              "value": 19
-            },
-            {
-              "type": "type",
-              "value": 22
-            },
-            {
-              "type": "type",
-              "value": 23
+              "value": 2
             }
           ],
           "name": "T",
@@ -44108,31 +44409,7 @@
           "allowedValues": [
             {
               "type": "type",
-              "value": 1
-            },
-            {
-              "type": "type",
-              "value": 2
-            },
-            {
-              "type": "type",
-              "value": 3
-            },
-            {
-              "type": "type",
-              "value": 4
-            },
-            {
-              "type": "type",
-              "value": 5
-            },
-            {
-              "type": "type",
-              "value": 6
-            },
-            {
-              "type": "type",
-              "value": 9
+              "value": 19
             },
             {
               "type": "type",
@@ -44140,19 +44417,11 @@
             },
             {
               "type": "type",
-              "value": 17
+              "value": 1
             },
             {
               "type": "type",
-              "value": 19
-            },
-            {
-              "type": "type",
-              "value": 22
-            },
-            {
-              "type": "type",
-              "value": 23
+              "value": 2
             }
           ],
           "name": "T",
@@ -44182,31 +44451,7 @@
           "allowedValues": [
             {
               "type": "type",
-              "value": 1
-            },
-            {
-              "type": "type",
-              "value": 2
-            },
-            {
-              "type": "type",
-              "value": 3
-            },
-            {
-              "type": "type",
-              "value": 4
-            },
-            {
-              "type": "type",
-              "value": 5
-            },
-            {
-              "type": "type",
-              "value": 6
-            },
-            {
-              "type": "type",
-              "value": 9
+              "value": 19
             },
             {
               "type": "type",
@@ -44214,19 +44459,11 @@
             },
             {
               "type": "type",
-              "value": 17
+              "value": 1
             },
             {
               "type": "type",
-              "value": 19
-            },
-            {
-              "type": "type",
-              "value": 22
-            },
-            {
-              "type": "type",
-              "value": 23
+              "value": 2
             }
           ],
           "name": "T",
@@ -51166,6 +51403,52 @@
     }
   },
   {
+    "name": "StringFormat",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "T",
+          "type": "list(type)"
+        },
+        {
+          "default": "%s",
+          "description": "A string, the template to format tensor summaries into.",
+          "name": "template",
+          "type": "string"
+        },
+        {
+          "default": "%s",
+          "description": "A string, at each placeholder in the template a subsequent tensor summary will be inserted.",
+          "name": "placeholder",
+          "type": "string"
+        },
+        {
+          "default": 3,
+          "description": "When formatting the tensor summaries print the first and last summarize entries of each tensor dimension.",
+          "name": "summarize",
+          "type": "int"
+        }
+      ],
+      "description": "Formats a string template using a list of tensors, pretty-printing tensor summaries.",
+      "inputs": [
+        {
+          "description": "The list of tensors to format into the placeholder string.",
+          "name": "inputs",
+          "typeListAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "= The resulting string scalar.",
+          "name": "output",
+          "type": 7
+        }
+      ],
+      "summary": "Formats a string template using a list of tensors."
+    }
+  },
+  {
     "name": "StringJoin",
     "schema": {
       "attributes": [
@@ -51202,6 +51485,18 @@
   {
     "name": "StringLength",
     "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            "BYTE",
+            "UTF8_CHAR"
+          ],
+          "default": "BYTE",
+          "description": "The unit that is counted to compute string length.  One of: `\"BYTE\"` (for\nthe number of bytes in each string) or `\"UTF8_CHAR\"` (for the number of UTF-8\nencoded Unicode code points in each string).  Results are undefined\nif `unit=UTF8_CHAR` and the `input` strings do not contain structurally\nvalid UTF-8.",
+          "name": "unit",
+          "type": "string"
+        }
+      ],
       "description": "Computes the length of each string given in the input tensor.",
       "inputs": [
         {
@@ -51563,7 +51858,7 @@
           "type": "type"
         }
       ],
-      "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, then as many characters as possible are used.\n\nIf `pos` is negative or specifies a character index larger than any of the input\nstrings, then an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```",
+      "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, then as many characters as possible are used.\n\nA negative `pos` indicates distance within the string backwards from the end.\n\nIf `pos` specifies an index which is out of range for any of the input strings,\nthen an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```",
       "inputs": [
         {
           "description": "Tensor of strings",
@@ -55816,6 +56111,56 @@
     }
   },
   {
+    "name": "UpperBound",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "name": "out_type",
+          "type": "type"
+        }
+      ],
+      "description": "Each set of rows with the same index in (sorted_inputs, values) is treated\nindependently.  The resulting row is the equivalent of calling\n`np.searchsorted(sorted_inputs, values, side='right')`.\n\nThe result is not a global index to the entire \n`Tensor`, but rather just the index in the last dimension.\n\nA 2-D example:\n  sorted_sequence = [[0, 3, 9, 9, 10],\n                     [1, 2, 3, 4, 5]]\n  values = [[2, 4, 9],\n            [0, 2, 6]]\n\n  result = UpperBound(sorted_sequence, values)\n\n  result == [[1, 2, 4],\n             [0, 2, 5]]",
+      "inputs": [
+        {
+          "description": "2-D Tensor where each row is ordered.",
+          "name": "sorted_inputs",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2-D Tensor with the same numbers of rows as `sorted_search_values`. Contains\nthe values that will be searched for in `sorted_search_values`.",
+          "name": "values",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A `Tensor` with the same shape as `values`.  It contains the last scalar index\ninto the last dimension where values can be inserted without changing the\nordered property.",
+          "name": "output",
+          "typeAttr": "out_type"
+        }
+      ],
+      "summary": "Applies upper_bound(sorted_search_values, values) along each row."
+    }
+  },
+  {
     "name": "VarHandleOp",
     "schema": {
       "attributes": [
@@ -56204,8 +56549,23 @@
         },
         {
           "description": "A scalar representing the number of elements to accumulate in a window.",
-          "name": "window_size",
+          "name": "size",
           "type": 9
+        },
+        {
+          "description": "A scalar representing the steps moving the sliding window forward in one\niteration. It must be positive.",
+          "name": "shift",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing the stride of the input elements of the sliding window.\nIt must be positive.",
+          "name": "stride",
+          "type": 9
+        },
+        {
+          "description": "A scalar representing whether a window should be dropped in case its size is\nsmaller than desired.",
+          "name": "drop_remainder",
+          "type": 10
         }
       ],
       "outputs": [
@@ -56540,6 +56900,106 @@
           "type": 7
         }
       ]
+    }
+  },
+  {
+    "name": "Xdivy",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns 0 if x == 0, and x / y otherwise, elementwise."
+    }
+  },
+  {
+    "name": "Xlogy",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 19
+            },
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 8
+            },
+            {
+              "type": "type",
+              "value": 18
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns 0 if x == 0, and x * log(y) otherwise, elementwise."
     }
   },
   {

@@ -2,119 +2,31 @@
 (function($protobuf) {
     "use strict";
 
-    // Common aliases
-    var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+    var $Reader = $protobuf.Reader, $TextReader = $protobuf.TextReader, $util = $protobuf.util;
     
-    // Exported root namespace
     var $root = $protobuf.roots.tf || ($protobuf.roots.tf = {});
     
     $root.tensorflow = (function() {
     
-        /**
-         * Namespace tensorflow.
-         * @exports tensorflow
-         * @namespace
-         */
         var tensorflow = {};
     
         tensorflow.SavedModel = (function() {
     
-            /**
-             * Properties of a SavedModel.
-             * @memberof tensorflow
-             * @interface ISavedModel
-             * @property {number|Long|null} [savedModelSchemaVersion] SavedModel savedModelSchemaVersion
-             * @property {Array.<tensorflow.IMetaGraphDef>|null} [metaGraphs] SavedModel metaGraphs
-             */
-    
-            /**
-             * Constructs a new SavedModel.
-             * @memberof tensorflow
-             * @classdesc Represents a SavedModel.
-             * @implements ISavedModel
-             * @constructor
-             * @param {tensorflow.ISavedModel=} [properties] Properties to set
-             */
             function SavedModel(properties) {
-                this.metaGraphs = [];
+                this.meta_graphs = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SavedModel savedModelSchemaVersion.
-             * @member {number|Long} savedModelSchemaVersion
-             * @memberof tensorflow.SavedModel
-             * @instance
-             */
-            SavedModel.prototype.savedModelSchemaVersion = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            SavedModel.prototype.saved_model_schema_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            SavedModel.prototype.meta_graphs = $util.emptyArray;
     
-            /**
-             * SavedModel metaGraphs.
-             * @member {Array.<tensorflow.IMetaGraphDef>} metaGraphs
-             * @memberof tensorflow.SavedModel
-             * @instance
-             */
-            SavedModel.prototype.metaGraphs = $util.emptyArray;
-    
-            /**
-             * Creates a new SavedModel instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {tensorflow.ISavedModel=} [properties] Properties to set
-             * @returns {tensorflow.SavedModel} SavedModel instance
-             */
             SavedModel.create = function create(properties) {
                 return new SavedModel(properties);
             };
     
-            /**
-             * Encodes the specified SavedModel message. Does not implicitly {@link tensorflow.SavedModel.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {tensorflow.ISavedModel} message SavedModel message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SavedModel.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.savedModelSchemaVersion != null && message.hasOwnProperty("savedModelSchemaVersion"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int64(message.savedModelSchemaVersion);
-                if (message.metaGraphs != null && message.metaGraphs.length)
-                    for (var i = 0; i < message.metaGraphs.length; ++i)
-                        $root.tensorflow.MetaGraphDef.encode(message.metaGraphs[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SavedModel message, length delimited. Does not implicitly {@link tensorflow.SavedModel.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {tensorflow.ISavedModel} message SavedModel message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SavedModel.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SavedModel message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.SavedModel} SavedModel
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SavedModel.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -123,12 +35,12 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.savedModelSchemaVersion = reader.int64();
+                        message.saved_model_schema_version = reader.int64();
                         break;
                     case 2:
-                        if (!(message.metaGraphs && message.metaGraphs.length))
-                            message.metaGraphs = [];
-                        message.metaGraphs.push($root.tensorflow.MetaGraphDef.decode(reader, reader.uint32()));
+                        if (!(message.meta_graphs && message.meta_graphs.length))
+                            message.meta_graphs = [];
+                        message.meta_graphs.push($root.tensorflow.MetaGraphDef.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -138,123 +50,99 @@
                 return message;
             };
     
-            /**
-             * Decodes a SavedModel message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.SavedModel} SavedModel
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SavedModel.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a SavedModel message.
-             * @function verify
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
-            SavedModel.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.savedModelSchemaVersion != null && message.hasOwnProperty("savedModelSchemaVersion"))
-                    if (!$util.isInteger(message.savedModelSchemaVersion) && !(message.savedModelSchemaVersion && $util.isInteger(message.savedModelSchemaVersion.low) && $util.isInteger(message.savedModelSchemaVersion.high)))
-                        return "savedModelSchemaVersion: integer|Long expected";
-                if (message.metaGraphs != null && message.hasOwnProperty("metaGraphs")) {
-                    if (!Array.isArray(message.metaGraphs))
-                        return "metaGraphs: array expected";
-                    for (var i = 0; i < message.metaGraphs.length; ++i) {
-                        var error = $root.tensorflow.MetaGraphDef.verify(message.metaGraphs[i]);
-                        if (error)
-                            return "metaGraphs." + error;
-                    }
-                }
-                return null;
-            };
-    
-            /**
-             * Creates a SavedModel message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.SavedModel} SavedModel
-             */
-            SavedModel.fromObject = function fromObject(object) {
-                if (object instanceof $root.tensorflow.SavedModel)
-                    return object;
+            SavedModel.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
                 var message = new $root.tensorflow.SavedModel();
-                if (object.savedModelSchemaVersion != null)
-                    if ($util.Long)
-                        (message.savedModelSchemaVersion = $util.Long.fromValue(object.savedModelSchemaVersion)).unsigned = false;
-                    else if (typeof object.savedModelSchemaVersion === "string")
-                        message.savedModelSchemaVersion = parseInt(object.savedModelSchemaVersion, 10);
-                    else if (typeof object.savedModelSchemaVersion === "number")
-                        message.savedModelSchemaVersion = object.savedModelSchemaVersion;
-                    else if (typeof object.savedModelSchemaVersion === "object")
-                        message.savedModelSchemaVersion = new $util.LongBits(object.savedModelSchemaVersion.low >>> 0, object.savedModelSchemaVersion.high >>> 0).toNumber();
-                if (object.metaGraphs) {
-                    if (!Array.isArray(object.metaGraphs))
-                        throw TypeError(".tensorflow.SavedModel.metaGraphs: array expected");
-                    message.metaGraphs = [];
-                    for (var i = 0; i < object.metaGraphs.length; ++i) {
-                        if (typeof object.metaGraphs[i] !== "object")
-                            throw TypeError(".tensorflow.SavedModel.metaGraphs: object expected");
-                        message.metaGraphs[i] = $root.tensorflow.MetaGraphDef.fromObject(object.metaGraphs[i]);
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "saved_model_schema_version":
+                        message.saved_model_schema_version = reader.int64();
+                        break;
+                    case "meta_graphs":
+                        if (!(message.meta_graphs && message.meta_graphs.length))
+                            message.meta_graphs = [];
+                        message.meta_graphs.push($root.tensorflow.MetaGraphDef.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
                     }
                 }
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SavedModel message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.SavedModel
-             * @static
-             * @param {tensorflow.SavedModel} message SavedModel
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
+            SavedModel.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.saved_model_schema_version != null && message.hasOwnProperty("saved_model_schema_version"))
+                    if (!$util.isInteger(message.saved_model_schema_version) && !(message.saved_model_schema_version && $util.isInteger(message.saved_model_schema_version.low) && $util.isInteger(message.saved_model_schema_version.high)))
+                        return "saved_model_schema_version: integer|Long expected";
+                if (message.meta_graphs != null && message.hasOwnProperty("meta_graphs")) {
+                    if (!Array.isArray(message.meta_graphs))
+                        return "meta_graphs: array expected";
+                    for (var i = 0; i < message.meta_graphs.length; ++i) {
+                        var error = $root.tensorflow.MetaGraphDef.verify(message.meta_graphs[i]);
+                        if (error)
+                            return "meta_graphs." + error;
+                    }
+                }
+                return null;
+            };
+    
+            SavedModel.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.SavedModel)
+                    return object;
+                var message = new $root.tensorflow.SavedModel();
+                if (object.saved_model_schema_version != null)
+                    if ($util.Long)
+                        (message.saved_model_schema_version = $util.Long.fromValue(object.saved_model_schema_version)).unsigned = false;
+                    else if (typeof object.saved_model_schema_version === "string")
+                        message.saved_model_schema_version = parseInt(object.saved_model_schema_version, 10);
+                    else if (typeof object.saved_model_schema_version === "number")
+                        message.saved_model_schema_version = object.saved_model_schema_version;
+                    else if (typeof object.saved_model_schema_version === "object")
+                        message.saved_model_schema_version = new $util.LongBits(object.saved_model_schema_version.low >>> 0, object.saved_model_schema_version.high >>> 0).toNumber();
+                if (object.meta_graphs) {
+                    if (!Array.isArray(object.meta_graphs))
+                        throw TypeError(".tensorflow.SavedModel.meta_graphs: array expected");
+                    message.meta_graphs = [];
+                    for (var i = 0; i < object.meta_graphs.length; ++i) {
+                        if (typeof object.meta_graphs[i] !== "object")
+                            throw TypeError(".tensorflow.SavedModel.meta_graphs: object expected");
+                        message.meta_graphs[i] = $root.tensorflow.MetaGraphDef.fromObject(object.meta_graphs[i]);
+                    }
+                }
+                return message;
+            };
+    
             SavedModel.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.metaGraphs = [];
+                    object.meta_graphs = [];
                 if (options.defaults)
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
-                        object.savedModelSchemaVersion = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.saved_model_schema_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.savedModelSchemaVersion = options.longs === String ? "0" : 0;
-                if (message.savedModelSchemaVersion != null && message.hasOwnProperty("savedModelSchemaVersion"))
-                    if (typeof message.savedModelSchemaVersion === "number")
-                        object.savedModelSchemaVersion = options.longs === String ? String(message.savedModelSchemaVersion) : message.savedModelSchemaVersion;
+                        object.saved_model_schema_version = options.longs === String ? "0" : 0;
+                if (message.saved_model_schema_version != null && message.hasOwnProperty("saved_model_schema_version"))
+                    if (typeof message.saved_model_schema_version === "number")
+                        object.saved_model_schema_version = options.longs === String ? String(message.saved_model_schema_version) : message.saved_model_schema_version;
                     else
-                        object.savedModelSchemaVersion = options.longs === String ? $util.Long.prototype.toString.call(message.savedModelSchemaVersion) : options.longs === Number ? new $util.LongBits(message.savedModelSchemaVersion.low >>> 0, message.savedModelSchemaVersion.high >>> 0).toNumber() : message.savedModelSchemaVersion;
-                if (message.metaGraphs && message.metaGraphs.length) {
-                    object.metaGraphs = [];
-                    for (var j = 0; j < message.metaGraphs.length; ++j)
-                        object.metaGraphs[j] = $root.tensorflow.MetaGraphDef.toObject(message.metaGraphs[j], options);
+                        object.saved_model_schema_version = options.longs === String ? $util.Long.prototype.toString.call(message.saved_model_schema_version) : options.longs === Number ? new $util.LongBits(message.saved_model_schema_version.low >>> 0, message.saved_model_schema_version.high >>> 0).toNumber() : message.saved_model_schema_version;
+                if (message.meta_graphs && message.meta_graphs.length) {
+                    object.meta_graphs = [];
+                    for (var j = 0; j < message.meta_graphs.length; ++j)
+                        object.meta_graphs[j] = $root.tensorflow.MetaGraphDef.toObject(message.meta_graphs[j], options);
                 }
                 return object;
             };
     
-            /**
-             * Converts this SavedModel to JSON.
-             * @function toJSON
-             * @memberof tensorflow.SavedModel
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SavedModel.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -264,154 +152,27 @@
     
         tensorflow.MetaGraphDef = (function() {
     
-            /**
-             * Properties of a MetaGraphDef.
-             * @memberof tensorflow
-             * @interface IMetaGraphDef
-             * @property {tensorflow.MetaGraphDef.IMetaInfoDef|null} [metaInfoDef] MetaGraphDef metaInfoDef
-             * @property {tensorflow.IGraphDef|null} [graphDef] MetaGraphDef graphDef
-             * @property {tensorflow.ISaverDef|null} [saverDef] MetaGraphDef saverDef
-             * @property {Object.<string,tensorflow.ICollectionDef>|null} [collectionDef] MetaGraphDef collectionDef
-             * @property {Object.<string,tensorflow.ISignatureDef>|null} [signatureDef] MetaGraphDef signatureDef
-             * @property {Array.<tensorflow.IAssetFileDef>|null} [assetFileDef] MetaGraphDef assetFileDef
-             */
-    
-            /**
-             * Constructs a new MetaGraphDef.
-             * @memberof tensorflow
-             * @classdesc Represents a MetaGraphDef.
-             * @implements IMetaGraphDef
-             * @constructor
-             * @param {tensorflow.IMetaGraphDef=} [properties] Properties to set
-             */
             function MetaGraphDef(properties) {
-                this.collectionDef = {};
-                this.signatureDef = {};
-                this.assetFileDef = [];
+                this.collection_def = {};
+                this.signature_def = {};
+                this.asset_file_def = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * MetaGraphDef metaInfoDef.
-             * @member {tensorflow.MetaGraphDef.IMetaInfoDef|null|undefined} metaInfoDef
-             * @memberof tensorflow.MetaGraphDef
-             * @instance
-             */
-            MetaGraphDef.prototype.metaInfoDef = null;
+            MetaGraphDef.prototype.meta_info_def = null;
+            MetaGraphDef.prototype.graph_def = null;
+            MetaGraphDef.prototype.saver_def = null;
+            MetaGraphDef.prototype.collection_def = $util.emptyObject;
+            MetaGraphDef.prototype.signature_def = $util.emptyObject;
+            MetaGraphDef.prototype.asset_file_def = $util.emptyArray;
     
-            /**
-             * MetaGraphDef graphDef.
-             * @member {tensorflow.IGraphDef|null|undefined} graphDef
-             * @memberof tensorflow.MetaGraphDef
-             * @instance
-             */
-            MetaGraphDef.prototype.graphDef = null;
-    
-            /**
-             * MetaGraphDef saverDef.
-             * @member {tensorflow.ISaverDef|null|undefined} saverDef
-             * @memberof tensorflow.MetaGraphDef
-             * @instance
-             */
-            MetaGraphDef.prototype.saverDef = null;
-    
-            /**
-             * MetaGraphDef collectionDef.
-             * @member {Object.<string,tensorflow.ICollectionDef>} collectionDef
-             * @memberof tensorflow.MetaGraphDef
-             * @instance
-             */
-            MetaGraphDef.prototype.collectionDef = $util.emptyObject;
-    
-            /**
-             * MetaGraphDef signatureDef.
-             * @member {Object.<string,tensorflow.ISignatureDef>} signatureDef
-             * @memberof tensorflow.MetaGraphDef
-             * @instance
-             */
-            MetaGraphDef.prototype.signatureDef = $util.emptyObject;
-    
-            /**
-             * MetaGraphDef assetFileDef.
-             * @member {Array.<tensorflow.IAssetFileDef>} assetFileDef
-             * @memberof tensorflow.MetaGraphDef
-             * @instance
-             */
-            MetaGraphDef.prototype.assetFileDef = $util.emptyArray;
-    
-            /**
-             * Creates a new MetaGraphDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {tensorflow.IMetaGraphDef=} [properties] Properties to set
-             * @returns {tensorflow.MetaGraphDef} MetaGraphDef instance
-             */
             MetaGraphDef.create = function create(properties) {
                 return new MetaGraphDef(properties);
             };
     
-            /**
-             * Encodes the specified MetaGraphDef message. Does not implicitly {@link tensorflow.MetaGraphDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {tensorflow.IMetaGraphDef} message MetaGraphDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            MetaGraphDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.metaInfoDef != null && message.hasOwnProperty("metaInfoDef"))
-                    $root.tensorflow.MetaGraphDef.MetaInfoDef.encode(message.metaInfoDef, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.graphDef != null && message.hasOwnProperty("graphDef"))
-                    $root.tensorflow.GraphDef.encode(message.graphDef, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.saverDef != null && message.hasOwnProperty("saverDef"))
-                    $root.tensorflow.SaverDef.encode(message.saverDef, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.collectionDef != null && message.hasOwnProperty("collectionDef"))
-                    for (var keys = Object.keys(message.collectionDef), i = 0; i < keys.length; ++i) {
-                        writer.uint32(/* id 4, wireType 2 =*/34).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
-                        $root.tensorflow.CollectionDef.encode(message.collectionDef[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
-                    }
-                if (message.signatureDef != null && message.hasOwnProperty("signatureDef"))
-                    for (var keys = Object.keys(message.signatureDef), i = 0; i < keys.length; ++i) {
-                        writer.uint32(/* id 5, wireType 2 =*/42).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
-                        $root.tensorflow.SignatureDef.encode(message.signatureDef[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
-                    }
-                if (message.assetFileDef != null && message.assetFileDef.length)
-                    for (var i = 0; i < message.assetFileDef.length; ++i)
-                        $root.tensorflow.AssetFileDef.encode(message.assetFileDef[i], writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified MetaGraphDef message, length delimited. Does not implicitly {@link tensorflow.MetaGraphDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {tensorflow.IMetaGraphDef} message MetaGraphDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            MetaGraphDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a MetaGraphDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.MetaGraphDef} MetaGraphDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             MetaGraphDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -420,34 +181,34 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.metaInfoDef = $root.tensorflow.MetaGraphDef.MetaInfoDef.decode(reader, reader.uint32());
+                        message.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.decode(reader, reader.uint32());
                         break;
                     case 2:
-                        message.graphDef = $root.tensorflow.GraphDef.decode(reader, reader.uint32());
+                        message.graph_def = $root.tensorflow.GraphDef.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.saverDef = $root.tensorflow.SaverDef.decode(reader, reader.uint32());
+                        message.saver_def = $root.tensorflow.SaverDef.decode(reader, reader.uint32());
                         break;
                     case 4:
                         reader.skip().pos++;
-                        if (message.collectionDef === $util.emptyObject)
-                            message.collectionDef = {};
+                        if (message.collection_def === $util.emptyObject)
+                            message.collection_def = {};
                         key = reader.string();
                         reader.pos++;
-                        message.collectionDef[key] = $root.tensorflow.CollectionDef.decode(reader, reader.uint32());
+                        message.collection_def[key] = $root.tensorflow.CollectionDef.decode(reader, reader.uint32());
                         break;
                     case 5:
                         reader.skip().pos++;
-                        if (message.signatureDef === $util.emptyObject)
-                            message.signatureDef = {};
+                        if (message.signature_def === $util.emptyObject)
+                            message.signature_def = {};
                         key = reader.string();
                         reader.pos++;
-                        message.signatureDef[key] = $root.tensorflow.SignatureDef.decode(reader, reader.uint32());
+                        message.signature_def[key] = $root.tensorflow.SignatureDef.decode(reader, reader.uint32());
                         break;
                     case 6:
-                        if (!(message.assetFileDef && message.assetFileDef.length))
-                            message.assetFileDef = [];
-                        message.assetFileDef.push($root.tensorflow.AssetFileDef.decode(reader, reader.uint32()));
+                        if (!(message.asset_file_def && message.asset_file_def.length))
+                            message.asset_file_def = [];
+                        message.asset_file_def.push($root.tensorflow.AssetFileDef.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -457,223 +218,204 @@
                 return message;
             };
     
-            /**
-             * Decodes a MetaGraphDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.MetaGraphDef} MetaGraphDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            MetaGraphDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
-            };
-    
-            /**
-             * Verifies a MetaGraphDef message.
-             * @function verify
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
-            MetaGraphDef.verify = function verify(message) {
-                if (typeof message !== "object" || message === null)
-                    return "object expected";
-                if (message.metaInfoDef != null && message.hasOwnProperty("metaInfoDef")) {
-                    var error = $root.tensorflow.MetaGraphDef.MetaInfoDef.verify(message.metaInfoDef);
-                    if (error)
-                        return "metaInfoDef." + error;
-                }
-                if (message.graphDef != null && message.hasOwnProperty("graphDef")) {
-                    var error = $root.tensorflow.GraphDef.verify(message.graphDef);
-                    if (error)
-                        return "graphDef." + error;
-                }
-                if (message.saverDef != null && message.hasOwnProperty("saverDef")) {
-                    var error = $root.tensorflow.SaverDef.verify(message.saverDef);
-                    if (error)
-                        return "saverDef." + error;
-                }
-                if (message.collectionDef != null && message.hasOwnProperty("collectionDef")) {
-                    if (!$util.isObject(message.collectionDef))
-                        return "collectionDef: object expected";
-                    var key = Object.keys(message.collectionDef);
-                    for (var i = 0; i < key.length; ++i) {
-                        var error = $root.tensorflow.CollectionDef.verify(message.collectionDef[key[i]]);
-                        if (error)
-                            return "collectionDef." + error;
-                    }
-                }
-                if (message.signatureDef != null && message.hasOwnProperty("signatureDef")) {
-                    if (!$util.isObject(message.signatureDef))
-                        return "signatureDef: object expected";
-                    var key = Object.keys(message.signatureDef);
-                    for (var i = 0; i < key.length; ++i) {
-                        var error = $root.tensorflow.SignatureDef.verify(message.signatureDef[key[i]]);
-                        if (error)
-                            return "signatureDef." + error;
-                    }
-                }
-                if (message.assetFileDef != null && message.hasOwnProperty("assetFileDef")) {
-                    if (!Array.isArray(message.assetFileDef))
-                        return "assetFileDef: array expected";
-                    for (var i = 0; i < message.assetFileDef.length; ++i) {
-                        var error = $root.tensorflow.AssetFileDef.verify(message.assetFileDef[i]);
-                        if (error)
-                            return "assetFileDef." + error;
-                    }
-                }
-                return null;
-            };
-    
-            /**
-             * Creates a MetaGraphDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.MetaGraphDef} MetaGraphDef
-             */
-            MetaGraphDef.fromObject = function fromObject(object) {
-                if (object instanceof $root.tensorflow.MetaGraphDef)
-                    return object;
-                var message = new $root.tensorflow.MetaGraphDef();
-                if (object.metaInfoDef != null) {
-                    if (typeof object.metaInfoDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.metaInfoDef: object expected");
-                    message.metaInfoDef = $root.tensorflow.MetaGraphDef.MetaInfoDef.fromObject(object.metaInfoDef);
-                }
-                if (object.graphDef != null) {
-                    if (typeof object.graphDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.graphDef: object expected");
-                    message.graphDef = $root.tensorflow.GraphDef.fromObject(object.graphDef);
-                }
-                if (object.saverDef != null) {
-                    if (typeof object.saverDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.saverDef: object expected");
-                    message.saverDef = $root.tensorflow.SaverDef.fromObject(object.saverDef);
-                }
-                if (object.collectionDef) {
-                    if (typeof object.collectionDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.collectionDef: object expected");
-                    message.collectionDef = {};
-                    for (var keys = Object.keys(object.collectionDef), i = 0; i < keys.length; ++i) {
-                        if (typeof object.collectionDef[keys[i]] !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.collectionDef: object expected");
-                        message.collectionDef[keys[i]] = $root.tensorflow.CollectionDef.fromObject(object.collectionDef[keys[i]]);
-                    }
-                }
-                if (object.signatureDef) {
-                    if (typeof object.signatureDef !== "object")
-                        throw TypeError(".tensorflow.MetaGraphDef.signatureDef: object expected");
-                    message.signatureDef = {};
-                    for (var keys = Object.keys(object.signatureDef), i = 0; i < keys.length; ++i) {
-                        if (typeof object.signatureDef[keys[i]] !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.signatureDef: object expected");
-                        message.signatureDef[keys[i]] = $root.tensorflow.SignatureDef.fromObject(object.signatureDef[keys[i]]);
-                    }
-                }
-                if (object.assetFileDef) {
-                    if (!Array.isArray(object.assetFileDef))
-                        throw TypeError(".tensorflow.MetaGraphDef.assetFileDef: array expected");
-                    message.assetFileDef = [];
-                    for (var i = 0; i < object.assetFileDef.length; ++i) {
-                        if (typeof object.assetFileDef[i] !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.assetFileDef: object expected");
-                        message.assetFileDef[i] = $root.tensorflow.AssetFileDef.fromObject(object.assetFileDef[i]);
+            MetaGraphDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.MetaGraphDef(), key;
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "meta_info_def":
+                        message.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.decodeText(reader, true);
+                        break;
+                    case "graph_def":
+                        message.graph_def = $root.tensorflow.GraphDef.decodeText(reader, true);
+                        break;
+                    case "saver_def":
+                        message.saver_def = $root.tensorflow.SaverDef.decodeText(reader, true);
+                        break;
+                    case "collection_def":
+                        reader.assert("{");
+                        if (message.collection_def === $util.emptyObject)
+                            message.collection_def = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.collection_def[key] = $root.tensorflow.CollectionDef.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    case "signature_def":
+                        reader.assert("{");
+                        if (message.signature_def === $util.emptyObject)
+                            message.signature_def = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.signature_def[key] = $root.tensorflow.SignatureDef.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    case "asset_file_def":
+                        if (!(message.asset_file_def && message.asset_file_def.length))
+                            message.asset_file_def = [];
+                        message.asset_file_def.push($root.tensorflow.AssetFileDef.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
                     }
                 }
                 return message;
             };
     
-            /**
-             * Creates a plain object from a MetaGraphDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.MetaGraphDef
-             * @static
-             * @param {tensorflow.MetaGraphDef} message MetaGraphDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
+            MetaGraphDef.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.meta_info_def != null && message.hasOwnProperty("meta_info_def")) {
+                    var error = $root.tensorflow.MetaGraphDef.MetaInfoDef.verify(message.meta_info_def);
+                    if (error)
+                        return "meta_info_def." + error;
+                }
+                if (message.graph_def != null && message.hasOwnProperty("graph_def")) {
+                    var error = $root.tensorflow.GraphDef.verify(message.graph_def);
+                    if (error)
+                        return "graph_def." + error;
+                }
+                if (message.saver_def != null && message.hasOwnProperty("saver_def")) {
+                    var error = $root.tensorflow.SaverDef.verify(message.saver_def);
+                    if (error)
+                        return "saver_def." + error;
+                }
+                if (message.collection_def != null && message.hasOwnProperty("collection_def")) {
+                    if (!$util.isObject(message.collection_def))
+                        return "collection_def: object expected";
+                    var key = Object.keys(message.collection_def);
+                    for (var i = 0; i < key.length; ++i) {
+                        var error = $root.tensorflow.CollectionDef.verify(message.collection_def[key[i]]);
+                        if (error)
+                            return "collection_def." + error;
+                    }
+                }
+                if (message.signature_def != null && message.hasOwnProperty("signature_def")) {
+                    if (!$util.isObject(message.signature_def))
+                        return "signature_def: object expected";
+                    var key = Object.keys(message.signature_def);
+                    for (var i = 0; i < key.length; ++i) {
+                        var error = $root.tensorflow.SignatureDef.verify(message.signature_def[key[i]]);
+                        if (error)
+                            return "signature_def." + error;
+                    }
+                }
+                if (message.asset_file_def != null && message.hasOwnProperty("asset_file_def")) {
+                    if (!Array.isArray(message.asset_file_def))
+                        return "asset_file_def: array expected";
+                    for (var i = 0; i < message.asset_file_def.length; ++i) {
+                        var error = $root.tensorflow.AssetFileDef.verify(message.asset_file_def[i]);
+                        if (error)
+                            return "asset_file_def." + error;
+                    }
+                }
+                return null;
+            };
+    
+            MetaGraphDef.fromObject = function fromObject(object) {
+                if (object instanceof $root.tensorflow.MetaGraphDef)
+                    return object;
+                var message = new $root.tensorflow.MetaGraphDef();
+                if (object.meta_info_def != null) {
+                    if (typeof object.meta_info_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.meta_info_def: object expected");
+                    message.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.fromObject(object.meta_info_def);
+                }
+                if (object.graph_def != null) {
+                    if (typeof object.graph_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.graph_def: object expected");
+                    message.graph_def = $root.tensorflow.GraphDef.fromObject(object.graph_def);
+                }
+                if (object.saver_def != null) {
+                    if (typeof object.saver_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.saver_def: object expected");
+                    message.saver_def = $root.tensorflow.SaverDef.fromObject(object.saver_def);
+                }
+                if (object.collection_def) {
+                    if (typeof object.collection_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.collection_def: object expected");
+                    message.collection_def = {};
+                    for (var keys = Object.keys(object.collection_def), i = 0; i < keys.length; ++i) {
+                        if (typeof object.collection_def[keys[i]] !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.collection_def: object expected");
+                        message.collection_def[keys[i]] = $root.tensorflow.CollectionDef.fromObject(object.collection_def[keys[i]]);
+                    }
+                }
+                if (object.signature_def) {
+                    if (typeof object.signature_def !== "object")
+                        throw TypeError(".tensorflow.MetaGraphDef.signature_def: object expected");
+                    message.signature_def = {};
+                    for (var keys = Object.keys(object.signature_def), i = 0; i < keys.length; ++i) {
+                        if (typeof object.signature_def[keys[i]] !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.signature_def: object expected");
+                        message.signature_def[keys[i]] = $root.tensorflow.SignatureDef.fromObject(object.signature_def[keys[i]]);
+                    }
+                }
+                if (object.asset_file_def) {
+                    if (!Array.isArray(object.asset_file_def))
+                        throw TypeError(".tensorflow.MetaGraphDef.asset_file_def: array expected");
+                    message.asset_file_def = [];
+                    for (var i = 0; i < object.asset_file_def.length; ++i) {
+                        if (typeof object.asset_file_def[i] !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.asset_file_def: object expected");
+                        message.asset_file_def[i] = $root.tensorflow.AssetFileDef.fromObject(object.asset_file_def[i]);
+                    }
+                }
+                return message;
+            };
+    
             MetaGraphDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.assetFileDef = [];
+                    object.asset_file_def = [];
                 if (options.objects || options.defaults) {
-                    object.collectionDef = {};
-                    object.signatureDef = {};
+                    object.collection_def = {};
+                    object.signature_def = {};
                 }
                 if (options.defaults) {
-                    object.metaInfoDef = null;
-                    object.graphDef = null;
-                    object.saverDef = null;
+                    object.meta_info_def = null;
+                    object.graph_def = null;
+                    object.saver_def = null;
                 }
-                if (message.metaInfoDef != null && message.hasOwnProperty("metaInfoDef"))
-                    object.metaInfoDef = $root.tensorflow.MetaGraphDef.MetaInfoDef.toObject(message.metaInfoDef, options);
-                if (message.graphDef != null && message.hasOwnProperty("graphDef"))
-                    object.graphDef = $root.tensorflow.GraphDef.toObject(message.graphDef, options);
-                if (message.saverDef != null && message.hasOwnProperty("saverDef"))
-                    object.saverDef = $root.tensorflow.SaverDef.toObject(message.saverDef, options);
+                if (message.meta_info_def != null && message.hasOwnProperty("meta_info_def"))
+                    object.meta_info_def = $root.tensorflow.MetaGraphDef.MetaInfoDef.toObject(message.meta_info_def, options);
+                if (message.graph_def != null && message.hasOwnProperty("graph_def"))
+                    object.graph_def = $root.tensorflow.GraphDef.toObject(message.graph_def, options);
+                if (message.saver_def != null && message.hasOwnProperty("saver_def"))
+                    object.saver_def = $root.tensorflow.SaverDef.toObject(message.saver_def, options);
                 var keys2;
-                if (message.collectionDef && (keys2 = Object.keys(message.collectionDef)).length) {
-                    object.collectionDef = {};
+                if (message.collection_def && (keys2 = Object.keys(message.collection_def)).length) {
+                    object.collection_def = {};
                     for (var j = 0; j < keys2.length; ++j)
-                        object.collectionDef[keys2[j]] = $root.tensorflow.CollectionDef.toObject(message.collectionDef[keys2[j]], options);
+                        object.collection_def[keys2[j]] = $root.tensorflow.CollectionDef.toObject(message.collection_def[keys2[j]], options);
                 }
-                if (message.signatureDef && (keys2 = Object.keys(message.signatureDef)).length) {
-                    object.signatureDef = {};
+                if (message.signature_def && (keys2 = Object.keys(message.signature_def)).length) {
+                    object.signature_def = {};
                     for (var j = 0; j < keys2.length; ++j)
-                        object.signatureDef[keys2[j]] = $root.tensorflow.SignatureDef.toObject(message.signatureDef[keys2[j]], options);
+                        object.signature_def[keys2[j]] = $root.tensorflow.SignatureDef.toObject(message.signature_def[keys2[j]], options);
                 }
-                if (message.assetFileDef && message.assetFileDef.length) {
-                    object.assetFileDef = [];
-                    for (var j = 0; j < message.assetFileDef.length; ++j)
-                        object.assetFileDef[j] = $root.tensorflow.AssetFileDef.toObject(message.assetFileDef[j], options);
+                if (message.asset_file_def && message.asset_file_def.length) {
+                    object.asset_file_def = [];
+                    for (var j = 0; j < message.asset_file_def.length; ++j)
+                        object.asset_file_def[j] = $root.tensorflow.AssetFileDef.toObject(message.asset_file_def[j], options);
                 }
                 return object;
             };
     
-            /**
-             * Converts this MetaGraphDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.MetaGraphDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             MetaGraphDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             MetaGraphDef.MetaInfoDef = (function() {
     
-                /**
-                 * Properties of a MetaInfoDef.
-                 * @memberof tensorflow.MetaGraphDef
-                 * @interface IMetaInfoDef
-                 * @property {string|null} [metaGraphVersion] MetaInfoDef metaGraphVersion
-                 * @property {tensorflow.IOpList|null} [strippedOpList] MetaInfoDef strippedOpList
-                 * @property {google.protobuf.IAny|null} [anyInfo] MetaInfoDef anyInfo
-                 * @property {Array.<string>|null} [tags] MetaInfoDef tags
-                 * @property {string|null} [tensorflowVersion] MetaInfoDef tensorflowVersion
-                 * @property {string|null} [tensorflowGitVersion] MetaInfoDef tensorflowGitVersion
-                 * @property {boolean|null} [strippedDefaultAttrs] MetaInfoDef strippedDefaultAttrs
-                 */
-    
-                /**
-                 * Constructs a new MetaInfoDef.
-                 * @memberof tensorflow.MetaGraphDef
-                 * @classdesc Represents a MetaInfoDef.
-                 * @implements IMetaInfoDef
-                 * @constructor
-                 * @param {tensorflow.MetaGraphDef.IMetaInfoDef=} [properties] Properties to set
-                 */
                 function MetaInfoDef(properties) {
                     this.tags = [];
                     if (properties)
@@ -682,128 +424,18 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * MetaInfoDef metaGraphVersion.
-                 * @member {string} metaGraphVersion
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 */
-                MetaInfoDef.prototype.metaGraphVersion = "";
-    
-                /**
-                 * MetaInfoDef strippedOpList.
-                 * @member {tensorflow.IOpList|null|undefined} strippedOpList
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 */
-                MetaInfoDef.prototype.strippedOpList = null;
-    
-                /**
-                 * MetaInfoDef anyInfo.
-                 * @member {google.protobuf.IAny|null|undefined} anyInfo
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 */
-                MetaInfoDef.prototype.anyInfo = null;
-    
-                /**
-                 * MetaInfoDef tags.
-                 * @member {Array.<string>} tags
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 */
+                MetaInfoDef.prototype.meta_graph_version = "";
+                MetaInfoDef.prototype.stripped_op_list = null;
+                MetaInfoDef.prototype.any_info = null;
                 MetaInfoDef.prototype.tags = $util.emptyArray;
+                MetaInfoDef.prototype.tensorflow_version = "";
+                MetaInfoDef.prototype.tensorflow_git_version = "";
+                MetaInfoDef.prototype.stripped_default_attrs = false;
     
-                /**
-                 * MetaInfoDef tensorflowVersion.
-                 * @member {string} tensorflowVersion
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 */
-                MetaInfoDef.prototype.tensorflowVersion = "";
-    
-                /**
-                 * MetaInfoDef tensorflowGitVersion.
-                 * @member {string} tensorflowGitVersion
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 */
-                MetaInfoDef.prototype.tensorflowGitVersion = "";
-    
-                /**
-                 * MetaInfoDef strippedDefaultAttrs.
-                 * @member {boolean} strippedDefaultAttrs
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 */
-                MetaInfoDef.prototype.strippedDefaultAttrs = false;
-    
-                /**
-                 * Creates a new MetaInfoDef instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {tensorflow.MetaGraphDef.IMetaInfoDef=} [properties] Properties to set
-                 * @returns {tensorflow.MetaGraphDef.MetaInfoDef} MetaInfoDef instance
-                 */
                 MetaInfoDef.create = function create(properties) {
                     return new MetaInfoDef(properties);
                 };
     
-                /**
-                 * Encodes the specified MetaInfoDef message. Does not implicitly {@link tensorflow.MetaGraphDef.MetaInfoDef.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {tensorflow.MetaGraphDef.IMetaInfoDef} message MetaInfoDef message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                MetaInfoDef.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.metaGraphVersion != null && message.hasOwnProperty("metaGraphVersion"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.metaGraphVersion);
-                    if (message.strippedOpList != null && message.hasOwnProperty("strippedOpList"))
-                        $root.tensorflow.OpList.encode(message.strippedOpList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    if (message.anyInfo != null && message.hasOwnProperty("anyInfo"))
-                        $root.google.protobuf.Any.encode(message.anyInfo, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    if (message.tags != null && message.tags.length)
-                        for (var i = 0; i < message.tags.length; ++i)
-                            writer.uint32(/* id 4, wireType 2 =*/34).string(message.tags[i]);
-                    if (message.tensorflowVersion != null && message.hasOwnProperty("tensorflowVersion"))
-                        writer.uint32(/* id 5, wireType 2 =*/42).string(message.tensorflowVersion);
-                    if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
-                        writer.uint32(/* id 6, wireType 2 =*/50).string(message.tensorflowGitVersion);
-                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
-                        writer.uint32(/* id 7, wireType 0 =*/56).bool(message.strippedDefaultAttrs);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified MetaInfoDef message, length delimited. Does not implicitly {@link tensorflow.MetaGraphDef.MetaInfoDef.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {tensorflow.MetaGraphDef.IMetaInfoDef} message MetaInfoDef message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                MetaInfoDef.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a MetaInfoDef message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.MetaGraphDef.MetaInfoDef} MetaInfoDef
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 MetaInfoDef.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -812,13 +444,13 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.metaGraphVersion = reader.string();
+                            message.meta_graph_version = reader.string();
                             break;
                         case 2:
-                            message.strippedOpList = $root.tensorflow.OpList.decode(reader, reader.uint32());
+                            message.stripped_op_list = $root.tensorflow.OpList.decode(reader, reader.uint32());
                             break;
                         case 3:
-                            message.anyInfo = $root.google.protobuf.Any.decode(reader, reader.uint32());
+                            message.any_info = $root.google.protobuf.Any.decode(reader, reader.uint32());
                             break;
                         case 4:
                             if (!(message.tags && message.tags.length))
@@ -826,13 +458,13 @@
                             message.tags.push(reader.string());
                             break;
                         case 5:
-                            message.tensorflowVersion = reader.string();
+                            message.tensorflow_version = reader.string();
                             break;
                         case 6:
-                            message.tensorflowGitVersion = reader.string();
+                            message.tensorflow_git_version = reader.string();
                             break;
                         case 7:
-                            message.strippedDefaultAttrs = reader.bool();
+                            message.stripped_default_attrs = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -842,45 +474,60 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a MetaInfoDef message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.MetaGraphDef.MetaInfoDef} MetaInfoDef
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                MetaInfoDef.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                MetaInfoDef.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.MetaGraphDef.MetaInfoDef();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "meta_graph_version":
+                            message.meta_graph_version = reader.string();
+                            break;
+                        case "stripped_op_list":
+                            message.stripped_op_list = $root.tensorflow.OpList.decodeText(reader, true);
+                            break;
+                        case "any_info":
+                            message.any_info = $root.google.protobuf.Any.decodeText(reader, true);
+                            break;
+                        case "tags":
+                            if (!(message.tags && message.tags.length))
+                                message.tags = [];
+                            message.tags.push(reader.string());
+                            break;
+                        case "tensorflow_version":
+                            message.tensorflow_version = reader.string();
+                            break;
+                        case "tensorflow_git_version":
+                            message.tensorflow_git_version = reader.string();
+                            break;
+                        case "stripped_default_attrs":
+                            message.stripped_default_attrs = reader.bool();
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies a MetaInfoDef message.
-                 * @function verify
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 MetaInfoDef.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.metaGraphVersion != null && message.hasOwnProperty("metaGraphVersion"))
-                        if (!$util.isString(message.metaGraphVersion))
-                            return "metaGraphVersion: string expected";
-                    if (message.strippedOpList != null && message.hasOwnProperty("strippedOpList")) {
-                        var error = $root.tensorflow.OpList.verify(message.strippedOpList);
+                    if (message.meta_graph_version != null && message.hasOwnProperty("meta_graph_version"))
+                        if (!$util.isString(message.meta_graph_version))
+                            return "meta_graph_version: string expected";
+                    if (message.stripped_op_list != null && message.hasOwnProperty("stripped_op_list")) {
+                        var error = $root.tensorflow.OpList.verify(message.stripped_op_list);
                         if (error)
-                            return "strippedOpList." + error;
+                            return "stripped_op_list." + error;
                     }
-                    if (message.anyInfo != null && message.hasOwnProperty("anyInfo")) {
-                        var error = $root.google.protobuf.Any.verify(message.anyInfo);
+                    if (message.any_info != null && message.hasOwnProperty("any_info")) {
+                        var error = $root.google.protobuf.Any.verify(message.any_info);
                         if (error)
-                            return "anyInfo." + error;
+                            return "any_info." + error;
                     }
                     if (message.tags != null && message.hasOwnProperty("tags")) {
                         if (!Array.isArray(message.tags))
@@ -889,41 +536,33 @@
                             if (!$util.isString(message.tags[i]))
                                 return "tags: string[] expected";
                     }
-                    if (message.tensorflowVersion != null && message.hasOwnProperty("tensorflowVersion"))
-                        if (!$util.isString(message.tensorflowVersion))
-                            return "tensorflowVersion: string expected";
-                    if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
-                        if (!$util.isString(message.tensorflowGitVersion))
-                            return "tensorflowGitVersion: string expected";
-                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
-                        if (typeof message.strippedDefaultAttrs !== "boolean")
-                            return "strippedDefaultAttrs: boolean expected";
+                    if (message.tensorflow_version != null && message.hasOwnProperty("tensorflow_version"))
+                        if (!$util.isString(message.tensorflow_version))
+                            return "tensorflow_version: string expected";
+                    if (message.tensorflow_git_version != null && message.hasOwnProperty("tensorflow_git_version"))
+                        if (!$util.isString(message.tensorflow_git_version))
+                            return "tensorflow_git_version: string expected";
+                    if (message.stripped_default_attrs != null && message.hasOwnProperty("stripped_default_attrs"))
+                        if (typeof message.stripped_default_attrs !== "boolean")
+                            return "stripped_default_attrs: boolean expected";
                     return null;
                 };
     
-                /**
-                 * Creates a MetaInfoDef message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.MetaGraphDef.MetaInfoDef} MetaInfoDef
-                 */
                 MetaInfoDef.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.MetaGraphDef.MetaInfoDef)
                         return object;
                     var message = new $root.tensorflow.MetaGraphDef.MetaInfoDef();
-                    if (object.metaGraphVersion != null)
-                        message.metaGraphVersion = String(object.metaGraphVersion);
-                    if (object.strippedOpList != null) {
-                        if (typeof object.strippedOpList !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.strippedOpList: object expected");
-                        message.strippedOpList = $root.tensorflow.OpList.fromObject(object.strippedOpList);
+                    if (object.meta_graph_version != null)
+                        message.meta_graph_version = String(object.meta_graph_version);
+                    if (object.stripped_op_list != null) {
+                        if (typeof object.stripped_op_list !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.stripped_op_list: object expected");
+                        message.stripped_op_list = $root.tensorflow.OpList.fromObject(object.stripped_op_list);
                     }
-                    if (object.anyInfo != null) {
-                        if (typeof object.anyInfo !== "object")
-                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.anyInfo: object expected");
-                        message.anyInfo = $root.google.protobuf.Any.fromObject(object.anyInfo);
+                    if (object.any_info != null) {
+                        if (typeof object.any_info !== "object")
+                            throw TypeError(".tensorflow.MetaGraphDef.MetaInfoDef.any_info: object expected");
+                        message.any_info = $root.google.protobuf.Any.fromObject(object.any_info);
                     }
                     if (object.tags) {
                         if (!Array.isArray(object.tags))
@@ -932,24 +571,15 @@
                         for (var i = 0; i < object.tags.length; ++i)
                             message.tags[i] = String(object.tags[i]);
                     }
-                    if (object.tensorflowVersion != null)
-                        message.tensorflowVersion = String(object.tensorflowVersion);
-                    if (object.tensorflowGitVersion != null)
-                        message.tensorflowGitVersion = String(object.tensorflowGitVersion);
-                    if (object.strippedDefaultAttrs != null)
-                        message.strippedDefaultAttrs = Boolean(object.strippedDefaultAttrs);
+                    if (object.tensorflow_version != null)
+                        message.tensorflow_version = String(object.tensorflow_version);
+                    if (object.tensorflow_git_version != null)
+                        message.tensorflow_git_version = String(object.tensorflow_git_version);
+                    if (object.stripped_default_attrs != null)
+                        message.stripped_default_attrs = Boolean(object.stripped_default_attrs);
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a MetaInfoDef message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @static
-                 * @param {tensorflow.MetaGraphDef.MetaInfoDef} message MetaInfoDef
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 MetaInfoDef.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -957,40 +587,33 @@
                     if (options.arrays || options.defaults)
                         object.tags = [];
                     if (options.defaults) {
-                        object.metaGraphVersion = "";
-                        object.strippedOpList = null;
-                        object.anyInfo = null;
-                        object.tensorflowVersion = "";
-                        object.tensorflowGitVersion = "";
-                        object.strippedDefaultAttrs = false;
+                        object.meta_graph_version = "";
+                        object.stripped_op_list = null;
+                        object.any_info = null;
+                        object.tensorflow_version = "";
+                        object.tensorflow_git_version = "";
+                        object.stripped_default_attrs = false;
                     }
-                    if (message.metaGraphVersion != null && message.hasOwnProperty("metaGraphVersion"))
-                        object.metaGraphVersion = message.metaGraphVersion;
-                    if (message.strippedOpList != null && message.hasOwnProperty("strippedOpList"))
-                        object.strippedOpList = $root.tensorflow.OpList.toObject(message.strippedOpList, options);
-                    if (message.anyInfo != null && message.hasOwnProperty("anyInfo"))
-                        object.anyInfo = $root.google.protobuf.Any.toObject(message.anyInfo, options);
+                    if (message.meta_graph_version != null && message.hasOwnProperty("meta_graph_version"))
+                        object.meta_graph_version = message.meta_graph_version;
+                    if (message.stripped_op_list != null && message.hasOwnProperty("stripped_op_list"))
+                        object.stripped_op_list = $root.tensorflow.OpList.toObject(message.stripped_op_list, options);
+                    if (message.any_info != null && message.hasOwnProperty("any_info"))
+                        object.any_info = $root.google.protobuf.Any.toObject(message.any_info, options);
                     if (message.tags && message.tags.length) {
                         object.tags = [];
                         for (var j = 0; j < message.tags.length; ++j)
                             object.tags[j] = message.tags[j];
                     }
-                    if (message.tensorflowVersion != null && message.hasOwnProperty("tensorflowVersion"))
-                        object.tensorflowVersion = message.tensorflowVersion;
-                    if (message.tensorflowGitVersion != null && message.hasOwnProperty("tensorflowGitVersion"))
-                        object.tensorflowGitVersion = message.tensorflowGitVersion;
-                    if (message.strippedDefaultAttrs != null && message.hasOwnProperty("strippedDefaultAttrs"))
-                        object.strippedDefaultAttrs = message.strippedDefaultAttrs;
+                    if (message.tensorflow_version != null && message.hasOwnProperty("tensorflow_version"))
+                        object.tensorflow_version = message.tensorflow_version;
+                    if (message.tensorflow_git_version != null && message.hasOwnProperty("tensorflow_git_version"))
+                        object.tensorflow_git_version = message.tensorflow_git_version;
+                    if (message.stripped_default_attrs != null && message.hasOwnProperty("stripped_default_attrs"))
+                        object.stripped_default_attrs = message.stripped_default_attrs;
                     return object;
                 };
     
-                /**
-                 * Converts this MetaInfoDef to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.MetaGraphDef.MetaInfoDef
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 MetaInfoDef.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -1003,25 +626,6 @@
     
         tensorflow.CollectionDef = (function() {
     
-            /**
-             * Properties of a CollectionDef.
-             * @memberof tensorflow
-             * @interface ICollectionDef
-             * @property {tensorflow.CollectionDef.INodeList|null} [nodeList] CollectionDef nodeList
-             * @property {tensorflow.CollectionDef.IBytesList|null} [bytesList] CollectionDef bytesList
-             * @property {tensorflow.CollectionDef.IInt64List|null} [int64List] CollectionDef int64List
-             * @property {tensorflow.CollectionDef.IFloatList|null} [floatList] CollectionDef floatList
-             * @property {tensorflow.CollectionDef.IAnyList|null} [anyList] CollectionDef anyList
-             */
-    
-            /**
-             * Constructs a new CollectionDef.
-             * @memberof tensorflow
-             * @classdesc Represents a CollectionDef.
-             * @implements ICollectionDef
-             * @constructor
-             * @param {tensorflow.ICollectionDef=} [properties] Properties to set
-             */
             function CollectionDef(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -1029,121 +633,23 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * CollectionDef nodeList.
-             * @member {tensorflow.CollectionDef.INodeList|null|undefined} nodeList
-             * @memberof tensorflow.CollectionDef
-             * @instance
-             */
-            CollectionDef.prototype.nodeList = null;
+            CollectionDef.prototype.node_list = null;
+            CollectionDef.prototype.bytes_list = null;
+            CollectionDef.prototype.int64_list = null;
+            CollectionDef.prototype.float_list = null;
+            CollectionDef.prototype.any_list = null;
     
-            /**
-             * CollectionDef bytesList.
-             * @member {tensorflow.CollectionDef.IBytesList|null|undefined} bytesList
-             * @memberof tensorflow.CollectionDef
-             * @instance
-             */
-            CollectionDef.prototype.bytesList = null;
-    
-            /**
-             * CollectionDef int64List.
-             * @member {tensorflow.CollectionDef.IInt64List|null|undefined} int64List
-             * @memberof tensorflow.CollectionDef
-             * @instance
-             */
-            CollectionDef.prototype.int64List = null;
-    
-            /**
-             * CollectionDef floatList.
-             * @member {tensorflow.CollectionDef.IFloatList|null|undefined} floatList
-             * @memberof tensorflow.CollectionDef
-             * @instance
-             */
-            CollectionDef.prototype.floatList = null;
-    
-            /**
-             * CollectionDef anyList.
-             * @member {tensorflow.CollectionDef.IAnyList|null|undefined} anyList
-             * @memberof tensorflow.CollectionDef
-             * @instance
-             */
-            CollectionDef.prototype.anyList = null;
-    
-            // OneOf field names bound to virtual getters and setters
             var $oneOfFields;
     
-            /**
-             * CollectionDef kind.
-             * @member {"nodeList"|"bytesList"|"int64List"|"floatList"|"anyList"|undefined} kind
-             * @memberof tensorflow.CollectionDef
-             * @instance
-             */
             Object.defineProperty(CollectionDef.prototype, "kind", {
-                get: $util.oneOfGetter($oneOfFields = ["nodeList", "bytesList", "int64List", "floatList", "anyList"]),
+                get: $util.oneOfGetter($oneOfFields = ["node_list", "bytes_list", "int64_list", "float_list", "any_list"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
-            /**
-             * Creates a new CollectionDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {tensorflow.ICollectionDef=} [properties] Properties to set
-             * @returns {tensorflow.CollectionDef} CollectionDef instance
-             */
             CollectionDef.create = function create(properties) {
                 return new CollectionDef(properties);
             };
     
-            /**
-             * Encodes the specified CollectionDef message. Does not implicitly {@link tensorflow.CollectionDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {tensorflow.ICollectionDef} message CollectionDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            CollectionDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.nodeList != null && message.hasOwnProperty("nodeList"))
-                    $root.tensorflow.CollectionDef.NodeList.encode(message.nodeList, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.bytesList != null && message.hasOwnProperty("bytesList"))
-                    $root.tensorflow.CollectionDef.BytesList.encode(message.bytesList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.int64List != null && message.hasOwnProperty("int64List"))
-                    $root.tensorflow.CollectionDef.Int64List.encode(message.int64List, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.floatList != null && message.hasOwnProperty("floatList"))
-                    $root.tensorflow.CollectionDef.FloatList.encode(message.floatList, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                if (message.anyList != null && message.hasOwnProperty("anyList"))
-                    $root.tensorflow.CollectionDef.AnyList.encode(message.anyList, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified CollectionDef message, length delimited. Does not implicitly {@link tensorflow.CollectionDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {tensorflow.ICollectionDef} message CollectionDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            CollectionDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a CollectionDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.CollectionDef} CollectionDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             CollectionDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -1152,19 +658,19 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.nodeList = $root.tensorflow.CollectionDef.NodeList.decode(reader, reader.uint32());
+                        message.node_list = $root.tensorflow.CollectionDef.NodeList.decode(reader, reader.uint32());
                         break;
                     case 2:
-                        message.bytesList = $root.tensorflow.CollectionDef.BytesList.decode(reader, reader.uint32());
+                        message.bytes_list = $root.tensorflow.CollectionDef.BytesList.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.int64List = $root.tensorflow.CollectionDef.Int64List.decode(reader, reader.uint32());
+                        message.int64_list = $root.tensorflow.CollectionDef.Int64List.decode(reader, reader.uint32());
                         break;
                     case 4:
-                        message.floatList = $root.tensorflow.CollectionDef.FloatList.decode(reader, reader.uint32());
+                        message.float_list = $root.tensorflow.CollectionDef.FloatList.decode(reader, reader.uint32());
                         break;
                     case 5:
-                        message.anyList = $root.tensorflow.CollectionDef.AnyList.decode(reader, reader.uint32());
+                        message.any_list = $root.tensorflow.CollectionDef.AnyList.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1174,194 +680,162 @@
                 return message;
             };
     
-            /**
-             * Decodes a CollectionDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.CollectionDef} CollectionDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            CollectionDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            CollectionDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.CollectionDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "node_list":
+                        message.node_list = $root.tensorflow.CollectionDef.NodeList.decodeText(reader, true);
+                        break;
+                    case "bytes_list":
+                        message.bytes_list = $root.tensorflow.CollectionDef.BytesList.decodeText(reader, true);
+                        break;
+                    case "int64_list":
+                        message.int64_list = $root.tensorflow.CollectionDef.Int64List.decodeText(reader, true);
+                        break;
+                    case "float_list":
+                        message.float_list = $root.tensorflow.CollectionDef.FloatList.decodeText(reader, true);
+                        break;
+                    case "any_list":
+                        message.any_list = $root.tensorflow.CollectionDef.AnyList.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a CollectionDef message.
-             * @function verify
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             CollectionDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
                 var properties = {};
-                if (message.nodeList != null && message.hasOwnProperty("nodeList")) {
+                if (message.node_list != null && message.hasOwnProperty("node_list")) {
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.NodeList.verify(message.nodeList);
+                        var error = $root.tensorflow.CollectionDef.NodeList.verify(message.node_list);
                         if (error)
-                            return "nodeList." + error;
+                            return "node_list." + error;
                     }
                 }
-                if (message.bytesList != null && message.hasOwnProperty("bytesList")) {
+                if (message.bytes_list != null && message.hasOwnProperty("bytes_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.BytesList.verify(message.bytesList);
+                        var error = $root.tensorflow.CollectionDef.BytesList.verify(message.bytes_list);
                         if (error)
-                            return "bytesList." + error;
+                            return "bytes_list." + error;
                     }
                 }
-                if (message.int64List != null && message.hasOwnProperty("int64List")) {
+                if (message.int64_list != null && message.hasOwnProperty("int64_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.Int64List.verify(message.int64List);
+                        var error = $root.tensorflow.CollectionDef.Int64List.verify(message.int64_list);
                         if (error)
-                            return "int64List." + error;
+                            return "int64_list." + error;
                     }
                 }
-                if (message.floatList != null && message.hasOwnProperty("floatList")) {
+                if (message.float_list != null && message.hasOwnProperty("float_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.FloatList.verify(message.floatList);
+                        var error = $root.tensorflow.CollectionDef.FloatList.verify(message.float_list);
                         if (error)
-                            return "floatList." + error;
+                            return "float_list." + error;
                     }
                 }
-                if (message.anyList != null && message.hasOwnProperty("anyList")) {
+                if (message.any_list != null && message.hasOwnProperty("any_list")) {
                     if (properties.kind === 1)
                         return "kind: multiple values";
                     properties.kind = 1;
                     {
-                        var error = $root.tensorflow.CollectionDef.AnyList.verify(message.anyList);
+                        var error = $root.tensorflow.CollectionDef.AnyList.verify(message.any_list);
                         if (error)
-                            return "anyList." + error;
+                            return "any_list." + error;
                     }
                 }
                 return null;
             };
     
-            /**
-             * Creates a CollectionDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.CollectionDef} CollectionDef
-             */
             CollectionDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.CollectionDef)
                     return object;
                 var message = new $root.tensorflow.CollectionDef();
-                if (object.nodeList != null) {
-                    if (typeof object.nodeList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.nodeList: object expected");
-                    message.nodeList = $root.tensorflow.CollectionDef.NodeList.fromObject(object.nodeList);
+                if (object.node_list != null) {
+                    if (typeof object.node_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.node_list: object expected");
+                    message.node_list = $root.tensorflow.CollectionDef.NodeList.fromObject(object.node_list);
                 }
-                if (object.bytesList != null) {
-                    if (typeof object.bytesList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.bytesList: object expected");
-                    message.bytesList = $root.tensorflow.CollectionDef.BytesList.fromObject(object.bytesList);
+                if (object.bytes_list != null) {
+                    if (typeof object.bytes_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.bytes_list: object expected");
+                    message.bytes_list = $root.tensorflow.CollectionDef.BytesList.fromObject(object.bytes_list);
                 }
-                if (object.int64List != null) {
-                    if (typeof object.int64List !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.int64List: object expected");
-                    message.int64List = $root.tensorflow.CollectionDef.Int64List.fromObject(object.int64List);
+                if (object.int64_list != null) {
+                    if (typeof object.int64_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.int64_list: object expected");
+                    message.int64_list = $root.tensorflow.CollectionDef.Int64List.fromObject(object.int64_list);
                 }
-                if (object.floatList != null) {
-                    if (typeof object.floatList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.floatList: object expected");
-                    message.floatList = $root.tensorflow.CollectionDef.FloatList.fromObject(object.floatList);
+                if (object.float_list != null) {
+                    if (typeof object.float_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.float_list: object expected");
+                    message.float_list = $root.tensorflow.CollectionDef.FloatList.fromObject(object.float_list);
                 }
-                if (object.anyList != null) {
-                    if (typeof object.anyList !== "object")
-                        throw TypeError(".tensorflow.CollectionDef.anyList: object expected");
-                    message.anyList = $root.tensorflow.CollectionDef.AnyList.fromObject(object.anyList);
+                if (object.any_list != null) {
+                    if (typeof object.any_list !== "object")
+                        throw TypeError(".tensorflow.CollectionDef.any_list: object expected");
+                    message.any_list = $root.tensorflow.CollectionDef.AnyList.fromObject(object.any_list);
                 }
                 return message;
             };
     
-            /**
-             * Creates a plain object from a CollectionDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.CollectionDef
-             * @static
-             * @param {tensorflow.CollectionDef} message CollectionDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             CollectionDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
-                if (message.nodeList != null && message.hasOwnProperty("nodeList")) {
-                    object.nodeList = $root.tensorflow.CollectionDef.NodeList.toObject(message.nodeList, options);
+                if (message.node_list != null && message.hasOwnProperty("node_list")) {
+                    object.node_list = $root.tensorflow.CollectionDef.NodeList.toObject(message.node_list, options);
                     if (options.oneofs)
-                        object.kind = "nodeList";
+                        object.kind = "node_list";
                 }
-                if (message.bytesList != null && message.hasOwnProperty("bytesList")) {
-                    object.bytesList = $root.tensorflow.CollectionDef.BytesList.toObject(message.bytesList, options);
+                if (message.bytes_list != null && message.hasOwnProperty("bytes_list")) {
+                    object.bytes_list = $root.tensorflow.CollectionDef.BytesList.toObject(message.bytes_list, options);
                     if (options.oneofs)
-                        object.kind = "bytesList";
+                        object.kind = "bytes_list";
                 }
-                if (message.int64List != null && message.hasOwnProperty("int64List")) {
-                    object.int64List = $root.tensorflow.CollectionDef.Int64List.toObject(message.int64List, options);
+                if (message.int64_list != null && message.hasOwnProperty("int64_list")) {
+                    object.int64_list = $root.tensorflow.CollectionDef.Int64List.toObject(message.int64_list, options);
                     if (options.oneofs)
-                        object.kind = "int64List";
+                        object.kind = "int64_list";
                 }
-                if (message.floatList != null && message.hasOwnProperty("floatList")) {
-                    object.floatList = $root.tensorflow.CollectionDef.FloatList.toObject(message.floatList, options);
+                if (message.float_list != null && message.hasOwnProperty("float_list")) {
+                    object.float_list = $root.tensorflow.CollectionDef.FloatList.toObject(message.float_list, options);
                     if (options.oneofs)
-                        object.kind = "floatList";
+                        object.kind = "float_list";
                 }
-                if (message.anyList != null && message.hasOwnProperty("anyList")) {
-                    object.anyList = $root.tensorflow.CollectionDef.AnyList.toObject(message.anyList, options);
+                if (message.any_list != null && message.hasOwnProperty("any_list")) {
+                    object.any_list = $root.tensorflow.CollectionDef.AnyList.toObject(message.any_list, options);
                     if (options.oneofs)
-                        object.kind = "anyList";
+                        object.kind = "any_list";
                 }
                 return object;
             };
     
-            /**
-             * Converts this CollectionDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.CollectionDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             CollectionDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             CollectionDef.NodeList = (function() {
     
-                /**
-                 * Properties of a NodeList.
-                 * @memberof tensorflow.CollectionDef
-                 * @interface INodeList
-                 * @property {Array.<string>|null} [value] NodeList value
-                 */
-    
-                /**
-                 * Constructs a new NodeList.
-                 * @memberof tensorflow.CollectionDef
-                 * @classdesc Represents a NodeList.
-                 * @implements INodeList
-                 * @constructor
-                 * @param {tensorflow.CollectionDef.INodeList=} [properties] Properties to set
-                 */
                 function NodeList(properties) {
                     this.value = [];
                     if (properties)
@@ -1370,68 +844,12 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * NodeList value.
-                 * @member {Array.<string>} value
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @instance
-                 */
                 NodeList.prototype.value = $util.emptyArray;
     
-                /**
-                 * Creates a new NodeList instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {tensorflow.CollectionDef.INodeList=} [properties] Properties to set
-                 * @returns {tensorflow.CollectionDef.NodeList} NodeList instance
-                 */
                 NodeList.create = function create(properties) {
                     return new NodeList(properties);
                 };
     
-                /**
-                 * Encodes the specified NodeList message. Does not implicitly {@link tensorflow.CollectionDef.NodeList.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {tensorflow.CollectionDef.INodeList} message NodeList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                NodeList.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.value != null && message.value.length)
-                        for (var i = 0; i < message.value.length; ++i)
-                            writer.uint32(/* id 1, wireType 2 =*/10).string(message.value[i]);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified NodeList message, length delimited. Does not implicitly {@link tensorflow.CollectionDef.NodeList.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {tensorflow.CollectionDef.INodeList} message NodeList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                NodeList.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a NodeList message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.CollectionDef.NodeList} NodeList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 NodeList.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -1452,30 +870,27 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a NodeList message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.CollectionDef.NodeList} NodeList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                NodeList.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                NodeList.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.CollectionDef.NodeList();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "value":
+                            if (!(message.value && message.value.length))
+                                message.value = [];
+                            message.value.push(reader.string());
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies a NodeList message.
-                 * @function verify
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 NodeList.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -1489,14 +904,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a NodeList message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.CollectionDef.NodeList} NodeList
-                 */
                 NodeList.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.CollectionDef.NodeList)
                         return object;
@@ -1511,15 +918,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a NodeList message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @static
-                 * @param {tensorflow.CollectionDef.NodeList} message NodeList
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 NodeList.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -1534,13 +932,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this NodeList to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.CollectionDef.NodeList
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 NodeList.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -1550,21 +941,6 @@
     
             CollectionDef.BytesList = (function() {
     
-                /**
-                 * Properties of a BytesList.
-                 * @memberof tensorflow.CollectionDef
-                 * @interface IBytesList
-                 * @property {Array.<Uint8Array>|null} [value] BytesList value
-                 */
-    
-                /**
-                 * Constructs a new BytesList.
-                 * @memberof tensorflow.CollectionDef
-                 * @classdesc Represents a BytesList.
-                 * @implements IBytesList
-                 * @constructor
-                 * @param {tensorflow.CollectionDef.IBytesList=} [properties] Properties to set
-                 */
                 function BytesList(properties) {
                     this.value = [];
                     if (properties)
@@ -1573,68 +949,12 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * BytesList value.
-                 * @member {Array.<Uint8Array>} value
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @instance
-                 */
                 BytesList.prototype.value = $util.emptyArray;
     
-                /**
-                 * Creates a new BytesList instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IBytesList=} [properties] Properties to set
-                 * @returns {tensorflow.CollectionDef.BytesList} BytesList instance
-                 */
                 BytesList.create = function create(properties) {
                     return new BytesList(properties);
                 };
     
-                /**
-                 * Encodes the specified BytesList message. Does not implicitly {@link tensorflow.CollectionDef.BytesList.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IBytesList} message BytesList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                BytesList.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.value != null && message.value.length)
-                        for (var i = 0; i < message.value.length; ++i)
-                            writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.value[i]);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified BytesList message, length delimited. Does not implicitly {@link tensorflow.CollectionDef.BytesList.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IBytesList} message BytesList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                BytesList.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a BytesList message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.CollectionDef.BytesList} BytesList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 BytesList.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -1655,30 +975,27 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a BytesList message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.CollectionDef.BytesList} BytesList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                BytesList.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                BytesList.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.CollectionDef.BytesList();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "value":
+                            if (!(message.value && message.value.length))
+                                message.value = [];
+                            message.value.push(reader.bytes());
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies a BytesList message.
-                 * @function verify
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 BytesList.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -1692,14 +1009,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a BytesList message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.CollectionDef.BytesList} BytesList
-                 */
                 BytesList.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.CollectionDef.BytesList)
                         return object;
@@ -1717,15 +1026,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a BytesList message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @static
-                 * @param {tensorflow.CollectionDef.BytesList} message BytesList
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 BytesList.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -1740,13 +1040,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this BytesList to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.CollectionDef.BytesList
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 BytesList.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -1756,21 +1049,6 @@
     
             CollectionDef.Int64List = (function() {
     
-                /**
-                 * Properties of an Int64List.
-                 * @memberof tensorflow.CollectionDef
-                 * @interface IInt64List
-                 * @property {Array.<number|Long>|null} [value] Int64List value
-                 */
-    
-                /**
-                 * Constructs a new Int64List.
-                 * @memberof tensorflow.CollectionDef
-                 * @classdesc Represents an Int64List.
-                 * @implements IInt64List
-                 * @constructor
-                 * @param {tensorflow.CollectionDef.IInt64List=} [properties] Properties to set
-                 */
                 function Int64List(properties) {
                     this.value = [];
                     if (properties)
@@ -1779,71 +1057,12 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Int64List value.
-                 * @member {Array.<number|Long>} value
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @instance
-                 */
                 Int64List.prototype.value = $util.emptyArray;
     
-                /**
-                 * Creates a new Int64List instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {tensorflow.CollectionDef.IInt64List=} [properties] Properties to set
-                 * @returns {tensorflow.CollectionDef.Int64List} Int64List instance
-                 */
                 Int64List.create = function create(properties) {
                     return new Int64List(properties);
                 };
     
-                /**
-                 * Encodes the specified Int64List message. Does not implicitly {@link tensorflow.CollectionDef.Int64List.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {tensorflow.CollectionDef.IInt64List} message Int64List message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Int64List.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.value != null && message.value.length) {
-                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
-                        for (var i = 0; i < message.value.length; ++i)
-                            writer.int64(message.value[i]);
-                        writer.ldelim();
-                    }
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Int64List message, length delimited. Does not implicitly {@link tensorflow.CollectionDef.Int64List.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {tensorflow.CollectionDef.IInt64List} message Int64List message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Int64List.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes an Int64List message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.CollectionDef.Int64List} Int64List
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Int64List.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -1869,30 +1088,27 @@
                     return message;
                 };
     
-                /**
-                 * Decodes an Int64List message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.CollectionDef.Int64List} Int64List
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Int64List.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                Int64List.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.CollectionDef.Int64List();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "value":
+                            if (!(message.value && message.value.length))
+                                message.value = [];
+                            message.value.push(reader.int64());
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies an Int64List message.
-                 * @function verify
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Int64List.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -1906,14 +1122,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates an Int64List message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.CollectionDef.Int64List} Int64List
-                 */
                 Int64List.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.CollectionDef.Int64List)
                         return object;
@@ -1935,15 +1143,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from an Int64List message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @static
-                 * @param {tensorflow.CollectionDef.Int64List} message Int64List
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Int64List.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -1961,13 +1160,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Int64List to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.CollectionDef.Int64List
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Int64List.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -1977,21 +1169,6 @@
     
             CollectionDef.FloatList = (function() {
     
-                /**
-                 * Properties of a FloatList.
-                 * @memberof tensorflow.CollectionDef
-                 * @interface IFloatList
-                 * @property {Array.<number>|null} [value] FloatList value
-                 */
-    
-                /**
-                 * Constructs a new FloatList.
-                 * @memberof tensorflow.CollectionDef
-                 * @classdesc Represents a FloatList.
-                 * @implements IFloatList
-                 * @constructor
-                 * @param {tensorflow.CollectionDef.IFloatList=} [properties] Properties to set
-                 */
                 function FloatList(properties) {
                     this.value = [];
                     if (properties)
@@ -2000,71 +1177,12 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * FloatList value.
-                 * @member {Array.<number>} value
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @instance
-                 */
                 FloatList.prototype.value = $util.emptyArray;
     
-                /**
-                 * Creates a new FloatList instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IFloatList=} [properties] Properties to set
-                 * @returns {tensorflow.CollectionDef.FloatList} FloatList instance
-                 */
                 FloatList.create = function create(properties) {
                     return new FloatList(properties);
                 };
     
-                /**
-                 * Encodes the specified FloatList message. Does not implicitly {@link tensorflow.CollectionDef.FloatList.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IFloatList} message FloatList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                FloatList.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.value != null && message.value.length) {
-                        writer.uint32(/* id 1, wireType 2 =*/10).fork();
-                        for (var i = 0; i < message.value.length; ++i)
-                            writer.float(message.value[i]);
-                        writer.ldelim();
-                    }
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified FloatList message, length delimited. Does not implicitly {@link tensorflow.CollectionDef.FloatList.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IFloatList} message FloatList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                FloatList.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a FloatList message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.CollectionDef.FloatList} FloatList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 FloatList.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -2090,30 +1208,27 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a FloatList message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.CollectionDef.FloatList} FloatList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                FloatList.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                FloatList.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.CollectionDef.FloatList();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "value":
+                            if (!(message.value && message.value.length))
+                                message.value = [];
+                            message.value.push(reader.float());
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies a FloatList message.
-                 * @function verify
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 FloatList.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -2127,14 +1242,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a FloatList message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.CollectionDef.FloatList} FloatList
-                 */
                 FloatList.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.CollectionDef.FloatList)
                         return object;
@@ -2149,15 +1256,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a FloatList message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @static
-                 * @param {tensorflow.CollectionDef.FloatList} message FloatList
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 FloatList.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -2172,13 +1270,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this FloatList to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.CollectionDef.FloatList
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 FloatList.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -2188,21 +1279,6 @@
     
             CollectionDef.AnyList = (function() {
     
-                /**
-                 * Properties of an AnyList.
-                 * @memberof tensorflow.CollectionDef
-                 * @interface IAnyList
-                 * @property {Array.<google.protobuf.IAny>|null} [value] AnyList value
-                 */
-    
-                /**
-                 * Constructs a new AnyList.
-                 * @memberof tensorflow.CollectionDef
-                 * @classdesc Represents an AnyList.
-                 * @implements IAnyList
-                 * @constructor
-                 * @param {tensorflow.CollectionDef.IAnyList=} [properties] Properties to set
-                 */
                 function AnyList(properties) {
                     this.value = [];
                     if (properties)
@@ -2211,68 +1287,12 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * AnyList value.
-                 * @member {Array.<google.protobuf.IAny>} value
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @instance
-                 */
                 AnyList.prototype.value = $util.emptyArray;
     
-                /**
-                 * Creates a new AnyList instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IAnyList=} [properties] Properties to set
-                 * @returns {tensorflow.CollectionDef.AnyList} AnyList instance
-                 */
                 AnyList.create = function create(properties) {
                     return new AnyList(properties);
                 };
     
-                /**
-                 * Encodes the specified AnyList message. Does not implicitly {@link tensorflow.CollectionDef.AnyList.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IAnyList} message AnyList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                AnyList.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.value != null && message.value.length)
-                        for (var i = 0; i < message.value.length; ++i)
-                            $root.google.protobuf.Any.encode(message.value[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified AnyList message, length delimited. Does not implicitly {@link tensorflow.CollectionDef.AnyList.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {tensorflow.CollectionDef.IAnyList} message AnyList message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                AnyList.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes an AnyList message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.CollectionDef.AnyList} AnyList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 AnyList.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -2293,30 +1313,27 @@
                     return message;
                 };
     
-                /**
-                 * Decodes an AnyList message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.CollectionDef.AnyList} AnyList
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                AnyList.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                AnyList.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.CollectionDef.AnyList();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "value":
+                            if (!(message.value && message.value.length))
+                                message.value = [];
+                            message.value.push($root.google.protobuf.Any.decodeText(reader, true));
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies an AnyList message.
-                 * @function verify
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 AnyList.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -2332,14 +1349,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates an AnyList message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.CollectionDef.AnyList} AnyList
-                 */
                 AnyList.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.CollectionDef.AnyList)
                         return object;
@@ -2357,15 +1366,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from an AnyList message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @static
-                 * @param {tensorflow.CollectionDef.AnyList} message AnyList
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 AnyList.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -2380,13 +1380,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this AnyList to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.CollectionDef.AnyList
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 AnyList.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -2399,24 +1392,6 @@
     
         tensorflow.TensorInfo = (function() {
     
-            /**
-             * Properties of a TensorInfo.
-             * @memberof tensorflow
-             * @interface ITensorInfo
-             * @property {string|null} [name] TensorInfo name
-             * @property {tensorflow.TensorInfo.ICooSparse|null} [cooSparse] TensorInfo cooSparse
-             * @property {tensorflow.DataType|null} [dtype] TensorInfo dtype
-             * @property {tensorflow.ITensorShapeProto|null} [tensorShape] TensorInfo tensorShape
-             */
-    
-            /**
-             * Constructs a new TensorInfo.
-             * @memberof tensorflow
-             * @classdesc Represents a TensorInfo.
-             * @implements ITensorInfo
-             * @constructor
-             * @param {tensorflow.ITensorInfo=} [properties] Properties to set
-             */
             function TensorInfo(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -2424,111 +1399,22 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TensorInfo name.
-             * @member {string} name
-             * @memberof tensorflow.TensorInfo
-             * @instance
-             */
             TensorInfo.prototype.name = "";
-    
-            /**
-             * TensorInfo cooSparse.
-             * @member {tensorflow.TensorInfo.ICooSparse|null|undefined} cooSparse
-             * @memberof tensorflow.TensorInfo
-             * @instance
-             */
-            TensorInfo.prototype.cooSparse = null;
-    
-            /**
-             * TensorInfo dtype.
-             * @member {tensorflow.DataType} dtype
-             * @memberof tensorflow.TensorInfo
-             * @instance
-             */
+            TensorInfo.prototype.coo_sparse = null;
             TensorInfo.prototype.dtype = 0;
+            TensorInfo.prototype.tensor_shape = null;
     
-            /**
-             * TensorInfo tensorShape.
-             * @member {tensorflow.ITensorShapeProto|null|undefined} tensorShape
-             * @memberof tensorflow.TensorInfo
-             * @instance
-             */
-            TensorInfo.prototype.tensorShape = null;
-    
-            // OneOf field names bound to virtual getters and setters
             var $oneOfFields;
     
-            /**
-             * TensorInfo encoding.
-             * @member {"name"|"cooSparse"|undefined} encoding
-             * @memberof tensorflow.TensorInfo
-             * @instance
-             */
             Object.defineProperty(TensorInfo.prototype, "encoding", {
-                get: $util.oneOfGetter($oneOfFields = ["name", "cooSparse"]),
+                get: $util.oneOfGetter($oneOfFields = ["name", "coo_sparse"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
-            /**
-             * Creates a new TensorInfo instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {tensorflow.ITensorInfo=} [properties] Properties to set
-             * @returns {tensorflow.TensorInfo} TensorInfo instance
-             */
             TensorInfo.create = function create(properties) {
                 return new TensorInfo(properties);
             };
     
-            /**
-             * Encodes the specified TensorInfo message. Does not implicitly {@link tensorflow.TensorInfo.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {tensorflow.ITensorInfo} message TensorInfo message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorInfo.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.dtype != null && message.hasOwnProperty("dtype"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.dtype);
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape"))
-                    $root.tensorflow.TensorShapeProto.encode(message.tensorShape, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.cooSparse != null && message.hasOwnProperty("cooSparse"))
-                    $root.tensorflow.TensorInfo.CooSparse.encode(message.cooSparse, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TensorInfo message, length delimited. Does not implicitly {@link tensorflow.TensorInfo.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {tensorflow.ITensorInfo} message TensorInfo message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorInfo.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TensorInfo message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.TensorInfo} TensorInfo
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TensorInfo.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -2540,13 +1426,13 @@
                         message.name = reader.string();
                         break;
                     case 4:
-                        message.cooSparse = $root.tensorflow.TensorInfo.CooSparse.decode(reader, reader.uint32());
+                        message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.decode(reader, reader.uint32());
                         break;
                     case 2:
                         message.dtype = reader.int32();
                         break;
                     case 3:
-                        message.tensorShape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        message.tensor_shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2556,30 +1442,34 @@
                 return message;
             };
     
-            /**
-             * Decodes a TensorInfo message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.TensorInfo} TensorInfo
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TensorInfo.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            TensorInfo.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.TensorInfo();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "coo_sparse":
+                        message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.decodeText(reader, true);
+                        break;
+                    case "dtype":
+                        message.dtype = reader.enum($root.tensorflow.DataType);
+                        break;
+                    case "tensor_shape":
+                        message.tensor_shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a TensorInfo message.
-             * @function verify
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TensorInfo.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -2589,14 +1479,14 @@
                     if (!$util.isString(message.name))
                         return "name: string expected";
                 }
-                if (message.cooSparse != null && message.hasOwnProperty("cooSparse")) {
+                if (message.coo_sparse != null && message.hasOwnProperty("coo_sparse")) {
                     if (properties.encoding === 1)
                         return "encoding: multiple values";
                     properties.encoding = 1;
                     {
-                        var error = $root.tensorflow.TensorInfo.CooSparse.verify(message.cooSparse);
+                        var error = $root.tensorflow.TensorInfo.CooSparse.verify(message.coo_sparse);
                         if (error)
-                            return "cooSparse." + error;
+                            return "coo_sparse." + error;
                     }
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
@@ -2652,32 +1542,24 @@
                     case 123:
                         break;
                     }
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape")) {
-                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensorShape);
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape")) {
+                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensor_shape);
                     if (error)
-                        return "tensorShape." + error;
+                        return "tensor_shape." + error;
                 }
                 return null;
             };
     
-            /**
-             * Creates a TensorInfo message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.TensorInfo} TensorInfo
-             */
             TensorInfo.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.TensorInfo)
                     return object;
                 var message = new $root.tensorflow.TensorInfo();
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.cooSparse != null) {
-                    if (typeof object.cooSparse !== "object")
-                        throw TypeError(".tensorflow.TensorInfo.cooSparse: object expected");
-                    message.cooSparse = $root.tensorflow.TensorInfo.CooSparse.fromObject(object.cooSparse);
+                if (object.coo_sparse != null) {
+                    if (typeof object.coo_sparse !== "object")
+                        throw TypeError(".tensorflow.TensorInfo.coo_sparse: object expected");
+                    message.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.fromObject(object.coo_sparse);
                 }
                 switch (object.dtype) {
                 case "DT_INVALID":
@@ -2869,30 +1751,21 @@
                     message.dtype = 123;
                     break;
                 }
-                if (object.tensorShape != null) {
-                    if (typeof object.tensorShape !== "object")
-                        throw TypeError(".tensorflow.TensorInfo.tensorShape: object expected");
-                    message.tensorShape = $root.tensorflow.TensorShapeProto.fromObject(object.tensorShape);
+                if (object.tensor_shape != null) {
+                    if (typeof object.tensor_shape !== "object")
+                        throw TypeError(".tensorflow.TensorInfo.tensor_shape: object expected");
+                    message.tensor_shape = $root.tensorflow.TensorShapeProto.fromObject(object.tensor_shape);
                 }
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TensorInfo message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.TensorInfo
-             * @static
-             * @param {tensorflow.TensorInfo} message TensorInfo
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TensorInfo.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.defaults) {
                     object.dtype = options.enums === String ? "DT_INVALID" : 0;
-                    object.tensorShape = null;
+                    object.tensor_shape = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name")) {
                     object.name = message.name;
@@ -2901,46 +1774,22 @@
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape"))
-                    object.tensorShape = $root.tensorflow.TensorShapeProto.toObject(message.tensorShape, options);
-                if (message.cooSparse != null && message.hasOwnProperty("cooSparse")) {
-                    object.cooSparse = $root.tensorflow.TensorInfo.CooSparse.toObject(message.cooSparse, options);
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape"))
+                    object.tensor_shape = $root.tensorflow.TensorShapeProto.toObject(message.tensor_shape, options);
+                if (message.coo_sparse != null && message.hasOwnProperty("coo_sparse")) {
+                    object.coo_sparse = $root.tensorflow.TensorInfo.CooSparse.toObject(message.coo_sparse, options);
                     if (options.oneofs)
-                        object.encoding = "cooSparse";
+                        object.encoding = "coo_sparse";
                 }
                 return object;
             };
     
-            /**
-             * Converts this TensorInfo to JSON.
-             * @function toJSON
-             * @memberof tensorflow.TensorInfo
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TensorInfo.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             TensorInfo.CooSparse = (function() {
     
-                /**
-                 * Properties of a CooSparse.
-                 * @memberof tensorflow.TensorInfo
-                 * @interface ICooSparse
-                 * @property {string|null} [valuesTensorName] CooSparse valuesTensorName
-                 * @property {string|null} [indicesTensorName] CooSparse indicesTensorName
-                 * @property {string|null} [denseShapeTensorName] CooSparse denseShapeTensorName
-                 */
-    
-                /**
-                 * Constructs a new CooSparse.
-                 * @memberof tensorflow.TensorInfo
-                 * @classdesc Represents a CooSparse.
-                 * @implements ICooSparse
-                 * @constructor
-                 * @param {tensorflow.TensorInfo.ICooSparse=} [properties] Properties to set
-                 */
                 function CooSparse(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -2948,87 +1797,14 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * CooSparse valuesTensorName.
-                 * @member {string} valuesTensorName
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @instance
-                 */
-                CooSparse.prototype.valuesTensorName = "";
+                CooSparse.prototype.values_tensor_name = "";
+                CooSparse.prototype.indices_tensor_name = "";
+                CooSparse.prototype.dense_shape_tensor_name = "";
     
-                /**
-                 * CooSparse indicesTensorName.
-                 * @member {string} indicesTensorName
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @instance
-                 */
-                CooSparse.prototype.indicesTensorName = "";
-    
-                /**
-                 * CooSparse denseShapeTensorName.
-                 * @member {string} denseShapeTensorName
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @instance
-                 */
-                CooSparse.prototype.denseShapeTensorName = "";
-    
-                /**
-                 * Creates a new CooSparse instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {tensorflow.TensorInfo.ICooSparse=} [properties] Properties to set
-                 * @returns {tensorflow.TensorInfo.CooSparse} CooSparse instance
-                 */
                 CooSparse.create = function create(properties) {
                     return new CooSparse(properties);
                 };
     
-                /**
-                 * Encodes the specified CooSparse message. Does not implicitly {@link tensorflow.TensorInfo.CooSparse.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {tensorflow.TensorInfo.ICooSparse} message CooSparse message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                CooSparse.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.valuesTensorName != null && message.hasOwnProperty("valuesTensorName"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.valuesTensorName);
-                    if (message.indicesTensorName != null && message.hasOwnProperty("indicesTensorName"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.indicesTensorName);
-                    if (message.denseShapeTensorName != null && message.hasOwnProperty("denseShapeTensorName"))
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.denseShapeTensorName);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified CooSparse message, length delimited. Does not implicitly {@link tensorflow.TensorInfo.CooSparse.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {tensorflow.TensorInfo.ICooSparse} message CooSparse message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                CooSparse.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a CooSparse message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.TensorInfo.CooSparse} CooSparse
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 CooSparse.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -3037,13 +1813,13 @@
                         var tag = reader.uint32();
                         switch (tag >>> 3) {
                         case 1:
-                            message.valuesTensorName = reader.string();
+                            message.values_tensor_name = reader.string();
                             break;
                         case 2:
-                            message.indicesTensorName = reader.string();
+                            message.indices_tensor_name = reader.string();
                             break;
                         case 3:
-                            message.denseShapeTensorName = reader.string();
+                            message.dense_shape_tensor_name = reader.string();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3053,100 +1829,77 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a CooSparse message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.TensorInfo.CooSparse} CooSparse
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                CooSparse.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                CooSparse.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.TensorInfo.CooSparse();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "values_tensor_name":
+                            message.values_tensor_name = reader.string();
+                            break;
+                        case "indices_tensor_name":
+                            message.indices_tensor_name = reader.string();
+                            break;
+                        case "dense_shape_tensor_name":
+                            message.dense_shape_tensor_name = reader.string();
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies a CooSparse message.
-                 * @function verify
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 CooSparse.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.valuesTensorName != null && message.hasOwnProperty("valuesTensorName"))
-                        if (!$util.isString(message.valuesTensorName))
-                            return "valuesTensorName: string expected";
-                    if (message.indicesTensorName != null && message.hasOwnProperty("indicesTensorName"))
-                        if (!$util.isString(message.indicesTensorName))
-                            return "indicesTensorName: string expected";
-                    if (message.denseShapeTensorName != null && message.hasOwnProperty("denseShapeTensorName"))
-                        if (!$util.isString(message.denseShapeTensorName))
-                            return "denseShapeTensorName: string expected";
+                    if (message.values_tensor_name != null && message.hasOwnProperty("values_tensor_name"))
+                        if (!$util.isString(message.values_tensor_name))
+                            return "values_tensor_name: string expected";
+                    if (message.indices_tensor_name != null && message.hasOwnProperty("indices_tensor_name"))
+                        if (!$util.isString(message.indices_tensor_name))
+                            return "indices_tensor_name: string expected";
+                    if (message.dense_shape_tensor_name != null && message.hasOwnProperty("dense_shape_tensor_name"))
+                        if (!$util.isString(message.dense_shape_tensor_name))
+                            return "dense_shape_tensor_name: string expected";
                     return null;
                 };
     
-                /**
-                 * Creates a CooSparse message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.TensorInfo.CooSparse} CooSparse
-                 */
                 CooSparse.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.TensorInfo.CooSparse)
                         return object;
                     var message = new $root.tensorflow.TensorInfo.CooSparse();
-                    if (object.valuesTensorName != null)
-                        message.valuesTensorName = String(object.valuesTensorName);
-                    if (object.indicesTensorName != null)
-                        message.indicesTensorName = String(object.indicesTensorName);
-                    if (object.denseShapeTensorName != null)
-                        message.denseShapeTensorName = String(object.denseShapeTensorName);
+                    if (object.values_tensor_name != null)
+                        message.values_tensor_name = String(object.values_tensor_name);
+                    if (object.indices_tensor_name != null)
+                        message.indices_tensor_name = String(object.indices_tensor_name);
+                    if (object.dense_shape_tensor_name != null)
+                        message.dense_shape_tensor_name = String(object.dense_shape_tensor_name);
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a CooSparse message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @static
-                 * @param {tensorflow.TensorInfo.CooSparse} message CooSparse
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 CooSparse.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
                     var object = {};
                     if (options.defaults) {
-                        object.valuesTensorName = "";
-                        object.indicesTensorName = "";
-                        object.denseShapeTensorName = "";
+                        object.values_tensor_name = "";
+                        object.indices_tensor_name = "";
+                        object.dense_shape_tensor_name = "";
                     }
-                    if (message.valuesTensorName != null && message.hasOwnProperty("valuesTensorName"))
-                        object.valuesTensorName = message.valuesTensorName;
-                    if (message.indicesTensorName != null && message.hasOwnProperty("indicesTensorName"))
-                        object.indicesTensorName = message.indicesTensorName;
-                    if (message.denseShapeTensorName != null && message.hasOwnProperty("denseShapeTensorName"))
-                        object.denseShapeTensorName = message.denseShapeTensorName;
+                    if (message.values_tensor_name != null && message.hasOwnProperty("values_tensor_name"))
+                        object.values_tensor_name = message.values_tensor_name;
+                    if (message.indices_tensor_name != null && message.hasOwnProperty("indices_tensor_name"))
+                        object.indices_tensor_name = message.indices_tensor_name;
+                    if (message.dense_shape_tensor_name != null && message.hasOwnProperty("dense_shape_tensor_name"))
+                        object.dense_shape_tensor_name = message.dense_shape_tensor_name;
                     return object;
                 };
     
-                /**
-                 * Converts this CooSparse to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.TensorInfo.CooSparse
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 CooSparse.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -3159,23 +1912,6 @@
     
         tensorflow.SignatureDef = (function() {
     
-            /**
-             * Properties of a SignatureDef.
-             * @memberof tensorflow
-             * @interface ISignatureDef
-             * @property {Object.<string,tensorflow.ITensorInfo>|null} [inputs] SignatureDef inputs
-             * @property {Object.<string,tensorflow.ITensorInfo>|null} [outputs] SignatureDef outputs
-             * @property {string|null} [methodName] SignatureDef methodName
-             */
-    
-            /**
-             * Constructs a new SignatureDef.
-             * @memberof tensorflow
-             * @classdesc Represents a SignatureDef.
-             * @implements ISignatureDef
-             * @constructor
-             * @param {tensorflow.ISignatureDef=} [properties] Properties to set
-             */
             function SignatureDef(properties) {
                 this.inputs = {};
                 this.outputs = {};
@@ -3185,93 +1921,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SignatureDef inputs.
-             * @member {Object.<string,tensorflow.ITensorInfo>} inputs
-             * @memberof tensorflow.SignatureDef
-             * @instance
-             */
             SignatureDef.prototype.inputs = $util.emptyObject;
-    
-            /**
-             * SignatureDef outputs.
-             * @member {Object.<string,tensorflow.ITensorInfo>} outputs
-             * @memberof tensorflow.SignatureDef
-             * @instance
-             */
             SignatureDef.prototype.outputs = $util.emptyObject;
+            SignatureDef.prototype.method_name = "";
     
-            /**
-             * SignatureDef methodName.
-             * @member {string} methodName
-             * @memberof tensorflow.SignatureDef
-             * @instance
-             */
-            SignatureDef.prototype.methodName = "";
-    
-            /**
-             * Creates a new SignatureDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {tensorflow.ISignatureDef=} [properties] Properties to set
-             * @returns {tensorflow.SignatureDef} SignatureDef instance
-             */
             SignatureDef.create = function create(properties) {
                 return new SignatureDef(properties);
             };
     
-            /**
-             * Encodes the specified SignatureDef message. Does not implicitly {@link tensorflow.SignatureDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {tensorflow.ISignatureDef} message SignatureDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SignatureDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.inputs != null && message.hasOwnProperty("inputs"))
-                    for (var keys = Object.keys(message.inputs), i = 0; i < keys.length; ++i) {
-                        writer.uint32(/* id 1, wireType 2 =*/10).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
-                        $root.tensorflow.TensorInfo.encode(message.inputs[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
-                    }
-                if (message.outputs != null && message.hasOwnProperty("outputs"))
-                    for (var keys = Object.keys(message.outputs), i = 0; i < keys.length; ++i) {
-                        writer.uint32(/* id 2, wireType 2 =*/18).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
-                        $root.tensorflow.TensorInfo.encode(message.outputs[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
-                    }
-                if (message.methodName != null && message.hasOwnProperty("methodName"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.methodName);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SignatureDef message, length delimited. Does not implicitly {@link tensorflow.SignatureDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {tensorflow.ISignatureDef} message SignatureDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SignatureDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SignatureDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.SignatureDef} SignatureDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SignatureDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -3296,7 +1953,7 @@
                         message.outputs[key] = $root.tensorflow.TensorInfo.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.methodName = reader.string();
+                        message.method_name = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -3306,30 +1963,45 @@
                 return message;
             };
     
-            /**
-             * Decodes a SignatureDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.SignatureDef} SignatureDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SignatureDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            SignatureDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SignatureDef(), key;
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "inputs":
+                        reader.assert("{");
+                        if (message.inputs === $util.emptyObject)
+                            message.inputs = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.inputs[key] = $root.tensorflow.TensorInfo.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    case "outputs":
+                        reader.assert("{");
+                        if (message.outputs === $util.emptyObject)
+                            message.outputs = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.outputs[key] = $root.tensorflow.TensorInfo.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    case "method_name":
+                        message.method_name = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a SignatureDef message.
-             * @function verify
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SignatureDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -3353,20 +2025,12 @@
                             return "outputs." + error;
                     }
                 }
-                if (message.methodName != null && message.hasOwnProperty("methodName"))
-                    if (!$util.isString(message.methodName))
-                        return "methodName: string expected";
+                if (message.method_name != null && message.hasOwnProperty("method_name"))
+                    if (!$util.isString(message.method_name))
+                        return "method_name: string expected";
                 return null;
             };
     
-            /**
-             * Creates a SignatureDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.SignatureDef} SignatureDef
-             */
             SignatureDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.SignatureDef)
                     return object;
@@ -3391,20 +2055,11 @@
                         message.outputs[keys[i]] = $root.tensorflow.TensorInfo.fromObject(object.outputs[keys[i]]);
                     }
                 }
-                if (object.methodName != null)
-                    message.methodName = String(object.methodName);
+                if (object.method_name != null)
+                    message.method_name = String(object.method_name);
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SignatureDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.SignatureDef
-             * @static
-             * @param {tensorflow.SignatureDef} message SignatureDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SignatureDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -3414,7 +2069,7 @@
                     object.outputs = {};
                 }
                 if (options.defaults)
-                    object.methodName = "";
+                    object.method_name = "";
                 var keys2;
                 if (message.inputs && (keys2 = Object.keys(message.inputs)).length) {
                     object.inputs = {};
@@ -3426,18 +2081,11 @@
                     for (var j = 0; j < keys2.length; ++j)
                         object.outputs[keys2[j]] = $root.tensorflow.TensorInfo.toObject(message.outputs[keys2[j]], options);
                 }
-                if (message.methodName != null && message.hasOwnProperty("methodName"))
-                    object.methodName = message.methodName;
+                if (message.method_name != null && message.hasOwnProperty("method_name"))
+                    object.method_name = message.method_name;
                 return object;
             };
     
-            /**
-             * Converts this SignatureDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.SignatureDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SignatureDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -3447,22 +2095,6 @@
     
         tensorflow.AssetFileDef = (function() {
     
-            /**
-             * Properties of an AssetFileDef.
-             * @memberof tensorflow
-             * @interface IAssetFileDef
-             * @property {tensorflow.ITensorInfo|null} [tensorInfo] AssetFileDef tensorInfo
-             * @property {string|null} [filename] AssetFileDef filename
-             */
-    
-            /**
-             * Constructs a new AssetFileDef.
-             * @memberof tensorflow
-             * @classdesc Represents an AssetFileDef.
-             * @implements IAssetFileDef
-             * @constructor
-             * @param {tensorflow.IAssetFileDef=} [properties] Properties to set
-             */
             function AssetFileDef(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -3470,77 +2102,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * AssetFileDef tensorInfo.
-             * @member {tensorflow.ITensorInfo|null|undefined} tensorInfo
-             * @memberof tensorflow.AssetFileDef
-             * @instance
-             */
-            AssetFileDef.prototype.tensorInfo = null;
-    
-            /**
-             * AssetFileDef filename.
-             * @member {string} filename
-             * @memberof tensorflow.AssetFileDef
-             * @instance
-             */
+            AssetFileDef.prototype.tensor_info = null;
             AssetFileDef.prototype.filename = "";
     
-            /**
-             * Creates a new AssetFileDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {tensorflow.IAssetFileDef=} [properties] Properties to set
-             * @returns {tensorflow.AssetFileDef} AssetFileDef instance
-             */
             AssetFileDef.create = function create(properties) {
                 return new AssetFileDef(properties);
             };
     
-            /**
-             * Encodes the specified AssetFileDef message. Does not implicitly {@link tensorflow.AssetFileDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {tensorflow.IAssetFileDef} message AssetFileDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AssetFileDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.tensorInfo != null && message.hasOwnProperty("tensorInfo"))
-                    $root.tensorflow.TensorInfo.encode(message.tensorInfo, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.filename != null && message.hasOwnProperty("filename"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.filename);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified AssetFileDef message, length delimited. Does not implicitly {@link tensorflow.AssetFileDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {tensorflow.IAssetFileDef} message AssetFileDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AssetFileDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an AssetFileDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.AssetFileDef} AssetFileDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             AssetFileDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -3549,7 +2117,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.tensorInfo = $root.tensorflow.TensorInfo.decode(reader, reader.uint32());
+                        message.tensor_info = $root.tensorflow.TensorInfo.decode(reader, reader.uint32());
                         break;
                     case 2:
                         message.filename = reader.string();
@@ -3562,37 +2130,35 @@
                 return message;
             };
     
-            /**
-             * Decodes an AssetFileDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.AssetFileDef} AssetFileDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            AssetFileDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            AssetFileDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.AssetFileDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "tensor_info":
+                        message.tensor_info = $root.tensorflow.TensorInfo.decodeText(reader, true);
+                        break;
+                    case "filename":
+                        message.filename = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies an AssetFileDef message.
-             * @function verify
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             AssetFileDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.tensorInfo != null && message.hasOwnProperty("tensorInfo")) {
-                    var error = $root.tensorflow.TensorInfo.verify(message.tensorInfo);
+                if (message.tensor_info != null && message.hasOwnProperty("tensor_info")) {
+                    var error = $root.tensorflow.TensorInfo.verify(message.tensor_info);
                     if (error)
-                        return "tensorInfo." + error;
+                        return "tensor_info." + error;
                 }
                 if (message.filename != null && message.hasOwnProperty("filename"))
                     if (!$util.isString(message.filename))
@@ -3600,59 +2166,35 @@
                 return null;
             };
     
-            /**
-             * Creates an AssetFileDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.AssetFileDef} AssetFileDef
-             */
             AssetFileDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.AssetFileDef)
                     return object;
                 var message = new $root.tensorflow.AssetFileDef();
-                if (object.tensorInfo != null) {
-                    if (typeof object.tensorInfo !== "object")
-                        throw TypeError(".tensorflow.AssetFileDef.tensorInfo: object expected");
-                    message.tensorInfo = $root.tensorflow.TensorInfo.fromObject(object.tensorInfo);
+                if (object.tensor_info != null) {
+                    if (typeof object.tensor_info !== "object")
+                        throw TypeError(".tensorflow.AssetFileDef.tensor_info: object expected");
+                    message.tensor_info = $root.tensorflow.TensorInfo.fromObject(object.tensor_info);
                 }
                 if (object.filename != null)
                     message.filename = String(object.filename);
                 return message;
             };
     
-            /**
-             * Creates a plain object from an AssetFileDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.AssetFileDef
-             * @static
-             * @param {tensorflow.AssetFileDef} message AssetFileDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             AssetFileDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.tensorInfo = null;
+                    object.tensor_info = null;
                     object.filename = "";
                 }
-                if (message.tensorInfo != null && message.hasOwnProperty("tensorInfo"))
-                    object.tensorInfo = $root.tensorflow.TensorInfo.toObject(message.tensorInfo, options);
+                if (message.tensor_info != null && message.hasOwnProperty("tensor_info"))
+                    object.tensor_info = $root.tensorflow.TensorInfo.toObject(message.tensor_info, options);
                 if (message.filename != null && message.hasOwnProperty("filename"))
                     object.filename = message.filename;
                 return object;
             };
     
-            /**
-             * Converts this AssetFileDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.AssetFileDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             AssetFileDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -3662,27 +2204,6 @@
     
         tensorflow.SaverDef = (function() {
     
-            /**
-             * Properties of a SaverDef.
-             * @memberof tensorflow
-             * @interface ISaverDef
-             * @property {string|null} [filenameTensorName] SaverDef filenameTensorName
-             * @property {string|null} [saveTensorName] SaverDef saveTensorName
-             * @property {string|null} [restoreOpName] SaverDef restoreOpName
-             * @property {number|null} [maxToKeep] SaverDef maxToKeep
-             * @property {boolean|null} [sharded] SaverDef sharded
-             * @property {number|null} [keepCheckpointEveryNHours] SaverDef keepCheckpointEveryNHours
-             * @property {tensorflow.SaverDef.CheckpointFormatVersion|null} [version] SaverDef version
-             */
-    
-            /**
-             * Constructs a new SaverDef.
-             * @memberof tensorflow
-             * @classdesc Represents a SaverDef.
-             * @implements ISaverDef
-             * @constructor
-             * @param {tensorflow.ISaverDef=} [properties] Properties to set
-             */
             function SaverDef(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -3690,127 +2211,18 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * SaverDef filenameTensorName.
-             * @member {string} filenameTensorName
-             * @memberof tensorflow.SaverDef
-             * @instance
-             */
-            SaverDef.prototype.filenameTensorName = "";
-    
-            /**
-             * SaverDef saveTensorName.
-             * @member {string} saveTensorName
-             * @memberof tensorflow.SaverDef
-             * @instance
-             */
-            SaverDef.prototype.saveTensorName = "";
-    
-            /**
-             * SaverDef restoreOpName.
-             * @member {string} restoreOpName
-             * @memberof tensorflow.SaverDef
-             * @instance
-             */
-            SaverDef.prototype.restoreOpName = "";
-    
-            /**
-             * SaverDef maxToKeep.
-             * @member {number} maxToKeep
-             * @memberof tensorflow.SaverDef
-             * @instance
-             */
-            SaverDef.prototype.maxToKeep = 0;
-    
-            /**
-             * SaverDef sharded.
-             * @member {boolean} sharded
-             * @memberof tensorflow.SaverDef
-             * @instance
-             */
+            SaverDef.prototype.filename_tensor_name = "";
+            SaverDef.prototype.save_tensor_name = "";
+            SaverDef.prototype.restore_op_name = "";
+            SaverDef.prototype.max_to_keep = 0;
             SaverDef.prototype.sharded = false;
-    
-            /**
-             * SaverDef keepCheckpointEveryNHours.
-             * @member {number} keepCheckpointEveryNHours
-             * @memberof tensorflow.SaverDef
-             * @instance
-             */
-            SaverDef.prototype.keepCheckpointEveryNHours = 0;
-    
-            /**
-             * SaverDef version.
-             * @member {tensorflow.SaverDef.CheckpointFormatVersion} version
-             * @memberof tensorflow.SaverDef
-             * @instance
-             */
+            SaverDef.prototype.keep_checkpoint_every_n_hours = 0;
             SaverDef.prototype.version = 0;
     
-            /**
-             * Creates a new SaverDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {tensorflow.ISaverDef=} [properties] Properties to set
-             * @returns {tensorflow.SaverDef} SaverDef instance
-             */
             SaverDef.create = function create(properties) {
                 return new SaverDef(properties);
             };
     
-            /**
-             * Encodes the specified SaverDef message. Does not implicitly {@link tensorflow.SaverDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {tensorflow.ISaverDef} message SaverDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SaverDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.filenameTensorName != null && message.hasOwnProperty("filenameTensorName"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.filenameTensorName);
-                if (message.saveTensorName != null && message.hasOwnProperty("saveTensorName"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.saveTensorName);
-                if (message.restoreOpName != null && message.hasOwnProperty("restoreOpName"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.restoreOpName);
-                if (message.maxToKeep != null && message.hasOwnProperty("maxToKeep"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).int32(message.maxToKeep);
-                if (message.sharded != null && message.hasOwnProperty("sharded"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).bool(message.sharded);
-                if (message.keepCheckpointEveryNHours != null && message.hasOwnProperty("keepCheckpointEveryNHours"))
-                    writer.uint32(/* id 6, wireType 5 =*/53).float(message.keepCheckpointEveryNHours);
-                if (message.version != null && message.hasOwnProperty("version"))
-                    writer.uint32(/* id 7, wireType 0 =*/56).int32(message.version);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified SaverDef message, length delimited. Does not implicitly {@link tensorflow.SaverDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {tensorflow.ISaverDef} message SaverDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            SaverDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a SaverDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.SaverDef} SaverDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             SaverDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -3819,22 +2231,22 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.filenameTensorName = reader.string();
+                        message.filename_tensor_name = reader.string();
                         break;
                     case 2:
-                        message.saveTensorName = reader.string();
+                        message.save_tensor_name = reader.string();
                         break;
                     case 3:
-                        message.restoreOpName = reader.string();
+                        message.restore_op_name = reader.string();
                         break;
                     case 4:
-                        message.maxToKeep = reader.int32();
+                        message.max_to_keep = reader.int32();
                         break;
                     case 5:
                         message.sharded = reader.bool();
                         break;
                     case 6:
-                        message.keepCheckpointEveryNHours = reader.float();
+                        message.keep_checkpoint_every_n_hours = reader.float();
                         break;
                     case 7:
                         message.version = reader.int32();
@@ -3847,51 +2259,64 @@
                 return message;
             };
     
-            /**
-             * Decodes a SaverDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.SaverDef} SaverDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            SaverDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            SaverDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.SaverDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "filename_tensor_name":
+                        message.filename_tensor_name = reader.string();
+                        break;
+                    case "save_tensor_name":
+                        message.save_tensor_name = reader.string();
+                        break;
+                    case "restore_op_name":
+                        message.restore_op_name = reader.string();
+                        break;
+                    case "max_to_keep":
+                        message.max_to_keep = reader.int32();
+                        break;
+                    case "sharded":
+                        message.sharded = reader.bool();
+                        break;
+                    case "keep_checkpoint_every_n_hours":
+                        message.keep_checkpoint_every_n_hours = reader.float();
+                        break;
+                    case "version":
+                        message.version = reader.enum($root.tensorflow.SaverDef.CheckpointFormatVersion);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a SaverDef message.
-             * @function verify
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             SaverDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.filenameTensorName != null && message.hasOwnProperty("filenameTensorName"))
-                    if (!$util.isString(message.filenameTensorName))
-                        return "filenameTensorName: string expected";
-                if (message.saveTensorName != null && message.hasOwnProperty("saveTensorName"))
-                    if (!$util.isString(message.saveTensorName))
-                        return "saveTensorName: string expected";
-                if (message.restoreOpName != null && message.hasOwnProperty("restoreOpName"))
-                    if (!$util.isString(message.restoreOpName))
-                        return "restoreOpName: string expected";
-                if (message.maxToKeep != null && message.hasOwnProperty("maxToKeep"))
-                    if (!$util.isInteger(message.maxToKeep))
-                        return "maxToKeep: integer expected";
+                if (message.filename_tensor_name != null && message.hasOwnProperty("filename_tensor_name"))
+                    if (!$util.isString(message.filename_tensor_name))
+                        return "filename_tensor_name: string expected";
+                if (message.save_tensor_name != null && message.hasOwnProperty("save_tensor_name"))
+                    if (!$util.isString(message.save_tensor_name))
+                        return "save_tensor_name: string expected";
+                if (message.restore_op_name != null && message.hasOwnProperty("restore_op_name"))
+                    if (!$util.isString(message.restore_op_name))
+                        return "restore_op_name: string expected";
+                if (message.max_to_keep != null && message.hasOwnProperty("max_to_keep"))
+                    if (!$util.isInteger(message.max_to_keep))
+                        return "max_to_keep: integer expected";
                 if (message.sharded != null && message.hasOwnProperty("sharded"))
                     if (typeof message.sharded !== "boolean")
                         return "sharded: boolean expected";
-                if (message.keepCheckpointEveryNHours != null && message.hasOwnProperty("keepCheckpointEveryNHours"))
-                    if (typeof message.keepCheckpointEveryNHours !== "number")
-                        return "keepCheckpointEveryNHours: number expected";
+                if (message.keep_checkpoint_every_n_hours != null && message.hasOwnProperty("keep_checkpoint_every_n_hours"))
+                    if (typeof message.keep_checkpoint_every_n_hours !== "number")
+                        return "keep_checkpoint_every_n_hours: number expected";
                 if (message.version != null && message.hasOwnProperty("version"))
                     switch (message.version) {
                     default:
@@ -3904,30 +2329,22 @@
                 return null;
             };
     
-            /**
-             * Creates a SaverDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.SaverDef} SaverDef
-             */
             SaverDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.SaverDef)
                     return object;
                 var message = new $root.tensorflow.SaverDef();
-                if (object.filenameTensorName != null)
-                    message.filenameTensorName = String(object.filenameTensorName);
-                if (object.saveTensorName != null)
-                    message.saveTensorName = String(object.saveTensorName);
-                if (object.restoreOpName != null)
-                    message.restoreOpName = String(object.restoreOpName);
-                if (object.maxToKeep != null)
-                    message.maxToKeep = object.maxToKeep | 0;
+                if (object.filename_tensor_name != null)
+                    message.filename_tensor_name = String(object.filename_tensor_name);
+                if (object.save_tensor_name != null)
+                    message.save_tensor_name = String(object.save_tensor_name);
+                if (object.restore_op_name != null)
+                    message.restore_op_name = String(object.restore_op_name);
+                if (object.max_to_keep != null)
+                    message.max_to_keep = object.max_to_keep | 0;
                 if (object.sharded != null)
                     message.sharded = Boolean(object.sharded);
-                if (object.keepCheckpointEveryNHours != null)
-                    message.keepCheckpointEveryNHours = Number(object.keepCheckpointEveryNHours);
+                if (object.keep_checkpoint_every_n_hours != null)
+                    message.keep_checkpoint_every_n_hours = Number(object.keep_checkpoint_every_n_hours);
                 switch (object.version) {
                 case "LEGACY":
                 case 0:
@@ -3945,64 +2362,40 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a SaverDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.SaverDef
-             * @static
-             * @param {tensorflow.SaverDef} message SaverDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             SaverDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.filenameTensorName = "";
-                    object.saveTensorName = "";
-                    object.restoreOpName = "";
-                    object.maxToKeep = 0;
+                    object.filename_tensor_name = "";
+                    object.save_tensor_name = "";
+                    object.restore_op_name = "";
+                    object.max_to_keep = 0;
                     object.sharded = false;
-                    object.keepCheckpointEveryNHours = 0;
+                    object.keep_checkpoint_every_n_hours = 0;
                     object.version = options.enums === String ? "LEGACY" : 0;
                 }
-                if (message.filenameTensorName != null && message.hasOwnProperty("filenameTensorName"))
-                    object.filenameTensorName = message.filenameTensorName;
-                if (message.saveTensorName != null && message.hasOwnProperty("saveTensorName"))
-                    object.saveTensorName = message.saveTensorName;
-                if (message.restoreOpName != null && message.hasOwnProperty("restoreOpName"))
-                    object.restoreOpName = message.restoreOpName;
-                if (message.maxToKeep != null && message.hasOwnProperty("maxToKeep"))
-                    object.maxToKeep = message.maxToKeep;
+                if (message.filename_tensor_name != null && message.hasOwnProperty("filename_tensor_name"))
+                    object.filename_tensor_name = message.filename_tensor_name;
+                if (message.save_tensor_name != null && message.hasOwnProperty("save_tensor_name"))
+                    object.save_tensor_name = message.save_tensor_name;
+                if (message.restore_op_name != null && message.hasOwnProperty("restore_op_name"))
+                    object.restore_op_name = message.restore_op_name;
+                if (message.max_to_keep != null && message.hasOwnProperty("max_to_keep"))
+                    object.max_to_keep = message.max_to_keep;
                 if (message.sharded != null && message.hasOwnProperty("sharded"))
                     object.sharded = message.sharded;
-                if (message.keepCheckpointEveryNHours != null && message.hasOwnProperty("keepCheckpointEveryNHours"))
-                    object.keepCheckpointEveryNHours = options.json && !isFinite(message.keepCheckpointEveryNHours) ? String(message.keepCheckpointEveryNHours) : message.keepCheckpointEveryNHours;
+                if (message.keep_checkpoint_every_n_hours != null && message.hasOwnProperty("keep_checkpoint_every_n_hours"))
+                    object.keep_checkpoint_every_n_hours = options.json && !isFinite(message.keep_checkpoint_every_n_hours) ? String(message.keep_checkpoint_every_n_hours) : message.keep_checkpoint_every_n_hours;
                 if (message.version != null && message.hasOwnProperty("version"))
                     object.version = options.enums === String ? $root.tensorflow.SaverDef.CheckpointFormatVersion[message.version] : message.version;
                 return object;
             };
     
-            /**
-             * Converts this SaverDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.SaverDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             SaverDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
-            /**
-             * CheckpointFormatVersion enum.
-             * @name tensorflow.SaverDef.CheckpointFormatVersion
-             * @enum {string}
-             * @property {number} LEGACY=0 LEGACY value
-             * @property {number} V1=1 V1 value
-             * @property {number} V2=2 V2 value
-             */
             SaverDef.CheckpointFormatVersion = (function() {
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "LEGACY"] = 0;
@@ -4016,24 +2409,6 @@
     
         tensorflow.GraphDef = (function() {
     
-            /**
-             * Properties of a GraphDef.
-             * @memberof tensorflow
-             * @interface IGraphDef
-             * @property {Array.<tensorflow.INodeDef>|null} [node] GraphDef node
-             * @property {tensorflow.IVersionDef|null} [versions] GraphDef versions
-             * @property {number|null} [version] GraphDef version
-             * @property {tensorflow.IFunctionDefLibrary|null} [library] GraphDef library
-             */
-    
-            /**
-             * Constructs a new GraphDef.
-             * @memberof tensorflow
-             * @classdesc Represents a GraphDef.
-             * @implements IGraphDef
-             * @constructor
-             * @param {tensorflow.IGraphDef=} [properties] Properties to set
-             */
             function GraphDef(properties) {
                 this.node = [];
                 if (properties)
@@ -4042,98 +2417,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * GraphDef node.
-             * @member {Array.<tensorflow.INodeDef>} node
-             * @memberof tensorflow.GraphDef
-             * @instance
-             */
             GraphDef.prototype.node = $util.emptyArray;
-    
-            /**
-             * GraphDef versions.
-             * @member {tensorflow.IVersionDef|null|undefined} versions
-             * @memberof tensorflow.GraphDef
-             * @instance
-             */
             GraphDef.prototype.versions = null;
-    
-            /**
-             * GraphDef version.
-             * @member {number} version
-             * @memberof tensorflow.GraphDef
-             * @instance
-             */
             GraphDef.prototype.version = 0;
-    
-            /**
-             * GraphDef library.
-             * @member {tensorflow.IFunctionDefLibrary|null|undefined} library
-             * @memberof tensorflow.GraphDef
-             * @instance
-             */
             GraphDef.prototype.library = null;
     
-            /**
-             * Creates a new GraphDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {tensorflow.IGraphDef=} [properties] Properties to set
-             * @returns {tensorflow.GraphDef} GraphDef instance
-             */
             GraphDef.create = function create(properties) {
                 return new GraphDef(properties);
             };
     
-            /**
-             * Encodes the specified GraphDef message. Does not implicitly {@link tensorflow.GraphDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {tensorflow.IGraphDef} message GraphDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            GraphDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.node != null && message.node.length)
-                    for (var i = 0; i < message.node.length; ++i)
-                        $root.tensorflow.NodeDef.encode(message.node[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.library != null && message.hasOwnProperty("library"))
-                    $root.tensorflow.FunctionDefLibrary.encode(message.library, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.version != null && message.hasOwnProperty("version"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.version);
-                if (message.versions != null && message.hasOwnProperty("versions"))
-                    $root.tensorflow.VersionDef.encode(message.versions, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified GraphDef message, length delimited. Does not implicitly {@link tensorflow.GraphDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {tensorflow.IGraphDef} message GraphDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            GraphDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a GraphDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.GraphDef} GraphDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             GraphDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -4163,30 +2455,36 @@
                 return message;
             };
     
-            /**
-             * Decodes a GraphDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.GraphDef} GraphDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            GraphDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            GraphDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.GraphDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "node":
+                        if (!(message.node && message.node.length))
+                            message.node = [];
+                        message.node.push($root.tensorflow.NodeDef.decodeText(reader, true));
+                        break;
+                    case "versions":
+                        message.versions = $root.tensorflow.VersionDef.decodeText(reader, true);
+                        break;
+                    case "version":
+                        message.version = reader.int32();
+                        break;
+                    case "library":
+                        message.library = $root.tensorflow.FunctionDefLibrary.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a GraphDef message.
-             * @function verify
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             GraphDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -4215,14 +2513,6 @@
                 return null;
             };
     
-            /**
-             * Creates a GraphDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.GraphDef} GraphDef
-             */
             GraphDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.GraphDef)
                     return object;
@@ -4252,15 +2542,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a GraphDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.GraphDef
-             * @static
-             * @param {tensorflow.GraphDef} message GraphDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             GraphDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -4286,13 +2567,6 @@
                 return object;
             };
     
-            /**
-             * Converts this GraphDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.GraphDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             GraphDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -4302,34 +2576,9 @@
     
         tensorflow.OpDef = (function() {
     
-            /**
-             * Properties of an OpDef.
-             * @memberof tensorflow
-             * @interface IOpDef
-             * @property {string|null} [name] OpDef name
-             * @property {Array.<tensorflow.OpDef.IArgDef>|null} [inputArg] OpDef inputArg
-             * @property {Array.<tensorflow.OpDef.IArgDef>|null} [outputArg] OpDef outputArg
-             * @property {Array.<tensorflow.OpDef.IAttrDef>|null} [attr] OpDef attr
-             * @property {tensorflow.IOpDeprecation|null} [deprecation] OpDef deprecation
-             * @property {string|null} [summary] OpDef summary
-             * @property {string|null} [description] OpDef description
-             * @property {boolean|null} [isCommutative] OpDef isCommutative
-             * @property {boolean|null} [isAggregate] OpDef isAggregate
-             * @property {boolean|null} [isStateful] OpDef isStateful
-             * @property {boolean|null} [allowsUninitializedInput] OpDef allowsUninitializedInput
-             */
-    
-            /**
-             * Constructs a new OpDef.
-             * @memberof tensorflow
-             * @classdesc Represents an OpDef.
-             * @implements IOpDef
-             * @constructor
-             * @param {tensorflow.IOpDef=} [properties] Properties to set
-             */
             function OpDef(properties) {
-                this.inputArg = [];
-                this.outputArg = [];
+                this.input_arg = [];
+                this.output_arg = [];
                 this.attr = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -4337,170 +2586,22 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * OpDef name.
-             * @member {string} name
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
             OpDef.prototype.name = "";
-    
-            /**
-             * OpDef inputArg.
-             * @member {Array.<tensorflow.OpDef.IArgDef>} inputArg
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
-            OpDef.prototype.inputArg = $util.emptyArray;
-    
-            /**
-             * OpDef outputArg.
-             * @member {Array.<tensorflow.OpDef.IArgDef>} outputArg
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
-            OpDef.prototype.outputArg = $util.emptyArray;
-    
-            /**
-             * OpDef attr.
-             * @member {Array.<tensorflow.OpDef.IAttrDef>} attr
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
+            OpDef.prototype.input_arg = $util.emptyArray;
+            OpDef.prototype.output_arg = $util.emptyArray;
             OpDef.prototype.attr = $util.emptyArray;
-    
-            /**
-             * OpDef deprecation.
-             * @member {tensorflow.IOpDeprecation|null|undefined} deprecation
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
             OpDef.prototype.deprecation = null;
-    
-            /**
-             * OpDef summary.
-             * @member {string} summary
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
             OpDef.prototype.summary = "";
-    
-            /**
-             * OpDef description.
-             * @member {string} description
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
             OpDef.prototype.description = "";
+            OpDef.prototype.is_commutative = false;
+            OpDef.prototype.is_aggregate = false;
+            OpDef.prototype.is_stateful = false;
+            OpDef.prototype.allows_uninitialized_input = false;
     
-            /**
-             * OpDef isCommutative.
-             * @member {boolean} isCommutative
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
-            OpDef.prototype.isCommutative = false;
-    
-            /**
-             * OpDef isAggregate.
-             * @member {boolean} isAggregate
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
-            OpDef.prototype.isAggregate = false;
-    
-            /**
-             * OpDef isStateful.
-             * @member {boolean} isStateful
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
-            OpDef.prototype.isStateful = false;
-    
-            /**
-             * OpDef allowsUninitializedInput.
-             * @member {boolean} allowsUninitializedInput
-             * @memberof tensorflow.OpDef
-             * @instance
-             */
-            OpDef.prototype.allowsUninitializedInput = false;
-    
-            /**
-             * Creates a new OpDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {tensorflow.IOpDef=} [properties] Properties to set
-             * @returns {tensorflow.OpDef} OpDef instance
-             */
             OpDef.create = function create(properties) {
                 return new OpDef(properties);
             };
     
-            /**
-             * Encodes the specified OpDef message. Does not implicitly {@link tensorflow.OpDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {tensorflow.IOpDef} message OpDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OpDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.inputArg != null && message.inputArg.length)
-                    for (var i = 0; i < message.inputArg.length; ++i)
-                        $root.tensorflow.OpDef.ArgDef.encode(message.inputArg[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.outputArg != null && message.outputArg.length)
-                    for (var i = 0; i < message.outputArg.length; ++i)
-                        $root.tensorflow.OpDef.ArgDef.encode(message.outputArg[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.attr != null && message.attr.length)
-                    for (var i = 0; i < message.attr.length; ++i)
-                        $root.tensorflow.OpDef.AttrDef.encode(message.attr[i], writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
-                if (message.summary != null && message.hasOwnProperty("summary"))
-                    writer.uint32(/* id 5, wireType 2 =*/42).string(message.summary);
-                if (message.description != null && message.hasOwnProperty("description"))
-                    writer.uint32(/* id 6, wireType 2 =*/50).string(message.description);
-                if (message.deprecation != null && message.hasOwnProperty("deprecation"))
-                    $root.tensorflow.OpDeprecation.encode(message.deprecation, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                if (message.isAggregate != null && message.hasOwnProperty("isAggregate"))
-                    writer.uint32(/* id 16, wireType 0 =*/128).bool(message.isAggregate);
-                if (message.isStateful != null && message.hasOwnProperty("isStateful"))
-                    writer.uint32(/* id 17, wireType 0 =*/136).bool(message.isStateful);
-                if (message.isCommutative != null && message.hasOwnProperty("isCommutative"))
-                    writer.uint32(/* id 18, wireType 0 =*/144).bool(message.isCommutative);
-                if (message.allowsUninitializedInput != null && message.hasOwnProperty("allowsUninitializedInput"))
-                    writer.uint32(/* id 19, wireType 0 =*/152).bool(message.allowsUninitializedInput);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified OpDef message, length delimited. Does not implicitly {@link tensorflow.OpDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {tensorflow.IOpDef} message OpDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OpDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an OpDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.OpDef} OpDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             OpDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -4512,14 +2613,14 @@
                         message.name = reader.string();
                         break;
                     case 2:
-                        if (!(message.inputArg && message.inputArg.length))
-                            message.inputArg = [];
-                        message.inputArg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
+                        if (!(message.input_arg && message.input_arg.length))
+                            message.input_arg = [];
+                        message.input_arg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
                         break;
                     case 3:
-                        if (!(message.outputArg && message.outputArg.length))
-                            message.outputArg = [];
-                        message.outputArg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
+                        if (!(message.output_arg && message.output_arg.length))
+                            message.output_arg = [];
+                        message.output_arg.push($root.tensorflow.OpDef.ArgDef.decode(reader, reader.uint32()));
                         break;
                     case 4:
                         if (!(message.attr && message.attr.length))
@@ -4536,16 +2637,16 @@
                         message.description = reader.string();
                         break;
                     case 18:
-                        message.isCommutative = reader.bool();
+                        message.is_commutative = reader.bool();
                         break;
                     case 16:
-                        message.isAggregate = reader.bool();
+                        message.is_aggregate = reader.bool();
                         break;
                     case 17:
-                        message.isStateful = reader.bool();
+                        message.is_stateful = reader.bool();
                         break;
                     case 19:
-                        message.allowsUninitializedInput = reader.bool();
+                        message.allows_uninitialized_input = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -4555,52 +2656,83 @@
                 return message;
             };
     
-            /**
-             * Decodes an OpDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.OpDef} OpDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            OpDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            OpDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.OpDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "input_arg":
+                        if (!(message.input_arg && message.input_arg.length))
+                            message.input_arg = [];
+                        message.input_arg.push($root.tensorflow.OpDef.ArgDef.decodeText(reader, true));
+                        break;
+                    case "output_arg":
+                        if (!(message.output_arg && message.output_arg.length))
+                            message.output_arg = [];
+                        message.output_arg.push($root.tensorflow.OpDef.ArgDef.decodeText(reader, true));
+                        break;
+                    case "attr":
+                        if (!(message.attr && message.attr.length))
+                            message.attr = [];
+                        message.attr.push($root.tensorflow.OpDef.AttrDef.decodeText(reader, true));
+                        break;
+                    case "deprecation":
+                        message.deprecation = $root.tensorflow.OpDeprecation.decodeText(reader, true);
+                        break;
+                    case "summary":
+                        message.summary = reader.string();
+                        break;
+                    case "description":
+                        message.description = reader.string();
+                        break;
+                    case "is_commutative":
+                        message.is_commutative = reader.bool();
+                        break;
+                    case "is_aggregate":
+                        message.is_aggregate = reader.bool();
+                        break;
+                    case "is_stateful":
+                        message.is_stateful = reader.bool();
+                        break;
+                    case "allows_uninitialized_input":
+                        message.allows_uninitialized_input = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies an OpDef message.
-             * @function verify
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             OpDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.inputArg != null && message.hasOwnProperty("inputArg")) {
-                    if (!Array.isArray(message.inputArg))
-                        return "inputArg: array expected";
-                    for (var i = 0; i < message.inputArg.length; ++i) {
-                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.inputArg[i]);
+                if (message.input_arg != null && message.hasOwnProperty("input_arg")) {
+                    if (!Array.isArray(message.input_arg))
+                        return "input_arg: array expected";
+                    for (var i = 0; i < message.input_arg.length; ++i) {
+                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.input_arg[i]);
                         if (error)
-                            return "inputArg." + error;
+                            return "input_arg." + error;
                     }
                 }
-                if (message.outputArg != null && message.hasOwnProperty("outputArg")) {
-                    if (!Array.isArray(message.outputArg))
-                        return "outputArg: array expected";
-                    for (var i = 0; i < message.outputArg.length; ++i) {
-                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.outputArg[i]);
+                if (message.output_arg != null && message.hasOwnProperty("output_arg")) {
+                    if (!Array.isArray(message.output_arg))
+                        return "output_arg: array expected";
+                    for (var i = 0; i < message.output_arg.length; ++i) {
+                        var error = $root.tensorflow.OpDef.ArgDef.verify(message.output_arg[i]);
                         if (error)
-                            return "outputArg." + error;
+                            return "output_arg." + error;
                     }
                 }
                 if (message.attr != null && message.hasOwnProperty("attr")) {
@@ -4623,53 +2755,45 @@
                 if (message.description != null && message.hasOwnProperty("description"))
                     if (!$util.isString(message.description))
                         return "description: string expected";
-                if (message.isCommutative != null && message.hasOwnProperty("isCommutative"))
-                    if (typeof message.isCommutative !== "boolean")
-                        return "isCommutative: boolean expected";
-                if (message.isAggregate != null && message.hasOwnProperty("isAggregate"))
-                    if (typeof message.isAggregate !== "boolean")
-                        return "isAggregate: boolean expected";
-                if (message.isStateful != null && message.hasOwnProperty("isStateful"))
-                    if (typeof message.isStateful !== "boolean")
-                        return "isStateful: boolean expected";
-                if (message.allowsUninitializedInput != null && message.hasOwnProperty("allowsUninitializedInput"))
-                    if (typeof message.allowsUninitializedInput !== "boolean")
-                        return "allowsUninitializedInput: boolean expected";
+                if (message.is_commutative != null && message.hasOwnProperty("is_commutative"))
+                    if (typeof message.is_commutative !== "boolean")
+                        return "is_commutative: boolean expected";
+                if (message.is_aggregate != null && message.hasOwnProperty("is_aggregate"))
+                    if (typeof message.is_aggregate !== "boolean")
+                        return "is_aggregate: boolean expected";
+                if (message.is_stateful != null && message.hasOwnProperty("is_stateful"))
+                    if (typeof message.is_stateful !== "boolean")
+                        return "is_stateful: boolean expected";
+                if (message.allows_uninitialized_input != null && message.hasOwnProperty("allows_uninitialized_input"))
+                    if (typeof message.allows_uninitialized_input !== "boolean")
+                        return "allows_uninitialized_input: boolean expected";
                 return null;
             };
     
-            /**
-             * Creates an OpDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.OpDef} OpDef
-             */
             OpDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.OpDef)
                     return object;
                 var message = new $root.tensorflow.OpDef();
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.inputArg) {
-                    if (!Array.isArray(object.inputArg))
-                        throw TypeError(".tensorflow.OpDef.inputArg: array expected");
-                    message.inputArg = [];
-                    for (var i = 0; i < object.inputArg.length; ++i) {
-                        if (typeof object.inputArg[i] !== "object")
-                            throw TypeError(".tensorflow.OpDef.inputArg: object expected");
-                        message.inputArg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.inputArg[i]);
+                if (object.input_arg) {
+                    if (!Array.isArray(object.input_arg))
+                        throw TypeError(".tensorflow.OpDef.input_arg: array expected");
+                    message.input_arg = [];
+                    for (var i = 0; i < object.input_arg.length; ++i) {
+                        if (typeof object.input_arg[i] !== "object")
+                            throw TypeError(".tensorflow.OpDef.input_arg: object expected");
+                        message.input_arg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.input_arg[i]);
                     }
                 }
-                if (object.outputArg) {
-                    if (!Array.isArray(object.outputArg))
-                        throw TypeError(".tensorflow.OpDef.outputArg: array expected");
-                    message.outputArg = [];
-                    for (var i = 0; i < object.outputArg.length; ++i) {
-                        if (typeof object.outputArg[i] !== "object")
-                            throw TypeError(".tensorflow.OpDef.outputArg: object expected");
-                        message.outputArg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.outputArg[i]);
+                if (object.output_arg) {
+                    if (!Array.isArray(object.output_arg))
+                        throw TypeError(".tensorflow.OpDef.output_arg: array expected");
+                    message.output_arg = [];
+                    for (var i = 0; i < object.output_arg.length; ++i) {
+                        if (typeof object.output_arg[i] !== "object")
+                            throw TypeError(".tensorflow.OpDef.output_arg: object expected");
+                        message.output_arg[i] = $root.tensorflow.OpDef.ArgDef.fromObject(object.output_arg[i]);
                     }
                 }
                 if (object.attr) {
@@ -4691,33 +2815,24 @@
                     message.summary = String(object.summary);
                 if (object.description != null)
                     message.description = String(object.description);
-                if (object.isCommutative != null)
-                    message.isCommutative = Boolean(object.isCommutative);
-                if (object.isAggregate != null)
-                    message.isAggregate = Boolean(object.isAggregate);
-                if (object.isStateful != null)
-                    message.isStateful = Boolean(object.isStateful);
-                if (object.allowsUninitializedInput != null)
-                    message.allowsUninitializedInput = Boolean(object.allowsUninitializedInput);
+                if (object.is_commutative != null)
+                    message.is_commutative = Boolean(object.is_commutative);
+                if (object.is_aggregate != null)
+                    message.is_aggregate = Boolean(object.is_aggregate);
+                if (object.is_stateful != null)
+                    message.is_stateful = Boolean(object.is_stateful);
+                if (object.allows_uninitialized_input != null)
+                    message.allows_uninitialized_input = Boolean(object.allows_uninitialized_input);
                 return message;
             };
     
-            /**
-             * Creates a plain object from an OpDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.OpDef
-             * @static
-             * @param {tensorflow.OpDef} message OpDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             OpDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults) {
-                    object.inputArg = [];
-                    object.outputArg = [];
+                    object.input_arg = [];
+                    object.output_arg = [];
                     object.attr = [];
                 }
                 if (options.defaults) {
@@ -4725,22 +2840,22 @@
                     object.summary = "";
                     object.description = "";
                     object.deprecation = null;
-                    object.isAggregate = false;
-                    object.isStateful = false;
-                    object.isCommutative = false;
-                    object.allowsUninitializedInput = false;
+                    object.is_aggregate = false;
+                    object.is_stateful = false;
+                    object.is_commutative = false;
+                    object.allows_uninitialized_input = false;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.inputArg && message.inputArg.length) {
-                    object.inputArg = [];
-                    for (var j = 0; j < message.inputArg.length; ++j)
-                        object.inputArg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.inputArg[j], options);
+                if (message.input_arg && message.input_arg.length) {
+                    object.input_arg = [];
+                    for (var j = 0; j < message.input_arg.length; ++j)
+                        object.input_arg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.input_arg[j], options);
                 }
-                if (message.outputArg && message.outputArg.length) {
-                    object.outputArg = [];
-                    for (var j = 0; j < message.outputArg.length; ++j)
-                        object.outputArg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.outputArg[j], options);
+                if (message.output_arg && message.output_arg.length) {
+                    object.output_arg = [];
+                    for (var j = 0; j < message.output_arg.length; ++j)
+                        object.output_arg[j] = $root.tensorflow.OpDef.ArgDef.toObject(message.output_arg[j], options);
                 }
                 if (message.attr && message.attr.length) {
                     object.attr = [];
@@ -4753,51 +2868,23 @@
                     object.description = message.description;
                 if (message.deprecation != null && message.hasOwnProperty("deprecation"))
                     object.deprecation = $root.tensorflow.OpDeprecation.toObject(message.deprecation, options);
-                if (message.isAggregate != null && message.hasOwnProperty("isAggregate"))
-                    object.isAggregate = message.isAggregate;
-                if (message.isStateful != null && message.hasOwnProperty("isStateful"))
-                    object.isStateful = message.isStateful;
-                if (message.isCommutative != null && message.hasOwnProperty("isCommutative"))
-                    object.isCommutative = message.isCommutative;
-                if (message.allowsUninitializedInput != null && message.hasOwnProperty("allowsUninitializedInput"))
-                    object.allowsUninitializedInput = message.allowsUninitializedInput;
+                if (message.is_aggregate != null && message.hasOwnProperty("is_aggregate"))
+                    object.is_aggregate = message.is_aggregate;
+                if (message.is_stateful != null && message.hasOwnProperty("is_stateful"))
+                    object.is_stateful = message.is_stateful;
+                if (message.is_commutative != null && message.hasOwnProperty("is_commutative"))
+                    object.is_commutative = message.is_commutative;
+                if (message.allows_uninitialized_input != null && message.hasOwnProperty("allows_uninitialized_input"))
+                    object.allows_uninitialized_input = message.allows_uninitialized_input;
                 return object;
             };
     
-            /**
-             * Converts this OpDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.OpDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             OpDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             OpDef.ArgDef = (function() {
     
-                /**
-                 * Properties of an ArgDef.
-                 * @memberof tensorflow.OpDef
-                 * @interface IArgDef
-                 * @property {string|null} [name] ArgDef name
-                 * @property {string|null} [description] ArgDef description
-                 * @property {tensorflow.DataType|null} [type] ArgDef type
-                 * @property {string|null} [typeAttr] ArgDef typeAttr
-                 * @property {string|null} [numberAttr] ArgDef numberAttr
-                 * @property {string|null} [typeListAttr] ArgDef typeListAttr
-                 * @property {boolean|null} [isRef] ArgDef isRef
-                 */
-    
-                /**
-                 * Constructs a new ArgDef.
-                 * @memberof tensorflow.OpDef
-                 * @classdesc Represents an ArgDef.
-                 * @implements IArgDef
-                 * @constructor
-                 * @param {tensorflow.OpDef.IArgDef=} [properties] Properties to set
-                 */
                 function ArgDef(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -4805,127 +2892,18 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * ArgDef name.
-                 * @member {string} name
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 */
                 ArgDef.prototype.name = "";
-    
-                /**
-                 * ArgDef description.
-                 * @member {string} description
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 */
                 ArgDef.prototype.description = "";
-    
-                /**
-                 * ArgDef type.
-                 * @member {tensorflow.DataType} type
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 */
                 ArgDef.prototype.type = 0;
+                ArgDef.prototype.type_attr = "";
+                ArgDef.prototype.number_attr = "";
+                ArgDef.prototype.type_list_attr = "";
+                ArgDef.prototype.is_ref = false;
     
-                /**
-                 * ArgDef typeAttr.
-                 * @member {string} typeAttr
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 */
-                ArgDef.prototype.typeAttr = "";
-    
-                /**
-                 * ArgDef numberAttr.
-                 * @member {string} numberAttr
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 */
-                ArgDef.prototype.numberAttr = "";
-    
-                /**
-                 * ArgDef typeListAttr.
-                 * @member {string} typeListAttr
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 */
-                ArgDef.prototype.typeListAttr = "";
-    
-                /**
-                 * ArgDef isRef.
-                 * @member {boolean} isRef
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 */
-                ArgDef.prototype.isRef = false;
-    
-                /**
-                 * Creates a new ArgDef instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {tensorflow.OpDef.IArgDef=} [properties] Properties to set
-                 * @returns {tensorflow.OpDef.ArgDef} ArgDef instance
-                 */
                 ArgDef.create = function create(properties) {
                     return new ArgDef(properties);
                 };
     
-                /**
-                 * Encodes the specified ArgDef message. Does not implicitly {@link tensorflow.OpDef.ArgDef.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {tensorflow.OpDef.IArgDef} message ArgDef message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ArgDef.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.name != null && message.hasOwnProperty("name"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                    if (message.description != null && message.hasOwnProperty("description"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.description);
-                    if (message.type != null && message.hasOwnProperty("type"))
-                        writer.uint32(/* id 3, wireType 0 =*/24).int32(message.type);
-                    if (message.typeAttr != null && message.hasOwnProperty("typeAttr"))
-                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.typeAttr);
-                    if (message.numberAttr != null && message.hasOwnProperty("numberAttr"))
-                        writer.uint32(/* id 5, wireType 2 =*/42).string(message.numberAttr);
-                    if (message.typeListAttr != null && message.hasOwnProperty("typeListAttr"))
-                        writer.uint32(/* id 6, wireType 2 =*/50).string(message.typeListAttr);
-                    if (message.isRef != null && message.hasOwnProperty("isRef"))
-                        writer.uint32(/* id 16, wireType 0 =*/128).bool(message.isRef);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified ArgDef message, length delimited. Does not implicitly {@link tensorflow.OpDef.ArgDef.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {tensorflow.OpDef.IArgDef} message ArgDef message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ArgDef.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes an ArgDef message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.OpDef.ArgDef} ArgDef
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 ArgDef.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -4943,16 +2921,16 @@
                             message.type = reader.int32();
                             break;
                         case 4:
-                            message.typeAttr = reader.string();
+                            message.type_attr = reader.string();
                             break;
                         case 5:
-                            message.numberAttr = reader.string();
+                            message.number_attr = reader.string();
                             break;
                         case 6:
-                            message.typeListAttr = reader.string();
+                            message.type_list_attr = reader.string();
                             break;
                         case 16:
-                            message.isRef = reader.bool();
+                            message.is_ref = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -4962,30 +2940,43 @@
                     return message;
                 };
     
-                /**
-                 * Decodes an ArgDef message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.OpDef.ArgDef} ArgDef
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                ArgDef.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                ArgDef.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.OpDef.ArgDef();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "name":
+                            message.name = reader.string();
+                            break;
+                        case "description":
+                            message.description = reader.string();
+                            break;
+                        case "type":
+                            message.type = reader.enum($root.tensorflow.DataType);
+                            break;
+                        case "type_attr":
+                            message.type_attr = reader.string();
+                            break;
+                        case "number_attr":
+                            message.number_attr = reader.string();
+                            break;
+                        case "type_list_attr":
+                            message.type_list_attr = reader.string();
+                            break;
+                        case "is_ref":
+                            message.is_ref = reader.bool();
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies an ArgDef message.
-                 * @function verify
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 ArgDef.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -5048,29 +3039,21 @@
                         case 123:
                             break;
                         }
-                    if (message.typeAttr != null && message.hasOwnProperty("typeAttr"))
-                        if (!$util.isString(message.typeAttr))
-                            return "typeAttr: string expected";
-                    if (message.numberAttr != null && message.hasOwnProperty("numberAttr"))
-                        if (!$util.isString(message.numberAttr))
-                            return "numberAttr: string expected";
-                    if (message.typeListAttr != null && message.hasOwnProperty("typeListAttr"))
-                        if (!$util.isString(message.typeListAttr))
-                            return "typeListAttr: string expected";
-                    if (message.isRef != null && message.hasOwnProperty("isRef"))
-                        if (typeof message.isRef !== "boolean")
-                            return "isRef: boolean expected";
+                    if (message.type_attr != null && message.hasOwnProperty("type_attr"))
+                        if (!$util.isString(message.type_attr))
+                            return "type_attr: string expected";
+                    if (message.number_attr != null && message.hasOwnProperty("number_attr"))
+                        if (!$util.isString(message.number_attr))
+                            return "number_attr: string expected";
+                    if (message.type_list_attr != null && message.hasOwnProperty("type_list_attr"))
+                        if (!$util.isString(message.type_list_attr))
+                            return "type_list_attr: string expected";
+                    if (message.is_ref != null && message.hasOwnProperty("is_ref"))
+                        if (typeof message.is_ref !== "boolean")
+                            return "is_ref: boolean expected";
                     return null;
                 };
     
-                /**
-                 * Creates an ArgDef message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.OpDef.ArgDef} ArgDef
-                 */
                 ArgDef.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.OpDef.ArgDef)
                         return object;
@@ -5269,26 +3252,17 @@
                         message.type = 123;
                         break;
                     }
-                    if (object.typeAttr != null)
-                        message.typeAttr = String(object.typeAttr);
-                    if (object.numberAttr != null)
-                        message.numberAttr = String(object.numberAttr);
-                    if (object.typeListAttr != null)
-                        message.typeListAttr = String(object.typeListAttr);
-                    if (object.isRef != null)
-                        message.isRef = Boolean(object.isRef);
+                    if (object.type_attr != null)
+                        message.type_attr = String(object.type_attr);
+                    if (object.number_attr != null)
+                        message.number_attr = String(object.number_attr);
+                    if (object.type_list_attr != null)
+                        message.type_list_attr = String(object.type_list_attr);
+                    if (object.is_ref != null)
+                        message.is_ref = Boolean(object.is_ref);
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from an ArgDef message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @static
-                 * @param {tensorflow.OpDef.ArgDef} message ArgDef
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 ArgDef.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -5297,10 +3271,10 @@
                         object.name = "";
                         object.description = "";
                         object.type = options.enums === String ? "DT_INVALID" : 0;
-                        object.typeAttr = "";
-                        object.numberAttr = "";
-                        object.typeListAttr = "";
-                        object.isRef = false;
+                        object.type_attr = "";
+                        object.number_attr = "";
+                        object.type_list_attr = "";
+                        object.is_ref = false;
                     }
                     if (message.name != null && message.hasOwnProperty("name"))
                         object.name = message.name;
@@ -5308,24 +3282,17 @@
                         object.description = message.description;
                     if (message.type != null && message.hasOwnProperty("type"))
                         object.type = options.enums === String ? $root.tensorflow.DataType[message.type] : message.type;
-                    if (message.typeAttr != null && message.hasOwnProperty("typeAttr"))
-                        object.typeAttr = message.typeAttr;
-                    if (message.numberAttr != null && message.hasOwnProperty("numberAttr"))
-                        object.numberAttr = message.numberAttr;
-                    if (message.typeListAttr != null && message.hasOwnProperty("typeListAttr"))
-                        object.typeListAttr = message.typeListAttr;
-                    if (message.isRef != null && message.hasOwnProperty("isRef"))
-                        object.isRef = message.isRef;
+                    if (message.type_attr != null && message.hasOwnProperty("type_attr"))
+                        object.type_attr = message.type_attr;
+                    if (message.number_attr != null && message.hasOwnProperty("number_attr"))
+                        object.number_attr = message.number_attr;
+                    if (message.type_list_attr != null && message.hasOwnProperty("type_list_attr"))
+                        object.type_list_attr = message.type_list_attr;
+                    if (message.is_ref != null && message.hasOwnProperty("is_ref"))
+                        object.is_ref = message.is_ref;
                     return object;
                 };
     
-                /**
-                 * Converts this ArgDef to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.OpDef.ArgDef
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 ArgDef.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -5335,27 +3302,6 @@
     
             OpDef.AttrDef = (function() {
     
-                /**
-                 * Properties of an AttrDef.
-                 * @memberof tensorflow.OpDef
-                 * @interface IAttrDef
-                 * @property {string|null} [name] AttrDef name
-                 * @property {string|null} [type] AttrDef type
-                 * @property {tensorflow.IAttrValue|null} [defaultValue] AttrDef defaultValue
-                 * @property {string|null} [description] AttrDef description
-                 * @property {boolean|null} [hasMinimum] AttrDef hasMinimum
-                 * @property {number|Long|null} [minimum] AttrDef minimum
-                 * @property {tensorflow.IAttrValue|null} [allowedValues] AttrDef allowedValues
-                 */
-    
-                /**
-                 * Constructs a new AttrDef.
-                 * @memberof tensorflow.OpDef
-                 * @classdesc Represents an AttrDef.
-                 * @implements IAttrDef
-                 * @constructor
-                 * @param {tensorflow.OpDef.IAttrDef=} [properties] Properties to set
-                 */
                 function AttrDef(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -5363,127 +3309,18 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * AttrDef name.
-                 * @member {string} name
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 */
                 AttrDef.prototype.name = "";
-    
-                /**
-                 * AttrDef type.
-                 * @member {string} type
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 */
                 AttrDef.prototype.type = "";
-    
-                /**
-                 * AttrDef defaultValue.
-                 * @member {tensorflow.IAttrValue|null|undefined} defaultValue
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 */
-                AttrDef.prototype.defaultValue = null;
-    
-                /**
-                 * AttrDef description.
-                 * @member {string} description
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 */
+                AttrDef.prototype.default_value = null;
                 AttrDef.prototype.description = "";
-    
-                /**
-                 * AttrDef hasMinimum.
-                 * @member {boolean} hasMinimum
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 */
-                AttrDef.prototype.hasMinimum = false;
-    
-                /**
-                 * AttrDef minimum.
-                 * @member {number|Long} minimum
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 */
+                AttrDef.prototype.has_minimum = false;
                 AttrDef.prototype.minimum = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                AttrDef.prototype.allowed_values = null;
     
-                /**
-                 * AttrDef allowedValues.
-                 * @member {tensorflow.IAttrValue|null|undefined} allowedValues
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 */
-                AttrDef.prototype.allowedValues = null;
-    
-                /**
-                 * Creates a new AttrDef instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {tensorflow.OpDef.IAttrDef=} [properties] Properties to set
-                 * @returns {tensorflow.OpDef.AttrDef} AttrDef instance
-                 */
                 AttrDef.create = function create(properties) {
                     return new AttrDef(properties);
                 };
     
-                /**
-                 * Encodes the specified AttrDef message. Does not implicitly {@link tensorflow.OpDef.AttrDef.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {tensorflow.OpDef.IAttrDef} message AttrDef message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                AttrDef.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.name != null && message.hasOwnProperty("name"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                    if (message.type != null && message.hasOwnProperty("type"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.type);
-                    if (message.defaultValue != null && message.hasOwnProperty("defaultValue"))
-                        $root.tensorflow.AttrValue.encode(message.defaultValue, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                    if (message.description != null && message.hasOwnProperty("description"))
-                        writer.uint32(/* id 4, wireType 2 =*/34).string(message.description);
-                    if (message.hasMinimum != null && message.hasOwnProperty("hasMinimum"))
-                        writer.uint32(/* id 5, wireType 0 =*/40).bool(message.hasMinimum);
-                    if (message.minimum != null && message.hasOwnProperty("minimum"))
-                        writer.uint32(/* id 6, wireType 0 =*/48).int64(message.minimum);
-                    if (message.allowedValues != null && message.hasOwnProperty("allowedValues"))
-                        $root.tensorflow.AttrValue.encode(message.allowedValues, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified AttrDef message, length delimited. Does not implicitly {@link tensorflow.OpDef.AttrDef.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {tensorflow.OpDef.IAttrDef} message AttrDef message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                AttrDef.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes an AttrDef message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.OpDef.AttrDef} AttrDef
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 AttrDef.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -5498,19 +3335,19 @@
                             message.type = reader.string();
                             break;
                         case 3:
-                            message.defaultValue = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
+                            message.default_value = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
                             break;
                         case 4:
                             message.description = reader.string();
                             break;
                         case 5:
-                            message.hasMinimum = reader.bool();
+                            message.has_minimum = reader.bool();
                             break;
                         case 6:
                             message.minimum = reader.int64();
                             break;
                         case 7:
-                            message.allowedValues = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
+                            message.allowed_values = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -5520,30 +3357,43 @@
                     return message;
                 };
     
-                /**
-                 * Decodes an AttrDef message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.OpDef.AttrDef} AttrDef
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                AttrDef.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                AttrDef.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.OpDef.AttrDef();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "name":
+                            message.name = reader.string();
+                            break;
+                        case "type":
+                            message.type = reader.string();
+                            break;
+                        case "default_value":
+                            message.default_value = $root.tensorflow.AttrValue.decodeText(reader, true);
+                            break;
+                        case "description":
+                            message.description = reader.string();
+                            break;
+                        case "has_minimum":
+                            message.has_minimum = reader.bool();
+                            break;
+                        case "minimum":
+                            message.minimum = reader.int64();
+                            break;
+                        case "allowed_values":
+                            message.allowed_values = $root.tensorflow.AttrValue.decodeText(reader, true);
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies an AttrDef message.
-                 * @function verify
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 AttrDef.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -5553,36 +3403,28 @@
                     if (message.type != null && message.hasOwnProperty("type"))
                         if (!$util.isString(message.type))
                             return "type: string expected";
-                    if (message.defaultValue != null && message.hasOwnProperty("defaultValue")) {
-                        var error = $root.tensorflow.AttrValue.verify(message.defaultValue);
+                    if (message.default_value != null && message.hasOwnProperty("default_value")) {
+                        var error = $root.tensorflow.AttrValue.verify(message.default_value);
                         if (error)
-                            return "defaultValue." + error;
+                            return "default_value." + error;
                     }
                     if (message.description != null && message.hasOwnProperty("description"))
                         if (!$util.isString(message.description))
                             return "description: string expected";
-                    if (message.hasMinimum != null && message.hasOwnProperty("hasMinimum"))
-                        if (typeof message.hasMinimum !== "boolean")
-                            return "hasMinimum: boolean expected";
+                    if (message.has_minimum != null && message.hasOwnProperty("has_minimum"))
+                        if (typeof message.has_minimum !== "boolean")
+                            return "has_minimum: boolean expected";
                     if (message.minimum != null && message.hasOwnProperty("minimum"))
                         if (!$util.isInteger(message.minimum) && !(message.minimum && $util.isInteger(message.minimum.low) && $util.isInteger(message.minimum.high)))
                             return "minimum: integer|Long expected";
-                    if (message.allowedValues != null && message.hasOwnProperty("allowedValues")) {
-                        var error = $root.tensorflow.AttrValue.verify(message.allowedValues);
+                    if (message.allowed_values != null && message.hasOwnProperty("allowed_values")) {
+                        var error = $root.tensorflow.AttrValue.verify(message.allowed_values);
                         if (error)
-                            return "allowedValues." + error;
+                            return "allowed_values." + error;
                     }
                     return null;
                 };
     
-                /**
-                 * Creates an AttrDef message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.OpDef.AttrDef} AttrDef
-                 */
                 AttrDef.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.OpDef.AttrDef)
                         return object;
@@ -5591,15 +3433,15 @@
                         message.name = String(object.name);
                     if (object.type != null)
                         message.type = String(object.type);
-                    if (object.defaultValue != null) {
-                        if (typeof object.defaultValue !== "object")
-                            throw TypeError(".tensorflow.OpDef.AttrDef.defaultValue: object expected");
-                        message.defaultValue = $root.tensorflow.AttrValue.fromObject(object.defaultValue);
+                    if (object.default_value != null) {
+                        if (typeof object.default_value !== "object")
+                            throw TypeError(".tensorflow.OpDef.AttrDef.default_value: object expected");
+                        message.default_value = $root.tensorflow.AttrValue.fromObject(object.default_value);
                     }
                     if (object.description != null)
                         message.description = String(object.description);
-                    if (object.hasMinimum != null)
-                        message.hasMinimum = Boolean(object.hasMinimum);
+                    if (object.has_minimum != null)
+                        message.has_minimum = Boolean(object.has_minimum);
                     if (object.minimum != null)
                         if ($util.Long)
                             (message.minimum = $util.Long.fromValue(object.minimum)).unsigned = false;
@@ -5609,23 +3451,14 @@
                             message.minimum = object.minimum;
                         else if (typeof object.minimum === "object")
                             message.minimum = new $util.LongBits(object.minimum.low >>> 0, object.minimum.high >>> 0).toNumber();
-                    if (object.allowedValues != null) {
-                        if (typeof object.allowedValues !== "object")
-                            throw TypeError(".tensorflow.OpDef.AttrDef.allowedValues: object expected");
-                        message.allowedValues = $root.tensorflow.AttrValue.fromObject(object.allowedValues);
+                    if (object.allowed_values != null) {
+                        if (typeof object.allowed_values !== "object")
+                            throw TypeError(".tensorflow.OpDef.AttrDef.allowed_values: object expected");
+                        message.allowed_values = $root.tensorflow.AttrValue.fromObject(object.allowed_values);
                     }
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from an AttrDef message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @static
-                 * @param {tensorflow.OpDef.AttrDef} message AttrDef
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 AttrDef.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -5633,43 +3466,36 @@
                     if (options.defaults) {
                         object.name = "";
                         object.type = "";
-                        object.defaultValue = null;
+                        object.default_value = null;
                         object.description = "";
-                        object.hasMinimum = false;
+                        object.has_minimum = false;
                         if ($util.Long) {
                             var long = new $util.Long(0, 0, false);
                             object.minimum = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                         } else
                             object.minimum = options.longs === String ? "0" : 0;
-                        object.allowedValues = null;
+                        object.allowed_values = null;
                     }
                     if (message.name != null && message.hasOwnProperty("name"))
                         object.name = message.name;
                     if (message.type != null && message.hasOwnProperty("type"))
                         object.type = message.type;
-                    if (message.defaultValue != null && message.hasOwnProperty("defaultValue"))
-                        object.defaultValue = $root.tensorflow.AttrValue.toObject(message.defaultValue, options);
+                    if (message.default_value != null && message.hasOwnProperty("default_value"))
+                        object.default_value = $root.tensorflow.AttrValue.toObject(message.default_value, options);
                     if (message.description != null && message.hasOwnProperty("description"))
                         object.description = message.description;
-                    if (message.hasMinimum != null && message.hasOwnProperty("hasMinimum"))
-                        object.hasMinimum = message.hasMinimum;
+                    if (message.has_minimum != null && message.hasOwnProperty("has_minimum"))
+                        object.has_minimum = message.has_minimum;
                     if (message.minimum != null && message.hasOwnProperty("minimum"))
                         if (typeof message.minimum === "number")
                             object.minimum = options.longs === String ? String(message.minimum) : message.minimum;
                         else
                             object.minimum = options.longs === String ? $util.Long.prototype.toString.call(message.minimum) : options.longs === Number ? new $util.LongBits(message.minimum.low >>> 0, message.minimum.high >>> 0).toNumber() : message.minimum;
-                    if (message.allowedValues != null && message.hasOwnProperty("allowedValues"))
-                        object.allowedValues = $root.tensorflow.AttrValue.toObject(message.allowedValues, options);
+                    if (message.allowed_values != null && message.hasOwnProperty("allowed_values"))
+                        object.allowed_values = $root.tensorflow.AttrValue.toObject(message.allowed_values, options);
                     return object;
                 };
     
-                /**
-                 * Converts this AttrDef to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.OpDef.AttrDef
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 AttrDef.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -5682,22 +3508,6 @@
     
         tensorflow.OpDeprecation = (function() {
     
-            /**
-             * Properties of an OpDeprecation.
-             * @memberof tensorflow
-             * @interface IOpDeprecation
-             * @property {number|null} [version] OpDeprecation version
-             * @property {string|null} [explanation] OpDeprecation explanation
-             */
-    
-            /**
-             * Constructs a new OpDeprecation.
-             * @memberof tensorflow
-             * @classdesc Represents an OpDeprecation.
-             * @implements IOpDeprecation
-             * @constructor
-             * @param {tensorflow.IOpDeprecation=} [properties] Properties to set
-             */
             function OpDeprecation(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -5705,77 +3515,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * OpDeprecation version.
-             * @member {number} version
-             * @memberof tensorflow.OpDeprecation
-             * @instance
-             */
             OpDeprecation.prototype.version = 0;
-    
-            /**
-             * OpDeprecation explanation.
-             * @member {string} explanation
-             * @memberof tensorflow.OpDeprecation
-             * @instance
-             */
             OpDeprecation.prototype.explanation = "";
     
-            /**
-             * Creates a new OpDeprecation instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {tensorflow.IOpDeprecation=} [properties] Properties to set
-             * @returns {tensorflow.OpDeprecation} OpDeprecation instance
-             */
             OpDeprecation.create = function create(properties) {
                 return new OpDeprecation(properties);
             };
     
-            /**
-             * Encodes the specified OpDeprecation message. Does not implicitly {@link tensorflow.OpDeprecation.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {tensorflow.IOpDeprecation} message OpDeprecation message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OpDeprecation.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.version != null && message.hasOwnProperty("version"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.version);
-                if (message.explanation != null && message.hasOwnProperty("explanation"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.explanation);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified OpDeprecation message, length delimited. Does not implicitly {@link tensorflow.OpDeprecation.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {tensorflow.IOpDeprecation} message OpDeprecation message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OpDeprecation.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an OpDeprecation message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.OpDeprecation} OpDeprecation
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             OpDeprecation.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -5797,30 +3543,28 @@
                 return message;
             };
     
-            /**
-             * Decodes an OpDeprecation message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.OpDeprecation} OpDeprecation
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            OpDeprecation.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            OpDeprecation.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.OpDeprecation();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "version":
+                        message.version = reader.int32();
+                        break;
+                    case "explanation":
+                        message.explanation = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies an OpDeprecation message.
-             * @function verify
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             OpDeprecation.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -5833,14 +3577,6 @@
                 return null;
             };
     
-            /**
-             * Creates an OpDeprecation message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.OpDeprecation} OpDeprecation
-             */
             OpDeprecation.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.OpDeprecation)
                     return object;
@@ -5852,15 +3588,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an OpDeprecation message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.OpDeprecation
-             * @static
-             * @param {tensorflow.OpDeprecation} message OpDeprecation
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             OpDeprecation.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -5876,13 +3603,6 @@
                 return object;
             };
     
-            /**
-             * Converts this OpDeprecation to JSON.
-             * @function toJSON
-             * @memberof tensorflow.OpDeprecation
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             OpDeprecation.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -5892,21 +3612,6 @@
     
         tensorflow.OpList = (function() {
     
-            /**
-             * Properties of an OpList.
-             * @memberof tensorflow
-             * @interface IOpList
-             * @property {Array.<tensorflow.IOpDef>|null} [op] OpList op
-             */
-    
-            /**
-             * Constructs a new OpList.
-             * @memberof tensorflow
-             * @classdesc Represents an OpList.
-             * @implements IOpList
-             * @constructor
-             * @param {tensorflow.IOpList=} [properties] Properties to set
-             */
             function OpList(properties) {
                 this.op = [];
                 if (properties)
@@ -5915,68 +3620,12 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * OpList op.
-             * @member {Array.<tensorflow.IOpDef>} op
-             * @memberof tensorflow.OpList
-             * @instance
-             */
             OpList.prototype.op = $util.emptyArray;
     
-            /**
-             * Creates a new OpList instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {tensorflow.IOpList=} [properties] Properties to set
-             * @returns {tensorflow.OpList} OpList instance
-             */
             OpList.create = function create(properties) {
                 return new OpList(properties);
             };
     
-            /**
-             * Encodes the specified OpList message. Does not implicitly {@link tensorflow.OpList.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {tensorflow.IOpList} message OpList message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OpList.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.op != null && message.op.length)
-                    for (var i = 0; i < message.op.length; ++i)
-                        $root.tensorflow.OpDef.encode(message.op[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified OpList message, length delimited. Does not implicitly {@link tensorflow.OpList.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {tensorflow.IOpList} message OpList message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            OpList.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an OpList message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.OpList} OpList
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             OpList.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -5997,30 +3646,27 @@
                 return message;
             };
     
-            /**
-             * Decodes an OpList message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.OpList} OpList
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            OpList.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            OpList.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.OpList();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "op":
+                        if (!(message.op && message.op.length))
+                            message.op = [];
+                        message.op.push($root.tensorflow.OpDef.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies an OpList message.
-             * @function verify
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             OpList.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6036,14 +3682,6 @@
                 return null;
             };
     
-            /**
-             * Creates an OpList message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.OpList} OpList
-             */
             OpList.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.OpList)
                     return object;
@@ -6061,15 +3699,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an OpList message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.OpList
-             * @static
-             * @param {tensorflow.OpList} message OpList
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             OpList.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -6084,13 +3713,6 @@
                 return object;
             };
     
-            /**
-             * Converts this OpList to JSON.
-             * @function toJSON
-             * @memberof tensorflow.OpList
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             OpList.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -6100,22 +3722,6 @@
     
         tensorflow.TensorShapeProto = (function() {
     
-            /**
-             * Properties of a TensorShapeProto.
-             * @memberof tensorflow
-             * @interface ITensorShapeProto
-             * @property {Array.<tensorflow.TensorShapeProto.IDim>|null} [dim] TensorShapeProto dim
-             * @property {boolean|null} [unknownRank] TensorShapeProto unknownRank
-             */
-    
-            /**
-             * Constructs a new TensorShapeProto.
-             * @memberof tensorflow
-             * @classdesc Represents a TensorShapeProto.
-             * @implements ITensorShapeProto
-             * @constructor
-             * @param {tensorflow.ITensorShapeProto=} [properties] Properties to set
-             */
             function TensorShapeProto(properties) {
                 this.dim = [];
                 if (properties)
@@ -6124,78 +3730,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TensorShapeProto dim.
-             * @member {Array.<tensorflow.TensorShapeProto.IDim>} dim
-             * @memberof tensorflow.TensorShapeProto
-             * @instance
-             */
             TensorShapeProto.prototype.dim = $util.emptyArray;
+            TensorShapeProto.prototype.unknown_rank = false;
     
-            /**
-             * TensorShapeProto unknownRank.
-             * @member {boolean} unknownRank
-             * @memberof tensorflow.TensorShapeProto
-             * @instance
-             */
-            TensorShapeProto.prototype.unknownRank = false;
-    
-            /**
-             * Creates a new TensorShapeProto instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {tensorflow.ITensorShapeProto=} [properties] Properties to set
-             * @returns {tensorflow.TensorShapeProto} TensorShapeProto instance
-             */
             TensorShapeProto.create = function create(properties) {
                 return new TensorShapeProto(properties);
             };
     
-            /**
-             * Encodes the specified TensorShapeProto message. Does not implicitly {@link tensorflow.TensorShapeProto.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {tensorflow.ITensorShapeProto} message TensorShapeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorShapeProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.dim != null && message.dim.length)
-                    for (var i = 0; i < message.dim.length; ++i)
-                        $root.tensorflow.TensorShapeProto.Dim.encode(message.dim[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.unknownRank != null && message.hasOwnProperty("unknownRank"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).bool(message.unknownRank);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TensorShapeProto message, length delimited. Does not implicitly {@link tensorflow.TensorShapeProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {tensorflow.ITensorShapeProto} message TensorShapeProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorShapeProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TensorShapeProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.TensorShapeProto} TensorShapeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TensorShapeProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -6209,7 +3750,7 @@
                         message.dim.push($root.tensorflow.TensorShapeProto.Dim.decode(reader, reader.uint32()));
                         break;
                     case 3:
-                        message.unknownRank = reader.bool();
+                        message.unknown_rank = reader.bool();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -6219,30 +3760,30 @@
                 return message;
             };
     
-            /**
-             * Decodes a TensorShapeProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.TensorShapeProto} TensorShapeProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TensorShapeProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            TensorShapeProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.TensorShapeProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dim":
+                        if (!(message.dim && message.dim.length))
+                            message.dim = [];
+                        message.dim.push($root.tensorflow.TensorShapeProto.Dim.decodeText(reader, true));
+                        break;
+                    case "unknown_rank":
+                        message.unknown_rank = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a TensorShapeProto message.
-             * @function verify
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TensorShapeProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6255,20 +3796,12 @@
                             return "dim." + error;
                     }
                 }
-                if (message.unknownRank != null && message.hasOwnProperty("unknownRank"))
-                    if (typeof message.unknownRank !== "boolean")
-                        return "unknownRank: boolean expected";
+                if (message.unknown_rank != null && message.hasOwnProperty("unknown_rank"))
+                    if (typeof message.unknown_rank !== "boolean")
+                        return "unknown_rank: boolean expected";
                 return null;
             };
     
-            /**
-             * Creates a TensorShapeProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.TensorShapeProto} TensorShapeProto
-             */
             TensorShapeProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.TensorShapeProto)
                     return object;
@@ -6283,20 +3816,11 @@
                         message.dim[i] = $root.tensorflow.TensorShapeProto.Dim.fromObject(object.dim[i]);
                     }
                 }
-                if (object.unknownRank != null)
-                    message.unknownRank = Boolean(object.unknownRank);
+                if (object.unknown_rank != null)
+                    message.unknown_rank = Boolean(object.unknown_rank);
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TensorShapeProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.TensorShapeProto
-             * @static
-             * @param {tensorflow.TensorShapeProto} message TensorShapeProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TensorShapeProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -6304,46 +3828,23 @@
                 if (options.arrays || options.defaults)
                     object.dim = [];
                 if (options.defaults)
-                    object.unknownRank = false;
+                    object.unknown_rank = false;
                 if (message.dim && message.dim.length) {
                     object.dim = [];
                     for (var j = 0; j < message.dim.length; ++j)
                         object.dim[j] = $root.tensorflow.TensorShapeProto.Dim.toObject(message.dim[j], options);
                 }
-                if (message.unknownRank != null && message.hasOwnProperty("unknownRank"))
-                    object.unknownRank = message.unknownRank;
+                if (message.unknown_rank != null && message.hasOwnProperty("unknown_rank"))
+                    object.unknown_rank = message.unknown_rank;
                 return object;
             };
     
-            /**
-             * Converts this TensorShapeProto to JSON.
-             * @function toJSON
-             * @memberof tensorflow.TensorShapeProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TensorShapeProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             TensorShapeProto.Dim = (function() {
     
-                /**
-                 * Properties of a Dim.
-                 * @memberof tensorflow.TensorShapeProto
-                 * @interface IDim
-                 * @property {number|Long|null} [size] Dim size
-                 * @property {string|null} [name] Dim name
-                 */
-    
-                /**
-                 * Constructs a new Dim.
-                 * @memberof tensorflow.TensorShapeProto
-                 * @classdesc Represents a Dim.
-                 * @implements IDim
-                 * @constructor
-                 * @param {tensorflow.TensorShapeProto.IDim=} [properties] Properties to set
-                 */
                 function Dim(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -6351,77 +3852,13 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Dim size.
-                 * @member {number|Long} size
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @instance
-                 */
                 Dim.prototype.size = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-                /**
-                 * Dim name.
-                 * @member {string} name
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @instance
-                 */
                 Dim.prototype.name = "";
     
-                /**
-                 * Creates a new Dim instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {tensorflow.TensorShapeProto.IDim=} [properties] Properties to set
-                 * @returns {tensorflow.TensorShapeProto.Dim} Dim instance
-                 */
                 Dim.create = function create(properties) {
                     return new Dim(properties);
                 };
     
-                /**
-                 * Encodes the specified Dim message. Does not implicitly {@link tensorflow.TensorShapeProto.Dim.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {tensorflow.TensorShapeProto.IDim} message Dim message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Dim.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.size != null && message.hasOwnProperty("size"))
-                        writer.uint32(/* id 1, wireType 0 =*/8).int64(message.size);
-                    if (message.name != null && message.hasOwnProperty("name"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Dim message, length delimited. Does not implicitly {@link tensorflow.TensorShapeProto.Dim.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {tensorflow.TensorShapeProto.IDim} message Dim message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Dim.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a Dim message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.TensorShapeProto.Dim} Dim
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Dim.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -6443,30 +3880,28 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a Dim message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.TensorShapeProto.Dim} Dim
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Dim.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                Dim.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.TensorShapeProto.Dim();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "size":
+                            message.size = reader.int64();
+                            break;
+                        case "name":
+                            message.name = reader.string();
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies a Dim message.
-                 * @function verify
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Dim.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -6479,14 +3914,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a Dim message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.TensorShapeProto.Dim} Dim
-                 */
                 Dim.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.TensorShapeProto.Dim)
                         return object;
@@ -6505,15 +3932,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a Dim message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @static
-                 * @param {tensorflow.TensorShapeProto.Dim} message Dim
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Dim.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -6536,13 +3954,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Dim to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.TensorShapeProto.Dim
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Dim.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -6553,58 +3964,6 @@
             return TensorShapeProto;
         })();
     
-        /**
-         * DataType enum.
-         * @name tensorflow.DataType
-         * @enum {string}
-         * @property {number} DT_INVALID=0 DT_INVALID value
-         * @property {number} DT_FLOAT=1 DT_FLOAT value
-         * @property {number} DT_DOUBLE=2 DT_DOUBLE value
-         * @property {number} DT_INT32=3 DT_INT32 value
-         * @property {number} DT_UINT8=4 DT_UINT8 value
-         * @property {number} DT_INT16=5 DT_INT16 value
-         * @property {number} DT_INT8=6 DT_INT8 value
-         * @property {number} DT_STRING=7 DT_STRING value
-         * @property {number} DT_COMPLEX64=8 DT_COMPLEX64 value
-         * @property {number} DT_INT64=9 DT_INT64 value
-         * @property {number} DT_BOOL=10 DT_BOOL value
-         * @property {number} DT_QINT8=11 DT_QINT8 value
-         * @property {number} DT_QUINT8=12 DT_QUINT8 value
-         * @property {number} DT_QINT32=13 DT_QINT32 value
-         * @property {number} DT_BFLOAT16=14 DT_BFLOAT16 value
-         * @property {number} DT_QINT16=15 DT_QINT16 value
-         * @property {number} DT_QUINT16=16 DT_QUINT16 value
-         * @property {number} DT_UINT16=17 DT_UINT16 value
-         * @property {number} DT_COMPLEX128=18 DT_COMPLEX128 value
-         * @property {number} DT_HALF=19 DT_HALF value
-         * @property {number} DT_RESOURCE=20 DT_RESOURCE value
-         * @property {number} DT_VARIANT=21 DT_VARIANT value
-         * @property {number} DT_UINT32=22 DT_UINT32 value
-         * @property {number} DT_UINT64=23 DT_UINT64 value
-         * @property {number} DT_FLOAT_REF=101 DT_FLOAT_REF value
-         * @property {number} DT_DOUBLE_REF=102 DT_DOUBLE_REF value
-         * @property {number} DT_INT32_REF=103 DT_INT32_REF value
-         * @property {number} DT_UINT8_REF=104 DT_UINT8_REF value
-         * @property {number} DT_INT16_REF=105 DT_INT16_REF value
-         * @property {number} DT_INT8_REF=106 DT_INT8_REF value
-         * @property {number} DT_STRING_REF=107 DT_STRING_REF value
-         * @property {number} DT_COMPLEX64_REF=108 DT_COMPLEX64_REF value
-         * @property {number} DT_INT64_REF=109 DT_INT64_REF value
-         * @property {number} DT_BOOL_REF=110 DT_BOOL_REF value
-         * @property {number} DT_QINT8_REF=111 DT_QINT8_REF value
-         * @property {number} DT_QUINT8_REF=112 DT_QUINT8_REF value
-         * @property {number} DT_QINT32_REF=113 DT_QINT32_REF value
-         * @property {number} DT_BFLOAT16_REF=114 DT_BFLOAT16_REF value
-         * @property {number} DT_QINT16_REF=115 DT_QINT16_REF value
-         * @property {number} DT_QUINT16_REF=116 DT_QUINT16_REF value
-         * @property {number} DT_UINT16_REF=117 DT_UINT16_REF value
-         * @property {number} DT_COMPLEX128_REF=118 DT_COMPLEX128_REF value
-         * @property {number} DT_HALF_REF=119 DT_HALF_REF value
-         * @property {number} DT_RESOURCE_REF=120 DT_RESOURCE_REF value
-         * @property {number} DT_VARIANT_REF=121 DT_VARIANT_REF value
-         * @property {number} DT_UINT32_REF=122 DT_UINT32_REF value
-         * @property {number} DT_UINT64_REF=123 DT_UINT64_REF value
-         */
         tensorflow.DataType = (function() {
             var valuesById = {}, values = Object.create(valuesById);
             values[valuesById[0] = "DT_INVALID"] = 0;
@@ -6659,25 +4018,6 @@
     
         tensorflow.NodeDef = (function() {
     
-            /**
-             * Properties of a NodeDef.
-             * @memberof tensorflow
-             * @interface INodeDef
-             * @property {string|null} [name] NodeDef name
-             * @property {string|null} [op] NodeDef op
-             * @property {Array.<string>|null} [input] NodeDef input
-             * @property {string|null} [device] NodeDef device
-             * @property {Object.<string,tensorflow.IAttrValue>|null} [attr] NodeDef attr
-             */
-    
-            /**
-             * Constructs a new NodeDef.
-             * @memberof tensorflow
-             * @classdesc Represents a NodeDef.
-             * @implements INodeDef
-             * @constructor
-             * @param {tensorflow.INodeDef=} [properties] Properties to set
-             */
             function NodeDef(properties) {
                 this.input = [];
                 this.attr = {};
@@ -6687,111 +4027,16 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * NodeDef name.
-             * @member {string} name
-             * @memberof tensorflow.NodeDef
-             * @instance
-             */
             NodeDef.prototype.name = "";
-    
-            /**
-             * NodeDef op.
-             * @member {string} op
-             * @memberof tensorflow.NodeDef
-             * @instance
-             */
             NodeDef.prototype.op = "";
-    
-            /**
-             * NodeDef input.
-             * @member {Array.<string>} input
-             * @memberof tensorflow.NodeDef
-             * @instance
-             */
             NodeDef.prototype.input = $util.emptyArray;
-    
-            /**
-             * NodeDef device.
-             * @member {string} device
-             * @memberof tensorflow.NodeDef
-             * @instance
-             */
             NodeDef.prototype.device = "";
-    
-            /**
-             * NodeDef attr.
-             * @member {Object.<string,tensorflow.IAttrValue>} attr
-             * @memberof tensorflow.NodeDef
-             * @instance
-             */
             NodeDef.prototype.attr = $util.emptyObject;
     
-            /**
-             * Creates a new NodeDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {tensorflow.INodeDef=} [properties] Properties to set
-             * @returns {tensorflow.NodeDef} NodeDef instance
-             */
             NodeDef.create = function create(properties) {
                 return new NodeDef(properties);
             };
     
-            /**
-             * Encodes the specified NodeDef message. Does not implicitly {@link tensorflow.NodeDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {tensorflow.INodeDef} message NodeDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NodeDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.op != null && message.hasOwnProperty("op"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.op);
-                if (message.input != null && message.input.length)
-                    for (var i = 0; i < message.input.length; ++i)
-                        writer.uint32(/* id 3, wireType 2 =*/26).string(message.input[i]);
-                if (message.device != null && message.hasOwnProperty("device"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.device);
-                if (message.attr != null && message.hasOwnProperty("attr"))
-                    for (var keys = Object.keys(message.attr), i = 0; i < keys.length; ++i) {
-                        writer.uint32(/* id 5, wireType 2 =*/42).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
-                        $root.tensorflow.AttrValue.encode(message.attr[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
-                    }
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified NodeDef message, length delimited. Does not implicitly {@link tensorflow.NodeDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {tensorflow.INodeDef} message NodeDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NodeDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a NodeDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.NodeDef} NodeDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             NodeDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -6829,30 +4074,46 @@
                 return message;
             };
     
-            /**
-             * Decodes a NodeDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.NodeDef} NodeDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            NodeDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            NodeDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.NodeDef(), key;
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "op":
+                        message.op = reader.string();
+                        break;
+                    case "input":
+                        if (!(message.input && message.input.length))
+                            message.input = [];
+                        message.input.push(reader.string());
+                        break;
+                    case "device":
+                        message.device = reader.string();
+                        break;
+                    case "attr":
+                        reader.assert("{");
+                        if (message.attr === $util.emptyObject)
+                            message.attr = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a NodeDef message.
-             * @function verify
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             NodeDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -6885,14 +4146,6 @@
                 return null;
             };
     
-            /**
-             * Creates a NodeDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.NodeDef} NodeDef
-             */
             NodeDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.NodeDef)
                     return object;
@@ -6923,15 +4176,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a NodeDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.NodeDef
-             * @static
-             * @param {tensorflow.NodeDef} message NodeDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             NodeDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -6965,13 +4209,6 @@
                 return object;
             };
     
-            /**
-             * Converts this NodeDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.NodeDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             NodeDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -6981,116 +4218,22 @@
     
         tensorflow.VersionDef = (function() {
     
-            /**
-             * Properties of a VersionDef.
-             * @memberof tensorflow
-             * @interface IVersionDef
-             * @property {number|null} [producer] VersionDef producer
-             * @property {number|null} [minConsumer] VersionDef minConsumer
-             * @property {Array.<number>|null} [badConsumers] VersionDef badConsumers
-             */
-    
-            /**
-             * Constructs a new VersionDef.
-             * @memberof tensorflow
-             * @classdesc Represents a VersionDef.
-             * @implements IVersionDef
-             * @constructor
-             * @param {tensorflow.IVersionDef=} [properties] Properties to set
-             */
             function VersionDef(properties) {
-                this.badConsumers = [];
+                this.bad_consumers = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * VersionDef producer.
-             * @member {number} producer
-             * @memberof tensorflow.VersionDef
-             * @instance
-             */
             VersionDef.prototype.producer = 0;
+            VersionDef.prototype.min_consumer = 0;
+            VersionDef.prototype.bad_consumers = $util.emptyArray;
     
-            /**
-             * VersionDef minConsumer.
-             * @member {number} minConsumer
-             * @memberof tensorflow.VersionDef
-             * @instance
-             */
-            VersionDef.prototype.minConsumer = 0;
-    
-            /**
-             * VersionDef badConsumers.
-             * @member {Array.<number>} badConsumers
-             * @memberof tensorflow.VersionDef
-             * @instance
-             */
-            VersionDef.prototype.badConsumers = $util.emptyArray;
-    
-            /**
-             * Creates a new VersionDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {tensorflow.IVersionDef=} [properties] Properties to set
-             * @returns {tensorflow.VersionDef} VersionDef instance
-             */
             VersionDef.create = function create(properties) {
                 return new VersionDef(properties);
             };
     
-            /**
-             * Encodes the specified VersionDef message. Does not implicitly {@link tensorflow.VersionDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {tensorflow.IVersionDef} message VersionDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            VersionDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.producer != null && message.hasOwnProperty("producer"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.producer);
-                if (message.minConsumer != null && message.hasOwnProperty("minConsumer"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.minConsumer);
-                if (message.badConsumers != null && message.badConsumers.length) {
-                    writer.uint32(/* id 3, wireType 2 =*/26).fork();
-                    for (var i = 0; i < message.badConsumers.length; ++i)
-                        writer.int32(message.badConsumers[i]);
-                    writer.ldelim();
-                }
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified VersionDef message, length delimited. Does not implicitly {@link tensorflow.VersionDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {tensorflow.IVersionDef} message VersionDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            VersionDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a VersionDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.VersionDef} VersionDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             VersionDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7102,17 +4245,17 @@
                         message.producer = reader.int32();
                         break;
                     case 2:
-                        message.minConsumer = reader.int32();
+                        message.min_consumer = reader.int32();
                         break;
                     case 3:
-                        if (!(message.badConsumers && message.badConsumers.length))
-                            message.badConsumers = [];
+                        if (!(message.bad_consumers && message.bad_consumers.length))
+                            message.bad_consumers = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.badConsumers.push(reader.int32());
+                                message.bad_consumers.push(reader.int32());
                         } else
-                            message.badConsumers.push(reader.int32());
+                            message.bad_consumers.push(reader.int32());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -7122,113 +4265,92 @@
                 return message;
             };
     
-            /**
-             * Decodes a VersionDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.VersionDef} VersionDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            VersionDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            VersionDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.VersionDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "producer":
+                        message.producer = reader.int32();
+                        break;
+                    case "min_consumer":
+                        message.min_consumer = reader.int32();
+                        break;
+                    case "bad_consumers":
+                        if (!(message.bad_consumers && message.bad_consumers.length))
+                            message.bad_consumers = [];
+                        message.bad_consumers.push(reader.int32());
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a VersionDef message.
-             * @function verify
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             VersionDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
                 if (message.producer != null && message.hasOwnProperty("producer"))
                     if (!$util.isInteger(message.producer))
                         return "producer: integer expected";
-                if (message.minConsumer != null && message.hasOwnProperty("minConsumer"))
-                    if (!$util.isInteger(message.minConsumer))
-                        return "minConsumer: integer expected";
-                if (message.badConsumers != null && message.hasOwnProperty("badConsumers")) {
-                    if (!Array.isArray(message.badConsumers))
-                        return "badConsumers: array expected";
-                    for (var i = 0; i < message.badConsumers.length; ++i)
-                        if (!$util.isInteger(message.badConsumers[i]))
-                            return "badConsumers: integer[] expected";
+                if (message.min_consumer != null && message.hasOwnProperty("min_consumer"))
+                    if (!$util.isInteger(message.min_consumer))
+                        return "min_consumer: integer expected";
+                if (message.bad_consumers != null && message.hasOwnProperty("bad_consumers")) {
+                    if (!Array.isArray(message.bad_consumers))
+                        return "bad_consumers: array expected";
+                    for (var i = 0; i < message.bad_consumers.length; ++i)
+                        if (!$util.isInteger(message.bad_consumers[i]))
+                            return "bad_consumers: integer[] expected";
                 }
                 return null;
             };
     
-            /**
-             * Creates a VersionDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.VersionDef} VersionDef
-             */
             VersionDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.VersionDef)
                     return object;
                 var message = new $root.tensorflow.VersionDef();
                 if (object.producer != null)
                     message.producer = object.producer | 0;
-                if (object.minConsumer != null)
-                    message.minConsumer = object.minConsumer | 0;
-                if (object.badConsumers) {
-                    if (!Array.isArray(object.badConsumers))
-                        throw TypeError(".tensorflow.VersionDef.badConsumers: array expected");
-                    message.badConsumers = [];
-                    for (var i = 0; i < object.badConsumers.length; ++i)
-                        message.badConsumers[i] = object.badConsumers[i] | 0;
+                if (object.min_consumer != null)
+                    message.min_consumer = object.min_consumer | 0;
+                if (object.bad_consumers) {
+                    if (!Array.isArray(object.bad_consumers))
+                        throw TypeError(".tensorflow.VersionDef.bad_consumers: array expected");
+                    message.bad_consumers = [];
+                    for (var i = 0; i < object.bad_consumers.length; ++i)
+                        message.bad_consumers[i] = object.bad_consumers[i] | 0;
                 }
                 return message;
             };
     
-            /**
-             * Creates a plain object from a VersionDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.VersionDef
-             * @static
-             * @param {tensorflow.VersionDef} message VersionDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             VersionDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.badConsumers = [];
+                    object.bad_consumers = [];
                 if (options.defaults) {
                     object.producer = 0;
-                    object.minConsumer = 0;
+                    object.min_consumer = 0;
                 }
                 if (message.producer != null && message.hasOwnProperty("producer"))
                     object.producer = message.producer;
-                if (message.minConsumer != null && message.hasOwnProperty("minConsumer"))
-                    object.minConsumer = message.minConsumer;
-                if (message.badConsumers && message.badConsumers.length) {
-                    object.badConsumers = [];
-                    for (var j = 0; j < message.badConsumers.length; ++j)
-                        object.badConsumers[j] = message.badConsumers[j];
+                if (message.min_consumer != null && message.hasOwnProperty("min_consumer"))
+                    object.min_consumer = message.min_consumer;
+                if (message.bad_consumers && message.bad_consumers.length) {
+                    object.bad_consumers = [];
+                    for (var j = 0; j < message.bad_consumers.length; ++j)
+                        object.bad_consumers[j] = message.bad_consumers[j];
                 }
                 return object;
             };
     
-            /**
-             * Converts this VersionDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.VersionDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             VersionDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -7238,22 +4360,6 @@
     
         tensorflow.FunctionDefLibrary = (function() {
     
-            /**
-             * Properties of a FunctionDefLibrary.
-             * @memberof tensorflow
-             * @interface IFunctionDefLibrary
-             * @property {Array.<tensorflow.IFunctionDef>|null} ["function"] FunctionDefLibrary function
-             * @property {Array.<tensorflow.IGradientDef>|null} [gradient] FunctionDefLibrary gradient
-             */
-    
-            /**
-             * Constructs a new FunctionDefLibrary.
-             * @memberof tensorflow
-             * @classdesc Represents a FunctionDefLibrary.
-             * @implements IFunctionDefLibrary
-             * @constructor
-             * @param {tensorflow.IFunctionDefLibrary=} [properties] Properties to set
-             */
             function FunctionDefLibrary(properties) {
                 this["function"] = [];
                 this.gradient = [];
@@ -7263,79 +4369,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * FunctionDefLibrary function.
-             * @member {Array.<tensorflow.IFunctionDef>} function
-             * @memberof tensorflow.FunctionDefLibrary
-             * @instance
-             */
             FunctionDefLibrary.prototype["function"] = $util.emptyArray;
-    
-            /**
-             * FunctionDefLibrary gradient.
-             * @member {Array.<tensorflow.IGradientDef>} gradient
-             * @memberof tensorflow.FunctionDefLibrary
-             * @instance
-             */
             FunctionDefLibrary.prototype.gradient = $util.emptyArray;
     
-            /**
-             * Creates a new FunctionDefLibrary instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {tensorflow.IFunctionDefLibrary=} [properties] Properties to set
-             * @returns {tensorflow.FunctionDefLibrary} FunctionDefLibrary instance
-             */
             FunctionDefLibrary.create = function create(properties) {
                 return new FunctionDefLibrary(properties);
             };
     
-            /**
-             * Encodes the specified FunctionDefLibrary message. Does not implicitly {@link tensorflow.FunctionDefLibrary.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {tensorflow.IFunctionDefLibrary} message FunctionDefLibrary message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FunctionDefLibrary.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message["function"] != null && message["function"].length)
-                    for (var i = 0; i < message["function"].length; ++i)
-                        $root.tensorflow.FunctionDef.encode(message["function"][i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.gradient != null && message.gradient.length)
-                    for (var i = 0; i < message.gradient.length; ++i)
-                        $root.tensorflow.GradientDef.encode(message.gradient[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified FunctionDefLibrary message, length delimited. Does not implicitly {@link tensorflow.FunctionDefLibrary.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {tensorflow.IFunctionDefLibrary} message FunctionDefLibrary message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FunctionDefLibrary.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a FunctionDefLibrary message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.FunctionDefLibrary} FunctionDefLibrary
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             FunctionDefLibrary.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7361,30 +4401,32 @@
                 return message;
             };
     
-            /**
-             * Decodes a FunctionDefLibrary message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.FunctionDefLibrary} FunctionDefLibrary
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            FunctionDefLibrary.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            FunctionDefLibrary.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.FunctionDefLibrary();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "function":
+                        if (!(message["function"] && message["function"].length))
+                            message["function"] = [];
+                        message["function"].push($root.tensorflow.FunctionDef.decodeText(reader, true));
+                        break;
+                    case "gradient":
+                        if (!(message.gradient && message.gradient.length))
+                            message.gradient = [];
+                        message.gradient.push($root.tensorflow.GradientDef.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a FunctionDefLibrary message.
-             * @function verify
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             FunctionDefLibrary.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7409,14 +4451,6 @@
                 return null;
             };
     
-            /**
-             * Creates a FunctionDefLibrary message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.FunctionDefLibrary} FunctionDefLibrary
-             */
             FunctionDefLibrary.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.FunctionDefLibrary)
                     return object;
@@ -7444,15 +4478,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a FunctionDefLibrary message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.FunctionDefLibrary
-             * @static
-             * @param {tensorflow.FunctionDefLibrary} message FunctionDefLibrary
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             FunctionDefLibrary.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -7474,13 +4499,6 @@
                 return object;
             };
     
-            /**
-             * Converts this FunctionDefLibrary to JSON.
-             * @function toJSON
-             * @memberof tensorflow.FunctionDefLibrary
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             FunctionDefLibrary.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -7490,27 +4508,9 @@
     
         tensorflow.FunctionDef = (function() {
     
-            /**
-             * Properties of a FunctionDef.
-             * @memberof tensorflow
-             * @interface IFunctionDef
-             * @property {tensorflow.IOpDef|null} [signature] FunctionDef signature
-             * @property {Object.<string,tensorflow.IAttrValue>|null} [attr] FunctionDef attr
-             * @property {Array.<tensorflow.INodeDef>|null} [nodeDef] FunctionDef nodeDef
-             * @property {Object.<string,string>|null} [ret] FunctionDef ret
-             */
-    
-            /**
-             * Constructs a new FunctionDef.
-             * @memberof tensorflow
-             * @classdesc Represents a FunctionDef.
-             * @implements IFunctionDef
-             * @constructor
-             * @param {tensorflow.IFunctionDef=} [properties] Properties to set
-             */
             function FunctionDef(properties) {
                 this.attr = {};
-                this.nodeDef = [];
+                this.node_def = [];
                 this.ret = {};
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -7518,102 +4518,15 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * FunctionDef signature.
-             * @member {tensorflow.IOpDef|null|undefined} signature
-             * @memberof tensorflow.FunctionDef
-             * @instance
-             */
             FunctionDef.prototype.signature = null;
-    
-            /**
-             * FunctionDef attr.
-             * @member {Object.<string,tensorflow.IAttrValue>} attr
-             * @memberof tensorflow.FunctionDef
-             * @instance
-             */
             FunctionDef.prototype.attr = $util.emptyObject;
-    
-            /**
-             * FunctionDef nodeDef.
-             * @member {Array.<tensorflow.INodeDef>} nodeDef
-             * @memberof tensorflow.FunctionDef
-             * @instance
-             */
-            FunctionDef.prototype.nodeDef = $util.emptyArray;
-    
-            /**
-             * FunctionDef ret.
-             * @member {Object.<string,string>} ret
-             * @memberof tensorflow.FunctionDef
-             * @instance
-             */
+            FunctionDef.prototype.node_def = $util.emptyArray;
             FunctionDef.prototype.ret = $util.emptyObject;
     
-            /**
-             * Creates a new FunctionDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {tensorflow.IFunctionDef=} [properties] Properties to set
-             * @returns {tensorflow.FunctionDef} FunctionDef instance
-             */
             FunctionDef.create = function create(properties) {
                 return new FunctionDef(properties);
             };
     
-            /**
-             * Encodes the specified FunctionDef message. Does not implicitly {@link tensorflow.FunctionDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {tensorflow.IFunctionDef} message FunctionDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FunctionDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.signature != null && message.hasOwnProperty("signature"))
-                    $root.tensorflow.OpDef.encode(message.signature, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.nodeDef != null && message.nodeDef.length)
-                    for (var i = 0; i < message.nodeDef.length; ++i)
-                        $root.tensorflow.NodeDef.encode(message.nodeDef[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                if (message.ret != null && message.hasOwnProperty("ret"))
-                    for (var keys = Object.keys(message.ret), i = 0; i < keys.length; ++i)
-                        writer.uint32(/* id 4, wireType 2 =*/34).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]).uint32(/* id 2, wireType 2 =*/18).string(message.ret[keys[i]]).ldelim();
-                if (message.attr != null && message.hasOwnProperty("attr"))
-                    for (var keys = Object.keys(message.attr), i = 0; i < keys.length; ++i) {
-                        writer.uint32(/* id 5, wireType 2 =*/42).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
-                        $root.tensorflow.AttrValue.encode(message.attr[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
-                    }
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified FunctionDef message, length delimited. Does not implicitly {@link tensorflow.FunctionDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {tensorflow.IFunctionDef} message FunctionDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            FunctionDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a FunctionDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.FunctionDef} FunctionDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             FunctionDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7633,9 +4546,9 @@
                         message.attr[key] = $root.tensorflow.AttrValue.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        if (!(message.nodeDef && message.nodeDef.length))
-                            message.nodeDef = [];
-                        message.nodeDef.push($root.tensorflow.NodeDef.decode(reader, reader.uint32()));
+                        if (!(message.node_def && message.node_def.length))
+                            message.node_def = [];
+                        message.node_def.push($root.tensorflow.NodeDef.decode(reader, reader.uint32()));
                         break;
                     case 4:
                         reader.skip().pos++;
@@ -7653,30 +4566,49 @@
                 return message;
             };
     
-            /**
-             * Decodes a FunctionDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.FunctionDef} FunctionDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            FunctionDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            FunctionDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.FunctionDef(), key;
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "signature":
+                        message.signature = $root.tensorflow.OpDef.decodeText(reader, true);
+                        break;
+                    case "attr":
+                        reader.assert("{");
+                        if (message.attr === $util.emptyObject)
+                            message.attr = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    case "node_def":
+                        if (!(message.node_def && message.node_def.length))
+                            message.node_def = [];
+                        message.node_def.push($root.tensorflow.NodeDef.decodeText(reader, true));
+                        break;
+                    case "ret":
+                        reader.assert("{");
+                        if (message.ret === $util.emptyObject)
+                            message.ret = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.ret[key] = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a FunctionDef message.
-             * @function verify
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             FunctionDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -7695,13 +4627,13 @@
                             return "attr." + error;
                     }
                 }
-                if (message.nodeDef != null && message.hasOwnProperty("nodeDef")) {
-                    if (!Array.isArray(message.nodeDef))
-                        return "nodeDef: array expected";
-                    for (var i = 0; i < message.nodeDef.length; ++i) {
-                        var error = $root.tensorflow.NodeDef.verify(message.nodeDef[i]);
+                if (message.node_def != null && message.hasOwnProperty("node_def")) {
+                    if (!Array.isArray(message.node_def))
+                        return "node_def: array expected";
+                    for (var i = 0; i < message.node_def.length; ++i) {
+                        var error = $root.tensorflow.NodeDef.verify(message.node_def[i]);
                         if (error)
-                            return "nodeDef." + error;
+                            return "node_def." + error;
                     }
                 }
                 if (message.ret != null && message.hasOwnProperty("ret")) {
@@ -7715,14 +4647,6 @@
                 return null;
             };
     
-            /**
-             * Creates a FunctionDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.FunctionDef} FunctionDef
-             */
             FunctionDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.FunctionDef)
                     return object;
@@ -7742,14 +4666,14 @@
                         message.attr[keys[i]] = $root.tensorflow.AttrValue.fromObject(object.attr[keys[i]]);
                     }
                 }
-                if (object.nodeDef) {
-                    if (!Array.isArray(object.nodeDef))
-                        throw TypeError(".tensorflow.FunctionDef.nodeDef: array expected");
-                    message.nodeDef = [];
-                    for (var i = 0; i < object.nodeDef.length; ++i) {
-                        if (typeof object.nodeDef[i] !== "object")
-                            throw TypeError(".tensorflow.FunctionDef.nodeDef: object expected");
-                        message.nodeDef[i] = $root.tensorflow.NodeDef.fromObject(object.nodeDef[i]);
+                if (object.node_def) {
+                    if (!Array.isArray(object.node_def))
+                        throw TypeError(".tensorflow.FunctionDef.node_def: array expected");
+                    message.node_def = [];
+                    for (var i = 0; i < object.node_def.length; ++i) {
+                        if (typeof object.node_def[i] !== "object")
+                            throw TypeError(".tensorflow.FunctionDef.node_def: object expected");
+                        message.node_def[i] = $root.tensorflow.NodeDef.fromObject(object.node_def[i]);
                     }
                 }
                 if (object.ret) {
@@ -7762,21 +4686,12 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a FunctionDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.FunctionDef
-             * @static
-             * @param {tensorflow.FunctionDef} message FunctionDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             FunctionDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults)
-                    object.nodeDef = [];
+                    object.node_def = [];
                 if (options.objects || options.defaults) {
                     object.ret = {};
                     object.attr = {};
@@ -7785,10 +4700,10 @@
                     object.signature = null;
                 if (message.signature != null && message.hasOwnProperty("signature"))
                     object.signature = $root.tensorflow.OpDef.toObject(message.signature, options);
-                if (message.nodeDef && message.nodeDef.length) {
-                    object.nodeDef = [];
-                    for (var j = 0; j < message.nodeDef.length; ++j)
-                        object.nodeDef[j] = $root.tensorflow.NodeDef.toObject(message.nodeDef[j], options);
+                if (message.node_def && message.node_def.length) {
+                    object.node_def = [];
+                    for (var j = 0; j < message.node_def.length; ++j)
+                        object.node_def[j] = $root.tensorflow.NodeDef.toObject(message.node_def[j], options);
                 }
                 var keys2;
                 if (message.ret && (keys2 = Object.keys(message.ret)).length) {
@@ -7804,13 +4719,6 @@
                 return object;
             };
     
-            /**
-             * Converts this FunctionDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.FunctionDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             FunctionDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -7820,22 +4728,6 @@
     
         tensorflow.GradientDef = (function() {
     
-            /**
-             * Properties of a GradientDef.
-             * @memberof tensorflow
-             * @interface IGradientDef
-             * @property {string|null} [functionName] GradientDef functionName
-             * @property {string|null} [gradientFunc] GradientDef gradientFunc
-             */
-    
-            /**
-             * Constructs a new GradientDef.
-             * @memberof tensorflow
-             * @classdesc Represents a GradientDef.
-             * @implements IGradientDef
-             * @constructor
-             * @param {tensorflow.IGradientDef=} [properties] Properties to set
-             */
             function GradientDef(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -7843,77 +4735,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * GradientDef functionName.
-             * @member {string} functionName
-             * @memberof tensorflow.GradientDef
-             * @instance
-             */
-            GradientDef.prototype.functionName = "";
+            GradientDef.prototype.function_name = "";
+            GradientDef.prototype.gradient_func = "";
     
-            /**
-             * GradientDef gradientFunc.
-             * @member {string} gradientFunc
-             * @memberof tensorflow.GradientDef
-             * @instance
-             */
-            GradientDef.prototype.gradientFunc = "";
-    
-            /**
-             * Creates a new GradientDef instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {tensorflow.IGradientDef=} [properties] Properties to set
-             * @returns {tensorflow.GradientDef} GradientDef instance
-             */
             GradientDef.create = function create(properties) {
                 return new GradientDef(properties);
             };
     
-            /**
-             * Encodes the specified GradientDef message. Does not implicitly {@link tensorflow.GradientDef.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {tensorflow.IGradientDef} message GradientDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            GradientDef.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.functionName != null && message.hasOwnProperty("functionName"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.functionName);
-                if (message.gradientFunc != null && message.hasOwnProperty("gradientFunc"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.gradientFunc);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified GradientDef message, length delimited. Does not implicitly {@link tensorflow.GradientDef.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {tensorflow.IGradientDef} message GradientDef message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            GradientDef.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a GradientDef message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.GradientDef} GradientDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             GradientDef.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -7922,10 +4750,10 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.functionName = reader.string();
+                        message.function_name = reader.string();
                         break;
                     case 2:
-                        message.gradientFunc = reader.string();
+                        message.gradient_func = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -7935,92 +4763,66 @@
                 return message;
             };
     
-            /**
-             * Decodes a GradientDef message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.GradientDef} GradientDef
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            GradientDef.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            GradientDef.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.GradientDef();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "function_name":
+                        message.function_name = reader.string();
+                        break;
+                    case "gradient_func":
+                        message.gradient_func = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a GradientDef message.
-             * @function verify
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             GradientDef.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.functionName != null && message.hasOwnProperty("functionName"))
-                    if (!$util.isString(message.functionName))
-                        return "functionName: string expected";
-                if (message.gradientFunc != null && message.hasOwnProperty("gradientFunc"))
-                    if (!$util.isString(message.gradientFunc))
-                        return "gradientFunc: string expected";
+                if (message.function_name != null && message.hasOwnProperty("function_name"))
+                    if (!$util.isString(message.function_name))
+                        return "function_name: string expected";
+                if (message.gradient_func != null && message.hasOwnProperty("gradient_func"))
+                    if (!$util.isString(message.gradient_func))
+                        return "gradient_func: string expected";
                 return null;
             };
     
-            /**
-             * Creates a GradientDef message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.GradientDef} GradientDef
-             */
             GradientDef.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.GradientDef)
                     return object;
                 var message = new $root.tensorflow.GradientDef();
-                if (object.functionName != null)
-                    message.functionName = String(object.functionName);
-                if (object.gradientFunc != null)
-                    message.gradientFunc = String(object.gradientFunc);
+                if (object.function_name != null)
+                    message.function_name = String(object.function_name);
+                if (object.gradient_func != null)
+                    message.gradient_func = String(object.gradient_func);
                 return message;
             };
     
-            /**
-             * Creates a plain object from a GradientDef message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.GradientDef
-             * @static
-             * @param {tensorflow.GradientDef} message GradientDef
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             GradientDef.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.functionName = "";
-                    object.gradientFunc = "";
+                    object.function_name = "";
+                    object.gradient_func = "";
                 }
-                if (message.functionName != null && message.hasOwnProperty("functionName"))
-                    object.functionName = message.functionName;
-                if (message.gradientFunc != null && message.hasOwnProperty("gradientFunc"))
-                    object.gradientFunc = message.gradientFunc;
+                if (message.function_name != null && message.hasOwnProperty("function_name"))
+                    object.function_name = message.function_name;
+                if (message.gradient_func != null && message.hasOwnProperty("gradient_func"))
+                    object.gradient_func = message.gradient_func;
                 return object;
             };
     
-            /**
-             * Converts this GradientDef to JSON.
-             * @function toJSON
-             * @memberof tensorflow.GradientDef
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             GradientDef.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -8030,30 +4832,6 @@
     
         tensorflow.AttrValue = (function() {
     
-            /**
-             * Properties of an AttrValue.
-             * @memberof tensorflow
-             * @interface IAttrValue
-             * @property {Uint8Array|null} [s] AttrValue s
-             * @property {number|Long|null} [i] AttrValue i
-             * @property {number|null} [f] AttrValue f
-             * @property {boolean|null} [b] AttrValue b
-             * @property {tensorflow.DataType|null} [type] AttrValue type
-             * @property {tensorflow.ITensorShapeProto|null} [shape] AttrValue shape
-             * @property {tensorflow.ITensorProto|null} [tensor] AttrValue tensor
-             * @property {tensorflow.AttrValue.IListValue|null} [list] AttrValue list
-             * @property {tensorflow.INameAttrList|null} [func] AttrValue func
-             * @property {string|null} [placeholder] AttrValue placeholder
-             */
-    
-            /**
-             * Constructs a new AttrValue.
-             * @memberof tensorflow
-             * @classdesc Represents an AttrValue.
-             * @implements IAttrValue
-             * @constructor
-             * @param {tensorflow.IAttrValue=} [properties] Properties to set
-             */
             function AttrValue(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -8061,171 +4839,28 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * AttrValue s.
-             * @member {Uint8Array} s
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.s = $util.newBuffer([]);
-    
-            /**
-             * AttrValue i.
-             * @member {number|Long} i
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.i = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
-    
-            /**
-             * AttrValue f.
-             * @member {number} f
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.f = 0;
-    
-            /**
-             * AttrValue b.
-             * @member {boolean} b
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.b = false;
-    
-            /**
-             * AttrValue type.
-             * @member {tensorflow.DataType} type
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.type = 0;
-    
-            /**
-             * AttrValue shape.
-             * @member {tensorflow.ITensorShapeProto|null|undefined} shape
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.shape = null;
-    
-            /**
-             * AttrValue tensor.
-             * @member {tensorflow.ITensorProto|null|undefined} tensor
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.tensor = null;
-    
-            /**
-             * AttrValue list.
-             * @member {tensorflow.AttrValue.IListValue|null|undefined} list
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.list = null;
-    
-            /**
-             * AttrValue func.
-             * @member {tensorflow.INameAttrList|null|undefined} func
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.func = null;
-    
-            /**
-             * AttrValue placeholder.
-             * @member {string} placeholder
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             AttrValue.prototype.placeholder = "";
     
-            // OneOf field names bound to virtual getters and setters
             var $oneOfFields;
     
-            /**
-             * AttrValue value.
-             * @member {"s"|"i"|"f"|"b"|"type"|"shape"|"tensor"|"list"|"func"|"placeholder"|undefined} value
-             * @memberof tensorflow.AttrValue
-             * @instance
-             */
             Object.defineProperty(AttrValue.prototype, "value", {
                 get: $util.oneOfGetter($oneOfFields = ["s", "i", "f", "b", "type", "shape", "tensor", "list", "func", "placeholder"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
     
-            /**
-             * Creates a new AttrValue instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {tensorflow.IAttrValue=} [properties] Properties to set
-             * @returns {tensorflow.AttrValue} AttrValue instance
-             */
             AttrValue.create = function create(properties) {
                 return new AttrValue(properties);
             };
     
-            /**
-             * Encodes the specified AttrValue message. Does not implicitly {@link tensorflow.AttrValue.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {tensorflow.IAttrValue} message AttrValue message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AttrValue.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.list != null && message.hasOwnProperty("list"))
-                    $root.tensorflow.AttrValue.ListValue.encode(message.list, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                if (message.s != null && message.hasOwnProperty("s"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.s);
-                if (message.i != null && message.hasOwnProperty("i"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int64(message.i);
-                if (message.f != null && message.hasOwnProperty("f"))
-                    writer.uint32(/* id 4, wireType 5 =*/37).float(message.f);
-                if (message.b != null && message.hasOwnProperty("b"))
-                    writer.uint32(/* id 5, wireType 0 =*/40).bool(message.b);
-                if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 6, wireType 0 =*/48).int32(message.type);
-                if (message.shape != null && message.hasOwnProperty("shape"))
-                    $root.tensorflow.TensorShapeProto.encode(message.shape, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                if (message.tensor != null && message.hasOwnProperty("tensor"))
-                    $root.tensorflow.TensorProto.encode(message.tensor, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                if (message.placeholder != null && message.hasOwnProperty("placeholder"))
-                    writer.uint32(/* id 9, wireType 2 =*/74).string(message.placeholder);
-                if (message.func != null && message.hasOwnProperty("func"))
-                    $root.tensorflow.NameAttrList.encode(message.func, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified AttrValue message, length delimited. Does not implicitly {@link tensorflow.AttrValue.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {tensorflow.IAttrValue} message AttrValue message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            AttrValue.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes an AttrValue message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.AttrValue} AttrValue
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             AttrValue.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -8271,30 +4906,52 @@
                 return message;
             };
     
-            /**
-             * Decodes an AttrValue message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.AttrValue} AttrValue
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            AttrValue.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            AttrValue.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.AttrValue();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "s":
+                        message.s = reader.bytes();
+                        break;
+                    case "i":
+                        message.i = reader.int64();
+                        break;
+                    case "f":
+                        message.f = reader.float();
+                        break;
+                    case "b":
+                        message.b = reader.bool();
+                        break;
+                    case "type":
+                        message.type = reader.enum($root.tensorflow.DataType);
+                        break;
+                    case "shape":
+                        message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    case "tensor":
+                        message.tensor = $root.tensorflow.TensorProto.decodeText(reader, true);
+                        break;
+                    case "list":
+                        message.list = $root.tensorflow.AttrValue.ListValue.decodeText(reader, true);
+                        break;
+                    case "func":
+                        message.func = $root.tensorflow.NameAttrList.decodeText(reader, true);
+                        break;
+                    case "placeholder":
+                        message.placeholder = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies an AttrValue message.
-             * @function verify
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             AttrValue.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -8432,14 +5089,6 @@
                 return null;
             };
     
-            /**
-             * Creates an AttrValue message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.AttrValue} AttrValue
-             */
             AttrValue.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.AttrValue)
                     return object;
@@ -8677,15 +5326,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from an AttrValue message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.AttrValue
-             * @static
-             * @param {tensorflow.AttrValue} message AttrValue
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             AttrValue.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -8746,41 +5386,12 @@
                 return object;
             };
     
-            /**
-             * Converts this AttrValue to JSON.
-             * @function toJSON
-             * @memberof tensorflow.AttrValue
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             AttrValue.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
     
             AttrValue.ListValue = (function() {
     
-                /**
-                 * Properties of a ListValue.
-                 * @memberof tensorflow.AttrValue
-                 * @interface IListValue
-                 * @property {Array.<Uint8Array>|null} [s] ListValue s
-                 * @property {Array.<number|Long>|null} [i] ListValue i
-                 * @property {Array.<number>|null} [f] ListValue f
-                 * @property {Array.<boolean>|null} [b] ListValue b
-                 * @property {Array.<tensorflow.DataType>|null} [type] ListValue type
-                 * @property {Array.<tensorflow.ITensorShapeProto>|null} [shape] ListValue shape
-                 * @property {Array.<tensorflow.ITensorProto>|null} [tensor] ListValue tensor
-                 * @property {Array.<tensorflow.INameAttrList>|null} [func] ListValue func
-                 */
-    
-                /**
-                 * Constructs a new ListValue.
-                 * @memberof tensorflow.AttrValue
-                 * @classdesc Represents a ListValue.
-                 * @implements IListValue
-                 * @constructor
-                 * @param {tensorflow.AttrValue.IListValue=} [properties] Properties to set
-                 */
                 function ListValue(properties) {
                     this.s = [];
                     this.i = [];
@@ -8796,157 +5407,19 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * ListValue s.
-                 * @member {Array.<Uint8Array>} s
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.s = $util.emptyArray;
-    
-                /**
-                 * ListValue i.
-                 * @member {Array.<number|Long>} i
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.i = $util.emptyArray;
-    
-                /**
-                 * ListValue f.
-                 * @member {Array.<number>} f
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.f = $util.emptyArray;
-    
-                /**
-                 * ListValue b.
-                 * @member {Array.<boolean>} b
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.b = $util.emptyArray;
-    
-                /**
-                 * ListValue type.
-                 * @member {Array.<tensorflow.DataType>} type
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.type = $util.emptyArray;
-    
-                /**
-                 * ListValue shape.
-                 * @member {Array.<tensorflow.ITensorShapeProto>} shape
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.shape = $util.emptyArray;
-    
-                /**
-                 * ListValue tensor.
-                 * @member {Array.<tensorflow.ITensorProto>} tensor
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.tensor = $util.emptyArray;
-    
-                /**
-                 * ListValue func.
-                 * @member {Array.<tensorflow.INameAttrList>} func
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 */
                 ListValue.prototype.func = $util.emptyArray;
     
-                /**
-                 * Creates a new ListValue instance using the specified properties.
-                 * @function create
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {tensorflow.AttrValue.IListValue=} [properties] Properties to set
-                 * @returns {tensorflow.AttrValue.ListValue} ListValue instance
-                 */
                 ListValue.create = function create(properties) {
                     return new ListValue(properties);
                 };
     
-                /**
-                 * Encodes the specified ListValue message. Does not implicitly {@link tensorflow.AttrValue.ListValue.verify|verify} messages.
-                 * @function encode
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {tensorflow.AttrValue.IListValue} message ListValue message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ListValue.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.s != null && message.s.length)
-                        for (var i = 0; i < message.s.length; ++i)
-                            writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.s[i]);
-                    if (message.i != null && message.i.length) {
-                        writer.uint32(/* id 3, wireType 2 =*/26).fork();
-                        for (var i = 0; i < message.i.length; ++i)
-                            writer.int64(message.i[i]);
-                        writer.ldelim();
-                    }
-                    if (message.f != null && message.f.length) {
-                        writer.uint32(/* id 4, wireType 2 =*/34).fork();
-                        for (var i = 0; i < message.f.length; ++i)
-                            writer.float(message.f[i]);
-                        writer.ldelim();
-                    }
-                    if (message.b != null && message.b.length) {
-                        writer.uint32(/* id 5, wireType 2 =*/42).fork();
-                        for (var i = 0; i < message.b.length; ++i)
-                            writer.bool(message.b[i]);
-                        writer.ldelim();
-                    }
-                    if (message.type != null && message.type.length) {
-                        writer.uint32(/* id 6, wireType 2 =*/50).fork();
-                        for (var i = 0; i < message.type.length; ++i)
-                            writer.int32(message.type[i]);
-                        writer.ldelim();
-                    }
-                    if (message.shape != null && message.shape.length)
-                        for (var i = 0; i < message.shape.length; ++i)
-                            $root.tensorflow.TensorShapeProto.encode(message.shape[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
-                    if (message.tensor != null && message.tensor.length)
-                        for (var i = 0; i < message.tensor.length; ++i)
-                            $root.tensorflow.TensorProto.encode(message.tensor[i], writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
-                    if (message.func != null && message.func.length)
-                        for (var i = 0; i < message.func.length; ++i)
-                            $root.tensorflow.NameAttrList.encode(message.func[i], writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified ListValue message, length delimited. Does not implicitly {@link tensorflow.AttrValue.ListValue.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {tensorflow.AttrValue.IListValue} message ListValue message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                ListValue.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes a ListValue message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {tensorflow.AttrValue.ListValue} ListValue
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 ListValue.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -9022,30 +5495,62 @@
                     return message;
                 };
     
-                /**
-                 * Decodes a ListValue message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {tensorflow.AttrValue.ListValue} ListValue
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                ListValue.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                ListValue.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.tensorflow.AttrValue.ListValue();
+                    reader.start(block);
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "s":
+                            if (!(message.s && message.s.length))
+                                message.s = [];
+                            message.s.push(reader.bytes());
+                            break;
+                        case "i":
+                            if (!(message.i && message.i.length))
+                                message.i = [];
+                            message.i.push(reader.int64());
+                            break;
+                        case "f":
+                            if (!(message.f && message.f.length))
+                                message.f = [];
+                            message.f.push(reader.float());
+                            break;
+                        case "b":
+                            if (!(message.b && message.b.length))
+                                message.b = [];
+                            message.b.push(reader.bool());
+                            break;
+                        case "type":
+                            if (!(message.type && message.type.length))
+                                message.type = [];
+                            message.type.push(reader.enum($root.tensorflow.DataType));
+                            break;
+                        case "shape":
+                            if (!(message.shape && message.shape.length))
+                                message.shape = [];
+                            message.shape.push($root.tensorflow.TensorShapeProto.decodeText(reader, true));
+                            break;
+                        case "tensor":
+                            if (!(message.tensor && message.tensor.length))
+                                message.tensor = [];
+                            message.tensor.push($root.tensorflow.TensorProto.decodeText(reader, true));
+                            break;
+                        case "func":
+                            if (!(message.func && message.func.length))
+                                message.func = [];
+                            message.func.push($root.tensorflow.NameAttrList.decodeText(reader, true));
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies a ListValue message.
-                 * @function verify
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 ListValue.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -9164,14 +5669,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates a ListValue message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {tensorflow.AttrValue.ListValue} ListValue
-                 */
                 ListValue.fromObject = function fromObject(object) {
                     if (object instanceof $root.tensorflow.AttrValue.ListValue)
                         return object;
@@ -9444,15 +5941,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from a ListValue message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @static
-                 * @param {tensorflow.AttrValue.ListValue} message ListValue
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 ListValue.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -9513,13 +6001,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this ListValue to JSON.
-                 * @function toJSON
-                 * @memberof tensorflow.AttrValue.ListValue
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 ListValue.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };
@@ -9532,22 +6013,6 @@
     
         tensorflow.NameAttrList = (function() {
     
-            /**
-             * Properties of a NameAttrList.
-             * @memberof tensorflow
-             * @interface INameAttrList
-             * @property {string|null} [name] NameAttrList name
-             * @property {Object.<string,tensorflow.IAttrValue>|null} [attr] NameAttrList attr
-             */
-    
-            /**
-             * Constructs a new NameAttrList.
-             * @memberof tensorflow
-             * @classdesc Represents a NameAttrList.
-             * @implements INameAttrList
-             * @constructor
-             * @param {tensorflow.INameAttrList=} [properties] Properties to set
-             */
             function NameAttrList(properties) {
                 this.attr = {};
                 if (properties)
@@ -9556,80 +6021,13 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * NameAttrList name.
-             * @member {string} name
-             * @memberof tensorflow.NameAttrList
-             * @instance
-             */
             NameAttrList.prototype.name = "";
-    
-            /**
-             * NameAttrList attr.
-             * @member {Object.<string,tensorflow.IAttrValue>} attr
-             * @memberof tensorflow.NameAttrList
-             * @instance
-             */
             NameAttrList.prototype.attr = $util.emptyObject;
     
-            /**
-             * Creates a new NameAttrList instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {tensorflow.INameAttrList=} [properties] Properties to set
-             * @returns {tensorflow.NameAttrList} NameAttrList instance
-             */
             NameAttrList.create = function create(properties) {
                 return new NameAttrList(properties);
             };
     
-            /**
-             * Encodes the specified NameAttrList message. Does not implicitly {@link tensorflow.NameAttrList.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {tensorflow.INameAttrList} message NameAttrList message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NameAttrList.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-                if (message.attr != null && message.hasOwnProperty("attr"))
-                    for (var keys = Object.keys(message.attr), i = 0; i < keys.length; ++i) {
-                        writer.uint32(/* id 2, wireType 2 =*/18).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
-                        $root.tensorflow.AttrValue.encode(message.attr[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
-                    }
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified NameAttrList message, length delimited. Does not implicitly {@link tensorflow.NameAttrList.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {tensorflow.INameAttrList} message NameAttrList message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            NameAttrList.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a NameAttrList message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.NameAttrList} NameAttrList
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             NameAttrList.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -9656,30 +6054,35 @@
                 return message;
             };
     
-            /**
-             * Decodes a NameAttrList message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.NameAttrList} NameAttrList
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            NameAttrList.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            NameAttrList.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.NameAttrList(), key;
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "attr":
+                        reader.assert("{");
+                        if (message.attr === $util.emptyObject)
+                            message.attr = {};
+                        reader.assert("key");
+                        key = reader.string();
+                        reader.assert("value");
+                        message.attr[key] = $root.tensorflow.AttrValue.decodeText(reader, true);
+                        reader.assert("}");
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a NameAttrList message.
-             * @function verify
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             NameAttrList.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -9699,14 +6102,6 @@
                 return null;
             };
     
-            /**
-             * Creates a NameAttrList message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.NameAttrList} NameAttrList
-             */
             NameAttrList.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.NameAttrList)
                     return object;
@@ -9726,15 +6121,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a NameAttrList message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.NameAttrList
-             * @static
-             * @param {tensorflow.NameAttrList} message NameAttrList
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             NameAttrList.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -9754,13 +6140,6 @@
                 return object;
             };
     
-            /**
-             * Converts this NameAttrList to JSON.
-             * @function toJSON
-             * @memberof tensorflow.NameAttrList
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             NameAttrList.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -9770,321 +6149,48 @@
     
         tensorflow.TensorProto = (function() {
     
-            /**
-             * Properties of a TensorProto.
-             * @memberof tensorflow
-             * @interface ITensorProto
-             * @property {tensorflow.DataType|null} [dtype] TensorProto dtype
-             * @property {tensorflow.ITensorShapeProto|null} [tensorShape] TensorProto tensorShape
-             * @property {number|null} [versionNumber] TensorProto versionNumber
-             * @property {Uint8Array|null} [tensorContent] TensorProto tensorContent
-             * @property {Array.<number>|null} [halfVal] TensorProto halfVal
-             * @property {Array.<number>|null} [floatVal] TensorProto floatVal
-             * @property {Array.<number>|null} [doubleVal] TensorProto doubleVal
-             * @property {Array.<number>|null} [intVal] TensorProto intVal
-             * @property {Array.<Uint8Array>|null} [stringVal] TensorProto stringVal
-             * @property {Array.<number>|null} [scomplexVal] TensorProto scomplexVal
-             * @property {Array.<number|Long>|null} [int64Val] TensorProto int64Val
-             * @property {Array.<boolean>|null} [boolVal] TensorProto boolVal
-             * @property {Array.<number>|null} [dcomplexVal] TensorProto dcomplexVal
-             * @property {Array.<tensorflow.IResourceHandleProto>|null} [resourceHandleVal] TensorProto resourceHandleVal
-             * @property {Array.<tensorflow.IVariantTensorDataProto>|null} [variantVal] TensorProto variantVal
-             * @property {Array.<number>|null} [uint32Val] TensorProto uint32Val
-             * @property {Array.<number|Long>|null} [uint64Val] TensorProto uint64Val
-             */
-    
-            /**
-             * Constructs a new TensorProto.
-             * @memberof tensorflow
-             * @classdesc Represents a TensorProto.
-             * @implements ITensorProto
-             * @constructor
-             * @param {tensorflow.ITensorProto=} [properties] Properties to set
-             */
             function TensorProto(properties) {
-                this.halfVal = [];
-                this.floatVal = [];
-                this.doubleVal = [];
-                this.intVal = [];
-                this.stringVal = [];
-                this.scomplexVal = [];
-                this.int64Val = [];
-                this.boolVal = [];
-                this.dcomplexVal = [];
-                this.resourceHandleVal = [];
-                this.variantVal = [];
-                this.uint32Val = [];
-                this.uint64Val = [];
+                this.half_val = [];
+                this.float_val = [];
+                this.double_val = [];
+                this.int_val = [];
+                this.string_val = [];
+                this.scomplex_val = [];
+                this.int64_val = [];
+                this.bool_val = [];
+                this.dcomplex_val = [];
+                this.resource_handle_val = [];
+                this.variant_val = [];
+                this.uint32_val = [];
+                this.uint64_val = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * TensorProto dtype.
-             * @member {tensorflow.DataType} dtype
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
             TensorProto.prototype.dtype = 0;
+            TensorProto.prototype.tensor_shape = null;
+            TensorProto.prototype.version_number = 0;
+            TensorProto.prototype.tensor_content = $util.newBuffer([]);
+            TensorProto.prototype.half_val = $util.emptyArray;
+            TensorProto.prototype.float_val = $util.emptyArray;
+            TensorProto.prototype.double_val = $util.emptyArray;
+            TensorProto.prototype.int_val = $util.emptyArray;
+            TensorProto.prototype.string_val = $util.emptyArray;
+            TensorProto.prototype.scomplex_val = $util.emptyArray;
+            TensorProto.prototype.int64_val = $util.emptyArray;
+            TensorProto.prototype.bool_val = $util.emptyArray;
+            TensorProto.prototype.dcomplex_val = $util.emptyArray;
+            TensorProto.prototype.resource_handle_val = $util.emptyArray;
+            TensorProto.prototype.variant_val = $util.emptyArray;
+            TensorProto.prototype.uint32_val = $util.emptyArray;
+            TensorProto.prototype.uint64_val = $util.emptyArray;
     
-            /**
-             * TensorProto tensorShape.
-             * @member {tensorflow.ITensorShapeProto|null|undefined} tensorShape
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.tensorShape = null;
-    
-            /**
-             * TensorProto versionNumber.
-             * @member {number} versionNumber
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.versionNumber = 0;
-    
-            /**
-             * TensorProto tensorContent.
-             * @member {Uint8Array} tensorContent
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.tensorContent = $util.newBuffer([]);
-    
-            /**
-             * TensorProto halfVal.
-             * @member {Array.<number>} halfVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.halfVal = $util.emptyArray;
-    
-            /**
-             * TensorProto floatVal.
-             * @member {Array.<number>} floatVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.floatVal = $util.emptyArray;
-    
-            /**
-             * TensorProto doubleVal.
-             * @member {Array.<number>} doubleVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.doubleVal = $util.emptyArray;
-    
-            /**
-             * TensorProto intVal.
-             * @member {Array.<number>} intVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.intVal = $util.emptyArray;
-    
-            /**
-             * TensorProto stringVal.
-             * @member {Array.<Uint8Array>} stringVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.stringVal = $util.emptyArray;
-    
-            /**
-             * TensorProto scomplexVal.
-             * @member {Array.<number>} scomplexVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.scomplexVal = $util.emptyArray;
-    
-            /**
-             * TensorProto int64Val.
-             * @member {Array.<number|Long>} int64Val
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.int64Val = $util.emptyArray;
-    
-            /**
-             * TensorProto boolVal.
-             * @member {Array.<boolean>} boolVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.boolVal = $util.emptyArray;
-    
-            /**
-             * TensorProto dcomplexVal.
-             * @member {Array.<number>} dcomplexVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.dcomplexVal = $util.emptyArray;
-    
-            /**
-             * TensorProto resourceHandleVal.
-             * @member {Array.<tensorflow.IResourceHandleProto>} resourceHandleVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.resourceHandleVal = $util.emptyArray;
-    
-            /**
-             * TensorProto variantVal.
-             * @member {Array.<tensorflow.IVariantTensorDataProto>} variantVal
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.variantVal = $util.emptyArray;
-    
-            /**
-             * TensorProto uint32Val.
-             * @member {Array.<number>} uint32Val
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.uint32Val = $util.emptyArray;
-    
-            /**
-             * TensorProto uint64Val.
-             * @member {Array.<number|Long>} uint64Val
-             * @memberof tensorflow.TensorProto
-             * @instance
-             */
-            TensorProto.prototype.uint64Val = $util.emptyArray;
-    
-            /**
-             * Creates a new TensorProto instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {tensorflow.ITensorProto=} [properties] Properties to set
-             * @returns {tensorflow.TensorProto} TensorProto instance
-             */
             TensorProto.create = function create(properties) {
                 return new TensorProto(properties);
             };
     
-            /**
-             * Encodes the specified TensorProto message. Does not implicitly {@link tensorflow.TensorProto.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {tensorflow.ITensorProto} message TensorProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.dtype != null && message.hasOwnProperty("dtype"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.dtype);
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape"))
-                    $root.tensorflow.TensorShapeProto.encode(message.tensorShape, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                if (message.versionNumber != null && message.hasOwnProperty("versionNumber"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.versionNumber);
-                if (message.tensorContent != null && message.hasOwnProperty("tensorContent"))
-                    writer.uint32(/* id 4, wireType 2 =*/34).bytes(message.tensorContent);
-                if (message.floatVal != null && message.floatVal.length) {
-                    writer.uint32(/* id 5, wireType 2 =*/42).fork();
-                    for (var i = 0; i < message.floatVal.length; ++i)
-                        writer.float(message.floatVal[i]);
-                    writer.ldelim();
-                }
-                if (message.doubleVal != null && message.doubleVal.length) {
-                    writer.uint32(/* id 6, wireType 2 =*/50).fork();
-                    for (var i = 0; i < message.doubleVal.length; ++i)
-                        writer.double(message.doubleVal[i]);
-                    writer.ldelim();
-                }
-                if (message.intVal != null && message.intVal.length) {
-                    writer.uint32(/* id 7, wireType 2 =*/58).fork();
-                    for (var i = 0; i < message.intVal.length; ++i)
-                        writer.int32(message.intVal[i]);
-                    writer.ldelim();
-                }
-                if (message.stringVal != null && message.stringVal.length)
-                    for (var i = 0; i < message.stringVal.length; ++i)
-                        writer.uint32(/* id 8, wireType 2 =*/66).bytes(message.stringVal[i]);
-                if (message.scomplexVal != null && message.scomplexVal.length) {
-                    writer.uint32(/* id 9, wireType 2 =*/74).fork();
-                    for (var i = 0; i < message.scomplexVal.length; ++i)
-                        writer.float(message.scomplexVal[i]);
-                    writer.ldelim();
-                }
-                if (message.int64Val != null && message.int64Val.length) {
-                    writer.uint32(/* id 10, wireType 2 =*/82).fork();
-                    for (var i = 0; i < message.int64Val.length; ++i)
-                        writer.int64(message.int64Val[i]);
-                    writer.ldelim();
-                }
-                if (message.boolVal != null && message.boolVal.length) {
-                    writer.uint32(/* id 11, wireType 2 =*/90).fork();
-                    for (var i = 0; i < message.boolVal.length; ++i)
-                        writer.bool(message.boolVal[i]);
-                    writer.ldelim();
-                }
-                if (message.dcomplexVal != null && message.dcomplexVal.length) {
-                    writer.uint32(/* id 12, wireType 2 =*/98).fork();
-                    for (var i = 0; i < message.dcomplexVal.length; ++i)
-                        writer.double(message.dcomplexVal[i]);
-                    writer.ldelim();
-                }
-                if (message.halfVal != null && message.halfVal.length) {
-                    writer.uint32(/* id 13, wireType 2 =*/106).fork();
-                    for (var i = 0; i < message.halfVal.length; ++i)
-                        writer.int32(message.halfVal[i]);
-                    writer.ldelim();
-                }
-                if (message.resourceHandleVal != null && message.resourceHandleVal.length)
-                    for (var i = 0; i < message.resourceHandleVal.length; ++i)
-                        $root.tensorflow.ResourceHandleProto.encode(message.resourceHandleVal[i], writer.uint32(/* id 14, wireType 2 =*/114).fork()).ldelim();
-                if (message.variantVal != null && message.variantVal.length)
-                    for (var i = 0; i < message.variantVal.length; ++i)
-                        $root.tensorflow.VariantTensorDataProto.encode(message.variantVal[i], writer.uint32(/* id 15, wireType 2 =*/122).fork()).ldelim();
-                if (message.uint32Val != null && message.uint32Val.length) {
-                    writer.uint32(/* id 16, wireType 2 =*/130).fork();
-                    for (var i = 0; i < message.uint32Val.length; ++i)
-                        writer.uint32(message.uint32Val[i]);
-                    writer.ldelim();
-                }
-                if (message.uint64Val != null && message.uint64Val.length) {
-                    writer.uint32(/* id 17, wireType 2 =*/138).fork();
-                    for (var i = 0; i < message.uint64Val.length; ++i)
-                        writer.uint64(message.uint64Val[i]);
-                    writer.ldelim();
-                }
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified TensorProto message, length delimited. Does not implicitly {@link tensorflow.TensorProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {tensorflow.ITensorProto} message TensorProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            TensorProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a TensorProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.TensorProto} TensorProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             TensorProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -10096,128 +6202,128 @@
                         message.dtype = reader.int32();
                         break;
                     case 2:
-                        message.tensorShape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                        message.tensor_shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
                         break;
                     case 3:
-                        message.versionNumber = reader.int32();
+                        message.version_number = reader.int32();
                         break;
                     case 4:
-                        message.tensorContent = reader.bytes();
+                        message.tensor_content = reader.bytes();
                         break;
                     case 13:
-                        if (!(message.halfVal && message.halfVal.length))
-                            message.halfVal = [];
+                        if (!(message.half_val && message.half_val.length))
+                            message.half_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.halfVal.push(reader.int32());
+                                message.half_val.push(reader.int32());
                         } else
-                            message.halfVal.push(reader.int32());
+                            message.half_val.push(reader.int32());
                         break;
                     case 5:
-                        if (!(message.floatVal && message.floatVal.length))
-                            message.floatVal = [];
+                        if (!(message.float_val && message.float_val.length))
+                            message.float_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.floatVal.push(reader.float());
+                                message.float_val.push(reader.float());
                         } else
-                            message.floatVal.push(reader.float());
+                            message.float_val.push(reader.float());
                         break;
                     case 6:
-                        if (!(message.doubleVal && message.doubleVal.length))
-                            message.doubleVal = [];
+                        if (!(message.double_val && message.double_val.length))
+                            message.double_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.doubleVal.push(reader.double());
+                                message.double_val.push(reader.double());
                         } else
-                            message.doubleVal.push(reader.double());
+                            message.double_val.push(reader.double());
                         break;
                     case 7:
-                        if (!(message.intVal && message.intVal.length))
-                            message.intVal = [];
+                        if (!(message.int_val && message.int_val.length))
+                            message.int_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.intVal.push(reader.int32());
+                                message.int_val.push(reader.int32());
                         } else
-                            message.intVal.push(reader.int32());
+                            message.int_val.push(reader.int32());
                         break;
                     case 8:
-                        if (!(message.stringVal && message.stringVal.length))
-                            message.stringVal = [];
-                        message.stringVal.push(reader.bytes());
+                        if (!(message.string_val && message.string_val.length))
+                            message.string_val = [];
+                        message.string_val.push(reader.bytes());
                         break;
                     case 9:
-                        if (!(message.scomplexVal && message.scomplexVal.length))
-                            message.scomplexVal = [];
+                        if (!(message.scomplex_val && message.scomplex_val.length))
+                            message.scomplex_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.scomplexVal.push(reader.float());
+                                message.scomplex_val.push(reader.float());
                         } else
-                            message.scomplexVal.push(reader.float());
+                            message.scomplex_val.push(reader.float());
                         break;
                     case 10:
-                        if (!(message.int64Val && message.int64Val.length))
-                            message.int64Val = [];
+                        if (!(message.int64_val && message.int64_val.length))
+                            message.int64_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.int64Val.push(reader.int64());
+                                message.int64_val.push(reader.int64());
                         } else
-                            message.int64Val.push(reader.int64());
+                            message.int64_val.push(reader.int64());
                         break;
                     case 11:
-                        if (!(message.boolVal && message.boolVal.length))
-                            message.boolVal = [];
+                        if (!(message.bool_val && message.bool_val.length))
+                            message.bool_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.boolVal.push(reader.bool());
+                                message.bool_val.push(reader.bool());
                         } else
-                            message.boolVal.push(reader.bool());
+                            message.bool_val.push(reader.bool());
                         break;
                     case 12:
-                        if (!(message.dcomplexVal && message.dcomplexVal.length))
-                            message.dcomplexVal = [];
+                        if (!(message.dcomplex_val && message.dcomplex_val.length))
+                            message.dcomplex_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.dcomplexVal.push(reader.double());
+                                message.dcomplex_val.push(reader.double());
                         } else
-                            message.dcomplexVal.push(reader.double());
+                            message.dcomplex_val.push(reader.double());
                         break;
                     case 14:
-                        if (!(message.resourceHandleVal && message.resourceHandleVal.length))
-                            message.resourceHandleVal = [];
-                        message.resourceHandleVal.push($root.tensorflow.ResourceHandleProto.decode(reader, reader.uint32()));
+                        if (!(message.resource_handle_val && message.resource_handle_val.length))
+                            message.resource_handle_val = [];
+                        message.resource_handle_val.push($root.tensorflow.ResourceHandleProto.decode(reader, reader.uint32()));
                         break;
                     case 15:
-                        if (!(message.variantVal && message.variantVal.length))
-                            message.variantVal = [];
-                        message.variantVal.push($root.tensorflow.VariantTensorDataProto.decode(reader, reader.uint32()));
+                        if (!(message.variant_val && message.variant_val.length))
+                            message.variant_val = [];
+                        message.variant_val.push($root.tensorflow.VariantTensorDataProto.decode(reader, reader.uint32()));
                         break;
                     case 16:
-                        if (!(message.uint32Val && message.uint32Val.length))
-                            message.uint32Val = [];
+                        if (!(message.uint32_val && message.uint32_val.length))
+                            message.uint32_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.uint32Val.push(reader.uint32());
+                                message.uint32_val.push(reader.uint32());
                         } else
-                            message.uint32Val.push(reader.uint32());
+                            message.uint32_val.push(reader.uint32());
                         break;
                     case 17:
-                        if (!(message.uint64Val && message.uint64Val.length))
-                            message.uint64Val = [];
+                        if (!(message.uint64_val && message.uint64_val.length))
+                            message.uint64_val = [];
                         if ((tag & 7) === 2) {
                             var end2 = reader.uint32() + reader.pos;
                             while (reader.pos < end2)
-                                message.uint64Val.push(reader.uint64());
+                                message.uint64_val.push(reader.uint64());
                         } else
-                            message.uint64Val.push(reader.uint64());
+                            message.uint64_val.push(reader.uint64());
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -10227,30 +6333,99 @@
                 return message;
             };
     
-            /**
-             * Decodes a TensorProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.TensorProto} TensorProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            TensorProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            TensorProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.TensorProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "dtype":
+                        message.dtype = reader.enum($root.tensorflow.DataType);
+                        break;
+                    case "tensor_shape":
+                        message.tensor_shape = $root.tensorflow.TensorShapeProto.decodeText(reader, true);
+                        break;
+                    case "version_number":
+                        message.version_number = reader.int32();
+                        break;
+                    case "tensor_content":
+                        message.tensor_content = reader.bytes();
+                        break;
+                    case "half_val":
+                        if (!(message.half_val && message.half_val.length))
+                            message.half_val = [];
+                        message.half_val.push(reader.int32());
+                        break;
+                    case "float_val":
+                        if (!(message.float_val && message.float_val.length))
+                            message.float_val = [];
+                        message.float_val.push(reader.float());
+                        break;
+                    case "double_val":
+                        if (!(message.double_val && message.double_val.length))
+                            message.double_val = [];
+                        message.double_val.push(reader.double());
+                        break;
+                    case "int_val":
+                        if (!(message.int_val && message.int_val.length))
+                            message.int_val = [];
+                        message.int_val.push(reader.int32());
+                        break;
+                    case "string_val":
+                        if (!(message.string_val && message.string_val.length))
+                            message.string_val = [];
+                        message.string_val.push(reader.bytes());
+                        break;
+                    case "scomplex_val":
+                        if (!(message.scomplex_val && message.scomplex_val.length))
+                            message.scomplex_val = [];
+                        message.scomplex_val.push(reader.float());
+                        break;
+                    case "int64_val":
+                        if (!(message.int64_val && message.int64_val.length))
+                            message.int64_val = [];
+                        message.int64_val.push(reader.int64());
+                        break;
+                    case "bool_val":
+                        if (!(message.bool_val && message.bool_val.length))
+                            message.bool_val = [];
+                        message.bool_val.push(reader.bool());
+                        break;
+                    case "dcomplex_val":
+                        if (!(message.dcomplex_val && message.dcomplex_val.length))
+                            message.dcomplex_val = [];
+                        message.dcomplex_val.push(reader.double());
+                        break;
+                    case "resource_handle_val":
+                        if (!(message.resource_handle_val && message.resource_handle_val.length))
+                            message.resource_handle_val = [];
+                        message.resource_handle_val.push($root.tensorflow.ResourceHandleProto.decodeText(reader, true));
+                        break;
+                    case "variant_val":
+                        if (!(message.variant_val && message.variant_val.length))
+                            message.variant_val = [];
+                        message.variant_val.push($root.tensorflow.VariantTensorDataProto.decodeText(reader, true));
+                        break;
+                    case "uint32_val":
+                        if (!(message.uint32_val && message.uint32_val.length))
+                            message.uint32_val = [];
+                        message.uint32_val.push(reader.uint32());
+                        break;
+                    case "uint64_val":
+                        if (!(message.uint64_val && message.uint64_val.length))
+                            message.uint64_val = [];
+                        message.uint64_val.push(reader.uint64());
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a TensorProto message.
-             * @function verify
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             TensorProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -10307,123 +6482,115 @@
                     case 123:
                         break;
                     }
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape")) {
-                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensorShape);
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape")) {
+                    var error = $root.tensorflow.TensorShapeProto.verify(message.tensor_shape);
                     if (error)
-                        return "tensorShape." + error;
+                        return "tensor_shape." + error;
                 }
-                if (message.versionNumber != null && message.hasOwnProperty("versionNumber"))
-                    if (!$util.isInteger(message.versionNumber))
-                        return "versionNumber: integer expected";
-                if (message.tensorContent != null && message.hasOwnProperty("tensorContent"))
-                    if (!(message.tensorContent && typeof message.tensorContent.length === "number" || $util.isString(message.tensorContent)))
-                        return "tensorContent: buffer expected";
-                if (message.halfVal != null && message.hasOwnProperty("halfVal")) {
-                    if (!Array.isArray(message.halfVal))
-                        return "halfVal: array expected";
-                    for (var i = 0; i < message.halfVal.length; ++i)
-                        if (!$util.isInteger(message.halfVal[i]))
-                            return "halfVal: integer[] expected";
+                if (message.version_number != null && message.hasOwnProperty("version_number"))
+                    if (!$util.isInteger(message.version_number))
+                        return "version_number: integer expected";
+                if (message.tensor_content != null && message.hasOwnProperty("tensor_content"))
+                    if (!(message.tensor_content && typeof message.tensor_content.length === "number" || $util.isString(message.tensor_content)))
+                        return "tensor_content: buffer expected";
+                if (message.half_val != null && message.hasOwnProperty("half_val")) {
+                    if (!Array.isArray(message.half_val))
+                        return "half_val: array expected";
+                    for (var i = 0; i < message.half_val.length; ++i)
+                        if (!$util.isInteger(message.half_val[i]))
+                            return "half_val: integer[] expected";
                 }
-                if (message.floatVal != null && message.hasOwnProperty("floatVal")) {
-                    if (!Array.isArray(message.floatVal))
-                        return "floatVal: array expected";
-                    for (var i = 0; i < message.floatVal.length; ++i)
-                        if (typeof message.floatVal[i] !== "number")
-                            return "floatVal: number[] expected";
+                if (message.float_val != null && message.hasOwnProperty("float_val")) {
+                    if (!Array.isArray(message.float_val))
+                        return "float_val: array expected";
+                    for (var i = 0; i < message.float_val.length; ++i)
+                        if (typeof message.float_val[i] !== "number")
+                            return "float_val: number[] expected";
                 }
-                if (message.doubleVal != null && message.hasOwnProperty("doubleVal")) {
-                    if (!Array.isArray(message.doubleVal))
-                        return "doubleVal: array expected";
-                    for (var i = 0; i < message.doubleVal.length; ++i)
-                        if (typeof message.doubleVal[i] !== "number")
-                            return "doubleVal: number[] expected";
+                if (message.double_val != null && message.hasOwnProperty("double_val")) {
+                    if (!Array.isArray(message.double_val))
+                        return "double_val: array expected";
+                    for (var i = 0; i < message.double_val.length; ++i)
+                        if (typeof message.double_val[i] !== "number")
+                            return "double_val: number[] expected";
                 }
-                if (message.intVal != null && message.hasOwnProperty("intVal")) {
-                    if (!Array.isArray(message.intVal))
-                        return "intVal: array expected";
-                    for (var i = 0; i < message.intVal.length; ++i)
-                        if (!$util.isInteger(message.intVal[i]))
-                            return "intVal: integer[] expected";
+                if (message.int_val != null && message.hasOwnProperty("int_val")) {
+                    if (!Array.isArray(message.int_val))
+                        return "int_val: array expected";
+                    for (var i = 0; i < message.int_val.length; ++i)
+                        if (!$util.isInteger(message.int_val[i]))
+                            return "int_val: integer[] expected";
                 }
-                if (message.stringVal != null && message.hasOwnProperty("stringVal")) {
-                    if (!Array.isArray(message.stringVal))
-                        return "stringVal: array expected";
-                    for (var i = 0; i < message.stringVal.length; ++i)
-                        if (!(message.stringVal[i] && typeof message.stringVal[i].length === "number" || $util.isString(message.stringVal[i])))
-                            return "stringVal: buffer[] expected";
+                if (message.string_val != null && message.hasOwnProperty("string_val")) {
+                    if (!Array.isArray(message.string_val))
+                        return "string_val: array expected";
+                    for (var i = 0; i < message.string_val.length; ++i)
+                        if (!(message.string_val[i] && typeof message.string_val[i].length === "number" || $util.isString(message.string_val[i])))
+                            return "string_val: buffer[] expected";
                 }
-                if (message.scomplexVal != null && message.hasOwnProperty("scomplexVal")) {
-                    if (!Array.isArray(message.scomplexVal))
-                        return "scomplexVal: array expected";
-                    for (var i = 0; i < message.scomplexVal.length; ++i)
-                        if (typeof message.scomplexVal[i] !== "number")
-                            return "scomplexVal: number[] expected";
+                if (message.scomplex_val != null && message.hasOwnProperty("scomplex_val")) {
+                    if (!Array.isArray(message.scomplex_val))
+                        return "scomplex_val: array expected";
+                    for (var i = 0; i < message.scomplex_val.length; ++i)
+                        if (typeof message.scomplex_val[i] !== "number")
+                            return "scomplex_val: number[] expected";
                 }
-                if (message.int64Val != null && message.hasOwnProperty("int64Val")) {
-                    if (!Array.isArray(message.int64Val))
-                        return "int64Val: array expected";
-                    for (var i = 0; i < message.int64Val.length; ++i)
-                        if (!$util.isInteger(message.int64Val[i]) && !(message.int64Val[i] && $util.isInteger(message.int64Val[i].low) && $util.isInteger(message.int64Val[i].high)))
-                            return "int64Val: integer|Long[] expected";
+                if (message.int64_val != null && message.hasOwnProperty("int64_val")) {
+                    if (!Array.isArray(message.int64_val))
+                        return "int64_val: array expected";
+                    for (var i = 0; i < message.int64_val.length; ++i)
+                        if (!$util.isInteger(message.int64_val[i]) && !(message.int64_val[i] && $util.isInteger(message.int64_val[i].low) && $util.isInteger(message.int64_val[i].high)))
+                            return "int64_val: integer|Long[] expected";
                 }
-                if (message.boolVal != null && message.hasOwnProperty("boolVal")) {
-                    if (!Array.isArray(message.boolVal))
-                        return "boolVal: array expected";
-                    for (var i = 0; i < message.boolVal.length; ++i)
-                        if (typeof message.boolVal[i] !== "boolean")
-                            return "boolVal: boolean[] expected";
+                if (message.bool_val != null && message.hasOwnProperty("bool_val")) {
+                    if (!Array.isArray(message.bool_val))
+                        return "bool_val: array expected";
+                    for (var i = 0; i < message.bool_val.length; ++i)
+                        if (typeof message.bool_val[i] !== "boolean")
+                            return "bool_val: boolean[] expected";
                 }
-                if (message.dcomplexVal != null && message.hasOwnProperty("dcomplexVal")) {
-                    if (!Array.isArray(message.dcomplexVal))
-                        return "dcomplexVal: array expected";
-                    for (var i = 0; i < message.dcomplexVal.length; ++i)
-                        if (typeof message.dcomplexVal[i] !== "number")
-                            return "dcomplexVal: number[] expected";
+                if (message.dcomplex_val != null && message.hasOwnProperty("dcomplex_val")) {
+                    if (!Array.isArray(message.dcomplex_val))
+                        return "dcomplex_val: array expected";
+                    for (var i = 0; i < message.dcomplex_val.length; ++i)
+                        if (typeof message.dcomplex_val[i] !== "number")
+                            return "dcomplex_val: number[] expected";
                 }
-                if (message.resourceHandleVal != null && message.hasOwnProperty("resourceHandleVal")) {
-                    if (!Array.isArray(message.resourceHandleVal))
-                        return "resourceHandleVal: array expected";
-                    for (var i = 0; i < message.resourceHandleVal.length; ++i) {
-                        var error = $root.tensorflow.ResourceHandleProto.verify(message.resourceHandleVal[i]);
+                if (message.resource_handle_val != null && message.hasOwnProperty("resource_handle_val")) {
+                    if (!Array.isArray(message.resource_handle_val))
+                        return "resource_handle_val: array expected";
+                    for (var i = 0; i < message.resource_handle_val.length; ++i) {
+                        var error = $root.tensorflow.ResourceHandleProto.verify(message.resource_handle_val[i]);
                         if (error)
-                            return "resourceHandleVal." + error;
+                            return "resource_handle_val." + error;
                     }
                 }
-                if (message.variantVal != null && message.hasOwnProperty("variantVal")) {
-                    if (!Array.isArray(message.variantVal))
-                        return "variantVal: array expected";
-                    for (var i = 0; i < message.variantVal.length; ++i) {
-                        var error = $root.tensorflow.VariantTensorDataProto.verify(message.variantVal[i]);
+                if (message.variant_val != null && message.hasOwnProperty("variant_val")) {
+                    if (!Array.isArray(message.variant_val))
+                        return "variant_val: array expected";
+                    for (var i = 0; i < message.variant_val.length; ++i) {
+                        var error = $root.tensorflow.VariantTensorDataProto.verify(message.variant_val[i]);
                         if (error)
-                            return "variantVal." + error;
+                            return "variant_val." + error;
                     }
                 }
-                if (message.uint32Val != null && message.hasOwnProperty("uint32Val")) {
-                    if (!Array.isArray(message.uint32Val))
-                        return "uint32Val: array expected";
-                    for (var i = 0; i < message.uint32Val.length; ++i)
-                        if (!$util.isInteger(message.uint32Val[i]))
-                            return "uint32Val: integer[] expected";
+                if (message.uint32_val != null && message.hasOwnProperty("uint32_val")) {
+                    if (!Array.isArray(message.uint32_val))
+                        return "uint32_val: array expected";
+                    for (var i = 0; i < message.uint32_val.length; ++i)
+                        if (!$util.isInteger(message.uint32_val[i]))
+                            return "uint32_val: integer[] expected";
                 }
-                if (message.uint64Val != null && message.hasOwnProperty("uint64Val")) {
-                    if (!Array.isArray(message.uint64Val))
-                        return "uint64Val: array expected";
-                    for (var i = 0; i < message.uint64Val.length; ++i)
-                        if (!$util.isInteger(message.uint64Val[i]) && !(message.uint64Val[i] && $util.isInteger(message.uint64Val[i].low) && $util.isInteger(message.uint64Val[i].high)))
-                            return "uint64Val: integer|Long[] expected";
+                if (message.uint64_val != null && message.hasOwnProperty("uint64_val")) {
+                    if (!Array.isArray(message.uint64_val))
+                        return "uint64_val: array expected";
+                    for (var i = 0; i < message.uint64_val.length; ++i)
+                        if (!$util.isInteger(message.uint64_val[i]) && !(message.uint64_val[i] && $util.isInteger(message.uint64_val[i].low) && $util.isInteger(message.uint64_val[i].high)))
+                            return "uint64_val: integer|Long[] expected";
                 }
                 return null;
             };
     
-            /**
-             * Creates a TensorProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.TensorProto} TensorProto
-             */
             TensorProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.TensorProto)
                     return object;
@@ -10618,264 +6785,248 @@
                     message.dtype = 123;
                     break;
                 }
-                if (object.tensorShape != null) {
-                    if (typeof object.tensorShape !== "object")
-                        throw TypeError(".tensorflow.TensorProto.tensorShape: object expected");
-                    message.tensorShape = $root.tensorflow.TensorShapeProto.fromObject(object.tensorShape);
+                if (object.tensor_shape != null) {
+                    if (typeof object.tensor_shape !== "object")
+                        throw TypeError(".tensorflow.TensorProto.tensor_shape: object expected");
+                    message.tensor_shape = $root.tensorflow.TensorShapeProto.fromObject(object.tensor_shape);
                 }
-                if (object.versionNumber != null)
-                    message.versionNumber = object.versionNumber | 0;
-                if (object.tensorContent != null)
-                    if (typeof object.tensorContent === "string")
-                        $util.base64.decode(object.tensorContent, message.tensorContent = $util.newBuffer($util.base64.length(object.tensorContent)), 0);
-                    else if (object.tensorContent.length)
-                        message.tensorContent = object.tensorContent;
-                if (object.halfVal) {
-                    if (!Array.isArray(object.halfVal))
-                        throw TypeError(".tensorflow.TensorProto.halfVal: array expected");
-                    message.halfVal = [];
-                    for (var i = 0; i < object.halfVal.length; ++i)
-                        message.halfVal[i] = object.halfVal[i] | 0;
+                if (object.version_number != null)
+                    message.version_number = object.version_number | 0;
+                if (object.tensor_content != null)
+                    if (typeof object.tensor_content === "string")
+                        $util.base64.decode(object.tensor_content, message.tensor_content = $util.newBuffer($util.base64.length(object.tensor_content)), 0);
+                    else if (object.tensor_content.length)
+                        message.tensor_content = object.tensor_content;
+                if (object.half_val) {
+                    if (!Array.isArray(object.half_val))
+                        throw TypeError(".tensorflow.TensorProto.half_val: array expected");
+                    message.half_val = [];
+                    for (var i = 0; i < object.half_val.length; ++i)
+                        message.half_val[i] = object.half_val[i] | 0;
                 }
-                if (object.floatVal) {
-                    if (!Array.isArray(object.floatVal))
-                        throw TypeError(".tensorflow.TensorProto.floatVal: array expected");
-                    message.floatVal = [];
-                    for (var i = 0; i < object.floatVal.length; ++i)
-                        message.floatVal[i] = Number(object.floatVal[i]);
+                if (object.float_val) {
+                    if (!Array.isArray(object.float_val))
+                        throw TypeError(".tensorflow.TensorProto.float_val: array expected");
+                    message.float_val = [];
+                    for (var i = 0; i < object.float_val.length; ++i)
+                        message.float_val[i] = Number(object.float_val[i]);
                 }
-                if (object.doubleVal) {
-                    if (!Array.isArray(object.doubleVal))
-                        throw TypeError(".tensorflow.TensorProto.doubleVal: array expected");
-                    message.doubleVal = [];
-                    for (var i = 0; i < object.doubleVal.length; ++i)
-                        message.doubleVal[i] = Number(object.doubleVal[i]);
+                if (object.double_val) {
+                    if (!Array.isArray(object.double_val))
+                        throw TypeError(".tensorflow.TensorProto.double_val: array expected");
+                    message.double_val = [];
+                    for (var i = 0; i < object.double_val.length; ++i)
+                        message.double_val[i] = Number(object.double_val[i]);
                 }
-                if (object.intVal) {
-                    if (!Array.isArray(object.intVal))
-                        throw TypeError(".tensorflow.TensorProto.intVal: array expected");
-                    message.intVal = [];
-                    for (var i = 0; i < object.intVal.length; ++i)
-                        message.intVal[i] = object.intVal[i] | 0;
+                if (object.int_val) {
+                    if (!Array.isArray(object.int_val))
+                        throw TypeError(".tensorflow.TensorProto.int_val: array expected");
+                    message.int_val = [];
+                    for (var i = 0; i < object.int_val.length; ++i)
+                        message.int_val[i] = object.int_val[i] | 0;
                 }
-                if (object.stringVal) {
-                    if (!Array.isArray(object.stringVal))
-                        throw TypeError(".tensorflow.TensorProto.stringVal: array expected");
-                    message.stringVal = [];
-                    for (var i = 0; i < object.stringVal.length; ++i)
-                        if (typeof object.stringVal[i] === "string")
-                            $util.base64.decode(object.stringVal[i], message.stringVal[i] = $util.newBuffer($util.base64.length(object.stringVal[i])), 0);
-                        else if (object.stringVal[i].length)
-                            message.stringVal[i] = object.stringVal[i];
+                if (object.string_val) {
+                    if (!Array.isArray(object.string_val))
+                        throw TypeError(".tensorflow.TensorProto.string_val: array expected");
+                    message.string_val = [];
+                    for (var i = 0; i < object.string_val.length; ++i)
+                        if (typeof object.string_val[i] === "string")
+                            $util.base64.decode(object.string_val[i], message.string_val[i] = $util.newBuffer($util.base64.length(object.string_val[i])), 0);
+                        else if (object.string_val[i].length)
+                            message.string_val[i] = object.string_val[i];
                 }
-                if (object.scomplexVal) {
-                    if (!Array.isArray(object.scomplexVal))
-                        throw TypeError(".tensorflow.TensorProto.scomplexVal: array expected");
-                    message.scomplexVal = [];
-                    for (var i = 0; i < object.scomplexVal.length; ++i)
-                        message.scomplexVal[i] = Number(object.scomplexVal[i]);
+                if (object.scomplex_val) {
+                    if (!Array.isArray(object.scomplex_val))
+                        throw TypeError(".tensorflow.TensorProto.scomplex_val: array expected");
+                    message.scomplex_val = [];
+                    for (var i = 0; i < object.scomplex_val.length; ++i)
+                        message.scomplex_val[i] = Number(object.scomplex_val[i]);
                 }
-                if (object.int64Val) {
-                    if (!Array.isArray(object.int64Val))
-                        throw TypeError(".tensorflow.TensorProto.int64Val: array expected");
-                    message.int64Val = [];
-                    for (var i = 0; i < object.int64Val.length; ++i)
+                if (object.int64_val) {
+                    if (!Array.isArray(object.int64_val))
+                        throw TypeError(".tensorflow.TensorProto.int64_val: array expected");
+                    message.int64_val = [];
+                    for (var i = 0; i < object.int64_val.length; ++i)
                         if ($util.Long)
-                            (message.int64Val[i] = $util.Long.fromValue(object.int64Val[i])).unsigned = false;
-                        else if (typeof object.int64Val[i] === "string")
-                            message.int64Val[i] = parseInt(object.int64Val[i], 10);
-                        else if (typeof object.int64Val[i] === "number")
-                            message.int64Val[i] = object.int64Val[i];
-                        else if (typeof object.int64Val[i] === "object")
-                            message.int64Val[i] = new $util.LongBits(object.int64Val[i].low >>> 0, object.int64Val[i].high >>> 0).toNumber();
+                            (message.int64_val[i] = $util.Long.fromValue(object.int64_val[i])).unsigned = false;
+                        else if (typeof object.int64_val[i] === "string")
+                            message.int64_val[i] = parseInt(object.int64_val[i], 10);
+                        else if (typeof object.int64_val[i] === "number")
+                            message.int64_val[i] = object.int64_val[i];
+                        else if (typeof object.int64_val[i] === "object")
+                            message.int64_val[i] = new $util.LongBits(object.int64_val[i].low >>> 0, object.int64_val[i].high >>> 0).toNumber();
                 }
-                if (object.boolVal) {
-                    if (!Array.isArray(object.boolVal))
-                        throw TypeError(".tensorflow.TensorProto.boolVal: array expected");
-                    message.boolVal = [];
-                    for (var i = 0; i < object.boolVal.length; ++i)
-                        message.boolVal[i] = Boolean(object.boolVal[i]);
+                if (object.bool_val) {
+                    if (!Array.isArray(object.bool_val))
+                        throw TypeError(".tensorflow.TensorProto.bool_val: array expected");
+                    message.bool_val = [];
+                    for (var i = 0; i < object.bool_val.length; ++i)
+                        message.bool_val[i] = Boolean(object.bool_val[i]);
                 }
-                if (object.dcomplexVal) {
-                    if (!Array.isArray(object.dcomplexVal))
-                        throw TypeError(".tensorflow.TensorProto.dcomplexVal: array expected");
-                    message.dcomplexVal = [];
-                    for (var i = 0; i < object.dcomplexVal.length; ++i)
-                        message.dcomplexVal[i] = Number(object.dcomplexVal[i]);
+                if (object.dcomplex_val) {
+                    if (!Array.isArray(object.dcomplex_val))
+                        throw TypeError(".tensorflow.TensorProto.dcomplex_val: array expected");
+                    message.dcomplex_val = [];
+                    for (var i = 0; i < object.dcomplex_val.length; ++i)
+                        message.dcomplex_val[i] = Number(object.dcomplex_val[i]);
                 }
-                if (object.resourceHandleVal) {
-                    if (!Array.isArray(object.resourceHandleVal))
-                        throw TypeError(".tensorflow.TensorProto.resourceHandleVal: array expected");
-                    message.resourceHandleVal = [];
-                    for (var i = 0; i < object.resourceHandleVal.length; ++i) {
-                        if (typeof object.resourceHandleVal[i] !== "object")
-                            throw TypeError(".tensorflow.TensorProto.resourceHandleVal: object expected");
-                        message.resourceHandleVal[i] = $root.tensorflow.ResourceHandleProto.fromObject(object.resourceHandleVal[i]);
+                if (object.resource_handle_val) {
+                    if (!Array.isArray(object.resource_handle_val))
+                        throw TypeError(".tensorflow.TensorProto.resource_handle_val: array expected");
+                    message.resource_handle_val = [];
+                    for (var i = 0; i < object.resource_handle_val.length; ++i) {
+                        if (typeof object.resource_handle_val[i] !== "object")
+                            throw TypeError(".tensorflow.TensorProto.resource_handle_val: object expected");
+                        message.resource_handle_val[i] = $root.tensorflow.ResourceHandleProto.fromObject(object.resource_handle_val[i]);
                     }
                 }
-                if (object.variantVal) {
-                    if (!Array.isArray(object.variantVal))
-                        throw TypeError(".tensorflow.TensorProto.variantVal: array expected");
-                    message.variantVal = [];
-                    for (var i = 0; i < object.variantVal.length; ++i) {
-                        if (typeof object.variantVal[i] !== "object")
-                            throw TypeError(".tensorflow.TensorProto.variantVal: object expected");
-                        message.variantVal[i] = $root.tensorflow.VariantTensorDataProto.fromObject(object.variantVal[i]);
+                if (object.variant_val) {
+                    if (!Array.isArray(object.variant_val))
+                        throw TypeError(".tensorflow.TensorProto.variant_val: array expected");
+                    message.variant_val = [];
+                    for (var i = 0; i < object.variant_val.length; ++i) {
+                        if (typeof object.variant_val[i] !== "object")
+                            throw TypeError(".tensorflow.TensorProto.variant_val: object expected");
+                        message.variant_val[i] = $root.tensorflow.VariantTensorDataProto.fromObject(object.variant_val[i]);
                     }
                 }
-                if (object.uint32Val) {
-                    if (!Array.isArray(object.uint32Val))
-                        throw TypeError(".tensorflow.TensorProto.uint32Val: array expected");
-                    message.uint32Val = [];
-                    for (var i = 0; i < object.uint32Val.length; ++i)
-                        message.uint32Val[i] = object.uint32Val[i] >>> 0;
+                if (object.uint32_val) {
+                    if (!Array.isArray(object.uint32_val))
+                        throw TypeError(".tensorflow.TensorProto.uint32_val: array expected");
+                    message.uint32_val = [];
+                    for (var i = 0; i < object.uint32_val.length; ++i)
+                        message.uint32_val[i] = object.uint32_val[i] >>> 0;
                 }
-                if (object.uint64Val) {
-                    if (!Array.isArray(object.uint64Val))
-                        throw TypeError(".tensorflow.TensorProto.uint64Val: array expected");
-                    message.uint64Val = [];
-                    for (var i = 0; i < object.uint64Val.length; ++i)
+                if (object.uint64_val) {
+                    if (!Array.isArray(object.uint64_val))
+                        throw TypeError(".tensorflow.TensorProto.uint64_val: array expected");
+                    message.uint64_val = [];
+                    for (var i = 0; i < object.uint64_val.length; ++i)
                         if ($util.Long)
-                            (message.uint64Val[i] = $util.Long.fromValue(object.uint64Val[i])).unsigned = true;
-                        else if (typeof object.uint64Val[i] === "string")
-                            message.uint64Val[i] = parseInt(object.uint64Val[i], 10);
-                        else if (typeof object.uint64Val[i] === "number")
-                            message.uint64Val[i] = object.uint64Val[i];
-                        else if (typeof object.uint64Val[i] === "object")
-                            message.uint64Val[i] = new $util.LongBits(object.uint64Val[i].low >>> 0, object.uint64Val[i].high >>> 0).toNumber(true);
+                            (message.uint64_val[i] = $util.Long.fromValue(object.uint64_val[i])).unsigned = true;
+                        else if (typeof object.uint64_val[i] === "string")
+                            message.uint64_val[i] = parseInt(object.uint64_val[i], 10);
+                        else if (typeof object.uint64_val[i] === "number")
+                            message.uint64_val[i] = object.uint64_val[i];
+                        else if (typeof object.uint64_val[i] === "object")
+                            message.uint64_val[i] = new $util.LongBits(object.uint64_val[i].low >>> 0, object.uint64_val[i].high >>> 0).toNumber(true);
                 }
                 return message;
             };
     
-            /**
-             * Creates a plain object from a TensorProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.TensorProto
-             * @static
-             * @param {tensorflow.TensorProto} message TensorProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             TensorProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.arrays || options.defaults) {
-                    object.floatVal = [];
-                    object.doubleVal = [];
-                    object.intVal = [];
-                    object.stringVal = [];
-                    object.scomplexVal = [];
-                    object.int64Val = [];
-                    object.boolVal = [];
-                    object.dcomplexVal = [];
-                    object.halfVal = [];
-                    object.resourceHandleVal = [];
-                    object.variantVal = [];
-                    object.uint32Val = [];
-                    object.uint64Val = [];
+                    object.float_val = [];
+                    object.double_val = [];
+                    object.int_val = [];
+                    object.string_val = [];
+                    object.scomplex_val = [];
+                    object.int64_val = [];
+                    object.bool_val = [];
+                    object.dcomplex_val = [];
+                    object.half_val = [];
+                    object.resource_handle_val = [];
+                    object.variant_val = [];
+                    object.uint32_val = [];
+                    object.uint64_val = [];
                 }
                 if (options.defaults) {
                     object.dtype = options.enums === String ? "DT_INVALID" : 0;
-                    object.tensorShape = null;
-                    object.versionNumber = 0;
+                    object.tensor_shape = null;
+                    object.version_number = 0;
                     if (options.bytes === String)
-                        object.tensorContent = "";
+                        object.tensor_content = "";
                     else {
-                        object.tensorContent = [];
+                        object.tensor_content = [];
                         if (options.bytes !== Array)
-                            object.tensorContent = $util.newBuffer(object.tensorContent);
+                            object.tensor_content = $util.newBuffer(object.tensor_content);
                     }
                 }
                 if (message.dtype != null && message.hasOwnProperty("dtype"))
                     object.dtype = options.enums === String ? $root.tensorflow.DataType[message.dtype] : message.dtype;
-                if (message.tensorShape != null && message.hasOwnProperty("tensorShape"))
-                    object.tensorShape = $root.tensorflow.TensorShapeProto.toObject(message.tensorShape, options);
-                if (message.versionNumber != null && message.hasOwnProperty("versionNumber"))
-                    object.versionNumber = message.versionNumber;
-                if (message.tensorContent != null && message.hasOwnProperty("tensorContent"))
-                    object.tensorContent = options.bytes === String ? $util.base64.encode(message.tensorContent, 0, message.tensorContent.length) : options.bytes === Array ? Array.prototype.slice.call(message.tensorContent) : message.tensorContent;
-                if (message.floatVal && message.floatVal.length) {
-                    object.floatVal = [];
-                    for (var j = 0; j < message.floatVal.length; ++j)
-                        object.floatVal[j] = options.json && !isFinite(message.floatVal[j]) ? String(message.floatVal[j]) : message.floatVal[j];
+                if (message.tensor_shape != null && message.hasOwnProperty("tensor_shape"))
+                    object.tensor_shape = $root.tensorflow.TensorShapeProto.toObject(message.tensor_shape, options);
+                if (message.version_number != null && message.hasOwnProperty("version_number"))
+                    object.version_number = message.version_number;
+                if (message.tensor_content != null && message.hasOwnProperty("tensor_content"))
+                    object.tensor_content = options.bytes === String ? $util.base64.encode(message.tensor_content, 0, message.tensor_content.length) : options.bytes === Array ? Array.prototype.slice.call(message.tensor_content) : message.tensor_content;
+                if (message.float_val && message.float_val.length) {
+                    object.float_val = [];
+                    for (var j = 0; j < message.float_val.length; ++j)
+                        object.float_val[j] = options.json && !isFinite(message.float_val[j]) ? String(message.float_val[j]) : message.float_val[j];
                 }
-                if (message.doubleVal && message.doubleVal.length) {
-                    object.doubleVal = [];
-                    for (var j = 0; j < message.doubleVal.length; ++j)
-                        object.doubleVal[j] = options.json && !isFinite(message.doubleVal[j]) ? String(message.doubleVal[j]) : message.doubleVal[j];
+                if (message.double_val && message.double_val.length) {
+                    object.double_val = [];
+                    for (var j = 0; j < message.double_val.length; ++j)
+                        object.double_val[j] = options.json && !isFinite(message.double_val[j]) ? String(message.double_val[j]) : message.double_val[j];
                 }
-                if (message.intVal && message.intVal.length) {
-                    object.intVal = [];
-                    for (var j = 0; j < message.intVal.length; ++j)
-                        object.intVal[j] = message.intVal[j];
+                if (message.int_val && message.int_val.length) {
+                    object.int_val = [];
+                    for (var j = 0; j < message.int_val.length; ++j)
+                        object.int_val[j] = message.int_val[j];
                 }
-                if (message.stringVal && message.stringVal.length) {
-                    object.stringVal = [];
-                    for (var j = 0; j < message.stringVal.length; ++j)
-                        object.stringVal[j] = options.bytes === String ? $util.base64.encode(message.stringVal[j], 0, message.stringVal[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.stringVal[j]) : message.stringVal[j];
+                if (message.string_val && message.string_val.length) {
+                    object.string_val = [];
+                    for (var j = 0; j < message.string_val.length; ++j)
+                        object.string_val[j] = options.bytes === String ? $util.base64.encode(message.string_val[j], 0, message.string_val[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.string_val[j]) : message.string_val[j];
                 }
-                if (message.scomplexVal && message.scomplexVal.length) {
-                    object.scomplexVal = [];
-                    for (var j = 0; j < message.scomplexVal.length; ++j)
-                        object.scomplexVal[j] = options.json && !isFinite(message.scomplexVal[j]) ? String(message.scomplexVal[j]) : message.scomplexVal[j];
+                if (message.scomplex_val && message.scomplex_val.length) {
+                    object.scomplex_val = [];
+                    for (var j = 0; j < message.scomplex_val.length; ++j)
+                        object.scomplex_val[j] = options.json && !isFinite(message.scomplex_val[j]) ? String(message.scomplex_val[j]) : message.scomplex_val[j];
                 }
-                if (message.int64Val && message.int64Val.length) {
-                    object.int64Val = [];
-                    for (var j = 0; j < message.int64Val.length; ++j)
-                        if (typeof message.int64Val[j] === "number")
-                            object.int64Val[j] = options.longs === String ? String(message.int64Val[j]) : message.int64Val[j];
+                if (message.int64_val && message.int64_val.length) {
+                    object.int64_val = [];
+                    for (var j = 0; j < message.int64_val.length; ++j)
+                        if (typeof message.int64_val[j] === "number")
+                            object.int64_val[j] = options.longs === String ? String(message.int64_val[j]) : message.int64_val[j];
                         else
-                            object.int64Val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64Val[j]) : options.longs === Number ? new $util.LongBits(message.int64Val[j].low >>> 0, message.int64Val[j].high >>> 0).toNumber() : message.int64Val[j];
+                            object.int64_val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.int64_val[j]) : options.longs === Number ? new $util.LongBits(message.int64_val[j].low >>> 0, message.int64_val[j].high >>> 0).toNumber() : message.int64_val[j];
                 }
-                if (message.boolVal && message.boolVal.length) {
-                    object.boolVal = [];
-                    for (var j = 0; j < message.boolVal.length; ++j)
-                        object.boolVal[j] = message.boolVal[j];
+                if (message.bool_val && message.bool_val.length) {
+                    object.bool_val = [];
+                    for (var j = 0; j < message.bool_val.length; ++j)
+                        object.bool_val[j] = message.bool_val[j];
                 }
-                if (message.dcomplexVal && message.dcomplexVal.length) {
-                    object.dcomplexVal = [];
-                    for (var j = 0; j < message.dcomplexVal.length; ++j)
-                        object.dcomplexVal[j] = options.json && !isFinite(message.dcomplexVal[j]) ? String(message.dcomplexVal[j]) : message.dcomplexVal[j];
+                if (message.dcomplex_val && message.dcomplex_val.length) {
+                    object.dcomplex_val = [];
+                    for (var j = 0; j < message.dcomplex_val.length; ++j)
+                        object.dcomplex_val[j] = options.json && !isFinite(message.dcomplex_val[j]) ? String(message.dcomplex_val[j]) : message.dcomplex_val[j];
                 }
-                if (message.halfVal && message.halfVal.length) {
-                    object.halfVal = [];
-                    for (var j = 0; j < message.halfVal.length; ++j)
-                        object.halfVal[j] = message.halfVal[j];
+                if (message.half_val && message.half_val.length) {
+                    object.half_val = [];
+                    for (var j = 0; j < message.half_val.length; ++j)
+                        object.half_val[j] = message.half_val[j];
                 }
-                if (message.resourceHandleVal && message.resourceHandleVal.length) {
-                    object.resourceHandleVal = [];
-                    for (var j = 0; j < message.resourceHandleVal.length; ++j)
-                        object.resourceHandleVal[j] = $root.tensorflow.ResourceHandleProto.toObject(message.resourceHandleVal[j], options);
+                if (message.resource_handle_val && message.resource_handle_val.length) {
+                    object.resource_handle_val = [];
+                    for (var j = 0; j < message.resource_handle_val.length; ++j)
+                        object.resource_handle_val[j] = $root.tensorflow.ResourceHandleProto.toObject(message.resource_handle_val[j], options);
                 }
-                if (message.variantVal && message.variantVal.length) {
-                    object.variantVal = [];
-                    for (var j = 0; j < message.variantVal.length; ++j)
-                        object.variantVal[j] = $root.tensorflow.VariantTensorDataProto.toObject(message.variantVal[j], options);
+                if (message.variant_val && message.variant_val.length) {
+                    object.variant_val = [];
+                    for (var j = 0; j < message.variant_val.length; ++j)
+                        object.variant_val[j] = $root.tensorflow.VariantTensorDataProto.toObject(message.variant_val[j], options);
                 }
-                if (message.uint32Val && message.uint32Val.length) {
-                    object.uint32Val = [];
-                    for (var j = 0; j < message.uint32Val.length; ++j)
-                        object.uint32Val[j] = message.uint32Val[j];
+                if (message.uint32_val && message.uint32_val.length) {
+                    object.uint32_val = [];
+                    for (var j = 0; j < message.uint32_val.length; ++j)
+                        object.uint32_val[j] = message.uint32_val[j];
                 }
-                if (message.uint64Val && message.uint64Val.length) {
-                    object.uint64Val = [];
-                    for (var j = 0; j < message.uint64Val.length; ++j)
-                        if (typeof message.uint64Val[j] === "number")
-                            object.uint64Val[j] = options.longs === String ? String(message.uint64Val[j]) : message.uint64Val[j];
+                if (message.uint64_val && message.uint64_val.length) {
+                    object.uint64_val = [];
+                    for (var j = 0; j < message.uint64_val.length; ++j)
+                        if (typeof message.uint64_val[j] === "number")
+                            object.uint64_val[j] = options.longs === String ? String(message.uint64_val[j]) : message.uint64_val[j];
                         else
-                            object.uint64Val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.uint64Val[j]) : options.longs === Number ? new $util.LongBits(message.uint64Val[j].low >>> 0, message.uint64Val[j].high >>> 0).toNumber(true) : message.uint64Val[j];
+                            object.uint64_val[j] = options.longs === String ? $util.Long.prototype.toString.call(message.uint64_val[j]) : options.longs === Number ? new $util.LongBits(message.uint64_val[j].low >>> 0, message.uint64_val[j].high >>> 0).toNumber(true) : message.uint64_val[j];
                 }
                 return object;
             };
     
-            /**
-             * Converts this TensorProto to JSON.
-             * @function toJSON
-             * @memberof tensorflow.TensorProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             TensorProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -10885,23 +7036,6 @@
     
         tensorflow.VariantTensorDataProto = (function() {
     
-            /**
-             * Properties of a VariantTensorDataProto.
-             * @memberof tensorflow
-             * @interface IVariantTensorDataProto
-             * @property {string|null} [typeName] VariantTensorDataProto typeName
-             * @property {Uint8Array|null} [metadata] VariantTensorDataProto metadata
-             * @property {Array.<tensorflow.ITensorProto>|null} [tensors] VariantTensorDataProto tensors
-             */
-    
-            /**
-             * Constructs a new VariantTensorDataProto.
-             * @memberof tensorflow
-             * @classdesc Represents a VariantTensorDataProto.
-             * @implements IVariantTensorDataProto
-             * @constructor
-             * @param {tensorflow.IVariantTensorDataProto=} [properties] Properties to set
-             */
             function VariantTensorDataProto(properties) {
                 this.tensors = [];
                 if (properties)
@@ -10910,88 +7044,14 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * VariantTensorDataProto typeName.
-             * @member {string} typeName
-             * @memberof tensorflow.VariantTensorDataProto
-             * @instance
-             */
-            VariantTensorDataProto.prototype.typeName = "";
-    
-            /**
-             * VariantTensorDataProto metadata.
-             * @member {Uint8Array} metadata
-             * @memberof tensorflow.VariantTensorDataProto
-             * @instance
-             */
+            VariantTensorDataProto.prototype.type_name = "";
             VariantTensorDataProto.prototype.metadata = $util.newBuffer([]);
-    
-            /**
-             * VariantTensorDataProto tensors.
-             * @member {Array.<tensorflow.ITensorProto>} tensors
-             * @memberof tensorflow.VariantTensorDataProto
-             * @instance
-             */
             VariantTensorDataProto.prototype.tensors = $util.emptyArray;
     
-            /**
-             * Creates a new VariantTensorDataProto instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {tensorflow.IVariantTensorDataProto=} [properties] Properties to set
-             * @returns {tensorflow.VariantTensorDataProto} VariantTensorDataProto instance
-             */
             VariantTensorDataProto.create = function create(properties) {
                 return new VariantTensorDataProto(properties);
             };
     
-            /**
-             * Encodes the specified VariantTensorDataProto message. Does not implicitly {@link tensorflow.VariantTensorDataProto.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {tensorflow.IVariantTensorDataProto} message VariantTensorDataProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            VariantTensorDataProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.typeName != null && message.hasOwnProperty("typeName"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.typeName);
-                if (message.metadata != null && message.hasOwnProperty("metadata"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.metadata);
-                if (message.tensors != null && message.tensors.length)
-                    for (var i = 0; i < message.tensors.length; ++i)
-                        $root.tensorflow.TensorProto.encode(message.tensors[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified VariantTensorDataProto message, length delimited. Does not implicitly {@link tensorflow.VariantTensorDataProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {tensorflow.IVariantTensorDataProto} message VariantTensorDataProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            VariantTensorDataProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a VariantTensorDataProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.VariantTensorDataProto} VariantTensorDataProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             VariantTensorDataProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -11000,7 +7060,7 @@
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
                     case 1:
-                        message.typeName = reader.string();
+                        message.type_name = reader.string();
                         break;
                     case 2:
                         message.metadata = reader.bytes();
@@ -11018,36 +7078,39 @@
                 return message;
             };
     
-            /**
-             * Decodes a VariantTensorDataProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.VariantTensorDataProto} VariantTensorDataProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            VariantTensorDataProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            VariantTensorDataProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.VariantTensorDataProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "type_name":
+                        message.type_name = reader.string();
+                        break;
+                    case "metadata":
+                        message.metadata = reader.bytes();
+                        break;
+                    case "tensors":
+                        if (!(message.tensors && message.tensors.length))
+                            message.tensors = [];
+                        message.tensors.push($root.tensorflow.TensorProto.decodeText(reader, true));
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a VariantTensorDataProto message.
-             * @function verify
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             VariantTensorDataProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.typeName != null && message.hasOwnProperty("typeName"))
-                    if (!$util.isString(message.typeName))
-                        return "typeName: string expected";
+                if (message.type_name != null && message.hasOwnProperty("type_name"))
+                    if (!$util.isString(message.type_name))
+                        return "type_name: string expected";
                 if (message.metadata != null && message.hasOwnProperty("metadata"))
                     if (!(message.metadata && typeof message.metadata.length === "number" || $util.isString(message.metadata)))
                         return "metadata: buffer expected";
@@ -11063,20 +7126,12 @@
                 return null;
             };
     
-            /**
-             * Creates a VariantTensorDataProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.VariantTensorDataProto} VariantTensorDataProto
-             */
             VariantTensorDataProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.VariantTensorDataProto)
                     return object;
                 var message = new $root.tensorflow.VariantTensorDataProto();
-                if (object.typeName != null)
-                    message.typeName = String(object.typeName);
+                if (object.type_name != null)
+                    message.type_name = String(object.type_name);
                 if (object.metadata != null)
                     if (typeof object.metadata === "string")
                         $util.base64.decode(object.metadata, message.metadata = $util.newBuffer($util.base64.length(object.metadata)), 0);
@@ -11095,15 +7150,6 @@
                 return message;
             };
     
-            /**
-             * Creates a plain object from a VariantTensorDataProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.VariantTensorDataProto
-             * @static
-             * @param {tensorflow.VariantTensorDataProto} message VariantTensorDataProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             VariantTensorDataProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -11111,7 +7157,7 @@
                 if (options.arrays || options.defaults)
                     object.tensors = [];
                 if (options.defaults) {
-                    object.typeName = "";
+                    object.type_name = "";
                     if (options.bytes === String)
                         object.metadata = "";
                     else {
@@ -11120,8 +7166,8 @@
                             object.metadata = $util.newBuffer(object.metadata);
                     }
                 }
-                if (message.typeName != null && message.hasOwnProperty("typeName"))
-                    object.typeName = message.typeName;
+                if (message.type_name != null && message.hasOwnProperty("type_name"))
+                    object.type_name = message.type_name;
                 if (message.metadata != null && message.hasOwnProperty("metadata"))
                     object.metadata = options.bytes === String ? $util.base64.encode(message.metadata, 0, message.metadata.length) : options.bytes === Array ? Array.prototype.slice.call(message.metadata) : message.metadata;
                 if (message.tensors && message.tensors.length) {
@@ -11132,13 +7178,6 @@
                 return object;
             };
     
-            /**
-             * Converts this VariantTensorDataProto to JSON.
-             * @function toJSON
-             * @memberof tensorflow.VariantTensorDataProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             VariantTensorDataProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -11148,25 +7187,6 @@
     
         tensorflow.ResourceHandleProto = (function() {
     
-            /**
-             * Properties of a ResourceHandleProto.
-             * @memberof tensorflow
-             * @interface IResourceHandleProto
-             * @property {string|null} [device] ResourceHandleProto device
-             * @property {string|null} [container] ResourceHandleProto container
-             * @property {string|null} [name] ResourceHandleProto name
-             * @property {number|Long|null} [hashCode] ResourceHandleProto hashCode
-             * @property {string|null} [maybeTypeName] ResourceHandleProto maybeTypeName
-             */
-    
-            /**
-             * Constructs a new ResourceHandleProto.
-             * @memberof tensorflow
-             * @classdesc Represents a ResourceHandleProto.
-             * @implements IResourceHandleProto
-             * @constructor
-             * @param {tensorflow.IResourceHandleProto=} [properties] Properties to set
-             */
             function ResourceHandleProto(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -11174,107 +7194,16 @@
                             this[keys[i]] = properties[keys[i]];
             }
     
-            /**
-             * ResourceHandleProto device.
-             * @member {string} device
-             * @memberof tensorflow.ResourceHandleProto
-             * @instance
-             */
             ResourceHandleProto.prototype.device = "";
-    
-            /**
-             * ResourceHandleProto container.
-             * @member {string} container
-             * @memberof tensorflow.ResourceHandleProto
-             * @instance
-             */
             ResourceHandleProto.prototype.container = "";
-    
-            /**
-             * ResourceHandleProto name.
-             * @member {string} name
-             * @memberof tensorflow.ResourceHandleProto
-             * @instance
-             */
             ResourceHandleProto.prototype.name = "";
+            ResourceHandleProto.prototype.hash_code = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+            ResourceHandleProto.prototype.maybe_type_name = "";
     
-            /**
-             * ResourceHandleProto hashCode.
-             * @member {number|Long} hashCode
-             * @memberof tensorflow.ResourceHandleProto
-             * @instance
-             */
-            ResourceHandleProto.prototype.hashCode = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
-    
-            /**
-             * ResourceHandleProto maybeTypeName.
-             * @member {string} maybeTypeName
-             * @memberof tensorflow.ResourceHandleProto
-             * @instance
-             */
-            ResourceHandleProto.prototype.maybeTypeName = "";
-    
-            /**
-             * Creates a new ResourceHandleProto instance using the specified properties.
-             * @function create
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {tensorflow.IResourceHandleProto=} [properties] Properties to set
-             * @returns {tensorflow.ResourceHandleProto} ResourceHandleProto instance
-             */
             ResourceHandleProto.create = function create(properties) {
                 return new ResourceHandleProto(properties);
             };
     
-            /**
-             * Encodes the specified ResourceHandleProto message. Does not implicitly {@link tensorflow.ResourceHandleProto.verify|verify} messages.
-             * @function encode
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {tensorflow.IResourceHandleProto} message ResourceHandleProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ResourceHandleProto.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.device != null && message.hasOwnProperty("device"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.device);
-                if (message.container != null && message.hasOwnProperty("container"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.container);
-                if (message.name != null && message.hasOwnProperty("name"))
-                    writer.uint32(/* id 3, wireType 2 =*/26).string(message.name);
-                if (message.hashCode != null && message.hasOwnProperty("hashCode"))
-                    writer.uint32(/* id 4, wireType 0 =*/32).uint64(message.hashCode);
-                if (message.maybeTypeName != null && message.hasOwnProperty("maybeTypeName"))
-                    writer.uint32(/* id 5, wireType 2 =*/42).string(message.maybeTypeName);
-                return writer;
-            };
-    
-            /**
-             * Encodes the specified ResourceHandleProto message, length delimited. Does not implicitly {@link tensorflow.ResourceHandleProto.verify|verify} messages.
-             * @function encodeDelimited
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {tensorflow.IResourceHandleProto} message ResourceHandleProto message or plain object to encode
-             * @param {$protobuf.Writer} [writer] Writer to encode to
-             * @returns {$protobuf.Writer} Writer
-             */
-            ResourceHandleProto.encodeDelimited = function encodeDelimited(message, writer) {
-                return this.encode(message, writer).ldelim();
-            };
-    
-            /**
-             * Decodes a ResourceHandleProto message from the specified reader or buffer.
-             * @function decode
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @param {number} [length] Message length if known beforehand
-             * @returns {tensorflow.ResourceHandleProto} ResourceHandleProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
             ResourceHandleProto.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
@@ -11292,10 +7221,10 @@
                         message.name = reader.string();
                         break;
                     case 4:
-                        message.hashCode = reader.uint64();
+                        message.hash_code = reader.uint64();
                         break;
                     case 5:
-                        message.maybeTypeName = reader.string();
+                        message.maybe_type_name = reader.string();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -11305,30 +7234,37 @@
                 return message;
             };
     
-            /**
-             * Decodes a ResourceHandleProto message from the specified reader or buffer, length delimited.
-             * @function decodeDelimited
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {tensorflow.ResourceHandleProto} ResourceHandleProto
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            ResourceHandleProto.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
-                return this.decode(reader, reader.uint32());
+            ResourceHandleProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.tensorflow.ResourceHandleProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "device":
+                        message.device = reader.string();
+                        break;
+                    case "container":
+                        message.container = reader.string();
+                        break;
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    case "hash_code":
+                        message.hash_code = reader.uint64();
+                        break;
+                    case "maybe_type_name":
+                        message.maybe_type_name = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
             };
     
-            /**
-             * Verifies a ResourceHandleProto message.
-             * @function verify
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {Object.<string,*>} message Plain object to verify
-             * @returns {string|null} `null` if valid, otherwise the reason why it is not
-             */
             ResourceHandleProto.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
@@ -11341,23 +7277,15 @@
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
-                if (message.hashCode != null && message.hasOwnProperty("hashCode"))
-                    if (!$util.isInteger(message.hashCode) && !(message.hashCode && $util.isInteger(message.hashCode.low) && $util.isInteger(message.hashCode.high)))
-                        return "hashCode: integer|Long expected";
-                if (message.maybeTypeName != null && message.hasOwnProperty("maybeTypeName"))
-                    if (!$util.isString(message.maybeTypeName))
-                        return "maybeTypeName: string expected";
+                if (message.hash_code != null && message.hasOwnProperty("hash_code"))
+                    if (!$util.isInteger(message.hash_code) && !(message.hash_code && $util.isInteger(message.hash_code.low) && $util.isInteger(message.hash_code.high)))
+                        return "hash_code: integer|Long expected";
+                if (message.maybe_type_name != null && message.hasOwnProperty("maybe_type_name"))
+                    if (!$util.isString(message.maybe_type_name))
+                        return "maybe_type_name: string expected";
                 return null;
             };
     
-            /**
-             * Creates a ResourceHandleProto message from a plain object. Also converts values to their respective internal types.
-             * @function fromObject
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {Object.<string,*>} object Plain object
-             * @returns {tensorflow.ResourceHandleProto} ResourceHandleProto
-             */
             ResourceHandleProto.fromObject = function fromObject(object) {
                 if (object instanceof $root.tensorflow.ResourceHandleProto)
                     return object;
@@ -11368,29 +7296,20 @@
                     message.container = String(object.container);
                 if (object.name != null)
                     message.name = String(object.name);
-                if (object.hashCode != null)
+                if (object.hash_code != null)
                     if ($util.Long)
-                        (message.hashCode = $util.Long.fromValue(object.hashCode)).unsigned = true;
-                    else if (typeof object.hashCode === "string")
-                        message.hashCode = parseInt(object.hashCode, 10);
-                    else if (typeof object.hashCode === "number")
-                        message.hashCode = object.hashCode;
-                    else if (typeof object.hashCode === "object")
-                        message.hashCode = new $util.LongBits(object.hashCode.low >>> 0, object.hashCode.high >>> 0).toNumber(true);
-                if (object.maybeTypeName != null)
-                    message.maybeTypeName = String(object.maybeTypeName);
+                        (message.hash_code = $util.Long.fromValue(object.hash_code)).unsigned = true;
+                    else if (typeof object.hash_code === "string")
+                        message.hash_code = parseInt(object.hash_code, 10);
+                    else if (typeof object.hash_code === "number")
+                        message.hash_code = object.hash_code;
+                    else if (typeof object.hash_code === "object")
+                        message.hash_code = new $util.LongBits(object.hash_code.low >>> 0, object.hash_code.high >>> 0).toNumber(true);
+                if (object.maybe_type_name != null)
+                    message.maybe_type_name = String(object.maybe_type_name);
                 return message;
             };
     
-            /**
-             * Creates a plain object from a ResourceHandleProto message. Also converts values to other types if specified.
-             * @function toObject
-             * @memberof tensorflow.ResourceHandleProto
-             * @static
-             * @param {tensorflow.ResourceHandleProto} message ResourceHandleProto
-             * @param {$protobuf.IConversionOptions} [options] Conversion options
-             * @returns {Object.<string,*>} Plain object
-             */
             ResourceHandleProto.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
@@ -11401,10 +7320,10 @@
                     object.name = "";
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, true);
-                        object.hashCode = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        object.hash_code = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                     } else
-                        object.hashCode = options.longs === String ? "0" : 0;
-                    object.maybeTypeName = "";
+                        object.hash_code = options.longs === String ? "0" : 0;
+                    object.maybe_type_name = "";
                 }
                 if (message.device != null && message.hasOwnProperty("device"))
                     object.device = message.device;
@@ -11412,23 +7331,16 @@
                     object.container = message.container;
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
-                if (message.hashCode != null && message.hasOwnProperty("hashCode"))
-                    if (typeof message.hashCode === "number")
-                        object.hashCode = options.longs === String ? String(message.hashCode) : message.hashCode;
+                if (message.hash_code != null && message.hasOwnProperty("hash_code"))
+                    if (typeof message.hash_code === "number")
+                        object.hash_code = options.longs === String ? String(message.hash_code) : message.hash_code;
                     else
-                        object.hashCode = options.longs === String ? $util.Long.prototype.toString.call(message.hashCode) : options.longs === Number ? new $util.LongBits(message.hashCode.low >>> 0, message.hashCode.high >>> 0).toNumber(true) : message.hashCode;
-                if (message.maybeTypeName != null && message.hasOwnProperty("maybeTypeName"))
-                    object.maybeTypeName = message.maybeTypeName;
+                        object.hash_code = options.longs === String ? $util.Long.prototype.toString.call(message.hash_code) : options.longs === Number ? new $util.LongBits(message.hash_code.low >>> 0, message.hash_code.high >>> 0).toNumber(true) : message.hash_code;
+                if (message.maybe_type_name != null && message.hasOwnProperty("maybe_type_name"))
+                    object.maybe_type_name = message.maybe_type_name;
                 return object;
             };
     
-            /**
-             * Converts this ResourceHandleProto to JSON.
-             * @function toJSON
-             * @memberof tensorflow.ResourceHandleProto
-             * @instance
-             * @returns {Object.<string,*>} JSON object
-             */
             ResourceHandleProto.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
@@ -11441,40 +7353,14 @@
     
     $root.google = (function() {
     
-        /**
-         * Namespace google.
-         * @exports google
-         * @namespace
-         */
         var google = {};
     
         google.protobuf = (function() {
     
-            /**
-             * Namespace protobuf.
-             * @memberof google
-             * @namespace
-             */
             var protobuf = {};
     
             protobuf.Any = (function() {
     
-                /**
-                 * Properties of an Any.
-                 * @memberof google.protobuf
-                 * @interface IAny
-                 * @property {string|null} [type_url] Any type_url
-                 * @property {Uint8Array|null} [value] Any value
-                 */
-    
-                /**
-                 * Constructs a new Any.
-                 * @memberof google.protobuf
-                 * @classdesc Represents an Any.
-                 * @implements IAny
-                 * @constructor
-                 * @param {google.protobuf.IAny=} [properties] Properties to set
-                 */
                 function Any(properties) {
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -11482,77 +7368,13 @@
                                 this[keys[i]] = properties[keys[i]];
                 }
     
-                /**
-                 * Any type_url.
-                 * @member {string} type_url
-                 * @memberof google.protobuf.Any
-                 * @instance
-                 */
                 Any.prototype.type_url = "";
-    
-                /**
-                 * Any value.
-                 * @member {Uint8Array} value
-                 * @memberof google.protobuf.Any
-                 * @instance
-                 */
                 Any.prototype.value = $util.newBuffer([]);
     
-                /**
-                 * Creates a new Any instance using the specified properties.
-                 * @function create
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {google.protobuf.IAny=} [properties] Properties to set
-                 * @returns {google.protobuf.Any} Any instance
-                 */
                 Any.create = function create(properties) {
                     return new Any(properties);
                 };
     
-                /**
-                 * Encodes the specified Any message. Does not implicitly {@link google.protobuf.Any.verify|verify} messages.
-                 * @function encode
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {google.protobuf.IAny} message Any message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Any.encode = function encode(message, writer) {
-                    if (!writer)
-                        writer = $Writer.create();
-                    if (message.type_url != null && message.hasOwnProperty("type_url"))
-                        writer.uint32(/* id 1, wireType 2 =*/10).string(message.type_url);
-                    if (message.value != null && message.hasOwnProperty("value"))
-                        writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.value);
-                    return writer;
-                };
-    
-                /**
-                 * Encodes the specified Any message, length delimited. Does not implicitly {@link google.protobuf.Any.verify|verify} messages.
-                 * @function encodeDelimited
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {google.protobuf.IAny} message Any message or plain object to encode
-                 * @param {$protobuf.Writer} [writer] Writer to encode to
-                 * @returns {$protobuf.Writer} Writer
-                 */
-                Any.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
-                };
-    
-                /**
-                 * Decodes an Any message from the specified reader or buffer.
-                 * @function decode
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @param {number} [length] Message length if known beforehand
-                 * @returns {google.protobuf.Any} Any
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
                 Any.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
@@ -11574,30 +7396,30 @@
                     return message;
                 };
     
-                /**
-                 * Decodes an Any message from the specified reader or buffer, length delimited.
-                 * @function decodeDelimited
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {google.protobuf.Any} Any
-                 * @throws {Error} If the payload is not a reader or valid buffer
-                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
-                 */
-                Any.decodeDelimited = function decodeDelimited(reader) {
-                    if (!(reader instanceof $Reader))
-                        reader = new $Reader(reader);
-                    return this.decode(reader, reader.uint32());
+                Any.decodeText = function decodeText(reader, block) {
+                    if (!(reader instanceof $TextReader))
+                        reader = $TextReader.create(reader);
+                    var message = new $root.google.protobuf.Any();
+                    reader.start(block);
+                    if (reader.any(message))
+                        return message;
+                    while (!reader.end(block)) {
+                        var tag = reader.tag();
+                        switch (tag) {
+                        case "type_url":
+                            message.type_url = reader.string();
+                            break;
+                        case "value":
+                            message.value = reader.bytes();
+                            break;
+                        default:
+                            reader.handle(tag);
+                            break;
+                        }
+                    }
+                    return message;
                 };
     
-                /**
-                 * Verifies an Any message.
-                 * @function verify
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {Object.<string,*>} message Plain object to verify
-                 * @returns {string|null} `null` if valid, otherwise the reason why it is not
-                 */
                 Any.verify = function verify(message) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
@@ -11610,14 +7432,6 @@
                     return null;
                 };
     
-                /**
-                 * Creates an Any message from a plain object. Also converts values to their respective internal types.
-                 * @function fromObject
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {Object.<string,*>} object Plain object
-                 * @returns {google.protobuf.Any} Any
-                 */
                 Any.fromObject = function fromObject(object) {
                     if (object instanceof $root.google.protobuf.Any)
                         return object;
@@ -11632,15 +7446,6 @@
                     return message;
                 };
     
-                /**
-                 * Creates a plain object from an Any message. Also converts values to other types if specified.
-                 * @function toObject
-                 * @memberof google.protobuf.Any
-                 * @static
-                 * @param {google.protobuf.Any} message Any
-                 * @param {$protobuf.IConversionOptions} [options] Conversion options
-                 * @returns {Object.<string,*>} Plain object
-                 */
                 Any.toObject = function toObject(message, options) {
                     if (!options)
                         options = {};
@@ -11662,13 +7467,6 @@
                     return object;
                 };
     
-                /**
-                 * Converts this Any to JSON.
-                 * @function toJSON
-                 * @memberof google.protobuf.Any
-                 * @instance
-                 * @returns {Object.<string,*>} JSON object
-                 */
                 Any.prototype.toJSON = function toJSON() {
                     return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
                 };

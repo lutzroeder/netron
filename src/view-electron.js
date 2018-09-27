@@ -23,6 +23,9 @@ class ElectronHost {
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
         });
+        window.eval = global.eval = () => {
+            throw new Error('window.eval() not supported.');
+        };
     }
 
     get name() {
@@ -106,6 +109,16 @@ class ElectronHost {
             electron.ipcRenderer.send('drop-files', { files: files });
             return false;
         });
+    }
+
+    environment(name) {
+        if (name == 'PROTOTXT') {
+            return true;
+        }
+        if (name == 'CNTK') {
+            // return true;
+        }
+        return null;
     }
 
     error(message, detail) {
@@ -363,6 +376,14 @@ class ElectonContext {
 
     get buffer() {
         return this._buffer;
+    }
+
+    get text() {
+        if (!this._text) {
+            var decoder = new TextDecoder('utf-8');
+            this._text = decoder.decode(this._buffer);
+        }
+        return this._text;
     }
 }
 

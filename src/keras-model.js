@@ -2,14 +2,13 @@
 
 class KerasModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         if (extension == 'keras' || extension == 'h5' || extension == 'hdf5') {
             return true;
         }
         if (extension == 'json' && !context.identifier.endsWith('-symbol.json')) {
-            var decoder = new TextDecoder('utf-8');
-            var json = decoder.decode(context.buffer);
+            var json = context.text;
             if (json.indexOf('\"mxnet_version\":', 0) == -1) {
                 try {
                     var model_config = JSON.parse(json);
@@ -49,8 +48,7 @@ class KerasModelFactory {
                     model_config = JSON.parse(rootGroup.attributes.model_config);
                 }
                 else if (extension == 'json') {
-                    var decoder = new window.TextDecoder('utf-8');
-                    var json = decoder.decode(context.buffer);
+                    var json = context.text;
                     model_config = JSON.parse(json);
                     if (model_config && model_config.modelTopology && model_config.modelTopology.model_config) {
                         format = 'TensorFlow.js ' + format;
@@ -250,13 +248,10 @@ class KerasGraph {
         if (config.input_layers) {
             config.input_layers.forEach((input_layer, index) => {
                 var name = input_layer[0];
-                var graphInput = {
-                    id: name,
-                    name: name
-                };
+                var type = null;
                 var node = nodeMap[name];
                 if (node && node.class_name == 'InputLayer') {
-                    this._loadInput(node, graphInput);
+                    type = this._getInputType(node);
                     delete nodeMap[name];
                 }
                 if (inputs && index < inputs.length) {
@@ -264,7 +259,7 @@ class KerasGraph {
                         config.layers.forEach((layer) => {
                             if (layer._inputs) {
                                 layer._inputs = layer._inputs.map((input) => {
-                                    if (input == graphInput.id) {
+                                    if (input == name) {
                                         return inputs[index];
                                     }
                                     return input;
@@ -274,7 +269,7 @@ class KerasGraph {
                     }            
                 }
                 else {
-                    this._inputs.push(graphInput); 
+                    this._inputs.push(new KerasArgument(name, true, [ new KerasConnection(name, type, null) ])); 
                 }
             });
         }
@@ -298,11 +293,7 @@ class KerasGraph {
                     inputNode._outputs[inputIndex] = inputName;
                 }
                 if (addGraphOutput) {
-                    this._outputs.push({
-                        id: inputName,
-                        type: null,
-                        name: inputName
-                    });
+                    this._outputs.push(new KerasArgument(inputName, true, [ new KerasConnection(inputName, null, null) ]));
                 }
             });
         }
@@ -320,14 +311,9 @@ class KerasGraph {
         if (group) {
             this._groups = true;
         }
-        var connection = 'input';
-        if (!inputs) {
-            var input = {
-                id: connection,
-                name: connection
-            };
-            this._inputs.push(input);
-        }
+        var inputName = 'input';
+        var inputType = null;
+        var connection = inputName;
         var index = 0;
         config.forEach((layer) => {
             this._operators[layer.class_name] = (this._operators[layer.class_name] || 0) + 1; 
@@ -338,7 +324,7 @@ class KerasGraph {
                     nodeInputs = [ inputs[0] ];
                 }
                 else {
-                    this._loadInput(layer, input);
+                    inputType = this._getInputType(layer);
                 }
             }
             index++;
@@ -356,12 +342,11 @@ class KerasGraph {
 
             this._loadNode(layer, nodeInputs, nodeOutputs, model_weights, weightsManifest, group);
         });
+        if (!inputs) {
+            this._inputs.push(new KerasArgument(inputName, true, [ new KerasConnection(inputName, inputType, null) ]));
+        }
         if (connection) {
-            this._outputs.push({ 
-                id: connection,
-                type: null,
-                name: connection
-            });
+            this._outputs.push(new KerasArgument(connection, true, [ new KerasConnection(connection, null, null) ]));
         }
     }
 
@@ -381,8 +366,7 @@ class KerasGraph {
         }
     }
 
-    _loadInput(layer, input) {
-        input.type = null;
+    _getInputType(layer) {
         if (layer && layer.config) {
             var dataType = '?';
             var shape = [];
@@ -395,8 +379,52 @@ class KerasGraph {
                 shape = config.batch_input_shape.map(s => s == null ? '?' : s);
                 delete config.batch_input_shape;
             }
-            input.type = new KerasTensorType(dataType, shape);
+            return new KerasTensorType(dataType, shape);
         }
+        return null;
+    }
+}
+
+class KerasArgument {
+    constructor(name, visible, connections) {
+        this._name = name;
+        this._visible = visible;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get visible() {
+        return this._visible;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class KerasConnection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type || null;
+        this._initializer = initializer || null;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 
@@ -487,27 +515,19 @@ class KerasNode {
 
     get inputs() {
         var inputs = KerasOperatorMetadata.operatorMetadata.getInputs(this, this._inputs);
-        inputs.forEach((input) => {
-            input.connections.forEach((connection) => {
-                var initializer = this._initializers[connection.id];
-                if (initializer) {
-                    connection.type = initializer.type;
-                    connection.initializer = initializer;
-                }
-            });
+        return inputs.map((input) => {
+            return new KerasArgument(input.name, input.visible != false, input.connections.map((connection) => {
+                return new KerasConnection(connection.id, null, this._initializers[connection.id]);
+            }));
         });
-        return inputs;
     }
 
     get outputs() {
-        var results = [];
-        this._outputs.forEach((output, index) => {
+        return this._outputs.map((output, index) => {
             var result = { connections: [] };
-            result.name = KerasOperatorMetadata.operatorMetadata.getOutputName(this.operator, index);
-            result.connections.push({ id: output });
-            results.push(result);
+            var outputName = KerasOperatorMetadata.operatorMetadata.getOutputName(this.operator, index);
+            return new KerasArgument(outputName, true, [ new KerasConnection(output, null, null) ]);            
         });
-        return results;
     }
 
     get attributes() {
@@ -798,7 +818,7 @@ class KerasOperatorMetadata {
                                 }
                             }
                         }
-                        result.hidden = true;
+                        result.visible = false;
                         break;
                     case 'TimeDistributed':
                         if (innerSchema && innerSchema.inputs && index < innerSchema.inputs.length) {

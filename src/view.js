@@ -174,10 +174,7 @@ class View {
             var x = 0;
             var y = 0;
             selection.forEach((element) => {
-                var classAttribute = element.getAttribute('class');
-                var classList = classAttribute ? classAttribute.split(' ') : [];
-                classList.push('select');
-                element.setAttribute('class', classList.join(' '));
+                element.classList.add('select');
                 this._selection.push(element);
                 var box = element.getBBox();
                 var ex = box.x + (box.width / 2);
@@ -199,9 +196,7 @@ class View {
     clearSelection() {
         while (this._selection.length > 0) {
             var element = this._selection.pop();
-            var classes = element.getAttribute('class').split(' ');
-            classes = classes.filter((className) => className != 'select');
-            element.setAttribute('class', classes.join(' '));
+            element.classList.remove('select');
         }
     }
 
@@ -216,7 +211,8 @@ class View {
             new PyTorchModelFactory(),
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),
-            new SklearnModelFactory()
+            new SklearnModelFactory(),
+            new CntkModelFactory()
         ];
 
         try {
@@ -271,7 +267,7 @@ class View {
                     if (entry.name.startsWith(rootFolder)) {
                         var identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                            return modelFactoryRegistry.some((factory) => factory.match(new ArchiveContext(null, rootFolder, identifier, entry.data)));
+                            return modelFactoryRegistry.some((factory) => factory.match(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host));
                         }
                     }
                     return false;
@@ -295,13 +291,23 @@ class View {
             return;
         }
 
-        var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context));
+        var errorList = [];
+        var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context, this._host));
+        var factoryCount = factoryList.length;
         var next = () => {
             if (factoryList.length > 0) {
                 var modelFactory = factoryList.shift();
                 modelFactory.open(context, this._host, (err, model) => {
+                    if (err) {
+                        errorList.push(err);
+                    }
                     if (model || factoryList.length == 0) {
-                        callback(err, model);
+                        if (!model && factoryCount > 1 && errorList.length > 1) {
+                            callback(new NameError(errorList.map((err) => err.message).join('\n'), "Error loading model."), null);
+                        }
+                        else {
+                            callback(err, model);
+                        }
                     }
                     else {
                         next();
@@ -313,10 +319,11 @@ class View {
                 switch (extension) {
                     case 'json':
                     case 'pb':
-                        callback(new Error('Unsupported file content for extension \'.' + extension + '\'.'), null);
+                    case 'model':
+                        callback(new NameError('Unsupported file content for extension \'.' + extension + '\'.', "Error loading model."), null);
                         break;
                     default:
-                        callback(new Error('Unsupported file extension \'.' + extension + '\'.'), null);
+                        callback(new NameError('Unsupported file extension \'.' + extension + '\'.', "Error loading model."), null);
                         break;
                 }
             }
@@ -497,7 +504,7 @@ class View {
                             var inputClass = 'node-item-input';
                             if (initializers.length == 0) {
                                 inputClass = 'node-item-input';
-                                if (input.hidden) {
+                                if (!input.visible) {
                                     hiddenInputs = true;
                                 }
                             }
@@ -507,20 +514,20 @@ class View {
                                 }
                                 if (initializers.length == input.connections.length) {
                                     inputClass = 'node-item-constant';
-                                    if (input.hidden) {
+                                    if (!input.visible) {
                                         hiddenInitializers = true;
                                     }
                                 }
                                 else {
                                     inputClass = 'node-item-constant';
-                                    if (input.hidden) {
+                                    if (!input.visible) {
                                         hiddenInputs = true;
                                     }
                                 }
                             }
             
                             if (this._showDetails) {
-                                if (!input.hidden) {
+                                if (input.visible) {
                                     var types = input.connections.map(connection => connection.type || '').join('\n');
                                     formatter.addItem(input.name, inputId, [ inputClass ], types, () => {
                                         this.showNodeProperties(node, input);
@@ -566,8 +573,9 @@ class View {
                             }
                             tuple.from = { 
                                 node: nodeId,
-                                name: output.name
-                            };    
+                                name: output.name,
+                                type: connection.type
+                            };
                         });
                     });
             
@@ -647,37 +655,39 @@ class View {
                 });
             
                 graph.inputs.forEach((input) => {
-                    var tuple = edgeMap[input.id];
-                    if (!tuple) {
-                        tuple = { from: null, to: [] };
-                        edgeMap[input.id] = tuple;
-                    }
-                    tuple.from = { 
-                        node: nodeId,
-                    };
+                    input.connections.forEach((connection) => {
+                        var tuple = edgeMap[connection.id];
+                        if (!tuple) {
+                            tuple = { from: null, to: [] };
+                            edgeMap[connection.id] = tuple;
+                        }
+                        tuple.from = { 
+                            node: nodeId,
+                            type: connection.type
+                        };    
+                    });
+                    var types = input.connections.map(connection => connection.type || '').join('\n');
     
                     var formatter = new NodeFormatter();
-                    formatter.addItem(input.name, null, [ 'graph-item-input' ], input.type, () => {
+                    formatter.addItem(input.name, null, [ 'graph-item-input' ], types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: formatter.format(graphElement), class: 'graph-input' } ); 
                 });
             
                 graph.outputs.forEach((output) => {
-                    var outputId = output.id;
-                    var outputName = output.name;
-                    var tuple = edgeMap[outputId];
-                    if (!tuple) {
-                        tuple = { from: null, to: [] };
-                        edgeMap[outputId] = tuple;
-                    }
-                    tuple.to.push({
-                        node: nodeId,
-                        // name: valueInfo.name
+                    output.connections.forEach((connection) => {
+                        var tuple = edgeMap[connection.id];
+                        if (!tuple) {
+                            tuple = { from: null, to: [] };
+                            edgeMap[connection.id] = tuple;
+                        }
+                        tuple.to.push({ node: nodeId });
                     });
+                    var types = output.connections.map(connection => connection.type || '').join('\n');
             
                     var formatter = new NodeFormatter();
-                    formatter.addItem(output.name, null, [ 'graph-item-output' ], output.type, () => {
+                    formatter.addItem(output.name, null, [ 'graph-item-output' ], types, () => {
                         this.showModelProperties();
                     });
                     g.setNode(nodeId++, { label: formatter.format(graphElement) } ); 
@@ -688,7 +698,10 @@ class View {
                     if (tuple.from != null) {
                         tuple.to.forEach((to) => {
                             var text = '';
-                            if (tuple.from.name && to.name) {
+                            if (tuple.from.type && tuple.from.type.shape && tuple.from.type.shape.length > 0) {
+                                text = tuple.from.type.shape.join('\u00D7');
+                            }
+                            else if (tuple.from.name && to.name) {
                                 text = tuple.from.name + ' \u21E8 ' + to.name;
                             }
                             else if (tuple.from.name) {
@@ -1047,11 +1060,25 @@ class ArchiveContext {
         return this._buffer;
     }
 
+    get text() {
+        if (!this._text) {
+            var decoder = new TextDecoder('utf-8');
+            this._text = decoder.decode(this._buffer);
+        }
+        return this._text;
+    }
 }
 
 class ArchiveError extends Error {
     constructor(message) {
         super(message);
         this.name = "Error loading archive";
+    }
+}
+
+class NameError extends Error {
+    constructor(message, name) {
+        super(message);
+        this.name = name; 
     }
 }

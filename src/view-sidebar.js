@@ -166,7 +166,7 @@ class NodeView {
 
     addInput(name, input) {
         if (input.connections.length > 0) {
-            var view = new NodeArgumentView(input, this._host);
+            var view = new ArgumentView(input, this._host);
             view.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
@@ -178,7 +178,7 @@ class NodeView {
 
     addOutput(name, output) {
         if (output.connections.length > 0) {
-            var item = new NameValueView(name, new NodeArgumentView(output));
+            var item = new NameValueView(name, new ArgumentView(output));
             this._outputs.push(item);
             this._elements.push(item.element);
         }
@@ -289,7 +289,7 @@ class NodeAttributeView {
         if (this._attribute.tensor) {
             value = '[...]';
         }
-        if (value && typeof value !== 'string') {
+        if ((value || value === false || value === 0) && typeof value !== 'string') {
             value = value.toString();
         }
         if (value && value.length > 1000) {
@@ -331,14 +331,14 @@ class NodeAttributeView {
     }
 }
 
-class NodeArgumentView {
+class ArgumentView {
 
     constructor(list, host) {
         this._list = list;
         this._elements = [];
         this._items = [];
         list.connections.forEach((connection) => {
-            var item = new NodeConnectionView(connection, host);
+            var item = new ConnectionView(connection, host);
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
@@ -372,7 +372,7 @@ class NodeArgumentView {
     }
 }
 
-class NodeConnectionView {
+class ConnectionView {
     constructor(connection, host) {
         this._connection = connection;
         this._host = host;
@@ -381,12 +381,13 @@ class NodeConnectionView {
         this._element.className = 'sidebar-view-item-value';
 
         var initializer = connection.initializer;
-        if (!initializer) {
+        if (initializer) {
             this._element.style.backgroundColor = '#f4f4f4';
         }
 
+        var quantization = connection.quantization;
         var type = connection.type;
-        if (type || initializer) {
+        if (type || initializer || quantization) {
             this._expander = document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
@@ -447,7 +448,7 @@ class NodeConnectionView {
                 if (type) {
                     var typeLine = document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
-                    typeLine.innerHTML = 'type: <code><b>' + type + '</b></code>';
+                    typeLine.innerHTML = 'type: <code><b>' + type.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
                     this._element.appendChild(typeLine);
                 }
                 if (denotation) {
@@ -465,12 +466,12 @@ class NodeConnectionView {
                     this._element.appendChild(descriptionLine);
                 }
 
-                var quantization = this._connection.quantization || (initializer ? initializer.quantization : null);
+                var quantization = this._connection.quantization;
                 if (quantization) {
                     var quantizationLine = document.createElement('div');
                     quantizationLine.className = 'sidebar-view-item-value-line-border';
-                    quantizationLine.innerHTML = 'quantization: ' + '<code><b>' + quantization + '</b></code>';
-                    this._element.appendChild(quantizationLine);   
+                    quantizationLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>quantization: ' + '<b>' + quantization + '</b></span>';
+                    this._element.appendChild(quantizationLine);
                 }
 
                 if (initializer) {
@@ -528,7 +529,8 @@ class NodeConnectionView {
 
 class ModelView {
 
-    constructor(model) {
+    constructor(model, host) {
+        this._host = host;
         this._model = model;
         this._elements = [];
 
@@ -653,7 +655,9 @@ class ModelView {
     }
 
     addArgument(name, argument) {
-        var item = new NameValueView(name, new GraphArgumentView(argument));
+        var view = new ArgumentView(argument, this._host);
+        view.toggle();
+        var item = new NameValueView(name, view);
         this._elements.push(item.element);
     }
 
@@ -722,87 +726,6 @@ class GraphOperatorListView {
                 while (this._element.childElementCount > 2) {
                     this._element.removeChild(this._element.lastChild);
                 }
-            }
-        }
-    }
-}
-
-class GraphArgumentView {
-
-    constructor(argument) {
-        this._argument = argument;
-        this._element = document.createElement('div');
-        this._element.className = 'sidebar-view-item-value';
-
-        var type = '?';
-        var denotation = null;
-        if (this._argument.type) {
-            if (typeof this._argument.type == 'string') {
-                debugger;
-            }
-            type = this._argument.type.toString();
-            denotation = this._argument.type.denotation || null;
-        }
-
-        var quantization = argument.quantization;
-
-        if (argument.description || denotation || quantization) {
-            this._expander = document.createElement('div');
-            this._expander.className = 'sidebar-view-item-value-expander';
-            this._expander.innerText = '+';
-            this._expander.addEventListener('click', (e) => {
-                this.toggle();
-            });
-            this._element.appendChild(this._expander);
-        }
-
-        var typeLine = document.createElement('div');
-        typeLine.className = 'sidebar-view-item-value-line';
-        typeLine.innerHTML = 'type: <code><b>' + type.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
-        this._element.appendChild(typeLine);
-
-        if (argument.description || denotation || quantization) {
-            this.toggle();
-        }
-    }
-
-    get elements() {
-        return [ this._element ];
-    }
-
-    toggle() {
-        if (this._expander.innerText == '+') {
-            this._expander.innerText = '-';
-
-            var type = this._argument.type;
-            var denotation = (type && type.denotation) ? type.denotation : null; 
-
-            if (denotation) {
-                var denotationLine = document.createElement('div');
-                denotationLine.className = 'sidebar-view-item-value-line-border';
-                denotationLine.innerHTML = 'denotation: <code><b>' + denotation + '</b></code>';
-                this._element.appendChild(denotationLine);
-            }
-
-            var quantization = this._argument.quantization;
-            if (quantization) {
-                var quantizationLine = document.createElement('div');
-                quantizationLine.className = 'sidebar-view-item-value-line-border';
-                quantizationLine.innerHTML = 'quantization: ' + '<code><b>' + quantization + '</b></code>';
-                this._element.appendChild(quantizationLine);   
-            }
-
-            if (this._argument.description) {
-                var descriptionLine = document.createElement('div');
-                descriptionLine.className = 'sidebar-view-item-value-line-border';
-                descriptionLine.innerHTML = this._argument.description;
-                this._element.appendChild(descriptionLine);
-            }
-        }
-        else {
-            this._expander.innerText = '+';
-            while (this._element.childElementCount > 2) {
-                this._element.removeChild(this._element.lastChild);
             }
         }
     }

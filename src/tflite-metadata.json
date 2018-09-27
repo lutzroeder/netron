@@ -12,9 +12,9 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "padding", "type": "Padding" },
-        { "name": "stride_w", "type": "int" },
-        { "name": "stride_h", "type": "int" },
+        { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "stride_w", "type": "int", "default": 1 },
+        { "name": "stride_h", "type": "int", "default": 1 },
         { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
         { "name": "dilation_w_factor", "type": "int", "default": 1 },
         { "name": "dilation_h_factor", "type": "int", "default": 1 }
@@ -105,11 +105,13 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "padding", "type": "Padding" },
-        { "name": "stride_w", "type": "int" },
-        { "name": "stride_h", "type": "int" },
-        { "name": "depth_multiplier", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "stride_w", "type": "int", "default": 1 },
+        { "name": "stride_h", "type": "int", "default": 1 },
+        { "name": "depth_multiplier", "type": "int", "default": 1 },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+        { "name": "dilation_w_factor", "type": "int", "default": 1 },
+        { "name": "dilation_h_factor", "type": "int", "default": 1 }
       ]
     }
   },

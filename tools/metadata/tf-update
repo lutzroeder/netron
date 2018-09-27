@@ -26,7 +26,7 @@ else
 fi
 
 echo "Generate 'tf.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ${src}/tf.js \
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r tf -o ${src}/tf.js \
     ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
     ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
     ${third_party}/${identifier}/tensorflow/core/protobuf/saver.proto \
@@ -39,7 +39,7 @@ ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure -r tf -o ${src}/
     ${third_party}/${identifier}/tensorflow/core/framework/function.proto \
     ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto \
     ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
-    ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto \
+    ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto
 
 echo "Install protobuf"
 virtualenv=${build}/virtualenv/${identifier}

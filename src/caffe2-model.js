@@ -1,13 +1,24 @@
 /*jshint esversion: 6 */
 
-// Experimental
-
 var caffe2 = null;
 
 class Caffe2ModelFactory {
 
-    match(context) {
-        return context.identifier.endsWith('predict_net.pb');
+    match(context, host) {
+        var identifier = context.identifier;
+        if (identifier.endsWith('predict_net.pb')) {
+            return true;
+        }
+        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
+            if (context.text) {
+                var lines = context.text.split('\n');
+                if (lines.some((line) => line.startsWith('ir_version') || line.startsWith('graph_def') || line.startsWith('layers') || line.startsWith('layer'))) {
+                    return false;
+                }
+            }
+            return host.environment('PROTOTXT') ? true : false;
+        }
+        return false;
     }    
 
     open(context, host, callback) {
@@ -17,14 +28,29 @@ class Caffe2ModelFactory {
                 return;
             }
             var netDef = null;
-            try {
-                caffe2 = protobuf.roots.caffe2.caffe2;
-                netDef = caffe2.NetDef.decode(context.buffer);
+            var extension = context.identifier.split('.').pop();
+            if (extension == 'pbtxt' || extension == 'prototxt') {
+                try {
+                    caffe2 = protobuf.roots.caffe2.caffe2;
+                    netDef = caffe2.NetDef.decodeText(context.text);
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new Caffe2Error('File text format is not caffe2.NetDef (' + error.message + ').'), null);
+                    return;
+                }    
             }
-            catch (error) {
-                callback(new Caffe2Error('File format is not caffe2.NetDef (' + error.message + ').'), null);
-                return;
+            else {
+                try {
+                    caffe2 = protobuf.roots.caffe2.caffe2;
+                    netDef = caffe2.NetDef.decode(context.buffer);
+                }
+                catch (error) {
+                    callback(new Caffe2Error('File format is not caffe2.NetDef (' + error.message + ').'), null);
+                    return;
+                }    
             }
+
             context.request('init_net.pb', null, (err, data) => {
 
                 var init = null;
@@ -79,7 +105,7 @@ class Caffe2Graph {
         this._operators = {};
 
         var initializers = {};
-        netDef.externalInput.forEach((input) => {
+        netDef.external_input.forEach((input) => {
             initializers[input] = {};
         });
         if (init) {
@@ -114,21 +140,13 @@ class Caffe2Graph {
         var inputs = Object.keys(initializers);
         inputs.forEach((input) => {
             if (inputs.length == 1 || !input.startsWith('caffe.')) {
-                this._inputs.push({
-                    id: input,
-                    name: input,
-                    type: null
-                });
+                this._inputs.push(new Caffe2Argument(input, [ new Caffe2Connection(input, null, null) ]));
             }
         });
 
         this._outputs = [];
-        netDef.externalOutput.forEach((output) => {
-            this._outputs.push({ 
-                id: output,
-                name: output,
-                type: null
-            });
+        netDef.external_output.forEach((output) => {
+            this._outputs.push(new Caffe2Argument(output, [ new Caffe2Connection(output, null, null) ]));
         });
     }
 
@@ -154,6 +172,48 @@ class Caffe2Graph {
 
     get operators() {
         return this._operators;
+    }
+}
+
+class Caffe2Argument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get visible() {
+        return true;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class Caffe2Connection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type || null;
+        this._initializer = initializer || null;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
     }
 }
 
@@ -209,21 +269,20 @@ class Caffe2Node {
 
     get inputs() {
         var inputs = Caffe2OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs);
-        inputs.forEach((input) => {
-            input.connections.forEach((connection) => {
-                var initializer = this._initializers[connection.id];
-                if (initializer) {
-                    connection.initializer = initializer;
-                    connection.type = initializer.type;
-                }
-            });
+        return inputs.map((input) => {
+            return new Caffe2Argument(input.name, input.connections.map((connection) => {
+                return new Caffe2Connection(connection.id, null, this._initializers[connection.id]);
+            }));
         });
-        return inputs;
     }
 
     get outputs() {
         var outputs = Caffe2OperatorMetadata.operatorMetadata.getOutputs(this._operator, this._outputs);
-        return outputs;
+        return outputs.map((output) => {
+            return new Caffe2Argument(output.name, output.connections.map((connection) => {
+                return new Caffe2Connection(connection.id, null, null);
+            }));
+        });
     }
 
     get attributes() {
@@ -570,63 +629,6 @@ class Caffe2OperatorMetadata
                 if (attribute.hasOwnProperty('default')) {
                     return value != attribute.default.toString();
                 }
-            }
-        }
-        return true;
-    }
-    
-    static isEquivalent(a, b) {
-        if (a === b) {
-            return a !== 0 || 1 / a === 1 / b;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        if (a !== a) {
-            return b !== b;
-        }
-        var type = typeof a;
-        if (type !== 'function' && type !== 'object' && typeof b != 'object') {
-            return false;
-        }
-        var className = toString.call(a);
-        if (className !== toString.call(b)) {
-            return false;
-        }
-        switch (className) {
-            case '[object RegExp]':
-            case '[object String]':
-                return '' + a === '' + b;
-            case '[object Number]':
-                if (+a !== +a) {
-                    return +b !== +b;
-                }
-                return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-            case '[object Date]':
-            case '[object Boolean]':
-                return +a === +b;
-            case '[object Array]':
-                var length = a.length;
-                if (length !== b.length) {
-                    return false;
-                }
-                while (length--) {
-                    if (!Caffe2OperatorMetadata.isEquivalent(a[length], b[length])) {
-                        return false;
-                    }
-                }
-                return true;
-        }
-
-        var keys = Object.keys(a);
-        var size = keys.length;
-        if (Object.keys(b).length != size) {
-            return false;
-        } 
-        while (size--) {
-            var key = keys[size];
-            if (!(b.hasOwnProperty(key) && Caffe2OperatorMetadata.isEquivalent(a[key], b[key]))) {
-                return false;
             }
         }
         return true;

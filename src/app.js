@@ -18,9 +18,24 @@ class Application {
 
         electron.app.setAppUserModelId('com.lutzroeder.netron');
 
-        if (this._makeSingleInstance()) {
+        if (!electron.app.requestSingleInstanceLock()) {
             electron.app.quit();
         }
+
+        electron.app.on('second-instance', (event, commandLine, workingDirectory) => {
+            var currentDirectory = process.cwd();
+            process.chdir(workingDirectory);
+            var open = this._parseCommandLine(commandLine);
+            process.chdir(currentDirectory);
+            if (!open) {
+                if (this._views.count > 0) {
+                    var view = this._views.item(0);
+                    if (view) {
+                        view.restore();
+                    }
+                }
+            }
+        });
 
         electron.ipcMain.on('open-file-dialog', (e, data) => {
             this._openFileDialog();
@@ -54,26 +69,9 @@ class Application {
         this._checkForUpdates();
     }
 
-    _makeSingleInstance() {
-        return electron.app.makeSingleInstance((argv, workingDirectory) => { 
-            var currentDirectory = process.cwd();
-            process.chdir(workingDirectory);
-            var open = this._parseCommandLine(argv);
-            process.chdir(currentDirectory);
-            if (!open) {
-                if (this._views.count > 0) {
-                    var view = this._views.item(0);
-                    if (view) {
-                        view.restore();
-                    }
-                }
-            }
-        });
-    }
-
     _parseCommandLine(argv) {
         var open = false;
-        if (process.platform == 'win32' && argv.length > 1) {
+        if (argv.length > 1) {
             argv.slice(1).forEach((arg) => {
                 if (!arg.startsWith('-')) {
                     var extension = arg.split('.').pop();
@@ -113,17 +111,17 @@ class Application {
         var showOpenDialogOptions = { 
             properties: [ 'openFile' ], 
             filters: [
-                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth', 'pkl', 'joblib' ] }
+                { name: 'All Model Files',  extensions: [ 'onnx', 'pb', 'h5', 'hdf5', 'json', 'keras', 'mlmodel', 'caffemodel', 'model', 'meta', 'tflite', 'lite', 'pt', 'pth', 'pkl', 'joblib', 'pbtxt', 'prototxt' ] }
                 /* 
-                { name: 'ONNX Model', extensions: [ 'onnx', 'pb' ] },
+                { name: 'ONNX Model', extensions: [ 'onnx', 'pb', 'pbtxt' ] },
                 { name: 'Keras Model', extensions: [ 'h5', 'hdf5', 'json', 'keras' ] },
                 { name: 'CoreML Model', extensions: [ 'mlmodel' ] },
-                { name: 'Caffe Model', extensions: [ 'caffemodel' ] },
-                { name: 'Caffe2 Model', extensions: [ 'pb' ] },
+                { name: 'Caffe Model', extensions: [ 'caffemodel', 'pbtxt' ] },
+                { name: 'Caffe2 Model', extensions: [ 'pb', 'pbtxt' ] },
                 { name: 'MXNet Model', extensions: [ 'model', 'json' ] },
                 { name: 'PyTorch Model', extensions: [ 'pt', 'pth' ] },
-                { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta' ] },
-                { name: 'TensorFlow Saved Model', extensions: [ 'pb' ] },
+                { name: 'TensorFlow Graph', extensions: [ 'pb', 'meta', 'pbtxt' ] },
+                { name: 'TensorFlow Saved Model', extensions: [ 'pb', 'pbtxt' ] },
                 { name: 'TensorFlow Lite Model', extensions: [ 'tflite', 'lite' ] } 
                 */
             ]

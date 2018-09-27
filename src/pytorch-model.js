@@ -1,8 +1,10 @@
 /*jshint esversion: 6 */
 
+// Experimental
+
 class PyTorchModelFactory {
 
-    match(context) {
+    match(context, host) {
         var extension = context.identifier.split('.').pop();
         return extension == 'pt' || extension == 'pth';
     }
@@ -59,6 +61,7 @@ class PyTorchModelFactory {
 
             constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
+            constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
             constructorTable['torch.nn.modules.container.Sequential'] = function () {};
             constructorTable['torch.nn.modules.conv.Conv2d'] = function () {};
@@ -85,6 +88,7 @@ class PyTorchModelFactory {
             constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
             constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) { this.data = data; this.requires_grad = requires_grad; };
             constructorTable['torch.FloatStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'float32'; };
+            constructorTable['torch.DoubleStorage'] = function (size) { this.size = size; this.dataTypeSize = 8; this.dataType = 'float64'; };
             constructorTable['torch.LongStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'int64'; };
 
             functionTable['torch._utils._rebuild_tensor'] = function (storage, storage_offset, size, stride) {
@@ -181,7 +185,11 @@ class PyTorchModelFactory {
                 }
             });
 
-            var model = new PyTorchModel(sysInfo, root, deserialized_storage_keys); 
+            if (!root._modules) {
+                throw new PyTorchError('Root object does not contain modules.');
+            }
+
+            var model = new PyTorchModel(sysInfo, root); 
 
             PyTorchOperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
@@ -196,8 +204,8 @@ class PyTorchModelFactory {
 
 class PyTorchModel { 
 
-    constructor(sysInfo, root, deserialized_storage_keys) {
-        this._graphs = [ new PyTorchGraph(sysInfo, root, deserialized_storage_keys) ];
+    constructor(sysInfo, root) {
+        this._graphs = [ new PyTorchGraph(sysInfo, root) ];
     }
 
     get format() {
@@ -212,7 +220,7 @@ class PyTorchModel {
 
 class PyTorchGraph {
 
-    constructor(sysInfo, root, deserialized_storage_keys) {
+    constructor(sysInfo, root) {
         this._type = root.__type__;
         this._nodes = [];
         this._inputs = [];
@@ -220,14 +228,12 @@ class PyTorchGraph {
         this._groups = true;
 
         var input = 'data';
-        this._inputs.push({ id: input, name: input });
+        this._inputs.push(new PyTorchArgument(input, [ new PyTorchConnection(input, null, null) ]));
 
         var outputs = this._loadModule(root, [], [ input ]);
-
         outputs.forEach((output) => {
-            this._outputs.push({ id: output, name: output });
+            this._outputs.push(new PyTorchArgument(output, [ new PyTorchConnection(output, null, null) ]));
         });
-
     }
 
     _loadModule(parent, groups, inputs) {
@@ -301,7 +307,48 @@ class PyTorchGraph {
     get nodes() {
         return this._nodes;
     }
+}
 
+class PyTorchArgument {
+    constructor(name, connections) {
+        this._name = name;
+        this._connections = connections;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get visible() {
+        return true;
+    }
+
+    get connections() {
+        return this._connections;
+    }
+}
+
+class PyTorchConnection {
+    constructor(id, type, initializer) {
+        this._id = id;
+        this._type = type;
+        this._initializer = initializer;
+    }
+
+    get id() {
+        return this._id;
+    }
+
+    get type() {
+        if (this._initializer) {
+            return this._initializer.type;
+        }
+        return this._type;
+    }
+
+    get initializer() {
+        return this._initializer;
+    }
 }
 
 class PyTorchNode {
@@ -313,11 +360,10 @@ class PyTorchNode {
         groups.pop();
         this._operator = module.__type__.split('.').pop();
 
-        var input = { name: 'input', connections: [] };
-        connections.forEach((connection) => {
-            input.connections.push({ id: connection });
-        });
-        this._inputs = [ input ];
+        this._inputs = [];
+        this._inputs.push(new PyTorchArgument('input', connections.map((connection) => {
+            return new PyTorchConnection(connection, null, null);
+        })));
 
         var initializers = [];
         if (module._parameters) {
@@ -333,25 +379,19 @@ class PyTorchNode {
 
         initializers.forEach((parameter) => {
             if (parameter && (parameter.data || parameter.storage)) {
-                var input = {};
-                input.name = parameter.__id__;
-                input.connections = [];
-                this._inputs.push(input);
-                var connection = {};
+                var initializer = null;
                 if (parameter.data) {
-                    connection.initializer = new PyTorchTensor(parameter.data);
-                    connection.type = connection.initializer.type;
+                    initializer = new PyTorchTensor(parameter.data);
                 }
                 else if (parameter.storage) {
-                    connection.initializer = new PyTorchTensor(parameter);
-                    connection.type = connection.initializer.type;
+                    initializer = new PyTorchTensor(parameter);
                 }
-                input.connections.push(connection);
+                this._inputs.push(new PyTorchArgument(parameter.__id__, [ new PyTorchConnection(null, null, initializer) ]));
             }
         });
 
         this._outputs = [];
-        this._outputs.push({ name: 'output', connections: [ { id: this._name } ] });
+        this._outputs.push(new PyTorchArgument('output', [ new PyTorchConnection(this._name, null, null) ]));
 
         this._attributes = [];
         Object.keys(module).forEach((key) => {
@@ -491,6 +531,11 @@ class PyTorchTensor {
                     case 'float32':
                         results.push(context.dataView.getFloat32(context.index, true));
                         context.index += 4;
+                        context.count++;
+                        break;
+                    case 'float64':
+                        results.push(context.dataView.getFloat64(context.index, true));
+                        context.index += 8;
                         context.count++;
                         break;
                     case 'int64':

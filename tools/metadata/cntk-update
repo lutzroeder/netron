@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/../..; pwd)
+node_modules=${root}/node_modules
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+identifier=cntk
+repository=https://github.com/Microsoft/CNTK.git
+
+mkdir -p ${third_party}
+
+if [ -d "${third_party}/${identifier}" ]; then
+    git -C "${third_party}/${identifier}" fetch -p
+    git -C "${third_party}/${identifier}" reset --hard origin/master
+else
+    echo "Clone ${repository}..."
+    git -C "${third_party}" clone --recursive ${repository} ${identifier}
+fi
+
+echo "Generate 'cntk.js'"
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r cntk -o ${src}/cntk.js ${third_party}/${identifier}/Source/CNTKv2LibraryDll/proto/CNTK.proto
