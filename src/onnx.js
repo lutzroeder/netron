@@ -1824,6 +1824,7 @@
                     case 13:
                     case 14:
                     case 15:
+                    case 16:
                         break;
                     }
                 if (message.segment != null && message.hasOwnProperty("segment")) {
@@ -1967,6 +1968,10 @@
                 case "COMPLEX128":
                 case 15:
                     message.data_type = 15;
+                    break;
+                case "BFLOAT16":
+                case 16:
+                    message.data_type = 16;
                     break;
                 }
                 if (object.segment != null) {
@@ -2150,6 +2155,7 @@
                 values[valuesById[13] = "UINT64"] = 13;
                 values[valuesById[14] = "COMPLEX64"] = 14;
                 values[valuesById[15] = "COMPLEX128"] = 15;
+                values[valuesById[16] = "BFLOAT16"] = 16;
                 return values;
             })();
     
@@ -2825,6 +2831,7 @@
                         case 13:
                         case 14:
                         case 15:
+                        case 16:
                             break;
                         }
                     if (message.shape != null && message.hasOwnProperty("shape")) {
@@ -2903,6 +2910,10 @@
                     case "COMPLEX128":
                     case 15:
                         message.elem_type = 15;
+                        break;
+                    case "BFLOAT16":
+                    case 16:
+                        message.elem_type = 16;
                         break;
                     }
                     if (object.shape != null) {
@@ -3110,6 +3121,7 @@
                         case 13:
                         case 14:
                         case 15:
+                        case 16:
                             break;
                         }
                     if (message.value_type != null && message.hasOwnProperty("value_type")) {
@@ -3188,6 +3200,10 @@
                     case "COMPLEX128":
                     case 15:
                         message.key_type = 15;
+                        break;
+                    case "BFLOAT16":
+                    case 16:
+                        message.key_type = 16;
                         break;
                     }
                     if (object.value_type != null) {

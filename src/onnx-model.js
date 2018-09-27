@@ -801,6 +801,7 @@ class OnnxTensor {
             map[onnx.TensorProto.DataType.UINT64] = 'uint64';
             map[onnx.TensorProto.DataType.COMPLEX64] = 'complex64';
             map[onnx.TensorProto.DataType.COMPLEX128] = 'complex128';    
+            map[onnx.TensorProto.DataType.BFLOAT16] = 'bfloat16';
         }
         var name = OnnxTensor._elementTypeMap[elementType];
         if (name) {
