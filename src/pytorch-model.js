@@ -443,7 +443,7 @@ class PyTorchAttribute {
     }
 
     get value() {
-        return JSON.stringify(this._value);
+        return this._value;
     }
 
     get visible() {

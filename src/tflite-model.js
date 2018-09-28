@@ -310,12 +310,9 @@ class TensorFlowLiteNode {
                 }
                 var enumValue = map[attributeValue];
                 if (enumValue) {
-                    return enumValue;
+                    return () => { return enumValue; };
                 }
             }
-        }
-        if (typeof attributeValue != 'string') {
-            attributeValue = attributeValue.toString();
         }
         return attributeValue;
     }
@@ -534,7 +531,7 @@ class TensorFlowLiteTensor {
                         context.count++;
                         break;
                     case 'float16':
-                        results.push(TensorFlowLiteTensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
+                        results.push(TensorFlowLiteTensor._decodeFloat16(context.data.getUint16(context.index, true)));
                         context.index += 2;
                         context.count++;
                         break;
@@ -574,7 +571,7 @@ class TensorFlowLiteTensor {
         return results;
     }
 
-    static _decodeNumberFromFloat16(value) {
+    static _decodeFloat16(value) {
         var s = (value & 0x8000) >> 15;
         var e = (value & 0x7C00) >> 10;
         var f = value & 0x03FF;

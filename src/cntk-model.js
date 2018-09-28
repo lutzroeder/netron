@@ -300,18 +300,8 @@ class CntkAttribute {
     constructor(name, value) {
         this._name = name;
         this._value = value;
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get value() {
-        if (Array.isArray(this._value)) {
-            return this._value.join(", ");
-        }
         if (this._value.constructor.name == 'NDShape') {
-            return this._value.shape_dim.map((dimension) => {
+            this._value = () => value.shape_dim.map((dimension) => {
                 if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
                     return -1;
                 }
@@ -322,8 +312,15 @@ class CntkAttribute {
             }).join(', ');
         }
         if (this._value.constructor.name == 'Axis') {
-            return '\'' + this._value.name + '\', ' + this._value.static_axis_idx + ', ' + this._value.is_ordered_dynamic_axis.toString();
+            this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
         }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get value() {
         return this._value;
     }
 

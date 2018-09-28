@@ -285,12 +285,12 @@ class NodeAttributeView {
             });
             this._element.appendChild(this._expander);
         }
-        var value = this._attribute.value;
+        var value = '';
         if (this._attribute.tensor) {
             value = '[...]';
         }
-        if ((value || value === false || value === 0) && typeof value !== 'string') {
-            value = value.toString();
+        else {
+            value = View.formatAttributeValue(this._attribute.value);
         }
         if (value && value.length > 1000) {
             value = value.substring(0, 1000) + '...';

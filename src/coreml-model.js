@@ -646,24 +646,7 @@ class CoreMLAttribute {
     }
 
     get value() {
-        if (Array.isArray(this._value)) {
-            return this._value.map((value) => {
-                if (Number.isNaN(value)) {
-                    return 'NaN';
-                }
-                if (value && value.__isLong__) {
-                    return value.toString();
-                }
-                return JSON.stringify(value);
-            }).join(', ');
-        }
-        if (Number.isNaN(this._value)) {
-            return 'NaN';
-        }
-        if (this._value && this._value.__isLong__) {
-            return this._value.toString();
-        }
-        return JSON.stringify(this._value);
+        return this._value;
     }
 
     get visible() {
@@ -767,7 +750,7 @@ class CoreMLTensor {
                         break;
                     case 'float16':
                         var value = this._data[context.index] | (this._data[context.index + 1] << 8);
-                        results.push(CoreMLTensor._decodeNumberFromFloat16(value));
+                        results.push(CoreMLTensor._decodeFloat16(value));
                         context.index += 2;
                         break;
                 }
@@ -787,7 +770,7 @@ class CoreMLTensor {
         return results;
     }
 
-    static _decodeNumberFromFloat16(value) {
+    static _decodeFloat16(value) {
         var s = (value & 0x8000) >> 15;
         var e = (value & 0x7C00) >> 10;
         var f = value & 0x03FF;

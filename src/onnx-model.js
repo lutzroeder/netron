@@ -410,7 +410,9 @@ class OnnxNode {
         this._attributes = [];
         if (attributes && attributes.length > 0) {
             attributes.forEach((attribute) => { 
-                this._attributes.push(new OnnxAttribute(this, attribute));
+                var visible = this.graph.metadata.getAttributeVisible(this.operator, attribute);       
+                var type = !attribute.hasOwnProperty('type') ? this.graph.metadata.getAttributeType(this.operator, attribute.name) : null;
+                this._attributes.push(new OnnxAttribute(attribute, type, visible));
             });
         }            
         this._inputs = inputs;
@@ -472,93 +474,113 @@ class OnnxNode {
 
 class OnnxAttribute {
 
-    constructor(node, attribute) {
-        this._node = node;
-        this._attribute = attribute;
+    constructor(attribute, type, visible) {
+        this._name = attribute.name;
+        if (!visible) {
+            this._visible = false;
+        }
+        if (attribute.doc_string) {
+            this._description = this._attribute.doc_string;
+        }
+        if (attribute.hasOwnProperty('t')) {
+            this._tensor = true;
+        }
+
+        this._value = null;
+        if (attribute.ints && attribute.ints.length > 0) {
+            if (attribute.ints.length > 65536) {
+                this._value = () => '...';
+            }
+            else {
+                this._value = attribute.ints; 
+            }
+        }
+        else if (attribute.floats && attribute.floats.length > 0) {
+            if (attribute.floats.length > 65536) {
+                this._value = () => '...';
+            }
+            else {
+                this._value = attribute.floats;
+            }
+        }
+        else if (attribute.strings && attribute.strings.length > 0) {
+            if (attribute.strings.length > 65536) {
+                this._value = () => '...';
+            }
+            else {
+                this._value = attribute.strings.map((s) => {
+                    if (s.filter(c => c <= 32 && c >= 128).length == 0) {
+                        return String.fromCharCode.apply(null, s);
+                    }
+                    else {
+                        return s.map(v => v.toString()).join(', ');
+                    }
+                });
+            }
+        }
+        else if (attribute.s && attribute.s.length > 0) {
+            if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
+                this._value = String.fromCharCode.apply(null, attribute.s);
+            }
+            else {
+                this._value = attribute.s;
+            }
+        }
+        else if (attribute.hasOwnProperty('f')) {
+            this._value = attribute.f;
+        }
+        else if (attribute.hasOwnProperty('i')) {
+            this._value = attribute.i;
+        }
+        else if (attribute.hasOwnProperty('t')) {
+            this._value = new OnnxTensor(attribute.t).value;
+        }
+
+        if (this._type) {
+            this._type = type;
+        }
+        else {
+            if (!OnnxAttribute._attributeTypeMap) {
+                OnnxAttribute._attributeTypeMap = {};
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED] = 'undefined';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.FLOAT] = 'float';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.INT] = 'int';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.STRING] = 'string';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.TENSOR] = 'tensor';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.GRAPH] = 'graph';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.FLOATS] = 'float';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.INTS] = 'int[]';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.STRINGS] = 'string[]';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.TENSORS] = 'tensor[]';
+                OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.GRAPHS] = 'graph[]';
+            }
+            var attributeType = OnnxAttribute._attributeTypeMap[attribute.type];
+            this._type = attributeType || OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED];
+        }
     }
 
     get name() {
-        return this._attribute.name;
+        return this._name;
     }
 
     get type() {
-        if (!this._attribute.hasOwnProperty('type')) { 
-            return this._node.graph.metadata.getAttributeType(this._node.operator, this._attribute.name);
-        }
-        if (!OnnxAttribute._attributeTypeMap) {
-            OnnxAttribute._attributeTypeMap = {};
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED] = 'UNDEFINED';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.FLOAT] = 'float';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.INT] = 'int';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.STRING] = 'string';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.TENSOR] = 'tensor';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.GRAPH] = 'graph';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.FLOATS] = 'float';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.INTS] = 'int[]';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.STRINGS] = 'string[]';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.TENSORS] = 'tensor[]';
-            OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.GRAPHS] = 'graph[]';
-        }
-        var attributeType = OnnxAttribute._attributeTypeMap[this._attribute.type];
-        if (attributeType) {
-            return attributeType;
-        }
-        return OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED];
+        return this._type;
     }
 
     get value() {
-        if (this._attribute.ints && this._attribute.ints.length > 0) {
-            if (this._attribute.ints.length > 65536) {
-                return "...";
-            }
-            return this._attribute.ints.map((v) => { return v.toString(); }).join(', '); 
-        }
-        else if (this._attribute.floats && this._attribute.floats.length > 0) {
-            if (this._attribute.floats.length > 65536) {
-                return "...";
-            }
-            return this._attribute.floats.map(v => v.toString()).join(', ');
-        }
-        else if (this._attribute.strings && this._attribute.strings.length > 0) {
-            if (this._attribute.strings.length > 65536) {
-                return "...";
-            }
-            return this._attribute.strings.map((s) => {
-                if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                    return '"' + String.fromCharCode.apply(null, s) + '"';
-                }
-                return s.map(v => v.toString()).join(', ');
-            }).join(', ');
-        }
-        else if (this._attribute.s && this._attribute.s.length > 0) {
-            if (this._attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
-                return '"' + String.fromCharCode.apply(null, this._attribute.s) + '"';
-            }
-            return this._attribute.s.map(v => v.toString()).join(', ');
-        }
-        else if (this._attribute.hasOwnProperty('f')) {
-            return this._attribute.f.toString();
-        }
-        else if (this._attribute.hasOwnProperty('i')) {
-            return this._attribute.i.toString();
-        }
-        else if (this._attribute.hasOwnProperty('t')) {
-            return new OnnxTensor(this._attribute.t).value;
-        }
-        // debugger;
-        return '?';
+        return this._value;
     }
 
     get description() {
-        return this._attribute.doc_string ? this._attribute.doc_string : null;
+        return this._description || null;
     }
 
     get visible() {
-        return this._node.graph.metadata.getAttributeVisible(this._node.operator, this);
+        return this._visible == false ? false : true;
     }
 
     get tensor() {
-        return this._attribute.hasOwnProperty('t');
+        return this._tensor ? true : false;
     }
 }
 
@@ -653,6 +675,17 @@ class OnnxTensor {
                     context.state = 'Tensor data is empty.';
                 }
                 break;
+            case onnx.TensorProto.DataType.FLOAT16:
+                if (this._tensor.int32_data && this._tensor.int32_data.length > 0) {
+                    context.data = this._tensor.int32_data;
+                }
+                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
+                }
+                else {
+                    context.state = 'Tensor data is empty.';
+                }
+                break;
             case onnx.TensorProto.DataType.INT32:
                 if (this._tensor.int32_data && this._tensor.int32_data.length > 0) {
                     context.data = this._tensor.int32_data;
@@ -715,7 +748,14 @@ class OnnxTensor {
                     return results;
                 }
                 if (context.data) {
-                    results.push(context.data[context.index++]);
+                    switch (this._tensor.data_type) {
+                        case onnx.TensorProto.DataType.FLOAT16:
+                            results.push(OnnxTensor._decodeFloat16(context.data[context.index++]));
+                            break;
+                        default:
+                            results.push(context.data[context.index++]);
+                            break;
+                    }
                     context.count++;
                 }
                 else if (context.rawData) {
@@ -729,6 +769,11 @@ class OnnxTensor {
                         case onnx.TensorProto.DataType.DOUBLE:
                             results.push(context.rawData.getFloat64(context.index, true));
                             context.index += 8;
+                            context.count++;
+                            break;
+                        case onnx.TensorProto.DataType.FLOAT16:
+                            results.push(OnnxTensor._decodeFloat16(context.rawData.getUint16(context.index, true)));
+                            context.index += 2;
                             context.count++;
                             break;
                         case onnx.TensorProto.DataType.INT32:
@@ -846,6 +891,19 @@ class OnnxTensor {
                 return new OnnxOpaqueType(type.opaque_type.domain, type.opaque_type.name, type.opaque_type.parameters.map((parameter) => OnnxTensor._formatType(parameter, imageFormat)));
         }
         return null;
+    }
+
+    static _decodeFloat16(value) {
+        var s = (value & 0x8000) >> 15;
+        var e = (value & 0x7C00) >> 10;
+        var f = value & 0x03FF;
+        if(e == 0) {
+            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+        }
+        else if (e == 0x1F) {
+            return f ? NaN : ((s ? -1 : 1) * Infinity);
+        }
+        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
 }
 

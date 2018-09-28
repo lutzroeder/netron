@@ -464,11 +464,8 @@ class CaffeAttribute {
         return this._name;
     }
 
-    get value() { 
-        if (Array.isArray(this._value)) {
-            return this._value.map((item) => JSON.stringify(item)).join(', ');
-        }
-        return JSON.stringify(this._value);
+    get value() {
+        return this._value;
     }
 
     get visible() {

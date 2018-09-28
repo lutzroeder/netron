@@ -449,6 +449,16 @@ class TensorFlowNode {
     constructor(graph, node) {
         this._graph = graph;
         this._node = node;
+
+        var metadata = graph.metadata;
+
+        this._attributes = [];
+        if (node.attr) {
+            Object.keys(node.attr).forEach((name) => {
+                var value = node.attr[name];
+                this._attributes.push(new TensorFlowAttribute(name, value, node.op, metadata));
+            });
+        }
     }
 
     get graph() {
@@ -542,27 +552,92 @@ class TensorFlowNode {
     }
 
     get attributes() {
-        var graphMetadata = this._graph.metadata;
-        var node = this._node;
-        var result = [];
-        if (node.attr) {
-            Object.keys(node.attr).forEach((name) => {
-                var value = node.attr[name];
-                var visible = graphMetadata.getAttributeVisible(node.op, name, value);
-                result.push(new TensorFlowAttribute(this, name, value, visible));
-            });
-        }
-        return result;
+        return this._attributes;
     }
 }
 
 class TensorFlowAttribute { 
-    constructor(node, name, value, visible) {
-        this._node = node;
+    constructor(name, value, operator, metadata) {
         this._name = name;
-        this._value = value;
-        if (!visible) {
-            this._hidden = true;
+        this._value = null;
+        this._type = value.hasOwnProperty('tensor') ? new TensorFlowTensor(this._value.tensor).type : metadata.getAttributeType(operator, name);
+        if (value.hasOwnProperty('type')) {
+            this._value = () => TensorFlowTensor.formatDataType(value.type);
+        }
+        else if (value.hasOwnProperty('i')) {
+            this._value = value.i;
+        }
+        else if (value.hasOwnProperty('f')) {
+            this._value = value.f;
+        }
+        else if (value.hasOwnProperty('b')) {
+            this._value = value.b;
+        }
+        else if (value.hasOwnProperty('shape')) {
+            this._value = () => TensorFlowTensor.formatTensorShape(value.shape);
+        }
+        else if (value.hasOwnProperty('s')) {
+            if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
+                this._value = TensorFlowOperatorMetadata.textDecoder.decode(value.s);
+            }
+            else {
+                this._value = value.s;
+            }
+        }
+        else if (value.hasOwnProperty('tensor')) {
+            this._value = () => new TensorFlowTensor(value.tensor);
+        }
+        else if (value.hasOwnProperty('list')) {
+            var list = value.list;
+            if (list.s && list.s.length > 0) {
+                if (list.s.length > 65536) {
+                    this._value = () => '...';
+                }
+                else {
+                    this._value = list.s.map((s) => {
+                        if (s.filter(c => c <= 32 && c >= 128).length == 0) {
+                            return TensorFlowOperatorMetadata.textDecoder.decode(value.s);
+                        }
+                        return s.map(v => v.toString()).join(', ');    
+                    });
+                }
+            }
+            else if (list.i && list.i.length > 0) {
+                if (list.i.length > 65536) {
+                    this._value = () => '...';
+                }
+                else {
+                    this._value = list.i;
+                }
+            }
+            else if (list.f && list.f.length > 0) {
+                if (list.f.length > 65536) {
+                    this._value = () => '...';
+                }
+                else {
+                    this._value = list.f;
+                }
+            }
+            else if (list.type && list.type.length > 0) {
+                if (list.type.length > 65536) {
+                    this._value = () => '...';
+                }
+                else {
+                    this._value = () => list.type.map((type) => TensorFlowTensor.formatDataType(type)); 
+                }
+            }
+            else if (list.shape && list.shape.length > 0) {
+                if (list.shape.length > 65536) {
+                    this._value = () => '...';
+                }
+                else {
+                    this._value = () => list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape));
+                }
+            }
+
+            if (!metadata.getAttributeVisible(operator, name, this._value)) {
+                this._visible = false;
+            }
         }
     }
 
@@ -571,92 +646,15 @@ class TensorFlowAttribute {
     }
 
     get type() {
-        if (this._value.hasOwnProperty('tensor')) {
-            return new TensorFlowTensor(this._value.tensor).type;
-        }
-        var graphMetadata = this._node.graph.metadata;
-        if (graphMetadata) {
-            return graphMetadata.getAttributeType(this._node.operator, this._name);
-        }
-        return '';
+        return this._type;
     }
 
     get value() {
-        var item = TensorFlowAttribute.formatAttributeValue(this._value);
-        if (Array.isArray(item)) {
-            return '[' + item.join(', ') + ']';
-        }
-        return item;
-    }
-
-    static formatAttributeValue(value) {
-        if (value.hasOwnProperty('type')) {
-            return TensorFlowTensor.formatDataType(value.type);
-        }
-        else if (value.hasOwnProperty('i')) {
-            return value.i.toString();
-        }
-        else if (value.hasOwnProperty('f')) {
-            return value.f.toString();
-        }
-        else if (value.hasOwnProperty('b')) {
-            return value.b.toString();
-        }
-        else if (value.hasOwnProperty('shape')) {
-            return TensorFlowTensor.formatTensorShape(value.shape);
-        }
-        else if (value.hasOwnProperty('s')) {
-            if (value.s.filter(c => c <= 32 && c >= 128).length == 0) {
-                return '"' + TensorFlowOperatorMetadata.textDecoder.decode(value.s) + '"';
-            }
-            return value.s.map(v => v.toString()).join(', ');           
-        }
-        else if (value.hasOwnProperty('tensor')) {
-            return new TensorFlowTensor(value.tensor).value;
-        }
-        else if (value.hasOwnProperty('list')) {
-            var list = value.list;
-            if (list.s && list.s.length > 0) {
-                if (list.s.length > 65536) {
-                    return "Too large to render.";
-                }
-                return list.s.map((s) => {
-                    if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                        return '"' + TensorFlowOperatorMetadata.textDecoder.decode(value.s) + '"';
-                    }
-                    return s.map(v => v.toString()).join(', ');    
-                });
-            }
-            else if (list.i && list.i.length > 0) {
-                if (list.i.length > 65536) {
-                    return "Too large to render.";
-                }
-                return list.i.map((v) => v.toString());
-            }
-            else if (list.f && list.f.length > 0) {
-                if (list.f.length > 65536) {
-                    return "Too large to render.";
-                }
-                return list.f.map((v) => v.toString());
-            }
-            else if (list.type && list.type.length > 0) {
-                if (list.type.length > 65536) {
-                    return "Too large to render.";
-                }
-                return list.type.map((type) => TensorFlowTensor.formatDataType(type));
-            }
-            else if (list.shape && list.shape.length > 0) {
-                if (list.shape.length > 65536) {
-                    return "Too large to render.";
-                }
-                return list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape));
-            }
-        }
-        return '';        
+        return this._value;
     }
 
     get visible() {
-        return this._hidden ? false : true;
+        return this._visible == false ? false : true;
     }
 
     get tensor() {
@@ -796,6 +794,7 @@ class TensorFlowTensor {
                 break;
             default:
                 context.state = "Tensor data type '" + this._tensor.dtype + "'is not implemented.";
+                debugger;
                 break;
         }
 
@@ -1092,9 +1091,9 @@ class TensorFlowGraphOperatorMetadata {
                     return attributeSchema.visible;
                 }
                 if (attributeSchema.hasOwnProperty('default')) {
-                    var valueText = TensorFlowAttribute.formatAttributeValue(value);
-                    var defaultValueText = TensorFlowGraphOperatorMetadata.formatAttributeValue(attributeSchema.default);
-                    if (valueText == defaultValueText) {
+                    var valueText = TensorFlowGraphOperatorMetadata._formatAttributeValue(value);
+                    var defaultValueText = TensorFlowGraphOperatorMetadata._formatAttributeValue(attributeSchema.default);
+                    if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {
                         return false;
                     }
                 }
@@ -1195,14 +1194,14 @@ class TensorFlowGraphOperatorMetadata {
                 schema.attributes.forEach((attribute) => {
                     var description = attribute.description;
                     if (attribute.allowedValues) {
-                        var allowedValues = TensorFlowGraphOperatorMetadata.formatAttributeValue(attribute.allowedValues);
+                        var allowedValues = TensorFlowGraphOperatorMetadata._formatAttributeValue(attribute.allowedValues);
                         allowedValues = Array.isArray(allowedValues) ? allowedValues : [ allowedValues ];
                         allowedValues = allowedValues.map((item) => '`' + item + '`').join(', ');
                         allowedValues = 'Must be one of the following: ' + allowedValues + '.';
                         description = description ? (allowedValues + ' ' + description) : allowedValues;
                     }
                     if (attribute.defaultValue) {
-                        var defaultValue = TensorFlowGraphOperatorMetadata.formatAttributeValue(attribute.defaultValue);
+                        var defaultValue = TensorFlowGraphOperatorMetadata._formatAttributeValue(attribute.defaultValue);
                         defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
                         defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
                         defaultValue = 'Defaults to ' + defaultValue + '.';
@@ -1218,9 +1217,12 @@ class TensorFlowGraphOperatorMetadata {
         return null;
     }
 
-    static formatAttributeValue(value) {
+    static _formatAttributeValue(value) {
+        if (value && value.__isLong__) {
+            value = value.toNumber();
+        }
         if (Array.isArray(value)) {
-            return value.map((item) => TensorFlowGraphOperatorMetadata.formatAttributeValue(item));
+            return value.map((item) => TensorFlowGraphOperatorMetadata._formatAttributeValue(item));
         }
         if (value === Object(value)) {
             switch (value.type) {

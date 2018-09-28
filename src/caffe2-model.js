@@ -296,23 +296,22 @@ class Caffe2Attribute {
         this._node = node;
         this._name = arg.name;
         if (arg.floats && arg.floats.length > 0) {
-            this._value = JSON.stringify(arg.floats);
+            this._value = arg.floats;
         }
         else if (arg.ints && arg.ints.length > 0) {
             debugger;
-            this._value = JSON.stringify(arg.ints);
+            this._value = arg.ints;
         }
         else if (arg.nets && arg.nets.length > 0) {
             debugger;
-            this._value = '...';
+            this._value = () => '...';
         }
         else if (arg.i != 0) {
-            this._value = arg.i.toString();
+            this._value = arg.i;
         }
         else {
-            this._value = arg.i.toString();
+            this._value = arg.i;
         }
-
     }
 
     get name() {

@@ -597,10 +597,10 @@ class View {
                                         attributeValue = '[...]';
                                     }
                                     else {
-                                        attributeValue = attribute.value;
-                                        if (attributeValue && attributeValue.length > 25) {
-                                            attributeValue = attributeValue.substring(0, 25) + '...';
-                                        }
+                                        attributeValue = View.formatAttributeValue(attribute.value);
+                                    }
+                                    if (attributeValue && attributeValue.length > 25) {
+                                        attributeValue = attributeValue.substring(0, 25) + '...';
                                     }
                                     formatter.addAttribute(attribute.name, attributeValue, attribute.type);
                                 }
@@ -942,6 +942,33 @@ class View {
             });
             this._sidebar.open(view.elements, 'Documentation');
         }
+    }
+
+    static formatAttributeValue(value) {
+        if (typeof value === 'function') {
+            return value();
+        }
+        if (value && value.__isLong__) {
+            return value.toString();
+        }
+        if (value && value.constructor.name == 'Int64') {
+            return value.toString();
+        }
+        if (Number.isNaN(value)) {
+            return 'NaN';
+        }
+        if (Array.isArray(value)) {
+            return value.map((item) => {
+                if (item && item.__isLong__) {
+                    return item.toString();
+                }
+                if (Number.isNaN(item)) {
+                    return 'NaN';
+                }
+                return JSON.stringify(item);
+            }).join(', ');
+        }
+        return JSON.stringify(value);
     }
 }
 

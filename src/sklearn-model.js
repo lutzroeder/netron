@@ -407,10 +407,7 @@ class SklearnAttribute {
     }
 
     get value() {
-        if (this._value && this._value.constructor.name == 'Int64') {
-            return this._value.toString();
-        }
-        return JSON.stringify(this._value);
+        return this._value;
     }
 
     get visible() {

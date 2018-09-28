@@ -26,10 +26,14 @@ class MXNetModelFactory {
         var extension = context.identifier.split('.').pop();
         switch (extension) {
             case 'json':
-                this._openSymbol(context, callback);
+                MXNetOperatorMetadata.open(host, (err, metadata) => {
+                    this._openSymbol(context, callback);
+                });
                 break;
             case 'model':
-                this._openModel(context, host, callback);
+                MXNetOperatorMetadata.open(host, (err, metadata) => {
+                    this._openModel(context, host, callback);
+                });
                 break;
             default:
                 callback(new MXNetError('Unsupported file extension.'));
@@ -41,9 +45,7 @@ class MXNetModelFactory {
         try {
             var symbol = JSON.parse(context.text);
             var model = new MXNetModel(null, symbol, null, {});
-            MXNetOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
-            });
+            callback(null, model);
         }
         catch (error) {
             host.exception(error, false);
@@ -416,7 +418,7 @@ class MXNetNode {
         if (attrs) {
             Object.keys(attrs).forEach((key) => {
                 var value = attrs[key];
-                this._attributes.push(new MXNetAttribute(this, key, value));
+                this._attributes.push(new MXNetAttribute(this.operator, key, value));
             });
         }
         if (this._operator == 'RNN') {
@@ -425,7 +427,7 @@ class MXNetNode {
                 var argument = argumentMap[argumentNodeIndex];
                 if (argument && argument.op == 'null' && argument.name &&
                     argument.name.endsWith('_parameters') && argument.attr && argument.attr.__init__) {
-                    this._attributes.push(new MXNetAttribute(this, argument.name, argument.attr.__init__));
+                    this._attributes.push(new MXNetAttribute(this.operator, argument.name, argument.attr.__init__));
                     delete argumentMap[argumentNodeIndex];
                     return null;
                 }
@@ -516,14 +518,40 @@ class MXNetNode {
 
 class MXNetAttribute {
 
-    constructor(owner, name, value) {
-        this._owner = owner;
+    constructor(operator, name, value) {
         this._name = name;
         this._value = value;
+        this._type = MXNetOperatorMetadata.operatorMetadata.getAttributeType(operator, name); 
+        switch (this._type) {
+            case 'bool':
+                if (this._value == 'True') {
+                    this._value = true;
+                }
+                else if (this._value == 'False') {
+                    this._value = false;
+                }
+                break;
+            case 'int32':
+                var intValue = Number.parseInt(this._value, 10);
+                this._value = Number.isNaN(this._value - intValue) ? value : intValue;
+                break;
+            case 'float32':
+            case 'float64':
+                var floatValue = Number.parseFloat(this._value);
+                this._value = Number.isNaN(this._value - floatValue) ? value : floatValue;
+                break;
+        }
+        if (!MXNetOperatorMetadata.operatorMetadata.getAttributeVisible(operator, name, this._value)) {
+            this._visible = false;
+        }
     }
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get value() {
@@ -531,7 +559,7 @@ class MXNetAttribute {
     }
 
     get visible() {
-        return MXNetOperatorMetadata.operatorMetadata.getAttributeVisible(this._owner.operator, this._name, this._value);
+        return this._visible == false ? false : true;
     }
 }
 
@@ -824,7 +852,7 @@ class MXNetOperatorMetadata {
         return results;
     }
 
-    getAttributeVisible(operator, name, value) {
+    getAttributeSchema(operator, name) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributesMap) {
@@ -833,30 +861,45 @@ class MXNetOperatorMetadata {
                     schema.attributesMap[attribute.name] = attribute;
                 });
             }
-            var attribute = schema.attributesMap[name];
-            if (attribute) {
-                if (attribute.hasOwnProperty('visible')) {
-                    return attribute.visible;
-                }
-                if (attribute.hasOwnProperty('default')) {
-                    value = MXNetOperatorMetadata._formatTuple(value); 
-                    return !MXNetOperatorMetadata._isEquivalent(attribute.default, value);
-                }
+            return schema.attributesMap[name];
+        }
+        return null;
+    }
+
+    getAttributeType(operator, name) {
+        var schema = this.getAttributeSchema(operator, name);
+        if (schema && schema.type) {
+            return schema.type;
+        }
+        return null;
+    }
+
+    getAttributeVisible(operator, name, value) {
+        var schema = this.getAttributeSchema(operator, name);
+        if (schema) {
+            if (schema.hasOwnProperty('visible')) {
+                return schema.visible;
+            }
+            if (schema.hasOwnProperty('default')) {
+                value = MXNetOperatorMetadata._formatTuple(value); 
+                return !MXNetOperatorMetadata._isEquivalent(schema.default, value);
             }
         }
         return true;
     }
 
     static _formatTuple(value) {
-        if (value.startsWith('(') && value.endsWith(')')) {
-            var list = value.substring(1, value.length - 1).split(',');
-            list = list.map(item => item.trim());
-            if (list.length > 1) {
-                if (list.every(item => item == list[0])) {
-                    list = [ list[0], '' ];
+        if (typeof value == 'string') {
+            if (value.startsWith('(') && value.endsWith(')')) {
+                var list = value.substring(1, value.length - 1).split(',');
+                list = list.map(item => item.trim());
+                if (list.length > 1) {
+                    if (list.every(item => item == list[0])) {
+                        list = [ list[0], '' ];
+                    }
                 }
+                return '(' + list.join(',') + ')';
             }
-            return '(' + list.join(',') + ')';
         }
         return value;
     }

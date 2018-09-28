@@ -568,28 +568,15 @@ class KerasAttribute {
     }
 
     get value() {
-        if (this._value === true) {
-            return 'true';
-        }
-        if (this._value === false) {
-            return 'false';
-        }
-        if (this._value === null) {
-            return 'null';
-        }
-        if (this._value == 0) {
-            return 0;
-        }
         if (typeof this._value == 'object' && this._value.class_name && this._value.config) {
-            return this._value.class_name + '(' + Object.keys(this._value.config).map(key => {
-                var value = this._value.config[key];
-                return key + '=' + JSON.stringify(value);
-            }).join(', ') + ')';
+            return () => {
+                return this._value.class_name + '(' + Object.keys(this._value.config).map(key => {
+                    var value = this._value.config[key];
+                    return key + '=' + JSON.stringify(value);
+                }).join(', ') + ')';
+            };
         }
-        if (this._value) {
-            return JSON.stringify(this._value);
-        }
-        return '?';
+        return this._value;
     }
 
     get visible() {
@@ -689,7 +676,7 @@ class KerasTensor {
                 if (context.rawData) {
                     switch (context.precision) {
                         case 16:
-                            results.push(KerasTensor._decodeNumberFromFloat16(context.rawData.getUint16(context.index, true)));
+                            results.push(KerasTensor._decodeFloat16(context.rawData.getUint16(context.index, true)));
                             context.index += 2;
                             break;
                         case 32:
@@ -717,7 +704,7 @@ class KerasTensor {
         return results;
     }
 
-    static _decodeNumberFromFloat16(value) {
+    static _decodeFloat16(value) {
         var s = (value & 0x8000) >> 15;
         var e = (value & 0x7C00) >> 10;
         var f = value & 0x03FF;
