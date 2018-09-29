@@ -12,10 +12,10 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "padding", "type": "tflite.Padding", "default": "SAME" },
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" },
         { "name": "stride_w", "type": "int", "default": 1 },
         { "name": "stride_h", "type": "int", "default": 1 },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
         { "name": "dilation_w_factor", "type": "int", "default": 1 },
         { "name": "dilation_h_factor", "type": "int", "default": 1 }
       ]
@@ -52,7 +52,7 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -71,7 +71,7 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -88,7 +88,8 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "weights_format", "type": "tflite.FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -105,11 +106,11 @@
         { "name": "output", "type": "T" }
       ],
       "attributes": [
-        { "name": "padding", "type": "Padding", "default": "SAME" },
+        { "name": "padding", "type": "tflite.Padding", "default": "SAME" },
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" },
         { "name": "stride_w", "type": "int", "default": 1 },
         { "name": "stride_h", "type": "int", "default": 1 },
         { "name": "depth_multiplier", "type": "int", "default": 1 },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
         { "name": "dilation_w_factor", "type": "int", "default": 1 },
         { "name": "dilation_h_factor", "type": "int", "default": 1 }
       ]
@@ -124,6 +125,10 @@
       ],
       "outputs": [
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "padding", "type": "tflite.Padding" },
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType" }
       ]
     }
   },
@@ -188,7 +193,7 @@
         { "name": "output" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "type", "type": "tflite.LSHProjectionType" }
       ]
     }
   },
@@ -268,7 +273,7 @@
       ],
       "attributes": [
         { "name": "axis", "type": "int" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -338,6 +343,9 @@
       "outputs": [
         { "name": "state", "type": "T" },
         { "name": "output", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -352,7 +360,7 @@
         { "name": "C", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -367,7 +375,7 @@
         { "name": "C", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
@@ -382,7 +390,7 @@
         { "name": "C", "type": "T" }
       ],
       "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+        { "name": "fused_activation_function", "type": "tflite.ActivationFunctionType", "default": "NONE" }
       ]
     }
   },
