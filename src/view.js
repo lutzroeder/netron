@@ -901,7 +901,7 @@ class View {
 
     showModelProperties() {
         if (this._model) {
-            var view = new ModelView(this._model);
+            var view = new ModelView(this._model, this._host);
             view.on('update-active-graph', (sender, name) => {
                 this.updateActiveGraph(name);
             });
