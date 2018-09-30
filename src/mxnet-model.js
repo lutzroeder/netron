@@ -540,6 +540,26 @@ class MXNetAttribute {
                 var floatValue = Number.parseFloat(this._value);
                 this._value = Number.isNaN(this._value - floatValue) ? value : floatValue;
                 break;
+            case 'int32[]':
+                if (this._value.length > 2 && this._value.startsWith('(') && this._value.endsWith(')')) {
+                    var array = [];
+                    var items = this._value.substring(1, this._value.length - 1).split(',');
+                    items = items.map((item) => item.trim());
+                    items = items.map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
+                    items = items.map((item) => {
+                        var intValue = Number.parseInt(item, 10);
+                        if (Number.isNaN(item - intValue)) {
+                            array = null;
+                        }
+                        else if (array != null) {
+                            array.push(intValue);
+                        }        
+                    });
+                    if (array != null) {
+                        this._value = array;
+                    }
+                }
+                break;
         }
         if (!MXNetOperatorMetadata.operatorMetadata.getAttributeVisible(operator, name, this._value)) {
             this._visible = false;
@@ -881,81 +901,21 @@ class MXNetOperatorMetadata {
                 return schema.visible;
             }
             if (schema.hasOwnProperty('default')) {
-                value = MXNetOperatorMetadata._formatTuple(value); 
-                return !MXNetOperatorMetadata._isEquivalent(schema.default, value);
-            }
-        }
-        return true;
-    }
-
-    static _formatTuple(value) {
-        if (typeof value == 'string') {
-            if (value.startsWith('(') && value.endsWith(')')) {
-                var list = value.substring(1, value.length - 1).split(',');
-                list = list.map(item => item.trim());
-                if (list.length > 1) {
-                    if (list.every(item => item == list[0])) {
-                        list = [ list[0], '' ];
-                    }
-                }
-                return '(' + list.join(',') + ')';
-            }
-        }
-        return value;
-    }
-
-    static _isEquivalent(a, b) {
-        if (a === b) {
-            return a !== 0 || 1 / a === 1 / b;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        if (a !== a) {
-            return b !== b;
-        }
-        var type = typeof a;
-        if (type !== 'function' && type !== 'object' && typeof b != 'object') {
-            return false;
-        }
-        var className = toString.call(a);
-        if (className !== toString.call(b)) {
-            return false;
-        }
-        switch (className) {
-            case '[object RegExp]':
-            case '[object String]':
-                return '' + a === '' + b;
-            case '[object Number]':
-                if (+a !== +a) {
-                    return +b !== +b;
-                }
-                return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-            case '[object Date]':
-            case '[object Boolean]':
-                return +a === +b;
-            case '[object Array]':
-                var length = a.length;
-                if (length !== b.length) {
+                var defaultValue = schema.default;
+                if (value == defaultValue) {
                     return false;
                 }
-                while (length--) {
-                    if (!KerasOperatorMetadata._isEquivalent(a[length], b[length])) {
+                if (Array.isArray(value) && Array.isArray(defaultValue)) {
+                    if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
+                        defaultValue.pop();
+                        while (defaultValue.length < value.length) {
+                           defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                        }
+                    }
+                    if (value.every((value, index) => { return value == defaultValue[index]; })) {
                         return false;
                     }
                 }
-                return true;
-        }
-
-        var keys = Object.keys(a);
-        var size = keys.length;
-        if (Object.keys(b).length != size) {
-            return false;
-        } 
-        while (size--) {
-            var key = keys[size];
-            if (!(b.hasOwnProperty(key) && KerasOperatorMetadata._isEquivalent(a[key], b[key]))) {
-                return false;
             }
         }
         return true;

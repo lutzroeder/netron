@@ -13,8 +13,12 @@
           "name": "cudnn_tune"
         },
         {
-          "default": "(1,)",
+          "default": [ 1, null ],
           "name": "dilate",
+          "type": "int32[]"
+        },
+        {
+          "name": "kernel",
           "type": "int32[]"
         },
         {
@@ -32,12 +36,14 @@
           "name": "num_filter"
         },
         {
-          "default": "(0,)",
-          "name": "pad"
+          "default": [0, null],
+          "name": "pad",
+          "type": "int32[]"
         },
         {
-          "default": "(1,)",
-          "name": "stride"
+          "default": [1, null],
+          "name": "stride",
+          "type": "int32[]"
         },
         {
           "type": "int32",
@@ -142,7 +148,13 @@
   {
     "name": "LRN",
     "schema": {
-      "category": "Normalization"
+      "category": "Normalization",
+      "attributes": [
+        { "name": "alpha", "type": "float32", "default": 0.0001 },
+        { "name": "beta", "type": "float32", "default": 0.75 },
+        { "name": "knorm", "type": "float32", "default": 2 },
+        { "name": "nsize", "type": "int32" }
+      ]
     }
   },
   {
@@ -237,16 +249,26 @@
           "name": "global_pool"
         },
         {
-          "default": "(0,)",
-          "name": "pad"
+          "name": "kernel",
+          "type": "int32[]"
+        },
+        {
+          "default": [ 0, null ],
+          "name": "pad",
+          "type": "int32[]"
         },
         {
           "default": "valid",
           "name": "pooling_convention"
         },
         {
-          "default": "(1,)",
-          "name": "stride"
+          "default": "max",
+          "name": "pool_type"
+        },
+        {
+          "default": [ 1, null ],
+          "name": "stride",
+          "type": "int32[]"
         }
       ],
       "category": "Pool"
@@ -439,6 +461,22 @@
     "name": "Reshape",
     "schema": {
       "category": "Shape"
+    }
+  },
+  {
+    "name": "_minus_scalar",
+    "schema": {
+      "attributes": [
+        { "name": "scalar", "type": "float32" }
+      ]
+    }
+  },
+  {
+    "name": "_mul_scalar",
+    "schema": {
+      "attributes": [
+        { "name": "scalar", "type": "float32" }
+      ]
     }
   }
 ]
