@@ -24,17 +24,16 @@ class CoreMLModelFactory {
                 callback(new CoreMLError('File format is not coreml.Model (' + error.message + ').'), null);
                 return;
             }
-            var model = null;
-            try {
-                model = new CoreMLModel(decodedBuffer);
-            }
-            catch (error) {
-                host.exception(error, false);
-                callback(new CoreMLError(error.message), null);
-                return;
-            }
             CoreMLOperatorMetadata.open(host, (err, metadata) => {
-                callback(null, model);
+                try {
+                    var model = new CoreMLModel(decodedBuffer);
+                    callback(null, model);
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new CoreMLError(error.message), null);
+                    return;
+                }
             });
         });
     }
@@ -481,7 +480,7 @@ class CoreMLNode {
             var initializerMap = this.initializer(data);
             Object.keys(data).forEach((key) => {
                 if (!initializerMap[key]) {
-                    this._attributes.push(new CoreMLAttribute(this, key, data[key]));
+                    this._attributes.push(new CoreMLAttribute(this.operator, key, data[key]));
                 }
             });
         }
@@ -635,10 +634,12 @@ class CoreMLNode {
 
 class CoreMLAttribute {
 
-    constructor(owner, name, value) {
-        this._owner = owner;
+    constructor(operator, name, value) {
         this._name = name;
         this._value = value;
+        if (!CoreMLOperatorMetadata.operatorMetadata.getAttributeVisible(operator, this._name, this._value)) {
+            this._visible = false;
+        }
     }
 
     get name() {
@@ -650,7 +651,7 @@ class CoreMLAttribute {
     }
 
     get visible() {
-        return CoreMLOperatorMetadata.operatorMetadata.getAttributeVisible(this._owner.operator, this._name);
+        return this._visible == false ? false : true;
     }
 }
 
@@ -931,7 +932,15 @@ class CoreMLOperatorMetadata
                     return attribute.visible;
                 }
                 if (attribute.hasOwnProperty('default')) {
-                    return JSON.stringify(attribute.default) == JSON.stringify(value);
+                    if (Array.isArray(value)) {
+                        value = value.map((item) => {
+                            if (item && item.__isLong__) {
+                                return item.toNumber();
+                            }
+                            return item;
+                        });
+                    }
+                    return JSON.stringify(attribute.default) != JSON.stringify(value);
                  }
             }
         }
