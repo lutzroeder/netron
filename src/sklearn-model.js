@@ -135,6 +135,7 @@ class SklearnModelFactory {
                     };
                 };
                 constructorTable['sklearn.tree.tree.DecisionTreeClassifier'] = function() {};
+                constructorTable['sklearn.tree.tree.DecisionTreeRegressor'] = function() {};
                 constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() { };
                 constructorTable['collections.defaultdict'] = function(default_factory) {
                 };
