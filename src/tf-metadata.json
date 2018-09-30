@@ -15368,6 +15368,536 @@
     }
   },
   {
+    "name": "ExperimentalAssertNextDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "transformations",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalCSVDataset",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 1
+            },
+            {
+              "type": "type",
+              "value": 2
+            },
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            },
+            {
+              "type": "type",
+              "value": 7
+            }
+          ],
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "filenames",
+          "type": 7
+        },
+        {
+          "name": "compression_type",
+          "type": 7
+        },
+        {
+          "name": "buffer_size",
+          "type": 9
+        },
+        {
+          "name": "header",
+          "type": 10
+        },
+        {
+          "name": "field_delim",
+          "type": 7
+        },
+        {
+          "name": "use_quote_delim",
+          "type": 10
+        },
+        {
+          "name": "na_value",
+          "type": 7
+        },
+        {
+          "name": "select_cols",
+          "type": 9
+        },
+        {
+          "name": "record_defaults",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalDirectedInterleaveDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A dataset of scalar `DT_INT64` elements that determines which of the\n`N` data inputs should produce the next output element.",
+          "name": "selector_input_dataset",
+          "type": 21
+        },
+        {
+          "description": "`N` datasets with the same type that will be interleaved according to\nthe values of `selector_input_dataset`.",
+          "name": "data_input_datasets",
+          "numberAttr": "N",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "A substitute for `InterleaveDataset` on a fixed list of `N` datasets."
+    }
+  },
+  {
+    "name": "ExperimentalFunctionBufferingResource",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If non-empty, this resource will be shared under the given name across\nmultiple sessions.",
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "description": "If non-empty, this resource is placed in the given container.\nOtherwise, a default container is used.",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "description": "Function to be executed.",
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "description": "Size of the buffer.",
+          "name": "buffer_size",
+          "type": "int"
+        },
+        {
+          "description": "The type list for the return values.",
+          "name": "output_types",
+          "type": "list(type)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "String argument to the function call.",
+          "name": "string_arg",
+          "type": 7
+        },
+        {
+          "description": "Target device to execute the function on.",
+          "name": "target_device",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Handle to the resource created.",
+          "name": "resource",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a resource that fills up a buffer by making function calls."
+    }
+  },
+  {
+    "name": "ExperimentalFunctionBufferingResourceGetNext",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type list for the return values.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The FunctionBufferingResource handle.",
+          "name": "function_buffer_resource",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of return values.",
+          "name": "output",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "Gets the next element from a FunctionBufferingResource."
+    }
+  },
+  {
+    "name": "ExperimentalFunctionBufferingResourceReset",
+    "schema": {
+      "inputs": [
+        {
+          "description": "The FunctionBufferingResource handle.",
+          "name": "function_buffer_resource",
+          "type": 20
+        }
+      ],
+      "summary": "Resets the FunctionBufferingResource."
+    }
+  },
+  {
+    "name": "ExperimentalIdentityIndexedDataset",
+    "schema": {
+      "inputs": [
+        {
+          "name": "size",
+          "type": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalIgnoreErrorsDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that contains the elements of `input_dataset` ignoring errors."
+    }
+  },
+  {
+    "name": "ExperimentalIndexedDatasetGet",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "materialized",
+          "type": 20
+        },
+        {
+          "name": "index",
+          "type": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "components",
+          "typeListAttr": "output_types"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalIndexedDatasetMaterialize",
+    "schema": {
+      "inputs": [
+        {
+          "name": "dataset",
+          "type": 21
+        },
+        {
+          "name": "materialized",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalIteratorGetDevice",
+    "schema": {
+      "inputs": [
+        {
+          "name": "resource",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "device",
+          "type": 7
+        }
+      ],
+      "summary": "Returns the name of the device on which `resource` has been placed."
+    }
+  },
+  {
+    "name": "ExperimentalLMDBDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "filenames",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalMaterializedIndexDatasetHandle",
+    "schema": {
+      "attributes": [
+        {
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "name": "shared_name",
+          "type": "string"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
+    "name": "ExperimentalThreadPoolDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A resource produced by the ThreadPoolHandle op.",
+          "name": "thread_pool",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that uses a custom thread pool to compute `input_dataset`."
+    }
+  },
+  {
+    "name": "ExperimentalThreadPoolHandle",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The number of threads in the thread pool.",
+          "name": "num_threads",
+          "type": "int"
+        },
+        {
+          "default": 1,
+          "description": "The maximum degree of parallelism to use within operations that execute on this\nthreadpool.",
+          "name": "max_intra_op_parallelism",
+          "type": "int"
+        },
+        {
+          "description": "A human-readable name for the threads that may be visible in some\nvisualizations.\nthreadpool.",
+          "name": "display_name",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "container",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "shared_name",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A resource that can be consumed by one or more ExperimentalThreadPoolDataset\nops.",
+          "name": "handle",
+          "type": 20
+        }
+      ],
+      "summary": "Creates a dataset that uses a custom thread pool to compute `input_dataset`."
+    }
+  },
+  {
+    "name": "ExperimentalUniqueDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that contains the unique elements of `input_dataset`."
+    }
+  },
+  {
     "name": "Expm1",
     "schema": {
       "attributes": [
@@ -19218,7 +19748,7 @@
           "type": "type"
         }
       ],
-      "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\\\)\n\nwhere\n\n\\\\(gamma(a, x) = int_{0}^{x} t^{a-1} exp(-t) dt\\\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
+      "description": "The lower regularized incomplete Gamma function is defined as:\n\n\n\\\\(P(a, x) = gamma(a, x) / Gamma(a) = 1 - Q(a, x)\\\\)\n\nwhere\n\n\\\\(gamma(a, x) = \\\\int_{0}^{x} t^{a-1} exp(-t) dt\\\\)\n\nis the lower incomplete Gamma function.\n\nNote, above `Q(a, x)` (`Igammac`) is the upper regularized complete\nGamma function.",
       "inputs": [
         {
           "name": "a",
@@ -33916,6 +34446,66 @@
         }
       ],
       "summary": "Emits randomized records."
+    }
+  },
+  {
+    "name": "ReduceDataset",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A function that maps `(old_state, input_element)` to `new_state`. It must take\ntwo arguments and return a nested structures of tensors. The structure of\n`new_state` must match the structure of `initial_state`.",
+          "name": "f",
+          "type": "func"
+        },
+        {
+          "minimum": 1,
+          "name": "Tstate",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 0,
+          "name": "Targuments",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "list(type)"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "list(shape)"
+        },
+        {
+          "default": true,
+          "name": "use_inter_op_parallelism",
+          "type": "bool"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A nested structure of tensors, representing the initial state of the\ntransformation.",
+          "name": "initial_state",
+          "typeListAttr": "Tstate"
+        },
+        {
+          "name": "other_arguments",
+          "typeListAttr": "Targuments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "components",
+          "typeListAttr": "output_types"
+        }
+      ],
+      "summary": "Reduces the input dataset to a singleton using a reduce function."
     }
   },
   {
