@@ -4600,6 +4600,7 @@
                         key = reader.string();
                         reader.assert("value");
                         message.ret[key] = reader.string();
+                        reader.assert("}");
                         break;
                     default:
                         reader.handle(tag);
