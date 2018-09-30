@@ -560,7 +560,13 @@ class TensorFlowAttribute {
     constructor(name, value, operator, metadata) {
         this._name = name;
         this._value = null;
-        this._type = value.hasOwnProperty('tensor') ? new TensorFlowTensor(this._value.tensor).type : metadata.getAttributeType(operator, name);
+        if (value.hasOwnProperty('tensor')) {
+            this._type = new TensorFlowTensor(value.tensor).type;
+            this._tensor = value.tensor.tensor_shape && value.tensor.tensor_shape.dim && value.tensor.tensor_shape.dim.length > 0;
+        }
+        else {
+            this._type = metadata.getAttributeType(operator, name);
+        }
         if (value.hasOwnProperty('type')) {
             this._value = () => TensorFlowTensor.formatDataType(value.type);
         }
@@ -589,6 +595,7 @@ class TensorFlowAttribute {
         }
         else if (value.hasOwnProperty('list')) {
             var list = value.list;
+            this._value = [];
             if (list.s && list.s.length > 0) {
                 if (list.s.length > 65536) {
                     this._value = () => '...';
@@ -658,15 +665,7 @@ class TensorFlowAttribute {
     }
 
     get tensor() {
-        if (this._value.hasOwnProperty('tensor')) {
-            if (this._value.tensor.tensor_shape && this._value.tensor.tensor_shape.dim) {
-                if (this._value.tensor.tensor_shape.dim.length == 0) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return this._tensor ? true : false;
     }
 }
 
@@ -1218,6 +1217,9 @@ class TensorFlowGraphOperatorMetadata {
     }
 
     static _formatAttributeValue(value) {
+        if (value == null) {
+            return null;
+        }
         if (value && value.__isLong__) {
             value = value.toNumber();
         }
