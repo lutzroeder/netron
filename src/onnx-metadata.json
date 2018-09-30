@@ -2280,8 +2280,7 @@
     "schema": {
       "attributes": [
         {
-          "default": 1,
-          "description": "(Optional) The data type for the elements of the output tensor. If not specified,the data type of the input tensor T1 is used. If input tensor T1 is also notspecified, then type defaults to 'float'.",
+          "description": "(Optional) The data type for the elements of the output tensor. If not specified,the data type of the input tensor T1 is used. If input tensor T1 is also not specified, then output tensor type defaults to 'float'.",
           "name": "dtype",
           "required": false,
           "type": "int"
