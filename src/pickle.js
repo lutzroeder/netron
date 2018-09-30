@@ -181,12 +181,15 @@ pickle.Unpickler = class {
                     var dict = stack.pop();
                     var obj = stack.pop();
                     if (obj.__setstate__) {
-                        obj.__setstate__(dict, reader);
+                        obj.__setstate__(dict);
                     }
                     else {
                         for (var p in dict) {
                             obj[p] = dict[p];
                         }
+                    }
+                    if (obj.__read__) {
+                        obj = obj.__read__(this);
                     }
                     stack.push(obj);
                     break;

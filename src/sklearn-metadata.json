@@ -124,6 +124,95 @@
     }
   },
   {
+    "name": "DecisionTreeRegressor",
+    "schema": {
+      "attributes": [
+        {
+          "default": "mse",
+          "description": "The function to measure the quality of a split. Supported criteria\nare \"mse\" for the mean squared error, which is equal to variance\nreduction as feature selection criterion and minimizes the L2 loss\nusing the mean of each terminal node, \"friedman_mse\", which uses mean\nsquared error with Friedman's improvement score for potential splits,\nand \"mae\" for the mean absolute error, which minimizes the L1 loss\nusing the median of each terminal node.\n\n.. versionadded:: 0.18\nMean Absolute Error (MAE) criterion.\n",
+          "name": "criterion",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": "best",
+          "description": "The strategy used to choose the split at each node. Supported\nstrategies are \"best\" to choose the best split and \"random\" to choose\nthe best random split.\n",
+          "name": "splitter",
+          "option": "optional",
+          "type": "string"
+        },
+        {
+          "default": null,
+          "description": "The maximum depth of the tree. If None, then nodes are expanded until\nall leaves are pure or until all leaves contain less than\nmin_samples_split samples.\n",
+          "name": "max_depth",
+          "option": "optional"
+        },
+        {
+          "default": 2,
+          "description": "The minimum number of samples required to split an internal node:\n\n- If int, then consider `min_samples_split` as the minimum number.\n- If float, then `min_samples_split` is a fraction and\n`ceil(min_samples_split * n_samples)` are the minimum\nnumber of samples for each split.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_split",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 1,
+          "description": "The minimum number of samples required to be at a leaf node.\nA split point at any depth will only be considered if it leaves at\nleast ``min_samples_leaf`` training samples in each of the left and\nright branches.  This may have the effect of smoothing the model,\nespecially in regression.\n\n- If int, then consider `min_samples_leaf` as the minimum number.\n- If float, then `min_samples_leaf` is a fraction and\n`ceil(min_samples_leaf * n_samples)` are the minimum\nnumber of samples for each node.\n\n.. versionchanged:: 0.18\nAdded float values for fractions.\n",
+          "name": "min_samples_leaf",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": 0.0,
+          "description": "The minimum weighted fraction of the sum total of weights (of all\nthe input samples) required to be at a leaf node. Samples have\nequal weight when sample_weight is not provided.\n",
+          "name": "min_weight_fraction_leaf",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "default": null,
+          "description": "The number of features to consider when looking for the best split:\n\n- If int, then consider `max_features` features at each split.\n- If float, then `max_features` is a fraction and\n`int(max_features * n_features)` features are considered at each\nsplit.\n- If \"auto\", then `max_features=n_features`.\n- If \"sqrt\", then `max_features=sqrt(n_features)`.\n- If \"log2\", then `max_features=log2(n_features)`.\n- If None, then `max_features=n_features`.\n\nNote: the search for a split does not stop until at least one\nvalid partition of the node samples is found, even if it requires to\neffectively inspect more than ``max_features`` features.\n",
+          "name": "max_features",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": null,
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`.\n",
+          "name": "random_state",
+          "option": "optional",
+          "type": "int32"
+        },
+        {
+          "default": null,
+          "description": "Grow a tree with ``max_leaf_nodes`` in best-first fashion.\nBest nodes are defined as relative reduction in impurity.\nIf None then unlimited number of leaf nodes.\n",
+          "name": "max_leaf_nodes",
+          "option": "optional"
+        },
+        {
+          "default": 0.0,
+          "description": "A node will be split if this split induces a decrease of the impurity\ngreater than or equal to this value.\n\nThe weighted impurity decrease equation is the following::\n\nN_t / N * (impurity - N_t_R / N_t * right_impurity\n- N_t_L / N_t * left_impurity)\n\nwhere ``N`` is the total number of samples, ``N_t`` is the number of\nsamples at the current node, ``N_t_L`` is the number of samples in the\nleft child, and ``N_t_R`` is the number of samples in the right child.\n\n``N``, ``N_t``, ``N_t_R`` and ``N_t_L`` all refer to the weighted sum,\nif ``sample_weight`` is passed.\n\n.. versionadded:: 0.19\n",
+          "name": "min_impurity_decrease",
+          "option": "optional",
+          "type": "float32"
+        },
+        {
+          "description": "Threshold for early stopping in tree growth. A node will split\nif its impurity is above the threshold, otherwise it is a leaf.\n\n.. deprecated:: 0.19\n``min_impurity_split`` has been deprecated in favor of\n``min_impurity_decrease`` in 0.19 and will be removed in 0.21.\nUse ``min_impurity_decrease`` instead.\n",
+          "name": "min_impurity_split",
+          "type": "float32"
+        },
+        {
+          "default": false,
+          "description": "Whether to presort the data to speed up the finding of best splits in\nfitting. For the default settings of a decision tree on large\ndatasets, setting this to true may slow down the training process.\nWhen using either a smaller dataset or a restricted depth, this may\nspeed up the training.\n",
+          "name": "presort",
+          "option": "optional",
+          "type": "boolean"
+        }
+      ],
+      "description": "A decision tree regressor.\n\nRead more in the :ref:`User Guide <tree>`.\n",
+      "package": "sklearn.tree.tree"
+    }
+  },
+  {
     "name": "DecisionTreeClassifier",
     "schema": {
       "attributes": [

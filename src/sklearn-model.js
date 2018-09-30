@@ -81,14 +81,24 @@ class SklearnModelFactory {
                         this.is_f_order = state[3];
                         this.rawdata = state[4];
                     };
+                    this.__read__ = function(unpickler) {
+                        var array = {};
+                        array.__type__ = this.subtype;
+                        array.dtype = this.typecode;
+                        array.shape = this.shape;
+                        array.data = SklearnModelFactory._unescape(this.rawdata);
+                        return array;
+                    };
                 };
                 constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(subtype, shape, dtype) {
-                    this.__setstate__ = function(state, reader) {
+                    this.__setstate__ = function(state) {
                         this.subclass = state.subclass;
                         this.dtype = state.dtype;
                         this.shape = state.shape;
                         this.order = state.order;
                         this.allow_mmap = state.allow_mmap;
+                    };
+                    this.__read__ = function(unpickler) {
                         var size = 1;
                         this.shape.forEach((dimension) => {
                             size *= dimension;
@@ -97,8 +107,15 @@ class SklearnModelFactory {
                             this._object = unpickler.load(function_call, null);
                         }
                         else {
-                            this.data = reader.readBytes(size * this.dtype.itemsize);
+                            this.data = unpickler.read(size * this.dtype.itemsize);
                         }
+
+                        var array = {};
+                        array.__type__ = this.subclass;
+                        array.dtype = this.dtype;
+                        array.shape = this.shape;
+                        array.data = this.data;
+                        return array;
                     };
                 };
                 constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
@@ -214,6 +231,67 @@ class SklearnModelFactory {
                 return;
             }
         });
+    }
+
+    static _unescape(token) {
+        var i = 0;
+        var o = 0;
+        var length = token.length;
+        var a = new Uint8Array(length);
+        while (i < length) {
+            var c = token.charCodeAt(i++);
+            if (c !== 0x5C) {
+                a[o++] = c;
+            }
+            else {
+                if (i >= length) {
+                    throw new SklearnError("Unexpected end of bytes string.");
+                }
+                c = token.charCodeAt(i++);
+                switch (c) {
+                    case 0x27: a[o++] = 0x27; break; // '
+                    case 0x5C: a[o++] = 0x5C; break; // \\
+                    case 0x22: a[o++] = 0x22; break; // "
+                    case 0x72: a[o++] = 0x0D; break; // \r
+                    case 0x6E: a[o++] = 0x0A; break; // \n
+                    case 0x74: a[o++] = 0x09; break; // \t
+                    case 0x62: a[o++] = 0x08; break; // \b
+                    case 0x58: // x
+                    case 0x78: // X
+                        for (var xi = 0; xi < 2; xi++) {
+                            if (i >= length) {
+                                throw new SklearnError("Unexpected end of bytes string.");
+                            }
+                            var xd = token.charCodeAt(i++);
+                            xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
+                            if (xd === -1) {
+                                throw new SklearnError("Unexpected hex digit '" + xd + "' in bytes string.");
+                            }
+                            a[o] = a[o] << 4 | xd;
+                        }
+                        o++;
+                        break;
+                    default:
+                        if (c < 48 || c > 57) { // 0-9
+                            throw new SklearnError("Unexpected character '" + c + "' in bytes string.");
+                        }
+                        i--;
+                        for (var oi = 0; oi < 3; oi++) {
+                            if (i >= length) {
+                                throw new SklearnError("Unexpected end of bytes string.");
+                            }
+                            var od = token.charCodeAt(i++);
+                            if (od < 48 || od > 57) {
+                                throw new SklearnError("Unexpected octal digit '" + od + "' in bytes string.");
+                            }
+                            a[o] = a[o] << 3 | od - 48;
+                        }
+                        o++;
+                        break;
+                }
+           }
+        }
+        return a.slice(0, o);
     }
 }
 
@@ -345,9 +423,7 @@ class SklearnNode {
                 }
                 else {
                     switch (value.__type__) {
-                        case 'joblib.numpy_pickle.NumpyArrayWrapper':
-                        case 'sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper':
-                        case 'numpy.core.multiarray._reconstruct':
+                        case 'numpy.ndarray':
                             this._initializers.push(new SklearnTensor(key, value));
                             break;
                         default: 
@@ -419,26 +495,12 @@ class SklearnAttribute {
 class SklearnTensor {
 
     constructor(name, value) {
-        SklearnTensor._escapeRegex = /\\(u\{([0-9A-Fa-f]+)\}|u([0-9A-Fa-f]{4})|x([0-9A-Fa-f]{2})|([1-7][0-7]{0,2}|[0-7]{2,3})|(['"tbrnfv0\\]))|\\U([0-9A-Fa-f]{8})/g;
-        SklearnTensor._escapeMap = { '0': '\0', 'b': '\b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t', 'v': '\v', '\'': '\'', '"': '"', '\\': '\\' };
-
         this._name = name;
-
         switch (value.__type__) {
-            case 'joblib.numpy_pickle.NumpyArrayWrapper':
-            case 'sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper':
-                this._kind = 'Array Wrapper';
+            case 'numpy.ndarray':
+                this._kind = 'Array';
                 this._type = new SklearnTensorType(value.dtype.name, value.shape);
                 this._data = value.data;
-                break;
-            case 'numpy.core.multiarray._reconstruct':
-                this._kind = 'Array';
-                this._type = new SklearnTensorType(value.typecode.name, value.shape);
-                var rawdata = SklearnTensor._unescape(value.rawdata);
-                this._data = new Uint8Array(rawdata.length);
-                for (var i = 0; i < this._data.length; i++) {
-                    this._data[i] = rawdata.charCodeAt(i);
-                }
                 break;
             default:
                 debugger;
@@ -594,24 +656,6 @@ class SklearnTensor {
             return result.join('\n');
         }
         return indentation + value.toString();
-    }
-
-    static _unescape(text) {
-        return text.replace(SklearnTensor._escapeRegex, (_, __, varHex, longHex, shortHex, octal, specialCharacter, python) => {
-            if (varHex !== undefined) {
-                return String.fromCodePoint(parseInt(varHex, 16));
-            } else if (longHex !== undefined) {
-                return String.fromCodePoint(parseInt(longHex, 16));
-            } else if (shortHex !== undefined) {
-                return String.fromCodePoint(parseInt(shortHex, 16));
-            } else if (octal !== undefined) {
-                return String.fromCodePoint(parseInt(octal, 8));
-            } else if (python !== undefined) {
-                return String.fromCodePoint(parseInt(python, 16));
-            } else {
-                return SklearnTensor._escapeMap[specialCharacter];
-            }
-        });
     }
 }
 
