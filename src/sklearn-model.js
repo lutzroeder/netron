@@ -124,6 +124,7 @@ class SklearnModelFactory {
                 constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
                 constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
                 constructorTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
+                constructorTable['sklearn.ensemble.forest.RandomForestRegressor'] = function() {};
                 constructorTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
                 constructorTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
                 constructorTable['sklearn.impute.SimpleImputer'] = function() {};
