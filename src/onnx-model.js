@@ -410,9 +410,7 @@ class OnnxNode {
         this._attributes = [];
         if (attributes && attributes.length > 0) {
             attributes.forEach((attribute) => { 
-                var visible = this.graph.metadata.getAttributeVisible(this.operator, attribute);       
-                var type = !attribute.hasOwnProperty('type') ? this.graph.metadata.getAttributeType(this.operator, attribute.name) : null;
-                this._attributes.push(new OnnxAttribute(attribute, type, visible));
+                this._attributes.push(new OnnxAttribute(this.graph.metadata, this.operator, attribute));
             });
         }            
         this._inputs = inputs;
@@ -474,11 +472,8 @@ class OnnxNode {
 
 class OnnxAttribute {
 
-    constructor(attribute, type, visible) {
+    constructor(metadata, operator, attribute) {
         this._name = attribute.name;
-        if (!visible) {
-            this._visible = false;
-        }
         if (attribute.doc_string) {
             this._description = this._attribute.doc_string;
         }
@@ -536,6 +531,7 @@ class OnnxAttribute {
             this._value = new OnnxTensor(attribute.t).value;
         }
 
+        var type = !attribute.hasOwnProperty('type') ? metadata.getAttributeType(operator, attribute.name) : null;
         if (this._type) {
             this._type = type;
         }
@@ -556,6 +552,11 @@ class OnnxAttribute {
             }
             var attributeType = OnnxAttribute._attributeTypeMap[attribute.type];
             this._type = attributeType || OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED];
+        }
+
+        var visible = metadata.getAttributeVisible(operator, this._name, this._value);
+        if (!visible) {
+            this._visible = false;
         }
     }
 
@@ -1118,10 +1119,10 @@ class OnnxGraphOperatorMetadata {
         return '';
     }
 
-    getAttributeVisible(operator, attribute) {
-        var schema = this.getAttributeSchema(operator, attribute.name);
+    getAttributeVisible(operator, name, value) {
+        var schema = this.getAttributeSchema(operator, name);
         if (schema && schema.hasOwnProperty('default') && schema.default) {
-            if (attribute.value == schema.default.toString()) {
+            if (value == schema.default) {
                 return false;
             }
         }
