@@ -315,7 +315,7 @@ class CaffeNode {
                 Object.keys(layer.layer).forEach((attributeName) => {
                     if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
                         var attributeValue = layer.layer[attributeName];
-                        this._attributes.push(new CaffeAttribute(this, attributeName, attributeValue));
+                        this._attributes.push(new CaffeAttribute(this.operator, attributeName, attributeValue));
                     }
                 });
                 layer.layer.blobs.forEach((blob) => {
@@ -337,20 +337,20 @@ class CaffeNode {
                                 var defaultValue = prototype[name];
                                 var value = param[name];
                                 if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
-                                    this._attributes.push(new CaffeAttribute(this, name, value, defaultValue));
+                                    this._attributes.push(new CaffeAttribute(this.operator, name, value));
                                 }
                             });
                         }
                     }
                 });
                 if (layer.include && layer.include.length > 0) {
-                    this._attributes.push(new CaffeAttribute(this, 'include', layer.include, null));
+                    this._attributes.push(new CaffeAttribute(this.operator, 'include', layer.include));
                 }
                 if (layer.exclude && layer.exclude.length > 0) {
-                    this._attributes.push(new CaffeAttribute(this, 'exclude', layer.exclude, null));
+                    this._attributes.push(new CaffeAttribute(this.operator, 'exclude', layer.exclude));
                 }
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
-                    this._attributes.push(new CaffeAttribute(this, 'shape', layer.input_param.shape, null));
+                    this._attributes.push(new CaffeAttribute(this.operator, 'shape', layer.input_param.shape));
                 }
                 layer.blobs.forEach((blob) => {
                     this._initializers.push(new CaffeTensor(blob));
@@ -454,8 +454,8 @@ class CaffeNode {
 
 class CaffeAttribute {
 
-    constructor(owner, name, value) {
-        this._owner = owner;
+    constructor(operator, name, value) {
+        this._operator = operator;
         this._name = name;
         this._value = value;
     }
@@ -469,10 +469,7 @@ class CaffeAttribute {
     }
 
     get visible() {
-        if (this._visible !== false) {
-            return CaffeOperatorMetadata.operatorMetadata.getAttributeVisible(this._owner.operator, this._name, this._value)
-        }
-        return false;
+        return CaffeOperatorMetadata.operatorMetadata.getAttributeVisible(this._operator, this._name, this._value);
     }
 }
 
