@@ -227,6 +227,7 @@ class SklearnModelFactory {
                 });
             }
             catch (error) {
+                host.exception(error, false);
                 callback(new SklearnError(error.message), null);
                 return;
             }
