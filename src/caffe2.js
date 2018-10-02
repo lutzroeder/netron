@@ -14,11 +14,13 @@
     
             function TensorProto(properties) {
                 this.dims = [];
+                this.strides = [];
                 this.float_data = [];
                 this.int32_data = [];
                 this.string_data = [];
                 this.double_data = [];
                 this.int64_data = [];
+                this.annotations = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -26,16 +28,26 @@
             }
     
             TensorProto.prototype.dims = $util.emptyArray;
+            TensorProto.prototype.strides = $util.emptyArray;
             TensorProto.prototype.data_type = 1;
+            TensorProto.prototype.special_type = null;
+            TensorProto.prototype.storage_type = 1;
             TensorProto.prototype.float_data = $util.emptyArray;
             TensorProto.prototype.int32_data = $util.emptyArray;
             TensorProto.prototype.byte_data = $util.newBuffer([]);
             TensorProto.prototype.string_data = $util.emptyArray;
             TensorProto.prototype.double_data = $util.emptyArray;
             TensorProto.prototype.int64_data = $util.emptyArray;
+            TensorProto.prototype.raw_data = $util.newBuffer([]);
+            TensorProto.prototype.external_data = "";
+            TensorProto.prototype.alias = "";
             TensorProto.prototype.name = "";
             TensorProto.prototype.device_detail = null;
             TensorProto.prototype.segment = null;
+            TensorProto.prototype.debug_info = "";
+            TensorProto.prototype.require_gradient = false;
+            TensorProto.prototype.is_buffer = false;
+            TensorProto.prototype.annotations = $util.emptyArray;
     
             TensorProto.create = function create(properties) {
                 return new TensorProto(properties);
@@ -58,8 +70,24 @@
                         } else
                             message.dims.push(reader.int64());
                         break;
+                    case 12:
+                        if (!(message.strides && message.strides.length))
+                            message.strides = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.strides.push(reader.int64());
+                        } else
+                            message.strides.push(reader.int64());
+                        break;
                     case 2:
                         message.data_type = reader.int32();
+                        break;
+                    case 13:
+                        message.special_type = $root.caffe2.SpecialType.decode(reader, reader.uint32());
+                        break;
+                    case 14:
+                        message.storage_type = reader.int32();
                         break;
                     case 3:
                         if (!(message.float_data && message.float_data.length))
@@ -109,6 +137,15 @@
                         } else
                             message.int64_data.push(reader.int64());
                         break;
+                    case 15:
+                        message.raw_data = reader.bytes();
+                        break;
+                    case 16:
+                        message.external_data = reader.string();
+                        break;
+                    case 17:
+                        message.alias = reader.string();
+                        break;
                     case 7:
                         message.name = reader.string();
                         break;
@@ -117,6 +154,20 @@
                         break;
                     case 11:
                         message.segment = $root.caffe2.TensorProto.Segment.decode(reader, reader.uint32());
+                        break;
+                    case 18:
+                        message.debug_info = reader.string();
+                        break;
+                    case 19:
+                        message.require_gradient = reader.bool();
+                        break;
+                    case 20:
+                        message.is_buffer = reader.bool();
+                        break;
+                    case 21:
+                        if (!(message.annotations && message.annotations.length))
+                            message.annotations = [];
+                        message.annotations.push($root.caffe2.Argument.decode(reader, reader.uint32()));
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -139,8 +190,19 @@
                             message.dims = [];
                         message.dims.push(reader.int64());
                         break;
+                    case "strides":
+                        if (!(message.strides && message.strides.length))
+                            message.strides = [];
+                        message.strides.push(reader.int64());
+                        break;
                     case "data_type":
                         message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
+                        break;
+                    case "special_type":
+                        message.special_type = $root.caffe2.SpecialType.decodeText(reader, true);
+                        break;
+                    case "storage_type":
+                        message.storage_type = reader.enum($root.caffe2.TensorProto.StorageType);
                         break;
                     case "float_data":
                         if (!(message.float_data && message.float_data.length))
@@ -170,6 +232,15 @@
                             message.int64_data = [];
                         message.int64_data.push(reader.int64());
                         break;
+                    case "raw_data":
+                        message.raw_data = reader.bytes();
+                        break;
+                    case "external_data":
+                        message.external_data = reader.string();
+                        break;
+                    case "alias":
+                        message.alias = reader.string();
+                        break;
                     case "name":
                         message.name = reader.string();
                         break;
@@ -178,6 +249,20 @@
                         break;
                     case "segment":
                         message.segment = $root.caffe2.TensorProto.Segment.decodeText(reader, true);
+                        break;
+                    case "debug_info":
+                        message.debug_info = reader.string();
+                        break;
+                    case "require_gradient":
+                        message.require_gradient = reader.bool();
+                        break;
+                    case "is_buffer":
+                        message.is_buffer = reader.bool();
+                        break;
+                    case "annotations":
+                        if (!(message.annotations && message.annotations.length))
+                            message.annotations = [];
+                        message.annotations.push($root.caffe2.Argument.decodeText(reader, true));
                         break;
                     default:
                         reader.handle(tag);
@@ -197,6 +282,13 @@
                         if (!$util.isInteger(message.dims[i]) && !(message.dims[i] && $util.isInteger(message.dims[i].low) && $util.isInteger(message.dims[i].high)))
                             return "dims: integer|Long[] expected";
                 }
+                if (message.strides != null && message.hasOwnProperty("strides")) {
+                    if (!Array.isArray(message.strides))
+                        return "strides: array expected";
+                    for (var i = 0; i < message.strides.length; ++i)
+                        if (!$util.isInteger(message.strides[i]) && !(message.strides[i] && $util.isInteger(message.strides[i].low) && $util.isInteger(message.strides[i].high)))
+                            return "strides: integer|Long[] expected";
+                }
                 if (message.data_type != null && message.hasOwnProperty("data_type"))
                     switch (message.data_type) {
                     default:
@@ -214,6 +306,23 @@
                     case 10:
                     case 12:
                     case 13:
+                    case 51:
+                    case 52:
+                        break;
+                    }
+                if (message.special_type != null && message.hasOwnProperty("special_type")) {
+                    var error = $root.caffe2.SpecialType.verify(message.special_type);
+                    if (error)
+                        return "special_type." + error;
+                }
+                if (message.storage_type != null && message.hasOwnProperty("storage_type"))
+                    switch (message.storage_type) {
+                    default:
+                        return "storage_type: enum value expected";
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
                         break;
                     }
                 if (message.float_data != null && message.hasOwnProperty("float_data")) {
@@ -254,6 +363,15 @@
                         if (!$util.isInteger(message.int64_data[i]) && !(message.int64_data[i] && $util.isInteger(message.int64_data[i].low) && $util.isInteger(message.int64_data[i].high)))
                             return "int64_data: integer|Long[] expected";
                 }
+                if (message.raw_data != null && message.hasOwnProperty("raw_data"))
+                    if (!(message.raw_data && typeof message.raw_data.length === "number" || $util.isString(message.raw_data)))
+                        return "raw_data: buffer expected";
+                if (message.external_data != null && message.hasOwnProperty("external_data"))
+                    if (!$util.isString(message.external_data))
+                        return "external_data: string expected";
+                if (message.alias != null && message.hasOwnProperty("alias"))
+                    if (!$util.isString(message.alias))
+                        return "alias: string expected";
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
                         return "name: string expected";
@@ -266,6 +384,24 @@
                     var error = $root.caffe2.TensorProto.Segment.verify(message.segment);
                     if (error)
                         return "segment." + error;
+                }
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    if (!$util.isString(message.debug_info))
+                        return "debug_info: string expected";
+                if (message.require_gradient != null && message.hasOwnProperty("require_gradient"))
+                    if (typeof message.require_gradient !== "boolean")
+                        return "require_gradient: boolean expected";
+                if (message.is_buffer != null && message.hasOwnProperty("is_buffer"))
+                    if (typeof message.is_buffer !== "boolean")
+                        return "is_buffer: boolean expected";
+                if (message.annotations != null && message.hasOwnProperty("annotations")) {
+                    if (!Array.isArray(message.annotations))
+                        return "annotations: array expected";
+                    for (var i = 0; i < message.annotations.length; ++i) {
+                        var error = $root.caffe2.Argument.verify(message.annotations[i]);
+                        if (error)
+                            return "annotations." + error;
+                    }
                 }
                 return null;
             };
@@ -287,6 +423,20 @@
                             message.dims[i] = object.dims[i];
                         else if (typeof object.dims[i] === "object")
                             message.dims[i] = new $util.LongBits(object.dims[i].low >>> 0, object.dims[i].high >>> 0).toNumber();
+                }
+                if (object.strides) {
+                    if (!Array.isArray(object.strides))
+                        throw TypeError(".caffe2.TensorProto.strides: array expected");
+                    message.strides = [];
+                    for (var i = 0; i < object.strides.length; ++i)
+                        if ($util.Long)
+                            (message.strides[i] = $util.Long.fromValue(object.strides[i])).unsigned = false;
+                        else if (typeof object.strides[i] === "string")
+                            message.strides[i] = parseInt(object.strides[i], 10);
+                        else if (typeof object.strides[i] === "number")
+                            message.strides[i] = object.strides[i];
+                        else if (typeof object.strides[i] === "object")
+                            message.strides[i] = new $util.LongBits(object.strides[i].low >>> 0, object.strides[i].high >>> 0).toNumber();
                 }
                 switch (object.data_type) {
                 case "UNDEFINED":
@@ -341,6 +491,37 @@
                 case 13:
                     message.data_type = 13;
                     break;
+                case "SPECIAL":
+                case 51:
+                    message.data_type = 51;
+                    break;
+                case "NO_CONTENT":
+                case 52:
+                    message.data_type = 52;
+                    break;
+                }
+                if (object.special_type != null) {
+                    if (typeof object.special_type !== "object")
+                        throw TypeError(".caffe2.TensorProto.special_type: object expected");
+                    message.special_type = $root.caffe2.SpecialType.fromObject(object.special_type);
+                }
+                switch (object.storage_type) {
+                case "TYPED":
+                case 1:
+                    message.storage_type = 1;
+                    break;
+                case "RAW":
+                case 2:
+                    message.storage_type = 2;
+                    break;
+                case "EXTERNAL":
+                case 3:
+                    message.storage_type = 3;
+                    break;
+                case "ALIAS":
+                case 4:
+                    message.storage_type = 4;
+                    break;
                 }
                 if (object.float_data) {
                     if (!Array.isArray(object.float_data))
@@ -392,6 +573,15 @@
                         else if (typeof object.int64_data[i] === "object")
                             message.int64_data[i] = new $util.LongBits(object.int64_data[i].low >>> 0, object.int64_data[i].high >>> 0).toNumber();
                 }
+                if (object.raw_data != null)
+                    if (typeof object.raw_data === "string")
+                        $util.base64.decode(object.raw_data, message.raw_data = $util.newBuffer($util.base64.length(object.raw_data)), 0);
+                    else if (object.raw_data.length)
+                        message.raw_data = object.raw_data;
+                if (object.external_data != null)
+                    message.external_data = String(object.external_data);
+                if (object.alias != null)
+                    message.alias = String(object.alias);
                 if (object.name != null)
                     message.name = String(object.name);
                 if (object.device_detail != null) {
@@ -403,6 +593,22 @@
                     if (typeof object.segment !== "object")
                         throw TypeError(".caffe2.TensorProto.segment: object expected");
                     message.segment = $root.caffe2.TensorProto.Segment.fromObject(object.segment);
+                }
+                if (object.debug_info != null)
+                    message.debug_info = String(object.debug_info);
+                if (object.require_gradient != null)
+                    message.require_gradient = Boolean(object.require_gradient);
+                if (object.is_buffer != null)
+                    message.is_buffer = Boolean(object.is_buffer);
+                if (object.annotations) {
+                    if (!Array.isArray(object.annotations))
+                        throw TypeError(".caffe2.TensorProto.annotations: array expected");
+                    message.annotations = [];
+                    for (var i = 0; i < object.annotations.length; ++i) {
+                        if (typeof object.annotations[i] !== "object")
+                            throw TypeError(".caffe2.TensorProto.annotations: object expected");
+                        message.annotations[i] = $root.caffe2.Argument.fromObject(object.annotations[i]);
+                    }
                 }
                 return message;
             };
@@ -418,6 +624,8 @@
                     object.string_data = [];
                     object.double_data = [];
                     object.int64_data = [];
+                    object.strides = [];
+                    object.annotations = [];
                 }
                 if (options.defaults) {
                     object.data_type = options.enums === String ? "FLOAT" : 1;
@@ -431,6 +639,20 @@
                     object.name = "";
                     object.device_detail = null;
                     object.segment = null;
+                    object.special_type = null;
+                    object.storage_type = options.enums === String ? "TYPED" : 1;
+                    if (options.bytes === String)
+                        object.raw_data = "";
+                    else {
+                        object.raw_data = [];
+                        if (options.bytes !== Array)
+                            object.raw_data = $util.newBuffer(object.raw_data);
+                    }
+                    object.external_data = "";
+                    object.alias = "";
+                    object.debug_info = "";
+                    object.require_gradient = false;
+                    object.is_buffer = false;
                 }
                 if (message.dims && message.dims.length) {
                     object.dims = [];
@@ -478,6 +700,35 @@
                 }
                 if (message.segment != null && message.hasOwnProperty("segment"))
                     object.segment = $root.caffe2.TensorProto.Segment.toObject(message.segment, options);
+                if (message.strides && message.strides.length) {
+                    object.strides = [];
+                    for (var j = 0; j < message.strides.length; ++j)
+                        if (typeof message.strides[j] === "number")
+                            object.strides[j] = options.longs === String ? String(message.strides[j]) : message.strides[j];
+                        else
+                            object.strides[j] = options.longs === String ? $util.Long.prototype.toString.call(message.strides[j]) : options.longs === Number ? new $util.LongBits(message.strides[j].low >>> 0, message.strides[j].high >>> 0).toNumber() : message.strides[j];
+                }
+                if (message.special_type != null && message.hasOwnProperty("special_type"))
+                    object.special_type = $root.caffe2.SpecialType.toObject(message.special_type, options);
+                if (message.storage_type != null && message.hasOwnProperty("storage_type"))
+                    object.storage_type = options.enums === String ? $root.caffe2.TensorProto.StorageType[message.storage_type] : message.storage_type;
+                if (message.raw_data != null && message.hasOwnProperty("raw_data"))
+                    object.raw_data = options.bytes === String ? $util.base64.encode(message.raw_data, 0, message.raw_data.length) : options.bytes === Array ? Array.prototype.slice.call(message.raw_data) : message.raw_data;
+                if (message.external_data != null && message.hasOwnProperty("external_data"))
+                    object.external_data = message.external_data;
+                if (message.alias != null && message.hasOwnProperty("alias"))
+                    object.alias = message.alias;
+                if (message.debug_info != null && message.hasOwnProperty("debug_info"))
+                    object.debug_info = message.debug_info;
+                if (message.require_gradient != null && message.hasOwnProperty("require_gradient"))
+                    object.require_gradient = message.require_gradient;
+                if (message.is_buffer != null && message.hasOwnProperty("is_buffer"))
+                    object.is_buffer = message.is_buffer;
+                if (message.annotations && message.annotations.length) {
+                    object.annotations = [];
+                    for (var j = 0; j < message.annotations.length; ++j)
+                        object.annotations[j] = $root.caffe2.Argument.toObject(message.annotations[j], options);
+                }
                 return object;
             };
     
@@ -500,6 +751,17 @@
                 values[valuesById[10] = "INT64"] = 10;
                 values[valuesById[12] = "FLOAT16"] = 12;
                 values[valuesById[13] = "DOUBLE"] = 13;
+                values[valuesById[51] = "SPECIAL"] = 51;
+                values[valuesById[52] = "NO_CONTENT"] = 52;
+                return values;
+            })();
+    
+            TensorProto.StorageType = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[1] = "TYPED"] = 1;
+                values[valuesById[2] = "RAW"] = 2;
+                values[valuesById[3] = "EXTERNAL"] = 3;
+                values[valuesById[4] = "ALIAS"] = 4;
                 return values;
             })();
     
@@ -514,6 +776,8 @@
     
                 Segment.prototype.begin = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
                 Segment.prototype.end = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                Segment.prototype.chunk_num = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                Segment.prototype.chunk_id = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
                 Segment.create = function create(properties) {
                     return new Segment(properties);
@@ -531,6 +795,12 @@
                             break;
                         case 2:
                             message.end = reader.int64();
+                            break;
+                        case 51:
+                            message.chunk_num = reader.int64();
+                            break;
+                        case 52:
+                            message.chunk_id = reader.int64();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -558,6 +828,12 @@
                         case "end":
                             message.end = reader.int64();
                             break;
+                        case "chunk_num":
+                            message.chunk_num = reader.int64();
+                            break;
+                        case "chunk_id":
+                            message.chunk_id = reader.int64();
+                            break;
                         default:
                             reader.handle(tag);
                             break;
@@ -577,6 +853,12 @@
                         return "begin: integer|Long expected";
                     if (!$util.isInteger(message.end) && !(message.end && $util.isInteger(message.end.low) && $util.isInteger(message.end.high)))
                         return "end: integer|Long expected";
+                    if (message.chunk_num != null && message.hasOwnProperty("chunk_num"))
+                        if (!$util.isInteger(message.chunk_num) && !(message.chunk_num && $util.isInteger(message.chunk_num.low) && $util.isInteger(message.chunk_num.high)))
+                            return "chunk_num: integer|Long expected";
+                    if (message.chunk_id != null && message.hasOwnProperty("chunk_id"))
+                        if (!$util.isInteger(message.chunk_id) && !(message.chunk_id && $util.isInteger(message.chunk_id.low) && $util.isInteger(message.chunk_id.high)))
+                            return "chunk_id: integer|Long expected";
                     return null;
                 };
     
@@ -602,6 +884,24 @@
                             message.end = object.end;
                         else if (typeof object.end === "object")
                             message.end = new $util.LongBits(object.end.low >>> 0, object.end.high >>> 0).toNumber();
+                    if (object.chunk_num != null)
+                        if ($util.Long)
+                            (message.chunk_num = $util.Long.fromValue(object.chunk_num)).unsigned = false;
+                        else if (typeof object.chunk_num === "string")
+                            message.chunk_num = parseInt(object.chunk_num, 10);
+                        else if (typeof object.chunk_num === "number")
+                            message.chunk_num = object.chunk_num;
+                        else if (typeof object.chunk_num === "object")
+                            message.chunk_num = new $util.LongBits(object.chunk_num.low >>> 0, object.chunk_num.high >>> 0).toNumber();
+                    if (object.chunk_id != null)
+                        if ($util.Long)
+                            (message.chunk_id = $util.Long.fromValue(object.chunk_id)).unsigned = false;
+                        else if (typeof object.chunk_id === "string")
+                            message.chunk_id = parseInt(object.chunk_id, 10);
+                        else if (typeof object.chunk_id === "number")
+                            message.chunk_id = object.chunk_id;
+                        else if (typeof object.chunk_id === "object")
+                            message.chunk_id = new $util.LongBits(object.chunk_id.low >>> 0, object.chunk_id.high >>> 0).toNumber();
                     return message;
                 };
     
@@ -620,6 +920,16 @@
                             object.end = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
                         } else
                             object.end = options.longs === String ? "0" : 0;
+                        if ($util.Long) {
+                            var long = new $util.Long(0, 0, false);
+                            object.chunk_num = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        } else
+                            object.chunk_num = options.longs === String ? "0" : 0;
+                        if ($util.Long) {
+                            var long = new $util.Long(0, 0, false);
+                            object.chunk_id = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                        } else
+                            object.chunk_id = options.longs === String ? "0" : 0;
                     }
                     if (message.begin != null && message.hasOwnProperty("begin"))
                         if (typeof message.begin === "number")
@@ -631,6 +941,16 @@
                             object.end = options.longs === String ? String(message.end) : message.end;
                         else
                             object.end = options.longs === String ? $util.Long.prototype.toString.call(message.end) : options.longs === Number ? new $util.LongBits(message.end.low >>> 0, message.end.high >>> 0).toNumber() : message.end;
+                    if (message.chunk_num != null && message.hasOwnProperty("chunk_num"))
+                        if (typeof message.chunk_num === "number")
+                            object.chunk_num = options.longs === String ? String(message.chunk_num) : message.chunk_num;
+                        else
+                            object.chunk_num = options.longs === String ? $util.Long.prototype.toString.call(message.chunk_num) : options.longs === Number ? new $util.LongBits(message.chunk_num.low >>> 0, message.chunk_num.high >>> 0).toNumber() : message.chunk_num;
+                    if (message.chunk_id != null && message.hasOwnProperty("chunk_id"))
+                        if (typeof message.chunk_id === "number")
+                            object.chunk_id = options.longs === String ? String(message.chunk_id) : message.chunk_id;
+                        else
+                            object.chunk_id = options.longs === String ? $util.Long.prototype.toString.call(message.chunk_id) : options.longs === Number ? new $util.LongBits(message.chunk_id.low >>> 0, message.chunk_id.high >>> 0).toNumber() : message.chunk_id;
                     return object;
                 };
     
@@ -826,6 +1146,8 @@
                     case 10:
                     case 12:
                     case 13:
+                    case 51:
+                    case 52:
                         break;
                     }
                 return null;
@@ -918,6 +1240,14 @@
                 case "DOUBLE":
                 case 13:
                     message.data_type = 13;
+                    break;
+                case "SPECIAL":
+                case 51:
+                    message.data_type = 51;
+                    break;
+                case "NO_CONTENT":
+                case 52:
+                    message.data_type = 52;
                     break;
                 }
                 return message;
@@ -1211,6 +1541,8 @@
                     case 10:
                     case 12:
                     case 13:
+                    case 51:
+                    case 52:
                         break;
                     }
                 if (message.unknown_dims != null && message.hasOwnProperty("unknown_dims")) {
@@ -1300,6 +1632,14 @@
                 case 13:
                     message.data_type = 13;
                     break;
+                case "SPECIAL":
+                case 51:
+                    message.data_type = 51;
+                    break;
+                case "NO_CONTENT":
+                case 52:
+                    message.data_type = 52;
+                    break;
                 }
                 if (object.unknown_dims) {
                     if (!Array.isArray(object.unknown_dims))
@@ -1355,6 +1695,94 @@
             };
     
             return TensorShape;
+        })();
+    
+        caffe2.SpecialType = (function() {
+    
+            function SpecialType(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SpecialType.prototype.name = "";
+    
+            SpecialType.create = function create(properties) {
+                return new SpecialType(properties);
+            };
+    
+            SpecialType.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe2.SpecialType();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.name = reader.string();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SpecialType.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.SpecialType();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "name":
+                        message.name = reader.string();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SpecialType.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.name != null && message.hasOwnProperty("name"))
+                    if (!$util.isString(message.name))
+                        return "name: string expected";
+                return null;
+            };
+    
+            SpecialType.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe2.SpecialType)
+                    return object;
+                var message = new $root.caffe2.SpecialType();
+                if (object.name != null)
+                    message.name = String(object.name);
+                return message;
+            };
+    
+            SpecialType.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.name = "";
+                if (message.name != null && message.hasOwnProperty("name"))
+                    object.name = message.name;
+                return object;
+            };
+    
+            SpecialType.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return SpecialType;
         })();
     
         caffe2.TensorShapes = (function() {
@@ -1473,6 +1901,7 @@
                 this.floats = [];
                 this.ints = [];
                 this.strings = [];
+                this.tensors = [];
                 this.nets = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -1484,10 +1913,12 @@
             Argument.prototype.f = 0;
             Argument.prototype.i = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
             Argument.prototype.s = $util.newBuffer([]);
+            Argument.prototype.t = null;
             Argument.prototype.n = null;
             Argument.prototype.floats = $util.emptyArray;
             Argument.prototype.ints = $util.emptyArray;
             Argument.prototype.strings = $util.emptyArray;
+            Argument.prototype.tensors = $util.emptyArray;
             Argument.prototype.nets = $util.emptyArray;
     
             Argument.create = function create(properties) {
@@ -1512,6 +1943,9 @@
                         break;
                     case 4:
                         message.s = reader.bytes();
+                        break;
+                    case 10:
+                        message.t = $root.caffe2.TensorProto.decode(reader, reader.uint32());
                         break;
                     case 8:
                         message.n = $root.caffe2.NetDef.decode(reader, reader.uint32());
@@ -1563,6 +1997,11 @@
                             message.strings = [];
                         message.strings.push(reader.bytes());
                         break;
+                    case 11:
+                        if (!(message.tensors && message.tensors.length))
+                            message.tensors = [];
+                        message.tensors.push($root.caffe2.TensorProto.decode(reader, reader.uint32()));
+                        break;
                     case 9:
                         if (!(message.nets && message.nets.length))
                             message.nets = [];
@@ -1596,6 +2035,9 @@
                     case "s":
                         message.s = reader.bytes();
                         break;
+                    case "t":
+                        message.t = $root.caffe2.TensorProto.decodeText(reader, true);
+                        break;
                     case "n":
                         message.n = $root.caffe2.NetDef.decodeText(reader, true);
                         break;
@@ -1613,6 +2055,11 @@
                         if (!(message.strings && message.strings.length))
                             message.strings = [];
                         message.strings.push(reader.bytes());
+                        break;
+                    case "tensors":
+                        if (!(message.tensors && message.tensors.length))
+                            message.tensors = [];
+                        message.tensors.push($root.caffe2.TensorProto.decodeText(reader, true));
                         break;
                     case "nets":
                         if (!(message.nets && message.nets.length))
@@ -1642,6 +2089,11 @@
                 if (message.s != null && message.hasOwnProperty("s"))
                     if (!(message.s && typeof message.s.length === "number" || $util.isString(message.s)))
                         return "s: buffer expected";
+                if (message.t != null && message.hasOwnProperty("t")) {
+                    var error = $root.caffe2.TensorProto.verify(message.t);
+                    if (error)
+                        return "t." + error;
+                }
                 if (message.n != null && message.hasOwnProperty("n")) {
                     var error = $root.caffe2.NetDef.verify(message.n);
                     if (error)
@@ -1667,6 +2119,15 @@
                     for (var i = 0; i < message.strings.length; ++i)
                         if (!(message.strings[i] && typeof message.strings[i].length === "number" || $util.isString(message.strings[i])))
                             return "strings: buffer[] expected";
+                }
+                if (message.tensors != null && message.hasOwnProperty("tensors")) {
+                    if (!Array.isArray(message.tensors))
+                        return "tensors: array expected";
+                    for (var i = 0; i < message.tensors.length; ++i) {
+                        var error = $root.caffe2.TensorProto.verify(message.tensors[i]);
+                        if (error)
+                            return "tensors." + error;
+                    }
                 }
                 if (message.nets != null && message.hasOwnProperty("nets")) {
                     if (!Array.isArray(message.nets))
@@ -1702,6 +2163,11 @@
                         $util.base64.decode(object.s, message.s = $util.newBuffer($util.base64.length(object.s)), 0);
                     else if (object.s.length)
                         message.s = object.s;
+                if (object.t != null) {
+                    if (typeof object.t !== "object")
+                        throw TypeError(".caffe2.Argument.t: object expected");
+                    message.t = $root.caffe2.TensorProto.fromObject(object.t);
+                }
                 if (object.n != null) {
                     if (typeof object.n !== "object")
                         throw TypeError(".caffe2.Argument.n: object expected");
@@ -1738,6 +2204,16 @@
                         else if (object.strings[i].length)
                             message.strings[i] = object.strings[i];
                 }
+                if (object.tensors) {
+                    if (!Array.isArray(object.tensors))
+                        throw TypeError(".caffe2.Argument.tensors: array expected");
+                    message.tensors = [];
+                    for (var i = 0; i < object.tensors.length; ++i) {
+                        if (typeof object.tensors[i] !== "object")
+                            throw TypeError(".caffe2.Argument.tensors: object expected");
+                        message.tensors[i] = $root.caffe2.TensorProto.fromObject(object.tensors[i]);
+                    }
+                }
                 if (object.nets) {
                     if (!Array.isArray(object.nets))
                         throw TypeError(".caffe2.Argument.nets: array expected");
@@ -1760,6 +2236,7 @@
                     object.ints = [];
                     object.strings = [];
                     object.nets = [];
+                    object.tensors = [];
                 }
                 if (options.defaults) {
                     object.name = "";
@@ -1777,6 +2254,7 @@
                             object.s = $util.newBuffer(object.s);
                     }
                     object.n = null;
+                    object.t = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -1813,6 +2291,13 @@
                     object.nets = [];
                     for (var j = 0; j < message.nets.length; ++j)
                         object.nets[j] = $root.caffe2.NetDef.toObject(message.nets[j], options);
+                }
+                if (message.t != null && message.hasOwnProperty("t"))
+                    object.t = $root.caffe2.TensorProto.toObject(message.t, options);
+                if (message.tensors && message.tensors.length) {
+                    object.tensors = [];
+                    for (var j = 0; j < message.tensors.length; ++j)
+                        object.tensors[j] = $root.caffe2.TensorProto.toObject(message.tensors[j], options);
                 }
                 return object;
             };
@@ -2039,9 +2524,12 @@
     
             function OperatorDef(properties) {
                 this.input = [];
+                this.mapped_inputs = [];
                 this.output = [];
+                this.mapped_outputs = [];
                 this.arg = [];
                 this.control_input = [];
+                this.annotations = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -2049,7 +2537,9 @@
             }
     
             OperatorDef.prototype.input = $util.emptyArray;
+            OperatorDef.prototype.mapped_inputs = $util.emptyArray;
             OperatorDef.prototype.output = $util.emptyArray;
+            OperatorDef.prototype.mapped_outputs = $util.emptyArray;
             OperatorDef.prototype.name = "";
             OperatorDef.prototype.type = "";
             OperatorDef.prototype.arg = $util.emptyArray;
@@ -2058,6 +2548,10 @@
             OperatorDef.prototype.control_input = $util.emptyArray;
             OperatorDef.prototype.is_gradient_op = false;
             OperatorDef.prototype.debug_info = "";
+            OperatorDef.prototype.annotations = $util.emptyArray;
+            OperatorDef.prototype.aten_function = "";
+            OperatorDef.prototype.domain = "";
+            OperatorDef.prototype.op_version = "";
     
             OperatorDef.create = function create(properties) {
                 return new OperatorDef(properties);
@@ -2075,10 +2569,20 @@
                             message.input = [];
                         message.input.push(reader.string());
                         break;
+                    case 11:
+                        if (!(message.mapped_inputs && message.mapped_inputs.length))
+                            message.mapped_inputs = [];
+                        message.mapped_inputs.push(reader.string());
+                        break;
                     case 2:
                         if (!(message.output && message.output.length))
                             message.output = [];
                         message.output.push(reader.string());
+                        break;
+                    case 12:
+                        if (!(message.mapped_outputs && message.mapped_outputs.length))
+                            message.mapped_outputs = [];
+                        message.mapped_outputs.push(reader.string());
                         break;
                     case 3:
                         message.name = reader.string();
@@ -2108,6 +2612,20 @@
                     case 10:
                         message.debug_info = reader.string();
                         break;
+                    case 13:
+                        if (!(message.annotations && message.annotations.length))
+                            message.annotations = [];
+                        message.annotations.push($root.caffe2.Argument.decode(reader, reader.uint32()));
+                        break;
+                    case 14:
+                        message.aten_function = reader.string();
+                        break;
+                    case 15:
+                        message.domain = reader.string();
+                        break;
+                    case 16:
+                        message.op_version = reader.string();
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -2129,10 +2647,20 @@
                             message.input = [];
                         message.input.push(reader.string());
                         break;
+                    case "mapped_inputs":
+                        if (!(message.mapped_inputs && message.mapped_inputs.length))
+                            message.mapped_inputs = [];
+                        message.mapped_inputs.push(reader.string());
+                        break;
                     case "output":
                         if (!(message.output && message.output.length))
                             message.output = [];
                         message.output.push(reader.string());
+                        break;
+                    case "mapped_outputs":
+                        if (!(message.mapped_outputs && message.mapped_outputs.length))
+                            message.mapped_outputs = [];
+                        message.mapped_outputs.push(reader.string());
                         break;
                     case "name":
                         message.name = reader.string();
@@ -2162,6 +2690,20 @@
                     case "debug_info":
                         message.debug_info = reader.string();
                         break;
+                    case "annotations":
+                        if (!(message.annotations && message.annotations.length))
+                            message.annotations = [];
+                        message.annotations.push($root.caffe2.Argument.decodeText(reader, true));
+                        break;
+                    case "aten_function":
+                        message.aten_function = reader.string();
+                        break;
+                    case "domain":
+                        message.domain = reader.string();
+                        break;
+                    case "op_version":
+                        message.op_version = reader.string();
+                        break;
                     default:
                         reader.handle(tag);
                         break;
@@ -2180,12 +2722,26 @@
                         if (!$util.isString(message.input[i]))
                             return "input: string[] expected";
                 }
+                if (message.mapped_inputs != null && message.hasOwnProperty("mapped_inputs")) {
+                    if (!Array.isArray(message.mapped_inputs))
+                        return "mapped_inputs: array expected";
+                    for (var i = 0; i < message.mapped_inputs.length; ++i)
+                        if (!$util.isString(message.mapped_inputs[i]))
+                            return "mapped_inputs: string[] expected";
+                }
                 if (message.output != null && message.hasOwnProperty("output")) {
                     if (!Array.isArray(message.output))
                         return "output: array expected";
                     for (var i = 0; i < message.output.length; ++i)
                         if (!$util.isString(message.output[i]))
                             return "output: string[] expected";
+                }
+                if (message.mapped_outputs != null && message.hasOwnProperty("mapped_outputs")) {
+                    if (!Array.isArray(message.mapped_outputs))
+                        return "mapped_outputs: array expected";
+                    for (var i = 0; i < message.mapped_outputs.length; ++i)
+                        if (!$util.isString(message.mapped_outputs[i]))
+                            return "mapped_outputs: string[] expected";
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
@@ -2223,6 +2779,24 @@
                 if (message.debug_info != null && message.hasOwnProperty("debug_info"))
                     if (!$util.isString(message.debug_info))
                         return "debug_info: string expected";
+                if (message.annotations != null && message.hasOwnProperty("annotations")) {
+                    if (!Array.isArray(message.annotations))
+                        return "annotations: array expected";
+                    for (var i = 0; i < message.annotations.length; ++i) {
+                        var error = $root.caffe2.Argument.verify(message.annotations[i]);
+                        if (error)
+                            return "annotations." + error;
+                    }
+                }
+                if (message.aten_function != null && message.hasOwnProperty("aten_function"))
+                    if (!$util.isString(message.aten_function))
+                        return "aten_function: string expected";
+                if (message.domain != null && message.hasOwnProperty("domain"))
+                    if (!$util.isString(message.domain))
+                        return "domain: string expected";
+                if (message.op_version != null && message.hasOwnProperty("op_version"))
+                    if (!$util.isString(message.op_version))
+                        return "op_version: string expected";
                 return null;
             };
     
@@ -2237,12 +2811,26 @@
                     for (var i = 0; i < object.input.length; ++i)
                         message.input[i] = String(object.input[i]);
                 }
+                if (object.mapped_inputs) {
+                    if (!Array.isArray(object.mapped_inputs))
+                        throw TypeError(".caffe2.OperatorDef.mapped_inputs: array expected");
+                    message.mapped_inputs = [];
+                    for (var i = 0; i < object.mapped_inputs.length; ++i)
+                        message.mapped_inputs[i] = String(object.mapped_inputs[i]);
+                }
                 if (object.output) {
                     if (!Array.isArray(object.output))
                         throw TypeError(".caffe2.OperatorDef.output: array expected");
                     message.output = [];
                     for (var i = 0; i < object.output.length; ++i)
                         message.output[i] = String(object.output[i]);
+                }
+                if (object.mapped_outputs) {
+                    if (!Array.isArray(object.mapped_outputs))
+                        throw TypeError(".caffe2.OperatorDef.mapped_outputs: array expected");
+                    message.mapped_outputs = [];
+                    for (var i = 0; i < object.mapped_outputs.length; ++i)
+                        message.mapped_outputs[i] = String(object.mapped_outputs[i]);
                 }
                 if (object.name != null)
                     message.name = String(object.name);
@@ -2276,6 +2864,22 @@
                     message.is_gradient_op = Boolean(object.is_gradient_op);
                 if (object.debug_info != null)
                     message.debug_info = String(object.debug_info);
+                if (object.annotations) {
+                    if (!Array.isArray(object.annotations))
+                        throw TypeError(".caffe2.OperatorDef.annotations: array expected");
+                    message.annotations = [];
+                    for (var i = 0; i < object.annotations.length; ++i) {
+                        if (typeof object.annotations[i] !== "object")
+                            throw TypeError(".caffe2.OperatorDef.annotations: object expected");
+                        message.annotations[i] = $root.caffe2.Argument.fromObject(object.annotations[i]);
+                    }
+                }
+                if (object.aten_function != null)
+                    message.aten_function = String(object.aten_function);
+                if (object.domain != null)
+                    message.domain = String(object.domain);
+                if (object.op_version != null)
+                    message.op_version = String(object.op_version);
                 return message;
             };
     
@@ -2288,6 +2892,9 @@
                     object.output = [];
                     object.arg = [];
                     object.control_input = [];
+                    object.mapped_inputs = [];
+                    object.mapped_outputs = [];
+                    object.annotations = [];
                 }
                 if (options.defaults) {
                     object.name = "";
@@ -2296,6 +2903,9 @@
                     object.engine = "";
                     object.is_gradient_op = false;
                     object.debug_info = "";
+                    object.aten_function = "";
+                    object.domain = "";
+                    object.op_version = "";
                 }
                 if (message.input && message.input.length) {
                     object.input = [];
@@ -2329,6 +2939,27 @@
                     object.is_gradient_op = message.is_gradient_op;
                 if (message.debug_info != null && message.hasOwnProperty("debug_info"))
                     object.debug_info = message.debug_info;
+                if (message.mapped_inputs && message.mapped_inputs.length) {
+                    object.mapped_inputs = [];
+                    for (var j = 0; j < message.mapped_inputs.length; ++j)
+                        object.mapped_inputs[j] = message.mapped_inputs[j];
+                }
+                if (message.mapped_outputs && message.mapped_outputs.length) {
+                    object.mapped_outputs = [];
+                    for (var j = 0; j < message.mapped_outputs.length; ++j)
+                        object.mapped_outputs[j] = message.mapped_outputs[j];
+                }
+                if (message.annotations && message.annotations.length) {
+                    object.annotations = [];
+                    for (var j = 0; j < message.annotations.length; ++j)
+                        object.annotations[j] = $root.caffe2.Argument.toObject(message.annotations[j], options);
+                }
+                if (message.aten_function != null && message.hasOwnProperty("aten_function"))
+                    object.aten_function = message.aten_function;
+                if (message.domain != null && message.hasOwnProperty("domain"))
+                    object.domain = message.domain;
+                if (message.op_version != null && message.hasOwnProperty("op_version"))
+                    object.op_version = message.op_version;
                 return object;
             };
     
