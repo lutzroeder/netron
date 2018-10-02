@@ -206,7 +206,7 @@ class TensorFlowLiteNode {
                     }
                     name = TensorFlowLiteNode._formatAttributeName(name);
                     var type = metadata.getAttributeType(operator, name);
-                    value = TensorFlowLiteNode._formatAttributeValue(value, name, type);
+                    value = TensorFlowLiteNode._formatAttributeValue(value, type);
                     if (value != null) {
                         var visible = metadata.getAttributeVisible(operator, name, value);
                         this._attributes.push(new TensorFlowLiteAttribute(name, type, value, visible));
@@ -269,7 +269,7 @@ class TensorFlowLiteNode {
         return result;
     }
 
-    static _formatAttributeValue(attributeValue, attributeName, attributeType) {
+    static _formatAttributeValue(attributeValue, attributeType) {
         if (attributeType) {
             TensorFlowLiteNode.__enumMap__ = TensorFlowLiteNode.__enum__ || {};
             var enumType = TensorFlowLiteNode.__enumMap__[attributeType];
