@@ -72,16 +72,16 @@ class KerasModelFactory {
                 return;
             }
 
-            try {
-                var model = new KerasModel(format, model_config, rootGroup, rootJson);
-                KerasOperatorMetadata.open(host, (err, metadata) => {
+            KerasOperatorMetadata.open(host, (err, metadata) => {
+                try {
+                    var model = new KerasModel(format, model_config, rootGroup, rootJson);
                     callback(null, model);
-                });
-            }
-            catch (error) {
-                host.exception(error, false);
-                callback(new KerasError(error.message), null);
-            }
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new KerasError(error.message), null);
+                }
+            });
         });
     }
 }
@@ -438,6 +438,7 @@ class KerasNode {
         this._config = config;
         this._inputs = inputs;
         this._outputs = outputs;
+        this._attributes = [];
 
         if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
             if (this._config && this._config.layer) {
@@ -487,6 +488,16 @@ class KerasNode {
                 });
             } 
         }
+
+        if (this._config) {
+            Object.keys(this._config).forEach((name) => {
+                var value = this._config[name];
+                if (name != 'name' && value != null) {
+                    var visible = KerasOperatorMetadata.operatorMetadata.getAttributeVisible(this.operator, name, value);
+                    this._attributes.push(new KerasAttribute(name, value, visible));
+                }
+            });
+        }
     }
 
     get operator() {
@@ -531,17 +542,7 @@ class KerasNode {
     }
 
     get attributes() {
-        var results = [];
-        if (this._config) {
-            Object.keys(this._config).forEach((name) => {
-                var value = this._config[name];
-                if (name != 'name' && value != null) {
-                    var visible = KerasOperatorMetadata.operatorMetadata.getAttributeVisible(this.operator, name, value);
-                    results.push(new KerasAttribute(name, value, visible));
-                }
-            });
-        }
-        return results;
+        return this._attributes;
     }
 
     get dependencies() {
@@ -558,6 +559,13 @@ class KerasAttribute {
     constructor(name, value, visible) {
         this._name = name;
         this._value = value;
+        if (typeof value == 'object' && value.class_name && value.config) {
+            this._value = () => {
+                return value.class_name + '(' + Object.keys(value.config).map(key => {
+                    return key + '=' + JSON.stringify(value.config[key]);
+                }).join(', ') + ')';
+            };
+        }
         if (!visible) {
             this._hidden = true;
         }
@@ -568,14 +576,6 @@ class KerasAttribute {
     }
 
     get value() {
-        if (typeof this._value == 'object' && this._value.class_name && this._value.config) {
-            return () => {
-                return this._value.class_name + '(' + Object.keys(this._value.config).map(key => {
-                    var value = this._value.config[key];
-                    return key + '=' + JSON.stringify(value);
-                }).join(', ') + ')';
-            };
-        }
         return this._value;
     }
 
