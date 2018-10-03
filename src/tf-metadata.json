@@ -57062,6 +57062,11 @@
           "description": "      A function that takes a list of tensors and returns another\n      list of tensors. Both lists have the same types as specified\n      by T.",
           "name": "body",
           "type": "func"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "list(shape)"
         }
       ],
       "inputs": [
