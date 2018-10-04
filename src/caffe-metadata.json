@@ -206,7 +206,11 @@
   {
     "name": "Crop",
     "schema": {
-      "category": "Shape"
+      "category": "Shape",
+      "inputs": [
+        { "name": "data" },
+        { "name": "size" }
+      ]
     }
   },
   {
