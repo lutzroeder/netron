@@ -19705,6 +19705,11 @@
           "description": "    A function that takes 'inputs' and returns a list of tensors, whose\n    types are the same as what then_branch returns.",
           "name": "else_branch",
           "type": "func"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "list(shape)"
         }
       ],
       "inputs": [
@@ -43991,6 +43996,14 @@
         {
           "name": "stats_aggregator",
           "type": 20
+        },
+        {
+          "name": "tag",
+          "type": 7
+        },
+        {
+          "name": "counter_prefix",
+          "type": 7
         }
       ],
       "outputs": [
