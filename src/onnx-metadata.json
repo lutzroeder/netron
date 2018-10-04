@@ -2193,6 +2193,64 @@
     }
   },
   {
+    "name": "Constant",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The value for the elements of the output tensor.",
+          "name": "value",
+          "required": true,
+          "type": "tensor"
+        }
+      ],
+      "category": "Constant",
+      "description": "A constant tensor.",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "values = np.random.randn(5, 5).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['values'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=values.shape,\n        vals=values.flatten().astype(float),\n    ),\n)\n\nexpect(node, inputs=[], outputs=[values],\n       name='test_constant')",
+          "summary": "constant"
+        }
+      ],
+      "max_input": 0,
+      "max_output": 1,
+      "min_input": 0,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor containing the same value of the provided tensor.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "ConstantFill",
     "schema": {
       "attributes": [
@@ -3955,6 +4013,76 @@
     }
   },
   {
+    "name": "Flatten",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "description": "Indicate up to which input dimensions (exclusive) should be flattened to the outer dimension of the output. The value for axis must be in the range [0, R], where R is the rank of the input tensor. When axis = 0, the shape of the output tensor is (1, (d_0 X d_1 ... d_n), where the shape of the input tensor is (d_0, d_1, ... d_n). ",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "category": "Shape",
+      "description": "Flattens the input tensor into a 2D matrix. If input tensor has shape\n(d_0, d_1, ... d_n) then the output will have shape\n(d_0 X d_1 ... d_(axis-1), d_axis X d_(axis+1) ... X dn).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "shape = (2, 3, 4, 5)\na = np.random.random_sample(shape).astype(np.float32)\n\nfor i in range(len(shape)):\n    node = onnx.helper.make_node(\n        'Flatten',\n        inputs=['a'],\n        outputs=['b'],\n        axis=i,\n    )\n\n    new_shape = (1, -1) if i == 0 else (np.prod(shape[0:i]).astype(int), -1)\n    b = np.reshape(a, new_shape)\n    expect(node, inputs=[a], outputs=[b],\n           name='test_flatten_axis' + str(i))",
+          "summary": "flatten"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Flatten',\n    inputs=['a'],\n    outputs=['b'],  # Default value for axis: axis=1\n)\n\nshape = (5, 4, 3, 2)\na = np.random.random_sample(shape).astype(np.float32)\nnew_shape = (5, 24)\nb = np.reshape(a, new_shape)\nexpect(node, inputs=[a], outputs=[b],\n       name='test_flatten_default_axis')",
+          "summary": "flatten_with_default_axis"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A tensor of rank >= axis.",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "A 2D tensor with the contents of the input tensor, with input dimensions up to axis flattened to the outer dimension of the output and remaining input dimensions flattened into the inner dimension of the output.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Floor",
     "schema": {
       "attributes": [
@@ -4886,6 +5014,97 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Gemm",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1.0,
+          "description": "Scalar multiplier for the product of input tensors A * B.",
+          "name": "alpha",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "default": 1.0,
+          "description": "Scalar multiplier for input tensor C.",
+          "name": "beta",
+          "required": false,
+          "type": "float"
+        },
+        {
+          "description": "Whether A should be transposed",
+          "name": "transA",
+          "required": false,
+          "type": "int"
+        },
+        {
+          "description": "Whether B should be transposed",
+          "name": "transB",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "category": "Layer",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](Broadcasting.md).",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5\n)\na = np.random.ranf([3, 6]).astype(np.float32)\nb = np.random.ranf([6, 4]).astype(np.float32)\nc = np.random.ranf([3, 4]).astype(np.float32)\ny = 0.5 * np.dot(a, b) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_nobroadcast')",
+          "summary": "notranspose"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Gemm',\n    inputs=['a', 'b', 'c'],\n    outputs=['y'],\n    alpha=0.5,\n    beta=0.5,\n    transA=1,\n    transB=1\n)\na = np.random.ranf([6, 3]).astype(np.float32)\nb = np.random.ranf([4, 6]).astype(np.float32)\nc = np.random.ranf([1, 1]).astype(np.float32)\ny = 0.5 * np.dot(a.T, b.T) + 0.5 * c\nexpect(node, inputs=[a, b, c], outputs=[y],\n       name='test_gemm_broadcast')",
+          "summary": "transpose"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor A. The shape of A should be (M, K) if transA is 0, or (K, M) if transA is non-zero.",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "Input tensor B. The shape of B should be (K, N) if transB is 0, or (N, K) if transB is non-zero.",
+          "name": "B",
+          "type": "T"
+        },
+        {
+          "description": "Input tensor C. The shape of C should be unidirectional broadcastable to (M, N).",
+          "name": "C",
+          "type": "T"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor of shape (M, N).",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain input and output types to float/int tensors.",
           "type_param_str": "T"
         }
       ]
@@ -7369,6 +7588,59 @@
     }
   },
   {
+    "name": "MatMul",
+    "schema": {
+      "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'MatMul',\n    inputs=['a', 'b'],\n    outputs=['c'],\n)\n\n# 2d\na = np.random.randn(3, 4).astype(np.float32)\nb = np.random.randn(4, 3).astype(np.float32)\nc = np.matmul(a, b)\nexpect(node, inputs=[a, b], outputs=[c],\n       name='test_matmul_2d')\n\n# 3d\na = np.random.randn(2, 3, 4).astype(np.float32)\nb = np.random.randn(2, 4, 3).astype(np.float32)\nc = np.matmul(a, b)\nexpect(node, inputs=[a, b], outputs=[c],\n       name='test_matmul_3d')\n\n# 4d\na = np.random.randn(1, 2, 3, 4).astype(np.float32)\nb = np.random.randn(1, 2, 4, 3).astype(np.float32)\nc = np.matmul(a, b)\nexpect(node, inputs=[a, b], outputs=[c],\n       name='test_matmul_4d')",
+          "summary": "matmul"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "N-dimensional matrix A",
+          "name": "A",
+          "type": "T"
+        },
+        {
+          "description": "N-dimensional matrix B",
+          "name": "B",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Matrix multiply results from A * B",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain input and output types to float/int tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Max",
     "schema": {
       "attributes": [
@@ -8925,6 +9197,64 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "PRelu",
+    "schema": {
+      "category": "Activation",
+      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\nThis operator supports **unidirectional broadcasting** (tensor slope should be unidirectional broadcastable to input tensor X); for more details please check [the doc](Broadcasting.md).",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'PRelu',\n    inputs=['x', 'slope'],\n    outputs=['y'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nslope = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * slope\n\nexpect(node, inputs=[x, slope], outputs=[y],\n       name='test_prelu_example')",
+          "summary": "prelu"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'PRelu',\n    inputs=['x', 'slope'],\n    outputs=['y'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\nslope = np.random.randn(5).astype(np.float32)\ny = np.clip(x, 0, np.inf) + np.clip(x, -np.inf, 0) * slope\n\nexpect(node, inputs=[x, slope], outputs=[y],\n       name='test_prelu_broadcast')",
+          "summary": "prelu_broadcast"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "Slope tensor. The shape of slope can be smaller then first input X; if so, its shape must be unidirectional broadcastable to X",
+          "name": "slope",
+          "type": "T"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor (same size as X)",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain input and output types to float/int tensors.",
           "type_param_str": "T"
         }
       ]
