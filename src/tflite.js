@@ -193,7 +193,9 @@ tflite.BuiltinOptions = {
   FloorDivOptions: 65,
   SquareOptions: 66,
   ZerosLikeOptions: 67,
-  FillOptions: 68
+  FillOptions: 68,
+  BidirectionalSequenceLSTMOptions: 69,
+  BidirectionalSequenceRNNOptions: 70
 };
 
 /**
@@ -1687,10 +1689,18 @@ tflite.BidirectionalSequenceRNNOptions.prototype.fusedActivationFunction = funct
 };
 
 /**
+ * @returns {boolean}
+ */
+tflite.BidirectionalSequenceRNNOptions.prototype.mergeOutputs = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.BidirectionalSequenceRNNOptions.startBidirectionalSequenceRNNOptions = function(builder) {
-  builder.startObject(2);
+  builder.startObject(3);
 };
 
 /**
@@ -1707,6 +1717,14 @@ tflite.BidirectionalSequenceRNNOptions.addTimeMajor = function(builder, timeMajo
  */
 tflite.BidirectionalSequenceRNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
   builder.addFieldInt8(1, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} mergeOutputs
+ */
+tflite.BidirectionalSequenceRNNOptions.addMergeOutputs = function(builder, mergeOutputs) {
+  builder.addFieldInt8(2, +mergeOutputs, +false);
 };
 
 /**
@@ -2378,6 +2396,121 @@ tflite.LSTMOptions.addKernelType = function(builder, kernelType) {
  * @returns {flatbuffers.Offset}
  */
 tflite.LSTMOptions.endLSTMOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.BidirectionalSequenceLSTMOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.BidirectionalSequenceLSTMOptions}
+ */
+tflite.BidirectionalSequenceLSTMOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.BidirectionalSequenceLSTMOptions=} obj
+ * @returns {tflite.BidirectionalSequenceLSTMOptions}
+ */
+tflite.BidirectionalSequenceLSTMOptions.getRootAsBidirectionalSequenceLSTMOptions = function(bb, obj) {
+  return (obj || new tflite.BidirectionalSequenceLSTMOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {tflite.ActivationFunctionType}
+ */
+tflite.BidirectionalSequenceLSTMOptions.prototype.fusedActivationFunction = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.BidirectionalSequenceLSTMOptions.prototype.cellClip = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+tflite.BidirectionalSequenceLSTMOptions.prototype.projClip = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {boolean}
+ */
+tflite.BidirectionalSequenceLSTMOptions.prototype.mergeOutputs = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.BidirectionalSequenceLSTMOptions.startBidirectionalSequenceLSTMOptions = function(builder) {
+  builder.startObject(4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ */
+tflite.BidirectionalSequenceLSTMOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} cellClip
+ */
+tflite.BidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellClip) {
+  builder.addFieldFloat32(1, cellClip, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} projClip
+ */
+tflite.BidirectionalSequenceLSTMOptions.addProjClip = function(builder, projClip) {
+  builder.addFieldFloat32(2, projClip, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} mergeOutputs
+ */
+tflite.BidirectionalSequenceLSTMOptions.addMergeOutputs = function(builder, mergeOutputs) {
+  builder.addFieldInt8(3, +mergeOutputs, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
