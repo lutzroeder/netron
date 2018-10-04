@@ -1,9 +1,22 @@
 [
   {
-    "name": "Convolution",
+    "name": "Negate",
     "schema": {
-      "category": "Layer",
-      "operator": 33
+      "operator": 0
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation",
+      "operator": 1
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "category": "Activation",
+      "operator": 2
     }
   },
   {
@@ -26,9 +39,21 @@
     }
   },
   {
-    "name": "Log",
+    "name": "Sqrt",
     "schema": {
-      "operator": 5
+      "operator": 6
+    }
+  },
+  {
+    "name": "Floor",
+    "schema": {
+      "operator": 7
+    }
+  },
+  {
+    "name": "Abs",
+    "schema": {
+      "operator": 8
     }
   },
   {
@@ -49,6 +74,20 @@
     "schema": {
       "category": "Activation",
       "operator": 11
+    }
+  },
+  {
+    "name": "TransposeAxes",
+    "schema": {
+      "category": "Activation",
+      "operator": 12
+    }
+  },
+  {
+    "name": "Where",
+    "schema": {
+      "category": "Activation",
+      "operator": 13
     }
   },
   {
@@ -80,6 +119,12 @@
     }
   },
   {
+    "name": "SumAll",
+    "schema": {
+      "operator": 18
+    }
+  },
+  {
     "name": "Plus",
     "schema": {
       "operator": 19
@@ -98,6 +143,60 @@
     }
   },
   {
+    "name": "Equal",
+    "schema": {
+      "operator": 22
+    }
+  },
+  {
+    "name": "NotEqual",
+    "schema": {
+      "operator": 23
+    }
+  },
+  {
+    "name": "Less",
+    "schema": {
+      "operator": 24
+    }
+  },
+  {
+    "name": "LessEqual",
+    "schema": {
+      "operator": 25
+    }
+  },
+  {
+    "name": "Greater",
+    "schema": {
+      "operator": 26
+    }
+  },
+  {
+    "name": "GreaterEqual",
+    "schema": {
+      "operator": 27
+    }
+  },
+  {
+    "name": "PackedIndex",
+    "schema": {
+      "operator": 28
+    }
+  },
+  {
+    "name": "GatherPacked",
+    "schema": {
+      "operator": 29
+    }
+  },
+  {
+    "name": "ScatterPacked",
+    "schema": {
+      "operator": 30
+    }
+  },
+  {
     "name": "Times",
     "schema": {
       "operator": 31
@@ -110,6 +209,47 @@
     }
   },
   {
+    "name": "Convolution",
+    "schema": {
+      "category": "Layer",
+      "operator": 33,
+      "attributes": [
+        { "name": "transpose", "default": false },
+        { "name": "maxTempMemSizeInSamples", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "SquaredError",
+    "schema": {
+      "operator": 34
+    }
+  },
+  {
+    "name": "CrossEntropyWithSoftmax",
+    "schema": {
+      "operator": 35
+    }
+  },
+  {
+    "name": "ClassificationError",
+    "schema": {
+      "operator": 36
+    }
+  },
+  {
+    "name": "PastValue",
+    "schema": {
+      "operator": 37
+    }
+  },
+  {
+    "name": "FutureValue",
+    "schema": {
+      "operator": 38
+    }
+  },
+  {
     "name": "ReduceElements",
     "schema": {
       "operator": 39
@@ -119,7 +259,26 @@
     "name": "BatchNormalization",
     "schema": {
       "category": "Normalization",
-      "operator": 40
+      "operator": 40,
+      "attributes": [
+        { "name": "disableRegularization", "default": false },
+        { "name": "useCuDNNEngine", "default": true },
+        { "name": "epsilon", "default": 0.00001 },
+        { "name": "normalizationTimeConstant", "default": 5000 },
+        { "name": "disableRegularization", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "Clip",
+    "schema": {
+      "operator": 41
+    }
+  },
+  {
+    "name": "Select",
+    "schema": {
+      "operator": 42
     }
   },
   {

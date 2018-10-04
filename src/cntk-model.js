@@ -23,7 +23,7 @@ class CntkModelFactory {
                 callback(err, null);
                 return;
             }
-            var root = null;
+            var obj = null;
             try {
                 var buffer = context.buffer;
                 if (buffer && buffer.length > 6 && 
@@ -36,7 +36,7 @@ class CntkModelFactory {
                 }    
                 cntk = protobuf.roots.cntk.CNTK.proto;
                 var dictionary = cntk.Dictionary.decode(buffer);
-                root = CntkModelFactory._convertDictionary(dictionary);
+                obj = CntkModelFactory._convertDictionary(dictionary);
             }
             catch (error) {
                 callback(new CntkError('File format is not cntk.Dictionary (' + error.message + ').'), null);
@@ -44,7 +44,7 @@ class CntkModelFactory {
             }
             CntkOperatorMetadata.open(host, (err, metadata) => {
                 try {
-                    var model = new CntkModel(root);
+                    var model = new CntkModel(obj);
                     callback(null, model);
                 }
                 catch (error) {
@@ -101,10 +101,10 @@ class CntkModelFactory {
 
 class CntkModel {
 
-    constructor(root) {
+    constructor(obj) {
         this._format = 'CNTK v2';
         this._graphs = [];
-        this._graphs.push(new CntkGraph(root));
+        this._graphs.push(new CntkGraph(obj));
     }
 
     get graphs() {
@@ -118,13 +118,13 @@ class CntkModel {
 
 class CntkGraph {
 
-    constructor(root) {
+    constructor(obj) {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
         var connections = {};
         var names = {};
-        root.inputs.forEach((input) => {
+        obj.inputs.forEach((input) => {
             var connection = new CntkConnection(input);
             connections[input.uid] = connection;
 
@@ -136,7 +136,7 @@ class CntkGraph {
                 names[input.uid] = input.name;
             }
         });
-        root.primitive_functions.forEach((node) => {
+        obj.primitive_functions.forEach((node) => {
             this._nodes.push(new CntkNode(node, connections, names));
         });
     }
@@ -243,7 +243,7 @@ class CntkNode {
         this._outputs = [];
 
         Object.keys(node.attributes).forEach((key) => {
-            this._attributes.push(new CntkAttribute(key, node.attributes[key]));
+            this._attributes.push(new CntkAttribute(this._operator, key, node.attributes[key]));
         });
 
         node.inputs.forEach((input) => {
@@ -297,7 +297,7 @@ class CntkNode {
 
 class CntkAttribute {
 
-    constructor(name, value) {
+    constructor(operator, name, value) {
         this._name = name;
         this._value = value;
         if (this._value.constructor.name == 'NDShape') {
@@ -314,6 +314,9 @@ class CntkAttribute {
         if (this._value.constructor.name == 'Axis') {
             this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
         }
+        if (!CntkOperatorMetadata.operatorMetadata.getAttributeVisible(operator, name, this._value)) {
+            this._visible = false;
+        }
     }
 
     get name() {
@@ -325,7 +328,7 @@ class CntkAttribute {
     }
 
     get visible() {
-        return true;
+        return this._visible == false ? false : true;
     }
 }
 
@@ -415,6 +418,7 @@ class CntkOperatorMetadata
     }
 
     getOperatorName(code) {
+        // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
         return this._operatorMap[code] || null;
     }
 
@@ -441,7 +445,7 @@ class CntkOperatorMetadata
                     return attribute.visible;
                 }
                 if (attribute.hasOwnProperty('default')) {
-                    return value != attribute.default.toString();
+                    return value != attribute.default;
                 }
             }
         }
