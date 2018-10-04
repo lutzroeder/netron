@@ -6,7 +6,7 @@ class OnnxModelFactory {
 
     match(context, host) {
         var identifier = context.identifier;
-        var extension = context.identifier.split('.').pop();
+        var extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'onnx' || extension == 'pb') {
             if (identifier.endsWith('saved_model.pb')) {
                 return false;
