@@ -62,9 +62,15 @@ class PyTorchModelFactory {
             constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
+            constructorTable['torch.nn.modules.activation.Sigmoid'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};
             constructorTable['torch.nn.modules.container.Sequential'] = function () {};
+            constructorTable['torch.nn.modules.conv.Conv1d'] = function () {};
             constructorTable['torch.nn.modules.conv.Conv2d'] = function () {};
+            constructorTable['torch.nn.modules.conv.Conv3d'] = function () {};
+            constructorTable['torch.nn.modules.conv.ConvTranspose1d'] = function () {};
+            constructorTable['torch.nn.modules.conv.ConvTranspose2d'] = function () {};
+            constructorTable['torch.nn.modules.conv.ConvTranspose3d'] = function () {};
             constructorTable['torch.nn.modules.dropout.Dropout'] = function () {};
             constructorTable['torch.nn.modules.linear.Linear'] = function () {};
             constructorTable['torch.nn.modules.pooling.AvgPool2d'] = function () {};

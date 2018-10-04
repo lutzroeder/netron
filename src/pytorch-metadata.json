@@ -1,5 +1,19 @@
 [
   {
+    "name": "Conv1d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
+    "name": "ConvTranspose1d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
     "name": "Conv2d",
     "schema": {
       "attributes": [
@@ -54,7 +68,21 @@
     }
   },
   {
+    "name": "ConvTranspose2d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
     "name": "Conv3d",
+    "schema": {
+      "category": "Layer",
+      "package": "torch.nn.modules.conv"
+    }
+  },
+  {
+    "name": "ConvTranspose3d",
     "schema": {
       "category": "Layer",
       "package": "torch.nn.modules.conv"
@@ -71,6 +99,20 @@
       ],
       "category": "Layer",
       "package": "torch.nn.modules.linear"
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
     }
   },
   {
@@ -94,7 +136,8 @@
           "visible": false
         }
       ],
-      "category": "Activation"
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
     }
   },
   {
@@ -122,7 +165,8 @@
           "visible": false
         }
       ],
-      "category": "Pool"
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
     }
   },
   {
@@ -146,7 +190,8 @@
           "visible": false
         }
       ],
-      "category": "Pool"
+      "category": "Pool",
+      "package": "torch.nn.modules.pooling"
     }
   },
   {
@@ -174,7 +219,8 @@
           "name": "track_running_stats"
         }
       ],
-      "category": "Normalization"
+      "category": "Normalization",
+      "package": "torch.nn.modules.batchnorm"
     }
   },
   {
@@ -194,7 +240,8 @@
           "visible": false
         }
       ],
-      "category": "Dropout"
+      "category": "Dropout",
+      "package": "torch.nn.modules.dropout"
     }
   },
   {
