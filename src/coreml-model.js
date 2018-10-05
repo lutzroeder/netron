@@ -95,19 +95,23 @@ class CoreMLGraph {
     {
         this._description = model.description;
         this._groups = false; 
-
-        this._inputs = this._description.input.map((input) => {
-            var connection = new CoreMLConnection(input.name, CoreMLGraph._formatFeatureType(input.type), input.shortDescription, null);
-            return new CoreMLArgument(input.name, true, [ connection ]);
-        });
-
-        this._outputs = this._description.output.map((output) => {
-            var connection = new CoreMLConnection(output.name, CoreMLGraph._formatFeatureType(output.type), output.shortDescription, null);
-            return new CoreMLArgument(output.name, true, [ connection ]);
-        });
-
+        this._inputs = [];
+        this._outputs = [];
         this._nodes = [];
         this._operators = {};
+
+        if (this._description) {
+            this._inputs = this._description.input.map((input) => {
+                var connection = new CoreMLConnection(input.name, CoreMLGraph._formatFeatureType(input.type), input.shortDescription, null);
+                return new CoreMLArgument(input.name, true, [ connection ]);
+            });
+
+            this._outputs = this._description.output.map((output) => {
+                var connection = new CoreMLConnection(output.name, CoreMLGraph._formatFeatureType(output.type), output.shortDescription, null);
+                return new CoreMLArgument(output.name, true, [ connection ]);
+            });
+        }
+
         this._type = this._loadModel(model, {}, '');
     }
 
