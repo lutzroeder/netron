@@ -478,11 +478,45 @@ class MXNetNode {
     }
 
     get category() {
-        return MXNetOperatorMetadata.operatorMetadata.getOperatorCategory(this._operator);
+        var schema = MXNetOperatorMetadata.operatorMetadata.getSchema(this._operator); 
+        if (schema && schema.category) {
+            return schema.category;
+        }
+        return null;
     }
 
     get documentation() {
-        return MXNetOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
+        var schema = MXNetOperatorMetadata.operatorMetadata.getSchema(this._operator); 
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this._operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            return schema;
+        }
+        return '';
     }
 
     get name() {
@@ -521,48 +555,71 @@ class MXNetAttribute {
     constructor(operator, name, value) {
         this._name = name;
         this._value = value;
-        this._type = MXNetOperatorMetadata.operatorMetadata.getAttributeType(operator, name); 
-        switch (this._type) {
-            case 'bool':
-                if (this._value == 'True') {
-                    this._value = true;
-                }
-                else if (this._value == 'False') {
-                    this._value = false;
-                }
-                break;
-            case 'int32':
-                var intValue = Number.parseInt(this._value, 10);
-                this._value = Number.isNaN(this._value - intValue) ? value : intValue;
-                break;
-            case 'float32':
-            case 'float64':
-                var floatValue = Number.parseFloat(this._value);
-                this._value = Number.isNaN(this._value - floatValue) ? value : floatValue;
-                break;
-            case 'int32[]':
-                if (this._value.length > 2 && this._value.startsWith('(') && this._value.endsWith(')')) {
-                    var array = [];
-                    var items = this._value.substring(1, this._value.length - 1).split(',');
-                    items = items.map((item) => item.trim());
-                    items = items.map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
-                    items = items.map((item) => {
-                        var intValue = Number.parseInt(item, 10);
-                        if (Number.isNaN(item - intValue)) {
-                            array = null;
+
+        var attributeSchema = MXNetOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        if (attributeSchema && attributeSchema.type) {
+            switch (attributeSchema.type) {
+                case 'bool':
+                    if (this._value == 'True') {
+                        this._value = true;
+                    }
+                    else if (this._value == 'False') {
+                        this._value = false;
+                    }
+                    break;
+                case 'int32':
+                    var intValue = Number.parseInt(this._value, 10);
+                    this._value = Number.isNaN(this._value - intValue) ? value : intValue;
+                    break;
+                case 'float32':
+                case 'float64':
+                    var floatValue = Number.parseFloat(this._value);
+                    this._value = Number.isNaN(this._value - floatValue) ? value : floatValue;
+                    break;
+                case 'int32[]':
+                    if (this._value.length > 2 && this._value.startsWith('(') && this._value.endsWith(')')) {
+                        var array = [];
+                        var items = this._value.substring(1, this._value.length - 1).split(',');
+                        items = items.map((item) => item.trim());
+                        items = items.map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
+                        items = items.map((item) => {
+                            var intValue = Number.parseInt(item, 10);
+                            if (Number.isNaN(item - intValue)) {
+                                array = null;
+                            }
+                            else if (array != null) {
+                                array.push(intValue);
+                            }        
+                        });
+                        if (array != null) {
+                            this._value = array;
                         }
-                        else if (array != null) {
-                            array.push(intValue);
-                        }        
-                    });
-                    if (array != null) {
-                        this._value = array;
+                    }
+                    break;
+            }    
+        }
+
+        if (attributeSchema) {
+            if (attributeSchema.hasOwnProperty('visible') && !attributeSchema.visible) {
+                this._visible = false;
+            }
+            else if (attributeSchema.hasOwnProperty('default')) {
+                var defaultValue = attributeSchema.default;
+                if (this._value == defaultValue) {
+                    this._visible = false;
+                }
+                else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                    if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
+                        defaultValue.pop();
+                        while (defaultValue.length < this._value.length) {
+                           defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                        }
+                    }
+                    if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
+                        this._visible = false;
                     }
                 }
-                break;
-        }
-        if (!MXNetOperatorMetadata.operatorMetadata.getAttributeVisible(operator, name, this._value)) {
-            this._visible = false;
+            }
         }
     }
 
@@ -796,12 +853,8 @@ class MXNetOperatorMetadata {
         }
     }
 
-    getOperatorCategory(operator) {
-        var schema = this._map[operator];
-        if (schema && schema.category) {
-            return schema.category;
-        }
-        return null;
+    getSchema(operator) {
+        return this._map[operator] || null;
     }
 
     getInputs(type, inputs) {
@@ -884,75 +937,6 @@ class MXNetOperatorMetadata {
             return schema.attributesMap[name];
         }
         return null;
-    }
-
-    getAttributeType(operator, name) {
-        var schema = this.getAttributeSchema(operator, name);
-        if (schema && schema.type) {
-            return schema.type;
-        }
-        return null;
-    }
-
-    getAttributeVisible(operator, name, value) {
-        var schema = this.getAttributeSchema(operator, name);
-        if (schema) {
-            if (schema.hasOwnProperty('visible')) {
-                return schema.visible;
-            }
-            if (schema.hasOwnProperty('default')) {
-                var defaultValue = schema.default;
-                if (value == defaultValue) {
-                    return false;
-                }
-                if (Array.isArray(value) && Array.isArray(defaultValue)) {
-                    if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
-                        defaultValue.pop();
-                        while (defaultValue.length < value.length) {
-                           defaultValue.push(defaultValue[defaultValue.length - 1]); 
-                        }
-                    }
-                    if (value.every((value, index) => { return value == defaultValue[index]; })) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    getOperatorDocumentation(operator) {
-        var schema = this._map[operator];
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                });
-            }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                });
-            }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                });
-            }
-            return schema;
-        }
-        return '';
     }
 }
 
