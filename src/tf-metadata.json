@@ -22834,6 +22834,13 @@
           "type": "list(type)"
         },
         {
+          "default": [],
+          "description": "A list of types.",
+          "minimum": 0,
+          "name": "Tcaptured",
+          "type": "list(type)"
+        },
+        {
           "description": "A list of types.",
           "minimum": 1,
           "name": "output_types",
@@ -22852,19 +22859,24 @@
       ],
       "inputs": [
         {
-          "description": "    A list of tensors whose types are Targuments, corresponding to the inputs the\n    function should be mapped over.",
+          "description": "    A list of tensors whose types are `Targuments`, corresponding to the inputs\n    the function should be mapped over.",
           "name": "arguments",
           "typeListAttr": "Targuments"
+        },
+        {
+          "description": "    A list of tensors whose types are `Tcaptured`, corresponding to the captured\n    inputs of the defun.",
+          "name": "captured_inputs",
+          "typeListAttr": "Tcaptured"
         }
       ],
       "outputs": [
         {
-          "description": "    A list of output tensors whose types are output_types and whose dimensions 0\n    are the same as the dimensions 0 of the tensors in arguments, and whose\n    remaining dimensions correspond to those in output_shapes.",
+          "description": "    A list of output tensors whose types are `output_types` and whose dimensions\n    0 are the same as the dimensions 0 of the tensors in `arguments`, and whose\n    remaining dimensions correspond to those in `output_shapes`.",
           "name": "output",
           "typeListAttr": "output_types"
         }
       ],
-      "summary": "  Maps a function on the list of tensors unpacked from inputs on dimension 0."
+      "summary": "  Maps a function on the list of tensors unpacked from arguments on dimension 0."
     }
   },
   {
@@ -52459,6 +52471,16 @@
           ],
           "name": "T",
           "type": "type"
+        },
+        {
+          "allowedValues": [
+            "BYTE",
+            "UTF8_CHAR"
+          ],
+          "default": "BYTE",
+          "description": "The unit that is used to create the substring.  One of: `\"BYTE\"` (for\ndefining position and length by bytes) or `\"UTF8_CHAR\"` (for the UTF-8\nencoded Unicode code points).  The default is `\"BYTE\"`. Results are undefined if\n`unit=UTF8_CHAR` and the `input` strings do not contain structurally valid\nUTF-8.",
+          "name": "unit",
+          "type": "string"
         }
       ],
       "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, then as many characters as possible are used.\n\nA negative `pos` indicates distance within the string backwards from the end.\n\nIf `pos` specifies an index which is out of range for any of the input strings,\nthen an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```",
