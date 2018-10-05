@@ -45,27 +45,63 @@
     }
   },
   {
+    "name": "RectifiedLinear",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Exp",
     "schema": {
-      "operator": 4
+      "operator": 4,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Log",
     "schema": {
-      "operator": 5
+      "operator": 5,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Sqrt",
     "schema": {
-      "operator": 6
+      "operator": 6,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Floor",
     "schema": {
-      "operator": 7
+      "operator": 7,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -77,7 +113,13 @@
   {
     "name": "Reciprocal",
     "schema": {
-      "operator": 9
+      "operator": 9,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -119,14 +161,26 @@
     "name": "Dropout",
     "schema": {
       "category": "Dropout",
-      "operator": 15
+      "operator": 15,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Reshape",
     "schema": {
       "category": "Shape",
-      "operator": 16
+      "operator": 16,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -135,12 +189,15 @@
       "category": "Pool",
       "operator": 17,
       "attributes": [
-        { "name": "ceilOutDim", "default": false },
         { "name": "includePad", "default": false },
+        { "name": "ceilOutDim", "default": false },
         { "name": "autoPadding", "default": [ true, null ] },
+        { "name": "sharing", "default": [ true, null] },
         { "name": "strides", "default": [ 1, null ] },
         { "name": "lowerPad", "default": [ 0, null ] },
-        { "name": "upperPad", "default": [ 0, null ] }
+        { "name": "upperPad", "default": [ 0, null ] },
+        { "name": "outputShape", "default": 0 },
+        { "name": "maxTempMemSizeInSamples", "default": 0 }
       ],
       "inputs": [
         { "name": "input" }
@@ -172,13 +229,27 @@
   {
     "name": "Minus",
     "schema": {
-      "operator": 20
+      "operator": 20,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "ElementTimes",
     "schema": {
-      "operator": 21
+      "operator": 21,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
@@ -240,7 +311,8 @@
     "schema": {
       "operator": 31,
       "attributes": [
-        { "name": "outputRank", "default": 1 }
+        { "name": "outputRank", "default": 1 },
+        { "name": "inferInputRankToMap", "default": -1 }
       ],
       "inputs": [
         { "name": "A" },
@@ -268,6 +340,8 @@
         { "name": "dilation", "default": [ 1, null] },
         { "name": "outputShape", "default": 0 },
         { "name": "sharing", "default": [ true, null] },
+        { "name": "includePad", "default": false },
+        { "name": "ceilOutDim", "default": false },
         { "name": "lowerPad", "default": [ 0, null ] },
         { "name": "upperPad", "default": [ 0, null ] }
       ],
@@ -331,8 +405,9 @@
       "attributes": [
         { "name": "disableRegularization", "default": false },
         { "name": "useCuDNNEngine", "default": true },
+        { "name": "useCntkEngine", "default": true },
         { "name": "epsilon", "default": 0.00001 },
-        { "name": "normalizationTimeConstant", "default": 5000 },
+        { "name": "normalizationTimeConstant", "default": 0 },
         { "name": "disableRegularization", "default": false },
         { "name": "blendTimeConstant", "default": 0 }
       ],
@@ -340,9 +415,9 @@
         { "name": "input" },
         { "name": "scale" },
         { "name": "bias" },
-        { "name": "runMean" },
-        { "name": "runVariance" },
-        { "name": "runCount" }
+        { "name": "mean" },
+        { "name": "variance" },
+        { "name": "count" }
       ],
       "outputs": [
         { "name": "output" }

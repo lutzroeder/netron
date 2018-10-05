@@ -9,10 +9,15 @@ class CntkModelFactory {
             return false;
         }
         var extension = context.identifier.split('.').pop();
-        switch (extension) {
-            case 'model':
-            case 'cntk':
-                return true;
+        if (extension == 'model') {
+            var buffer = context.buffer;
+            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+                return false;
+            }
+            return true;
+        }
+        if (extension == 'cntk') {
+            return true;
         }
         return false;
     }
@@ -23,20 +28,28 @@ class CntkModelFactory {
                 callback(err, null);
                 return;
             }
+            var version = 0;
             var obj = null;
             try {
                 var buffer = context.buffer;
-                if (buffer && buffer.length > 6 && 
-                    buffer[0] == 0x42 && buffer[1] == 0x00 &&
-                    buffer[2] == 0x43 && buffer[3] == 0x00 &&
-                    buffer[4] == 0x4E && buffer[5] == 0x00)
-                {
-                    callback(new CntkError('CNTK v1 format not supported.'), null);
-                    return;
-                }    
-                cntk = protobuf.roots.cntk.CNTK.proto;
-                var dictionary = cntk.Dictionary.decode(buffer);
-                obj = CntkModelFactory._convertDictionary(dictionary);
+                if (buffer && buffer.length >= 8 && 
+                    buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
+                    buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
+                    obj = new ComputationNetwork(buffer);
+                    version = 1;
+                }
+            }
+            catch (error) {
+                callback(new CntkError('File format is not CNTK v1 (' + error.message + ').'), null);
+                return;
+            }
+            try {
+                if (!obj) {
+                    cntk = protobuf.roots.cntk.CNTK.proto;
+                    var dictionary = cntk.Dictionary.decode(context.buffer);
+                    obj = CntkModelFactory._convertDictionary(dictionary);
+                    version = 2;
+                }
             }
             catch (error) {
                 callback(new CntkError('File format is not cntk.Dictionary (' + error.message + ').'), null);
@@ -44,7 +57,7 @@ class CntkModelFactory {
             }
             CntkOperatorMetadata.open(host, (err, metadata) => {
                 try {
-                    var model = new CntkModel(obj);
+                    var model = new CntkModel(version, obj);
                     callback(null, model);
                 }
                 catch (error) {
@@ -87,7 +100,7 @@ class CntkModelFactory {
             case cntk.DictionaryValue.Type.NDArrayView:
                 return dictionaryValue.nd_array_view_value;
         }
-        debugger;
+        throw new CntkError("Unknown dictionary value type '" + dictionaryValue.value_type.toString() + "'.");
     }
 
     static _convertVectorValue(vectorValue) {
@@ -101,10 +114,17 @@ class CntkModelFactory {
 
 class CntkModel {
 
-    constructor(obj) {
-        this._format = 'CNTK v2';
+    constructor(version, obj) {
+        switch (version) {
+            case 1:
+                this._format = 'CNTK v1' + (obj.version ? ('.' + obj.version.toString()) : '');
+                break;
+            case 2:
+                this._format = 'CNTK v2';
+                break;
+        }
         this._graphs = [];
-        this._graphs.push(new CntkGraph(obj));
+        this._graphs.push(new CntkGraph(version, obj));
     }
 
     get graphs() {
@@ -118,27 +138,63 @@ class CntkModel {
 
 class CntkGraph {
 
-    constructor(obj) {
+    constructor(version, obj) {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
         var connections = {};
-        var names = {};
-        obj.inputs.forEach((input) => {
-            var connection = new CntkConnection(input);
-            connections[input.uid] = connection;
 
-            if (input.kind == 0) {
-                this._inputs.push(new CntkArgument(input.name, [ connection ]));
-            }
+        if (version == 1) {
 
-            if (input.name) {
-                names[input.uid] = input.name;
+            var nodes = [];
+
+            Object.keys(obj.nodes).forEach((name) => {
+                var node = obj.nodes[name];
+                switch (node.__type__) {
+                    case 'InputValue':
+                        this._inputs.push(new CntkArgument(node.name, [ 
+                            new CntkConnection(version, node.name)
+                        ]));
+                        break;
+                    case 'LearnableParameter':
+                        connections[node.name] = new CntkConnection(version, node);
+                        break;
+                }
+            });
+
+            Object.keys(obj.nodes).forEach((name) => {
+                var node = obj.nodes[name];
+                if (node.__type__ != 'InputValue' && node.__type__ != 'LearnableParameter') {
+                    this._nodes.push(new CntkNode(version, node, connections));
+                }
+            });
+
+            if (obj.output) {
+                obj.output.forEach((output) => {
+                    this._outputs.push(new CntkArgument(output, [ 
+                        new CntkConnection(version, output)
+                    ]));
+                });
             }
-        });
-        obj.primitive_functions.forEach((node) => {
-            this._nodes.push(new CntkNode(node, connections, names));
-        });
+        }
+        else if (version == 2) {
+            var names = {};
+            obj.inputs.forEach((input) => {
+                var connection = new CntkConnection(version, input);
+                connections[input.uid] = connection;
+    
+                if (input.kind == 0) {
+                    this._inputs.push(new CntkArgument(input.name, [ connection ]));
+                }
+    
+                if (input.name) {
+                    names[input.uid] = input.name;
+                }
+            });
+            obj.primitive_functions.forEach((node) => {
+                this._nodes.push(new CntkNode(version, node, connections));
+            });
+        }
     }
 
     get nodes() {
@@ -175,9 +231,13 @@ class CntkArgument {
 
 class CntkConnection {
 
-    constructor(tensor) {
+    constructor(version, tensor) {
         if (typeof tensor === 'string') {
             this._id = tensor.toString();
+        }
+        else if (tensor.__type__ == 'LearnableParameter') {
+            this._id = tensor.name;
+            this._initializer = new CntkTensor(tensor);
         }
         else {
             this._id = tensor.uid;
@@ -216,60 +276,79 @@ class CntkConnection {
 
 class CntkNode { 
 
-    constructor(node, connections, names) {
-
-        var output = node.uid;
-
-        this._name = node.name || null;
-
-        if (node.op == 57) {
-            this._operator = 'Block';
-            debugger;
-        }
-        else {
-            this._operator = CntkOperatorMetadata.operatorMetadata.getOperatorName(node.op);
-            if (this._operator == null) {
-                this._operator = node.op.toString();
-                debugger;
-            }                
-        }
-        if (node.block_function_op_name) {
-            this._operator = '[' + node.block_function_op_name + ']';
-        }
+    constructor(version, obj, connections) {
 
         this._attributes = [];
         this._inputs = [];
-        this._initializers = [];
         this._outputs = [];
-
-        Object.keys(node.attributes).forEach((key) => {
-            this._attributes.push(new CntkAttribute(this._operator, key, node.attributes[key]));
-        });
 
         var inputs = [];
         var outputs = [];
         var initializers = [];
 
-        node.inputs.forEach((input) => {
-            var x = node;
-            var connection = connections[input];
-            var name = names[input];
-            if (connection) {
-                if (connection.initializer) {
-                    initializers.push(connection);
+        if (version == 1) {
+
+            this._operator = obj.__type__;
+            this._name = obj.name;
+
+            Object.keys(obj).forEach((key) => {
+                if (key != '__type__' && key != 'name' && key != 'inputs' && key != 'precision') {
+                    this._attributes.push(new CntkAttribute(this._operator, key, obj[key]));
                 }
-                else {
-                    inputs.push(connection);
+            });
+
+            inputs = obj.inputs.map((input) => { 
+                if (connections[input]) {
+                    return connections[input];
                 }
+                return new CntkConnection(version, input);
+            });
+            outputs = [ new CntkConnection(version, this._name) ];
+        }
+        else if (version == 2) {
+
+            var output = obj.uid;
+
+            this._name = obj.name || null;
+    
+            if (obj.op == 57) {
+                this._operator = 'Block';
+                debugger;
             }
             else {
-                inputs.push(new CntkConnection(input));
+                this._operator = CntkOperatorMetadata.operatorMetadata.getOperatorName(obj.op);
+                if (this._operator == null) {
+                    this._operator = node.op.toString();
+                    debugger;
+                }                
             }
-        });
-
-        outputs.push(new CntkConnection(output + '_Output_0'));
-
-        inputs = inputs.concat(initializers);
+            if (obj.block_function_op_name) {
+                this._operator = '[' + obj.block_function_op_name + ']';
+            }
+    
+            Object.keys(obj.attributes).forEach((key) => {
+                this._attributes.push(new CntkAttribute(this._operator, key, obj.attributes[key]));
+            });
+    
+            obj.inputs.forEach((input) => {
+                var connection = connections[input];
+                if (connection) {
+                    if (connection.initializer) {
+                        initializers.push(connection);
+                    }
+                    else {
+                        inputs.push(connection);
+                    }
+                }
+                else {
+                    inputs.push(new CntkConnection(version, input));
+                }
+            });
+    
+            outputs.push(new CntkConnection(version, output + '_Output_0'));
+    
+            inputs = inputs.concat(initializers);
+        }
 
         var inputIndex = 0;
         var schema = CntkOperatorMetadata.operatorMetadata.getSchema(this.operator);
@@ -341,7 +420,7 @@ class CntkNode {
     }
 
     get inputs() {
-        return this._inputs.concat(this._initializers);
+        return this._inputs;
     }
 
     get outputs() {
@@ -367,6 +446,9 @@ class CntkAttribute {
         }
         if (this._value.constructor.name == 'Axis') {
             this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
+        }
+        if (this._value instanceof ComputationNetwork.TensorShape) {
+            this._value = value.dims;
         }
 
         var attributeSchema = CntkOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
@@ -411,8 +493,10 @@ class CntkTensor {
 
     constructor(tensor) {
         this._tensor = tensor;
-        this._name = tensor.uid;
-        this._type = new CntkTensorType(tensor.data_type, tensor.shape);
+        if (tensor.__type__ != 'LearnableParameter') {
+            this._name = tensor.uid;
+            this._type = new CntkTensorType(tensor.data_type, tensor.shape);
+        }
     }
 
     get name() {
@@ -602,6 +686,489 @@ class CntkOperatorMetadata
         return null;
     }
 }
+
+ComputationNetwork = class {
+
+    constructor(buffer) {
+        var reader = new ComputationNetwork.Reader(buffer);
+        if (!reader.match('BCN')) {
+            throw new CntkError('Invalid computation network begin signature.');
+        }
+        if (!reader.match('BVersion')) {
+            throw new CntkError('Invalid version begin signature.');
+        }
+        this.version = reader.uint64();
+        reader.version = this.version;
+        if (!reader.match('EVersion')) {
+            throw new CntkError('Invalid version end signature.');
+        }
+        var numNodes = reader.uint64();
+        if (!reader.match('BNodeList')) {
+            throw new CntkError('Invalid node list begin signature.');
+        }
+
+        var op = {};
+        op.Minus = function(reader) {};
+        op.Plus = function(reader) {};
+        op.GreaterEqual = function(reader) {};
+        op.Equal = function(reader) {};
+        op.NotEqual = function(reader) {};
+        op.GreaterEqual = function(reader) {};
+        op.Exp = function(reader) {};
+        op.Log = function(reader) {};
+        op.Reciprocal = function(reader) {};
+        op.ElementTimes = function(reader) {};
+        op.ClassificationError = function(reader) {};
+        op.RectifiedLinear = function(reader) {};
+        op.InputValue = function(reader) {
+            this.rows = reader.uint64();
+            this.cols = reader.uint64();
+            this.sampleLayout = new ComputationNetwork.TensorShape(reader, true);
+            this.dynamicAxisNodeName = '';
+            if (reader.version >= 8) {
+                var nrAxes = reader.uint32();
+                if (nrAxes == 1) {
+                    this.dynamicAxisNodeName = reader.string();
+                }
+            }
+            this.learningRateMultiplier = 0;
+            if (reader.version >= 10) {
+                this.learningRateMultiplier = reader.float32();
+            }
+        };
+        op.LearnableParameter = function(reader) {
+            if (reader.version >= 3) {
+                this.learningRateMultiplier = reader.float32();
+                this.sampleLayout = new ComputationNetwork.TensorShape(reader);
+            }
+            else {
+                throw new CntkError('LeanableParameter reader implemented.');
+            }
+            this.value = new ComputationNetwork.Matrix(reader);
+        };
+        op.CrossEntropyWithSoftmax = function(reader) {
+            this.evalMode = reader.uint32();
+            if (this.evalMode > 2) {
+                this.evalMode = 0;
+                reader.seek(-4);
+            }
+        };
+        op.Times = function(reader) {
+            this.outputRank = (reader.version >= 3) ? reader.uint64() : 1;
+            this.inferInputRankToMap = (reader.version >= 12) ? reader.int32() : -1;
+        };
+        op.Dropout = function(reader) {
+            // Rng
+            if (reader.version >= 16) {
+                this.seed = (reader.version == 16) ? reader.uint32() : reader.uint64();
+                this.offset = reader.uint64();
+            }
+        };
+        op.ConvolutionBase = function(reader) {
+            if (reader.version >= 5)
+            {
+                this.kernelShape = new ComputationNetwork.TensorShape(reader);
+                this.mapCount = new ComputationNetwork.TensorShape(reader);
+                this.stride = new ComputationNetwork.TensorShape(reader);
+                this.sharing = reader.bools(reader.uint64());
+                this.autoPadding = reader.bools(reader.uint64());
+                this.lowerPad = new ComputationNetwork.TensorShape(reader);
+                this.upperPad = new ComputationNetwork.TensorShape(reader);
+                this.poolKind = reader.uint32();
+                this.imageLayout = reader.uint32();
+                this.maxTempMemSizeInSamples = reader.uint64();
+            }
+            if (reader.version >= 9) {
+                this.transpose = reader.bool();
+            }
+            if (reader.version >= 20) {
+                this.outputShape = new ComputationNetwork.TensorShape(reader);
+            }
+            if (reader.version >= 21) {
+                this.ceilOutDim = reader.bool();
+            }
+            if (reader.version >= 23) {
+                this.includePad = reader.bool();
+            }
+        };
+        op.Convolution = function(reader) {
+            op.ConvolutionBase.apply(this, [ reader ]);
+            if (reader.version < 5) {
+                throw new CntkError('Convolution reader not implemeneted.');
+                /*
+                size_t kW, kH, sW, sH;
+                fstream >> kW;
+                fstream >> kH;
+                fstream >> sW;
+                fstream >> sH;
+                uint32_t imageLayout, mapCount;
+                fstream >> mapCount;
+                fstream >> imageLayout;
+                m_imageLayout = (ImageLayoutKind)imageLayout;
+                bool pad;
+                fstream >> pad;
+                fstream >> m_maxTempMemSizeInSamples;
+                m_poolKind = PoolKind::None;
+                m_convolution2D = true;
+    
+                m_kernelShape = TensorShape(kW, kH, 1);
+                m_mapCount = TensorShape(mapCount);
+                m_stride = TensorShape(sW, sH, 1);
+                m_sharing = vector<bool>{ true };
+                m_autoPadding = vector<bool>{ pad };
+                m_lowerPad = TensorShape(0);
+                m_upperPad = TensorShape(0);
+                */
+            }
+            else {
+                this.convolution2D = reader.bool();
+                if (reader.version >= 18) {
+                    this.dilation = new ComputationNetwork.TensorShape(reader);
+                }
+                else {
+                    this.dilation = new ComputationNetwork.TensorShape(new ComputationNetwork.Reader(new Uint8Array([ 1, 0, 0, 0, 1, 0, 0, 0, 0 ])));
+                }
+            }
+        };
+        op.Pooling = function(reader) {
+            op.ConvolutionBase.apply(this, [ reader ]);
+        };
+        op.PoolingBase = function(reader) {
+            this.imageLayoutKind = reader.uint32();
+            this.windowWidth = reader.uint32();
+            this.windowHeight = reader.uint64();
+            this.horizontalSubsample = reader.uint64();
+            this.verticalSubsample = reader.uint64();
+        };
+        op.MaxPooling = function(reader) {
+            op.PoolingBase.apply(this, [ reader ]);
+        };
+        op.ROIPooling = function(reader) {
+            this.roiOutputShape = new ComputationNetwork.TensorShape(reader);
+            if (reader.version < 26)
+            {
+                this.poolKind = 'Max';
+                this.spatialScale = 1.0/16.0;
+            }
+            else
+            {
+                this.poolKind = reader.uint32();
+                this.spatialScale = reader.float64();
+            }
+        };
+        op.Reshape = function(reader) {
+            this.beginDimParameter = reader.uint32();
+            this.endDimParameter = reader.uint32();
+            this.replacementSampleLayout = new ComputationNetwork.TensorShape(reader);
+        };
+        op.ReduceElements = function(reader) {
+            var num_axes = 1;
+            if (reader.version >= 27) {
+                num_axes = reader.uint32();
+            }
+            this.axes = [];
+            for (var i = 0; i < num_axes; i++)
+            {
+                this.axes.push(reader.uint32());
+            }
+            this.operation = reader.string();
+            if (reader.version >= 24) {
+                this.keepDimensions = reader.bool();
+            }
+        };
+        op.BatchNormalization = function(reader) {
+            var mbCount = 0;
+            if (reader.version >= 6)
+            {
+                this.spatial = reader.bool();
+                this.normalizationTimeConstant = reader.float64();
+                this.blendTimeConstant = reader.float64();
+                this.imageLayoutKind = reader.int32();
+                if (reader.version >= 13)
+                {
+                    if (reader.version != 19) {
+                        this.runCountUntied = reader.uint64();
+                    }
+                    else
+                    {
+                        this.runCountUntied = reader.bool() ? 0 : 'SIZE_MAX'; // TODO
+                    }
+                }
+                else {
+                    mbCount = reader.uint64();
+                }
+                this.epsilon = reader.float64();
+                this.useCntkEngine = reader.bool();
+            }
+            else
+            {
+                var verWritten = reader.int32();
+                var verReadable = reader.int32();
+                if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
+                    throw new CntkError('BackNormalization version not supported.');
+
+                }
+                this.eval = reader.bool();
+                this.spatial = reader.bool();
+                if (verWritten >= 0x00010004) {
+                    this.normalizationTimeConstant = reader.float64();
+                }
+                else {
+                    reader.float64(); // expAvgFactor
+                }
+                if (verWritten >= 0x00010002) {
+                    this.imageLayoutKind = reader.int32();
+                    mbCount = reader.uint64();
+                }
+                if (verWritten >= 0x00010003) {
+                    this.epsilon = reader.float64();
+                    this.useCntkEngine = reader.bool();
+                }
+            }
+            if (reader.version < 13)
+            {
+                this.runCountUntied = 16 * mbCount;
+                this.convertRunningVariancePending = true;
+            }
+        };
+        
+        var nodes = [];
+        this.nodes = {};
+        for (var i = 0; i < numNodes; i++) {
+            var precision = reader.version >= 7 ? reader.string() : '';
+            if (precision != 'float' && precision != 'double' && precision != 'half' && precision != '') {
+                throw new CntkError('Invalid precision format.');
+            }
+            var obj = { __type__: reader.string() };
+            obj.name = reader.string();
+            obj.precision = precision;
+            var constructor = op[obj.__type__];
+            if (!constructor) {
+                throw new CntkError("Unknown operator '" + obj.__type__ + "'.");
+            } 
+            constructor.apply(obj, [ reader ]);
+            nodes.push(obj);
+            this.nodes[obj.name] = obj;
+        }
+        if (!reader.match('ENodeList')) {
+            throw new CntkError('Invalid node list end signature.');
+        }
+
+        if (!reader.match('BRelation')) {
+            throw new CntkError('Invalid relation begin signature.');
+        }
+        for (var j = 0; j < numNodes; j++) {
+            var nodeName = reader.string();
+            var node = this.nodes[nodeName];
+            var numChildren = reader.uint64();
+            var children = [];
+            for (var k = 0; k < numChildren; k++) {
+                children.push(reader.string());
+            }
+            if (this.version < 19 && node.__type__ == 'BatchNormalization') {
+                throw new CntkError('BatchNormalization handler not implemented.');
+            }
+            node.inputs = children;
+        }
+        if (!reader.match('ERelation')) {
+            throw new CntkError('Invalid relation end signature.');
+        }
+        if (!reader.match('BRootNodes')) {
+            throw new CntkError('Invalid root nodes begin signature.');
+        }
+        this.feature = reader.group('FeatureNodes');
+        this.label = reader.group('LabelNodes');
+        this.criterion = reader.group('CriterionNodes');
+        if (this.criterion.length == 0) {
+            this.criterion = reader.group('CriteriaNodes');
+        }
+        reader.group('NodesReqMultiSeqHandling');
+        this.eval = reader.group('EvalNodes');
+        this.output = reader.group('OutputNodes');
+        this.pair = reader.group('PairNodes');
+        if (!reader.match('ERootNodes')) {
+            throw new CntkError('Invalid root nodes end signature.');
+        }
+        if (!reader.match('ECN')) {
+            throw new CntkError('Invalid computation network end signature.');
+        }
+    }
+};
+
+ComputationNetwork.Reader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._offset = 0;
+    }
+
+    set version(value) {
+        this._version = value;
+    }
+
+    get version() {
+        return this._version;
+    }
+
+    match(text) {
+        var offset = this._offset;
+        for (var i = 0; i < text.length; i++) {
+            if (this.readUInt16() != text.charCodeAt(i)) {
+                this._offset = offset;
+                return false;
+            }
+        }
+        if (this.readUInt16() != 0) {
+            this._offset = offset;
+            return false;
+        }
+        return true;
+    }
+
+    seek(offset) {
+        this._offset += offset;
+    }
+
+    bool() {
+        return this.byte() != 0 ? true : false;
+    }
+
+    bools(length) {
+        var array = [];
+        for (var i = 0; i < length; i++) {
+            array.push(this.bool());
+        }
+        return array;
+    }
+
+    byte() {
+        var value = this._dataView.getUint8(this._offset);
+        this._offset++;
+        return value;
+    }
+
+    bytes(length) {
+        var data = this._buffer.subarray(this._offset, this._offset + length);
+        this._offset += length;
+        return data;
+    }
+
+    readUInt16() {
+        var value = this._dataView.getUint16(this._offset, true);
+        this._offset += 2;
+        return value;
+    }
+
+    int32() {
+        var value = this._dataView.getInt32(this._offset, true);
+        this._offset += 4;
+        return value;
+    }
+
+    uint32() {
+        var value = this._dataView.getUint32(this._offset, true);
+        this._offset += 4;
+        return value;
+    }
+
+    uint64() {
+        var low = this.uint32();
+        var hi = this.uint32();
+        if (hi > 65536) {
+            throw new CntkError('Value not in 48-bit range.');
+        }
+        return (hi << 32) | low;
+    }
+
+    float32() {
+        var value = this._dataView.getFloat32(this._offset, true);
+        this._offset += 4;
+        return value;
+    }
+
+    float64() {
+        var value = this._dataView.getFloat64(this._offset, true);
+        this._offset += 8;
+        return value;
+    }
+
+    string() {
+        var text = '';
+        while (true) {
+            var c = this.readUInt16();
+            if (c == 0) {
+                break;
+            }
+            text += String.fromCharCode(c);
+        }
+        return text;
+    }
+
+    group(name) {
+        var list = [];
+        if (this.match('B' + name)) {
+            var num = this.uint64();
+            for (var i = 0; i < num; i++) {
+                list.push(this.string());
+            }
+            if (!this.match('E' + name)) {
+                throw new CntkError('Invalid group signature.');
+            }
+        }
+        return list;
+    }
+};
+
+ComputationNetwork.TensorShape = class {
+    constructor(reader, acceptLegacyFormat = false) {
+        this.dims = [];
+        var rank = reader.uint32();
+        var dim0 = 0;
+        if (rank > 0) {
+            dim0 = reader.uint32();
+        }
+        if (!acceptLegacyFormat || dim0 != 0) {
+            this.dims.push(dim0);
+            for (var i = 1; i < rank; i++) {
+                this.dims.push(reader.uint32());
+            }
+        }
+        else {
+            var dim = reader.uint32();
+            this.dims.push(reader.uint32());
+            this.dims.push(rank);
+            this.dims.push(dim);
+        }
+    }
+};
+
+ComputationNetwork.Matrix = class {
+    constructor(reader) {
+        var type = reader.byte();
+        switch (type) {
+            case 100: // dense
+                if (!reader.match('BMAT')) {
+                    throw new CntkError('Invalid matrix signature.');
+                }
+                var elsize = reader.uint64();
+                this.name = reader.string();
+                this.format = reader.uint32();
+                this.rows = reader.uint64();
+                this.columns = reader.uint64();
+                reader.bytes(elsize * this.rows * this.columns);
+                if (!reader.match('EMAT')) {
+                    throw new CntkError('Invalid matrix signature.');
+                }
+                break;
+            case 115: // sparse
+                throw new CntkError('Not implemented.');
+            default:
+                throw new CntkError('Not implemented.');
+        }
+    }
+};
+
 
 class CntkError extends Error {
     constructor(message) {
