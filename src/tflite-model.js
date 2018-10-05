@@ -271,21 +271,12 @@ class TensorFlowLiteNode {
 
     static _formatAttributeValue(attributeValue, attributeType) {
         if (attributeType) {
-            TensorFlowLiteNode.__enumMap__ = TensorFlowLiteNode.__enum__ || {};
-            var enumType = TensorFlowLiteNode.__enumMap__[attributeType];
-            if (!enumType) {
-                enumType = {};
-                var type = TensorFlowLiteNode._getType(attributeType);
-                if (type) {
-                    Object.keys(type).forEach((key) => {
-                        enumType[type[key]] = key;
-                    });
+            var type = TensorFlowLiteNode._getType(attributeType);
+            if (type) {
+                var value = type[attributeValue];
+                if (value) {
+                    return () => value;
                 }
-                TensorFlowLiteNode.__enumMap__[attributeType] = enumType;
-            }
-            var enumValue = enumType[attributeValue];
-            if (enumValue) {
-                return () => { return enumValue; };
             }
         }
         return attributeValue;
