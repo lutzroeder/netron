@@ -246,28 +246,74 @@ class CntkNode {
             this._attributes.push(new CntkAttribute(this._operator, key, node.attributes[key]));
         });
 
+        var inputs = [];
+        var outputs = [];
+        var initializers = [];
+
         node.inputs.forEach((input) => {
             var x = node;
             var connection = connections[input];
             var name = names[input];
             if (connection) {
                 if (connection.initializer) {
-                    this._initializers.push(new CntkArgument(name, [ connection ]));
+                    initializers.push(connection);
                 }
                 else {
-                    this._inputs.push(new CntkArgument('?', [ connection ]));
+                    inputs.push(connection);
                 }
             }
             else {
-                this._inputs.push(new CntkArgument('input', [ 
-                    new CntkConnection(input)
-                ]));
+                inputs.push(new CntkConnection(input));
             }
         });
 
-        this._outputs.push(new CntkArgument('output', [ 
-            new CntkConnection(output + '_Output_0')
-        ]));
+        outputs.push(new CntkConnection(output + '_Output_0'));
+
+        inputs = inputs.concat(initializers);
+
+        var inputIndex = 0;
+        var schema = CntkOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        if (schema && schema.inputs) {
+            schema.inputs.forEach((inputSchema) => {
+                if (inputIndex < inputs.length || inputSchema.option != 'optional') {
+                    var connections = [];
+                    var input = {};
+                    input.name = inputSchema.name;
+                    var count = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    inputs.slice(inputIndex, inputIndex + count).forEach((connection) => {
+                        if (connection.id != '' || inputSchema.option != 'optional') {
+                            connections.push(connection);
+                        }
+                    });
+                    inputIndex += count;
+                    this._inputs.push(new CntkArgument(inputSchema.name, connections));
+                }
+            });
+        }
+        else {
+            inputs.slice(inputIndex).forEach((connection) => {
+                this._inputs.push(new CntkArgument('(' + inputIndex.toString() + ')', [ connection ]));
+                inputIndex++;
+            });
+        }
+
+        var outputIndex = 0;
+        if (schema && schema.outputs) {
+            schema.outputs.forEach((outputSchema) => {
+                if (outputIndex < outputs.length || outputSchema.option != 'optional') {
+                    var count = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    var connections = outputs.slice(outputIndex, outputIndex + count);
+                    outputIndex += count;
+                    this._outputs.push(new CntkArgument(outputSchema.name, connections));
+                }
+            });
+        }
+        else {
+            outputs.slice(outputIndex).forEach((connection) => {
+                this._outputs.push(new CntkArgument('(' + outputIndex.toString() + ')', [ connection ]));
+                outputIndex++;
+            });
+        }
     }
 
     get name() {
@@ -279,7 +325,15 @@ class CntkNode {
     }
 
     get category() {
-        return CntkOperatorMetadata.operatorMetadata.getOperatorCategory(this._operator);
+        var schema = CntkOperatorMetadata.operatorMetadata.getSchema(this._operator);
+        if (schema && schema.category) {
+            return schema.category;
+        }
+        return null;
+    }
+
+    get documentation() { 
+        return null;
     }
 
     get attributes() { 
@@ -301,7 +355,7 @@ class CntkAttribute {
         this._name = name;
         this._value = value;
         if (this._value.constructor.name == 'NDShape') {
-            this._value = () => value.shape_dim.map((dimension) => {
+            this._value = value.shape_dim.map((dimension) => {
                 if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
                     return -1;
                 }
@@ -309,13 +363,34 @@ class CntkAttribute {
                     return dimension.toNumber();
                 }
                 return dimension;
-            }).join(', ');
+            });
         }
         if (this._value.constructor.name == 'Axis') {
             this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
         }
-        if (!CntkOperatorMetadata.operatorMetadata.getAttributeVisible(operator, name, this._value)) {
-            this._visible = false;
+
+        var attributeSchema = CntkOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        if (attributeSchema) {
+            if (attributeSchema.hasOwnProperty('visible') && !attributeSchema.visible) {
+                this._visible = false;
+            }
+            else if (attributeSchema.hasOwnProperty('default')) {
+                var defaultValue = attributeSchema.default;
+                if (this._value == defaultValue) {
+                    this._visible = false;
+                }
+                else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                    if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
+                        defaultValue.pop();
+                        while (defaultValue.length < this._value.length) {
+                           defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                        }
+                    }
+                    if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
+                        this._visible = false;
+                    }
+                }
+            }
         }
     }
 
@@ -349,8 +424,95 @@ class CntkTensor {
     }
 
     get state() {
-        return 'Not implemented.';
+        return this._context().state || null;
     }
+
+    get value() {
+        var context = this._context();
+        if (context.state) {
+            return null;
+        }
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
+    }
+
+    toString() {
+        var context = this._context();
+        if (context.state) {
+            return '';
+        }
+        context.limit = 10000;
+        var value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
+    }
+
+    _context() {
+        var context = {};
+        context.index = 0;
+        context.count = 0;
+        context.state = null;
+
+        if (this._type.dataType == '?') {
+            context.state = 'Tensor has unknown data type.';
+            return context;
+        }
+        if (!this._tensor.shape) {
+            context.state = 'Tensor has no dimensions.';
+            return context;
+        }
+
+        var value = this._tensor.value;
+        if (!value) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+
+        switch (this._type.dataType) {
+            case 'float32':
+                if (value.float_values && value.float_values.value && value.float_values.value.length > 0) {
+                    context.data = value.float_values.value;
+                }
+                else {
+                    context.state = 'Tensor data is empty.';
+                }
+                break;
+            default:
+                // debugger;
+                context.state = 'Tensor data type is not implemented.';
+                break;
+        }
+
+        context.dataType = this._type.dataType;
+        context.shape = this._type.shape;
+        
+        return context;
+    }
+
+    _decode(context, dimension) {
+        var results = [];
+        var size = context.shape[dimension];
+        if (dimension == context.shape.length - 1) {
+            for (var i = 0; i < size; i++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(context.data[context.index++]);
+                context.count++;
+            }
+        }
+        else {
+            for (var j = 0; j < size; j++) {
+                if (context.count > context.limit) {
+                    results.push('...');
+                    return results;
+                }
+                results.push(this._decode(context, dimension + 1));
+            }
+        }
+        return results;
+    }
+
 }
 
 class CntkTensorType {
@@ -422,34 +584,22 @@ class CntkOperatorMetadata
         return this._operatorMap[code] || null;
     }
 
-    getOperatorCategory(operator) {
-        var schema = this._map[operator];
-        if (schema && schema.category) {
-            return schema.category;
-        }
-        return null;
+    getSchema(operator) {
+        return this._map[operator] || null;
     }
 
-    getAttributeVisible(operator, name, value) {
+    getAttributeSchema(operator, name) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
-            if (!schema.attributesMap) {
-                schema.attributesMap = {};
+            if (!schema._attributesMap) {
+                schema._attributesMap = {};
                 schema.attributes.forEach((attribute) => {
-                    schema.attributesMap[attribute.name] = attribute;
+                    schema._attributesMap[attribute.name] = attribute;
                 });
             }
-            var attribute = schema.attributesMap[name];
-            if (attribute) {
-                if (attribute.hasOwnProperty('visible')) {
-                    return attribute.visible;
-                }
-                if (attribute.hasOwnProperty('default')) {
-                    return value != attribute.default;
-                }
-            }
+            return schema._attributesMap[name] || null;
         }
-        return true;
+        return null;
     }
 }
 

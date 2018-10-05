@@ -102,7 +102,7 @@ class BrowserHost {
             return true;
         }
         if (name == 'CNTK') {
-            // return true;
+            return true;
         }
         return null;
     }

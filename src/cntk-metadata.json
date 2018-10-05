@@ -9,21 +9,39 @@
     "name": "Sigmoid",
     "schema": {
       "category": "Activation",
-      "operator": 1
+      "operator": 1,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Tanh",
     "schema": {
       "category": "Activation",
-      "operator": 2
+      "operator": 2,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "ReLU",
     "schema": {
       "category": "Activation",
-      "operator": 3
+      "operator": 3,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -115,7 +133,21 @@
     "name": "Pooling",
     "schema": {
       "category": "Pool",
-      "operator": 17
+      "operator": 17,
+      "attributes": [
+        { "name": "ceilOutDim", "default": false },
+        { "name": "includePad", "default": false },
+        { "name": "autoPadding", "default": [ true, null ] },
+        { "name": "strides", "default": [ 1, null ] },
+        { "name": "lowerPad", "default": [ 0, null ] },
+        { "name": "upperPad", "default": [ 0, null ] }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -127,7 +159,14 @@
   {
     "name": "Plus",
     "schema": {
-      "operator": 19
+      "operator": 19,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
@@ -199,7 +238,17 @@
   {
     "name": "Times",
     "schema": {
-      "operator": 31
+      "operator": 31,
+      "attributes": [
+        { "name": "outputRank", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
@@ -215,7 +264,20 @@
       "operator": 33,
       "attributes": [
         { "name": "transpose", "default": false },
-        { "name": "maxTempMemSizeInSamples", "default": 0 }
+        { "name": "maxTempMemSizeInSamples", "default": 0 },
+        { "name": "dilation", "default": [ 1, null] },
+        { "name": "outputShape", "default": 0 },
+        { "name": "sharing", "default": [ true, null] },
+        { "name": "lowerPad", "default": [ 0, null ] },
+        { "name": "upperPad", "default": [ 0, null ] }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -228,13 +290,19 @@
   {
     "name": "CrossEntropyWithSoftmax",
     "schema": {
-      "operator": 35
+      "operator": 35,
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "ClassificationError",
     "schema": {
-      "operator": 36
+      "operator": 36,
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -265,7 +333,19 @@
         { "name": "useCuDNNEngine", "default": true },
         { "name": "epsilon", "default": 0.00001 },
         { "name": "normalizationTimeConstant", "default": 5000 },
-        { "name": "disableRegularization", "default": false }
+        { "name": "disableRegularization", "default": false },
+        { "name": "blendTimeConstant", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "scale" },
+        { "name": "bias" },
+        { "name": "runMean" },
+        { "name": "runVariance" },
+        { "name": "runCount" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -292,7 +372,331 @@
     "name": "Combine",
     "schema": {
       "category": "Tensor",
-      "operator": 44
+      "operator": 44,
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "RandomSample",
+    "schema": {
+      "operator": 45
+    }
+  },
+  {
+    "name": "RandomSampleInclusionFrequency",
+    "schema": {
+      "operator": 46
+    }
+  },
+  {
+    "name": "ROIPooling",
+    "schema": {
+      "operator": 47
+    }
+  },
+  {
+    "name": "Logistic",
+    "schema": {
+      "operator": 48
+    }
+  },
+  {
+    "name": "OptimizedRNNStack",
+    "schema": {
+      "operator": 49
+    }
+  },
+  {
+    "name": "ReconcileDynamicAxis",
+    "schema": {
+      "operator": 50
+    }
+  },
+  {
+    "name": "LogSoftmax",
+    "schema": {
+      "operator": 51
+    }
+  },
+  {
+    "name": "LogPlus",
+    "schema": {
+      "operator": 52
+    }
+  },
+  {
+    "name": "CosDistance",
+    "schema": {
+      "operator": 53
+    }
+  },
+  {
+    "name": "Sin",
+    "schema": {
+      "operator": 54
+    }
+  },
+  {
+    "name": "Cos",
+    "schema": {
+      "operator": 55
+    }
+  },
+  {
+    "name": "Pass",
+    "schema": {
+      "operator": 56
+    }
+  },
+  {
+    "name": "Block",
+    "schema": {
+      "operator": 57
+    }
+  },
+  {
+    "name": "Unpooling",
+    "schema": {
+      "operator": 58
+    }
+  },
+  {
+    "name": "LambdaRank",
+    "schema": {
+      "operator": 59
+    }
+  },
+  {
+    "name": "NDCG",
+    "schema": {
+      "operator": 60
+    }
+  },
+  {
+    "name": "EditDistanceError",
+    "schema": {
+      "operator": 61
+    }
+  },
+  {
+    "name": "NoOp",
+    "schema": {
+      "operator": 62
+    }
+  },
+  {
+    "name": "LabelsToGraph",
+    "schema": {
+      "operator": 63
+    }
+  },
+  {
+    "name": "StopGradient",
+    "schema": {
+      "operator": 64
+    }
+  },
+  {
+    "name": "ELU",
+    "schema": {
+      "operator": 65
+    }
+  },
+  {
+    "name": "ForwardBackward",
+    "schema": {
+      "operator": 66
+    }
+  },
+  {
+    "name": "CosDistanceWithNegativeSamples",
+    "schema": {
+      "operator": 67
+    }
+  },
+  {
+    "name": "OneHot",
+    "schema": {
+      "operator": 68
+    }
+  },
+  {
+    "name": "Pow",
+    "schema": {
+      "operator": 69
+    }
+  },
+  {
+    "name": "ToSequence",
+    "schema": {
+      "operator": 70
+    }
+  },
+  {
+    "name": "ToSequenceLike",
+    "schema": {
+      "operator": 71
+    }
+  },
+  {
+    "name": "UnpackSequence",
+    "schema": {
+      "operator": 72
+    }
+  },
+  {
+    "name": "Assign",
+    "schema": {
+      "operator": 73
+    }
+  },
+  {
+    "name": "Gather",
+    "schema": {
+      "operator": 74
+    }
+  },
+  {
+    "name": "StableSigmoid",
+    "schema": {
+      "operator": 75
+    }
+  },
+  {
+    "name": "RandomDistribution",
+    "schema": {
+      "operator": 76
+    }
+  },
+  {
+    "name": "Sinh",
+    "schema": {
+      "operator": 77
+    }
+  },
+  {
+    "name": "Cosh",
+    "schema": {
+      "operator": 78
+    }
+  },
+  {
+    "name": "UnpackBatch",
+    "schema": {
+      "operator": 79
+    }
+  },
+  {
+    "name": "ToBatch",
+    "schema": {
+      "operator": 80
+    }
+  },
+  {
+    "name": "Asin",
+    "schema": {
+      "operator": 81
+    }
+  },
+  {
+    "name": "Acos",
+    "schema": {
+      "operator": 82
+    }
+  },
+  {
+    "name": "Pad",
+    "schema": {
+      "operator": 83
+    }
+  },
+  {
+    "name": "Crop",
+    "schema": {
+      "operator": 84
+    }
+  },
+  {
+    "name": "Atanh",
+    "schema": {
+      "operator": 85
+    }
+  },
+  {
+    "name": "Asinh",
+    "schema": {
+      "operator": 86
+    }
+  },
+  {
+    "name": "TopK",
+    "schema": {
+      "operator": 87
+    }
+  },
+  {
+    "name": "Squeeze",
+    "schema": {
+      "operator": 88
+    }
+  },
+  {
+    "name": "ConstantOp",
+    "schema": {
+      "operator": 89
+    }
+  },
+  {
+    "name": "LatticeSequenceWithSoftmax",
+    "schema": {
+      "operator": 90
+    }
+  },
+  {
+    "name": "Cast",
+    "schema": {
+      "operator": 91
+    }
+  },
+  {
+    "name": "EyeLikeOp",
+    "schema": {
+      "operator": 92
+    }
+  },
+  {
+    "name": "CustomProxyOp",
+    "schema": {
+      "operator": 93
+    }
+  },
+  {
+    "name": "StraightThrough",
+    "schema": {
+      "operator": 94
+    }
+  },
+  {
+    "name": "Tan",
+    "schema": {
+      "operator": 95
+    }
+  },
+  {
+    "name": "Atan",
+    "schema": {
+      "operator": 96
+    }
+  },
+  {
+    "name": "ConvolutionSequenceShape",
+    "schema": {
+      "operator": 97
     }
   }
 ]
