@@ -434,7 +434,54 @@ class OnnxNode {
     }
 
     get documentation() {
-        return this._graph.metadata.getOperatorDocumentation(this._operator);
+        var schema = this._graph.metadata.getSchema(this._operator);
+        if (schema) {
+            var options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this._operator;
+            if (schema.description) {
+                schema.description = marked(schema.description, options);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description, options);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description, options);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description, options);
+                    }
+                });
+            }
+            var formatRange = (value) => {
+                return (value == 2147483647) ? '&#8734;' : value.toString();
+            };
+            if (schema.min_input != schema.max_input) {
+                schema.inputs_range = formatRange(schema.min_input) + ' - ' + formatRange(schema.max_input);
+            }
+            if (schema.min_output != schema.max_output) {
+                schema.outputs_range = formatRange(schema.min_output) + ' - ' + formatRange(schema.max_output);
+            }
+            if (schema.type_constraints) {
+                schema.type_constraints.forEach((item) => {
+                    if (item.allowed_type_strs) {
+                        item.allowed_type_strs_display = item.allowed_type_strs.map((type) => { return type; }).join(', ');
+                    }
+                });
+            }
+            return schema;
+        }
+        return null;
     }
 
     get domain() {
@@ -442,7 +489,11 @@ class OnnxNode {
     }
 
     get category() {
-        return this._graph.metadata.getOperatorCategory(this._operator);
+        var schema = this._graph.metadata.getSchema(this._operator);
+        if (schema && schema.category) {
+            return schema.category;
+        }
+        return null;
     }
 
     get group() {
@@ -531,11 +582,9 @@ class OnnxAttribute {
             this._value = new OnnxTensor(attribute.t).value;
         }
 
-        var type = !attribute.hasOwnProperty('type') ? metadata.getAttributeType(operator, attribute.name) : null;
-        if (this._type) {
-            this._type = type;
-        }
-        else {
+        var attributeSchema = metadata.getAttributeSchema(operator, attribute.name);
+
+        if (attribute.hasOwnProperty('type')) {
             if (!OnnxAttribute._attributeTypeMap) {
                 OnnxAttribute._attributeTypeMap = {};
                 OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED] = 'undefined';
@@ -553,10 +602,17 @@ class OnnxAttribute {
             var attributeType = OnnxAttribute._attributeTypeMap[attribute.type];
             this._type = attributeType || OnnxAttribute._attributeTypeMap[onnx.AttributeProto.AttributeType.UNDEFINED];
         }
+        else if (attributeSchema && attributeSchema.type) {
+            this._type = attributeSchema.type;
+        }
+        else {
+            this._type = null;
+        }
 
-        var visible = metadata.getAttributeVisible(operator, this._name, this._value);
-        if (!visible) {
-            this._visible = false;
+        if (attributeSchema && attributeSchema.hasOwnProperty('default') && attributeSchema.default) {
+            if (this._value == attributeSchema.default) {
+                this._visible = false;
+            }
         }
     }
 
@@ -1109,87 +1165,6 @@ class OnnxGraphOperatorMetadata {
 
         }
         return results;
-    }
-
-    getAttributeType(operator, name) {
-        var schema = this.getAttributeSchema(operator, name);
-        if (schema && schema.type) {
-            return schema.type;
-        }
-        return '';
-    }
-
-    getAttributeVisible(operator, name, value) {
-        var schema = this.getAttributeSchema(operator, name);
-        if (schema && schema.hasOwnProperty('default') && schema.default) {
-            if (value == schema.default) {
-                return false;
-            }
-        }
-        return true;     
-    }
-
-    getOperatorCategory(operator) {
-        var schema = this.getSchema(operator);
-        if (schema && schema.category) {
-            return schema.category;
-        }
-        return null;
-    }
-
-    getOperatorDocumentation(operator) {
-        var schema = this.getSchema(operator);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
-            if (schema.description) {
-                schema.description = this.markdown(schema.description);
-            }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    if (attribute.description) {
-                        attribute.description = this.markdown(attribute.description);
-                    }
-                });
-            }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.description) {
-                        input.description = this.markdown(input.description);
-                    }
-                });
-            }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.description) {
-                        output.description = this.markdown(output.description);
-                    }
-                });
-            }
-            var formatRange = (value) => {
-                return (value == 2147483647) ? '&#8734;' : value.toString();
-            };
-            if (schema.min_input != schema.max_input) {
-                schema.inputs_range = formatRange(schema.min_input) + ' - ' + formatRange(schema.max_input);
-            }
-            if (schema.min_output != schema.max_output) {
-                schema.outputs_range = formatRange(schema.min_output) + ' - ' + formatRange(schema.max_output);
-            }
-            if (schema.type_constraints) {
-                schema.type_constraints.forEach((item) => {
-                    if (item.allowed_type_strs) {
-                        item.allowed_type_strs_display = item.allowed_type_strs.map((type) => { return type; }).join(', ');
-                    }
-                });
-            }
-            return schema;
-        }
-        return null;
-    }
-
-    markdown(text) {
-        var options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
-        return marked(text, options);
     }
 }
 
