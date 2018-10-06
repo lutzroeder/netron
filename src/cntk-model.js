@@ -5,9 +5,6 @@ var cntk = null;
 class CntkModelFactory {
 
     match(context, host) {
-        if (!host.environment('CNTK')) {
-            return false;
-        }
         var extension = context.identifier.split('.').pop();
         if (extension == 'model') {
             var buffer = context.buffer;

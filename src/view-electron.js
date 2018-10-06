@@ -115,9 +115,6 @@ class ElectronHost {
         if (name == 'PROTOTXT') {
             return true;
         }
-        if (name == 'CNTK') {
-            return true;
-        }
         return null;
     }
 
