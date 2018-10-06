@@ -16,7 +16,7 @@
     "dependencies": {
         "d3": "latest",
         "dagre": "latest",
-        "electron-updater": "^3.0.3",
+        "electron-updater": "^3.1.2",
         "flatbuffers": "latest",
         "handlebars": "latest",
         "marked": "latest",
