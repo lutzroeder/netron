@@ -52,7 +52,8 @@ pickle.Unpickler = class {
                     stack.push(value);
                     break;
                 case pickle.OpCode.PERSID:
-                    throw new pickle.Error("Unknown opcode 'PERSID'.");
+                    stack.push(persistent_load(reader.line()));
+                    break;
                 case pickle.OpCode.BINPERSID:
                     stack.push(persistent_load(stack.pop()));
                     break;
