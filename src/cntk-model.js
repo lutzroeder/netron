@@ -465,6 +465,7 @@ class CntkAttribute {
                     this._visible = false;
                 }
                 else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                    defaultValue = defaultValue.slice(0, defaultValue.length);
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
                         while (defaultValue.length < this._value.length) {
@@ -773,10 +774,9 @@ class ComputationNetwork {
             this.inferInputRankToMap = (reader.version >= 12) ? reader.int32() : -1;
         };
         op.Dropout = function(reader) {
-            // Rng
             if (reader.version >= 16) {
-                this.seed = (reader.version == 16) ? reader.uint32() : reader.uint64();
-                this.offset = reader.uint64();
+                var seed = (reader.version == 16) ? reader.uint32() : reader.uint64();
+                var offset = reader.uint64();
             }
         };
         op.ConvolutionBase = function(reader) {
@@ -784,7 +784,7 @@ class ComputationNetwork {
             {
                 this.kernelShape = new ComputationNetwork.TensorShape(reader);
                 this.mapCount = new ComputationNetwork.TensorShape(reader);
-                this.stride = new ComputationNetwork.TensorShape(reader);
+                this.strides = new ComputationNetwork.TensorShape(reader);
                 this.sharing = reader.bools(reader.uint64());
                 this.autoPadding = reader.bools(reader.uint64());
                 this.lowerPad = new ComputationNetwork.TensorShape(reader);
@@ -809,30 +809,17 @@ class ComputationNetwork {
         op.Convolution = function(reader) {
             op.ConvolutionBase.apply(this, [ reader ]);
             if (reader.version < 5) {
-                throw new CntkError('Convolution reader not implemeneted.');
-                /*
-                size_t kW, kH, sW, sH;
-                fstream >> kW;
-                fstream >> kH;
-                fstream >> sW;
-                fstream >> sH;
-                uint32_t imageLayout, mapCount;
-                fstream >> mapCount;
-                fstream >> imageLayout;
-                m_imageLayout = (ImageLayoutKind)imageLayout;
-                bool pad;
-                fstream >> pad;
-                fstream >> m_maxTempMemSizeInSamples;
-                m_poolKind = PoolKind::None;
-                m_convolution2D = true;
-                m_kernelShape = TensorShape(kW, kH, 1);
-                m_mapCount = TensorShape(mapCount);
-                m_stride = TensorShape(sW, sH, 1);
-                m_sharing = vector<bool>{ true };
-                m_autoPadding = vector<bool>{ pad };
-                m_lowerPad = TensorShape(0);
-                m_upperPad = TensorShape(0);
-                */
+                this.kernelShape = new ComputationNetwork.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
+                this.strides = new ComputationNetwork.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
+                this.mapCount = new ComputationNetwork.TensorShape([ reader.uint32() ]);
+                this.imageLayout = reader.uint32();
+                this.autoPadding = [ reader.bool() ];
+                this.maxTempMemSizeInSamples = reader.uint64();
+                this.poolKind = 'None'; // TODO
+                this.convolution2D = true;
+                this.sharing = [ true ];
+                m_lowerPad = new ComputationNetwork.TensorShape([ 0 ]);
+                m_upperPad = new ComputationNetwork.TensorShape([ 0 ]);
             }
             else {
                 this.convolution2D = reader.bool();
@@ -840,7 +827,7 @@ class ComputationNetwork {
                     this.dilation = new ComputationNetwork.TensorShape(reader);
                 }
                 else {
-                    this.dilation = new ComputationNetwork.TensorShape(new ComputationNetwork.Reader(new Uint8Array([ 1, 0, 0, 0, 1, 0, 0, 0, 0 ])));
+                    this.dilation = new ComputationNetwork.TensorShape([ 1 ]);
                 }
             }
         };
@@ -859,16 +846,8 @@ class ComputationNetwork {
         };
         op.ROIPooling = function(reader) {
             this.roiOutputShape = new ComputationNetwork.TensorShape(reader);
-            if (reader.version < 26)
-            {
-                this.poolKind = 'Max';
-                this.spatialScale = 1.0/16.0;
-            }
-            else
-            {
-                this.poolKind = reader.uint32();
-                this.spatialScale = reader.float64();
-            }
+            this.poolKind = (reader.version < 26) ? 'Max' : reader.uint32();
+            this.spatialScale = (reader.version < 26) ? 0.0625 : reader.float64();
         };
         op.Reshape = function(reader) {
             this.beginDimParameter = reader.uint32();
@@ -1149,6 +1128,10 @@ ComputationNetwork.Reader = class {
 
 ComputationNetwork.TensorShape = class {
     constructor(reader, acceptLegacyFormat = false) {
+        if (reader && Array.isArray(reader)) {
+            this.dims = reader;
+            return;
+        }
         this.dims = [];
         var rank = reader.uint32();
         var dim0 = 0;

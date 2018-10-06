@@ -201,6 +201,7 @@
       "category": "Pool",
       "operator": 17,
       "attributes": [
+        { "name": "transpose", "default": false },
         { "name": "includePad", "default": false },
         { "name": "ceilOutDim", "default": false },
         { "name": "autoPadding", "default": [ true, null ] },
@@ -394,10 +395,13 @@
         { "name": "dilation", "default": [ 1, null] },
         { "name": "outputShape", "default": 0 },
         { "name": "sharing", "default": [ true, null] },
+        { "name": "strides", "default": [ 1, null ] },
         { "name": "includePad", "default": false },
         { "name": "ceilOutDim", "default": false },
+        { "name": "autoPadding", "default": [ true, null ] },
         { "name": "lowerPad", "default": [ 0, null ] },
-        { "name": "upperPad", "default": [ 0, null ] }
+        { "name": "upperPad", "default": [ 0, null ] },
+        { "name": "convolution2D", "visible": false }
       ],
       "inputs": [
         { "name": "input" },
@@ -466,6 +470,7 @@
         { "name": "disableRegularization", "default": false },
         { "name": "useCuDNNEngine", "default": true },
         { "name": "useCntkEngine", "default": true },
+        { "name": "runCountUntied", "visible": false },
         { "name": "epsilon", "default": 0.00001 },
         { "name": "normalizationTimeConstant", "default": 0 },
         { "name": "disableRegularization", "default": false },

@@ -609,6 +609,7 @@ class MXNetAttribute {
                     this._visible = false;
                 }
                 else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                    defaultValue = defaultValue.slice(0, defaultValue.length);
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
                         while (defaultValue.length < this._value.length) {
