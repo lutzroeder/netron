@@ -204,13 +204,7 @@ class TensorFlowLiteNode {
                     else {
                         value = options[name]();
                     }
-                    name = TensorFlowLiteNode._formatAttributeName(name);
-                    var type = metadata.getAttributeType(operator, name);
-                    value = TensorFlowLiteNode._formatAttributeValue(value, type);
-                    if (value != null) {
-                        var visible = metadata.getAttributeVisible(operator, name, value);
-                        this._attributes.push(new TensorFlowLiteAttribute(name, type, value, visible));
-                    }
+                    this._attributes.push(new TensorFlowLiteAttribute(metadata, operator, name, value));
                 }
             });
         }
@@ -241,7 +235,8 @@ class TensorFlowLiteNode {
     }
 
     get category() {
-        return TensorFlowLiteOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+        var schema = TensorFlowLiteOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        return (schema && schema.category) ? schema.category : null;
     }
 
     get inputs() {
@@ -258,28 +253,6 @@ class TensorFlowLiteNode {
 
     get attributes() {
         return this._attributes;
-    }
-
-    static _formatAttributeName(name) {
-        var lower = name.toLowerCase();
-        var result = '';
-        for (var i = 0; i < name.length; i++) {
-            result += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
-        }
-        return result;
-    }
-
-    static _formatAttributeValue(attributeValue, attributeType) {
-        if (attributeType) {
-            var type = TensorFlowLiteNode._getType(attributeType);
-            if (type) {
-                var value = type[attributeValue];
-                if (value) {
-                    return () => value;
-                }
-            }
-        }
-        return attributeValue;
     }
 
     static _getType(name) {
@@ -301,11 +274,42 @@ class TensorFlowLiteNode {
 
 class TensorFlowLiteAttribute {
 
-    constructor(name, type, value, visible) {
-        this._name = name;
-        this._type = type;
+    constructor(metadata, operator, name, value) {
+        this._type = null;
         this._value = value;
-        this._visible = visible;
+        this._name = '';
+        var lower = name.toLowerCase();
+        for (var i = 0; i < name.length; i++) {
+            this._name += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
+        }
+    
+        var schema = metadata.getAttributeSchema(operator, this._name);
+        if (schema) {
+            if (schema.type) {
+                this._type = schema.type;
+            }
+            if (this._type && tflite) {
+                var type = tflite[this._type];
+                if (type) {
+                    var enumValue = type[this.value];
+                    if (enumValue) {
+                        this._value = () => enumValue;
+                    }
+                }
+            }
+            if (schema.hasOwnProperty('visible') && !schema.visible) {
+                this._visible = false;
+            }
+            else if (schema.hasOwnProperty('default')) {
+                value = this._value;
+                if (typeof value == 'function') {
+                    value = value();
+                }
+                if (value == schema.default) {
+                    this._visible = false;
+                }
+            }
+        }
     }
 
     get name() {
@@ -321,8 +325,8 @@ class TensorFlowLiteAttribute {
     }
 
     get visible() {
-        return this._visible;
-    }    
+        return this._visible == false ? false : true;
+    }
 }
 
 class TensorFlowLiteArgument {
@@ -698,38 +702,6 @@ class TensorFlowLiteOperatorMetadata {
             if (attributeSchema) {
                 return attributeSchema; 
             }
-        }
-        return null;
-    }
-
-    getAttributeType(operator, name) {
-        var attributeSchema = this.getAttributeSchema(operator, name);
-        if (attributeSchema) {
-            return attributeSchema.type;
-        }
-        return '';
-    }
-
-    getAttributeVisible(operator, name, value) {
-        var attributeSchema = this.getAttributeSchema(operator, name);
-        if (attributeSchema) {
-            if (attributeSchema.hasOwnProperty('visible')) {
-                return attributeSchema.visible;
-            }
-            if (attributeSchema.hasOwnProperty('default')) {
-                if (typeof value == 'function') {
-                    value = value();
-                }
-                return value != attributeSchema.default;
-            }
-        }
-        return true;
-    }
-
-    getOperatorCategory(operator) {
-        var schema = this.getSchema(operator);
-        if (schema && schema.category) {
-            return schema.category;
         }
         return null;
     }

@@ -490,10 +490,7 @@ class OnnxNode {
 
     get category() {
         var schema = this._graph.metadata.getSchema(this._operator);
-        if (schema && schema.category) {
-            return schema.category;
-        }
-        return null;
+        return (schema && schema.category) ? schema.category : null;
     }
 
     get group() {
