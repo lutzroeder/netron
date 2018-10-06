@@ -184,6 +184,18 @@
     }
   },
   {
+    "name": "MaxPooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Pooling",
     "schema": {
       "category": "Pool",
@@ -255,37 +267,79 @@
   {
     "name": "Equal",
     "schema": {
-      "operator": 22
+      "operator": 22,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "NotEqual",
     "schema": {
-      "operator": 23
+      "operator": 23,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "Less",
     "schema": {
-      "operator": 24
+      "operator": 24,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "LessEqual",
     "schema": {
-      "operator": 25
+      "operator": 25,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "Greater",
     "schema": {
-      "operator": 26
+      "operator": 26,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
     "name": "GreaterEqual",
     "schema": {
-      "operator": 27
+      "operator": 27,
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
     }
   },
   {
@@ -394,7 +448,13 @@
   {
     "name": "ReduceElements",
     "schema": {
-      "operator": 39
+      "operator": 39,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -471,7 +531,11 @@
   {
     "name": "ROIPooling",
     "schema": {
-      "operator": 47
+      "operator": 47,
+      "category": "Pool",
+      "attributes": [
+        { "name": "spatialScale", "default": 0.0625 }
+      ]
     }
   },
   {

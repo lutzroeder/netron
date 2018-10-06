@@ -16,9 +16,6 @@ class CntkModelFactory {
             }
             return true;
         }
-        if (extension == 'cntk') {
-            return true;
-        }
         return false;
     }
 
@@ -153,7 +150,7 @@ class CntkGraph {
                 switch (node.__type__) {
                     case 'InputValue':
                         this._inputs.push(new CntkArgument(node.name, [ 
-                            new CntkConnection(version, node.name)
+                            new CntkConnection(version, node)
                         ]));
                         break;
                     case 'LearnableParameter':
@@ -231,22 +228,37 @@ class CntkArgument {
 
 class CntkConnection {
 
-    constructor(version, tensor) {
-        if (typeof tensor === 'string') {
-            this._id = tensor.toString();
-        }
-        else if (tensor.__type__ == 'LearnableParameter') {
-            this._id = tensor.name;
-            this._initializer = new CntkTensor(tensor);
+    constructor(version, obj) {
+        if (typeof obj === 'string') {
+            this._id = obj;
         }
         else {
-            this._id = tensor.uid;
-            if (tensor.value) {
-                this._type = null;
-                this._initializer = new CntkTensor(tensor);
-            }
-            else {
-                this._type = new CntkTensorType(tensor.data_type, tensor.shape);
+            switch (version) {
+                case 1:
+                    switch (obj.__type__) {
+                        case 'InputValue':
+                            this._id = obj.name;
+                            this._type = new CntkTensorType(version, obj.precision, obj.sampleLayout);
+                            this._initializer = null;
+                            break;
+                        case 'LearnableParameter':
+                            this._id = obj.name;
+                            this._type = null;
+                            this._initializer = new CntkTensor(version, obj);
+                            break;
+                    }
+                    break;
+                case 2:
+                    this._id = obj.uid;
+                    if (obj.value) {
+                        this._type = null;
+                        this._initializer = new CntkTensor(version, obj);
+                    }
+                    else {
+                        this._type = new CntkTensorType(version, obj.data_type, obj.shape);
+                        this._initializer = null;
+                    }    
+                    break;
             }
         }
     }
@@ -286,68 +298,59 @@ class CntkNode {
         var outputs = [];
         var initializers = [];
 
-        if (version == 1) {
-
-            this._operator = obj.__type__;
-            this._name = obj.name;
-
-            Object.keys(obj).forEach((key) => {
-                if (key != '__type__' && key != 'name' && key != 'inputs' && key != 'precision') {
-                    this._attributes.push(new CntkAttribute(this._operator, key, obj[key]));
-                }
-            });
-
-            inputs = obj.inputs.map((input) => { 
-                if (connections[input]) {
-                    return connections[input];
-                }
-                return new CntkConnection(version, input);
-            });
-            outputs = [ new CntkConnection(version, this._name) ];
-        }
-        else if (version == 2) {
-
-            var output = obj.uid;
-
-            this._name = obj.name || null;
-    
-            if (obj.op == 57) {
-                this._operator = 'Block';
-                debugger;
-            }
-            else {
-                this._operator = CntkOperatorMetadata.operatorMetadata.getOperatorName(obj.op);
-                if (this._operator == null) {
-                    this._operator = node.op.toString();
+        switch (version) {
+            case 1:
+                this._operator = obj.__type__;
+                this._name = obj.name;
+                Object.keys(obj).forEach((key) => {
+                    if (key != '__type__' && key != 'name' && key != 'inputs' && key != 'precision') {
+                        this._attributes.push(new CntkAttribute(this._operator, key, obj[key]));
+                    }
+                });
+                inputs = obj.inputs.map((input) => { 
+                    if (connections[input]) {
+                        return connections[input];
+                    }
+                    return new CntkConnection(version, input);
+                });
+                outputs = [ new CntkConnection(version, this._name) ];
+                break;
+            case 2:
+                this._name = obj.name || null;
+                var output = obj.uid;
+                if (obj.op == 57) {
+                    this._operator = 'Block';
                     debugger;
-                }                
-            }
-            if (obj.block_function_op_name) {
-                this._operator = '[' + obj.block_function_op_name + ']';
-            }
-    
-            Object.keys(obj.attributes).forEach((key) => {
-                this._attributes.push(new CntkAttribute(this._operator, key, obj.attributes[key]));
-            });
-    
-            obj.inputs.forEach((input) => {
-                var connection = connections[input];
-                if (connection) {
-                    if (connection.initializer) {
-                        initializers.push(connection);
-                    }
-                    else {
-                        inputs.push(connection);
-                    }
                 }
                 else {
-                    inputs.push(new CntkConnection(version, input));
+                    this._operator = CntkOperatorMetadata.operatorMetadata.getOperatorName(obj.op);
+                    if (this._operator == null) {
+                        this._operator = node.op.toString();
+                        debugger;
+                    }                
                 }
-            });
-    
-            outputs.push(new CntkConnection(version, output + '_Output_0'));
-    
-            inputs = inputs.concat(initializers);
+                if (obj.block_function_op_name) {
+                    this._operator = '[' + obj.block_function_op_name + ']';
+                }
+                Object.keys(obj.attributes).forEach((key) => {
+                    this._attributes.push(new CntkAttribute(this._operator, key, obj.attributes[key]));
+                });
+                obj.inputs.forEach((input) => {
+                    var connection = connections[input];
+                    if (connection) {
+                        if (connection.initializer) {
+                            initializers.push(connection);
+                        }
+                        else {
+                            inputs.push(connection);
+                        }
+                    }
+                    else {
+                        inputs.push(new CntkConnection(version, input));
+                    }
+                });
+                outputs.push(new CntkConnection(version, output + '_Output_0'));
+                inputs = inputs.concat(initializers);
         }
 
         var inputIndex = 0;
@@ -491,11 +494,19 @@ class CntkAttribute {
 
 class CntkTensor {
 
-    constructor(tensor) {
-        this._tensor = tensor;
-        if (tensor.__type__ != 'LearnableParameter') {
-            this._name = tensor.uid;
-            this._type = new CntkTensorType(tensor.data_type, tensor.shape);
+    constructor(version, tensor) {
+        switch (version) {
+            case 1:
+                if (tensor.__type__ == 'LearnableParameter') {
+                    this._name = tensor.name || null;
+                    this._type = new CntkTensorType(version, tensor.precision, tensor.sampleLayout);
+                }
+                break;
+            case 2:
+                this._name = tensor.uid || null;
+                this._type = new CntkTensorType(version, tensor.data_type, tensor.shape);
+                this._value = tensor.value;
+                break;
         }
     }
 
@@ -540,12 +551,12 @@ class CntkTensor {
             context.state = 'Tensor has unknown data type.';
             return context;
         }
-        if (!this._tensor.shape) {
+        if (!this._type.shape) {
             context.state = 'Tensor has no dimensions.';
             return context;
         }
 
-        var value = this._tensor.value;
+        var value = this._value;
         if (!value) {
             context.state = 'Tensor data is empty.';
             return context;
@@ -601,17 +612,30 @@ class CntkTensor {
 
 class CntkTensorType {
 
-    constructor(dataType, shape) {
-        switch (dataType.toNumber()) {
-            case 1: this._dataType = 'float32'; break;
-            default: this._dataType = '?'; debugger; break;
+    constructor(version, dataType, shape) {
+        this._dataType = '?';
+        switch (version) {
+            case 1:
+                switch (dataType) {
+                    case 'float': this._dataType = 'float32'; break;
+                    case 'double': this._dataType = 'float64'; break;
+                    case 'half': this._dataType = 'float16'; break;
+                    case '': this._dataType = 'float32'; break;
+                }
+                this._shape = shape.dims;
+                break;
+            case 2:
+                switch (dataType.toNumber()) {
+                    case 1: this._dataType = 'float32'; break;
+                }
+                this._shape = shape.shape_dim.map((dimension) => {
+                    if (dimension && dimension.__isLong__) {
+                        return dimension.toNumber();
+                    }
+                    return dimension;            
+                });
+                break;                
         }
-        this._shape = shape.shape_dim.map((dimension) => {
-            if (dimension && dimension.__isLong__) {
-                return dimension.toNumber();
-            }
-            return dimension;            
-        });
     }
 
     get dataType() {
@@ -687,26 +711,17 @@ class CntkOperatorMetadata
     }
 }
 
-ComputationNetwork = class {
+class ComputationNetwork {
 
     constructor(buffer) {
         var reader = new ComputationNetwork.Reader(buffer);
-        if (!reader.match('BCN')) {
-            throw new CntkError('Invalid computation network begin signature.');
-        }
-        if (!reader.match('BVersion')) {
-            throw new CntkError('Invalid version begin signature.');
-        }
+        reader.assert('BCN');
+        reader.assert('BVersion');
         this.version = reader.uint64();
         reader.version = this.version;
-        if (!reader.match('EVersion')) {
-            throw new CntkError('Invalid version end signature.');
-        }
+        reader.assert('EVersion');
         var numNodes = reader.uint64();
-        if (!reader.match('BNodeList')) {
-            throw new CntkError('Invalid node list begin signature.');
-        }
-
+        reader.assert('BNodeList');
         var op = {};
         op.Minus = function(reader) {};
         op.Plus = function(reader) {};
@@ -810,7 +825,6 @@ ComputationNetwork = class {
                 fstream >> m_maxTempMemSizeInSamples;
                 m_poolKind = PoolKind::None;
                 m_convolution2D = true;
-    
                 m_kernelShape = TensorShape(kW, kH, 1);
                 m_mapCount = TensorShape(mapCount);
                 m_stride = TensorShape(sW, sH, 1);
@@ -906,7 +920,6 @@ ComputationNetwork = class {
                 var verReadable = reader.int32();
                 if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
                     throw new CntkError('BackNormalization version not supported.');
-
                 }
                 this.eval = reader.bool();
                 this.spatial = reader.bool();
@@ -937,7 +950,7 @@ ComputationNetwork = class {
         for (var i = 0; i < numNodes; i++) {
             var precision = reader.version >= 7 ? reader.string() : '';
             if (precision != 'float' && precision != 'double' && precision != 'half' && precision != '') {
-                throw new CntkError('Invalid precision format.');
+                throw new CntkError("Invalid precision format '" + precision + "'.");
             }
             var obj = { __type__: reader.string() };
             obj.name = reader.string();
@@ -950,13 +963,8 @@ ComputationNetwork = class {
             nodes.push(obj);
             this.nodes[obj.name] = obj;
         }
-        if (!reader.match('ENodeList')) {
-            throw new CntkError('Invalid node list end signature.');
-        }
-
-        if (!reader.match('BRelation')) {
-            throw new CntkError('Invalid relation begin signature.');
-        }
+        reader.assert('ENodeList');
+        reader.assert('BRelation');
         for (var j = 0; j < numNodes; j++) {
             var nodeName = reader.string();
             var node = this.nodes[nodeName];
@@ -968,32 +976,51 @@ ComputationNetwork = class {
             if (this.version < 19 && node.__type__ == 'BatchNormalization') {
                 throw new CntkError('BatchNormalization handler not implemented.');
             }
+            if (node.__type__ == 'Convolution' && children.length > 1) {
+                children.splice(0, 0, children.pop());
+            }
             node.inputs = children;
         }
-        if (!reader.match('ERelation')) {
-            throw new CntkError('Invalid relation end signature.');
+        reader.assert('ERelation');
+        reader.assert('BRootNodes');
+        if (reader.match('BFeatureNodes')) {
+            this.feature = reader.strings(reader.uint64());
+            reader.assert('EFeatureNodes');
         }
-        if (!reader.match('BRootNodes')) {
-            throw new CntkError('Invalid root nodes begin signature.');
+        if (reader.match('BLabelNodes')) {
+            this.label = reader.strings(reader.uint64());
+            reader.assert('ELabelNodes');
         }
-        this.feature = reader.group('FeatureNodes');
-        this.label = reader.group('LabelNodes');
-        this.criterion = reader.group('CriterionNodes');
+        if (reader.match('BCriterionNodes')) {
+            this.criterion = reader.strings(reader.uint64());
+            reader.assert('ECriterionNodes');
+        }
         if (this.criterion.length == 0) {
-            this.criterion = reader.group('CriteriaNodes');
+            if (reader.match('BCriteriaNodes')) {
+                this.criterion = reader.strings(reader.uint64());
+                reader.assert('ECriteriaNodes');
+            }
         }
-        reader.group('NodesReqMultiSeqHandling');
-        this.eval = reader.group('EvalNodes');
-        this.output = reader.group('OutputNodes');
-        this.pair = reader.group('PairNodes');
-        if (!reader.match('ERootNodes')) {
-            throw new CntkError('Invalid root nodes end signature.');
+        if (reader.match('BNodesReqMultiSeqHandling')) {
+            reader.strings(reader.uint64());
+            reader.assert('ENodesReqMultiSeqHandling');
         }
-        if (!reader.match('ECN')) {
-            throw new CntkError('Invalid computation network end signature.');
+        if (reader.match('BEvalNodes')) {
+            this.eval = reader.strings(reader.uint64());
+            reader.assert('EEvalNodes');
         }
+        if (reader.match('BOutputNodes')) {
+            this.output = reader.strings(reader.uint64());
+            reader.assert('EOutputNodes');
+        }
+        if (reader.match('BPairNodes')) {
+            this.pair = reader.strings(reader.uint64());
+            reader.assert('EPairNodes');
+        }
+        reader.assert('ERootNodes');
+        reader.assert('ECN');
     }
-};
+}
 
 ComputationNetwork.Reader = class {
 
@@ -1026,6 +1053,12 @@ ComputationNetwork.Reader = class {
         return true;
     }
 
+    assert(text) {
+        if (!this.match(text)) {
+            throw new CntkError("Invalid '" + text + "' signature.");
+        }
+    }
+
     seek(offset) {
         this._offset += offset;
     }
@@ -1034,9 +1067,9 @@ ComputationNetwork.Reader = class {
         return this.byte() != 0 ? true : false;
     }
 
-    bools(length) {
+    bools(count) {
         var array = [];
-        for (var i = 0; i < length; i++) {
+        for (var i = 0; i < count; i++) {
             array.push(this.bool());
         }
         return array;
@@ -1048,9 +1081,9 @@ ComputationNetwork.Reader = class {
         return value;
     }
 
-    bytes(length) {
-        var data = this._buffer.subarray(this._offset, this._offset + length);
-        this._offset += length;
+    bytes(count) {
+        var data = this._buffer.subarray(this._offset, this._offset + count);
+        this._offset += count;
         return data;
     }
 
@@ -1105,18 +1138,12 @@ ComputationNetwork.Reader = class {
         return text;
     }
 
-    group(name) {
-        var list = [];
-        if (this.match('B' + name)) {
-            var num = this.uint64();
-            for (var i = 0; i < num; i++) {
-                list.push(this.string());
-            }
-            if (!this.match('E' + name)) {
-                throw new CntkError('Invalid group signature.');
-            }
+    strings(count) {
+        var array = [];
+        for (var i = 0; i < count; i++) {
+            array.push(this.string());
         }
-        return list;
+        return array;
     }
 };
 
@@ -1148,23 +1175,19 @@ ComputationNetwork.Matrix = class {
         var type = reader.byte();
         switch (type) {
             case 100: // dense
-                if (!reader.match('BMAT')) {
-                    throw new CntkError('Invalid matrix signature.');
-                }
+                reader.assert('BMAT');
                 var elsize = reader.uint64();
                 this.name = reader.string();
                 this.format = reader.uint32();
                 this.rows = reader.uint64();
                 this.columns = reader.uint64();
                 reader.bytes(elsize * this.rows * this.columns);
-                if (!reader.match('EMAT')) {
-                    throw new CntkError('Invalid matrix signature.');
-                }
+                reader.assert('EMAT');
                 break;
             case 115: // sparse
-                throw new CntkError('Not implemented.');
+                throw new CntkError('Matrix sparse type not implemented.');
             default:
-                throw new CntkError('Not implemented.');
+                throw new CntkError("Matrix type '" + type.toString() + "' not implemented.");
         }
     }
 };
