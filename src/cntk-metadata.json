@@ -162,6 +162,10 @@
     "schema": {
       "category": "Dropout",
       "operator": 15,
+      "attributes": [
+        { "name": "rngSeed", "visible": false },
+        { "name": "rngOffset", "visible": false }
+      ],
       "inputs": [
         { "name": "input" }
       ],
@@ -210,7 +214,9 @@
         { "name": "lowerPad", "default": [ 0, null ] },
         { "name": "upperPad", "default": [ 0, null ] },
         { "name": "outputShape", "default": 0 },
-        { "name": "maxTempMemSizeInSamples", "default": 0 }
+        { "name": "maxTempMemSizeInSamples", "default": 0 },
+        { "name": "poolKind", "default": "None" },
+        { "name": "imageLayoutKind", "visible": false }
       ],
       "inputs": [
         { "name": "input" }
@@ -401,7 +407,9 @@
         { "name": "autoPadding", "default": [ true, null ] },
         { "name": "lowerPad", "default": [ 0, null ] },
         { "name": "upperPad", "default": [ 0, null ] },
-        { "name": "convolution2D", "visible": false }
+        { "name": "convolution2D", "visible": false },
+        { "name": "poolKind", "default": "None" },
+        { "name": "imageLayoutKind", "visible": false }
       ],
       "inputs": [
         { "name": "input" },
@@ -468,13 +476,14 @@
       "operator": 40,
       "attributes": [
         { "name": "disableRegularization", "default": false },
-        { "name": "useCuDNNEngine", "default": true },
-        { "name": "useCntkEngine", "default": true },
+        { "name": "useCuDNNEngine", "visible": false },
+        { "name": "useCntkEngine", "visible": false },
         { "name": "runCountUntied", "visible": false },
         { "name": "epsilon", "default": 0.00001 },
         { "name": "normalizationTimeConstant", "default": 0 },
         { "name": "disableRegularization", "default": false },
-        { "name": "blendTimeConstant", "default": 0 }
+        { "name": "blendTimeConstant", "default": 0 },
+        { "name": "imageLayoutKind", "visible": false }
       ],
       "inputs": [
         { "name": "input" },
@@ -539,7 +548,8 @@
       "operator": 47,
       "category": "Pool",
       "attributes": [
-        { "name": "spatialScale", "default": 0.0625 }
+        { "name": "spatialScale", "default": 0.0625 },
+        { "name": "poolKind", "default": "None" }
       ]
     }
   },

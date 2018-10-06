@@ -772,8 +772,8 @@ class ComputationNetwork {
         };
         op.Dropout = function(reader) {
             if (reader.version >= 16) {
-                var seed = (reader.version == 16) ? reader.uint32() : reader.uint64();
-                var offset = reader.uint64();
+                this.rngSeed = (reader.version == 16) ? reader.uint32() : reader.uint64();
+                this.rngOffset = reader.uint64();
             }
         };
         op.ConvolutionBase = function(reader) {
@@ -786,8 +786,8 @@ class ComputationNetwork {
                 this.autoPadding = reader.bools(reader.uint64());
                 this.lowerPad = new ComputationNetwork.TensorShape(reader);
                 this.upperPad = new ComputationNetwork.TensorShape(reader);
-                this.poolKind = reader.uint32();
-                this.imageLayout = reader.uint32();
+                this.poolKind = reader.enum({ 0: 'None', 1: 'Max', 2: 'Average' });
+                this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
                 this.maxTempMemSizeInSamples = reader.uint64();
             }
             if (reader.version >= 9) {
@@ -809,10 +809,10 @@ class ComputationNetwork {
                 this.kernelShape = new ComputationNetwork.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.strides = new ComputationNetwork.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.mapCount = new ComputationNetwork.TensorShape([ reader.uint32() ]);
-                this.imageLayout = reader.uint32();
+                this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
                 this.autoPadding = [ reader.bool() ];
                 this.maxTempMemSizeInSamples = reader.uint64();
-                this.poolKind = 'None'; // TODO
+                this.poolKind = 'None';
                 this.convolution2D = true;
                 this.sharing = [ true ];
                 m_lowerPad = new ComputationNetwork.TensorShape([ 0 ]);
@@ -832,7 +832,7 @@ class ComputationNetwork {
             op.ConvolutionBase.apply(this, [ reader ]);
         };
         op.PoolingBase = function(reader) {
-            this.imageLayoutKind = reader.uint32();
+            this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
             this.windowWidth = reader.uint32();
             this.windowHeight = reader.uint64();
             this.horizontalSubsample = reader.uint64();
@@ -843,7 +843,7 @@ class ComputationNetwork {
         };
         op.ROIPooling = function(reader) {
             this.roiOutputShape = new ComputationNetwork.TensorShape(reader);
-            this.poolKind = (reader.version < 26) ? 'Max' : reader.uint32();
+            this.poolKind = (reader.version < 26) ? 'Max' : reader.enum({ 0: 'None', 1: 'Max', 2: 'Average' });
             this.spatialScale = (reader.version < 26) ? 0.0625 : reader.float64();
         };
         op.Reshape = function(reader) {
@@ -873,7 +873,7 @@ class ComputationNetwork {
                 this.spatial = reader.bool();
                 this.normalizationTimeConstant = reader.float64();
                 this.blendTimeConstant = reader.float64();
-                this.imageLayoutKind = reader.int32();
+                this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
                 if (reader.version >= 13)
                 {
                     if (reader.version != 19) {
@@ -906,7 +906,7 @@ class ComputationNetwork {
                     reader.float64(); // expAvgFactor
                 }
                 if (verWritten >= 0x00010002) {
-                    this.imageLayoutKind = reader.int32();
+                    this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
                     mbCount = reader.uint64();
                 }
                 if (verWritten >= 0x00010003) {
@@ -1120,6 +1120,11 @@ ComputationNetwork.Reader = class {
             array.push(this.string());
         }
         return array;
+    }
+
+    enum(type) {
+        var value = this.int32();
+        return type[value] || value;
     }
 };
 
