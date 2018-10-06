@@ -597,7 +597,7 @@ class View {
                                         attributeValue = '[...]';
                                     }
                                     else {
-                                        attributeValue = View.formatAttributeValue(attribute.value);
+                                        attributeValue = View.formatAttributeValue(attribute.value, attribute.type);
                                     }
                                     if (attributeValue && attributeValue.length > 25) {
                                         attributeValue = attributeValue.substring(0, 25) + '...';
@@ -944,9 +944,12 @@ class View {
         }
     }
 
-    static formatAttributeValue(value) {
+    static formatAttributeValue(value, type) {
         if (typeof value === 'function') {
             return value();
+        }
+        if (typeof value === 'string' && type && type != 'string') {
+            return value;
         }
         if (value && value.__isLong__) {
             return value.toString();

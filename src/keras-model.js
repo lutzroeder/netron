@@ -568,7 +568,7 @@ class KerasAttribute {
             };
         }
         if (!visible) {
-            this._hidden = true;
+            this._visible = false;;
         }
     }
 
@@ -581,7 +581,7 @@ class KerasAttribute {
     }
 
     get visible() {
-        return this._hidden ? false : true;
+        return this._visible == false ? false : true;
     }
 }
 

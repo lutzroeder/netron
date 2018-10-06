@@ -41,6 +41,7 @@ class CntkModelFactory {
             try {
                 if (!obj) {
                     cntk_v2 = protobuf.roots.cntk.CNTK.proto;
+                    cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
                     var dictionary = cntk_v2.Dictionary.decode(context.buffer);
                     obj = CntkModelFactory._convertDictionary(dictionary);
                     version = 2;
@@ -434,6 +435,7 @@ class CntkAttribute {
     constructor(operator, name, value) {
         this._name = name;
         this._value = value;
+        this._type = null;
         if (this._value.constructor.name == 'NDShape') {
             this._value = value.shape_dim.map((dimension) => {
                 if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
@@ -452,14 +454,25 @@ class CntkAttribute {
             this._value = value.dims;
         }
 
-        var attributeSchema = CntkOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
-        if (attributeSchema) {
-            if (attributeSchema.hasOwnProperty('visible') && !attributeSchema.visible) {
+        var schema = CntkOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        if (schema) {
+            if (schema.type) {
+                this._type = schema.type;
+                var type = cntk_v1[this._type] || cntk_v2[this._type];
+                if (type && type[this._value]) {
+                    this._value = type[this._value];
+                }
+            }
+            if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (attributeSchema.hasOwnProperty('default')) {
-                var defaultValue = attributeSchema.default;
-                if (this._value == defaultValue) {
+            else if (schema.hasOwnProperty('default')) {
+                var defaultValue = schema.default;
+                value = this._value;
+                if (typeof value == 'function') {
+                    value = value();
+                }
+                if (value == defaultValue) {
                     this._visible = false;
                 }
                 else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
@@ -480,6 +493,10 @@ class CntkAttribute {
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get value() {
@@ -787,8 +804,8 @@ cntk_v1.ComputationNetwork = class {
                 this.autoPadding = reader.bools(reader.uint64());
                 this.lowerPad = new cntk_v1.TensorShape(reader);
                 this.upperPad = new cntk_v1.TensorShape(reader);
-                this.poolKind = reader.enum({ 0: 'None', 1: 'Max', 2: 'Average' });
-                this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
+                this.poolKind = reader.enum();
+                this.imageLayoutKind = reader.enum();
                 this.maxTempMemSizeInSamples = reader.uint64();
             }
             if (reader.version >= 9) {
@@ -810,7 +827,7 @@ cntk_v1.ComputationNetwork = class {
                 this.kernelShape = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.strides = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.mapCount = new cntk_v1.TensorShape([ reader.uint32() ]);
-                this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
+                this.imageLayoutKind = reader.enum();
                 this.autoPadding = [ reader.bool() ];
                 this.maxTempMemSizeInSamples = reader.uint64();
                 this.poolKind = 'None';
@@ -833,7 +850,7 @@ cntk_v1.ComputationNetwork = class {
             op.ConvolutionBase.apply(this, [ reader ]);
         };
         op.PoolingBase = function(reader) {
-            this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
+            this.imageLayoutKind = reader.enum();
             this.windowWidth = reader.uint32();
             this.windowHeight = reader.uint64();
             this.horizontalSubsample = reader.uint64();
@@ -844,7 +861,7 @@ cntk_v1.ComputationNetwork = class {
         };
         op.ROIPooling = function(reader) {
             this.roiOutputShape = new cntk_v1.TensorShape(reader);
-            this.poolKind = (reader.version < 26) ? 'Max' : reader.enum({ 0: 'None', 1: 'Max', 2: 'Average' });
+            this.poolKind = (reader.version < 26) ? 'Max' : reader.enum();
             this.spatialScale = (reader.version < 26) ? 0.0625 : reader.float64();
         };
         op.Reshape = function(reader) {
@@ -874,7 +891,7 @@ cntk_v1.ComputationNetwork = class {
                 this.spatial = reader.bool();
                 this.normalizationTimeConstant = reader.float64();
                 this.blendTimeConstant = reader.float64();
-                this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
+                this.imageLayoutKind = reader.enum();
                 if (reader.version >= 13)
                 {
                     if (reader.version != 19) {
@@ -907,7 +924,7 @@ cntk_v1.ComputationNetwork = class {
                     reader.float64(); // expAvgFactor
                 }
                 if (verWritten >= 0x00010002) {
-                    this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
+                    this.imageLayoutKind = reader.enum();
                     mbCount = reader.uint64();
                 }
                 if (verWritten >= 0x00010003) {
@@ -1123,9 +1140,8 @@ cntk_v1.Reader = class {
         return array;
     }
 
-    enum(type) {
-        var value = this.int32();
-        return type[value] || value;
+    enum() {
+        return this.int32();
     }
 };
 
@@ -1178,6 +1194,16 @@ cntk_v1.Matrix = class {
     }
 };
 
+cntk_v1.ImageLayoutKind = {
+    0: 'CHW', 
+    1: 'HWC'
+};
+
+cntk_v1.PoolKind = {
+    0: 'None',
+    1: 'Max',
+    2: 'Average'
+};
 
 class CntkError extends Error {
     constructor(message) {

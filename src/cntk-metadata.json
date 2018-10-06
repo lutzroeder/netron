@@ -215,8 +215,9 @@
         { "name": "upperPad", "default": [ 0, null ] },
         { "name": "outputShape", "default": 0 },
         { "name": "maxTempMemSizeInSamples", "default": 0 },
-        { "name": "poolKind", "default": "None" },
-        { "name": "imageLayoutKind", "visible": false }
+        { "name": "poolingType", "type": "PoolingType", "default": "Max" },
+        { "name": "poolKind", "type": "PoolKind", "default": "None" },
+        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
       ],
       "inputs": [
         { "name": "input" }
@@ -408,8 +409,8 @@
         { "name": "lowerPad", "default": [ 0, null ] },
         { "name": "upperPad", "default": [ 0, null ] },
         { "name": "convolution2D", "visible": false },
-        { "name": "poolKind", "default": "None" },
-        { "name": "imageLayoutKind", "visible": false }
+        { "name": "poolKind", "type": "PoolKind", "default": "None" },
+        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
       ],
       "inputs": [
         { "name": "input" },
@@ -483,7 +484,7 @@
         { "name": "normalizationTimeConstant", "default": 0 },
         { "name": "disableRegularization", "default": false },
         { "name": "blendTimeConstant", "default": 0 },
-        { "name": "imageLayoutKind", "visible": false }
+        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
       ],
       "inputs": [
         { "name": "input" },
@@ -549,7 +550,7 @@
       "category": "Pool",
       "attributes": [
         { "name": "spatialScale", "default": 0.0625 },
-        { "name": "poolKind", "default": "None" }
+        { "name": "poolKind", "type": "PoolKind", "default": "None" }
       ]
     }
   },

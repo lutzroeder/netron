@@ -290,11 +290,8 @@ class TensorFlowLiteAttribute {
             }
             if (this._type && tflite) {
                 var type = tflite[this._type];
-                if (type) {
-                    var enumValue = type[this.value];
-                    if (enumValue) {
-                        this._value = () => enumValue;
-                    }
+                if (type && type[this.value]) {
+                    this._value = type[this.value];
                 }
             }
             if (schema.hasOwnProperty('visible') && !schema.visible) {
