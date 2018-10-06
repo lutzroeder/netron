@@ -503,8 +503,21 @@
                                     message.value = [];
                                 if ((tag & 7) === 2) {
                                     var end2 = reader.uint32() + reader.pos;
-                                    while (reader.pos < end2)
-                                        message.value.push(reader.float());
+                                    if (message.value.length == 0 && (end2 - reader.pos) > 1048576) {
+                                        var valueLength = end2 - reader.pos;
+                                        var valueView = new DataView(reader.buf.buffer, reader.buf.byteOffset + reader.pos, valueLength);
+                                        valueLength = valueLength >>> 2;
+                                        var value = new Float32Array(valueLength);
+                                        for (var i = 0; i < valueLength; i++) {
+                                            value[i] = valueView.getFloat32(i << 2, true);
+                                        }
+                                        message.value = value;
+                                        reader.pos = end2;
+                                    }
+                                    else {
+                                        while (reader.pos < end2)
+                                            message.value.push(reader.float());
+                                    }
                                 } else
                                     message.value.push(reader.float());
                                 break;
