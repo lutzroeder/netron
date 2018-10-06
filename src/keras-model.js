@@ -315,7 +315,8 @@ class KerasGraph {
         var inputType = null;
         var connection = inputName;
         var index = 0;
-        config.forEach((layer) => {
+        var layers = config.layers ? config.layers : config;
+        layers.forEach((layer) => {
             this._operators[layer.class_name] = (this._operators[layer.class_name] || 0) + 1; 
             var name = index.toString();
             var nodeInputs = [ connection ];
