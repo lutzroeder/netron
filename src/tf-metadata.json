@@ -51350,6 +51350,10 @@
             },
             {
               "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -51437,6 +51441,10 @@
             },
             {
               "type": "type",
+              "value": 14
+            },
+            {
+              "type": "type",
               "value": 1
             },
             {
@@ -51513,6 +51521,91 @@
     }
   },
   {
+    "name": "StatelessRandomUniformInt",
+    "schema": {
+      "attributes": [
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "description": "The type of the output.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "allowedValues": [
+            {
+              "type": "type",
+              "value": 3
+            },
+            {
+              "type": "type",
+              "value": 9
+            }
+          ],
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "name": "Tseed",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a uniform distribution in the range `[minval, maxval)`.\n\nThe outputs are a deterministic function of `shape`, `seed`, `minval`, and `maxval`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "T"
+        },
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        },
+        {
+          "description": "Minimum value (inclusive, scalar).",
+          "name": "minval",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "Maximum value (exclusive, scalar).",
+          "name": "maxval",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random integers from a uniform distribution."
+    }
+  },
+  {
     "name": "StatelessTruncatedNormal",
     "schema": {
       "attributes": [
@@ -51521,6 +51614,10 @@
             {
               "type": "type",
               "value": 19
+            },
+            {
+              "type": "type",
+              "value": 14
             },
             {
               "type": "type",
