@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
-var cntk = null;
+var cntk_v1 = {};
+var cntk_v2 = null;
 
 class CntkModelFactory {
 
@@ -29,7 +30,7 @@ class CntkModelFactory {
                 if (buffer && buffer.length >= 8 && 
                     buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
                     buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
-                    obj = new ComputationNetwork(buffer);
+                    obj = new cntk_v1.ComputationNetwork(buffer);
                     version = 1;
                 }
             }
@@ -39,8 +40,8 @@ class CntkModelFactory {
             }
             try {
                 if (!obj) {
-                    cntk = protobuf.roots.cntk.CNTK.proto;
-                    var dictionary = cntk.Dictionary.decode(context.buffer);
+                    cntk_v2 = protobuf.roots.cntk.CNTK.proto;
+                    var dictionary = cntk_v2.Dictionary.decode(context.buffer);
                     obj = CntkModelFactory._convertDictionary(dictionary);
                     version = 2;
                 }
@@ -71,27 +72,27 @@ class CntkModelFactory {
 
     static _convertDictionaryValue(dictionaryValue) {
         switch (dictionaryValue.value_type) {
-            case cntk.DictionaryValue.Type.Bool:
+            case cntk_v2.DictionaryValue.Type.Bool:
                 return dictionaryValue.bool_value;
-            case cntk.DictionaryValue.Type.Int:
+            case cntk_v2.DictionaryValue.Type.Int:
                 return dictionaryValue.int_value;
-            case cntk.DictionaryValue.Type.SizeT:
+            case cntk_v2.DictionaryValue.Type.SizeT:
                 return dictionaryValue.size_t_value;
-            case cntk.DictionaryValue.Type.Float:
+            case cntk_v2.DictionaryValue.Type.Float:
                 return dictionaryValue.float_value;
-            case cntk.DictionaryValue.Type.Double:
+            case cntk_v2.DictionaryValue.Type.Double:
                 return dictionaryValue.double_value;
-            case cntk.DictionaryValue.Type.String:
+            case cntk_v2.DictionaryValue.Type.String:
                 return dictionaryValue.string_value;
-            case cntk.DictionaryValue.Type.Vector:
+            case cntk_v2.DictionaryValue.Type.Vector:
                 return CntkModelFactory._convertVectorValue(dictionaryValue.vector_value);
-            case cntk.DictionaryValue.Type.NDShape:
+            case cntk_v2.DictionaryValue.Type.NDShape:
                 return dictionaryValue.nd_shape_value;
-            case cntk.DictionaryValue.Type.Axis:
+            case cntk_v2.DictionaryValue.Type.Axis:
                 return dictionaryValue.axis_value;
-            case cntk.DictionaryValue.Type.Dictionary:
+            case cntk_v2.DictionaryValue.Type.Dictionary:
                 return CntkModelFactory._convertDictionary(dictionaryValue.dictionary_value);
-            case cntk.DictionaryValue.Type.NDArrayView:
+            case cntk_v2.DictionaryValue.Type.NDArrayView:
                 return dictionaryValue.nd_array_view_value;
         }
         throw new CntkError("Unknown dictionary value type '" + dictionaryValue.value_type.toString() + "'.");
@@ -447,7 +448,7 @@ class CntkAttribute {
         if (this._value.constructor.name == 'Axis') {
             this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
         }
-        if (this._value instanceof ComputationNetwork.TensorShape) {
+        if (this._value instanceof cntk_v1.TensorShape) {
             this._value = value.dims;
         }
 
@@ -709,10 +710,10 @@ class CntkOperatorMetadata
     }
 }
 
-class ComputationNetwork {
+cntk_v1.ComputationNetwork = class {
 
     constructor(buffer) {
-        var reader = new ComputationNetwork.Reader(buffer);
+        var reader = new cntk_v1.Reader(buffer);
         reader.assert('BCN');
         reader.assert('BVersion');
         this.version = reader.uint64();
@@ -736,7 +737,7 @@ class ComputationNetwork {
         op.InputValue = function(reader) {
             this.rows = reader.uint64();
             this.cols = reader.uint64();
-            this.sampleLayout = new ComputationNetwork.TensorShape(reader, true);
+            this.sampleLayout = new cntk_v1.TensorShape(reader, true);
             this.dynamicAxisNodeName = '';
             if (reader.version >= 8) {
                 var nrAxes = reader.uint32();
@@ -752,12 +753,12 @@ class ComputationNetwork {
         op.LearnableParameter = function(reader) {
             if (reader.version >= 3) {
                 this.learningRateMultiplier = reader.float32();
-                this.sampleLayout = new ComputationNetwork.TensorShape(reader);
+                this.sampleLayout = new cntk_v1.TensorShape(reader);
             }
             else {
                 throw new CntkError('LeanableParameter reader implemented.');
             }
-            this.value = new ComputationNetwork.Matrix(reader);
+            this.value = new cntk_v1.Matrix(reader);
         };
         op.CrossEntropyWithSoftmax = function(reader) {
             this.evalMode = reader.uint32();
@@ -779,13 +780,13 @@ class ComputationNetwork {
         op.ConvolutionBase = function(reader) {
             if (reader.version >= 5)
             {
-                this.kernelShape = new ComputationNetwork.TensorShape(reader);
-                this.mapCount = new ComputationNetwork.TensorShape(reader);
-                this.strides = new ComputationNetwork.TensorShape(reader);
+                this.kernelShape = new cntk_v1.TensorShape(reader);
+                this.mapCount = new cntk_v1.TensorShape(reader);
+                this.strides = new cntk_v1.TensorShape(reader);
                 this.sharing = reader.bools(reader.uint64());
                 this.autoPadding = reader.bools(reader.uint64());
-                this.lowerPad = new ComputationNetwork.TensorShape(reader);
-                this.upperPad = new ComputationNetwork.TensorShape(reader);
+                this.lowerPad = new cntk_v1.TensorShape(reader);
+                this.upperPad = new cntk_v1.TensorShape(reader);
                 this.poolKind = reader.enum({ 0: 'None', 1: 'Max', 2: 'Average' });
                 this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
                 this.maxTempMemSizeInSamples = reader.uint64();
@@ -794,7 +795,7 @@ class ComputationNetwork {
                 this.transpose = reader.bool();
             }
             if (reader.version >= 20) {
-                this.outputShape = new ComputationNetwork.TensorShape(reader);
+                this.outputShape = new cntk_v1.TensorShape(reader);
             }
             if (reader.version >= 21) {
                 this.ceilOutDim = reader.bool();
@@ -806,25 +807,25 @@ class ComputationNetwork {
         op.Convolution = function(reader) {
             op.ConvolutionBase.apply(this, [ reader ]);
             if (reader.version < 5) {
-                this.kernelShape = new ComputationNetwork.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
-                this.strides = new ComputationNetwork.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
-                this.mapCount = new ComputationNetwork.TensorShape([ reader.uint32() ]);
+                this.kernelShape = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
+                this.strides = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
+                this.mapCount = new cntk_v1.TensorShape([ reader.uint32() ]);
                 this.imageLayoutKind = reader.enum({ 0: 'CHW', 1: 'HWC' });
                 this.autoPadding = [ reader.bool() ];
                 this.maxTempMemSizeInSamples = reader.uint64();
                 this.poolKind = 'None';
                 this.convolution2D = true;
                 this.sharing = [ true ];
-                m_lowerPad = new ComputationNetwork.TensorShape([ 0 ]);
-                m_upperPad = new ComputationNetwork.TensorShape([ 0 ]);
+                m_lowerPad = new cntk_v1.TensorShape([ 0 ]);
+                m_upperPad = new cntk_v1.TensorShape([ 0 ]);
             }
             else {
                 this.convolution2D = reader.bool();
                 if (reader.version >= 18) {
-                    this.dilation = new ComputationNetwork.TensorShape(reader);
+                    this.dilation = new cntk_v1.TensorShape(reader);
                 }
                 else {
-                    this.dilation = new ComputationNetwork.TensorShape([ 1 ]);
+                    this.dilation = new cntk_v1.TensorShape([ 1 ]);
                 }
             }
         };
@@ -842,14 +843,14 @@ class ComputationNetwork {
             op.PoolingBase.apply(this, [ reader ]);
         };
         op.ROIPooling = function(reader) {
-            this.roiOutputShape = new ComputationNetwork.TensorShape(reader);
+            this.roiOutputShape = new cntk_v1.TensorShape(reader);
             this.poolKind = (reader.version < 26) ? 'Max' : reader.enum({ 0: 'None', 1: 'Max', 2: 'Average' });
             this.spatialScale = (reader.version < 26) ? 0.0625 : reader.float64();
         };
         op.Reshape = function(reader) {
             this.beginDimParameter = reader.uint32();
             this.endDimParameter = reader.uint32();
-            this.replacementSampleLayout = new ComputationNetwork.TensorShape(reader);
+            this.replacementSampleLayout = new cntk_v1.TensorShape(reader);
         };
         op.ReduceElements = function(reader) {
             var num_axes = 1;
@@ -998,7 +999,7 @@ class ComputationNetwork {
     }
 }
 
-ComputationNetwork.Reader = class {
+cntk_v1.Reader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
@@ -1017,12 +1018,12 @@ ComputationNetwork.Reader = class {
     match(text) {
         var offset = this._offset;
         for (var i = 0; i < text.length; i++) {
-            if (this.readUInt16() != text.charCodeAt(i)) {
+            if (this.uint16() != text.charCodeAt(i)) {
                 this._offset = offset;
                 return false;
             }
         }
-        if (this.readUInt16() != 0) {
+        if (this.uint16() != 0) {
             this._offset = offset;
             return false;
         }
@@ -1063,7 +1064,7 @@ ComputationNetwork.Reader = class {
         return data;
     }
 
-    readUInt16() {
+    uint16() {
         var value = this._dataView.getUint16(this._offset, true);
         this._offset += 2;
         return value;
@@ -1105,7 +1106,7 @@ ComputationNetwork.Reader = class {
     string() {
         var text = '';
         while (true) {
-            var c = this.readUInt16();
+            var c = this.uint16();
             if (c == 0) {
                 break;
             }
@@ -1128,7 +1129,7 @@ ComputationNetwork.Reader = class {
     }
 };
 
-ComputationNetwork.TensorShape = class {
+cntk_v1.TensorShape = class {
     constructor(reader, acceptLegacyFormat = false) {
         if (reader && Array.isArray(reader)) {
             this.dims = reader;
@@ -1155,7 +1156,7 @@ ComputationNetwork.TensorShape = class {
     }
 };
 
-ComputationNetwork.Matrix = class {
+cntk_v1.Matrix = class {
     constructor(reader) {
         var type = reader.byte();
         switch (type) {
