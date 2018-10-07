@@ -179,10 +179,16 @@ class CntkGraph {
                 var connection = new CntkConnection(version, input);
                 connections[input.uid] = connection;
     
+                // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                 if (input.kind == 0) {
-                    this._inputs.push(new CntkArgument(input.name, [ connection ]));
+                    var inputName = input.name || input.uid;
+                    this._inputs.push(new CntkArgument(inputName, [ connection ]));
                 }
-    
+
+                if (input.kind == 1) {
+                    debugger;
+                }
+
                 if (input.name) {
                     names[input.uid] = input.name;
                 }
@@ -250,10 +256,16 @@ class CntkConnection {
                 case 2:
                     this._id = obj.uid;
                     if (obj.value) {
+                        if (obj.kind != 2 && obj.kind != 3) {
+                            debugger;
+                        }
                         this._type = null;
                         this._initializer = new CntkTensor(version, obj);
                     }
                     else {
+                        if (obj.kind == 2 || obj.kind == 3) {
+                            debugger;
+                        }
                         this._type = new CntkTensorType(version, obj.data_type, obj.shape);
                         this._initializer = null;
                     }    
@@ -315,7 +327,7 @@ class CntkNode {
                 outputs = [ new CntkConnection(version, this._name) ];
                 break;
             case 2:
-                this._name = obj.name || null;
+                this._name = obj.name || obj.uid || null;
                 var output = obj.uid;
                 if (obj.op == 57) {
                     this._operator = 'Block';
@@ -600,9 +612,13 @@ class CntkTensor {
     }
 
     _decode(context, dimension) {
+        var shape = context.shape;
+        if (context.shape.length == 0) {
+            shape = [ 1 ];
+        }
         var results = [];
-        var size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
+        var size = shape[dimension];
+        if (dimension == shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -620,6 +636,9 @@ class CntkTensor {
                 }
                 results.push(this._decode(context, dimension + 1));
             }
+        }
+        if (context.shape.length == 0) {
+            return results[0];
         }
         return results;
     }

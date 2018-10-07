@@ -126,7 +126,13 @@
     "name": "Softmax",
     "schema": {
       "category": "Activation",
-      "operator": 10
+      "operator": 10,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -374,7 +380,7 @@
       "operator": 31,
       "attributes": [
         { "name": "outputRank", "default": 1 },
-        { "name": "inferInputRankToMap", "default": -1 }
+        { "name": "inferInputRankToMap", "visible": false, "default": -1 }
       ],
       "inputs": [
         { "name": "A" },
