@@ -494,8 +494,7 @@ class KerasNode {
             Object.keys(this._config).forEach((name) => {
                 var value = this._config[name];
                 if (name != 'name' && value != null) {
-                    var visible = KerasOperatorMetadata.operatorMetadata.getAttributeVisible(this.operator, name, value);
-                    this._attributes.push(new KerasAttribute(name, value, visible));
+                    this._attributes.push(new KerasAttribute(this.operator, name, value));
                 }
             });
         }
@@ -503,10 +502,6 @@ class KerasNode {
 
     get operator() {
         return this._operator;
-    }
-
-    get documentation() {
-        return KerasOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
     }
 
     get name() {
@@ -521,7 +516,49 @@ class KerasNode {
     }
 
     get category() {
-        return KerasOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+        var schema = KerasOperatorMetadata.operatorMetadata.getSchema(this._operator);
+        return (schema && schema.category) ? schema.category : null;
+    }
+
+    get documentation() {
+        var schema = KerasOperatorMetadata.operatorMetadata.getSchema(this._operator);
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this._operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            if (schema.references) {
+                schema.references.forEach((reference) => {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                });
+            }
+            return schema;
+        }
+        return '';
     }
 
     get inputs() {
@@ -556,9 +593,10 @@ class KerasNode {
 
 class KerasAttribute {
 
-    constructor(name, value, visible) {
+    constructor(operator, name, value) {
         this._name = name;
         this._value = value;
+
         if (typeof value == 'object' && value.class_name && value.config) {
             this._value = () => {
                 return value.class_name + '(' + Object.keys(value.config).map(key => {
@@ -566,8 +604,25 @@ class KerasAttribute {
                 }).join(', ') + ')';
             };
         }
-        if (!visible) {
+
+        if (name == 'trainable') {
             this._visible = false;
+        }
+        else if (name == 'layer' && (operator == 'Bidirectional' || operator == 'TimeDistributed')) {
+            this._visible = false;
+        }
+        else {
+            var schema = KerasOperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name)
+            if (schema) {
+                if (schema.hasOwnProperty('visible') && !schema.visible) {
+                    this._visible = false;
+                }
+                else if (schema.hasOwnProperty('default')) {
+                    if (KerasAttribute._isEquivalent(schema.default, value)) {
+                        this._visible = false;
+                    }
+                }
+            }
         }
     }
 
@@ -581,6 +636,63 @@ class KerasAttribute {
 
     get visible() {
         return this._visible == false ? false : true;
+    }
+
+    static _isEquivalent(a, b) {
+        if (a === b) {
+            return a !== 0 || 1 / a === 1 / b;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        if (a !== a) {
+            return b !== b;
+        }
+        var type = typeof a;
+        if (type !== 'function' && type !== 'object' && typeof b != 'object') {
+            return false;
+        }
+        var className = toString.call(a);
+        if (className !== toString.call(b)) {
+            return false;
+        }
+        switch (className) {
+            case '[object RegExp]':
+            case '[object String]':
+                return '' + a === '' + b;
+            case '[object Number]':
+                if (+a !== +a) {
+                    return +b !== +b;
+                }
+                return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+            case '[object Date]':
+            case '[object Boolean]':
+                return +a === +b;
+            case '[object Array]':
+                var length = a.length;
+                if (length !== b.length) {
+                    return false;
+                }
+                while (length--) {
+                    if (!KerasAttribute._isEquivalent(a[length], b[length])) {
+                        return false;
+                    }
+                }
+                return true;
+        }
+
+        var keys = Object.keys(a);
+        var size = keys.length;
+        if (Object.keys(b).length != size) {
+            return false;
+        } 
+        while (size--) {
+            var key = keys[size];
+            if (!(b.hasOwnProperty(key) && KerasAttribute._isEquivalent(a[key], b[key]))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
@@ -768,10 +880,14 @@ class KerasOperatorMetadata {
         }
     }
 
+    getSchema(operator) {
+        return this._map[operator] || null;
+    }
+
     getInputs(node, inputs) {
         var results = [];
         var operator = node.operator;
-        var schema = this._map[operator];
+        var schema = this.getSchema(operator);
         var inner = node.inner;
         var innerOperator = inner ? inner.operator : null;
         var innerSchema = innerOperator ? this._map[innerOperator] : null;
@@ -826,7 +942,7 @@ class KerasOperatorMetadata {
     }
 
     getOutputName(operator, index) {
-        var schema = this._map[operator];
+        var schema = this.getSchema(operator);
         if (schema) {
             var outputs = schema.outputs;
             if (outputs && index < outputs.length) {
@@ -842,16 +958,8 @@ class KerasOperatorMetadata {
         return '(' + index.toString() + ')';
     }
 
-    getAttributeVisible(operator, attributeName, attributeValue) {
-        if (attributeName == 'trainable') {
-            return false;
-        }
-        if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
-            if (attributeName == 'layer') {
-                return false;
-            }
-        }
-        var schema = this._map[operator];
+    getAttributeSchema(operator, name) {
+        var schema = this.getSchema(operator);
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributeMap) {
                 schema.attributeMap = {};
@@ -859,128 +967,10 @@ class KerasOperatorMetadata {
                     schema.attributeMap[attribute.name] = attribute;
                 });
             }
-            var attribute = schema.attributeMap[attributeName];
-            if (attribute) {
-                if (attribute.hasOwnProperty('visible')) {
-                    return attribute.visible;
-                }
-                if (attribute.hasOwnProperty('default')) {
-                    return !KerasOperatorMetadata.isEquivalent(attribute.default, attributeValue);
-                }
-            }
-        }
-        return true;
-    }
-
-    getOperatorCategory(operator) {
-        var schema = this._map[operator];
-        if (schema) {
-            var category = schema.category;
-            if (category) {
-                return category;
-            }
+            return schema.attributeMap[name] || null;
         }
         return null;
     }
-
-    getOperatorDocumentation(operator) {
-        var schema = this._map[operator];
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                });
-            }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                });
-            }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                });
-            }
-            if (schema.references) {
-                schema.references.forEach((reference) => {
-                    if (reference) {
-                        reference.description = marked(reference.description);
-                    }
-                });
-            }
-            return schema;
-        }
-        return '';
-    }
-
-    static isEquivalent(a, b) {
-        if (a === b) {
-            return a !== 0 || 1 / a === 1 / b;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        if (a !== a) {
-            return b !== b;
-        }
-        var type = typeof a;
-        if (type !== 'function' && type !== 'object' && typeof b != 'object') {
-            return false;
-        }
-        var className = toString.call(a);
-        if (className !== toString.call(b)) {
-            return false;
-        }
-        switch (className) {
-            case '[object RegExp]':
-            case '[object String]':
-                return '' + a === '' + b;
-            case '[object Number]':
-                if (+a !== +a) {
-                    return +b !== +b;
-                }
-                return +a === 0 ? 1 / +a === 1 / b : +a === +b;
-            case '[object Date]':
-            case '[object Boolean]':
-                return +a === +b;
-            case '[object Array]':
-                var length = a.length;
-                if (length !== b.length) {
-                    return false;
-                }
-                while (length--) {
-                    if (!KerasOperatorMetadata.isEquivalent(a[length], b[length])) {
-                        return false;
-                    }
-                }
-                return true;
-        }
-
-        var keys = Object.keys(a);
-        var size = keys.length;
-        if (Object.keys(b).length != size) {
-            return false;
-        } 
-        while (size--) {
-            var key = keys[size];
-            if (!(b.hasOwnProperty(key) && KerasOperatorMetadata.isEquivalent(a[key], b[key]))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
 }
 
 class KerasError extends Error {

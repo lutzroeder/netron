@@ -15,9 +15,8 @@ class SklearnModelFactory {
                 callback(err, null);
                 return;
             }
-
+            
             var obj = null;
-
             try {
                 var unpickler = new pickle.Unpickler(context.buffer);
 
@@ -219,17 +218,17 @@ class SklearnModelFactory {
                 return;
             }
 
-            try {
-                var model = new SklearnModel(obj);
-                SklearnOperatorMetadata.open(host, (err, metadata) => {
+            SklearnOperatorMetadata.open(host, (err, metadata) => {
+                try {
+                    var model = new SklearnModel(obj);
                     callback(null, model);
-                });
-            }
-            catch (error) {
-                host.exception(error, false);
-                callback(new SklearnError(error.message), null);
-                return;
-            }
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new SklearnError(error.message), null);
+                    return;
+                }
+            });
         });
     }
 
@@ -447,7 +446,49 @@ class SklearnNode {
     }
 
     get documentation() {
-        return SklearnOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
+        var schema = SklearnOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        if (schema) {
+            schema = JSON.parse(JSON.stringify(schema));
+            schema.name = this.operator;
+            if (schema.description) {
+                schema.description = marked(schema.description);
+            }
+            if (schema.attributes) {
+                schema.attributes.forEach((attribute) => {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                });
+            }
+            if (schema.inputs) {
+                schema.inputs.forEach((input) => {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                });
+            }
+            if (schema.outputs) {
+                schema.outputs.forEach((output) => {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                });
+            }
+            if (schema.references) {
+                schema.references.forEach((reference) => {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                });
+            }
+            return schema;
+        }
+        return '';
+    }
+
+    get category() {
+        var schema = SklearnOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        return (schema && schema.category) ? schema.category : null;
     }
 
     get inputs() {
@@ -474,9 +515,23 @@ class SklearnNode {
 class SklearnAttribute {
 
     constructor(node, name, value) {
-        this._node = node;
         this._name = name;
         this._value = value;
+
+        var schema = SklearnOperatorMetadata.operatorMetadata.getAttributeSchema(node.operator, this._name);
+        if (schema) {
+            if (schema.hasOwnProperty('option') && schema.option == 'optional' && this._value == null) {
+                this._visible = false;
+            }
+            else if (schema.hasOwnProperty('visible') && !schema.visible) {
+                this._visible = false;
+            }
+            else if (schema.hasOwnProperty('default')) {
+                if (SklearnAttribute._isEquivalent(schema.default, this._value)) {
+                    this._visible = false;
+                }
+            }
+        }
     }
 
     get name() {
@@ -488,7 +543,64 @@ class SklearnAttribute {
     }
 
     get visible() {
-        return SklearnOperatorMetadata.operatorMetadata.getAttributeVisible(this._node.operator, this._name, this._value);
+        return this._visible == false ? false : true;
+    }
+
+    static _isEquivalent(a, b) {
+        if (a === b) {
+            return a !== 0 || 1 / a === 1 / b;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+        if (a !== a) {
+            return b !== b;
+        }
+        var type = typeof a;
+        if (type !== 'function' && type !== 'object' && typeof b != 'object') {
+            return false;
+        }
+        var className = toString.call(a);
+        if (className !== toString.call(b)) {
+            return false;
+        }
+        switch (className) {
+            case '[object RegExp]':
+            case '[object String]':
+                return '' + a === '' + b;
+            case '[object Number]':
+                if (+a !== +a) {
+                    return +b !== +b;
+                }
+                return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+            case '[object Date]':
+            case '[object Boolean]':
+                return +a === +b;
+            case '[object Array]':
+                var length = a.length;
+                if (length !== b.length) {
+                    return false;
+                }
+                while (length--) {
+                    if (!SklearnAttribute._isEquivalent(a[length], b[length])) {
+                        return false;
+                    }
+                }
+                return true;
+        }
+
+        var keys = Object.keys(a);
+        var size = keys.length;
+        if (Object.keys(b).length != size) {
+            return false;
+        } 
+        while (size--) {
+            var key = keys[size];
+            if (!(b.hasOwnProperty(key) && SklearnAttribute._isEquivalent(a[key], b[key]))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
@@ -708,85 +820,23 @@ class SklearnOperatorMetadata {
         }
     }
 
-    getOperatorDocumentation(operator) {
-        var schema = this._map[operator];
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                schema.attributes.forEach((attribute) => {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                });
-            }
-            if (schema.inputs) {
-                schema.inputs.forEach((input) => {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                });
-            }
-            if (schema.outputs) {
-                schema.outputs.forEach((output) => {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                });
-            }
-            if (schema.references) {
-                schema.references.forEach((reference) => {
-                    if (reference) {
-                        reference.description = marked(reference.description);
-                    }
-                });
-            }
-            return schema;
-        }
-        return '';
+    getSchema(operator) {
+        return this._map[operator] || null;
     }
 
-    getAttributeVisible(operator, attributeName, attributeValue) {
-        var schema = this._map[operator];
+    getAttributeSchema(operator, name) {
+        var schema = this.getSchema(operator);
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributeMap) {
                 schema.attributeMap = {};
-                schema.attributes.forEach(attribute => {
+                schema.attributes.forEach((attribute) => {
                     schema.attributeMap[attribute.name] = attribute;
                 });
             }
-            var attribute = schema.attributeMap[attributeName];
-            if (attribute) {
-                if (attribute.hasOwnProperty('option')) {
-                    if (attribute.option == 'optional' && attributeValue == null) {
-                        return false;
-                    }
-                }
-                if (attribute.hasOwnProperty('visible')) {
-                    return attribute.visible;
-                }
-                if (attribute.hasOwnProperty('default')) {
-                    return !KerasOperatorMetadata.isEquivalent(attribute.default, attributeValue);
-                }
-            }
-        }
-        return true;
-    }
-
-    getOperatorCategory(operator) {
-        var schema = this._map[operator];
-        if (schema) {
-            var category = schema.category;
-            if (category) {
-                return category;
-            }
+            return schema.attributeMap[name] || null;
         }
         return null;
     }
-
 }
 
 class SklearnError extends Error {

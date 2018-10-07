@@ -50,28 +50,26 @@ class Caffe2ModelFactory {
                     return;
                 }    
             }
+            Caffe2OperatorMetadata.open(host, (err, metadata) => {
+                context.request('init_net.pb', null, (err, data) => {
+                    var init = null;
+                    if (!err && data) {
+                        try {
+                            init = caffe2.NetDef.decode(data);
+                        }
+                        catch (error) {
+                        }
+                    }
 
-            context.request('init_net.pb', null, (err, data) => {
-
-                var init = null;
-                if (!err && data) {
+                    var model = null;
                     try {
-                        init = caffe2.NetDef.decode(data);
+                        model = new Caffe2Model(netDef, init);
                     }
                     catch (error) {
+                        host.exception(error, false);
+                        callback(new Caffe2Error(error.message), null);
+                        return;
                     }
-                }
-
-                var model = null;
-                try {
-                    model = new Caffe2Model(netDef, init);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    callback(new Caffe2Error(error.message), null);
-                    return;
-                }
-                Caffe2OperatorMetadata.open(host, (err, metadata) => {
                     callback(null, model);
                 }); 
             });
@@ -260,7 +258,8 @@ class Caffe2Node {
     }
 
     get category() {
-        return Caffe2OperatorMetadata.operatorMetadata.getOperatorCategory(this._operator);
+        var schema = Caffe2OperatorMetadata.operatorMetadata.getSchema(this._operator);
+        return (schema && schema.category) ? schema.category : null;
     }
 
     get documentation() {
@@ -310,6 +309,18 @@ class Caffe2Attribute {
         else {
             this._value = arg.i;
         }
+
+        var schema = Caffe2OperatorMetadata.operatorMetadata.getAttributeSchema(this._node.operator, this._name);
+        if (schema) {
+            if (schema.hasOwnProperty('visible') && !schema.visible) {
+                this._visible = false;
+            }
+            else if (schema.hasOwnProperty('default')) {
+                if (this._value == schema.default.toString()) {
+                    this._visible = false;
+                }
+            }
+        }
     }
 
     get name() {
@@ -321,7 +332,7 @@ class Caffe2Attribute {
     }
 
     get visible() {
-        return Caffe2OperatorMetadata.operatorMetadata.getAttributeVisible(this._node.operator, this._name, this._value);
+        return this._visible == false ? false : true;
     }
 }
 
@@ -492,16 +503,12 @@ class Caffe2OperatorMetadata
         }
     }
 
-    getOperatorCategory(operator) {
-        var schema = this._map[operator];
-        if (schema && schema.category) {
-            return schema.category;
-        }
-        return null;
+    getSchema(operator) {
+        return this._map[operator] || null;
     }
 
     getOperatorDocumentation(operator) {
-        var schema = this._map[operator];
+        var schema = this.getSchema(operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = operator;
@@ -544,7 +551,7 @@ class Caffe2OperatorMetadata
     getInputs(type, inputs) {
         var results = [];
         var index = 0;
-        var schema = this._map[type];
+        var schema = this.getSchema(type);
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputDef) => {
                 if (index < inputs.length || inputDef.option != 'optional') {
@@ -580,7 +587,7 @@ class Caffe2OperatorMetadata
     getOutputs(type, outputs) {
         var results = [];
         var index = 0;
-        var schema = this._map[type];
+        var schema = this.getSchema(type);
         if (schema && schema.outputs) {
             schema.outputs.forEach((outputDef) => {
                 if (index < outputs.length || outputDef.option != 'optional') {
@@ -609,7 +616,7 @@ class Caffe2OperatorMetadata
         return results;
     }
 
-    getAttributeVisible(operator, name, value) {
+    getAttributeSchema(operator, name, value) {
         var schema = this._map[operator];
         if (schema && schema.attributes && schema.attributes.length > 0) {
             if (!schema.attributesMap) {
@@ -618,17 +625,9 @@ class Caffe2OperatorMetadata
                     schema.attributesMap[attribute.name] = attribute;
                 });
             }
-            var attribute = schema.attributesMap[name];
-            if (attribute) {
-                if (attribute.hasOwnProperty('visible')) {
-                    return attribute.visible;
-                }
-                if (attribute.hasOwnProperty('default')) {
-                    return value != attribute.default.toString();
-                }
-            }
+            return schema.attributesMap[name] || null;
         }
-        return true;
+        return null;
     }
 }
 

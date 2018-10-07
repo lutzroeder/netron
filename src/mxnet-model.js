@@ -556,9 +556,9 @@ class MXNetAttribute {
         this._name = name;
         this._value = value;
 
-        var attributeSchema = MXNetOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
-        if (attributeSchema && attributeSchema.type) {
-            switch (attributeSchema.type) {
+        var schema = MXNetOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        if (schema && schema.type) {
+            switch (schema.type) {
                 case 'bool':
                     if (this._value == 'True') {
                         this._value = true;
@@ -599,12 +599,12 @@ class MXNetAttribute {
             }    
         }
 
-        if (attributeSchema) {
-            if (attributeSchema.hasOwnProperty('visible') && !attributeSchema.visible) {
+        if (schema) {
+            if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
-            else if (attributeSchema.hasOwnProperty('default')) {
-                var defaultValue = attributeSchema.default;
+            else if (schema.hasOwnProperty('default')) {
+                var defaultValue = schema.default;
                 if (this._value == defaultValue) {
                     this._visible = false;
                 }

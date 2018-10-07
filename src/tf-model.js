@@ -560,12 +560,16 @@ class TensorFlowAttribute {
     constructor(name, value, operator, metadata) {
         this._name = name;
         this._value = null;
+        this._type = null;
         if (value.hasOwnProperty('tensor')) {
             this._type = new TensorFlowTensor(value.tensor).type;
             this._tensor = value.tensor.tensor_shape && value.tensor.tensor_shape.dim && value.tensor.tensor_shape.dim.length > 0;
         }
         else {
-            this._type = metadata.getAttributeType(operator, name);
+            var schema = metadata.getAttributeSchema(operator, name);
+            if (schema && schema.type) {
+                this._type = schema.type;
+            }
         }
         if (value.hasOwnProperty('type')) {
             this._value = () => TensorFlowTensor.formatDataType(value.type);
@@ -1064,20 +1068,9 @@ class TensorFlowGraphOperatorMetadata {
                 }
                 schema.attributeMap = attributeMap;
             }
-            var attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema; 
-            }
+            return attributeMap[name] || null;
         }
         return null;        
-    }
-
-    getAttributeType(operator, name) {
-        var attributeSchema = this.getAttributeSchema(operator, name);
-        if (attributeSchema && attributeSchema.type) {
-            return attributeSchema.type;
-        }
-        return '';
     }
 
     getAttributeVisible(operator, name, value) {
