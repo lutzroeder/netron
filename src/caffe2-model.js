@@ -299,11 +299,9 @@ class Caffe2Attribute {
             this._value = arg.floats;
         }
         else if (arg.ints && arg.ints.length > 0) {
-            debugger;
             this._value = arg.ints;
         }
         else if (arg.nets && arg.nets.length > 0) {
-            debugger;
             this._value = () => '...';
         }
         else if (arg.i != 0) {
@@ -323,7 +321,7 @@ class Caffe2Attribute {
     }
 
     get visible() {
-        return Caffe2OperatorMetadata.operatorMetadata.getAttributeVisible(this._node.operator, this._name, this._value)
+        return Caffe2OperatorMetadata.operatorMetadata.getAttributeVisible(this._node.operator, this._name, this._value);
     }
 }
 

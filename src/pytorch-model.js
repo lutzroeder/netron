@@ -139,7 +139,6 @@ class PyTorchModelFactory {
                     constructor.apply(obj, args);
                 }
                 else {
-                    debugger;
                     host.exception(new SklearnError("Unknown function '" + name + "'."), false);
                 }
                 return obj;

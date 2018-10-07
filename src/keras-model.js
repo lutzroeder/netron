@@ -513,7 +513,6 @@ class KerasNode {
         if (this._config && this._config.name) {
             return this._config.name;
         }
-        debugger;
         return '';
     }
 
@@ -568,7 +567,7 @@ class KerasAttribute {
             };
         }
         if (!visible) {
-            this._visible = false;;
+            this._visible = false;
         }
     }
 

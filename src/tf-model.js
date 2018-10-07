@@ -793,7 +793,6 @@ class TensorFlowTensor {
                 break;
             default:
                 context.state = "Tensor data type '" + this._tensor.dtype + "'is not implemented.";
-                debugger;
                 break;
         }
 

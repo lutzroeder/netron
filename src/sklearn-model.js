@@ -46,7 +46,6 @@ class SklearnModelFactory {
                                 this.name = 'object';
                             }
                             else {
-                                debugger;
                                 throw new SklearnError("Unknown dtype '" + obj.toString() + "'.");
                             }
                             break;
@@ -208,7 +207,6 @@ class SklearnModelFactory {
                         constructor.apply(obj, args);
                     }
                     else {
-                        debugger;
                         host.exception(new SklearnError("Unknown function '" + name + "'."), false);
                     }
                     return obj;
@@ -505,7 +503,7 @@ class SklearnTensor {
                 this._data = value.data;
                 break;
             default:
-                debugger;
+                throw new SklearnError("Unknown tensor type '" + value.__type__ + "'.");
         }
     }
 
