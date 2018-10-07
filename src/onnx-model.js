@@ -706,6 +706,9 @@ class OnnxTensor {
             return context;
         }
 
+        context.dataType = this._type.dataType;
+        context.shape = this._type.shape;
+
         switch (this._tensor.data_type) {
             case onnx.TensorProto.DataType.FLOAT:
                 if (this._tensor.float_data && this._tensor.float_data.length > 0) {
@@ -793,9 +796,13 @@ class OnnxTensor {
     }
 
     _decode(context, dimension) {
+        var shape = context.shape;
+        if (context.shape.length == 0) {
+            shape = [ 1 ];
+        }
         var results = [];
-        var size = this._tensor.dims[dimension];
-        if (dimension == this._tensor.dims.length - 1) {
+        var size = shape[dimension];
+        if (dimension == shape.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -862,6 +869,9 @@ class OnnxTensor {
                 }
                 results.push(this._decode(context, dimension + 1));
             }
+        }
+        if (context.shape.length == 0) {
+            return results[0];
         }
         return results;
     }
