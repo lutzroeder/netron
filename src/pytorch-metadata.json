@@ -120,7 +120,7 @@
     "schema": {
       "attributes": [
         {
-          "default": true,
+          "default": false,
           "name": "inplace"
         },
         {
@@ -224,6 +224,27 @@
     }
   },
   {
+    "name": "Dropout2d",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "inplace"
+        },
+        {
+          "default": 0.5,
+          "name": "p"
+        },
+        {
+          "name": "training",
+          "visible": false
+        }
+      ],
+      "category": "Dropout",
+      "package": "torch.nn.modules.dropout"
+    }
+  },
+  {
     "name": "Dropout",
     "schema": {
       "attributes": [
@@ -248,7 +269,30 @@
     "name": "LSTM",
     "schema": {
       "category": "Layer",
-      "package": "torch.nn"
+      "package": "torch.nn.modules.rnn",
+      "attributes": [
+        { "name": "training", "visible": false },
+        { "name": "dropout", "default": 0 },
+        { "name": "dropout_state", "default": {} },
+        { "name": "num_layers", "default": 1 },
+        { "name": "batch_first", "visible": false },
+        { "name": "bidirectional", "visible": false }
+      ]
+    }
+  },
+  {
+    "name": "Embedding",
+    "schema": {
+      "category": "Transform",
+      "package": "torch.nn.modules.sparse",
+      "attributes": [
+        { "name": "training", "visible": false },
+        { "name": "norm_type", "default": 2 },
+        { "name": "scale_grad_by_freq", "default": false },
+        { "name": "sparse", "default": false },
+        { "name": "max_norm", "default": null },
+        { "name": "padding_idx", "default": null }
+      ]
     }
   }
 ]
