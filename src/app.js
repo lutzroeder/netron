@@ -42,7 +42,8 @@ class Application {
         });
 
         electron.ipcMain.on('drop-files', (e, data) => {
-            this._dropFiles(e.sender, data.files);
+            var files = data.files.filter((file) => fs.statSync(file).isFile());
+            this._dropFiles(e.sender, files);
         });
 
         electron.app.on('will-finish-launching', () => {
@@ -140,8 +141,7 @@ class Application {
             this._openFileQueue.push(file);
             return;
         }
-        if (file && file.length > 0 && fs.existsSync(file))
-        {
+        if (file && file.length > 0 && fs.existsSync(file) && fs.statSync(file).isFile()) {
             // find existing view for this file
             var view = this._views.find(file);
             // find empty welcome window

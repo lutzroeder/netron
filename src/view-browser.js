@@ -91,9 +91,11 @@ class BrowserHost {
         document.body.addEventListener('drop', (e) => { 
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length == 1) {
-                this._openFile(e.dataTransfer.files[0]);
+                var file = e.dataTransfer.files[0];
+                if (file.name.split('.').length > 1) {
+                    this._openFile(file);
+                }
             }
-            return false;
         });
     }
 
@@ -105,7 +107,7 @@ class BrowserHost {
     }
 
     error(message, detail) {
-        alert(message + ' ' + detail);
+        alert((message == 'Error' ? '' : message + ' ') + detail);
     }
 
     confirm(message, detail) {
@@ -334,8 +336,12 @@ class BrowserHost {
         var size = file.size;
         var reader = new FileReader();
         reader.onloadend = () => {
-            if (reader.error) {
-                callback(reader.error, null);
+            var error = reader.error;
+            if (error) {
+                if (error instanceof FileError) {
+                    error = new Error("File error '" + error.code.toString() + "'.");
+                }
+                callback(error, null);
                 return;
             }
             var buffer = new Uint8Array(reader.result);
