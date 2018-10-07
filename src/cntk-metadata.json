@@ -160,7 +160,13 @@
     "name": "Slice",
     "schema": {
       "category": "Tensor",
-      "operator": 14
+      "operator": 14,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -725,7 +731,14 @@
   {
     "name": "StableSigmoid",
     "schema": {
-      "operator": 75
+      "operator": 75,
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {

@@ -331,7 +331,6 @@ class CntkNode {
                 var output = obj.uid;
                 if (obj.op == 57) {
                     this._operator = 'Block';
-                    debugger;
                 }
                 else {
                     this._operator = CntkOperatorMetadata.operatorMetadata.getOperatorName(obj.op);
