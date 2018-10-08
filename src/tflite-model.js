@@ -17,10 +17,12 @@ class TensorFlowLiteModelFactory {
 
             var model = null;
             try {
-                var byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
+                var buffer = context.buffer;
+                var byteBuffer = new flatbuffers.ByteBuffer(buffer);
                 if (!tflite.Model.bufferHasIdentifier(byteBuffer))
                 {
-                    callback(new TensorFlowLiteError('Invalid FlatBuffers identifier.'));
+                    var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
+                    callback(new TensorFlowLiteError("Invalid FlatBuffers identifier '" + identifier + "'."));
                     return;
                 }
                 model = tflite.Model.getRootAsModel(byteBuffer);
