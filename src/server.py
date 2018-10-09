@@ -63,7 +63,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 status_code = 200
             elif pathname.startswith(data):
                 file = pathname[len(data):]
-                if file == self.file:
+                if file == self.file and self.data:
                     buffer = self.data
                 else:
                     file = self.folder + '/' + file
@@ -132,14 +132,7 @@ def serve_data(data, file, verbose=False, browse=False, port=8080, host='localho
         server.server_close()
 
 def serve_file(file, verbose=False, browse=False, port=8080, host='localhost'):
-    data = None
-    if file and os.path.exists(file):
-        print("Reading '" + file + "'")
-        with open(file, 'rb') as binary:
-            data = binary.read()
-    else:
-        file = None
-    serve_data(data, file, verbose=verbose, browse=browse, port=port, host=host)
+    serve_data(None, file, verbose=verbose, browse=browse, port=port, host=host)
 
 def browse(file, verbose=False, port=8080, host='localhost'):
-    serve_file(file, verbose, True, port, host)
+    serve_data(None, file, verbose=verbose, browse=True, port=port, host=host)

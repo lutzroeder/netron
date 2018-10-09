@@ -269,7 +269,7 @@ class BrowserHost {
         request.onerror = () => {
             this.error('Error while requesting model.', request.status);
         };
-        request.open('GET', url, true);
+        request.open('GET', url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime(), true);
         request.send();
     }
 
