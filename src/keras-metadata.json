@@ -1340,7 +1340,7 @@
         },
         {
           "default": true,
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
           "name": "unit_forget_bias"
         },
         {
@@ -1438,6 +1438,10 @@
         {
           "description": "hard sigmoid (`hard_sigmoid`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
           "name": "Default"
+        },
+        {
+          "description": "//www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "name": "http"
         }
       ],
       "category": "Layer",
@@ -1464,22 +1468,22 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Long short-term memory]"
+          "description": "[Long short-term memory]("
         },
         {
-          "description": "(http://www.bioinf.jku.at/publications/older/2604.pdf)"
+          "description": "__http__://www.bioinf.jku.at/publications/older/2604.pdf)"
         },
         {
-          "description": "[Learning to forget: Continual prediction with LSTM]"
+          "description": "[Learning to forget: Continual prediction with LSTM]("
         },
         {
-          "description": "(http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)"
+          "description": "__http__://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)"
         },
         {
-          "description": "[Supervised sequence labeling with recurrent neural networks]"
+          "description": "[Supervised sequence labeling with recurrent neural networks]("
         },
         {
-          "description": "(http://www.cs.toronto.edu/~graves/preprint.pdf)"
+          "description": "__http__://www.cs.toronto.edu/~graves/preprint.pdf)"
         },
         {
           "description": "[A Theoretically Grounded Application of Dropout in"
@@ -1736,7 +1740,7 @@
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nUse in combination with `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nUse in combination with `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
           "name": "unit_forget_bias"
         },
         {
@@ -1790,6 +1794,10 @@
         {
           "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.\n",
           "name": "recurrent_dropout"
+        },
+        {
+          "description": "//www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "name": "http"
         }
       ],
       "description": "Convolutional LSTM.\n\nIt is similar to an LSTM layer, but the input transformations\nand recurrent transformations are both convolutional.\n",
@@ -1908,7 +1916,7 @@
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
           "name": "unit_forget_bias"
         },
         {
@@ -1964,6 +1972,10 @@
         {
           "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.\n",
           "name": "stateful"
+        },
+        {
+          "description": "//www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "name": "http"
         }
       ],
       "description": "Fast LSTM implementation with [CuDNN](https://developer.nvidia.com/cudnn).\n\nCan only be run on GPU, with the TensorFlow backend.\n",
@@ -2385,7 +2397,7 @@
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al.]\n(http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
           "name": "unit_forget_bias"
         },
         {
@@ -2430,6 +2442,10 @@
         {
           "description": "hard sigmoid (`hard_sigmoid`).\nIf you pass `None`, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).x",
           "name": "Default"
+        },
+        {
+          "description": "//www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
+          "name": "http"
         }
       ],
       "description": "Cell class for the LSTM layer.\n",
