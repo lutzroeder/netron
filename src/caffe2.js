@@ -1849,7 +1849,7 @@
             }
     
             DeviceOption.prototype.device_type = 0;
-            DeviceOption.prototype.cuda_gpu_id = 0;
+            DeviceOption.prototype.device_id = 0;
             DeviceOption.prototype.random_seed = 0;
             DeviceOption.prototype.node_name = "";
             DeviceOption.prototype.numa_node_id = 0;
@@ -1871,7 +1871,7 @@
                         message.device_type = reader.int32();
                         break;
                     case 2:
-                        message.cuda_gpu_id = reader.int32();
+                        message.device_id = reader.int32();
                         break;
                     case 3:
                         message.random_seed = reader.uint32();
@@ -1909,8 +1909,8 @@
                     case "device_type":
                         message.device_type = reader.int32();
                         break;
-                    case "cuda_gpu_id":
-                        message.cuda_gpu_id = reader.int32();
+                    case "device_id":
+                        message.device_id = reader.int32();
                         break;
                     case "random_seed":
                         message.random_seed = reader.uint32();
@@ -1943,9 +1943,9 @@
                 if (message.device_type != null && message.hasOwnProperty("device_type"))
                     if (!$util.isInteger(message.device_type))
                         return "device_type: integer expected";
-                if (message.cuda_gpu_id != null && message.hasOwnProperty("cuda_gpu_id"))
-                    if (!$util.isInteger(message.cuda_gpu_id))
-                        return "cuda_gpu_id: integer expected";
+                if (message.device_id != null && message.hasOwnProperty("device_id"))
+                    if (!$util.isInteger(message.device_id))
+                        return "device_id: integer expected";
                 if (message.random_seed != null && message.hasOwnProperty("random_seed"))
                     if (!$util.isInteger(message.random_seed))
                         return "random_seed: integer expected";
@@ -1974,8 +1974,8 @@
                 var message = new $root.caffe2.DeviceOption();
                 if (object.device_type != null)
                     message.device_type = object.device_type | 0;
-                if (object.cuda_gpu_id != null)
-                    message.cuda_gpu_id = object.cuda_gpu_id | 0;
+                if (object.device_id != null)
+                    message.device_id = object.device_id | 0;
                 if (object.random_seed != null)
                     message.random_seed = object.random_seed >>> 0;
                 if (object.node_name != null)
@@ -2002,7 +2002,7 @@
                     object.extra_info = [];
                 if (options.defaults) {
                     object.device_type = 0;
-                    object.cuda_gpu_id = 0;
+                    object.device_id = 0;
                     object.random_seed = 0;
                     object.node_name = "";
                     object.numa_node_id = 0;
@@ -2010,8 +2010,8 @@
                 }
                 if (message.device_type != null && message.hasOwnProperty("device_type"))
                     object.device_type = message.device_type;
-                if (message.cuda_gpu_id != null && message.hasOwnProperty("cuda_gpu_id"))
-                    object.cuda_gpu_id = message.cuda_gpu_id;
+                if (message.device_id != null && message.hasOwnProperty("device_id"))
+                    object.device_id = message.device_id;
                 if (message.random_seed != null && message.hasOwnProperty("random_seed"))
                     object.random_seed = message.random_seed;
                 if (message.node_name != null && message.hasOwnProperty("node_name"))
