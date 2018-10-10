@@ -476,6 +476,8 @@ hdf5.Datatype = class {
 
     get type() {
         switch (this._class) {
+            case 0: // fixed-point
+                throw new hdf5.Error("Unsupported datatype (class=0, size=" + this._size + ", flags=" + this._flags + ")."); 
             case 1: // floating-point
                 if (this._size == 2 && this._flags == 0x0f20) {
                     return 'float16';
