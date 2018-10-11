@@ -148,7 +148,7 @@ class TensorFlowModel {
                 name = metaGraph.any_info.toString();
             }
             else if (this._model.meta_graphs.length > 1) {
-                name = '(' + index.toString() + ')';
+                name = '(' + i.toString() + ')';
             }
             this._graphs.push(new TensorFlowGraph(this, metaGraph, name));
         }
