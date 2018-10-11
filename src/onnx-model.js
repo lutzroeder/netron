@@ -748,7 +748,7 @@ class OnnxTensor {
                     context.data = this._tensor.int32_data;
                 }
                 else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.v.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
+                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
                     context.state = 'Tensor data is empty.';
