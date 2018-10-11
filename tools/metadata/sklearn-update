@@ -2,6 +2,22 @@
 
 set -e
 
+if [ "$#" == 0 ]; then
+    __sync=true
+    __build=true
+    __update=true
+else
+    while test $# -gt 0
+    do
+        case "$1" in
+            sync) __sync=true;;
+            build) __build=true;;
+            update) __update=true;;
+        esac
+        shift
+    done
+fi
+
 root=$(cd $(dirname ${0})/../..; pwd)
 build=${root}/build
 tools=${root}/tools
@@ -11,29 +27,36 @@ python=${python:-python}
 pip=${pip:-pip}
 
 identifier=scikit-learn
-repository=https://github.com/scikit-learn/${identifier}.git
 
-mkdir -p ${third_party}
-
-if [ -d "${third_party}/${identifier}" ]; then
-    git -C "${third_party}/${identifier}" fetch -p
-    git -C "${third_party}/${identifier}" reset --hard origin/master
-else
-    echo "Clone ${repository}..."
-    git -C "${third_party}" clone --recursive ${repository}
+if [ ${__sync} ]; then
+    repository=https://github.com/scikit-learn/${identifier}.git
+    mkdir -p ${third_party}
+    if [ -d "${third_party}/${identifier}" ]; then
+        git -C "${third_party}/${identifier}" fetch -p
+        git -C "${third_party}/${identifier}" reset --hard origin/master
+    else
+        echo "Clone ${repository}..."
+        git -C "${third_party}" clone --recursive ${repository}
+    fi
 fi
 
-echo "Install scikit-learn"
 virtualenv=${build}/virtualenv/${identifier}
-virtualenv -p ${python} ${virtualenv}
+if [ ${__build} ]; then
+    virtualenv -p ${python} ${virtualenv}
+fi
 source ${virtualenv}/bin/activate
-${pip} install Cython
-${pip} install numpy
-${pip} install ${third_party}/${identifier}
+if [ ${__build} ]; then
+    echo "Install scikit-learn"
+    ${pip} install Cython
+    ${pip} install numpy
+    ${pip} install ${third_party}/${identifier}
+fi
 
-echo "Update 'sklearn-metadata.json'"
-pushd ${tools}/metadata > /dev/null
-${python} sklearn-metadata.py
-popd > /dev/null
+if [ ${__update} ]; then
+    echo "Update 'sklearn-metadata.json'"
+    pushd ${tools}/metadata > /dev/null
+    ${python} sklearn-metadata.py
+    popd > /dev/null
+fi
 
 deactivate

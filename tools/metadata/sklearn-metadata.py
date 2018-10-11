@@ -97,27 +97,58 @@ def update_attributes(schema, lines):
         name = line[0:colon].strip(' ')
         line = line[colon + 1:].strip(' ')
         type = None
-        if line.startswith('{'):
-            end = line.find('},')
-            if end == -1:
-                raise Exception("Expected '}' in parameter.")
-            # type = line[0:end + 1]
-            line = line[end + 2:].strip(' ')
+        type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32' }
+        skip_map = {
+            "'sigmoid' or 'isotonic'",
+            'instance BaseEstimator',
+            'callable or None (default)',
+            'str or callable',
+            "string {'english'}, list, or None (default)",
+            'tuple (min_n, max_n)',
+            "string, {'word', 'char', 'char_wb'} or callable",
+            "{'word', 'char'} or callable",
+            "string, {'word', 'char'} or callable",
+            'int, float, None or string',
+            "'l1', 'l2' or None, optional"
+        }
+        if line in skip_map:
+            line = ''
+        elif line.startswith('{'):
+            if line.endswith('}'):
+                line = ''
+            else:
+                end = line.find('},')
+                if end == -1:
+                    raise Exception("Expected '}' in parameter.")
+                # type = line[0:end + 1]
+                line = line[end + 2:].strip(' ')
         elif line.startswith("'"):
             while line.startswith("'"):
                 end = line.find("',")
                 if end == -1:
                     raise Exception("Expected \' in parameter.")
                 line = line[end + 2:].strip(' ')
+        elif line in type_map:
+            type = line
+            line = ''
+        elif line.startswith('int, RandomState instance or None,'):
+            line = line[len('int, RandomState instance or None,'):]
+        elif line.find('|') != -1:
+            line = ''
         else:
-            comma = line.find(',')
-            if comma == -1:
-                comma = line.find(' (')
+            space = line.find(' {')
+            if space != -1 and line[0:space] in type_map and line[space:].find('}') != -1:
+                type = line[0:space]
+                end = line[space:].find('}')
+                line = line[space+end+1:]
+            else:
+                comma = line.find(',')
                 if comma == -1:
-                    raise Exception("Expected ',' in parameter.")
-            type = line[0:comma]
-            line = line[comma + 1:].strip(' ')
-        type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32' }
+                    comma = line.find(' (')
+                    if comma == -1:
+                        raise Exception("Expected ',' in parameter.")
+                type = line[0:comma]
+                line = line[comma + 1:].strip(' ')
         if type in type_map:
             type = type_map[type]
         else:
@@ -143,6 +174,9 @@ def update_attributes(schema, lines):
                 line = line[1:close]
             elif line.endswith(' by default'):
                 default = line[0:-11]
+                line = ''
+            elif line.startswith('default =') or line.startswith('default :'):
+                default = line[9:].strip(' ')
                 line = ''
             elif line.startswith('default ') or line.startswith('default=') or line.startswith('default:'):
                 default = line[8:].strip(' ')

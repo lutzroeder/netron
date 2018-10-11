@@ -116,23 +116,30 @@ class SklearnModelFactory {
                         return array;
                     };
                 };
+
                 constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
                 constructorTable['lightgbm.basic.Booster'] = function() {};
-                constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
+                constructorTable['sklearn.calibration.CalibratedClassifierCV​'] = function() {};
                 constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
-                constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
+                constructorTable['sklearn.decomposition.PCA'] = function() {};
+                constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
                 constructorTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
                 constructorTable['sklearn.ensemble.forest.RandomForestRegressor'] = function() {};
                 constructorTable['sklearn.ensemble.forest.ExtraTreesClassifier'] = function() {};
                 constructorTable['sklearn.ensemble.weight_boosting.AdaBoostClassifier'] = function() {};
+                constructorTable['sklearn.feature_extraction.text.CountVectorizer​'] = function() {};
+                constructorTable['sklearn.feature_extraction.text.TfidfVectorizer​'] = function() {};
                 constructorTable['sklearn.impute.SimpleImputer'] = function() {};
                 constructorTable['sklearn.linear_model.LogisticRegression'] = function() {}; 
                 constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
+                constructorTable['sklearn.linear_model.LassoLars​'] = function() {};
                 constructorTable['sklearn.model_selection._search.GridSearchCV'] = function() {};
                 constructorTable['sklearn.naive_bayes.BernoulliNB'] = function() {};
                 constructorTable['sklearn.naive_bayes.ComplementNB'] = function() {};
                 constructorTable['sklearn.naive_bayes.GaussianNB'] = function() {};
                 constructorTable['sklearn.naive_bayes.MultinomialNB'] = function() {};
+                constructorTable['sklearn.neighbors.KNeighborsClassifier​'] = function() {};
+                constructorTable['sklearn.neighbors.KNeighborsRegressor'] = function() {};
                 constructorTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
                 constructorTable['sklearn.pipeline.Pipeline'] = function() {};
                 constructorTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
@@ -152,9 +159,9 @@ class SklearnModelFactory {
                 };
                 constructorTable['sklearn.tree.tree.DecisionTreeClassifier'] = function() {};
                 constructorTable['sklearn.tree.tree.DecisionTreeRegressor'] = function() {};
-                constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() { };
-                constructorTable['collections.defaultdict'] = function(default_factory) {
-                };
+                constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {};
+                constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
+                constructorTable['collections.defaultdict'] = function(default_factory) {};
 
                 functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
                     if (base == '__builtin__.object') {
