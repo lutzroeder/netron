@@ -135,9 +135,10 @@ class CntkModel {
 class CntkGraph {
 
     constructor(version, obj) {
-        this._nodes = [];
         this._inputs = [];
         this._outputs = [];
+        this._nodes = [];
+        this._functions = [];
         var connections = {};
 
         if (version == 1) {
@@ -174,27 +175,56 @@ class CntkGraph {
             }
         }
         else if (version == 2) {
-            var names = {};
+            var nodeMap = {};
+            obj.primitive_functions.forEach((node) => {
+                nodeMap[node.uid] = node;
+            });
+
+            var argumentNames = {};
             obj.inputs.forEach((input) => {
                 var connection = new CntkConnection(version, input);
                 connections[input.uid] = connection;
-    
                 // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                 if (input.kind == 0) {
                     var inputName = input.name || input.uid;
                     this._inputs.push(new CntkArgument(inputName, [ connection ]));
                 }
-
                 if (input.kind == 1) {
                     debugger;
                 }
+                argumentNames[input.uid] = input;
+            });
 
-                if (input.name) {
-                    names[input.uid] = input.name;
+            obj.primitive_functions.forEach((block) => {
+                if (block.op == 57 && block.block_function_composite) {
+                    var list = [ block.block_function_composite.root ];
+                    var nodes = [];
+                    while (list.length > 0) {
+                        var name = list.shift();
+                        var node = nodeMap[name];
+                        if (node) {
+                            nodes.push(new CntkNode(version, node, connections));
+                            nodeMap[name] = null;
+                            node.inputs.forEach((input) => {
+                                var parts = input.split('_');
+                                if (parts.length >= 3 && parts[parts.length - 2] == 'Output') {
+                                    parts.pop();
+                                    parts.pop();
+                                    list.push(parts.join('_'));
+                                }
+                            });
+                        }
+                    }
+                    var inputs = [];
+                    var outputs = [ block.block_function_composite.root ];
+                    this._functions.push(new CntkFunction(block.block_function_op_name, nodes, ));
                 }
             });
+
             obj.primitive_functions.forEach((node) => {
-                this._nodes.push(new CntkNode(version, node, connections));
+                if (nodeMap[node.uid]) {
+                    this._nodes.push(new CntkNode(version, node, connections));
+                }
             });
         }
     }
@@ -203,12 +233,46 @@ class CntkGraph {
         return this._nodes;
     }
 
+    get functions() {
+        return this._functions;
+    }
+
     get inputs() {
         return this._inputs;
     }
 
     get outputs() {
         return this._outputs;
+    }
+}
+
+class CntkFunction {
+
+    constructor(name, nodes, inputs, outputs) {
+        this._name = name;
+        this._inputs = inputs;
+        this._outputs = outputs;
+        this._nodes = nodes;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get description() {
+        return null;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
     }
 }
 
@@ -331,16 +395,15 @@ class CntkNode {
                 var output = obj.uid;
                 if (obj.op == 57) {
                     this._operator = 'Block';
+                    if (obj.block_function_op_name) {
+                        this._operator = 'Function:' + obj.block_function_op_name;
+                    }
                 }
                 else {
                     this._operator = CntkOperatorMetadata.operatorMetadata.getOperatorName(obj.op);
                     if (this._operator == null) {
                         this._operator = node.op.toString();
-                        debugger;
                     }                
-                }
-                if (obj.block_function_op_name) {
-                    this._operator = '[' + obj.block_function_op_name + ']';
                 }
                 Object.keys(obj.attributes).forEach((key) => {
                     this._attributes.push(new CntkAttribute(this._operator, key, obj.attributes[key]));
@@ -384,7 +447,7 @@ class CntkNode {
         }
         else {
             inputs.slice(inputIndex).forEach((connection) => {
-                this._inputs.push(new CntkArgument('(' + inputIndex.toString() + ')', [ connection ]));
+                this._inputs.push(new CntkArgument(inputIndex.toString(), [ connection ]));
                 inputIndex++;
             });
         }
@@ -402,7 +465,7 @@ class CntkNode {
         }
         else {
             outputs.slice(outputIndex).forEach((connection) => {
-                this._outputs.push(new CntkArgument('(' + outputIndex.toString() + ')', [ connection ]));
+                this._outputs.push(new CntkArgument(outputIndex.toString(), [ connection ]));
                 outputIndex++;
             });
         }

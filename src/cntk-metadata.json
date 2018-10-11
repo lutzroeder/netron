@@ -427,7 +427,7 @@
       "inputs": [
         { "name": "input" },
         { "name": "W" },
-        { "name": "B" }
+        { "name": "b" }
       ],
       "outputs": [
         { "name": "output" }
@@ -871,6 +871,89 @@
     "name": "ConvolutionSequenceShape",
     "schema": {
       "operator": 97
+    }
+  },
+  {
+    "name": "Function:Dense",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:Convolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:BatchNormalization",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "scale" },
+        { "name": "bias" },
+        { "name": "mean" },
+        { "name": "variance" },
+        { "name": "count" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:MaxPooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "Function:AveragePooling",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "Function:Dropout",
+    "schema": {
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Function:LSTM",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "0" },
+        { "name": "1" },
+        { "name": "2" },
+        { "name": "b" },
+        { "name": "W" },
+        { "name": "H" }
+      ]
     }
   }
 ]
