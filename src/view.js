@@ -473,6 +473,12 @@ class View {
     
                     var formatter = new NodeFormatter();
 
+                    if (node.function) {
+                        formatter.addItem('+', null, [ 'node-item-function' ], null, () => { 
+                            debugger;
+                        });
+                    }
+
                     function addOperator(view, formatter, node) {
                         if (node) {
                             var styles = [ 'node-item-operator' ];

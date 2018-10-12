@@ -7,6 +7,11 @@
 .node-item path { stroke-width: 0; stroke: #000; fill: #fff; }
 .node-item text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; font-weight: 600; text-rendering: geometricPrecision; }
 
+.node-item-function path { fill: #fff; }
+.node-item-function text { fill: #000; }
+.node-item-function:hover { cursor: hand; }
+.node-item-function:hover path { fill: #eee; }
+
 .node-item-operator path { fill: #000; }
 .node-item-operator text { fill: #fff; }
 .node-item-operator:hover { cursor: hand; }

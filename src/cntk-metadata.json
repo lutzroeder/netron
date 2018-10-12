@@ -162,7 +162,9 @@
       "category": "Tensor",
       "operator": 14,
       "inputs": [
-        { "name": "input" }
+        { "name": "input" },
+        { "name": "begin" },
+        { "name": "end" }
       ],
       "outputs": [
         { "name": "output" }
@@ -220,7 +222,7 @@
         { "name": "transpose", "default": false },
         { "name": "includePad", "default": false },
         { "name": "ceilOutDim", "default": false },
-        { "name": "autoPadding", "default": [ true, null ] },
+        { "name": "autoPadding", "default": [ false, null ] },
         { "name": "sharing", "default": [ true, null] },
         { "name": "strides", "default": [ 1, null ] },
         { "name": "lowerPad", "default": [ 0, null ] },
@@ -461,13 +463,33 @@
   {
     "name": "PastValue",
     "schema": {
-      "operator": 37
+      "operator": 37,
+      "attributes": [
+        { "name": "offset", "type": "uint32", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "initialState" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "FutureValue",
     "schema": {
-      "operator": 38
+      "operator": 38,
+      "attributes": [
+        { "name": "offset", "type": "uint32", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "initialState" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -527,7 +549,13 @@
     "name": "Splice",
     "schema": {
       "category": "Tensor",
-      "operator": 43
+      "operator": 43,
+      "inputs": [
+        { "name": "inputs", "option": "variadic" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -902,6 +930,32 @@
     }
   },
   {
+    "name": "Function:linear",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "W" },
+        { "name": "b" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  { 
+    "name": "Function:ElementDivide",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
     "name": "Function:BatchNormalization",
     "schema": {
       "category": "Normalization",
@@ -921,13 +975,25 @@
   {
     "name": "Function:MaxPooling",
     "schema": {
-      "category": "Pool"
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "Function:AveragePooling",
     "schema": {
-      "category": "Pool"
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {

@@ -18,7 +18,6 @@ class Sidebar {
                 contentElement.style.height = window.innerHeight - 60;
             }
         };
-    
     }
 
     open(content, title, width) {

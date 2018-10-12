@@ -396,7 +396,8 @@ class CntkNode {
                 if (obj.op == 57) {
                     this._operator = 'Block';
                     if (obj.block_function_op_name) {
-                        this._operator = 'Function:' + obj.block_function_op_name;
+                        this._operator = obj.block_function_op_name;
+                        this._function = true;
                     }
                 }
                 else {
@@ -427,7 +428,7 @@ class CntkNode {
         }
 
         var inputIndex = 0;
-        var schema = CntkOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = CntkOperatorMetadata.operatorMetadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         if (schema && schema.inputs) {
             schema.inputs.forEach((inputSchema) => {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
@@ -479,8 +480,12 @@ class CntkNode {
         return this._operator;
     }
 
+    get function() {
+        return this._function || false;
+    }
+
     get category() {
-        var schema = CntkOperatorMetadata.operatorMetadata.getSchema(this._operator);
+        var schema = CntkOperatorMetadata.operatorMetadata.getSchema(this._function ? ('Function:' + this._operator) : this._operator);
         if (schema && schema.category) {
             return schema.category;
         }
