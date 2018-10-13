@@ -6,7 +6,19 @@ class PyTorchModelFactory {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop();
-        return extension == 'pt' || extension == 'pth';
+        if (extension == 'pt' || extension == 'pth') {
+            return true;
+        }
+        if (extension == 'pkl') {
+            var buffer = context.buffer;
+            var torch = [ 0x80, 0x02, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            if (buffer && buffer.length > torch.length) {
+                if (torch.every((value, index) => value == buffer[index])) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     open(context, host, callback) { 
@@ -246,7 +258,6 @@ class PyTorchGraph {
     _loadModule(parent, groups, inputs) {
 
         if (parent.__type__ &&
-            parent.__type__.startsWith('torch.nn.modules.') && 
             !parent.__type__.startsWith('torch.nn.modules.container.')) {
             var node = new PyTorchNode(parent, groups, inputs);
             this._nodes.push(node);
