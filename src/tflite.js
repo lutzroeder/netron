@@ -119,7 +119,8 @@ tflite.BuiltinOperator = {
   SQUARE: 92, 92: 'SQUARE',
   ZEROS_LIKE: 93, 93: 'ZEROS_LIKE',
   FILL: 94, 94: 'FILL',
-  FLOOR_MOD: 95, 95: 'FLOOR_MOD'
+  FLOOR_MOD: 95, 95: 'FLOOR_MOD',
+  RANGE: 96, 96: 'RANGE'
 };
 
 /**
@@ -198,7 +199,8 @@ tflite.BuiltinOptions = {
   BidirectionalSequenceLSTMOptions: 69, 69: 'BidirectionalSequenceLSTMOptions',
   BidirectionalSequenceRNNOptions: 70, 70: 'BidirectionalSequenceRNNOptions',
   UnidirectionalSequenceLSTMOptions: 71, 71: 'UnidirectionalSequenceLSTMOptions',
-  FloorModOptions: 72, 72: 'FloorModOptions'
+  FloorModOptions: 72, 72: 'FloorModOptions',
+  RangeOptions: 73, 73: 'RangeOptions'
 };
 
 /**
@@ -5984,6 +5986,57 @@ tflite.FloorModOptions.startFloorModOptions = function(builder) {
  * @returns {flatbuffers.Offset}
  */
 tflite.FloorModOptions.endFloorModOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.RangeOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.RangeOptions}
+ */
+tflite.RangeOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.RangeOptions=} obj
+ * @returns {tflite.RangeOptions}
+ */
+tflite.RangeOptions.getRootAsRangeOptions = function(bb, obj) {
+  return (obj || new tflite.RangeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.RangeOptions.startRangeOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.RangeOptions.endRangeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
