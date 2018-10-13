@@ -1854,7 +1854,6 @@
             DeviceOption.prototype.node_name = "";
             DeviceOption.prototype.numa_node_id = 0;
             DeviceOption.prototype.extra_info = $util.emptyArray;
-            DeviceOption.prototype.hip_gpu_id = 0;
     
             DeviceOption.create = function create(properties) {
                 return new DeviceOption(properties);
@@ -1886,9 +1885,6 @@
                         if (!(message.extra_info && message.extra_info.length))
                             message.extra_info = [];
                         message.extra_info.push(reader.string());
-                        break;
-                    case 7:
-                        message.hip_gpu_id = reader.int32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -1926,9 +1922,6 @@
                             message.extra_info = [];
                         message.extra_info.push(reader.string());
                         break;
-                    case "hip_gpu_id":
-                        message.hip_gpu_id = reader.int32();
-                        break;
                     default:
                         reader.handle(tag);
                         break;
@@ -1962,9 +1955,6 @@
                         if (!$util.isString(message.extra_info[i]))
                             return "extra_info: string[] expected";
                 }
-                if (message.hip_gpu_id != null && message.hasOwnProperty("hip_gpu_id"))
-                    if (!$util.isInteger(message.hip_gpu_id))
-                        return "hip_gpu_id: integer expected";
                 return null;
             };
     
@@ -1989,8 +1979,6 @@
                     for (var i = 0; i < object.extra_info.length; ++i)
                         message.extra_info[i] = String(object.extra_info[i]);
                 }
-                if (object.hip_gpu_id != null)
-                    message.hip_gpu_id = object.hip_gpu_id | 0;
                 return message;
             };
     
@@ -2006,7 +1994,6 @@
                     object.random_seed = 0;
                     object.node_name = "";
                     object.numa_node_id = 0;
-                    object.hip_gpu_id = 0;
                 }
                 if (message.device_type != null && message.hasOwnProperty("device_type"))
                     object.device_type = message.device_type;
@@ -2023,8 +2010,6 @@
                     for (var j = 0; j < message.extra_info.length; ++j)
                         object.extra_info[j] = message.extra_info[j];
                 }
-                if (message.hip_gpu_id != null && message.hasOwnProperty("hip_gpu_id"))
-                    object.hip_gpu_id = message.hip_gpu_id;
                 return object;
             };
     
