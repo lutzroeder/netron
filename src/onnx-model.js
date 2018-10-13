@@ -1133,7 +1133,7 @@ class OnnxGraphOperatorMetadata {
         else {
             inputs.slice(index).forEach((input) => {
                 results.push({
-                    name: '(' + index.toString() + ')',
+                    name: index.toString(),
                     connections: [ { id: input } ]
                 });
                 index++;
@@ -1164,7 +1164,7 @@ class OnnxGraphOperatorMetadata {
         else {
             outputs.slice(index).forEach((output) => {
                 results.push({
-                    name: '(' + index.toString() + ')',
+                    name: index.toString(),
                     connections: [ { id: output } ]
                 });
                 index++;
