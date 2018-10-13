@@ -25,7 +25,15 @@ class OnnxModelFactory {
             }
             if (context.text) {
                 var lines = context.text.split('\n');
-                if (lines.some((line) => line.startsWith('graph_def') || (line.startsWith('op') && !line.startsWith('opset_import')) || line.startsWith('node') || line.startsWith('layers') || line.startsWith('layer'))) {
+                if (lines.some((line) => 
+                    (line.startsWith('net') && line.replace(/\s+/g, '').startsWith('net:')) ||
+                    (line.startsWith('train_net') && line.replace(/\s+/g, '').startsWith('train_net:')) || 
+                    (line.startsWith('net_param') && line.replace(/\s+/g, '').startsWith('net_param{')) ||
+                    (line.startsWith('layer') && line.replace(/\s+/g, '').startsWith('layer{')) ||
+                    (line.startsWith('layers') && line.replace(/\s+/g, '').startsWith('layers{')) || 
+                    (line.startsWith('graph_def') && line.replace(/\s+/g, '').startsWith('graph_def{')) || 
+                    (line.startsWith('op') && line.replace(/\s+/g, '').startsWith('op{')) || 
+                    (line.startsWith('node') && line.replace(/\s+/g, '').startsWith('node{')))) {
                     return false;
                 }
             }

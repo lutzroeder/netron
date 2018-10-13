@@ -12,7 +12,14 @@ class Caffe2ModelFactory {
         if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
             if (context.text) {
                 var lines = context.text.split('\n');
-                if (lines.some((line) => line.startsWith('ir_version') || line.startsWith('graph_def') || line.startsWith('layers') || line.startsWith('layer'))) {
+                if (lines.some((line) =>
+                        (line.startsWith('net') && line.replace(/\s+/g, '').startsWith('net:')) ||
+                        (line.startsWith('train_net') && line.replace(/\s+/g, '').startsWith('train_net:')) || 
+                        (line.startsWith('net_param') && line.replace(/\s+/g, '').startsWith('net_param{')) ||
+                        (line.startsWith('layer') && line.replace(/\s+/g, '').startsWith('layer{')) ||
+                        (line.startsWith('layers') && line.replace(/\s+/g, '').startsWith('layers{')) || 
+                        (line.startsWith('ir_version') && line.replace(/\s+/g, '').startsWith('ir_version:')) ||
+                        (line.startsWith('node') && line.replace(/\s+/g, '').startsWith('node{')))) {
                     return false;
                 }
             }

@@ -8,7 +8,7 @@
         { "name": "filter" },
         { "name": "bias" }
       ],
-      "ouptuts": [
+      "outputs": [
         { "name": "output" }
       ],
       "attributes": [
@@ -33,7 +33,7 @@
         { "name": "filter" },
         { "name": "bias" }
       ],
-      "ouptuts": [
+      "outputs": [
         { "name": "output" }
       ],
       "attributes": [
@@ -89,6 +89,24 @@
       "category": "Dropout",
       "attributes": [
         { "name": "dropout_ratio", "default": 0.5 }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Flatten",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -100,6 +118,12 @@
         { "name": "local_size", "type": "uint32", "default": 5 },
         { "name": "alpha", "type": "float", "default": 1 },
         { "name": "beta", "type": "float", "default": 0.75 }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -107,6 +131,10 @@
     "name": "BatchNorm",
     "schema": {
       "category": "Normalization",
+      "attributes": [
+        { "name": "use_global_stats", "visible": false },
+        { "name": "eps", "default": 1e-5 }
+      ],
       "inputs": [
         { "name": "input" },
         { "name": "gamma" },
@@ -116,17 +144,31 @@
       ],
       "outputs": [
         { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
       ],
-      "attributes": [
-        { "name": "use_global_stats", "visible": false },
-        { "name": "eps", "default": 1e-5 }
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
   {
     "name": "Softmax",
     "schema": {
-      "category": "Activation"
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -136,6 +178,9 @@
       "inputs": [
         { "name": "input" },
         { "name": "labels" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -146,13 +191,31 @@
       "inputs": [
         { "name": "input" },
         { "name": "labels" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "ContrastiveLossParameter",
+    "schema": {
+      "attributes": [
+        { "name": "margin", "default": 1.0 },
+        { "name": "legacy_version", "default": false }
       ]
     }
   },
   {
     "name": "ReLU",
     "schema": {
-      "category": "Activation"
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -162,6 +225,9 @@
       "inputs": [
         { "name": "input" }, 
         { "name": "slope" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -171,6 +237,9 @@
       "category": "Tensor",
       "inputs": [
         { "name": "inputs", "option": "variadic" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -178,6 +247,9 @@
     "name": "Split",
     "schema": {
       "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
       "outputs": [
         { "name": "outputs", "option": "variadic" }
       ]  
@@ -186,11 +258,14 @@
   {
     "name": "Eltwise",
     "schema": {
+      "attributes": [
+        { "name": "operation", "default": 1 }
+      ],
       "inputs": [
         { "name": "inputs", "option": "variadic" }
       ],
-      "attributes": [
-        { "name": "operation", "default": 1 }
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -200,6 +275,12 @@
       "category": "Pool",
       "attributes": [
         { "name": "pool", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -210,6 +291,9 @@
       "inputs": [
         { "name": "data" },
         { "name": "size" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -220,6 +304,24 @@
       "outputs": [
         { "name": "data" },
         { "name": "label" }
+      ]
+    }
+  },
+  {
+    "name": "DummyData",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "data" }
+      ]
+    }
+  },
+  {
+    "name": "HDF5Data",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "data" }
       ]
     }
   },
@@ -261,6 +363,9 @@
       "inputs": [
         { "name": "predictions" },
         { "name": "targets" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
@@ -270,15 +375,15 @@
       "inputs": [
         { "name": "predictions" },
         { "name": "labels" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
   {
     "name": "Python",
     "schema": {
-      "outputs": [
-        { "name": "outputs", "option": "variadic" }
-      ]
     }
   }
 ]

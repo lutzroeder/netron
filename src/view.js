@@ -319,6 +319,8 @@ class View {
                 switch (extension) {
                     case 'json':
                     case 'pb':
+                    case 'pbtxt':
+                    case 'prototxt':
                     case 'model':
                         callback(new NameError('Unsupported file content for extension \'.' + extension + '\'.', "Error loading model."), null);
                         break;

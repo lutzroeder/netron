@@ -19,7 +19,11 @@ class CaffeModelFactory {
             }
             if (context.text) {
                 var lines = context.text.split('\n');
-                if (lines.some((line) => line.startsWith('ir_version') || line.startsWith('graph_def') || (line.startsWith('op') && !line.startsWith('opset_import')) || line.startsWith('node'))) {
+                    if (lines.some((line) => 
+                        (line.startsWith('ir_version') && line.replace(/\s+/g, '').startsWith('ir_version:')) ||
+                        (line.startsWith('graph_def') && line.replace(/\s+/g, '').startsWith('graph_def{')) || 
+                        (line.startsWith('op') && line.replace(/\s+/g, '').startsWith('op{')) || 
+                        (line.startsWith('node') && line.replace(/\s+/g, '').startsWith('node{')))) {
                     return false;
                 }
             }
@@ -34,42 +38,83 @@ class CaffeModelFactory {
                 callback(err, null);
                 return;
             }
-            var netParameter = null;
-            var extension = context.identifier.split('.').pop();
-            if (extension == 'pbtxt' || extension == 'prototxt') {
-                try {
-                    caffe = protobuf.roots.caffe.caffe;
-                    netParameter = caffe.NetParameter.decodeText(context.text);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    callback(new CaffeError('File text format is not caffe.NetParameter (' + error.message + ').'), null);
-                    return;    
-                }
-            }
-            else {
-                try {
-                    caffe = protobuf.roots.caffe.caffe;
-                    netParameter = caffe.NetParameter.decode(context.buffer);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    callback(new CaffeError('File format is not caffe.NetParameter (' + error.message + ').'), null);
-                    return;    
-                }
-            }
+            caffe = protobuf.roots.caffe.caffe;
             CaffeOperatorMetadata.open(host, (err, metadata) => {
-                try {
-                    var model = new CaffeModel(netParameter);
-                    callback(null, model);
+                var extension = context.identifier.split('.').pop();
+                if (extension == 'pbtxt' || extension == 'prototxt') {
+                    var text = context.text;
+                    var lines = context.text.split('\n');
+                    if (lines.some((line) => 
+                            (line.startsWith('net') && line.replace(/\s+/g, '').startsWith('net:')) ||
+                            (line.startsWith('train_net') && line.replace(/\s+/g, '').startsWith('train_net:')) ||
+                            (line.startsWith('net_param') && line.replace(/\s+/g, '').startsWith('net_param{')))) {
+                        try { 
+                            var solver = caffe.SolverParameter.decodeText(context.text);
+                            if (solver.net_param) {
+                                this._openNetParameter(solver.net_param, callback);
+                                return;
+                            }
+                            else if (solver.net || solver.train_net) {
+                                var file = solver.net || solver.train_net;
+                                file = file.split('/').pop();
+                                context.request(file, 'utf-8', (err, text) => {
+                                    if (err) {
+                                        var message = err && err.message ? err.message : err.toString();
+                                        message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
+                                        callback(new CaffeError("Failed to load '" + file + "' (" + message + ")."), null);
+                                        return;
+                                    }
+                                    this._openNetParameterText(text, callback);
+                                });
+                                return;
+                            }
+                        }
+                        catch (error) {
+                        }
                 }
-                catch (error) {
-                    host.exception(error, false);
-                    callback(new CaffeError(error.message), null);
-                    return;
+                    this._openNetParameterText(context.text, callback);
+                }
+                else {
+                    this._openNetParameterBuffer(context.buffer, callback);
                 }
             });
         });
+    }
+
+    _openNetParameterBuffer(buffer, callback) {
+        try {
+            var netParameter = caffe.NetParameter.decode(buffer);
+            this._openNetParameter(netParameter, callback);
+        }
+        catch (error) {
+            host.exception(error, false);
+            callback(new CaffeError('File format is not caffe.NetParameter (' + error.message + ').'), null);
+            return;    
+        }
+
+    }
+
+    _openNetParameterText(text, callback) {
+        try {
+            var netParameter = caffe.NetParameter.decodeText(text);
+            this._openNetParameter(netParameter, callback);
+        }
+        catch (error) {
+            host.exception(error, false);
+            callback(new CaffeError('File text format is not caffe.NetParameter (' + error.message + ').'), null);
+        }
+    }
+
+    _openNetParameter(netParameter, callback) {
+        try {
+            var model = new CaffeModel(netParameter);
+            callback(null, model);
+        }
+        catch (error) {
+            host.exception(error, false);
+            callback(new CaffeError(error.message), null);
+            return;
+        }
     }
 }
 
@@ -688,9 +733,8 @@ class CaffeOperatorMetadata
         }
         else {
             inputs.slice(index).forEach((input) => {
-                var name = (index == 0) ? 'input' : ('(' + index.toString() + ')');
                 results.push({
-                    name: name,
+                    name: index.toString(),
                     connections: [ { id: input } ]
                 });
                 index++;
@@ -720,9 +764,8 @@ class CaffeOperatorMetadata
         }
         else {
             outputs.slice(index).forEach((output) => {
-                var name = (index == 0) ? 'output' : ('(' + index.toString() + ')');
                 results.push({
-                    name: name,
+                    name: index.toString(),
                     connections: [ { id: output } ]
                 });
                 index++;

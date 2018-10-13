@@ -207,7 +207,7 @@ class ElectronHost {
         var pathname = path.join(base || __dirname, file);
         fs.exists(pathname, (exists) => {
             if (!exists) {
-                callback('File not found.', null);
+                callback(new Error('File not found.'), null);
             }
             else {
                 fs.readFile(pathname, encoding, (err, data) => {
