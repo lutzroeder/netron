@@ -6,7 +6,17 @@ class SklearnModelFactory {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop();
-        return extension == 'pkl' || extension == 'joblib';
+        if (extension == 'pkl' || extension == 'joblib') {
+            var buffer = context.buffer;
+            var torch = [ 0x80, 0x02, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+            if (buffer && buffer.length > torch.length) {
+                if (torch.every((value, index) => value == buffer[index])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     open(context, host, callback) { 
@@ -84,7 +94,13 @@ class SklearnModelFactory {
                         array.__type__ = this.subtype;
                         array.dtype = this.typecode;
                         array.shape = this.shape;
-                        array.data = SklearnModelFactory._unescape(this.rawdata);
+                        if (typeof this.rawdata == 'string') {
+                            array.data = SklearnModelFactory._unescape(this.rawdata);
+                        }
+                        else {
+                            debugger;
+                            array.data = this.rawdata;
+                        }
                         return array;
                     };
                 };
@@ -102,7 +118,8 @@ class SklearnModelFactory {
                             size *= dimension;
                         });
                         if (this.dtype.name == 'object') {
-                            this._object = unpickler.load(function_call, null);
+                            debugger;
+                            return unpickler.load(function_call, null);
                         }
                         else {
                             this.data = unpickler.read(size * this.dtype.itemsize);
@@ -118,6 +135,7 @@ class SklearnModelFactory {
                 };
 
                 constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
+                constructorTable['lightgbm.sklearn.LGBMClassifier'] = function() {};
                 constructorTable['lightgbm.basic.Booster'] = function() {};
                 constructorTable['sklearn.calibration.CalibratedClassifierCV​'] = function() {};
                 constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
@@ -161,7 +179,6 @@ class SklearnModelFactory {
                 constructorTable['sklearn.tree.tree.DecisionTreeRegressor'] = function() {};
                 constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {};
                 constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
-                constructorTable['collections.defaultdict'] = function(default_factory) {};
 
                 functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
                     if (base == '__builtin__.object') {
@@ -201,6 +218,9 @@ class SklearnModelFactory {
                 functionTable['_codecs.encode'] = function(obj, econding) {
                     return obj;
                 };
+                functionTable['collections.defaultdict'] = function(default_factory) {
+                    return {};
+                };
 
                 var function_call = (name, args) => {
                     var func = functionTable[name];
@@ -219,6 +239,12 @@ class SklearnModelFactory {
                 };
 
                 obj = unpickler.load(function_call, null);
+                if (obj && Array.isArray(obj)) {
+                    throw new SklearnError('Array is not a valid root object.');
+                }
+                if (!obj || !obj.__type__) {
+                    throw new SklearnError('Root object has no type.');
+                }
             }
             catch (error) {
                 callback(error);

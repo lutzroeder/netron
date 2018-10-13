@@ -1471,5 +1471,202 @@
       "description": "Convert a collection of raw documents to a matrix of TF-IDF features.\n\nEquivalent to CountVectorizer followed by TfidfTransformer.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
       "package": "sklearn.feature_extraction.text"
     }
+  },
+  {
+    "name": "LGBMRegressor",
+    "schema": {
+      "attributes": [
+        {
+          "default": "gbdt",
+          "name": "boosting_type",
+          "type": "string"
+        },
+        {
+          "default": null,
+          "name": "class_weight"
+        },
+        {
+          "default": 1.0,
+          "name": "colsample_bytree"
+        },
+        {
+          "default": 0.05,
+          "name": "learning_rate"
+        },
+        {
+          "default": -1,
+          "name": "max_depth"
+        },
+        {
+          "default": 20,
+          "name": "min_child_samples"
+        },
+        {
+          "default": 0.001,
+          "name": "min_child_weight"
+        },
+        {
+          "default": 0.0,
+          "name": "min_split_gain"
+        },
+        {
+          "default": 100,
+          "name": "n_estimators"
+        },
+        {
+          "default": -1,
+          "name": "n_jobs"
+        },
+        {
+          "default": 31,
+          "name": "num_leaves"
+        },
+        {
+          "default": null,
+          "name": "random_state"
+        },
+        {
+          "default": 0,
+          "name": "reg_alpha"
+        },
+        {
+          "default": 0,
+          "name": "reg_lambda"
+        },
+        {
+          "default": true,
+          "name": "silent",
+          "type": "boolean"
+        },
+        {
+          "default": 200000,
+          "name": "subsample_for_bin"
+        },
+        {
+          "default": 0,
+          "name": "subsample_freq"
+        },
+        {
+          "default": 1.0,
+          "name": "subsample"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LGBMClassifier",
+    "schema": {
+      "attributes": [
+        {
+          "default": "gbdt",
+          "name": "boosting_type",
+          "type": "string"
+        },
+        {
+          "default": null,
+          "name": "class_weight"
+        },
+        {
+          "default": 1.0,
+          "name": "colsample_bytree"
+        },
+        {
+          "default": 0.05,
+          "name": "learning_rate"
+        },
+        {
+          "default": -1,
+          "name": "max_depth"
+        },
+        {
+          "default": 20,
+          "name": "min_child_samples"
+        },
+        {
+          "default": 0.001,
+          "name": "min_child_weight"
+        },
+        {
+          "default": 0.0,
+          "name": "min_split_gain"
+        },
+        {
+          "default": 100,
+          "name": "n_estimators"
+        },
+        {
+          "default": -1,
+          "name": "n_jobs"
+        },
+        {
+          "default": 31,
+          "name": "num_leaves"
+        },
+        {
+          "default": null,
+          "name": "random_state"
+        },
+        {
+          "default": 0,
+          "name": "reg_alpha"
+        },
+        {
+          "default": 0,
+          "name": "reg_lambda"
+        },
+        {
+          "default": true,
+          "name": "silent",
+          "type": "boolean"
+        },
+        {
+          "default": 200000,
+          "name": "subsample_for_bin"
+        },
+        {
+          "default": 0,
+          "name": "subsample_freq"
+        },
+        {
+          "default": 1.0,
+          "name": "subsample"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Booster",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "best_iteration"
+        },
+        {
+          "default": false,
+          "name": "network"
+        },
+        {
+          "default": null,
+          "name": "train_set"
+        },
+        {
+          "default": false,
+          "name": "stride"
+        },
+        {
+          "default": null,
+          "name": "model_file"
+        },
+        {
+          "default": null,
+          "name": "params"
+        },
+        {
+          "default": null,
+          "name": "pandas_categorical"
+        }
+      ]
+    }
   }
 ]

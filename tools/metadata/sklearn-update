@@ -26,30 +26,44 @@ third_party=${root}/third_party
 python=${python:-python}
 pip=${pip:-pip}
 
-identifier=scikit-learn
-
 if [ ${__sync} ]; then
-    repository=https://github.com/scikit-learn/${identifier}.git
+    repository=https://github.com/scikit-learn/scikit-learn.git
     mkdir -p ${third_party}
-    if [ -d "${third_party}/${identifier}" ]; then
-        git -C "${third_party}/${identifier}" fetch -p
-        git -C "${third_party}/${identifier}" reset --hard origin/master
+    if [ -d "${third_party}/scikit-learn" ]; then
+        git -C "${third_party}/scikit-learn" fetch -p
+        git -C "${third_party}/scikit-learn" reset --hard origin/master
     else
         echo "Clone ${repository}..."
         git -C "${third_party}" clone --recursive ${repository}
     fi
+    if [ -d "${third_party}/lightgbm" ]; then
+        git -C "${third_party}/lightgbm" fetch -p
+        git -C "${third_party}/lightgbm" reset --hard origin/master
+    else
+        echo "Clone LightGBM..."
+        git -C "${third_party}" clone --recursive https://github.com/Microsoft/LightGBM.git lightgbm
+    fi
+    if [ -d "${third_party}/xgboost" ]; then
+        git -C "${third_party}/xgboost" fetch -p
+        git -C "${third_party}/xgboost" reset --hard origin/master
+    else
+        echo "Clone XGBoost..."
+        git -C "${third_party}" clone --recursive https://github.com/dmlc/xgboost.git xgboost
+    fi
 fi
 
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${build}/virtualenv/scikit-learn
 if [ ${__build} ]; then
     virtualenv -p ${python} ${virtualenv}
 fi
-source ${virtualenv}/bin/activate
+if [ -f ${virtualenv}/bin/activate ]; then
+    source ${virtualenv}/bin/activate
+fi
 if [ ${__build} ]; then
     echo "Install scikit-learn"
     ${pip} install Cython
     ${pip} install numpy
-    ${pip} install ${third_party}/${identifier}
+    ${pip} install ${third_party}/scikit-learn
 fi
 
 if [ ${__update} ]; then
@@ -59,4 +73,6 @@ if [ ${__update} ]; then
     popd > /dev/null
 fi
 
-deactivate
+if [ -f ${virtualenv}/bin/activate ]; then
+    deactivate
+fi
