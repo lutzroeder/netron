@@ -1,7 +1,8 @@
 
-from .server import serve_data
-from .server import serve_file
-from .server import browse
+from .server import start
+from .server import stop
+from .server import wait
+from .server import serve
 from .__version__ import __version__
 
 import argparse
@@ -19,7 +20,8 @@ def main():
     if args.file and not os.path.exists(args.file):
         print("Model file '" + args.file + "' does not exist.")
         sys.exit(2)
-    serve_file(args.file, verbose=args.verbose, browse=args.browse, port=args.port, host=args.host)
+    serve(args.file, None, verbose=args.verbose, browse=args.browse, port=args.port, host=args.host)
+    wait()
     sys.exit(0)
 
 if __name__ == '__main__':

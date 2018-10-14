@@ -17,7 +17,7 @@ Netron supports **[ONNX](http://onnx.ai)** (`.onnx`, `.pb`, `.pbtxt`), **Keras**
 
 **Browser**: [**Start**](https://www.lutzroeder.com/ai/netron) the browser version.
 
-**Python Server**: Run `pip install netron` and `netron [MODEL_FILE]`. In Python run `import netron` and `netron.browse('model.onnx')`.
+**Python Server**: Run `pip install netron` and `netron -b [MODEL_FILE]`. In Python run `import netron` and `netron.start('model.onnx')`.
 
 ## Download Models
 
