@@ -152,8 +152,13 @@
   {
     "name": "Where",
     "schema": {
-      "category": "Activation",
-      "operator": 13
+      "operator": 13,
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
@@ -367,13 +372,27 @@
   {
     "name": "PackedIndex",
     "schema": {
-      "operator": 28
+      "operator": 28,
+      "inputs": [
+        { "name": "source" },
+        { "name": "index" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {
     "name": "GatherPacked",
     "schema": {
-      "operator": 29
+      "operator": 29,
+      "inputs": [
+        { "name": "index" },
+        { "name": "source" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
     }
   },
   {

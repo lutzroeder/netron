@@ -217,7 +217,7 @@ class CntkGraph {
                     }
                     var inputs = [];
                     var outputs = [ block.block_function_composite.root ];
-                    this._functions.push(new CntkFunction(block.block_function_op_name, nodes, ));
+                    this._functions.push(new CntkFunction(block.block_function_op_name, nodes, inputs, outputs));
                 }
             });
 
@@ -1100,7 +1100,7 @@ cntk_v1.ComputationNetwork = class {
         reader.assert('ERootNodes');
         reader.assert('ECN');
     }
-}
+};
 
 cntk_v1.Reader = class {
 
