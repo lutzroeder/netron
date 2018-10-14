@@ -30054,13 +30054,6 @@
     "schema": {
       "attributes": [
         {
-          "allowedValues": [
-            "stdout",
-            "stderr",
-            "log(info)",
-            "log(warning)",
-            "log(error)"
-          ],
           "default": "stderr",
           "description": "A string specifying the output stream or logging level to print to.",
           "name": "output_stream",
