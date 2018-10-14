@@ -234,7 +234,7 @@ class ElectronHost {
         if (this._telemetry) {
             try {
                 var description = [];
-                description.push((err.name ? (err.name + ': ') : '') + err.message);
+                description.push((err && err.name ? (err.name + ': ') : '') + (err && err.message ? err.message : '(null)'));
                 if (err.stack) {
                     var match = err.stack.match(/\n    at (.*)\((.*)\)/);
                     if (match) {
