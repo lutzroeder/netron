@@ -16,6 +16,45 @@ def count_leading_spaces(s):
     else:
         return 0
 
+def process_list_block(docstring, starting_point, leading_spaces, marker):
+    ending_point = docstring.find('\n\n', starting_point)
+    block = docstring[starting_point:(None if ending_point == -1 else
+                                      ending_point - 1)]
+    # Place marker for later reinjection.
+    docstring = docstring.replace(block, marker)
+    lines = block.split('\n')
+    # Remove the computed number of leading white spaces from each line.
+    lines = [re.sub('^' + ' ' * leading_spaces, '', line) for line in lines]
+    # Usually lines have at least 4 additional leading spaces.
+    # These have to be removed, but first the list roots have to be detected.
+    top_level_regex = r'^    ([^\s\\\(]+):(.*)'
+    top_level_replacement = r'- __\1__:\2'
+    lines = [re.sub(top_level_regex, top_level_replacement, line) for line in lines]
+    # All the other lines get simply the 4 leading space (if present) removed
+    lines = [re.sub(r'^    ', '', line) for line in lines]
+    # Fix text lines after lists
+    indent = 0
+    text_block = False
+    for i in range(len(lines)):
+        line = lines[i]
+        spaces = re.search(r'\S', line)
+        if spaces:
+            # If it is a list element
+            if line[spaces.start()] == '-':
+                indent = spaces.start() + 1
+                if text_block:
+                    text_block = False
+                    lines[i] = '\n' + line
+            elif spaces.start() < indent:
+                text_block = True
+                indent = spaces.start()
+                lines[i] = '\n' + line
+        else:
+            text_block = False
+            indent = 0
+    block = '\n'.join(lines)
+    return docstring, block
+
 def process_docstring(docstring):
     # First, extract code blocks and process them.
     code_blocks = []
@@ -55,18 +94,35 @@ def process_docstring(docstring):
             code_blocks.append(snippet)
             tmp = tmp[index:]
 
+    # Format docstring lists.
+    section_regex = r'\n( +)# (.*)\n'
+    section_idx = re.search(section_regex, docstring)
+    shift = 0
+    sections = {}
+    while section_idx and section_idx.group(2):
+        anchor = section_idx.group(2)
+        leading_spaces = len(section_idx.group(1))
+        shift += section_idx.end()
+        marker = '$' + anchor.replace(' ', '_') + '$'
+        docstring, content = process_list_block(docstring,
+                                                shift,
+                                                leading_spaces,
+                                                marker)
+        sections[marker] = content
+        section_idx = re.search(section_regex, docstring[shift:])
+
     # Format docstring section titles.
     docstring = re.sub(r'\n(\s+)# (.*)\n',
                        r'\n\1__\2__\n\n',
                        docstring)
-    # Format docstring lists.
-    docstring = re.sub(r'    ([^\s\\\(]+):(.*)\n',
-                       r'    - __\1__:\2\n',
-                       docstring)
 
-    # Strip all leading spaces.
+    # Strip all remaining leading spaces.
     lines = docstring.split('\n')
     docstring = '\n'.join([line.lstrip(' ') for line in lines])
+
+    # Reinject list blocks.
+    for marker, content in sections.items():
+        docstring = docstring.replace(marker, content)
 
     # Reinject code blocks.
     for i, code_block in enumerate(code_blocks):
@@ -173,12 +229,23 @@ def update_examples(schema, lines):
 def update_references(schema, lines):
     if 'references' in schema:
         del schema['references']
+    references = []
+    reference = ''
     for line in lines:
-        if line != '':
-            line = line.lstrip('- ')
-            if not 'references' in schema:
-                schema['references'] = []
-            schema['references'].append({ 'description': line })
+        if line.startswith('- '):
+            if len(reference) > 0:
+                references.append(reference)
+            reference = line.lstrip('- ')
+        else:
+            if line.startswith('  '):
+                line = line[2:]
+            reference = reference + line
+    if len(reference) > 0:
+        references.append(reference)
+    for reference in references:
+        if not 'references' in schema:
+            schema['references'] = []
+        schema['references'].append({ 'description': reference })
 
 def update_input(schema, description):
     entry = None

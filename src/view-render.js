@@ -116,7 +116,7 @@ class GraphRenderer {
 
         graph.edges().forEach((edgeId) => {
             var edge = graph.edge(edgeId);
-            var edgePath = GraphRenderer.computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
+            var edgePath = GraphRenderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
             var edgeElement = this.createElement('path');
             edgeElement.setAttribute('class', edge.hasOwnProperty('class') ? ('edge-path ' + edge.class) : 'edge-path');
             edgeElement.setAttribute('d', edgePath);
@@ -154,7 +154,7 @@ class GraphRenderer {
         return document.createElementNS('http://www.w3.org/2000/svg', name);
     }
 
-    static computeCurvePath(edge, tail, head) {
+    static _computeCurvePath(edge, tail, head) {
         var points = edge.points.slice(1, edge.points.length - 1);
         points.unshift(GraphRenderer.intersectRect(tail, points[0]));
         points.push(GraphRenderer.intersectRect(head, points[points.length - 1]));

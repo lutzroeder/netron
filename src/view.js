@@ -101,7 +101,7 @@ class View {
         if (this._activeGraph) {
             this.clearSelection();
             var graphElement = document.getElementById('graph');
-            var view = new FindView(graphElement, this._activeGraph);
+            var view = new FindSidebar(graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -909,7 +909,7 @@ class View {
 
     showModelProperties() {
         if (this._model) {
-            var view = new ModelView(this._model, this._host);
+            var view = new ModelSidebar(this._model, this._host);
             view.on('update-active-graph', (sender, name) => {
                 this.updateActiveGraph(name);
             });
@@ -919,7 +919,7 @@ class View {
     
     showNodeProperties(node, input) {
         if (node) {
-            var view = new NodeView(node, this._host);
+            var view = new NodeSidebar(node, this._host);
             view.on('show-documentation', (sender, e) => {
                 this.showOperatorDocumentation(node);
             });
@@ -944,7 +944,7 @@ class View {
     showOperatorDocumentation(node) {
         var documentation = node.documentation;
         if (documentation) {
-            var view = new OperatorDocumentationView(documentation);
+            var view = new OperatorDocumentationSidebar(documentation);
             view.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });

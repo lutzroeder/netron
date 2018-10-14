@@ -5,7 +5,7 @@
       "attributes": [
         {
           "default": "concat",
-          "description": "Mode by which outputs of the\nforward and backward RNNs will be combined.\nOne of {'sum', 'mul', 'concat', 'ave', None}.\nIf None, the outputs will not be combined,\nthey will be returned as a list.\n",
+          "description": "Mode by which outputs of the\n    forward and backward RNNs will be combined.\n    One of {'sum', 'mul', 'concat', 'ave', None}.\n    If None, the outputs will not be combined,\n    they will be returned as a list.\n",
           "name": "merge_mode"
         },
         {
@@ -62,7 +62,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "name of activation function to use\n(see: [activations](https://keras.io/activations)),\nor alternatively, a Theano or TensorFlow operation.\n",
+          "description": "name of activation function to use\n    (see: [activations](https://keras.io/activations)),\n    or alternatively, a Theano or TensorFlow operation.\n",
           "name": "activation"
         }
       ],
@@ -109,10 +109,7 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Rectifier Nonlinearities Improve Neural Network Acoustic Models]"
-        },
-        {
-          "description": "(https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf)"
+          "description": "[Rectifier Nonlinearities Improve Neural Network Acoustic Models]( https://ai.stanford.edu/~amaas/papers/relu_hybrid_icml2013_final.pdf)"
         }
       ]
     }
@@ -135,7 +132,7 @@
           "name": "alpha_constraint"
         },
         {
-          "description": "the axes along which to share learnable\nparameters for the activation function.\nFor example, if the incoming feature maps\nare from a 2D convolution\nwith output shape `(batch, height, width, channels)`,\nand you wish to share parameters across space\nso that each filter only has one set of parameters,\nset `shared_axes=[1, 2]`.\n",
+          "description": "the axes along which to share learnable\n    parameters for the activation function.\n    For example, if the incoming feature maps\n    are from a 2D convolution\n    with output shape `(batch, height, width, channels)`,\n    and you wish to share parameters across space\n    so that each filter only has one set of parameters,\n    set `shared_axes=[1, 2]`.\n",
           "name": "shared_axes"
         }
       ],
@@ -159,10 +156,7 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Delving Deep into Rectifiers: Surpassing Human-Level Performance on"
-        },
-        {
-          "description": "ImageNet Classification](https://arxiv.org/abs/1502.01852)"
+          "description": "[Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification](https://arxiv.org/abs/1502.01852)"
         }
       ]
     }
@@ -193,10 +187,7 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Fast and Accurate Deep Network Learning by Exponential Linear Units"
-        },
-        {
-          "description": "(ELUs)](https://arxiv.org/abs/1511.07289v1)"
+          "description": "[Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)](https://arxiv.org/abs/1511.07289v1)"
         }
       ]
     }
@@ -227,10 +218,7 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Zero-Bias Autoencoders and the Benefits of Co-Adapting Features]"
-        },
-        {
-          "description": "(https://arxiv.org/abs/1402.3337)"
+          "description": "[Zero-Bias Autoencoders and the Benefits of Co-Adapting Features]( https://arxiv.org/abs/1402.3337)"
         }
       ]
     }
@@ -241,7 +229,7 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, steps, features)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, features, steps)`.\n",
           "name": "data_format"
         },
         {
@@ -262,7 +250,7 @@
             2,
             2
           ],
-          "description": "Integer, or None. Factor by which to downscale.\nE.g. 2 will halve the input.\nIf None, it will default to `pool_size`.",
+          "description": "Integer, or None. Factor by which to downscale.\n    E.g. 2 will halve the input.\n    If None, it will default to `pool_size`.",
           "name": "strides"
         }
       ],
@@ -270,13 +258,13 @@
       "description": "Max pooling operation for temporal data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, downsampled_steps)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, downsampled_steps)`\n",
           "name": "output"
         }
       ],
@@ -289,7 +277,7 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         },
         {
@@ -302,7 +290,7 @@
             2,
             2
           ],
-          "description": "integer or tuple of 2 integers,\nfactors by which to downscale (vertical, horizontal).\n(2, 2) will halve the input in both spatial dimension.\nIf only one integer is specified, the same window length\nwill be used for both dimensions.",
+          "description": "integer or tuple of 2 integers,\n    factors by which to downscale (vertical, horizontal).\n    (2, 2) will halve the input in both spatial dimension.\n    If only one integer is specified, the same window length\n    will be used for both dimensions.",
           "name": "pool_size"
         },
         {
@@ -310,7 +298,7 @@
             2,
             2
           ],
-          "description": "Integer, tuple of 2 integers, or None.\nStrides values.\nIf None, it will default to `pool_size`.",
+          "description": "Integer, tuple of 2 integers, or None.\n    Strides values.\n    If None, it will default to `pool_size`.",
           "name": "strides"
         }
       ],
@@ -318,13 +306,13 @@
       "description": "Max pooling operation for spatial data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, pooled_rows, pooled_cols)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, pooled_rows, pooled_cols)`\n",
           "name": "output"
         }
       ],
@@ -336,7 +324,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "tuple of 3 integers,\nfactors by which to downscale (dim1, dim2, dim3).\n(2, 2, 2) will halve the size of the 3D input in each dimension.",
+          "description": "tuple of 3 integers,\n    factors by which to downscale (dim1, dim2, dim3).\n    (2, 2, 2) will halve the size of the 3D input in each dimension.",
           "name": "pool_size"
         },
         {
@@ -348,20 +336,20 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `channels_first` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    while `channels_first` corresponds to inputs with shape\n    `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
       "description": "Max pooling operation for 3D data (spatial or spatio-temporal).\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n5D tensor with shape:\n`(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n- If `data_format='channels_first'`:\n5D tensor with shape:\n`(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    5D tensor with shape:\n    `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n- If `data_format='channels_first'`:\n    5D tensor with shape:\n    `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n5D tensor with shape:\n`(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n5D tensor with shape:\n`(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    5D tensor with shape:\n    `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n    5D tensor with shape:\n    `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n",
           "name": "output"
         }
       ],
@@ -404,15 +392,15 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `\"channels_first\"`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
-          "description": "int, or tuple of 2 integers.\nThe upsampling factors for rows and columns.",
+          "description": "int, or tuple of 2 integers.\n    The upsampling factors for rows and columns.",
           "name": "size"
         },
         {
-          "description": "A string, one of `nearest` or `bilinear`.\nNote that CNTK does not support yet the `bilinear` upscaling\nand that with Theano, only `size=(2, 2)` is possible.\n",
+          "description": "A string, one of `nearest` or `bilinear`.\n    Note that CNTK does not support yet the `bilinear` upscaling\n    and that with Theano, only `size=(2, 2)` is possible.\n",
           "name": "interpolation"
         }
       ],
@@ -420,13 +408,13 @@
       "description": "Upsampling layer for 2D inputs.\n\nRepeats the rows and columns of the data\nby size[0] and size[1] respectively.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, rows, cols)`\n",
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, upsampled_rows, upsampled_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, upsampled_rows, upsampled_cols)`\n",
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, upsampled_rows, upsampled_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, upsampled_rows, upsampled_cols)`\n",
           "name": "output"
         }
       ],
@@ -439,11 +427,11 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    while `\"channels_first\"` corresponds to inputs with shape\n    `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         },
         {
-          "description": "int, or tuple of 3 integers.\nThe upsampling factors for dim1, dim2 and dim3.",
+          "description": "int, or tuple of 3 integers.\n    The upsampling factors for dim1, dim2 and dim3.",
           "name": "size"
         }
       ],
@@ -451,13 +439,13 @@
       "description": "Upsampling layer for 3D inputs.\n\nRepeats the 1st, 2nd and 3rd dimensions\nof the data by size[0], size[1] and size[2] respectively.\n",
       "inputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, dim1, dim2, dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, dim1, dim2, dim3)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, dim1, dim2, dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, dim1, dim2, dim3)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, upsampled_dim1, upsampled_dim2, upsampled_dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, upsampled_dim1, upsampled_dim2, upsampled_dim3)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, upsampled_dim1, upsampled_dim2, upsampled_dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, upsampled_dim1, upsampled_dim2, upsampled_dim3)`\n",
           "name": "output"
         }
       ],
@@ -469,7 +457,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of int (length 2), or dictionary.\n- If int:\nHow many zeros to add at the beginning and end of\nthe padding dimension (axis 1).\n- If tuple of int (length 2):\nHow many zeros to add at the beginning and at the end of\nthe padding dimension (`(left_pad, right_pad)`).\n",
+          "description": "int, or tuple of int (length 2), or dictionary.\n    - If int:\n\n    How many zeros to add at the beginning and end of\n    the padding dimension (axis 1).\n\n    - If tuple of int (length 2):\n\n    How many zeros to add at the beginning and at the end of\n    the padding dimension (`(left_pad, right_pad)`).\n",
           "name": "padding"
         }
       ],
@@ -495,11 +483,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to height and width.\n- If tuple of 2 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_height_pad, symmetric_width_pad)`.\n- If tuple of 2 tuples of 2 ints:\ninterpreted as\n`((top_pad, bottom_pad), (left_pad, right_pad))`",
+          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n    - If int: the same symmetric padding\n        is applied to height and width.\n    - If tuple of 2 ints:\n        interpreted as two different\n        symmetric padding values for height and width:\n        `(symmetric_height_pad, symmetric_width_pad)`.\n    - If tuple of 2 tuples of 2 ints:\n        interpreted as\n        `((top_pad, bottom_pad), (left_pad, right_pad))`",
           "name": "padding"
         },
         {
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `\"channels_first\"`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -507,13 +495,13 @@
       "description": "Zero-padding layer for 2D input (e.g. picture).\n\nThis layer can add rows and columns of zeros\nat the top, bottom, left and right side of an image tensor.\n",
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, rows, cols)`\n",
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, padded_rows, padded_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, padded_rows, padded_cols)`\n",
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, padded_rows, padded_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, padded_rows, padded_cols)`\n",
           "name": "output"
         }
       ],
@@ -525,11 +513,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric padding\nis applied to height and width.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric padding values for height and width:\n`(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_pad, right_dim1_pad),\n(left_dim2_pad, right_dim2_pad),\n(left_dim3_pad, right_dim3_pad))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n    - If int: the same symmetric padding\n        is applied to height and width.\n    - If tuple of 3 ints:\n        interpreted as two different\n        symmetric padding values for height and width:\n        `(symmetric_dim1_pad, symmetric_dim2_pad, symmetric_dim3_pad)`.\n    - If tuple of 3 tuples of 2 ints:\n        interpreted as\n        `((left_dim1_pad, right_dim1_pad),\n          (left_dim2_pad, right_dim2_pad),\n          (left_dim3_pad, right_dim3_pad))`",
           "name": "padding"
         },
         {
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    while `\"channels_first\"` corresponds to inputs with shape\n    `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -537,13 +525,13 @@
       "description": "Zero-padding layer for 3D data (spatial or spatio-temporal).\n",
       "inputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_axis_to_pad, second_axis_to_pad, third_axis_to_pad)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, depth,\n      first_axis_to_pad, second_axis_to_pad, third_axis_to_pad)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_padded_axis, second_padded_axis, third_axis_to_pad,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_padded_axis, second_padded_axis, third_axis_to_pad)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, first_padded_axis, second_padded_axis, third_axis_to_pad,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, depth,\n      first_padded_axis, second_padded_axis, third_axis_to_pad)`\n",
           "name": "output"
         }
       ],
@@ -555,7 +543,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, steps, features)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, features, steps)`.\n",
           "name": "data_format"
         }
       ],
@@ -563,7 +551,7 @@
       "description": "Global max pooling operation for temporal data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
@@ -582,7 +570,7 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -590,7 +578,7 @@
       "description": "Global max pooling operation for spatial data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
@@ -608,7 +596,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, steps, features)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, features, steps)`.\n",
           "name": "data_format"
         }
       ],
@@ -616,7 +604,7 @@
       "description": "Global average pooling operation for temporal data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
@@ -635,7 +623,7 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -643,7 +631,7 @@
       "description": "Global average pooling operation for spatial data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
@@ -665,7 +653,7 @@
           "name": "pool_size"
         },
         {
-          "description": "Integer, or None. Factor by which to downscale.\nE.g. 2 will halve the input.\nIf None, it will default to `pool_size`.",
+          "description": "Integer, or None. Factor by which to downscale.\n    E.g. 2 will halve the input.\n    If None, it will default to `pool_size`.",
           "name": "strides"
         },
         {
@@ -673,20 +661,20 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, steps, features)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, features, steps)`.\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, steps, features)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, features, steps)`.\n",
           "name": "data_format"
         }
       ],
       "description": "Average pooling for temporal data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, steps)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, steps)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n3D tensor with shape:\n`(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n3D tensor with shape:\n`(batch_size, features, downsampled_steps)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, downsampled_steps)`\n",
           "name": "output"
         }
       ],
@@ -699,15 +687,15 @@
       "attributes": [
         {
           "default": "channels_last",
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         },
         {
-          "description": "integer or tuple of 2 integers,\nfactors by which to downscale (vertical, horizontal).\n(2, 2) will halve the input in both spatial dimension.\nIf only one integer is specified, the same window length\nwill be used for both dimensions.",
+          "description": "integer or tuple of 2 integers,\n    factors by which to downscale (vertical, horizontal).\n    (2, 2) will halve the input in both spatial dimension.\n    If only one integer is specified, the same window length\n    will be used for both dimensions.",
           "name": "pool_size"
         },
         {
-          "description": "Integer, tuple of 2 integers, or None.\nStrides values.\nIf None, it will default to `pool_size`.",
+          "description": "Integer, tuple of 2 integers, or None.\n    Strides values.\n    If None, it will default to `pool_size`.",
           "name": "strides"
         },
         {
@@ -719,13 +707,13 @@
       "description": "Average pooling operation for spatial data.\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, rows, cols)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, rows, cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n4D tensor with shape:\n`(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n4D tensor with shape:\n`(batch_size, channels, pooled_rows, pooled_cols)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, pooled_rows, pooled_cols)`\n",
           "name": "output"
         }
       ],
@@ -737,7 +725,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "tuple of 3 integers,\nfactors by which to downscale (dim1, dim2, dim3).\n(2, 2, 2) will halve the size of the 3D input in each dimension.",
+          "description": "tuple of 3 integers,\n    factors by which to downscale (dim1, dim2, dim3).\n    (2, 2, 2) will halve the size of the 3D input in each dimension.",
           "name": "pool_size"
         },
         {
@@ -749,20 +737,20 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `channels_first` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    while `channels_first` corresponds to inputs with shape\n    `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
       "description": "Average pooling operation for 3D data (spatial or spatio-temporal).\n",
       "inputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n5D tensor with shape:\n`(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n- If `data_format='channels_first'`:\n5D tensor with shape:\n`(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    5D tensor with shape:\n    `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n- If `data_format='channels_first'`:\n    5D tensor with shape:\n    `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n5D tensor with shape:\n`(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n5D tensor with shape:\n`(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n",
+          "description": "\n- If `data_format='channels_last'`:\n    5D tensor with shape:\n    `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n    5D tensor with shape:\n    `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n",
           "name": "output"
         }
       ],
@@ -775,7 +763,7 @@
       "attributes": [
         {
           "default": -1,
-          "description": "Integer, the axis that should be normalized\n(typically the features axis).\nFor instance, after a `Conv2D` layer with\n`data_format=\"channels_first\"`,\nset `axis=1` in `BatchNormalization`.",
+          "description": "Integer, the axis that should be normalized\n    (typically the features axis).\n    For instance, after a `Conv2D` layer with\n    `data_format=\"channels_first\"`,\n    set `axis=1` in `BatchNormalization`.",
           "name": "axis"
         },
         {
@@ -790,12 +778,12 @@
         },
         {
           "default": true,
-          "description": "If True, multiply by `gamma`.\nIf False, `gamma` is not used.\nWhen the next layer is linear (also e.g. `nn.relu`),\nthis can be disabled since the scaling\nwill be done by the next layer.",
+          "description": "If True, multiply by `gamma`.\n    If False, `gamma` is not used.\n    When the next layer is linear (also e.g. `nn.relu`),\n    this can be disabled since the scaling\n    will be done by the next layer.",
           "name": "scale"
         },
         {
           "default": true,
-          "description": "If True, add offset of `beta` to normalized tensor.\nIf False, `beta` is ignored.",
+          "description": "If True, add offset of `beta` to normalized tensor.\n    If False, `beta` is ignored.",
           "name": "center"
         },
         {
@@ -882,10 +870,7 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Batch Normalization: Accelerating Deep Network Training by"
-        },
-        {
-          "description": "Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)"
+          "description": "[Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift](https://arxiv.org/abs/1502.03167)"
         }
       ]
     }
@@ -1039,7 +1024,7 @@
         },
         {
           "default": "linear",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -1058,7 +1043,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -1067,36 +1052,36 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
         }
       ],
       "category": "Layer",
-      "description": "Just your regular densely-connected NN layer.\n\n`Dense` implements the operation:\n`output = activation(dot(input, kernel) + bias)`\nwhere `activation` is the element-wise activation function\npassed as the `activation` argument, `kernel` is a weights matrix\ncreated by the layer, and `bias` is a bias vector created by the layer\n(only applicable if `use_bias` is `True`).\n\n- __Note__: if the input to the layer has a rank greater than 2, then\nit is flattened prior to the initial dot product with `kernel`.\n",
+      "description": "Just your regular densely-connected NN layer.\n\n`Dense` implements the operation:\n`output = activation(dot(input, kernel) + bias)`\nwhere `activation` is the element-wise activation function\npassed as the `activation` argument, `kernel` is a weights matrix\ncreated by the layer, and `bias` is a bias vector created by the layer\n(only applicable if `use_bias` is `True`).\n\nNote: if the input to the layer has a rank greater than 2, then\nit is flattened prior to the initial dot product with `kernel`.\n",
       "examples": [
         {
           "code": "# as first layer in a sequential model:\nmodel = Sequential()\nmodel.add(Dense(32, input_shape=(16,)))\n# now the model will take as input arrays of shape (*, 16)\n# and output arrays of shape (*, 32)\n\n# after the first layer, you don't need to specify\n# the size of the input anymore:\nmodel.add(Dense(32))"
@@ -1132,23 +1117,23 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of a single integer,\nspecifying the length of the 1D convolution window.",
+          "description": "An integer or tuple/list of a single integer,\n    specifying the length of the 1D convolution window.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of a single integer,\nspecifying the stride length of the convolution.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of a single integer,\n    specifying the stride length of the convolution.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
-          "description": "Currently only supports `\"valid\"` (case-insensitive).\n`\"same\"` may be supported in the future.",
+          "description": "Currently only supports `\"valid\"` (case-insensitive).\n    `\"same\"` may be supported in the future.",
           "name": "padding"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -1156,36 +1141,36 @@
           "name": "use_bias"
         },
         {
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
         }
       ],
@@ -1216,27 +1201,27 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nwidth and height of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\n    width and height of the 2D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution along the width and height.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution along the width and height.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
           "name": "strides"
         },
         {
-          "description": "Currently only support `\"valid\"` (case-insensitive).\n`\"same\"` will be supported in future.",
+          "description": "Currently only support `\"valid\"` (case-insensitive).\n    `\"same\"` will be supported in future.",
           "name": "padding"
         },
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\n`channels_last` corresponds to inputs with shape\n`(batch, height, width, channels)` while `channels_first`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -1245,35 +1230,35 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer"
         },
         {
-          "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
         }
       ],
@@ -1305,22 +1290,22 @@
       "attributes": [
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
-          "description": "Boolean. Whether to return the last state\nin addition to the output.",
+          "description": "Boolean. Whether to return the last state\n    in addition to the output.",
           "name": "return_state"
         },
         {
           "default": "tanh",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    Default: hyperbolic tangent (`tanh`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "hard_sigmoid",
-          "description": "Activation function to use\nfor the recurrent step\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "recurrent_activation"
         },
         {
@@ -1334,43 +1319,43 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
           "default": true,
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
+          "description": "Boolean.\n    If True, add 1 to the bias of the forget gate at initialization.\n    Setting it to true will also force `bias_initializer=\"zeros\"`.\n    This is recommended in [Jozefowicz et al. (2015)](\n    http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
           "default": 0.0,
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
           "default": 0.0,
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
         {
           "default": 1,
-          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.",
+          "description": "Implementation mode, either 1 or 2.\n    Mode 1 will structure its operations as a larger number of\n    smaller dot products and additions, whereas mode 2 will\n    batch them into fewer, larger operations. These modes will\n    have different performance profiles on different hardware and\n    for different applications.",
           "name": "implementation"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.\n",
+          "description": "Boolean (default False).\n    If True, the network will be unrolled,\n    else a symbolic loop will be used.\n    Unrolling can speed-up a RNN,\n    although it tends to be more memory-intensive.\n    Unrolling is only suitable for short sequences.\n",
           "name": "unroll"
         },
         {
           "default": false,
-          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
+          "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
+          "description": "Boolean (default False).\n    If True, process the input sequence backwards and return the\n    reversed sequence.",
           "name": "go_backwards"
         },
         {
@@ -1383,7 +1368,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -1395,7 +1380,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
@@ -1404,35 +1389,35 @@
           "name": "units"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
@@ -1468,28 +1453,16 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Long short-term memory]("
+          "description": "[Long short-term memory](http://www.bioinf.jku.at/publications/older/2604.pdf)"
         },
         {
-          "description": "__http__://www.bioinf.jku.at/publications/older/2604.pdf)"
+          "description": "[Learning to forget: Continual prediction with LSTM](http://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)"
         },
         {
-          "description": "[Learning to forget: Continual prediction with LSTM]("
+          "description": "[Supervised sequence labeling with recurrent neural networks](http://www.cs.toronto.edu/~graves/preprint.pdf)"
         },
         {
-          "description": "__http__://www.mitpressjournals.org/doi/pdf/10.1162/089976600300015015)"
-        },
-        {
-          "description": "[Supervised sequence labeling with recurrent neural networks]("
-        },
-        {
-          "description": "__http__://www.cs.toronto.edu/~graves/preprint.pdf)"
-        },
-        {
-          "description": "[A Theoretically Grounded Application of Dropout in"
-        },
-        {
-          "description": "Recurrent Neural Networks](https://arxiv.org/abs/1512.05287)"
+          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](https://arxiv.org/abs/1512.05287)"
         }
       ]
     }
@@ -1500,12 +1473,12 @@
       "attributes": [
         {
           "default": "tanh",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    Default: hyperbolic tangent (`tanh`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "hard_sigmoid",
-          "description": "Activation function to use\nfor the recurrent step\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "recurrent_activation"
         },
         {
@@ -1524,7 +1497,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -1536,7 +1509,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
@@ -1545,43 +1518,43 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
           "default": 0.0,
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
           "default": 1,
-          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.",
+          "description": "Implementation mode, either 1 or 2.\n    Mode 1 will structure its operations as a larger number of\n    smaller dot products and additions, whereas mode 2 will\n    batch them into fewer, larger operations. These modes will\n    have different performance profiles on different hardware and\n    for different applications.",
           "name": "implementation"
         },
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
-          "description": "Boolean. Whether to return the last state\nin addition to the output.",
+          "description": "Boolean. Whether to return the last state\n    in addition to the output.",
           "name": "return_state"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
+          "description": "Boolean (default False).\n    If True, process the input sequence backwards and return the\n    reversed sequence.",
           "name": "go_backwards"
         },
         {
           "default": false,
-          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
+          "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.",
+          "description": "Boolean (default False).\n    If True, the network will be unrolled,\n    else a symbolic loop will be used.\n    Unrolling can speed-up a RNN,\n    although it tends to be more memory-intensive.\n    Unrolling is only suitable for short sequences.",
           "name": "unroll"
         },
         {
@@ -1589,39 +1562,39 @@
           "name": "units"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
         {
@@ -1629,7 +1602,7 @@
           "name": "Default"
         },
         {
-          "description": "GRU convention (whether to apply reset gate after or\nbefore matrix multiplication). False = \"before\" (default),\nTrue = \"after\" (CuDNN compatible).\n",
+          "description": "GRU convention (whether to apply reset gate after or\n    before matrix multiplication). False = \"before\" (default),\n    True = \"after\" (CuDNN compatible).\n",
           "name": "reset_after"
         }
       ],
@@ -1657,28 +1630,16 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Learning Phrase Representations using RNN Encoder-Decoder for"
+          "description": "[Learning Phrase Representations using RNN Encoder-Decoder for Statistical Machine Translation](https://arxiv.org/abs/1406.1078)"
         },
         {
-          "description": "Statistical Machine Translation](https://arxiv.org/abs/1406.1078)"
+          "description": "[On the Properties of Neural Machine Translation: Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)"
         },
         {
-          "description": "[On the Properties of Neural Machine Translation:"
+          "description": "[Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling](https://arxiv.org/abs/1412.3555v1)"
         },
         {
-          "description": "Encoder-Decoder Approaches](https://arxiv.org/abs/1409.1259)"
-        },
-        {
-          "description": "[Empirical Evaluation of Gated Recurrent Neural Networks on"
-        },
-        {
-          "description": "Sequence Modeling](https://arxiv.org/abs/1412.3555v1)"
-        },
-        {
-          "description": "[A Theoretically Grounded Application of Dropout in"
-        },
-        {
-          "description": "Recurrent Neural Networks](https://arxiv.org/abs/1512.05287)"
+          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](https://arxiv.org/abs/1512.05287)"
         }
       ]
     }
@@ -1688,15 +1649,15 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number output of filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number output of filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of n integers, specifying the\ndimensions of the convolution window.",
+          "description": "An integer or tuple/list of n integers, specifying the\n    dimensions of the convolution window.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of n integers,\nspecifying the strides of the convolution.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of n integers,\n    specifying the strides of the convolution.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -1704,19 +1665,19 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `\"channels_last\"` (default) or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, time, ..., channels)`\nwhile `\"channels_first\"` corresponds to\ninputs with shape `(batch, time, channels, ...)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be `\"channels_last\"`.",
+          "description": "A string,\n    one of `\"channels_last\"` (default) or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, time, ..., channels)`\n    while `\"channels_first\"` corresponds to\n    inputs with shape `(batch, time, channels, ...)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be `\"channels_last\"`.",
           "name": "data_format"
         },
         {
-          "description": "An integer or tuple/list of n integers, specifying\nthe dilation rate to use for dilated convolution.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any `strides` value != 1.",
+          "description": "An integer or tuple/list of n integers, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any `strides` value != 1.",
           "name": "dilation_rate"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
-          "description": "Activation function to use\nfor the recurrent step\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).",
           "name": "recurrent_activation"
         },
         {
@@ -1725,74 +1686,74 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nUse in combination with `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
+          "description": "Boolean.\n    If True, add 1 to the bias of the forget gate at initialization.\n    Use in combination with `bias_initializer=\"zeros\"`.\n    This is recommended in [Jozefowicz et al. (2015)](\n    http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
-          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
-          "description": "Boolean (default False).\nIf True, process the input sequence backwards.",
+          "description": "Boolean (default False).\n    If True, process the input sequence backwards.",
           "name": "go_backwards"
         },
         {
-          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
+          "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.\n",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.\n",
           "name": "recurrent_dropout"
         },
         {
@@ -1803,29 +1764,20 @@
       "description": "Convolutional LSTM.\n\nIt is similar to an LSTM layer, but the input transformations\nand recurrent transformations are both convolutional.\n",
       "inputs": [
         {
-          "description": "\n- if data_format='channels_first'\n5D tensor with shape:\n`(samples, time, channels, rows, cols)`\n- if data_format='channels_last'\n5D tensor with shape:\n`(samples, time, rows, cols, channels)`\n",
+          "description": "\n- if data_format='channels_first'\n    5D tensor with shape:\n    `(samples, time, channels, rows, cols)`\n- if data_format='channels_last'\n    5D tensor with shape:\n    `(samples, time, rows, cols, channels)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- if `return_sequences`\n- if data_format='channels_first'\n5D tensor with shape:\n`(samples, time, filters, output_row, output_col)`\n- if data_format='channels_last'\n5D tensor with shape:\n`(samples, time, output_row, output_col, filters)`\n- else\n- if data_format='channels_first'\n4D tensor with shape:\n`(samples, filters, output_row, output_col)`\n- if data_format='channels_last'\n4D tensor with shape:\n`(samples, output_row, output_col, filters)`\nwhere o_row and o_col depend on the shape of the filter and\nthe padding\n",
+          "description": "\n- if `return_sequences`\n     - if data_format='channels_first'\n        5D tensor with shape:\n        `(samples, time, filters, output_row, output_col)`\n     - if data_format='channels_last'\n        5D tensor with shape:\n        `(samples, time, output_row, output_col, filters)`\n- else\n    - if data_format='channels_first'\n        4D tensor with shape:\n        `(samples, filters, output_row, output_col)`\n    - if data_format='channels_last'\n        4D tensor with shape:\n        `(samples, output_row, output_col, filters)`\n\n    where o_row and o_col depend on the shape of the filter and\n    the padding\n",
           "name": "output"
         }
       ],
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Convolutional LSTM Network: A Machine Learning Approach for"
-        },
-        {
-          "description": "Precipitation Nowcasting](http://arxiv.org/abs/1506.04214v1)"
-        },
-        {
-          "description": "The current implementation does not include the feedback loop on the"
-        },
-        {
-          "description": "cells output"
+          "description": "[Convolutional LSTM Network: A Machine Learning Approach forPrecipitation Nowcasting](http://arxiv.org/abs/1506.04214v1)The current implementation does not include the feedback loop on thecells output"
         }
       ]
     }
@@ -1839,62 +1791,62 @@
           "name": "units"
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
-          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output.\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
-          "description": "Boolean. Whether to return the last state\nin addition to the output.",
+          "description": "Boolean. Whether to return the last state\n    in addition to the output.",
           "name": "return_state"
         },
         {
-          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.\n",
+          "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.\n",
           "name": "stateful"
         }
       ],
@@ -1911,66 +1863,66 @@
           "name": "units"
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
+          "description": "Boolean.\n    If True, add 1 to the bias of the forget gate at initialization.\n    Setting it to true will also force `bias_initializer=\"zeros\"`.\n    This is recommended in [Jozefowicz et al. (2015)](\n    http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state.\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state.\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
-          "description": "Boolean. Whether to return the last output.\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output.\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
-          "description": "Boolean. Whether to return the last state\nin addition to the output.",
+          "description": "Boolean. Whether to return the last state\n    in addition to the output.",
           "name": "return_state"
         },
         {
-          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.\n",
+          "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.\n",
           "name": "stateful"
         },
         {
@@ -1988,32 +1940,32 @@
       "attributes": [
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
-          "description": "Boolean. Whether to return the last state\nin addition to the output.",
+          "description": "Boolean. Whether to return the last state\n    in addition to the output.",
           "name": "return_state"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
+          "description": "Boolean (default False).\n    If True, process the input sequence backwards and return the\n    reversed sequence.",
           "name": "go_backwards"
         },
         {
           "default": false,
-          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
+          "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.\n",
+          "description": "Boolean (default False).\n    If True, the network will be unrolled,\n    else a symbolic loop will be used.\n    Unrolling can speed-up a RNN,\n    although it tends to be more memory-intensive.\n    Unrolling is only suitable for short sequences.\n",
           "name": "unroll"
         },
         {
           "default": "tanh",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    Default: hyperbolic tangent (`tanh`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -2032,7 +1984,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -2044,7 +1996,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
@@ -2053,18 +2005,18 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
           "default": 0.0,
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
           "default": 0.0,
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
         {
@@ -2072,35 +2024,35 @@
           "name": "units"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
@@ -2138,39 +2090,39 @@
       "attributes": [
         {
           "default": false,
-          "description": "Boolean. Whether to return the last output\nin the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
           "name": "return_sequences"
         },
         {
           "default": false,
-          "description": "Boolean. Whether to return the last state\nin addition to the output.",
+          "description": "Boolean. Whether to return the last state\n    in addition to the output.",
           "name": "return_state"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, process the input sequence backwards and return the\nreversed sequence.",
+          "description": "Boolean (default False).\n    If True, process the input sequence backwards and return the\n    reversed sequence.",
           "name": "go_backwards"
         },
         {
           "default": false,
-          "description": "Boolean (default False). If True, the last state\nfor each sample at index i in a batch will be used as initial\nstate for the sample of index i in the following batch.",
+          "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.",
           "name": "stateful"
         },
         {
           "default": false,
-          "description": "Boolean (default False).\nIf True, the network will be unrolled,\nelse a symbolic loop will be used.\nUnrolling can speed-up a RNN,\nalthough it tends to be more memory-intensive.\nUnrolling is only suitable for short sequences.",
+          "description": "Boolean (default False).\n    If True, the network will be unrolled,\n    else a symbolic loop will be used.\n    Unrolling can speed-up a RNN,\n    although it tends to be more memory-intensive.\n    Unrolling is only suitable for short sequences.",
           "name": "unroll"
         },
         {
-          "description": "A RNN cell instance. A RNN cell is a class that has:\n- a `call(input_at_t, states_at_t)` method, returning\n`(output_at_t, states_at_t_plus_1)`. The call method of the\ncell can also take the optional argument `constants`, see\nsection \"Note on passing external constants\" below.\n- a `state_size` attribute. This can be a single integer\n(single state) in which case it is\nthe size of the recurrent state\n(which should be the same as the size of the cell output).\nThis can also be a list/tuple of integers\n(one size per state).\n- a `output_size` attribute. This can be a single integer or a\nTensorShape, which represent the shape of the output. For\nbackward compatible reason, if this attribute is not available\nfor the cell, the value will be inferred by the first element\nof the `state_size`.\nIt is also possible for `cell` to be a list of RNN cell instances,\nin which cases the cells get stacked on after the other in the RNN,\nimplementing an efficient stacked RNN.",
+          "description": "A RNN cell instance. A RNN cell is a class that has:\n    - a `call(input_at_t, states_at_t)` method, returning\n        `(output_at_t, states_at_t_plus_1)`. The call method of the\n        cell can also take the optional argument `constants`, see\n        section \"Note on passing external constants\" below.\n    - a `state_size` attribute. This can be a single integer\n        (single state) in which case it is\n        the size of the recurrent state\n        (which should be the same as the size of the cell output).\n        This can also be a list/tuple of integers\n        (one size per state).\n    - a `output_size` attribute. This can be a single integer or a\n        TensorShape, which represent the shape of the output. For\n        backward compatible reason, if this attribute is not available\n        for the cell, the value will be inferred by the first element\n        of the `state_size`.\n\n    It is also possible for `cell` to be a list of RNN cell instances,\n    in which cases the cells get stacked on after the other in the RNN,\n    implementing an efficient stacked RNN.\n",
           "name": "cell"
         },
         {
-          "description": "dimensionality of the input (integer).\nThis argument (or alternatively,\nthe keyword argument `input_shape`)\nis required when using this layer as the first layer in a model.",
+          "description": "dimensionality of the input (integer).\n    This argument (or alternatively,\n    the keyword argument `input_shape`)\n    is required when using this layer as the first layer in a model.",
           "name": "input_dim"
         },
         {
-          "description": "Length of input sequences, to be specified\nwhen it is constant.\nThis argument is required if you are going to connect\n`Flatten` then `Dense` layers upstream\n(without it, the shape of the dense outputs cannot be computed).\nNote that if the recurrent layer is not the first layer\nin your model, you would need to specify the input length\nat the level of the first layer\n(e.g. via the `input_shape` argument)\n",
+          "description": "Length of input sequences, to be specified\n    when it is constant.\n    This argument is required if you are going to connect\n    `Flatten` then `Dense` layers upstream\n    (without it, the shape of the dense outputs cannot be computed).\n    Note that if the recurrent layer is not the first layer\n    in your model, you would need to specify the input length\n    at the level of the first layer\n    (e.g. via the `input_shape` argument)\n",
           "name": "input_length"
         }
       ],
@@ -2189,7 +2141,7 @@
       ],
       "outputs": [
         {
-          "description": "\n- if `return_state`: a list of tensors. The first tensor is\nthe output. The remaining tensors are the last states,\neach with shape `(batch_size, units)`.\n- if `return_sequences`: 3D tensor with shape\n`(batch_size, timesteps, units)`.\n- else, 2D tensor with shape `(batch_size, units)`.\n",
+          "description": "\n- if `return_state`: a list of tensors. The first tensor is\n    the output. The remaining tensors are the last states,\n    each with shape `(batch_size, units)`.\n- if `return_sequences`: 3D tensor with shape\n    `(batch_size, timesteps, units)`.\n- else, 2D tensor with shape `(batch_size, units)`.\n",
           "name": "output"
         }
       ],
@@ -2205,7 +2157,7 @@
           "name": "units"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    Default: hyperbolic tangent (`tanh`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -2214,53 +2166,53 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.\n",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.\n",
           "name": "recurrent_dropout"
         },
         {
@@ -2281,11 +2233,11 @@
           "name": "units"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    Default: hyperbolic tangent (`tanh`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
-          "description": "Activation function to use\nfor the recurrent step\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "recurrent_activation"
         },
         {
@@ -2294,57 +2246,57 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
         {
-          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.",
+          "description": "Implementation mode, either 1 or 2.\n    Mode 1 will structure its operations as a larger number of\n    smaller dot products and additions, whereas mode 2 will\n    batch them into fewer, larger operations. These modes will\n    have different performance profiles on different hardware and\n    for different applications.",
           "name": "implementation"
         },
         {
@@ -2352,7 +2304,7 @@
           "name": "Default"
         },
         {
-          "description": "GRU convention (whether to apply reset gate after or\nbefore matrix multiplication). False = \"before\" (default),\nTrue = \"after\" (CuDNN compatible).\n",
+          "description": "GRU convention (whether to apply reset gate after or\n    before matrix multiplication). False = \"before\" (default),\n    True = \"after\" (CuDNN compatible).\n",
           "name": "reset_after"
         }
       ],
@@ -2369,11 +2321,11 @@
           "name": "units"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    Default: hyperbolic tangent (`tanh`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
-          "description": "Activation function to use\nfor the recurrent step\n(see [activations](https://keras.io/activations)).",
+          "description": "Activation function to use\n    for the recurrent step\n    (see [activations](https://keras.io/activations)).\n    Default: hard sigmoid (`hard_sigmoid`).\n    If you pass `None`, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).x",
           "name": "recurrent_activation"
         },
         {
@@ -2382,61 +2334,61 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix,\nused for the linear transformation of the inputs\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the `recurrent_kernel`\nweights matrix,\nused for the linear transformation of the recurrent state\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state\n    (see [initializers](https://keras.io/initializers)).",
           "name": "recurrent_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Boolean.\nIf True, add 1 to the bias of the forget gate at initialization.\nSetting it to true will also force `bias_initializer=\"zeros\"`.\nThis is recommended in [Jozefowicz et al. (2015)](",
+          "description": "Boolean.\n    If True, add 1 to the bias of the forget gate at initialization.\n    Setting it to true will also force `bias_initializer=\"zeros\"`.\n    This is recommended in [Jozefowicz et al. (2015)](\n    http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf).",
           "name": "unit_forget_bias"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `recurrent_kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "recurrent_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to\nthe `recurrent_kernel` weights matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "recurrent_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).",
           "name": "bias_constraint"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the inputs.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
           "name": "dropout"
         },
         {
-          "description": "Float between 0 and 1.\nFraction of the units to drop for\nthe linear transformation of the recurrent state.",
+          "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
           "name": "recurrent_dropout"
         },
         {
-          "description": "Implementation mode, either 1 or 2.\nMode 1 will structure its operations as a larger number of\nsmaller dot products and additions, whereas mode 2 will\nbatch them into fewer, larger operations. These modes will\nhave different performance profiles on different hardware and\nfor different applications.\n",
+          "description": "Implementation mode, either 1 or 2.\n    Mode 1 will structure its operations as a larger number of\n    smaller dot products and additions, whereas mode 2 will\n    batch them into fewer, larger operations. These modes will\n    have different performance profiles on different hardware and\n    for different applications.\n",
           "name": "implementation"
         },
         {
@@ -2476,12 +2428,12 @@
       "attributes": [
         {
           "default": "linear",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n`\"valid\"` means \"no padding\".\n`\"same\"` results in padding the input such that\nthe output has the same length as the original input.\n`\"causal\"` results in causal (dilated) convolutions,\ne.g. `output[t]` does not depend on `input[t + 1:]`.\nA zero padding is used such that\nthe output has the same length as the original input.\nUseful when modeling temporal data where the model\nshould not violate the temporal order. See",
+          "description": "One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means \"no padding\".\n    `\"same\"` results in padding the input such that\n    the output has the same length as the original input.\n    `\"causal\"` results in causal (dilated) convolutions,\n    e.g. `output[t]` does not depend on `input[t + 1:]`.\n    A zero padding is used such that\n    the output has the same length as the original input.\n    Useful when modeling temporal data where the model\n    should not violate the temporal order. See\n    [WaveNet: A Generative Model for Raw Audio, section 2.1](\n    https://arxiv.org/abs/1609.03499).",
           "name": "padding"
         },
         {
@@ -2492,21 +2444,21 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` (default) or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, steps, channels)`\n(default format for temporal data in Keras)\nwhile `\"channels_first\"` corresponds to inputs\nwith shape `(batch, channels, steps)`.",
+          "description": "A string,\n    one of `\"channels_last\"` (default) or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, steps, channels)`\n    (default format for temporal data in Keras)\n    while `\"channels_first\"` corresponds to inputs\n    with shape `(batch, channels, steps)`.",
           "name": "data_format"
         },
         {
           "default": [
             1
           ],
-          "description": "An integer or tuple/list of a single integer,\nspecifying the stride length of the convolution.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of a single integer,\n    specifying the stride length of the convolution.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
           "default": [
             1
           ],
-          "description": "an integer or tuple/list of a single integer, specifying\nthe dilation rate to use for dilated convolution.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any `strides` value != 1.",
+          "description": "an integer or tuple/list of a single integer, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any `strides` value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -2514,7 +2466,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
@@ -2528,44 +2480,40 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of a single integer,\nspecifying the length of the 1D convolution window.",
+          "description": "An integer or tuple/list of a single integer,\n    specifying the length of the 1D convolution window.",
           "name": "kernel_size"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
-        },
-        {
-          "description": "A Generative Model for Raw Audio, section 2.1]\n(https://arxiv.org/abs/1609.03499).",
-          "name": "[WaveNet"
         }
       ],
       "category": "Layer",
@@ -2597,12 +2545,12 @@
       "attributes": [
         {
           "default": "linear",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\nNote that `\"same\"` is slightly inconsistent across backends with\n`strides` != 1, as described\n[here](https://github.com/keras-team/keras/pull/9473#issuecomment-372166860)",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    Note that `\"same\"` is slightly inconsistent across backends with\n    `strides` != 1, as described\n    [here](https://github.com/keras-team/keras/pull/9473#issuecomment-372166860)",
           "name": "padding"
         },
         {
@@ -2613,7 +2561,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `\"channels_first\"`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -2621,7 +2569,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution\n    along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -2629,7 +2577,7 @@
             1,
             1
           ],
-          "description": "an integer or tuple/list of 2 integers, specifying\nthe dilation rate to use for dilated convolution.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any stride value != 1.",
+          "description": "an integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -2637,7 +2585,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
@@ -2651,40 +2599,40 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\n    height and width of the 2D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint",
           "visible": false
         }
@@ -2717,15 +2665,15 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 3 integers, specifying the\ndepth, height and width of the 3D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 3 integers, specifying the\n    depth, height and width of the 3D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of 3 integers,\nspecifying the strides of the convolution along each spatial dimension.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 3 integers,\n    specifying the strides of the convolution along each spatial dimension.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -2733,15 +2681,15 @@
           "name": "padding"
         },
         {
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    while `\"channels_first\"` corresponds to inputs with shape\n    `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
-          "description": "an integer or tuple/list of 3 integers, specifying\nthe dilation rate to use for dilated convolution.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any stride value != 1.",
+          "description": "an integer or tuple/list of 3 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
           "name": "dilation_rate"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -2750,36 +2698,36 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
         }
       ],
@@ -2805,15 +2753,15 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\n    height and width of the 2D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution\n    along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -2822,15 +2770,15 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `\"channels_first\"`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
-          "description": "an integer or tuple/list of 2 integers, specifying\nthe dilation rate to use for dilated convolution.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any stride value != 1.",
+          "description": "an integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
           "name": "dilation_rate"
         },
         {
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -2849,7 +2797,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -2858,35 +2806,35 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
         },
         {
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the amount of padding along the height and width\nof the output tensor.\nCan be a single integer to specify the same value for all\nspatial dimensions.\nThe amount of output padding along a given dimension must be\nlower than the stride along that same dimension.\nIf set to `None` (default), the output shape is inferred.",
+          "description": "An integer or tuple/list of 2 integers,\n    specifying the amount of padding along the height and width\n    of the output tensor.\n    Can be a single integer to specify the same value for all\n    spatial dimensions.\n    The amount of output padding along a given dimension must be\n    lower than the stride along that same dimension.\n    If set to `None` (default), the output shape is inferred.",
           "name": "output_padding"
         }
       ],
@@ -2913,16 +2861,10 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[A guide to convolution arithmetic for deep learning]"
+          "description": "[A guide to convolution arithmetic for deep learning]( https://arxiv.org/abs/1603.07285v1)"
         },
         {
-          "description": "(https://arxiv.org/abs/1603.07285v1)"
-        },
-        {
-          "description": "[Deconvolutional Networks]"
-        },
-        {
-          "description": "(http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf)"
+          "description": "[Deconvolutional Networks]( http://www.matthewzeiler.com/pubs/cvpr2010/cvpr2010.pdf)"
         }
       ]
     }
@@ -2932,7 +2874,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "int or tuple of int (length 2)\nHow many units should be trimmed off at the beginning and end of\nthe cropping dimension (axis 1).\nIf a single int is provided,\nthe same value will be used for both.\n",
+          "description": "int or tuple of int (length 2)\n    How many units should be trimmed off at the beginning and end of\n    the cropping dimension (axis 1).\n    If a single int is provided,\n    the same value will be used for both.\n",
           "name": "cropping"
         }
       ],
@@ -2958,11 +2900,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n- If int: the same symmetric cropping\nis applied to height and width.\n- If tuple of 2 ints:\ninterpreted as two different\nsymmetric cropping values for height and width:\n`(symmetric_height_crop, symmetric_width_crop)`.\n- If tuple of 2 tuples of 2 ints:\ninterpreted as\n`((top_crop, bottom_crop), (left_crop, right_crop))`",
+          "description": "int, or tuple of 2 ints, or tuple of 2 tuples of 2 ints.\n    - If int: the same symmetric cropping\n        is applied to height and width.\n    - If tuple of 2 ints:\n        interpreted as two different\n        symmetric cropping values for height and width:\n        `(symmetric_height_crop, symmetric_width_crop)`.\n    - If tuple of 2 tuples of 2 ints:\n        interpreted as\n        `((top_crop, bottom_crop), (left_crop, right_crop))`",
           "name": "cropping"
         },
         {
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `\"channels_first\"`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -2975,13 +2917,13 @@
       ],
       "inputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, rows, cols)`\n",
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, rows, cols)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, cropped_rows, cropped_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, channels, cropped_rows, cropped_cols)`\n",
+          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, cropped_rows, cropped_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, cropped_rows, cropped_cols)`\n",
           "name": "output"
         }
       ],
@@ -2993,11 +2935,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n- If int: the same symmetric cropping\nis applied to depth, height, and width.\n- If tuple of 3 ints:\ninterpreted as two different\nsymmetric cropping values for depth, height, and width:\n`(symmetric_dim1_crop, symmetric_dim2_crop, symmetric_dim3_crop)`.\n- If tuple of 3 tuples of 2 ints:\ninterpreted as\n`((left_dim1_crop, right_dim1_crop),\n(left_dim2_crop, right_dim2_crop),\n(left_dim3_crop, right_dim3_crop))`",
+          "description": "int, or tuple of 3 ints, or tuple of 3 tuples of 2 ints.\n    - If int: the same symmetric cropping\n        is applied to depth, height, and width.\n    - If tuple of 3 ints:\n        interpreted as two different\n        symmetric cropping values for depth, height, and width:\n        `(symmetric_dim1_crop, symmetric_dim2_crop, symmetric_dim3_crop)`.\n    - If tuple of 3 tuples of 2 ints:\n        interpreted as\n        `((left_dim1_crop, right_dim1_crop),\n          (left_dim2_crop, right_dim2_crop),\n          (left_dim3_crop, right_dim3_crop))`",
           "name": "cropping"
         },
         {
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\nwhile `\"channels_first\"` corresponds to inputs with shape\n`(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    while `\"channels_first\"` corresponds to inputs with shape\n    `(batch, channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -3005,13 +2947,13 @@
       "description": "Cropping layer for 3D data (e.g. spatial or spatio-temporal).\n",
       "inputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_axis_to_crop, second_axis_to_crop, third_axis_to_crop)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, depth,\n      first_axis_to_crop, second_axis_to_crop, third_axis_to_crop)`\n",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n`(batch, first_cropped_axis, second_cropped_axis, third_cropped_axis,\ndepth)`\n- If `data_format` is `\"channels_first\"`:\n`(batch, depth,\nfirst_cropped_axis, second_cropped_axis, third_cropped_axis)`\n",
+          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, first_cropped_axis, second_cropped_axis, third_cropped_axis,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, depth,\n      first_cropped_axis, second_cropped_axis, third_cropped_axis)`\n",
           "name": "output"
         }
       ],
@@ -3024,7 +2966,7 @@
       "attributes": [
         {
           "default": "linear",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -3040,7 +2982,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `\"channels_first\"`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -3048,7 +2990,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution\n    along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -3056,12 +2998,12 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers, specifying\nthe dilation rate to use for dilated convolution.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any `strides` value != 1.",
+          "description": "An integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any `strides` value != 1.",
           "name": "dilation_rate"
         },
         {
           "default": 1,
-          "description": "The number of depthwise convolution output channels\nfor each input channel.\nThe total number of depthwise convolution output\nchannels will be equal to `filters_in * depth_multiplier`.",
+          "description": "The number of depthwise convolution output channels\n    for each input channel.\n    The total number of depthwise convolution output\n    channels will be equal to `filters_in * depth_multiplier`.",
           "name": "depth_multiplier"
         },
         {
@@ -3074,7 +3016,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the pointwise kernel matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the pointwise kernel matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "pointwise_initializer",
           "visible": false
         },
@@ -3088,7 +3030,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the depthwise kernel matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the depthwise kernel matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "depthwise_initializer",
           "visible": false
         },
@@ -3097,7 +3039,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
@@ -3115,44 +3057,44 @@
           "visible": false
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\n    height and width of the 2D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "Regularizer function applied to\nthe depthwise kernel matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the depthwise kernel matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "depthwise_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe pointwise kernel matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the pointwise kernel matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "pointwise_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe depthwise kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the depthwise kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "depthwise_constraint",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe pointwise kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the pointwise kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "pointwise_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
         }
       ],
@@ -3185,12 +3127,12 @@
       "attributes": [
         {
           "default": "linear",
-          "description": "Activation function to use\n(see [activations](https://keras.io/activations)).\nIf you don't specify anything, no activation is applied\n(ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use\n    (see [activations](https://keras.io/activations)).\n    If you don't specify anything, no activation is applied\n    (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\nNote that `\"same\"` is slightly inconsistent across backends with\n`strides` != 1, as described\n[here](https://github.com/keras-team/keras/pull/9473#issuecomment-372166860)",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    Note that `\"same\"` is slightly inconsistent across backends with\n    `strides` != 1, as described\n    [here](https://github.com/keras-team/keras/pull/9473#issuecomment-372166860)",
           "name": "padding"
         },
         {
@@ -3201,7 +3143,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\none of `\"channels_last\"` or `\"channels_first\"`.\nThe ordering of the dimensions in the inputs.\n`\"channels_last\"` corresponds to inputs with shape\n`(batch, height, width, channels)` while `\"channels_first\"`\ncorresponds to inputs with shape\n`(batch, channels, height, width)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".",
+          "description": "A string,\n    one of `\"channels_last\"` or `\"channels_first\"`.\n    The ordering of the dimensions in the inputs.\n    `\"channels_last\"` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `\"channels_first\"`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
@@ -3209,7 +3151,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\nspecifying the strides of the convolution\nalong the height and width.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nSpecifying any stride value != 1 is incompatible with specifying\nany `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution\n    along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -3217,7 +3159,7 @@
             1,
             1
           ],
-          "description": "an integer or tuple/list of 2 integers, specifying\nthe dilation rate to use for dilated convolution.\nCan be a single integer to specify the same value for\nall spatial dimensions.\nCurrently, specifying any `dilation_rate` value != 1 is\nincompatible with specifying any stride value != 1.",
+          "description": "an integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -3229,7 +3171,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the bias vector\n    (see [initializers](https://keras.io/initializers)).",
           "name": "bias_initializer",
           "visible": false
         },
@@ -3243,39 +3185,39 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `kernel` weights matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Integer, the dimensionality of the output space\n(i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\nheight and width of the 2D convolution window.\nCan be a single integer to specify the same value for\nall spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the\n    height and width of the 2D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "Regularizer function applied to\nthe `kernel` weights matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `kernel` weights matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to the bias vector\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\nthe output of the layer (its \"activation\").\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\").\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to the kernel matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector\n(see [constraints](https://keras.io/constraints)).\n",
+          "description": "Constraint function applied to the bias vector\n    (see [constraints](https://keras.io/constraints)).\n",
           "name": "bias_constraint"
         }
       ],
@@ -3450,11 +3392,11 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer or tuple of integers,\naxis or axes along which to take the dot product.",
+          "description": "Integer or tuple of integers,\n    axis or axes along which to take the dot product.",
           "name": "axes"
         },
         {
-          "description": "Whether to L2-normalize samples along the\ndot product axis before taking the dot product.\nIf set to True, then the output of the dot product\nis the cosine proximity between the two samples.",
+          "description": "Whether to L2-normalize samples along the\n    dot product axis before taking the dot product.\n    If set to True, then the output of the dot product\n    is the cosine proximity between the two samples.",
           "name": "normalize"
         },
         {
@@ -3484,7 +3426,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "A string,\none of `channels_last` (default) or `channels_first`.\nThe ordering of the dimensions in the inputs.\nThe purpose of this argument is to preserve weight\nordering when switching a model from one data format\nto another.\n`channels_last` corresponds to inputs with shape\n`(batch, ..., channels)` while `channels_first` corresponds to\ninputs with shape `(batch, channels, ...)`.\nIt defaults to the `image_data_format` value found in your\nKeras config file at `~/.keras/keras.json`.\nIf you never set it, then it will be \"channels_last\".\n",
+          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    The purpose of this argument is to preserve weight\n    ordering when switching a model from one data format\n    to another.\n    `channels_last` corresponds to inputs with shape\n    `(batch, ..., channels)` while `channels_first` corresponds to\n    inputs with shape `(batch, channels, ...)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".\n",
           "name": "data_format"
         }
       ],
@@ -3513,7 +3455,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "target shape. Tuple of integers.\nDoes not include the batch axis.\n",
+          "description": "target shape. Tuple of integers.\n    Does not include the batch axis.\n",
           "name": "target_shape"
         }
       ],
@@ -3544,7 +3486,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Tuple of integers. Permutation pattern, does not include the\nsamples dimension. Indexing starts at 1.\nFor instance, `(2, 1)` permutes the first and second dimension\nof the input.\n",
+          "description": "Tuple of integers. Permutation pattern, does not include the\n    samples dimension. Indexing starts at 1.\n    For instance, `(2, 1)` permutes the first and second dimension\n    of the input.\n",
           "name": "dims"
         }
       ],
@@ -3610,7 +3552,7 @@
           "name": "rate"
         },
         {
-          "description": "1D integer tensor representing the shape of the\nbinary dropout mask that will be multiplied with the input.\nFor instance, if your inputs have shape\n`(batch_size, timesteps, features)` and\nyou want the dropout mask to be the same for all timesteps,\nyou can use `noise_shape=(batch_size, 1, features)`.",
+          "description": "1D integer tensor representing the shape of the\n    binary dropout mask that will be multiplied with the input.\n    For instance, if your inputs have shape\n    `(batch_size, timesteps, features)` and\n    you want the dropout mask to be the same for all timesteps,\n    you can use `noise_shape=(batch_size, 1, features)`.",
           "name": "noise_shape"
         },
         {
@@ -3633,10 +3575,7 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[Dropout: A Simple Way to Prevent Neural Networks from Overfitting]"
-        },
-        {
-          "description": "(http://www.jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf)"
+          "description": "[Dropout: A Simple Way to Prevent Neural Networks from Overfitting]( http://www.jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf)"
         }
       ]
     }
@@ -3647,7 +3586,7 @@
       "attributes": [
         {
           "default": false,
-          "description": "Whether or not the input value 0 is a special \"padding\"\nvalue that should be masked out.\nThis is useful when using [recurrent layers](https://keras.io/layers/recurrent)\nwhich may take variable length input.\nIf this is `True` then all subsequent layers\nin the model need to support masking or an exception will be raised.\nIf mask_zero is set to True, as a consequence, index 0 cannot be\nused in the vocabulary (input_dim should equal size of\nvocabulary + 1).",
+          "description": "Whether or not the input value 0 is a special \"padding\"\n    value that should be masked out.\n    This is useful when using [recurrent layers](https://keras.io/layers/recurrent)\n    which may take variable length input.\n    If this is `True` then all subsequent layers\n    in the model need to support masking or an exception will be raised.\n    If mask_zero is set to True, as a consequence, index 0 cannot be\n    used in the vocabulary (input_dim should equal size of\n    vocabulary + 1).",
           "name": "mask_zero"
         },
         {
@@ -3659,12 +3598,12 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `embeddings` matrix\n(see [initializers](https://keras.io/initializers)).",
+          "description": "Initializer for the `embeddings` matrix\n    (see [initializers](https://keras.io/initializers)).",
           "name": "embeddings_initializer",
           "visible": false
         },
         {
-          "description": "int > 0. Size of the vocabulary,\ni.e. maximum integer index + 1.",
+          "description": "int > 0. Size of the vocabulary,\n    i.e. maximum integer index + 1.",
           "name": "input_dim"
         },
         {
@@ -3672,16 +3611,16 @@
           "name": "output_dim"
         },
         {
-          "description": "Regularizer function applied to\nthe `embeddings` matrix\n(see [regularizer](https://keras.io/regularizers)).",
+          "description": "Regularizer function applied to\n    the `embeddings` matrix\n    (see [regularizer](https://keras.io/regularizers)).",
           "name": "embeddings_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to\nthe `embeddings` matrix\n(see [constraints](https://keras.io/constraints)).",
+          "description": "Constraint function applied to\n    the `embeddings` matrix\n    (see [constraints](https://keras.io/constraints)).",
           "name": "embeddings_constraint"
         },
         {
-          "description": "Length of input sequences, when it is constant.\nThis argument is required if you are going to connect\n`Flatten` then `Dense` layers upstream\n(without it, the shape of the dense outputs cannot be computed).\n",
+          "description": "Length of input sequences, when it is constant.\n    This argument is required if you are going to connect\n    `Flatten` then `Dense` layers upstream\n    (without it, the shape of the dense outputs cannot be computed).\n",
           "name": "input_length"
         }
       ],
@@ -3710,10 +3649,7 @@
       "package": "keras.layers",
       "references": [
         {
-          "description": "[A Theoretically Grounded Application of Dropout in"
-        },
-        {
-          "description": "Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
+          "description": "[A Theoretically Grounded Application of Dropout in Recurrent Neural Networks](http://arxiv.org/abs/1512.05287)"
         }
       ]
     }
@@ -3789,15 +3725,15 @@
     "schema": {
       "attributes": [
         {
-          "description": "The function to be evaluated.\nTakes input tensor as first argument.",
+          "description": "The function to be evaluated.\n    Takes input tensor as first argument.",
           "name": "function"
         },
         {
-          "description": "Expected output shape from function.\nOnly relevant when using Theano.\nCan be a tuple or function.\nIf a tuple, it only specifies the first dimension onward;\nsample dimension is assumed either the same as the input:\n`output_shape = (input_shape[0], ) + output_shape`\nor, the input is `None` and\nthe sample dimension is also `None`:\n`output_shape = (None, ) + output_shape`\nIf a function, it specifies the entire shape as a function of the\ninput shape: `output_shape = f(input_shape)`",
+          "description": "Expected output shape from function.\n    Only relevant when using Theano.\n    Can be a tuple or function.\n    If a tuple, it only specifies the first dimension onward;\n         sample dimension is assumed either the same as the input:\n         `output_shape = (input_shape[0], ) + output_shape`\n         or, the input is `None` and\n         the sample dimension is also `None`:\n         `output_shape = (None, ) + output_shape`\n    If a function, it specifies the entire shape as a function of the\n    input shape: `output_shape = f(input_shape)`",
           "name": "output_shape"
         },
         {
-          "description": "optional dictionary of keyword arguments to be passed\nto the function.\n",
+          "description": "optional dictionary of keyword arguments to be passed\n    to the function.\n",
           "name": "arguments"
         }
       ],

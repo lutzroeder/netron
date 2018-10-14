@@ -1,10 +1,10 @@
 /*jshint esversion: 6 */
 
-var electron = require('electron');
-var fs = require('fs');
-var process = require('process');
-var path = require('path');
-var protobuf = require('protobufjs');
+const electron = require('electron');
+const fs = require('fs');
+const process = require('process');
+const path = require('path');
+const protobuf = require('protobufjs');
 
 class ElectronHost {
 

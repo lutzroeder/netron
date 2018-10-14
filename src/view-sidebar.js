@@ -70,7 +70,7 @@ class Sidebar {
     }
 }
 
-class NodeView {
+class NodeSidebar {
 
     constructor(node, host) {
         this._host = host;
@@ -526,7 +526,7 @@ class ConnectionView {
     }
 }
 
-class ModelView {
+class ModelSidebar {
 
     constructor(model, host) {
         this._host = host;
@@ -730,7 +730,7 @@ class GraphOperatorListView {
     }
 }
 
-class OperatorDocumentationView {
+class OperatorDocumentationSidebar {
 
     constructor(documentation) {
         this._elements = [];
@@ -847,7 +847,7 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
     }
 }
 
-class FindView {
+class FindSidebar {
 
     constructor(graphElement, graph) {
         this._graphElement = graphElement;
