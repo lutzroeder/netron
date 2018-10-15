@@ -751,6 +751,10 @@ class OnnxTensor {
                     context.state = 'Tensor data is empty.';
                 }
                 break;
+            case onnx.TensorProto.DataType.INT8:
+            case onnx.TensorProto.DataType.UINT8:
+            case onnx.TensorProto.DataType.INT16:
+            case onnx.TensorProto.DataType.UINT16:
             case onnx.TensorProto.DataType.INT32:
                 if (this._tensor.int32_data && this._tensor.int32_data.length > 0) {
                     context.data = this._tensor.int32_data;
@@ -830,6 +834,11 @@ class OnnxTensor {
                 else if (context.rawData) {
                     switch (this._tensor.data_type)
                     {
+                        case onnx.TensorProto.DataType.FLOAT16:
+                            results.push(OnnxTensor._decodeFloat16(context.rawData.getUint16(context.index, true)));
+                            context.index += 2;
+                            context.count++;
+                            break;
                         case onnx.TensorProto.DataType.FLOAT:
                             results.push(context.rawData.getFloat32(context.index, true));
                             context.index += 4;
@@ -840,8 +849,23 @@ class OnnxTensor {
                             context.index += 8;
                             context.count++;
                             break;
-                        case onnx.TensorProto.DataType.FLOAT16:
-                            results.push(OnnxTensor._decodeFloat16(context.rawData.getUint16(context.index, true)));
+                        case onnx.TensorProto.DataType.INT8:
+                            results.push(context.rawData.getInt8(context.index, true));
+                            context.index++;
+                            context.count++;
+                            break;
+                        case onnx.TensorProto.DataType.UINT8:
+                            results.push(context.rawData.getUInt8(context.index, true));
+                            context.index++;
+                            context.count++;
+                            break;
+                        case onnx.TensorProto.DataType.INT16:
+                            results.push(context.rawData.getInt16(context.index, true));
+                            context.index += 2;
+                            context.count++;
+                            break;
+                        case onnx.TensorProto.DataType.UINT16:
+                            results.push(context.rawData.getUint16(context.index, true));
                             context.index += 2;
                             context.count++;
                             break;
