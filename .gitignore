@@ -1,7 +1,7 @@
 .DS_Store
 .DS_Store?
-/build/
-/node_modules/
-/third_party/
-/package-lock.json
+build/*
+node_modules/*
+third_party/*
+package-lock.json
 *.pyc
