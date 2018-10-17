@@ -10,6 +10,207 @@
     
         var caffe2 = {};
     
+        caffe2.ExternalDataProto = (function() {
+    
+            function ExternalDataProto(properties) {
+                this.strides = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            ExternalDataProto.prototype.source_type = 0;
+            ExternalDataProto.prototype.record_id = "";
+            ExternalDataProto.prototype.offset = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+            ExternalDataProto.prototype.strides = $util.emptyArray;
+    
+            ExternalDataProto.create = function create(properties) {
+                return new ExternalDataProto(properties);
+            };
+    
+            ExternalDataProto.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe2.ExternalDataProto();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.source_type = reader.int32();
+                        break;
+                    case 2:
+                        message.record_id = reader.string();
+                        break;
+                    case 3:
+                        message.offset = reader.int64();
+                        break;
+                    case 4:
+                        if (!(message.strides && message.strides.length))
+                            message.strides = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.strides.push(reader.int64());
+                        } else
+                            message.strides.push(reader.int64());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ExternalDataProto.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe2.ExternalDataProto();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "source_type":
+                        message.source_type = reader.enum($root.caffe2.ExternalDataProto.SourceType);
+                        break;
+                    case "record_id":
+                        message.record_id = reader.string();
+                        break;
+                    case "offset":
+                        message.offset = reader.int64();
+                        break;
+                    case "strides":
+                        if (!(message.strides && message.strides.length))
+                            message.strides = [];
+                        message.strides.push(reader.int64());
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ExternalDataProto.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.source_type != null && message.hasOwnProperty("source_type"))
+                    switch (message.source_type) {
+                    default:
+                        return "source_type: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
+                if (message.record_id != null && message.hasOwnProperty("record_id"))
+                    if (!$util.isString(message.record_id))
+                        return "record_id: string expected";
+                if (message.offset != null && message.hasOwnProperty("offset"))
+                    if (!$util.isInteger(message.offset) && !(message.offset && $util.isInteger(message.offset.low) && $util.isInteger(message.offset.high)))
+                        return "offset: integer|Long expected";
+                if (message.strides != null && message.hasOwnProperty("strides")) {
+                    if (!Array.isArray(message.strides))
+                        return "strides: array expected";
+                    for (var i = 0; i < message.strides.length; ++i)
+                        if (!$util.isInteger(message.strides[i]) && !(message.strides[i] && $util.isInteger(message.strides[i].low) && $util.isInteger(message.strides[i].high)))
+                            return "strides: integer|Long[] expected";
+                }
+                return null;
+            };
+    
+            ExternalDataProto.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe2.ExternalDataProto)
+                    return object;
+                var message = new $root.caffe2.ExternalDataProto();
+                switch (object.source_type) {
+                case "INLINE_CONTAINER":
+                case 0:
+                    message.source_type = 0;
+                    break;
+                case "SIMPLE_FILE":
+                case 1:
+                    message.source_type = 1;
+                    break;
+                }
+                if (object.record_id != null)
+                    message.record_id = String(object.record_id);
+                if (object.offset != null)
+                    if ($util.Long)
+                        (message.offset = $util.Long.fromValue(object.offset)).unsigned = false;
+                    else if (typeof object.offset === "string")
+                        message.offset = parseInt(object.offset, 10);
+                    else if (typeof object.offset === "number")
+                        message.offset = object.offset;
+                    else if (typeof object.offset === "object")
+                        message.offset = new $util.LongBits(object.offset.low >>> 0, object.offset.high >>> 0).toNumber();
+                if (object.strides) {
+                    if (!Array.isArray(object.strides))
+                        throw TypeError(".caffe2.ExternalDataProto.strides: array expected");
+                    message.strides = [];
+                    for (var i = 0; i < object.strides.length; ++i)
+                        if ($util.Long)
+                            (message.strides[i] = $util.Long.fromValue(object.strides[i])).unsigned = false;
+                        else if (typeof object.strides[i] === "string")
+                            message.strides[i] = parseInt(object.strides[i], 10);
+                        else if (typeof object.strides[i] === "number")
+                            message.strides[i] = object.strides[i];
+                        else if (typeof object.strides[i] === "object")
+                            message.strides[i] = new $util.LongBits(object.strides[i].low >>> 0, object.strides[i].high >>> 0).toNumber();
+                }
+                return message;
+            };
+    
+            ExternalDataProto.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.strides = [];
+                if (options.defaults) {
+                    object.source_type = options.enums === String ? "INLINE_CONTAINER" : 0;
+                    object.record_id = "";
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, false);
+                        object.offset = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.offset = options.longs === String ? "0" : 0;
+                }
+                if (message.source_type != null && message.hasOwnProperty("source_type"))
+                    object.source_type = options.enums === String ? $root.caffe2.ExternalDataProto.SourceType[message.source_type] : message.source_type;
+                if (message.record_id != null && message.hasOwnProperty("record_id"))
+                    object.record_id = message.record_id;
+                if (message.offset != null && message.hasOwnProperty("offset"))
+                    if (typeof message.offset === "number")
+                        object.offset = options.longs === String ? String(message.offset) : message.offset;
+                    else
+                        object.offset = options.longs === String ? $util.Long.prototype.toString.call(message.offset) : options.longs === Number ? new $util.LongBits(message.offset.low >>> 0, message.offset.high >>> 0).toNumber() : message.offset;
+                if (message.strides && message.strides.length) {
+                    object.strides = [];
+                    for (var j = 0; j < message.strides.length; ++j)
+                        if (typeof message.strides[j] === "number")
+                            object.strides[j] = options.longs === String ? String(message.strides[j]) : message.strides[j];
+                        else
+                            object.strides[j] = options.longs === String ? $util.Long.prototype.toString.call(message.strides[j]) : options.longs === Number ? new $util.LongBits(message.strides[j].low >>> 0, message.strides[j].high >>> 0).toNumber() : message.strides[j];
+                }
+                return object;
+            };
+    
+            ExternalDataProto.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            ExternalDataProto.SourceType = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "INLINE_CONTAINER"] = 0;
+                values[valuesById[1] = "SIMPLE_FILE"] = 1;
+                return values;
+            })();
+    
+            return ExternalDataProto;
+        })();
+    
         caffe2.TensorProto = (function() {
     
             function TensorProto(properties) {
@@ -27,12 +228,15 @@
     
             TensorProto.prototype.dims = $util.emptyArray;
             TensorProto.prototype.data_type = 1;
+            TensorProto.prototype.storage_type = 1;
             TensorProto.prototype.float_data = $util.emptyArray;
             TensorProto.prototype.int32_data = $util.emptyArray;
             TensorProto.prototype.byte_data = $util.newBuffer([]);
             TensorProto.prototype.string_data = $util.emptyArray;
             TensorProto.prototype.double_data = $util.emptyArray;
             TensorProto.prototype.int64_data = $util.emptyArray;
+            TensorProto.prototype.raw_data = $util.newBuffer([]);
+            TensorProto.prototype.external_data = null;
             TensorProto.prototype.name = "";
             TensorProto.prototype.device_detail = null;
             TensorProto.prototype.segment = null;
@@ -60,6 +264,9 @@
                         break;
                     case 2:
                         message.data_type = reader.int32();
+                        break;
+                    case 12:
+                        message.storage_type = reader.int32();
                         break;
                     case 3:
                         if (!(message.float_data && message.float_data.length))
@@ -109,6 +316,12 @@
                         } else
                             message.int64_data.push(reader.int64());
                         break;
+                    case 13:
+                        message.raw_data = reader.bytes();
+                        break;
+                    case 14:
+                        message.external_data = $root.caffe2.ExternalDataProto.decode(reader, reader.uint32());
+                        break;
                     case 7:
                         message.name = reader.string();
                         break;
@@ -142,6 +355,9 @@
                     case "data_type":
                         message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
                         break;
+                    case "storage_type":
+                        message.storage_type = reader.enum($root.caffe2.TensorProto.StorageType);
+                        break;
                     case "float_data":
                         if (!(message.float_data && message.float_data.length))
                             message.float_data = [];
@@ -169,6 +385,12 @@
                         if (!(message.int64_data && message.int64_data.length))
                             message.int64_data = [];
                         message.int64_data.push(reader.int64());
+                        break;
+                    case "raw_data":
+                        message.raw_data = reader.bytes();
+                        break;
+                    case "external_data":
+                        message.external_data = $root.caffe2.ExternalDataProto.decodeText(reader, true);
                         break;
                     case "name":
                         message.name = reader.string();
@@ -216,6 +438,16 @@
                     case 13:
                         break;
                     }
+                if (message.storage_type != null && message.hasOwnProperty("storage_type"))
+                    switch (message.storage_type) {
+                    default:
+                        return "storage_type: enum value expected";
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        break;
+                    }
                 if (message.float_data != null && message.hasOwnProperty("float_data")) {
                     if (!Array.isArray(message.float_data))
                         return "float_data: array expected";
@@ -253,6 +485,14 @@
                     for (var i = 0; i < message.int64_data.length; ++i)
                         if (!$util.isInteger(message.int64_data[i]) && !(message.int64_data[i] && $util.isInteger(message.int64_data[i].low) && $util.isInteger(message.int64_data[i].high)))
                             return "int64_data: integer|Long[] expected";
+                }
+                if (message.raw_data != null && message.hasOwnProperty("raw_data"))
+                    if (!(message.raw_data && typeof message.raw_data.length === "number" || $util.isString(message.raw_data)))
+                        return "raw_data: buffer expected";
+                if (message.external_data != null && message.hasOwnProperty("external_data")) {
+                    var error = $root.caffe2.ExternalDataProto.verify(message.external_data);
+                    if (error)
+                        return "external_data." + error;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     if (!$util.isString(message.name))
@@ -342,6 +582,24 @@
                     message.data_type = 13;
                     break;
                 }
+                switch (object.storage_type) {
+                case "TYPED":
+                case 1:
+                    message.storage_type = 1;
+                    break;
+                case "RAW":
+                case 2:
+                    message.storage_type = 2;
+                    break;
+                case "EXTERNAL":
+                case 3:
+                    message.storage_type = 3;
+                    break;
+                case "NO_CONTENT":
+                case 4:
+                    message.storage_type = 4;
+                    break;
+                }
                 if (object.float_data) {
                     if (!Array.isArray(object.float_data))
                         throw TypeError(".caffe2.TensorProto.float_data: array expected");
@@ -392,6 +650,16 @@
                         else if (typeof object.int64_data[i] === "object")
                             message.int64_data[i] = new $util.LongBits(object.int64_data[i].low >>> 0, object.int64_data[i].high >>> 0).toNumber();
                 }
+                if (object.raw_data != null)
+                    if (typeof object.raw_data === "string")
+                        $util.base64.decode(object.raw_data, message.raw_data = $util.newBuffer($util.base64.length(object.raw_data)), 0);
+                    else if (object.raw_data.length)
+                        message.raw_data = object.raw_data;
+                if (object.external_data != null) {
+                    if (typeof object.external_data !== "object")
+                        throw TypeError(".caffe2.TensorProto.external_data: object expected");
+                    message.external_data = $root.caffe2.ExternalDataProto.fromObject(object.external_data);
+                }
                 if (object.name != null)
                     message.name = String(object.name);
                 if (object.device_detail != null) {
@@ -431,6 +699,15 @@
                     object.name = "";
                     object.device_detail = null;
                     object.segment = null;
+                    object.storage_type = options.enums === String ? "TYPED" : 1;
+                    if (options.bytes === String)
+                        object.raw_data = "";
+                    else {
+                        object.raw_data = [];
+                        if (options.bytes !== Array)
+                            object.raw_data = $util.newBuffer(object.raw_data);
+                    }
+                    object.external_data = null;
                 }
                 if (message.dims && message.dims.length) {
                     object.dims = [];
@@ -478,6 +755,12 @@
                 }
                 if (message.segment != null && message.hasOwnProperty("segment"))
                     object.segment = $root.caffe2.TensorProto.Segment.toObject(message.segment, options);
+                if (message.storage_type != null && message.hasOwnProperty("storage_type"))
+                    object.storage_type = options.enums === String ? $root.caffe2.TensorProto.StorageType[message.storage_type] : message.storage_type;
+                if (message.raw_data != null && message.hasOwnProperty("raw_data"))
+                    object.raw_data = options.bytes === String ? $util.base64.encode(message.raw_data, 0, message.raw_data.length) : options.bytes === Array ? Array.prototype.slice.call(message.raw_data) : message.raw_data;
+                if (message.external_data != null && message.hasOwnProperty("external_data"))
+                    object.external_data = $root.caffe2.ExternalDataProto.toObject(message.external_data, options);
                 return object;
             };
     
@@ -500,6 +783,15 @@
                 values[valuesById[10] = "INT64"] = 10;
                 values[valuesById[12] = "FLOAT16"] = 12;
                 values[valuesById[13] = "DOUBLE"] = 13;
+                return values;
+            })();
+    
+            TensorProto.StorageType = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[1] = "TYPED"] = 1;
+                values[valuesById[2] = "RAW"] = 2;
+                values[valuesById[3] = "EXTERNAL"] = 3;
+                values[valuesById[4] = "NO_CONTENT"] = 4;
                 return values;
             })();
     
@@ -1473,6 +1765,7 @@
                 this.floats = [];
                 this.ints = [];
                 this.strings = [];
+                this.tensors = [];
                 this.nets = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
@@ -1484,10 +1777,12 @@
             Argument.prototype.f = 0;
             Argument.prototype.i = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
             Argument.prototype.s = $util.newBuffer([]);
+            Argument.prototype.t = null;
             Argument.prototype.n = null;
             Argument.prototype.floats = $util.emptyArray;
             Argument.prototype.ints = $util.emptyArray;
             Argument.prototype.strings = $util.emptyArray;
+            Argument.prototype.tensors = $util.emptyArray;
             Argument.prototype.nets = $util.emptyArray;
     
             Argument.create = function create(properties) {
@@ -1512,6 +1807,9 @@
                         break;
                     case 4:
                         message.s = reader.bytes();
+                        break;
+                    case 10:
+                        message.t = $root.caffe2.TensorProto.decode(reader, reader.uint32());
                         break;
                     case 8:
                         message.n = $root.caffe2.NetDef.decode(reader, reader.uint32());
@@ -1563,6 +1861,11 @@
                             message.strings = [];
                         message.strings.push(reader.bytes());
                         break;
+                    case 11:
+                        if (!(message.tensors && message.tensors.length))
+                            message.tensors = [];
+                        message.tensors.push($root.caffe2.TensorProto.decode(reader, reader.uint32()));
+                        break;
                     case 9:
                         if (!(message.nets && message.nets.length))
                             message.nets = [];
@@ -1596,6 +1899,9 @@
                     case "s":
                         message.s = reader.bytes();
                         break;
+                    case "t":
+                        message.t = $root.caffe2.TensorProto.decodeText(reader, true);
+                        break;
                     case "n":
                         message.n = $root.caffe2.NetDef.decodeText(reader, true);
                         break;
@@ -1613,6 +1919,11 @@
                         if (!(message.strings && message.strings.length))
                             message.strings = [];
                         message.strings.push(reader.bytes());
+                        break;
+                    case "tensors":
+                        if (!(message.tensors && message.tensors.length))
+                            message.tensors = [];
+                        message.tensors.push($root.caffe2.TensorProto.decodeText(reader, true));
                         break;
                     case "nets":
                         if (!(message.nets && message.nets.length))
@@ -1642,6 +1953,11 @@
                 if (message.s != null && message.hasOwnProperty("s"))
                     if (!(message.s && typeof message.s.length === "number" || $util.isString(message.s)))
                         return "s: buffer expected";
+                if (message.t != null && message.hasOwnProperty("t")) {
+                    var error = $root.caffe2.TensorProto.verify(message.t);
+                    if (error)
+                        return "t." + error;
+                }
                 if (message.n != null && message.hasOwnProperty("n")) {
                     var error = $root.caffe2.NetDef.verify(message.n);
                     if (error)
@@ -1667,6 +1983,15 @@
                     for (var i = 0; i < message.strings.length; ++i)
                         if (!(message.strings[i] && typeof message.strings[i].length === "number" || $util.isString(message.strings[i])))
                             return "strings: buffer[] expected";
+                }
+                if (message.tensors != null && message.hasOwnProperty("tensors")) {
+                    if (!Array.isArray(message.tensors))
+                        return "tensors: array expected";
+                    for (var i = 0; i < message.tensors.length; ++i) {
+                        var error = $root.caffe2.TensorProto.verify(message.tensors[i]);
+                        if (error)
+                            return "tensors." + error;
+                    }
                 }
                 if (message.nets != null && message.hasOwnProperty("nets")) {
                     if (!Array.isArray(message.nets))
@@ -1702,6 +2027,11 @@
                         $util.base64.decode(object.s, message.s = $util.newBuffer($util.base64.length(object.s)), 0);
                     else if (object.s.length)
                         message.s = object.s;
+                if (object.t != null) {
+                    if (typeof object.t !== "object")
+                        throw TypeError(".caffe2.Argument.t: object expected");
+                    message.t = $root.caffe2.TensorProto.fromObject(object.t);
+                }
                 if (object.n != null) {
                     if (typeof object.n !== "object")
                         throw TypeError(".caffe2.Argument.n: object expected");
@@ -1738,6 +2068,16 @@
                         else if (object.strings[i].length)
                             message.strings[i] = object.strings[i];
                 }
+                if (object.tensors) {
+                    if (!Array.isArray(object.tensors))
+                        throw TypeError(".caffe2.Argument.tensors: array expected");
+                    message.tensors = [];
+                    for (var i = 0; i < object.tensors.length; ++i) {
+                        if (typeof object.tensors[i] !== "object")
+                            throw TypeError(".caffe2.Argument.tensors: object expected");
+                        message.tensors[i] = $root.caffe2.TensorProto.fromObject(object.tensors[i]);
+                    }
+                }
                 if (object.nets) {
                     if (!Array.isArray(object.nets))
                         throw TypeError(".caffe2.Argument.nets: array expected");
@@ -1760,6 +2100,7 @@
                     object.ints = [];
                     object.strings = [];
                     object.nets = [];
+                    object.tensors = [];
                 }
                 if (options.defaults) {
                     object.name = "";
@@ -1777,6 +2118,7 @@
                             object.s = $util.newBuffer(object.s);
                     }
                     object.n = null;
+                    object.t = null;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -1813,6 +2155,13 @@
                     object.nets = [];
                     for (var j = 0; j < message.nets.length; ++j)
                         object.nets[j] = $root.caffe2.NetDef.toObject(message.nets[j], options);
+                }
+                if (message.t != null && message.hasOwnProperty("t"))
+                    object.t = $root.caffe2.TensorProto.toObject(message.t, options);
+                if (message.tensors && message.tensors.length) {
+                    object.tensors = [];
+                    for (var j = 0; j < message.tensors.length; ++j)
+                        object.tensors[j] = $root.caffe2.TensorProto.toObject(message.tensors[j], options);
                 }
                 return object;
             };
@@ -2043,6 +2392,8 @@
             OperatorDef.prototype.control_input = $util.emptyArray;
             OperatorDef.prototype.is_gradient_op = false;
             OperatorDef.prototype.debug_info = "";
+            OperatorDef.prototype.domain = "";
+            OperatorDef.prototype.op_version = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
     
             OperatorDef.create = function create(properties) {
                 return new OperatorDef(properties);
@@ -2092,6 +2443,12 @@
                         break;
                     case 10:
                         message.debug_info = reader.string();
+                        break;
+                    case 11:
+                        message.domain = reader.string();
+                        break;
+                    case 12:
+                        message.op_version = reader.int64();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -2146,6 +2503,12 @@
                         break;
                     case "debug_info":
                         message.debug_info = reader.string();
+                        break;
+                    case "domain":
+                        message.domain = reader.string();
+                        break;
+                    case "op_version":
+                        message.op_version = reader.int64();
                         break;
                     default:
                         reader.handle(tag);
@@ -2208,6 +2571,12 @@
                 if (message.debug_info != null && message.hasOwnProperty("debug_info"))
                     if (!$util.isString(message.debug_info))
                         return "debug_info: string expected";
+                if (message.domain != null && message.hasOwnProperty("domain"))
+                    if (!$util.isString(message.domain))
+                        return "domain: string expected";
+                if (message.op_version != null && message.hasOwnProperty("op_version"))
+                    if (!$util.isInteger(message.op_version) && !(message.op_version && $util.isInteger(message.op_version.low) && $util.isInteger(message.op_version.high)))
+                        return "op_version: integer|Long expected";
                 return null;
             };
     
@@ -2261,6 +2630,17 @@
                     message.is_gradient_op = Boolean(object.is_gradient_op);
                 if (object.debug_info != null)
                     message.debug_info = String(object.debug_info);
+                if (object.domain != null)
+                    message.domain = String(object.domain);
+                if (object.op_version != null)
+                    if ($util.Long)
+                        (message.op_version = $util.Long.fromValue(object.op_version)).unsigned = false;
+                    else if (typeof object.op_version === "string")
+                        message.op_version = parseInt(object.op_version, 10);
+                    else if (typeof object.op_version === "number")
+                        message.op_version = object.op_version;
+                    else if (typeof object.op_version === "object")
+                        message.op_version = new $util.LongBits(object.op_version.low >>> 0, object.op_version.high >>> 0).toNumber();
                 return message;
             };
     
@@ -2281,6 +2661,12 @@
                     object.engine = "";
                     object.is_gradient_op = false;
                     object.debug_info = "";
+                    object.domain = "";
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, false);
+                        object.op_version = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.op_version = options.longs === String ? "0" : 0;
                 }
                 if (message.input && message.input.length) {
                     object.input = [];
@@ -2314,6 +2700,13 @@
                     object.is_gradient_op = message.is_gradient_op;
                 if (message.debug_info != null && message.hasOwnProperty("debug_info"))
                     object.debug_info = message.debug_info;
+                if (message.domain != null && message.hasOwnProperty("domain"))
+                    object.domain = message.domain;
+                if (message.op_version != null && message.hasOwnProperty("op_version"))
+                    if (typeof message.op_version === "number")
+                        object.op_version = options.longs === String ? String(message.op_version) : message.op_version;
+                    else
+                        object.op_version = options.longs === String ? $util.Long.prototype.toString.call(message.op_version) : options.longs === Number ? new $util.LongBits(message.op_version.low >>> 0, message.op_version.high >>> 0).toNumber() : message.op_version;
                 return object;
             };
     
