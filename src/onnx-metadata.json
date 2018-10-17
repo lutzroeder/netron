@@ -8094,6 +8094,92 @@
     }
   },
   {
+    "name": "MaxUnpool",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The size of the kernel along each axis.",
+          "name": "kernel_shape",
+          "required": true,
+          "type": "int[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. This attribute cannot be used simultaneously with auto_pad attribute. If not present, the padding defaults to 0 along start and end of each axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int[]"
+        },
+        {
+          "description": "Stride along each axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int[]"
+        }
+      ],
+      "description": "MaxUnpool essentially computes the partial inverse of the MaxPool op.\n The input information to this op is typically the the output information from a MaxPool op. The first\n input tensor X is the tensor that needs to be unpooled, which is typically the pooled tensor (first output)\n from MaxPool. The second input tensor, I, contains the indices to the (locally maximal) elements corrsponding\n to the elements in the first input tensor X. Input tensor I is typically the second output of the MaxPool op.\n The third (optional) input is a tensor that specifies the output size of the unpooling operation.\n\nMaxUnpool is intended to do 'partial' inverse of the MaxPool op. 'Partial' because all the non-maximal\n values from the original input to MaxPool are set to zero in the output of the MaxUnpool op. Pooling\n the result of an unpooling operation should give back the original input to the unpooling op.\n\nMaxUnpool can produce the same output size for several input sizes, which makes unpooling op ambiguous.\n The third input argument, output_size, is meant to disambiguate the op and produce output tensor of\n known/predictable size.\n\nIn addition to the inputs, MaxUnpool takes three attributes, namely kernel_shape, strides, and pads,\n which define the exact unpooling op. The attributes typically have the same values as the corrsponding\n pooling op that the unpooling op is trying to invert.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'MaxUnpool',\n    inputs=['xT', 'xI', 'output_shape'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nxT = np.array([[[[5, 6],\n                 [7, 8]]]], dtype=np.float32)\nxI = np.array([[[[5, 7],\n                 [13, 15]]]], dtype=np.int64)\noutput_shape = np.array((1, 1, 5, 5), dtype=np.int64)\ny = np.array([[[[0, 0, 0, 0, 0],\n                [0, 5, 0, 6, 0],\n                [0, 0, 0, 0, 0],\n                [0, 7, 0, 8, 0],\n                [0, 0, 0, 0, 0]]]], dtype=np.float32)\nexpect(node, inputs=[xT, xI, output_shape], outputs=[y], name='test_maxunpool_export_with_output_shape')",
+          "summary": "with_output_shape"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'MaxUnpool',\n    inputs=['xT', 'xI'],\n    outputs=['y'],\n    kernel_shape=[2, 2],\n    strides=[2, 2]\n)\nxT = np.array([[[[1, 2],\n                 [3, 4]]]], dtype=np.float32)\nxI = np.array([[[[5, 7],\n                 [13, 15]]]], dtype=np.int64)\ny = np.array([[[[0, 0, 0, 0],\n                [0, 1, 0, 2],\n                [0, 0, 0, 0],\n                [0, 3, 0, 4]]]], dtype=np.float32)\nexpect(node, inputs=[xT, xI], outputs=[y], name='test_maxunpool_export_without_output_shape')",
+          "summary": "without_output_shape"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor that has to be unpooled. This tensor is typically the first output of the MaxPool op.Dimensions for image case are (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and the width of the data. For non-image case, the dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size. Optionally, if dimension denotation is in effect, the operation expects the input data tensor to arrive with the dimension denotation of [DATA_BATCH, DATA_CHANNEL, DATA_FEATURE, DATA_FEATURE ...].",
+          "name": "X",
+          "type": "T1"
+        },
+        {
+          "description": "Input data tensor containing the indices corresponding to elements in the first input tensor X.This tensor is typically the second output of the MaxPool op.Dimensions must be the same as input tensor X. The indices are linear, i.e. computed considering the tensor as flattened 1-D tensor, assuming row-major storage. Also, the linear indices should not consider padding. So the values in indices are in the range [0, N x C x D1 x ... x Dn).",
+          "name": "I",
+          "type": "T2"
+        },
+        {
+          "description": "The shape of the output can be explicitly set which will cause pads values to be auto generated. If 'output_shape' is specified, 'pads' values are ignored.",
+          "name": "output_shape",
+          "option": "optional",
+          "type": "T2"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor that contains the result of the unpooling.",
+          "name": "output",
+          "type": "T2"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain index tensor to int64",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
     "name": "Mean",
     "schema": {
       "attributes": [
