@@ -2465,10 +2465,18 @@ tflite.UnidirectionalSequenceLSTMOptions.prototype.projClip = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+tflite.UnidirectionalSequenceLSTMOptions.prototype.timeMajor = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite.UnidirectionalSequenceLSTMOptions.startUnidirectionalSequenceLSTMOptions = function(builder) {
-  builder.startObject(3);
+  builder.startObject(4);
 };
 
 /**
@@ -2493,6 +2501,14 @@ tflite.UnidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellCli
  */
 tflite.UnidirectionalSequenceLSTMOptions.addProjClip = function(builder, projClip) {
   builder.addFieldFloat32(2, projClip, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} timeMajor
+ */
+tflite.UnidirectionalSequenceLSTMOptions.addTimeMajor = function(builder, timeMajor) {
+  builder.addFieldInt8(3, +timeMajor, +false);
 };
 
 /**
