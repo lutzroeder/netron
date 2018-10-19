@@ -801,20 +801,6 @@ class View {
         }
     }
 
-    transferStyleSheet(element, name) {
-        var styles = [];
-        for (var styleSheet of document.styleSheets) {
-            if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
-                for (var rule of styleSheet.rules) {
-                    styles.push(rule.cssText);
-                }
-            }
-        }
-        var defsElement = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        defsElement.innerHTML = '<style type="text/css">' + styles.join('\n') + '\n</style>';
-        element.insertBefore(defsElement, element.firstChild);
-    }
-
     applyStyleSheet(element, name) {
         var rules = [];
         for (var styleSheet of document.styleSheets) {
@@ -844,14 +830,7 @@ class View {
         if (extension == 'png' || extension == 'svg') {
             var graphElement = document.getElementById('graph');
             var exportElement = graphElement.cloneNode(true);
-            switch (extension) {
-                case 'png':
-                    this.transferStyleSheet(exportElement, 'view-render.css');
-                    break;
-                case 'svg':
-                    this.applyStyleSheet(exportElement, 'view-render.css');
-                    break;
-            }
+            this.applyStyleSheet(exportElement, 'view-render.css');
             exportElement.setAttribute('id', 'export');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
