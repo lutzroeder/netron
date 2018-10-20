@@ -178,22 +178,23 @@ class ElectronHost {
 
     export(file, data, mimeType) {
         var encoding = 'utf-8';
-        if (mimeType == 'image/png') {
-            try
-            {
-                var nativeImage = electron.nativeImage.createFromDataURL(data);
-                data = nativeImage.toPNG();
+        switch (mimeType) {
+            case 'image/svg':
+                break;
+            case 'image/png':
+                try {
+                    data = electron.nativeImage.createFromDataURL(data).toPNG();
+                }
+                catch (e) {
+                    this.exception(e, false);
+                    this.error('Error exporting PNG image.', e);
+                    return;
+                }
                 encoding = 'binary';
-            }
-            catch (e)
-            {
-                this.exception(e, false);
-                this.error('Export failure.', e);
-                return;
-            }    
-        }
-        if (mimeType == null) {
-            encoding = 'binary';
+                break;
+            case 'application/octet-stream':
+                encoding = 'binary';
+                break;
         }
         fs.writeFile(file, data, encoding, (err) => {
             if (err) {

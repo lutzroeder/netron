@@ -133,7 +133,25 @@ class BrowserHost {
         document.head.appendChild(script);
     }
 
+    save(name, extension, defaultPath, callback) {
+        callback(defaultPath + '.' + extension);
+    }
+
     export(file, data, mimeType) {
+        switch(mimeType) {
+            case 'image/png':
+                break;
+            case 'image/svg':
+                data = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+                break;
+            case 'application/octet-stream': 
+                data = 'data:application/octet-stream;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+                break;
+        }
+        var link = document.createElement('a');
+        link.download = file;
+        link.href = data;
+        link.click();
     }
 
     request(base, file, encoding, callback) {
@@ -382,6 +400,19 @@ class BrowserHost {
                     break;
                 case 40: // Down
                     document.getElementById('zoom-out-button').click();
+                    e.preventDefault();
+                    break;
+            }
+        }
+        if (e.shiftKey && (e.ctrlKey || e.metaKey)) {
+            switch (e.keyCode) {
+                case 69: // E
+                    if (e.altKey) {
+                        this._view.export(document.title + '.svg');
+                    }
+                    else {
+                        this._view.export(document.title + '.png');
+                    }
                     e.preventDefault();
                     break;
             }
