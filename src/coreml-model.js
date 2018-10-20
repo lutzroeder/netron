@@ -672,7 +672,7 @@ class CoreMLTensor {
                 dataType = 'float32';
             }
             else if (data.float16Value && data.float16Value.length > 0) {
-                this._data = data.float16Value;
+                this._data = data.float16Value; // byte[]
                 dataType = 'float16';
             }
             else if (data.rawValue && data.rawValue.length > 0) {
@@ -729,7 +729,6 @@ class CoreMLTensor {
         context.state = null;
         context.index = 0;
         context.count = 0;
-        context.data = this._data;
         context.dataType = this._type.dataType;
         context.shape = this._type.shape;
  
@@ -737,6 +736,16 @@ class CoreMLTensor {
             context.state = 'Tensor data is empty.';
             return context;
         }
+
+        switch (context.dataType) {
+            case 'float16':
+                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            default:
+                context.data = this._data;
+                break;
+        }
+
         return context;
     }
 
@@ -754,8 +763,7 @@ class CoreMLTensor {
                         results.push(this._data[context.index]);
                         break;
                     case 'float16':
-                        var value = this._data[context.index] | (this._data[context.index + 1] << 8);
-                        results.push(CoreMLTensor._decodeFloat16(value));
+                        results.push(context.data.getFloat16(context.index, true));
                         context.index += 2;
                         break;
                 }
@@ -773,19 +781,6 @@ class CoreMLTensor {
             }
         }
         return results;
-    }
-
-    static _decodeFloat16(value) {
-        var s = (value & 0x8000) >> 15;
-        var e = (value & 0x7C00) >> 10;
-        var f = value & 0x03FF;
-        if(e == 0) {
-            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
-        }
-        else if (e == 0x1F) {
-            return f ? NaN : ((s ? -1 : 1) * Infinity);
-        }
-        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
 }
 

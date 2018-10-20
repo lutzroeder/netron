@@ -741,7 +741,7 @@ class KerasTensor {
         }
         context.limit = 10000;
         var value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
+        return KerasTensor._stringify(value, '', '    ');
     }
 
     _context() {
@@ -788,7 +788,7 @@ class KerasTensor {
                 if (context.rawData) {
                     switch (context.precision) {
                         case 16:
-                            results.push(KerasTensor._decodeFloat16(context.rawData.getUint16(context.index, true)));
+                            results.push(context.rawData.getFloat16(context.index, true));
                             context.index += 2;
                             break;
                         case 32:
@@ -816,17 +816,30 @@ class KerasTensor {
         return results;
     }
 
-    static _decodeFloat16(value) {
-        var s = (value & 0x8000) >> 15;
-        var e = (value & 0x7C00) >> 10;
-        var f = value & 0x03FF;
-        if(e == 0) {
-            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            var result = [];
+            result.push(indentation + '[');
+            var items = value.map((item) => KerasTensor._stringify(item, indentation + indent, indent));
+            if (items.length > 0) {
+                result.push(items.join(',\n'));
+            }
+            result.push(indentation + ']');
+            return result.join('\n');
         }
-        else if (e == 0x1F) {
-            return f ? NaN : ((s ? -1 : 1) * Infinity);
+        if (typeof value == 'string') {
+            return indentation + value;
         }
-        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+        if (value == Infinity) {
+            return indentation + 'Infinity';
+        }
+        if (value == -Infinity) {
+            return indentation + '-Infinity';
+        }
+        if (isNaN(value)) {
+            return indentation + 'NaN';
+        }
+        return indentation + value.toString();
     }
 }
 

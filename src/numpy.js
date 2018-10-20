@@ -25,6 +25,10 @@ numpy.Array = class {
         context.descr = '';
 
         switch (this._dataType) {
+            case 'float16':
+                context.itemSize = 2;
+                context.descr = '<f2';
+                break;
             case 'float32':
                 context.itemSize = 4;
                 context.descr = '<f4';
@@ -110,6 +114,9 @@ numpy.Array = class {
             for (var i = 0; i < size; i++) {
                 switch (context.descr)
                 {
+                    case '<f2':
+                        context.dataView.setFloat16(context.position, data[i], true);
+                        break;
                     case '<f4':
                         context.dataView.setFloat32(context.position, data[i], true);
                         break;

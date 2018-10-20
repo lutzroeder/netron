@@ -335,7 +335,7 @@ class View {
 
     error(message, err) {
         this._sidebar.close();
-        this.exception(err, false);
+        this._host.exception(err, false);
         this._host.error(message, err.toString());
         this.show('Welcome');
     }
@@ -827,7 +827,7 @@ class View {
         if (lastIndex != -1) {
             extension = file.substring(lastIndex + 1);
         }
-        if (extension == 'png' || extension == 'svg') {
+        if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
             var graphElement = document.getElementById('graph');
             var exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-render.css');
@@ -836,9 +836,9 @@ class View {
             exportElement.removeAttribute('height');
             exportElement.style.removeProperty('opacity');
             exportElement.style.removeProperty('display');
-            var originElement = exportElement.getElementById('origin');
+            var backgroundElement = exportElement.querySelector('#background');
+            var originElement = exportElement.querySelector('#origin');
             originElement.setAttribute('transform', 'translate(0,0) scale(1)');
-            var backgroundElement = exportElement.getElementById('background');
             backgroundElement.removeAttribute('width');
             backgroundElement.removeAttribute('height');
     
@@ -867,7 +867,6 @@ class View {
     
             if (extension == 'png') {
                 var imageElement = new Image();
-                document.body.insertBefore(imageElement, document.body.firstChild);
                 imageElement.onload = () => {
                     var max = Math.max(width, height);
                     var scale = ((max * 2.0) > 24000) ? (24000.0 / max) : 2.0;
@@ -882,6 +881,7 @@ class View {
                     this._host.export(file, pngBase64, 'image/png');
                 };
                 imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+                document.body.insertBefore(imageElement, document.body.firstChild);
             }
         }
     }
@@ -907,8 +907,13 @@ class View {
                     if (!err) {
                         var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                         this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
-                            var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape);
-                            this._host.export(file, array.toBuffer(), null);
+                            try {
+                                var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape);
+                                this._host.export(file, array.toBuffer(), 'application/octet-stream');
+                            }
+                            catch (error) {
+                                this.error('Error saving NumPy tensor.', error);
+                            }
                         });
                     }
                 });
@@ -1083,6 +1088,57 @@ class ArchiveContext {
             this._text = decoder.decode(this._buffer);
         }
         return this._text;
+    }
+}
+
+if (!DataView.prototype.getFloat16) {
+    DataView.prototype.getFloat16 = function(byteOffset, littleEndian) {
+        var value = this.getUint16(byteOffset, littleEndian);
+        var s = (value & 0x8000) >> 15;
+        var e = (value & 0x7C00) >> 10;
+        var f = value & 0x03FF;
+        if(e == 0) {
+            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+        }
+        else if (e == 0x1F) {
+            return f ? NaN : ((s ? -1 : 1) * Infinity);
+        }
+        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+    };
+}
+
+if (!DataView.prototype.setFloat16) {
+    DataView.prototype.setFloat16 = function(byteOffset, value, littleEndian) {
+        DataView.__float16_in[0] = value;
+        var s = (DataView.__float16_out[0] & 0x80000000) >> 16;
+        var f = DataView.__float16_out[0];
+        var e = (f >> 23) & 0x1ff;
+        var encodedValue = s + DataView.__float16_base[e] + ((f & 0x007fffff) >> DataView.__float16_shift[e]);
+        this.setUint16(byteOffset, encodedValue, littleEndian);
+    };
+    DataView.__float16_buffer = new ArrayBuffer(4);
+    DataView.__float16_in = new Float32Array(DataView.__float16_buffer);
+    DataView.__float16_out = new Uint32Array(DataView.__float16_buffer);
+    DataView.__float16_base = new Uint32Array(256);
+    DataView.__float16_shift = new Uint32Array(256);
+    for (var i = 0; i < 256; ++i) {
+        var e = i - 127;
+        if (e < -27) {
+            DataView.__float16_base[i] = 0x0000;
+            DataView.__float16_shift[i] = 24;
+        } else if (e < -14) {
+            DataView.__float16_base[i] = 0x0400 >> -e - 14;
+            DataView.__float16_shift[i] = -e - 1;
+        } else if (e <= 15) {
+            DataView.__float16_base[i] = e + 15 << 10;
+            DataView.__float16_shift[i] = 13;
+        } else if (e < 128) {
+            DataView.__float16_base[i] = 0x7c00;
+            DataView.__float16_shift[i] = 24;
+        } else {
+            DataView.__float16_base[i] = 0x7c00;
+            DataView.__float16_shift[i] = 13;
+        }
     }
 }
 

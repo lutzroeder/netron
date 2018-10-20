@@ -493,16 +493,6 @@ class TensorFlowLiteTensor {
                 }
                 switch (context.dataType)
                 {
-                    case 'float32':
-                        results.push(context.data.getFloat32(context.index, true));
-                        context.index += 4;
-                        context.count++;
-                        break;
-                    case 'float16':
-                        results.push(TensorFlowLiteTensor._decodeFloat16(context.data.getUint16(context.index, true)));
-                        context.index += 2;
-                        context.count++;
-                        break;
                     case 'byte':
                         results.push(context.data.getUint8(context.index));
                         context.index += 1;
@@ -516,6 +506,16 @@ class TensorFlowLiteTensor {
                     case 'int64':
                         results.push(new Int64(context.data.getInt64(context.index, true)));
                         context.index += 8;
+                        context.count++;
+                        break;
+                    case 'float16':
+                        results.push(context.data.getFloat16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'float32':
+                        results.push(context.data.getFloat32(context.index, true));
+                        context.index += 4;
                         context.count++;
                         break;
                     case 'string':
@@ -537,19 +537,6 @@ class TensorFlowLiteTensor {
             }
         }
         return results;
-    }
-
-    static _decodeFloat16(value) {
-        var s = (value & 0x8000) >> 15;
-        var e = (value & 0x7C00) >> 10;
-        var f = value & 0x03FF;
-        if(e == 0) {
-            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
-        }
-        else if (e == 0x1F) {
-            return f ? NaN : ((s ? -1 : 1) * Infinity);
-        }
-        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
 }
 

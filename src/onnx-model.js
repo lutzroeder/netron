@@ -653,6 +653,16 @@ class OnnxTensor {
         this._id = id;
         this._kind = kind || null;
         this._type = new OnnxTensorType(this._tensor.data_type, this._tensor.dims.map((dim) => dim), null);
+
+        if (this._tensor.data_type == onnx.TensorProto.DataType.FLOAT16 && this._tensor.int32_data && this._tensor.int32_data.length > 0) {
+            var array = new Uint8Array(this._tensor.int32_data.length << 1);
+            var dataView = new DataView(array.buffer, array.byteOffset, array.byteLength);
+            this._tensor.int32_data.forEach((value, index) => {
+                dataView.setUint16(index << 1, value, true);
+            });
+            this._tensor.raw_data = array;
+            this._tensor.int32_data = undefined;
+        }
     }
 
     get id() {
@@ -741,10 +751,7 @@ class OnnxTensor {
                 }
                 break;
             case onnx.TensorProto.DataType.FLOAT16:
-                if (this._tensor.int32_data && this._tensor.int32_data.length > 0) {
-                    context.data = this._tensor.int32_data;
-                }
-                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
+                if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
                     context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
                 }
                 else {
@@ -821,21 +828,14 @@ class OnnxTensor {
                     return results;
                 }
                 if (context.data) {
-                    switch (this._tensor.data_type) {
-                        case onnx.TensorProto.DataType.FLOAT16:
-                            results.push(OnnxTensor._decodeFloat16(context.data[context.index++]));
-                            break;
-                        default:
-                            results.push(context.data[context.index++]);
-                            break;
-                    }
+                    results.push(context.data[context.index++]);
                     context.count++;
                 }
                 else if (context.rawData) {
                     switch (this._tensor.data_type)
                     {
                         case onnx.TensorProto.DataType.FLOAT16:
-                            results.push(OnnxTensor._decodeFloat16(context.rawData.getUint16(context.index, true)));
+                            results.push(context.rawData.getFloat16(context.index, true));
                             context.index += 2;
                             context.count++;
                             break;
@@ -911,13 +911,25 @@ class OnnxTensor {
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
             var result = [];
-            result.push('[');
+            result.push(indentation + '[');
             var items = value.map((item) => OnnxTensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
-            result.push(']');
+            result.push(indentation + ']');
             return result.join('\n');
+        }
+        if (typeof value == 'string') {
+            return indentation + value;
+        }
+        if (value == Infinity) {
+            return indentation + 'Infinity';
+        }
+        if (value == -Infinity) {
+            return indentation + '-Infinity';
+        }
+        if (isNaN(value)) {
+            return indentation + 'NaN';
         }
         return indentation + value.toString();
     }
@@ -987,19 +999,6 @@ class OnnxTensor {
                 return new OnnxOpaqueType(type.opaque_type.domain, type.opaque_type.name, type.opaque_type.parameters.map((parameter) => OnnxTensor._formatType(parameter, imageFormat)));
         }
         return null;
-    }
-
-    static _decodeFloat16(value) {
-        var s = (value & 0x8000) >> 15;
-        var e = (value & 0x7C00) >> 10;
-        var f = value & 0x03FF;
-        if(e == 0) {
-            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
-        }
-        else if (e == 0x1F) {
-            return f ? NaN : ((s ? -1 : 1) * Infinity);
-        }
-        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
 }
 
