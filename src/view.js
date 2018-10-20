@@ -1094,31 +1094,39 @@ class ArchiveContext {
 if (!DataView.prototype.getFloat16) {
     DataView.prototype.getFloat16 = function(byteOffset, littleEndian) {
         var value = this.getUint16(byteOffset, littleEndian);
-        var s = (value & 0x8000) >> 15;
         var e = (value & 0x7C00) >> 10;
         var f = value & 0x03FF;
-        if(e == 0) {
-            return (s ? -1 : 1) * Math.pow(2, -14) * (f / Math.pow(2, 10));
+        if (e == 0) {
+            f = 0.00006103515625 * (f / 1024);
         }
         else if (e == 0x1F) {
-            return f ? NaN : ((s ? -1 : 1) * Infinity);
+            f = f ? NaN : Infinity;
         }
-        return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
+        else {
+            f = DataView.__float16_pow[e] * (1 + (f / 1024));  
+        }
+        return value & 0x8000 ? -f : f;
     };
+    DataView.__float16_pow = { 
+        1: 1/16384, 2: 1/8192, 3: 1/4096, 4: 1/2048, 5: 1/1024, 6: 1/512, 7: 1/256, 8: 1/128,
+        9: 1/64, 10: 1/32, 11: 1/16, 12: 1/8, 13: 1/4, 14: 1/2, 15: 1, 16: 2, 
+        17: 4, 18: 8, 19: 16, 20: 32, 21: 64, 22: 128, 23: 256, 24: 512,
+        25: 1024, 26: 2048, 27: 4096, 28: 8192, 29: 16384, 30: 32768, 31: 65536 
+        };
 }
 
 if (!DataView.prototype.setFloat16) {
     DataView.prototype.setFloat16 = function(byteOffset, value, littleEndian) {
-        DataView.__float16_in[0] = value;
-        var s = (DataView.__float16_out[0] & 0x80000000) >> 16;
-        var f = DataView.__float16_out[0];
-        var e = (f >> 23) & 0x1ff;
-        var encodedValue = s + DataView.__float16_base[e] + ((f & 0x007fffff) >> DataView.__float16_shift[e]);
-        this.setUint16(byteOffset, encodedValue, littleEndian);
+        DataView.__float16_float[0] = value;
+        value = DataView.__float16_int[0];
+        var s = (value >>> 16) & 0x8000;
+        var e = (value >>> 23) & 0xff;
+        var f = value & 0x7fffff;
+        var v = s | DataView.__float16_base[e] | (f >> DataView.__float16_shift[e]);
+        this.setUint16(byteOffset, v, littleEndian);
     };
-    DataView.__float16_buffer = new ArrayBuffer(4);
-    DataView.__float16_in = new Float32Array(DataView.__float16_buffer);
-    DataView.__float16_out = new Uint32Array(DataView.__float16_buffer);
+    DataView.__float16_float = new Float32Array(1);
+    DataView.__float16_int = new Uint32Array(DataView.__float16_float.buffer, 0, DataView.__float16_float.length);
     DataView.__float16_base = new Uint32Array(256);
     DataView.__float16_shift = new Uint32Array(256);
     for (var i = 0; i < 256; ++i) {
