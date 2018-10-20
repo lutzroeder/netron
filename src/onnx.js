@@ -3239,7 +3239,6 @@
             TypeProto.Opaque = (function() {
     
                 function Opaque(properties) {
-                    this.parameters = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -3248,7 +3247,6 @@
     
                 Opaque.prototype.domain = "";
                 Opaque.prototype.name = "";
-                Opaque.prototype.parameters = $util.emptyArray;
     
                 Opaque.create = function create(properties) {
                     return new Opaque(properties);
@@ -3266,11 +3264,6 @@
                             break;
                         case 2:
                             message.name = reader.string();
-                            break;
-                        case 3:
-                            if (!(message.parameters && message.parameters.length))
-                                message.parameters = [];
-                            message.parameters.push($root.onnx.TypeProto.decode(reader, reader.uint32()));
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -3294,11 +3287,6 @@
                         case "name":
                             message.name = reader.string();
                             break;
-                        case "parameters":
-                            if (!(message.parameters && message.parameters.length))
-                                message.parameters = [];
-                            message.parameters.push($root.onnx.TypeProto.decodeText(reader, true));
-                            break;
                         default:
                             reader.handle(tag);
                             break;
@@ -3316,15 +3304,6 @@
                     if (message.name != null && message.hasOwnProperty("name"))
                         if (!$util.isString(message.name))
                             return "name: string expected";
-                    if (message.parameters != null && message.hasOwnProperty("parameters")) {
-                        if (!Array.isArray(message.parameters))
-                            return "parameters: array expected";
-                        for (var i = 0; i < message.parameters.length; ++i) {
-                            var error = $root.onnx.TypeProto.verify(message.parameters[i]);
-                            if (error)
-                                return "parameters." + error;
-                        }
-                    }
                     return null;
                 };
     
@@ -3336,16 +3315,6 @@
                         message.domain = String(object.domain);
                     if (object.name != null)
                         message.name = String(object.name);
-                    if (object.parameters) {
-                        if (!Array.isArray(object.parameters))
-                            throw TypeError(".onnx.TypeProto.Opaque.parameters: array expected");
-                        message.parameters = [];
-                        for (var i = 0; i < object.parameters.length; ++i) {
-                            if (typeof object.parameters[i] !== "object")
-                                throw TypeError(".onnx.TypeProto.Opaque.parameters: object expected");
-                            message.parameters[i] = $root.onnx.TypeProto.fromObject(object.parameters[i]);
-                        }
-                    }
                     return message;
                 };
     
@@ -3353,8 +3322,6 @@
                     if (!options)
                         options = {};
                     var object = {};
-                    if (options.arrays || options.defaults)
-                        object.parameters = [];
                     if (options.defaults) {
                         object.domain = "";
                         object.name = "";
@@ -3363,11 +3330,6 @@
                         object.domain = message.domain;
                     if (message.name != null && message.hasOwnProperty("name"))
                         object.name = message.name;
-                    if (message.parameters && message.parameters.length) {
-                        object.parameters = [];
-                        for (var j = 0; j < message.parameters.length; ++j)
-                            object.parameters[j] = $root.onnx.TypeProto.toObject(message.parameters[j], options);
-                    }
                     return object;
                 };
     
