@@ -805,7 +805,7 @@ class View {
         var rules = [];
         for (var styleSheet of document.styleSheets) {
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
-                rules = styleSheet.rules;
+                rules = styleSheet.cssRules;
             }
         }
         var nodes = element.getElementsByTagName('*');

@@ -148,10 +148,12 @@ class BrowserHost {
                 data = 'data:application/octet-stream;base64,' + window.btoa(unescape(encodeURIComponent(data)));
                 break;
         }
-        var link = document.createElement('a');
-        link.download = file;
-        link.href = data;
-        link.click();
+        var element = document.createElement('a');
+        element.download = file;
+        element.href = data;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
     }
 
     request(base, file, encoding, callback) {
