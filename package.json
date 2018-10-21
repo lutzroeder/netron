@@ -11,7 +11,9 @@
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
     "scripts": {
-        "start": "npx electron ."
+        "install": "",
+        "start": "[ -d node_modules ] || npm install && npx electron .",
+        "server": "[ -d node_modules ] || npm install && rm -rf build/python && python setup.py --quiet build && PYTHONPATH=build/python/lib python -c 'import netron; netron.main()' $@"
     },
     "dependencies": {
         "d3": "latest",
