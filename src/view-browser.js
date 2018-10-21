@@ -137,20 +137,10 @@ class BrowserHost {
         callback(defaultPath + '.' + extension);
     }
 
-    export(file, data, mimeType) {
-        switch(mimeType) {
-            case 'image/png':
-                break;
-            case 'image/svg':
-                data = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
-                break;
-            case 'application/octet-stream': 
-                data = 'data:application/octet-stream;base64,' + window.btoa(unescape(encodeURIComponent(data)));
-                break;
-        }
+    export(file, blob) {
         var element = document.createElement('a');
         element.download = file;
-        element.href = data;
+        element.href = URL.createObjectURL(blob);
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
@@ -422,44 +412,61 @@ class BrowserHost {
     }
 }
 
-window.TextDecoder = window.TextDecoder || class {
-    constructor(encoding) {
-        this._encoding = encoding;
-    }
-    decode(buffer) {
-        var result = '';
-        var length = buffer.length;
-        var i = 0;
-        switch (this._encoding) {
-            case 'utf-8':
-                while (i < length) {
-                    var c = buffer[i++];
-                    switch(c >> 4)
-                    { 
-                        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-                            result += String.fromCharCode(c);
-                            break;
-                        case 12: case 13:
-                            c2 = buffer[i++];
-                            result += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
-                            break;
-                        case 14:
-                            var c2 = buffer[i++];
-                            var c3 = buffer[i++];
-                            result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
-                            break;
-                    }
-                }
-                break;
-            case 'ascii':
-                while (i < length) {
-                    result += String.fromCharCode(buffer[i++]);
-                }
-                break;
+if (!window.TextDecoder) {
+    window.TextDecoder = class {
+        constructor(encoding) {
+            this._encoding = encoding;
         }
-        return result;
-    }
-};
+        decode(buffer) {
+            var result = '';
+            var length = buffer.length;
+            var i = 0;
+            switch (this._encoding) {
+                case 'utf-8':
+                    while (i < length) {
+                        var c = buffer[i++];
+                        switch(c >> 4)
+                        { 
+                            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+                                result += String.fromCharCode(c);
+                                break;
+                            case 12: case 13:
+                                c2 = buffer[i++];
+                                result += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
+                                break;
+                            case 14:
+                                var c2 = buffer[i++];
+                                var c3 = buffer[i++];
+                                result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
+                                break;
+                        }
+                    }
+                    break;
+                case 'ascii':
+                    while (i < length) {
+                        result += String.fromCharCode(buffer[i++]);
+                    }
+                    break;
+            }
+            return result;
+        }
+    };
+}
+
+if (!HTMLCanvasElement.prototype.toBlob) {
+    HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
+        var canvas = this;
+        setTimeout(function() {
+            var data = atob(canvas.toDataURL(type, quality).split(',')[1]);
+            var length = data.length;
+            var buffer = new Uint8Array(length);
+            for (var i = 0; i < length; i++) {
+                buffer[i] = data.charCodeAt(i);
+            }
+            callback(new Blob([ buffer ], { type: type || 'image/png' }));
+        });
+    };
+}
 
 class BrowserContext {
 

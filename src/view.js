@@ -803,17 +803,21 @@ class View {
 
     applyStyleSheet(element, name) {
         var rules = [];
-        for (var styleSheet of document.styleSheets) {
+        for (var i = 0; i < document.styleSheets.length; i++) {
+            var styleSheet = document.styleSheets[i];
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
                 rules = styleSheet.cssRules;
+                break;
             }
         }
         var nodes = element.getElementsByTagName('*');
-        for (var node of nodes) {
-            for (var rule of rules) {
+        for (var j = 0; j < nodes.length; j++) {
+            var node = nodes[j];
+            for (var k = 0; k < rules.length; k++) {
+                var rule = rules[k];                
                 if (node.matches(rule.selectorText)) {
-                    for (var k = 0; k < rule.style.length; k++) {
-                        var item = rule.style.item(k);
+                    for (var l = 0; l < rule.style.length; l++) {
+                        var item = rule.style.item(l);
                         node.style[item] = rule.style[item];
                     }
                 }
@@ -862,7 +866,7 @@ class View {
             var data = new XMLSerializer().serializeToString(exportElement);
     
             if (extension == 'svg') {
-                this._host.export(file, data, 'image/svg');
+                this._host.export(file, new Blob([ data ], { type: 'image/svg' }));
             }
     
             if (extension == 'png') {
@@ -877,8 +881,9 @@ class View {
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
                     document.body.removeChild(imageElement);
-                    var pngBase64 = canvas.toDataURL('image/png');
-                    this._host.export(file, pngBase64, 'image/png');
+                    canvas.toBlob((blob) => {
+                        this._host.export(file, blob);
+                    }, 'image/png');
                 };
                 imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
                 document.body.insertBefore(imageElement, document.body.firstChild);
@@ -909,7 +914,7 @@ class View {
                         this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                             try {
                                 var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape);
-                                this._host.export(file, array.toBuffer(), 'application/octet-stream');
+                                this._host.export(file, new Blob([ array.toBuffer() ], { type: 'application/octet-stream' }));
                             }
                             catch (error) {
                                 this.error('Error saving NumPy tensor.', error);

@@ -176,32 +176,19 @@ class ElectronHost {
         });
     }
 
-    export(file, data, mimeType) {
-        var encoding = 'utf-8';
-        switch (mimeType) {
-            case 'image/svg':
-                break;
-            case 'image/png':
-                try {
-                    data = electron.nativeImage.createFromDataURL(data).toPNG();
+    export(file, blob) {
+        var reader = new FileReader();
+        reader.onload = () => {
+            var data = new Uint8Array(reader.result);
+            var encoding = null;
+            fs.writeFile(file, data, encoding, (err) => {
+                if (err) {
+                    this.exception(err, false);
+                    this.error('Export write failure.', err);
                 }
-                catch (e) {
-                    this.exception(e, false);
-                    this.error('Error exporting PNG image.', e);
-                    return;
-                }
-                encoding = 'binary';
-                break;
-            case 'application/octet-stream':
-                encoding = 'binary';
-                break;
-        }
-        fs.writeFile(file, data, encoding, (err) => {
-            if (err) {
-                this.exception(err, false);
-                this.error('Export write failure.', err);
-            }
-        });
+            });
+        };
+        reader.readAsArrayBuffer(blob);
     }
 
     request(base, file, encoding, callback) {
