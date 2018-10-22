@@ -999,7 +999,7 @@ cntk_v1.ComputationNetwork = class {
                 var verWritten = reader.int32();
                 var verReadable = reader.int32();
                 if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
-                    throw new CntkError('BackNormalization version not supported.');
+                    throw new CntkError('BatchNormalization version not supported.');
                 }
                 this.eval = reader.bool();
                 this.spatial = reader.bool();
@@ -1054,7 +1054,16 @@ cntk_v1.ComputationNetwork = class {
                 children.push(reader.string());
             }
             if (this.version < 19 && node.__type__ == 'BatchNormalization') {
-                throw new CntkError('BatchNormalization handler not implemented.');
+                var runSampleCount = {
+                    __type__: 'LearnableParameter',
+                    name: nodeName + '.run_sample_count',
+                    precision: node.precision,
+                    sampleLayout: new cntk_v1.TensorShape([ 1 ]), // TODO set value = 0
+                    learningRateMultiplier: 0
+                };
+                nodes.push(runSampleCount);
+                this.nodes[runSampleCount.name] = runSampleCount;
+                children.push(runSampleCount.name);
             }
             if (node.__type__ == 'Convolution' && children.length > 1) {
                 children.splice(0, 0, children.pop());
