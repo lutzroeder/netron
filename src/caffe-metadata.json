@@ -382,6 +382,31 @@
     }
   },
   {
+    "name": "LSTM",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "data" },
+        { "name": "clip" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "data" }
+      ],
+      "outputs": [
+        { "name": "reshaped" }
+      ]
+    }
+  },
+  {
     "name": "Python",
     "schema": {
     }

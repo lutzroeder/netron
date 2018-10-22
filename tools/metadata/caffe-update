@@ -9,10 +9,9 @@ tools=${root}/tools
 third_party=${root}/third_party
 
 identifier=caffe
+
 repository=https://github.com/BVLC/${identifier}.git
-
 mkdir -p ${third_party}
-
 if [ -d "${third_party}/${identifier}" ]; then
     git -C "${third_party}/${identifier}" fetch -p
     git -C "${third_party}/${identifier}" reset --hard origin/master
@@ -22,5 +21,9 @@ else
 fi
 
 echo "Generate 'caffe.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe -o ${src}/caffe.js ${third_party}/${identifier}/src/caffe/proto/caffe.proto
+mkdir -p ${tools}/metadata/caffe
+cp ${third_party}/${identifier}/src/caffe/proto/caffe.proto ${tools}/metadata/caffe/caffe.proto
+node ${tools}/metadata/caffe-update.js ${tools}/metadata/caffe/caffe.proto
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe -o ${src}/caffe.js ${tools}/metadata/caffe/caffe.proto
+rm -rf ${tools}/metadata/caffe
 node ${tools}/metadata/update_pbjs.js array ${src}/caffe.js data float 1

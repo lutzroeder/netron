@@ -64,7 +64,7 @@ class CaffeModelFactory {
                                         callback(new CaffeError("Failed to load '" + file + "' (" + message + ")."), null);
                                         return;
                                     }
-                                    this._openNetParameterText(text, callback);
+                                    this._openNetParameterText(context.identifier, text, callback);
                                 });
                                 return;
                             }
@@ -72,36 +72,35 @@ class CaffeModelFactory {
                         catch (error) {
                         }
                 }
-                    this._openNetParameterText(context.text, callback);
+                    this._openNetParameterText(context.identifier, context.text, callback);
                 }
                 else {
-                    this._openNetParameterBuffer(context.buffer, callback);
+                    this._openNetParameterBuffer(context.identifier, context.buffer, callback);
                 }
             });
         });
     }
 
-    _openNetParameterBuffer(buffer, callback) {
+    _openNetParameterBuffer(identifier, buffer, callback) {
         try {
             var netParameter = caffe.NetParameter.decode(buffer);
             this._openNetParameter(netParameter, callback);
         }
         catch (error) {
             host.exception(error, false);
-            callback(new CaffeError('File format is not caffe.NetParameter (' + error.message + ').'), null);
-            return;    
+            callback(new CaffeError("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
+            return;
         }
-
     }
 
-    _openNetParameterText(text, callback) {
+    _openNetParameterText(identifier, text, callback) {
         try {
             var netParameter = caffe.NetParameter.decodeText(text);
             this._openNetParameter(netParameter, callback);
         }
         catch (error) {
             host.exception(error, false);
-            callback(new CaffeError('File text format is not caffe.NetParameter (' + error.message + ').'), null);
+            callback(new CaffeError("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
         }
     }
 
@@ -445,46 +444,13 @@ class CaffeNode {
     static getOperator(index) {
         if (!CaffeNode._operatorMap) {
             CaffeNode._operatorMap = {};
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.NONE] = 'None';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.ACCURACY] = 'Accuracy';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.BNLL] = 'BNLL';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.CONCAT] = 'Concat'; 
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.CONVOLUTION] = 'Convolution';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.DATA] = 'Data';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.DROPOUT] = 'Dropout';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.EUCLIDEAN_LOSS] = 'EuclideanLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.FLATTEN] = 'Flatten';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.HDF5_DATA] = 'HDF5Data';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.HDF5_OUTPUT] = 'HDF5Output';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.IM2COL] = 'Im2col';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.IMAGE_DATA] = 'ImageData';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.INFOGAIN_LOSS] = 'InfogainLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.INNER_PRODUCT] = 'InnerProduct';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.LRN] = 'LRN';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.MULTINOMIAL_LOGISTIC_LOSS] = 'MultinomialLogisticLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.POOLING] = 'Pooling';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.RELU] = 'ReLU';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.SIGMOID] = 'Sigmoid';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.SOFTMAX] = 'Softmax';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.SOFTMAX_LOSS] = 'SoftmaxLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.SPLIT] = 'Split';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.TANH] = 'TanH';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.WINDOW_DATA] = 'WindowData';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.ELTWISE] = 'Eltwise';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.POWER] = 'Power';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.SIGMOID_CROSS_ENTROPY_LOSS] = 'SigmoidCrossEntropyLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.HINGE_LOSS] = 'HingeLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.MEMORY_DATA] = 'HingeLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.ARGMAX] = 'ArgMax';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.THRESHOLD] = 'Threshold';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.DUMMY_DATA] = 'DummyData';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.SLICE] = 'Slice';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.MVN] = 'MVN';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.ABSVAL] = 'AbsVal';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.SILENCE] = 'Silence';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.CONTRASTIVE_LOSS] = 'ContrastiveLoss';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.EXP] = 'Exp';
-            CaffeNode._operatorMap[caffe.V1LayerParameter.LayerType.DECONVOLUTION] = 'Deconvolution';
+            var known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
+            Object.keys(caffe.V1LayerParameter.LayerType).forEach((key) => {
+                var index = caffe.V1LayerParameter.LayerType[key];
+                CaffeNode._operatorMap[index] = key.split('_').map((item) => {
+                    return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
+                }).join('');
+            });
         }
         if (index === undefined) {
             return '?';
@@ -502,6 +468,12 @@ class CaffeAttribute {
     constructor(operator, name, value) {
         this._name = name;
         this._value = value;
+
+        if (value instanceof caffe.BlobShape) {
+            this._value = () => {
+                return JSON.stringify(value.dim);
+            };
+        }
 
         var schema = CaffeOperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name);
         if (schema) {
