@@ -178,8 +178,8 @@ class ElectronHost {
 
     export(file, blob) {
         var reader = new FileReader();
-        reader.onload = () => {
-            var data = new Uint8Array(reader.result);
+        reader.onload = (e) => {
+            var data = new Uint8Array(e.target.result);
             var encoding = null;
             fs.writeFile(file, data, encoding, (err) => {
                 if (err) {

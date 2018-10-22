@@ -345,20 +345,31 @@ class BrowserHost {
     _openBuffer(file, callback) {
         var size = file.size;
         var reader = new FileReader();
-        reader.onloadend = () => {
-            var error = reader.error;
-            if (error) {
-                if (error instanceof FileError) {
-                    error = new Error("File error '" + error.code.toString() + "'.");
-                }
-                callback(error, null);
-                return;
-            }
-            var buffer = new Uint8Array(reader.result);
+        reader.onload = (e) => {
+            var buffer = new Uint8Array(e.target.result);
             var context = new BrowserContext(this, '', file.name, buffer);
             this._view.openContext(context, (err, model) => {
                 callback(err, model);
             });
+        };
+        reader.onerror = (e) => {
+            e = e || window.event;
+            var message = '';
+            switch(e.target.error.code) {
+                case e.target.error.NOT_FOUND_ERR:
+                    message = 'File not found.';          
+                    break;
+                case e.target.error.NOT_READABLE_ERR:
+                    message = 'File not readable.';
+                    break;
+                case e.target.error.SECURITY_ERR:
+                    message = 'File access denied.';
+                    break;
+                default:
+                    message = "File read error '" + e.target.error.code.toString() + "'.";
+                    break;
+            }
+            callback(new Error(message), null);
         };
         reader.readAsArrayBuffer(file);
     }
