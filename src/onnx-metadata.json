@@ -2027,6 +2027,90 @@
     }
   },
   {
+    "name": "Compress",
+    "schema": {
+      "attributes": [
+        {
+          "description": "(Optional) Axis along which to take slices. If not specified, input is flattened before elements being selected.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "Selects slices from an input tensor along a given axis where condition evaluates to True for each axis index.\n    In case axis is not provided, input is flattened before elements are selected.\n    Compress behaves like numpy.compress: https://docs.scipy.org/doc/numpy/reference/generated/numpy.compress.html\n    ",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Compress',\n    inputs=['input', 'condition'],\n    outputs=['output'],\n    axis=0,\n)\ninput = np.array([[1, 2], [3, 4], [5, 6]]).astype(np.float32)\ncondition = np.array([0, 1, 1])\noutput = np.compress(condition, input, axis=0)\n#print(output)\n#[[ 3.  4.]\n# [ 5.  6.]]\n\nexpect(node, inputs=[input, condition.astype(np.bool)], outputs=[output],\n       name='test_compress_0')",
+          "summary": "compress_0"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Compress',\n    inputs=['input', 'condition'],\n    outputs=['output'],\n    axis=1,\n)\ninput = np.array([[1, 2], [3, 4], [5, 6]]).astype(np.float32)\ncondition = np.array([0, 1])\noutput = np.compress(condition, input, axis=1)\n#print(output)\n#[[ 2.]\n# [ 4.]\n# [ 6.]]\n\nexpect(node, inputs=[input, condition.astype(np.bool)], outputs=[output],\n       name='test_compress_1')",
+          "summary": "compress_1"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Compress',\n    inputs=['input', 'condition'],\n    outputs=['output'],\n)\ninput = np.array([[1, 2], [3, 4], [5, 6]]).astype(np.float32)\ncondition = np.array([0, 1, 0, 0, 1])\noutput = np.compress(condition, input)\n#print(output)\n#[ 2., 5.]\n\nexpect(node, inputs=[input, condition.astype(np.bool)], outputs=[output],\n       name='test_compress_default_axis')",
+          "summary": "compress_default_axis"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor of rank r >= 1.",
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "description": "Rank 1 tensor of booleans to indicate which slices or data elements to be selected. Its length can be less than the input length alone the axis or the flattened input size if axis is not specified. In such cases data slices or elements exceeding the condition length are discarded.",
+          "name": "condition",
+          "type": "T1"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank r if axis is specified. Otherwise output is a Tensor of rank 1.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(bool)"
+          ],
+          "description": "Constrains to boolean tensors.",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
     "name": "Concat",
     "schema": {
       "attributes": [
