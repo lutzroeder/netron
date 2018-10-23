@@ -2517,7 +2517,7 @@
         }
       ],
       "category": "Layer",
-      "description": "1D convolution layer (e.g. temporal convolution).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input over a single spatial (or temporal) dimension\nto produce a tensor of outputs.\nIf `use_bias` is True, a bias vector is created and added to the outputs.\nFinally, if `activation` is not `None`,\nit is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide an `input_shape` argument\n(tuple of integers or `None`, e.g.\n`(10, 128)` for sequences of 10 vectors of 128-dimensional vectors,\nor `(None, 128)` for variable-length sequences of 128-dimensional vectors.\n",
+      "description": "1D convolution layer (e.g. temporal convolution).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input over a single spatial (or temporal) dimension\nto produce a tensor of outputs.\nIf `use_bias` is True, a bias vector is created and added to the outputs.\nFinally, if `activation` is not `None`,\nit is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide an `input_shape` argument (tuple of integers or `None`, does not\ninclude the batch axis), e.g. `input_shape=(10, 128)` for time series\nsequences of 10 time steps with 128 features per step in\n`data_format=\"channels_last\"`, or `(None, 128)` for variable-length\nsequences with 128 features per step.\n",
       "inputs": [
         {
           "description": "\n3D tensor with shape: `(batch, steps, channels)`\n",
@@ -2638,7 +2638,7 @@
         }
       ],
       "category": "Layer",
-      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
+      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
           "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
@@ -2732,7 +2732,7 @@
         }
       ],
       "category": "Layer",
-      "description": "3D convolution layer (e.g. spatial convolution over volumes).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\nwith a single channel,\nin `data_format=\"channels_last\"`.\n",
+      "description": "3D convolution layer (e.g. spatial convolution over volumes).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis),\ne.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\nwith a single channel,\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
           "description": "\n5D tensor with shape:\n`(batch, channels, conv_dim1, conv_dim2, conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(batch, conv_dim1, conv_dim2, conv_dim3, channels)`\nif `data_format` is `\"channels_last\"`.\n",
@@ -2839,7 +2839,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Transposed convolution layer (sometimes called Deconvolution).\n\nThe need for transposed convolutions generally arises\nfrom the desire to use a transformation going in the opposite direction\nof a normal convolution, i.e., from something that has the shape of the\noutput of some convolution to something that has the shape of its input\nwhile maintaining a connectivity pattern that is compatible with\nsaid convolution.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
+      "description": "Transposed convolution layer (sometimes called Deconvolution).\n\nThe need for transposed convolutions generally arises\nfrom the desire to use a transformation going in the opposite direction\nof a normal convolution, i.e., from something that has the shape of the\noutput of some convolution to something that has the shape of its input\nwhile maintaining a connectivity pattern that is compatible with\nsaid convolution.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
           "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
@@ -3222,7 +3222,7 @@
         }
       ],
       "category": "Layer",
-      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
+      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.\n",
       "inputs": [
         {
           "description": "\n4D tensor with shape:\n`(batch, channels, rows, cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, rows, cols, channels)`\nif `data_format` is `\"channels_last\"`.\n",
