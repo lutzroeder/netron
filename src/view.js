@@ -303,7 +303,7 @@ class View {
                     }
                     if (model || factoryList.length == 0) {
                         if (!model && factoryCount > 1 && errorList.length > 1) {
-                            callback(new NameError(errorList.map((err) => err.message).join('\n'), "Error loading model."), null);
+                            callback(new ModelError(errorList.map((err) => err.message).join('\n')), null);
                         }
                         else {
                             callback(err, model);
@@ -322,10 +322,10 @@ class View {
                     case 'pbtxt':
                     case 'prototxt':
                     case 'model':
-                        callback(new NameError('Unsupported file content for extension \'.' + extension + '\'.', "Error loading model."), null);
+                        callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
                         break;
                     default:
-                        callback(new NameError('Unsupported file extension \'.' + extension + '\'.', "Error loading model."), null);
+                        callback(new ModelError("Unsupported file extension '." + extension + "'."), null);
                         break;
                 }
             }
@@ -1158,13 +1158,13 @@ if (!DataView.prototype.setFloat16) {
 class ArchiveError extends Error {
     constructor(message) {
         super(message);
-        this.name = "Error loading archive";
+        this.name = 'Error loading archive.';
     }
 }
 
-class NameError extends Error {
-    constructor(message, name) {
+class ModelError extends Error {
+    constructor(message) {
         super(message);
-        this.name = name; 
+        this.name = 'Error loading model.'; 
     }
 }

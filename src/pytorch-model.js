@@ -6,10 +6,7 @@ class PyTorchModelFactory {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop();
-        if (extension == 'pt' || extension == 'pth') {
-            return true;
-        }
-        if (extension == 'pkl') {
+        if (extension == 'pt' || extension == 'pth' || extension == 'pkl') {
             var buffer = context.buffer;
             var torch = [ 0x80, 0x02, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
             if (buffer && buffer.length > torch.length) {
@@ -35,6 +32,7 @@ class PyTorchModelFactory {
 
     _openModel(context, host, callback) {
         try {
+            var identifier = context.identifier;
             var unpickler = new pickle.Unpickler(context.buffer);
 
             var signature = [ 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
@@ -110,9 +108,10 @@ class PyTorchModelFactory {
             constructorTable['torchvision.models.vgg.VGG'] = function () {};
             constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
             constructorTable['torch.nn.parameter.Parameter'] = function(data, requires_grad) { this.data = data; this.requires_grad = requires_grad; };
+            constructorTable['torch.ByteStorage'] = function (size) { this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8'; };
+            constructorTable['torch.LongStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'int64'; };
             constructorTable['torch.FloatStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'float32'; };
             constructorTable['torch.DoubleStorage'] = function (size) { this.size = size; this.dataTypeSize = 8; this.dataType = 'float64'; };
-            constructorTable['torch.LongStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'int64'; };
 
             functionTable['torch._utils._rebuild_tensor'] = function (storage, storage_offset, size, stride) {
                 var obj = {};
@@ -156,7 +155,7 @@ class PyTorchModelFactory {
                     constructor.apply(obj, args);
                 }
                 else {
-                    host.exception(new SklearnError("Unknown function '" + name + "'."), false);
+                    host.exception(new PyTorchError("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;
             };
@@ -258,7 +257,8 @@ class PyTorchGraph {
     _loadModule(parent, groups, inputs) {
 
         if (parent.__type__ &&
-            !parent.__type__.startsWith('torch.nn.modules.container.')) {
+            !parent.__type__.startsWith('torch.nn.modules.container.') &&
+            (!parent._modules || parent._modules.length == 0)) {
             var node = new PyTorchNode(parent, groups, inputs);
             this._nodes.push(node);
             return [];
@@ -569,6 +569,11 @@ class PyTorchTensor {
                 }
                 switch (this._dataType)
                 {
+                    case 'uint8':
+                        results.push(context.dataView.getUint8(context.index, true));
+                        context.index += 1;
+                        context.count++;
+                        break;
                     case 'float32':
                         results.push(context.dataView.getFloat32(context.index, true));
                         context.index += 4;

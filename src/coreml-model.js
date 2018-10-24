@@ -677,7 +677,7 @@ class CoreMLTensor {
             }
             else if (data.rawValue && data.rawValue.length > 0) {
                 this._data = null;
-                dataType = 'byte';
+                dataType = 'uint8';
                 shape = [];
             }
         }

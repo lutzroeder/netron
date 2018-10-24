@@ -22,7 +22,7 @@ class TensorFlowLiteModelFactory {
                 if (!tflite.Model.bufferHasIdentifier(byteBuffer))
                 {
                     var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
-                    callback(new TensorFlowLiteError("Invalid FlatBuffers identifier '" + identifier + "'."));
+                    callback(new TensorFlowLiteError("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
                     return;
                 }
                 model = tflite.Model.getRootAsModel(byteBuffer);
@@ -493,7 +493,7 @@ class TensorFlowLiteTensor {
                 }
                 switch (context.dataType)
                 {
-                    case 'byte':
+                    case 'uint8':
                         results.push(context.data.getUint8(context.index));
                         context.index += 1;
                         context.count++;
@@ -543,7 +543,8 @@ class TensorFlowLiteTensor {
 class TensorFlowLiteTensorType {
 
     constructor(tensor) {
-        this._dataType = tensor.type();
+        var dataType = tflite.TensorType[tensor.type()]; 
+        this._dataType = (dataType) ? dataType.toLowerCase() : '?';
         this._shape = [];
         var shapeLength = tensor.shapeLength();
         if (shapeLength > 0) {
@@ -554,24 +555,7 @@ class TensorFlowLiteTensorType {
     }
 
     get dataType() {
-        if (!TensorFlowLiteTensorType._typeMap)
-        {
-            TensorFlowLiteTensorType._typeMap = {};
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.FLOAT32] = 'float32';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.FLOAT16] = 'float16';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.INT32] = 'int32';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.UINT8] = 'byte';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.INT64] = 'int64';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.STRING] = 'string';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.BOOL] = 'bool';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.INT16] = 'int16';
-            TensorFlowLiteTensorType._typeMap[tflite.TensorType.COMPLEX64] = 'complex64';
-        }
-        var result = TensorFlowLiteTensorType._typeMap[this._dataType]; 
-        if (result) {
-            return result;
-        }
-        return '?';
+        return this._dataType;
     }
 
     get shape() {

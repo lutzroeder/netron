@@ -28,6 +28,7 @@ class SklearnModelFactory {
             
             var obj = null;
             try {
+                var identifier = context.identifier;
                 var unpickler = new pickle.Unpickler(context.buffer);
 
                 var constructorTable = {};
@@ -233,7 +234,7 @@ class SklearnModelFactory {
                         constructor.apply(obj, args);
                     }
                     else {
-                        host.exception(new SklearnError("Unknown function '" + name + "'."), false);
+                        host.exception(new SklearnError("Unknown function '" + name + "' in '" + identifier + "'."), false);
                     }
                     return obj;
                 };
