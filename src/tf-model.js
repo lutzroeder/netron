@@ -21,20 +21,10 @@ class TensorFlowModelFactory {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
                 return false;
             }
-            if (context.text) {
-                var lines = context.text.split('\n');
-                if (lines.some((line) =>
-                        (line.startsWith('net') && line.replace(/\s+/g, '').startsWith('net:')) ||
-                        (line.startsWith('train_net') && line.replace(/\s+/g, '').startsWith('train_net:')) || 
-                        (line.startsWith('net_param') && line.replace(/\s+/g, '').startsWith('net_param{')) ||
-                        (line.startsWith('layer') && line.replace(/\s+/g, '').startsWith('layer{')) ||
-                        (line.startsWith('layers') && line.replace(/\s+/g, '').startsWith('layers{')) || 
-                        (line.startsWith('ir_version') && line.replace(/\s+/g, '').startsWith('ir_version:')) ||
-                        (line.startsWith('op') && line.replace(/\s+/g, '').startsWith('op{')))) {
-                    return false;
-                }
+            var tags = context.tags;
+            if (tags.node || tags.saved_model_schema_version || tags.meta_graphs || tags.graph_def) {
+                return true;
             }
-            return host.environment('PROTOTXT') ? true : false;
         }
         return false;
     }
@@ -53,28 +43,35 @@ class TensorFlowModelFactory {
             var identifier = context.identifier; 
             var extension = identifier.split('.').pop();
             if (extension == 'pbtxt' || extension == 'prototxt') {
-                try {
-                    if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                        savedModel = tensorflow.SavedModel.decodeText(context.text);
-                        format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
+                var tags = context.tags;
+                if (tags.saved_model_schema_version || tags.meta_graphs) {
+                    try {
+                        if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
+                            savedModel = tensorflow.SavedModel.decodeText(context.text);
+                            format = 'TensorFlow Saved Model' + (savedModel.saved_model_schema_version ? (' v' + savedModel.saved_model_schema_version.toString()) : '');
+                        }
+                    }
+                    catch (error) {
+                        callback(new TensorFlowError('File text format is not tensorflow.SavedModel (' + error.message + ').'), null);
+                        return;
                     }
                 }
-                catch (error) {
-                    callback(new TensorFlowError('File text format is not tensorflow.SavedModel (' + error.message + ').'), null);
-                    return;
-                }
-                try {
-                    if (!savedModel) {
-                        metaGraph = tensorflow.MetaGraphDef.decodeText(context.text);
-                        savedModel = new tensorflow.SavedModel();
-                        savedModel.meta_graphs.push(metaGraph);
-                        format = 'TensorFlow MetaGraph';
+                else if (tags.graph_def) {
+                    try {
+                        if (!savedModel) {
+                            metaGraph = tensorflow.MetaGraphDef.decodeText(context.text);
+                            savedModel = new tensorflow.SavedModel();
+                            savedModel.meta_graphs.push(metaGraph);
+                            format = 'TensorFlow MetaGraph';
+                        }
+                    }
+                    catch (error) {
+                        callback(new TensorFlowError('File text format is not tensorflow.MetaGraphDef (' + error.message + ').'), null);
+                        return;
                     }
                 }
-                catch (error) {
-                }
-                try {
-                    if (!savedModel) {
+                else if (tags.node) {
+                    try {
                         graph = tensorflow.GraphDef.decodeText(context.text);
                         metaGraph = new tensorflow.MetaGraphDef();
                         metaGraph.graph_def = graph;
@@ -82,10 +79,10 @@ class TensorFlowModelFactory {
                         savedModel.meta_graphs.push(metaGraph);
                         format = 'TensorFlow Graph';
                     }
-                }
-                catch (error) {
-                    callback(new TensorFlowError('File text format is not tensorflow.GraphDef (' + error.message + ').'), null);
-                    return;
+                    catch (error) {
+                        callback(new TensorFlowError('File text format is not tensorflow.GraphDef (' + error.message + ').'), null);
+                        return;
+                    }
                 }
             }
             else {

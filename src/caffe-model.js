@@ -11,23 +11,14 @@ class CaffeModelFactory {
             return true;
         }
         if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt') {
+            if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt' ||
+                identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
                 return false;
             }
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
-                return false;
+            var tags = context.tags;
+            if (tags.layer || tags.layers || tags.net || tags.train_net || tags.net_param) {
+                return true;
             }
-            if (context.text) {
-                var lines = context.text.split('\n');
-                    if (lines.some((line) => 
-                        (line.startsWith('ir_version') && line.replace(/\s+/g, '').startsWith('ir_version:')) ||
-                        (line.startsWith('graph_def') && line.replace(/\s+/g, '').startsWith('graph_def{')) || 
-                        (line.startsWith('op') && line.replace(/\s+/g, '').startsWith('op{')) || 
-                        (line.startsWith('node') && line.replace(/\s+/g, '').startsWith('node{')))) {
-                    return false;
-                }
-            }
-            return host.environment('PROTOTXT') ? true : false;
         }
         return false;
     }
@@ -42,12 +33,8 @@ class CaffeModelFactory {
             CaffeOperatorMetadata.open(host, (err, metadata) => {
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    var text = context.text;
-                    var lines = context.text.split('\n');
-                    if (lines.some((line) => 
-                            (line.startsWith('net') && line.replace(/\s+/g, '').startsWith('net:')) ||
-                            (line.startsWith('train_net') && line.replace(/\s+/g, '').startsWith('train_net:')) ||
-                            (line.startsWith('net_param') && line.replace(/\s+/g, '').startsWith('net_param{')))) {
+                    var tags = context.tags;
+                    if (tags.net || tags.train_net || tags.net_param) {
                         try { 
                             var solver = caffe.SolverParameter.decodeText(context.text);
                             if (solver.net_param) {
@@ -71,7 +58,7 @@ class CaffeModelFactory {
                         }
                         catch (error) {
                         }
-                }
+                    }
                     this._openNetParameterText(context.identifier, context.text, callback);
                 }
                 else {

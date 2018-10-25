@@ -519,6 +519,24 @@ class BrowserContext {
         }
         return this._text;
     }
+
+    get tags() {
+        if (!this._tags) {
+            this._tags = {};
+            try {
+                var reader = protobuf.TextReader.create(this.text);
+                reader.start(false);
+                while (!reader.end(false)) {
+                    var tag = reader.tag();
+                    this._tags[tag] = true;
+                    reader.skip();
+                }
+            }
+            catch (error) {
+            }
+        }
+        return this._tags;
+    }
 }
 
 window.host = new BrowserHost();

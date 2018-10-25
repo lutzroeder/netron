@@ -23,21 +23,10 @@ class OnnxModelFactory {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt')) {
                 return false;
             }
-            if (context.text) {
-                var lines = context.text.split('\n');
-                if (lines.some((line) => 
-                    (line.startsWith('net') && line.replace(/\s+/g, '').startsWith('net:')) ||
-                    (line.startsWith('train_net') && line.replace(/\s+/g, '').startsWith('train_net:')) || 
-                    (line.startsWith('net_param') && line.replace(/\s+/g, '').startsWith('net_param{')) ||
-                    (line.startsWith('layer') && line.replace(/\s+/g, '').startsWith('layer{')) ||
-                    (line.startsWith('layers') && line.replace(/\s+/g, '').startsWith('layers{')) || 
-                    (line.startsWith('graph_def') && line.replace(/\s+/g, '').startsWith('graph_def{')) || 
-                    (line.startsWith('op') && line.replace(/\s+/g, '').startsWith('op{')) || 
-                    (line.startsWith('node') && line.replace(/\s+/g, '').startsWith('node{')))) {
-                    return false;
-                }
+            var tags = context.tags;
+            if (tags.ir_version || tags.graph) {
+                return true;
             }
-            return host.environment('PROTOTXT') ? true : false;
         }
         return false;
     }
