@@ -646,7 +646,8 @@ class TensorFlowAttribute {
                     this._value = () => '...';
                 }
                 else {
-                    this._value = () => list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape));
+                    this._value = () => 
+                        list.shape.map((shape) => TensorFlowTensor.formatTensorShape(shape)).toString();
                 }
             }
 

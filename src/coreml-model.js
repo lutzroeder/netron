@@ -167,6 +167,31 @@ class CoreMLGraph {
         }
     }
 
+    _updatePreprocessing(scope, group, preprocessing) {
+        if (preprocessing && preprocessing.length > 0) {               
+            var preprocessingInput = this._description.input[0].name;
+            var inputNodes = [];
+            this._nodes.forEach((node) => {
+                if (node._inputs.some((input => input == preprocessingInput))) {
+                    inputNodes.push(node);
+                }
+            });
+            var preprocessorOutput = preprocessingInput;
+            var preprocessorIndex = 0;
+            var nodes = [];
+            preprocessing.forEach((preprocessing) => {
+                var operator = preprocessing.preprocessor;
+                var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
+                preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
+                this._createNode(scope, group, operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]);
+                preprocessorIndex++;
+            });
+            inputNodes.forEach((node) => {
+                node._inputs = node._inputs.map((input) => (input != preprocessingInput) ? input : preprocessorOutput);
+            });
+        }
+    }
+
     _loadModel(model, scope, group) {
         this._groups = this._groups | (group.length > 0 ? true : false);
         if (model.neuralNetworkClassifier) {
@@ -176,42 +201,25 @@ class CoreMLGraph {
                 this._createNode(scope, group, operator, layer.name, layer[operator], layer.input, layer.output);
             });
             this._updateClassifierOutput(group, neuralNetworkClassifier);
-            if (neuralNetworkClassifier.preprocessing && neuralNetworkClassifier.preprocessing.length > 0) {               
-                var preprocessingInput = this._description.input[0].name;
-                var inputNodes = [];
-                this._nodes.forEach((node) => {
-                    if (node._inputs.some((input => input == preprocessingInput))) {
-                        inputNodes.push(node);
-                    }
-                });
-                var preprocessorOutput = preprocessingInput;
-                var preprocessorIndex = 0;
-                var nodes = [];
-                neuralNetworkClassifier.preprocessing.forEach((preprocessing) => {
-                    var operator = preprocessing.preprocessor;
-                    var input = preprocessing.featureName ? preprocessing.featureName : preprocessorOutput;
-                    preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
-                    this._createNode(scope, group, operator, null, preprocessing[operator], [ input ], [ preprocessorOutput ]);
-                    preprocessorIndex++;
-                });
-                inputNodes.forEach((node) => {
-                    node._inputs = node._inputs.map((input) => (input != preprocessingInput) ? input : preprocessorOutput);
-                });
-            }
+            this._updatePreprocessing(scope, group, neuralNetworkClassifier.preprocessing);
             return 'Neural Network Classifier';
         }
         else if (model.neuralNetwork) {
-            model.neuralNetwork.layers.forEach((layer) => {
+            var neuralNetwork = model.neuralNetwork;
+            neuralNetwork.layers.forEach((layer) => {
                 var operator = layer.layer;
                 this._createNode(scope, group, operator, layer.name, layer[operator], layer.input, layer.output);
             });
+            this._updatePreprocessing(scope, group, neuralNetwork.preprocessing);
             return 'Neural Network';
         }
         else if (model.neuralNetworkRegressor) {
-            model.neuralNetworkRegressor.layers.forEach((layer) => {
+            var neuralNetworkRegressor = model.neuralNetworkRegressor;
+            neuralNetworkRegressor.layers.forEach((layer) => {
                 var operator = layer.layer;
                 this._createNode(scope, group, operator, layer.name, layer[operator], layer.input, layer.output);
             });
+            this._updatePreprocessing(scope, group, neuralNetworkRegressor);
             return 'Neural Network Regressor';
         }
         else if (model.pipeline) {
