@@ -148,6 +148,18 @@
     }
   },
   {
+    "name": "BN",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "Sigmoid",
     "schema": {
       "category": "Activation",
@@ -309,6 +321,15 @@
   },
   {
     "name": "DummyData",
+    "schema": {
+      "category": "Data",
+      "outputs": [
+        { "name": "data" }
+      ]
+    }
+  },
+  {
+    "name": "AnnotatedData",
     "schema": {
       "category": "Data",
       "outputs": [

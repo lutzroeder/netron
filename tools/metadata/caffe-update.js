@@ -43,11 +43,12 @@ update(
   optional MnActivationParameter mn_activation_param = 151;
   optional BoxAnnotatorOHEMParameter box_annotator_ohem_param = 152;
   optional PSROIPoolingParameter psroi_pooling_param = 153;
-  optional ROIPoolingParameter roi_pooling_param = 154;
+  optional ROIPoolingParameter roi_pooling_param = 154; // 150 in yjxiong/caffe
   optional SpatialDropoutParameter spatial_dropout_param = 155;
   optional MnParamGradCompressParameter mn_grad_compress_param = 156;
   optional QuantizationParameter quantization_param = 158;
   optional ReorgParameter reorg_param = 159;
+  optional BatchReductionParameter batch_reduction_param = 162;
   optional ShuffleChannelParameter shuffle_channel_param = 164;
   optional AnnotatedDataParameter annotated_data_param = 200;
   optional MultiBoxLossParameter multibox_loss_param = 201;
@@ -56,14 +57,196 @@ update(
   optional DetectionOutputParameter detection_output_param = 204;
   optional DetectionEvaluateParameter detection_evaluate_param = 205;
   optional NormalizeParameter norm_param = 206;
-  optional VideoDataParameter video_data_param = 207;
+  optional VideoDataParameter video_data_param = 207; // 140 in yjxiong/caffe
   optional SplitParameter split_param = 208;
   optional RegionLossParameter region_loss_param = 209;
   optional EvalDetectionParameter eval_detection_param = 301;
   optional ROIPoolingParameter roi_pooling_param_2 = 8266711;
   optional NormalizeBBoxParameter normalize_bbox_param = 8266712; // 149
+  optional BNParameter bn_param = 1137; // 41 in ChenglongChen/batch_normalization, 137 in yjxiong/caffe
   optional bool force_backward = 8266713; // ???
 }`);
+
+update(
+`  optional uint32 crop_size = 3 [default = 0];
+  // mean_file and mean_value cannot be specified at the same time
+  optional string mean_file = 4;
+  // if specified can be repeated once (would subtract it from all the channels)
+  // or can be repeated the same number of times as channels
+  // (would subtract them from the corresponding channel)
+  repeated float mean_value = 5;
+  // Force the decoded image to have 3 color channels.
+  optional bool force_color = 6 [default = false];
+  // Force the decoded image to have 1 color channels.
+  optional bool force_gray = 7 [default = false];
+}`,
+`  optional uint32 crop_size = 3 [default = 0];
+  optional uint32 crop_h = 11 [default = 0];
+  optional uint32 crop_w = 12 [default = 0];
+
+  // mean_file and mean_value cannot be specified at the same time
+  optional string mean_file = 4;
+  // if specified can be repeated once (would substract it from all the channels)
+  // or can be repeated the same number of times as channels
+  // (would subtract them from the corresponding channel)
+  repeated float mean_value = 5;
+  // Force the decoded image to have 3 color channels.
+  optional bool force_color = 6 [default = false];
+  // Force the decoded image to have 1 color channels.
+  optional bool force_gray = 7 [default = false];
+  // Resize policy
+  optional ResizeParameter resize_param = 8;
+  // Noise policy
+  optional NoiseParameter noise_param = 9;
+  // Distortion policy
+  optional DistortionParameter distort_param = 13;
+  // Expand policy
+  optional ExpansionParameter expand_param = 14;
+  // Constraint for emitting the annotation after transformation.
+  optional EmitConstraint emit_constraint = 10;
+  // Resize the input randomly
+  optional RandomResizeParameter random_resize_param = 15;
+  optional RandomAspectRatioParameter random_aspect_ratio_param = 16;
+
+    //will flip x flow if flow image input
+  optional bool flow = 17 [default = false];
+
+  optional bool bgr2rgb = 18 [ default = false ];
+}
+
+// Message that stores parameters used by data transformer for transformation
+// policy
+message NoiseParameter {
+  //Probability of using this resize policy
+  optional float prob = 1 [default = 0];
+  // Histogram equalized
+  optional bool hist_eq = 2 [default = false];
+  // Color inversion
+  optional bool inverse = 3 [default = false];
+  // Grayscale
+  optional bool decolorize = 4 [default = false];
+  // Gaussian blur
+  optional bool gauss_blur = 5 [default = false];
+
+  // JPEG compression quality (-1 = no compression)
+  optional float jpeg = 6 [default = -1];
+
+  // Posterization
+  optional bool posterize = 7 [default = false];
+
+  // Erosion
+  optional bool erode = 8 [default = false];
+
+  // Salt-and-pepper noise
+  optional bool saltpepper = 9 [default = false];
+
+  optional SaltPepperParameter saltpepper_param = 10;
+
+  // Local histogram equalization
+  optional bool clahe = 11 [default = false];
+
+  // Color space conversion
+  optional bool convert_to_hsv = 12 [default = false];
+
+  // Color space conversion
+  optional bool convert_to_lab = 13 [default = false];
+}
+
+// Message that stores parameters used by data transformer for distortion policy
+message DistortionParameter {
+  // The probability of adjusting brightness.
+  optional float brightness_prob = 1 [default = 0.0];
+  // Amount to add to the pixel values within [-delta, delta].
+  // The possible value is within [0, 255]. Recommend 32.
+  optional float brightness_delta = 2 [default = 0.0];
+
+  // The probability of adjusting contrast.
+  optional float contrast_prob = 3 [default = 0.0];
+  // Lower bound for random contrast factor. Recommend 0.5.
+  optional float contrast_lower = 4 [default = 0.0];
+  // Upper bound for random contrast factor. Recommend 1.5.
+  optional float contrast_upper = 5 [default = 0.0];
+
+  // The probability of adjusting hue.
+  optional float hue_prob = 6 [default = 0.0];
+  // Amount to add to the hue channel within [-delta, delta].
+  // The possible value is within [0, 180]. Recommend 36.
+  optional float hue_delta = 7 [default = 0.0];
+
+  // The probability of adjusting saturation.
+  optional float saturation_prob = 8 [default = 0.0];
+  // Lower bound for the random saturation factor. Recommend 0.5.
+  optional float saturation_lower = 9 [default = 0.0];
+  // Upper bound for the random saturation factor. Recommend 1.5.
+  optional float saturation_upper = 10 [default = 0.0];
+
+  // The probability of randomly order the image channels.
+  optional float random_order_prob = 11 [default = 0.0];
+}
+
+// Message that stores parameters used by data transformer for expansion policy
+message ExpansionParameter {
+  //Probability of using this expansion policy
+  optional float prob = 1 [default = 1];
+
+  // The ratio to expand the image.
+  optional float max_expand_ratio = 2 [default = 1.];
+}
+
+// Condition for emitting annotations.
+message EmitConstraint {
+  enum EmitType {
+    CENTER = 0;
+    MIN_OVERLAP = 1;
+  }
+  optional EmitType emit_type = 1 [default = CENTER];
+  // If emit_type is MIN_OVERLAP, provide the emit_overlap.
+  optional float emit_overlap = 2;
+}
+
+message RandomResizeParameter {
+  optional uint32 min_size = 1 [default = 0];
+  optional uint32 max_size = 2 [default = 0];
+  optional ResizeParameter resize_param = 3;
+}
+
+message RandomAspectRatioParameter {
+  optional float min_area_ratio = 1 [default = 0.5];
+  optional float max_area_ratio = 2 [default = 1];
+  optional float aspect_ratio_change = 3 [default = 1];
+  optional uint32 max_attempt = 4 [default = 10];
+  optional ResizeParameter resize_param = 5;
+}
+
+message SaltPepperParameter {
+  //Percentage of pixels
+  optional float fraction = 1 [default = 0];
+  repeated float value = 2;
+}
+
+message BNParameter {
+  optional FillerParameter slope_filler = 1;
+  optional FillerParameter bias_filler = 2;
+  optional float momentum = 3 [default = 0.9];
+  optional float eps = 4 [default = 1e-5];
+  // If true, will use the moving average mean and std for training and test.
+  // Will override the lr_param and freeze all the parameters.
+  // Make sure to initialize the layer properly with pretrained parameters.
+  optional bool frozen = 5 [default = false];
+  enum Engine {
+    DEFAULT = 0;
+    CAFFE = 1;
+    CUDNN = 2;
+  }
+  optional Engine engine = 6 [default = DEFAULT];
+}
+
+message BatchReductionParameter {
+    repeated int32 level = 1;
+    optional ReductionParameter reduction_param = 2;
+    optional bool pos = 3 [default = false];
+}
+`);
 
 add(
 `
