@@ -73,6 +73,7 @@ class PyTorchModelFactory {
 
             constructorTable['argparse.Namespace'] = function (args) { this.args = args; };
             constructorTable['torch.nn.modules.activation.ReLU'] = function () {};
+            constructorTable['torch.nn.modules.activation.PReLU'] = function () {};
             constructorTable['torch.nn.modules.activation.Tanh'] = function () {};
             constructorTable['torch.nn.modules.activation.Sigmoid'] = function () {};
             constructorTable['torch.nn.modules.batchnorm.BatchNorm2d'] = function () {};

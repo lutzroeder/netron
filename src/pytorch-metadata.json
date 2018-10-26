@@ -141,6 +141,19 @@
     }
   },
   {
+    "name": "PReLU",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "visible": false
+        }
+      ],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "MaxPool2d",
     "schema": {
       "attributes": [
