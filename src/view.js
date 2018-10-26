@@ -438,10 +438,8 @@ class View {
                 var groups = graph.groups;
     
                 var graphOptions = {};
-                if (!this._showDetails) {
-                    graphOptions.nodesep = 25;
-                    graphOptions.ranksep = 25;
-                }
+                graphOptions.nodesep = 25;
+                graphOptions.ranksep = 25;
     
                 var g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
