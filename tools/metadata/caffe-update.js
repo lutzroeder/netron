@@ -64,6 +64,7 @@ update(
   optional ROIPoolingParameter roi_pooling_param_2 = 8266711;
   optional NormalizeBBoxParameter normalize_bbox_param = 8266712; // 149
   optional BNParameter bn_param = 1137; // 41 in ChenglongChen/batch_normalization, 137 in yjxiong/caffe
+  optional InterpParameter interp_param = 1143; // 143 indeeplab-public-ver2
   optional bool force_backward = 8266713; // ???
 }`);
 
@@ -245,6 +246,16 @@ message BatchReductionParameter {
     repeated int32 level = 1;
     optional ReductionParameter reduction_param = 2;
     optional bool pos = 3 [default = false];
+}
+
+// Message that stores parameters used by InterpLayer
+message InterpParameter {
+  optional int32 height = 1 [default = 0]; // Height of output
+  optional int32 width = 2 [default = 0]; // Width of output
+  optional int32 zoom_factor = 3 [default = 1]; // zoom factor
+  optional int32 shrink_factor = 4 [default = 1]; // shrink factor
+  optional int32 pad_beg = 5 [default = 0]; // padding at begin of input
+  optional int32 pad_end = 6 [default = 0]; // padding at end of input
 }
 `);
 

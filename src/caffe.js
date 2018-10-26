@@ -3018,6 +3018,7 @@
             LayerParameter.prototype.roi_pooling_param_2 = null;
             LayerParameter.prototype.normalize_bbox_param = null;
             LayerParameter.prototype.bn_param = null;
+            LayerParameter.prototype.interp_param = null;
             LayerParameter.prototype.force_backward = false;
     
             LayerParameter.create = function create(properties) {
@@ -3312,6 +3313,9 @@
                     case 1137:
                         message.bn_param = $root.caffe.BNParameter.decode(reader, reader.uint32());
                         break;
+                    case 1143:
+                        message.interp_param = $root.caffe.InterpParameter.decode(reader, reader.uint32());
+                        break;
                     case 8266713:
                         message.force_backward = reader.bool();
                         break;
@@ -3601,6 +3605,9 @@
                         break;
                     case "bn_param":
                         message.bn_param = $root.caffe.BNParameter.decodeText(reader, true);
+                        break;
+                    case "interp_param":
+                        message.interp_param = $root.caffe.InterpParameter.decodeText(reader, true);
                         break;
                     case "force_backward":
                         message.force_backward = reader.bool();
@@ -4062,6 +4069,11 @@
                     if (error)
                         return "bn_param." + error;
                 }
+                if (message.interp_param != null && message.hasOwnProperty("interp_param")) {
+                    var error = $root.caffe.InterpParameter.verify(message.interp_param);
+                    if (error)
+                        return "interp_param." + error;
+                }
                 if (message.force_backward != null && message.hasOwnProperty("force_backward"))
                     if (typeof message.force_backward !== "boolean")
                         return "force_backward: boolean expected";
@@ -4521,6 +4533,11 @@
                         throw TypeError(".caffe.LayerParameter.bn_param: object expected");
                     message.bn_param = $root.caffe.BNParameter.fromObject(object.bn_param);
                 }
+                if (object.interp_param != null) {
+                    if (typeof object.interp_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.interp_param: object expected");
+                    message.interp_param = $root.caffe.InterpParameter.fromObject(object.interp_param);
+                }
                 if (object.force_backward != null)
                     message.force_backward = Boolean(object.force_backward);
                 return message;
@@ -4616,6 +4633,7 @@
                     object.region_loss_param = null;
                     object.eval_detection_param = null;
                     object.bn_param = null;
+                    object.interp_param = null;
                     object.roi_pooling_param_2 = null;
                     object.normalize_bbox_param = null;
                     object.force_backward = false;
@@ -4810,6 +4828,8 @@
                     object.eval_detection_param = $root.caffe.EvalDetectionParameter.toObject(message.eval_detection_param, options);
                 if (message.bn_param != null && message.hasOwnProperty("bn_param"))
                     object.bn_param = $root.caffe.BNParameter.toObject(message.bn_param, options);
+                if (message.interp_param != null && message.hasOwnProperty("interp_param"))
+                    object.interp_param = $root.caffe.InterpParameter.toObject(message.interp_param, options);
                 if (message.roi_pooling_param_2 != null && message.hasOwnProperty("roi_pooling_param_2"))
                     object.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.toObject(message.roi_pooling_param_2, options);
                 if (message.normalize_bbox_param != null && message.hasOwnProperty("normalize_bbox_param"))
@@ -6718,6 +6738,170 @@
             };
     
             return BatchReductionParameter;
+        })();
+    
+        caffe.InterpParameter = (function() {
+    
+            function InterpParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            InterpParameter.prototype.height = 0;
+            InterpParameter.prototype.width = 0;
+            InterpParameter.prototype.zoom_factor = 1;
+            InterpParameter.prototype.shrink_factor = 1;
+            InterpParameter.prototype.pad_beg = 0;
+            InterpParameter.prototype.pad_end = 0;
+    
+            InterpParameter.create = function create(properties) {
+                return new InterpParameter(properties);
+            };
+    
+            InterpParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.InterpParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.height = reader.int32();
+                        break;
+                    case 2:
+                        message.width = reader.int32();
+                        break;
+                    case 3:
+                        message.zoom_factor = reader.int32();
+                        break;
+                    case 4:
+                        message.shrink_factor = reader.int32();
+                        break;
+                    case 5:
+                        message.pad_beg = reader.int32();
+                        break;
+                    case 6:
+                        message.pad_end = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            InterpParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.InterpParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "height":
+                        message.height = reader.int32();
+                        break;
+                    case "width":
+                        message.width = reader.int32();
+                        break;
+                    case "zoom_factor":
+                        message.zoom_factor = reader.int32();
+                        break;
+                    case "shrink_factor":
+                        message.shrink_factor = reader.int32();
+                        break;
+                    case "pad_beg":
+                        message.pad_beg = reader.int32();
+                        break;
+                    case "pad_end":
+                        message.pad_end = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            InterpParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.height != null && message.hasOwnProperty("height"))
+                    if (!$util.isInteger(message.height))
+                        return "height: integer expected";
+                if (message.width != null && message.hasOwnProperty("width"))
+                    if (!$util.isInteger(message.width))
+                        return "width: integer expected";
+                if (message.zoom_factor != null && message.hasOwnProperty("zoom_factor"))
+                    if (!$util.isInteger(message.zoom_factor))
+                        return "zoom_factor: integer expected";
+                if (message.shrink_factor != null && message.hasOwnProperty("shrink_factor"))
+                    if (!$util.isInteger(message.shrink_factor))
+                        return "shrink_factor: integer expected";
+                if (message.pad_beg != null && message.hasOwnProperty("pad_beg"))
+                    if (!$util.isInteger(message.pad_beg))
+                        return "pad_beg: integer expected";
+                if (message.pad_end != null && message.hasOwnProperty("pad_end"))
+                    if (!$util.isInteger(message.pad_end))
+                        return "pad_end: integer expected";
+                return null;
+            };
+    
+            InterpParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.InterpParameter)
+                    return object;
+                var message = new $root.caffe.InterpParameter();
+                if (object.height != null)
+                    message.height = object.height | 0;
+                if (object.width != null)
+                    message.width = object.width | 0;
+                if (object.zoom_factor != null)
+                    message.zoom_factor = object.zoom_factor | 0;
+                if (object.shrink_factor != null)
+                    message.shrink_factor = object.shrink_factor | 0;
+                if (object.pad_beg != null)
+                    message.pad_beg = object.pad_beg | 0;
+                if (object.pad_end != null)
+                    message.pad_end = object.pad_end | 0;
+                return message;
+            };
+    
+            InterpParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.height = 0;
+                    object.width = 0;
+                    object.zoom_factor = 1;
+                    object.shrink_factor = 1;
+                    object.pad_beg = 0;
+                    object.pad_end = 0;
+                }
+                if (message.height != null && message.hasOwnProperty("height"))
+                    object.height = message.height;
+                if (message.width != null && message.hasOwnProperty("width"))
+                    object.width = message.width;
+                if (message.zoom_factor != null && message.hasOwnProperty("zoom_factor"))
+                    object.zoom_factor = message.zoom_factor;
+                if (message.shrink_factor != null && message.hasOwnProperty("shrink_factor"))
+                    object.shrink_factor = message.shrink_factor;
+                if (message.pad_beg != null && message.hasOwnProperty("pad_beg"))
+                    object.pad_beg = message.pad_beg;
+                if (message.pad_end != null && message.hasOwnProperty("pad_end"))
+                    object.pad_end = message.pad_end;
+                return object;
+            };
+    
+            InterpParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return InterpParameter;
         })();
     
         caffe.LossParameter = (function() {

@@ -76,6 +76,9 @@
         { "name": "scale" },
         { "name": "bias" }
       ],
+      "outputs": [
+        { "name": "output" }
+      ],
       "attributes": [
         { "name": "filler", "visible": false },
         { "name": "bias_term", "visible": false },
