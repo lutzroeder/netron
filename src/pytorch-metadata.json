@@ -208,6 +208,19 @@
     }
   },
   {
+    "name": "BatchNorm1",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "visible": false
+        }
+      ],
+      "category": "Normalization",
+      "package": "torch.nn.modules.batchnorm"
+    }
+  },
+  {
     "name": "BatchNorm2d",
     "schema": {
       "attributes": [
