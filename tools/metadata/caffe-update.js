@@ -259,6 +259,16 @@ message InterpParameter {
 }
 `);
 
+update(
+`  // kernel_h = bottom->height and kernel_w = bottom->width
+  optional bool global_pooling = 12 [default = false];
+`,
+`  // kernel_h = bottom->height and kernel_w = bottom->width
+  optional bool global_pooling = 12 [default = false];
+  // Specify floor/ceil mode
+  optional bool ceil_mode = 1013 [default = true]; // 13 in https://github.com/BVLC/caffe/pull/3057
+`);
+
 add(
 `
 // Sample a bbox in the normalized space [0, 1] with provided constraints.

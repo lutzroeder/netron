@@ -11400,6 +11400,7 @@
             PoolingParameter.prototype.stride_w = 0;
             PoolingParameter.prototype.engine = 0;
             PoolingParameter.prototype.global_pooling = false;
+            PoolingParameter.prototype.ceil_mode = true;
             PoolingParameter.prototype.round_mode = 0;
     
             PoolingParameter.create = function create(properties) {
@@ -11448,6 +11449,9 @@
                         break;
                     case 12:
                         message.global_pooling = reader.bool();
+                        break;
+                    case 1013:
+                        message.ceil_mode = reader.bool();
                         break;
                     case 13:
                         message.round_mode = reader.int32();
@@ -11503,6 +11507,9 @@
                         break;
                     case "global_pooling":
                         message.global_pooling = reader.bool();
+                        break;
+                    case "ceil_mode":
+                        message.ceil_mode = reader.bool();
                         break;
                     case "round_mode":
                         message.round_mode = reader.enum($root.caffe.PoolingParameter.RoundMode);
@@ -11566,6 +11573,9 @@
                 if (message.global_pooling != null && message.hasOwnProperty("global_pooling"))
                     if (typeof message.global_pooling !== "boolean")
                         return "global_pooling: boolean expected";
+                if (message.ceil_mode != null && message.hasOwnProperty("ceil_mode"))
+                    if (typeof message.ceil_mode !== "boolean")
+                        return "ceil_mode: boolean expected";
                 if (message.round_mode != null && message.hasOwnProperty("round_mode"))
                     switch (message.round_mode) {
                     default:
@@ -11629,6 +11639,8 @@
                 }
                 if (object.global_pooling != null)
                     message.global_pooling = Boolean(object.global_pooling);
+                if (object.ceil_mode != null)
+                    message.ceil_mode = Boolean(object.ceil_mode);
                 switch (object.round_mode) {
                 case "CEIL":
                 case 0:
@@ -11660,6 +11672,7 @@
                     object.engine = options.enums === String ? "DEFAULT" : 0;
                     object.global_pooling = false;
                     object.round_mode = options.enums === String ? "CEIL" : 0;
+                    object.ceil_mode = true;
                 }
                 if (message.pool != null && message.hasOwnProperty("pool"))
                     object.pool = options.enums === String ? $root.caffe.PoolingParameter.PoolMethod[message.pool] : message.pool;
@@ -11687,6 +11700,8 @@
                     object.global_pooling = message.global_pooling;
                 if (message.round_mode != null && message.hasOwnProperty("round_mode"))
                     object.round_mode = options.enums === String ? $root.caffe.PoolingParameter.RoundMode[message.round_mode] : message.round_mode;
+                if (message.ceil_mode != null && message.hasOwnProperty("ceil_mode"))
+                    object.ceil_mode = message.ceil_mode;
                 return object;
             };
     
