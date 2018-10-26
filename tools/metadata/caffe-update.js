@@ -64,8 +64,24 @@ update(
   optional ROIPoolingParameter roi_pooling_param_2 = 8266711;
   optional NormalizeBBoxParameter normalize_bbox_param = 8266712; // 149
   optional BNParameter bn_param = 1137; // 41 in ChenglongChen/batch_normalization, 137 in yjxiong/caffe
-  optional InterpParameter interp_param = 1143; // 143 indeeplab-public-ver2
-  optional bool force_backward = 8266713; // ???
+  optional InterpParameter interp_param = 2143; // 143 indeeplab-public-ver2
+  optional CoeffScheduleParameter coeff_schedule_param = 3148; // 148 synopsys-caffe
+  optional AugmentationParameter augmentation_param = 3149; // // 149 synopsys-caffe
+  optional CorrelationParameter correlation_param = 3150; // 150 synopsys-caffe
+  optional L1LossParameter l1_loss_param = 3151; // 2151 synopsys-caffe
+  optional WriterParameter writer_param = 3152; // 152 synopsys-caffe
+  optional ReaderParameter reader_param = 3153; // 153 synopsys-caffe
+  optional MeanParameter mean_param = 3154; // 154 synopsys-caffe
+  optional ResampleParameter resample_param = 3155; // 155
+  optional DownsampleParameter downsample_param = 3156; // 156
+  optional LpqLossParameter lpq_loss_param = 3158; // 158
+  optional FlowWarpParameter flow_warp_param = 3159; // 159
+  optional AccumParameter accum_param = 3160; // 160
+  optional BlackAugmentationParameter black_augmentation_param = 3161; // 161
+  optional bool reshape_every_iter = 3157 [default = true]; // 162
+  optional YoloV2LossParameter yolo_v2_loss_param = 3198; // 198
+  optional YoloV3LossParameter yolo_v3_loss_param = 3199; // 199
+  optional bool force_backward = 4000; // ???
 }`);
 
 update(
@@ -268,6 +284,49 @@ update(
   // Specify floor/ceil mode
   optional bool ceil_mode = 1013 [default = true]; // 13 in https://github.com/BVLC/caffe/pull/3057
 `);
+
+// foss-for-synopsys-dwc-arc-processors/synopsys-caffe
+update(
+`  // Prefetch queue (Increase if data feeding bandwidth varies, within the
+  // limit of device memory for GPU training)
+  optional uint32 prefetch = 10 [default = 4];
+`,
+`  // Prefetch queue (Increase if data feeding bandwidth varies, within the
+  // limit of device memory for GPU training)
+  optional uint32 prefetch = 10 [default = 4];
+  //To store last layer feature map size for yolo
+  repeated uint32 side = 11;
+  // Read data from BinaryDB files using multiple threads. If this parameter
+  // is set to ZERO, each top blob will get a separate thread.
+  optional uint32 disk_reader_threads = 4001 [default = 1];
+  // If set to true, BinaryDB uses a pretty fast method for initializing the source data.
+  // Without this BinaryDB practically fails to load huge datasets.
+  optional bool huge_video_dataset = 7000 [default = false];
+  // Use a non-negative value, to load only this number of dataset samples in binarydb_*
+  optional int32 limit_samples = 7001 [default = -1];
+  optional string preselection_file = 3001; // Load a text file which specifies a label for each data sample. Use preselection_label to filter the data for one specific label.
+  optional int32 preselection_label = 3002;
+  optional int32 range_start = 3003 [default = 0]; //0 = start with first
+  optional int32 range_end = 3004 [default = -1]; //-1 = go until end
+  optional bool rand_permute = 3005 [default = false];
+  optional RANDPERMORDER rand_permute_order = 3006 [default = FIRST_PERMUTE_THEN_RANGE]; // permute indices first, then extract range (or other way around)
+  optional uint32 rand_permute_seed = 3007 [default = 0]; // In BinaryDB (and webp), 0 means using timer randomization!
+  repeated uint32 slice_point = 3008;
+  repeated CHANNELENCODING encoding = 3009;
+  optional bool verbose = 3010 [default = false];
+  repeated float subtract = 3011;
+  optional uint32 permute_every_iter = 3012 [default = 0];
+  optional uint32 block_size = 3013 [default = 0];
+  enum RANDPERMORDER {
+    FIRST_PERMUTE_THEN_RANGE = 0;
+    FIRST_RANGE_THEN_PERMUTE = 1;
+  }
+  enum CHANNELENCODING {
+    UINT8 = 1;
+    UINT16FLOW = 2;
+    BOOL1 = 3;
+  }
+`)
 
 add(
 `
@@ -791,6 +850,248 @@ message ShuffleChannelParameter {
   optional uint32 group = 1 [default = 1]; // The number of group
 }
 
+message CoeffScheduleParameter {
+  optional float half_life = 1 [default = 1];
+  optional float initial_coeff = 2 [default = 1];
+  optional float final_coeff = 3 [default = 1];
+}
+
+// Message describing distribution of augmentation parameters
+message AugmentationParameter {
+  optional uint32 crop_width = 33 [default = 0];
+  optional uint32 crop_height = 34 [default = 0];
+  optional string write_augmented = 2 [default = ""];
+  optional float max_multiplier = 3 [default = 255.];
+  optional bool augment_during_test = 4 [default = false];
+  optional uint32 recompute_mean = 5 [default = 0]; // number of iterations to recompute mean (0 - do not recompute)
+  optional string write_mean = 6 [default = ""];
+  optional bool mean_per_pixel = 7 [default = true]; // if the mean is computed for each pixel or for the whole channel
+  repeated float mean = 18; // Eddy: Per pixel RGB mean to subtract
+  optional string mode = 8 [default = "add"]; // can be "add" or "replace" or "regenerate"
+  optional uint32 bottomwidth = 80 [default = 0];
+  optional uint32 bottomheight = 81 [default = 0];
+  optional uint32 num = 82 [default = 0];
+
+  repeated float chromatic_eigvec = 83;
+
+  // Spatial
+  optional RandomGeneratorParameter mirror = 10;
+  optional RandomGeneratorParameter translate = 11 ;
+  optional RandomGeneratorParameter rotate = 12 ;
+  optional RandomGeneratorParameter zoom = 13 ;
+  optional RandomGeneratorParameter squeeze = 14 ;
+  optional RandomGeneratorParameter translate_x = 15 ;
+  optional RandomGeneratorParameter translate_y = 16 ;
+
+
+  // Chromatic
+  optional RandomGeneratorParameter gamma = 35 ;
+  optional RandomGeneratorParameter brightness = 36 ;
+  optional RandomGeneratorParameter contrast = 37 ;
+  optional RandomGeneratorParameter color = 38 ;
+
+  // Chromatic-Eigen
+  optional RandomGeneratorParameter lmult_pow = 20 ;
+  optional RandomGeneratorParameter lmult_mult = 21 ;
+  optional RandomGeneratorParameter lmult_add = 22 ;
+  optional RandomGeneratorParameter sat_pow = 23 ;
+  optional RandomGeneratorParameter sat_mult = 24 ;
+  optional RandomGeneratorParameter sat_add = 25 ;
+  optional RandomGeneratorParameter col_pow = 26 ;
+  optional RandomGeneratorParameter col_mult = 27 ;
+  optional RandomGeneratorParameter col_add = 28 ;
+  optional RandomGeneratorParameter ladd_pow = 29 ;
+  optional RandomGeneratorParameter ladd_mult = 30 ;
+  optional RandomGeneratorParameter ladd_add = 31 ;
+  optional RandomGeneratorParameter col_rotate = 32 ;
+
+  // Effect
+  optional RandomGeneratorParameter fog_amount = 100 ;
+  optional RandomGeneratorParameter fog_size = 101 ;
+  optional RandomGeneratorParameter motion_blur_angle = 102 ;
+  optional RandomGeneratorParameter motion_blur_size = 103 ;
+  optional RandomGeneratorParameter shadow_angle = 104 ;
+  optional RandomGeneratorParameter shadow_distance = 105 ;
+  optional RandomGeneratorParameter shadow_strength = 106 ;
+  optional RandomGeneratorParameter noise = 107 ;
+}
+
+message BlackAugmentationParameter {
+    optional RandomGeneratorParameter black = 10;
+    optional RandomGeneratorParameter border = 11;
+}
+
+// Message that stores parameters used by CorrelationLayer
+message CorrelationParameter {
+  optional uint32 pad = 2 [default = 0]; // The padding size (equal in Y, X)
+  optional uint32 kernel_size = 3; // The kernel size (square)
+  optional uint32 max_displacement = 4; // The maximum displacement (square)
+  optional uint32 stride_1 = 5 [default = 1]; // The stride in blob 1 (equal in Y, X)
+  optional uint32 stride_2 = 6 [default = 1]; // The stride in blob 2 (equal in Y, X)
+
+  // For Correlation1D:
+  optional int32 single_direction = 8 [default = 0]; // Correlate only to the left (-1) or right (1)
+
+  optional bool do_abs = 7 [default = false]; // Use absolute value of result
+  enum CorrelationType {
+    MULTIPLY = 0;
+    SUBTRACT = 1;
+  }
+  optional CorrelationType correlation_type = 15 [default = MULTIPLY]; // Multiplicative is normal correlation
+}
+
+// Message that stores parameters used by L1LossLayer
+message L1LossParameter {
+  optional bool l2_per_location = 1 [default = false];
+  optional bool l2_prescale_by_channels = 2 [default = false]; // Old style
+  optional bool normalize_by_num_entries = 3 [default = false]; // if we want to normalize not by batch size, but by the number of non-NaN entries
+  optional float epsilon = 4 [default = 1e-2]; // constant for smoothing near zero
+  optional float plateau = 3001 [default = 0]; // L1 Errors smaller than plateau-value will result in zero loss and no gradient
+}
+
+message ReaderParameter {
+    required string file = 1;
+    optional uint32 num = 2 [default=1];
+}
+
+message WriterParameter {
+    optional string file = 1 [default=""];
+    optional string folder = 2 [default=""];
+    optional string prefix = 3 [default=""];
+    optional string suffix = 4 [default=""];
+    optional bool normalize = 5 [default=false];
+    optional float scale = 6 [default=1];
+}
+
+message MeanParameter {
+  enum MeanOperation {
+    ADD = 1;
+    SUBTRACT = 4;
+  }
+
+  required MeanOperation operation = 1;
+  optional string file = 2;
+  repeated float value = 3;
+  optional float mean_scale = 4 [default = 1];
+  optional float input_scale = 5 [default = 1];
+  optional float output_scale = 6 [default = 1];
+}
+
+message ResampleParameter {
+    enum ResampleType {
+        NEAREST = 1;
+        LINEAR = 2;
+        CUBIC = 3;
+        AREA = 4;
+    };
+    optional bool antialias = 4 [ default = true ];
+    optional uint32 width  = 1;
+    optional uint32 height = 2;
+    optional ResampleType type = 3 [ default = LINEAR ];
+    optional float factor = 5 [ default = 1.0 ];
+}
+
+message DownsampleParameter {
+  optional uint32 top_height = 1 [default = 0]; // The output height
+  optional uint32 top_width = 2 [default = 0]; // The output width
+}
+
+// Message that stores parameters used by LpqLossLayer
+message LpqLossParameter {
+  /**
+   * Legacy parameter; now applies to p-PowerLayer
+   */
+  optional bool l2_prescale_by_channels = 4016 [default = false];
+  // if we want to normalize not by batch size, but by the number of non-NaN entries
+  optional bool normalize_by_num_entries = 4017 [default = false];
+
+  /**
+   * "Shift" for p-PowerLayer. Since the Lpq layer uses this parameter
+   * to avoid singularities around 0, and p is usually >=1, this parameter
+   * is normally 0.
+   */
+  optional float p_epsilon = 4013 [default = 0];
+  /**
+   * "Shift" for q-PowerLayer. Since the Lpq layer uses this parameter
+   * to avoid singularities around 0, and q is usually <=1, this parameter
+   * is usually relevant and positive.
+   */
+  optional float q_epsilon = 4014 [default = 1e-2];
+
+  /****************************
+   * If one of each of the following is given, p/q are constant and the entry
+   * in "pq_episode_starts_at_iter" must be 0 (else the first entry must be 0).
+   *
+   * If multiple values are given (the number of values must be the same for
+   * each parameter), then p/q will jump at each iteration number given in
+   * "pq_episode_starts_at_iter".
+   ****************************
+   * Example: pq_episode_starts_at_iter = {0, 1000, 500000}
+   *                                  p = {1.0, 2.0, 2.0}
+   *                                  q = {1.0, 1.0, 2.0}
+   *
+   * With these values, p/q will be 1.0/1.0 from iteration 0 to 1000, then
+   * 2.0/1.0 until iteration 500000, and 2.0/2.0 afterwards.
+   ****************************/
+  repeated uint32 pq_episode_starts_at_iter = 4010;
+  repeated float p = 4011;
+  repeated float q = 4012;
+}
+
+message FlowWarpParameter {
+    enum FillParameter {
+        ZERO = 1;
+        NOT_A_NUMBER = 2;
+    }
+
+    optional FillParameter fill_value = 1 [ default = ZERO ];
+}
+
+message AccumParameter {
+  optional uint32 top_height = 1 [default = 0]; // The output height
+  optional uint32 top_width = 2 [default = 0]; // The output width
+  optional uint32 size_divisible_by = 3 [default = 0]; // Upscales to the minimal size divisible by the given number
+  optional bool have_reference = 4 [ default = false ];
+}
+
+message YoloV2LossParameter {
+  repeated float anchors = 1;
+  optional int32 side = 2;
+  optional int32 num_classes = 3;
+  optional int32 num_object = 4;
+  optional float box_scale = 5  [default = .5];
+  optional float class_scale = 6  [default = .5];
+  optional float noobject_scale = 7  [default = .5];
+  optional float object_scale = 8  [default = .5];
+  optional bool  rescore = 9  [default = true];
+  optional bool  constraint = 10 [default = true];
+  optional float thresh = 11 [default = 0.7];
+}
+
+message YoloV3LossParameter {
+  repeated int32 anchors = 1;
+  repeated int32 mask = 2;
+  optional int32 side = 3;
+  optional int32 num_classes = 4;
+  optional int32 num_object = 5;
+  optional int32 total_object = 6;
+  optional float ignore_thresh = 7 [default = 0.7];
+  optional float truth_thresh = 8 [default = 1.0];
+  optional int32 net_w = 9;
+  optional int32 net_h = 10;
+}
+
+// Message used by AugmentationParameter for describing how to generate augmentation parameters
+message RandomGeneratorParameter {
+  optional string rand_type = 1 [default = "uniform" ]; // can be uniform, gaussian, bernoulli
+  optional bool exp = 2 [default = false ]; // after generating the random number, exponentiate it or not
+  optional float mean = 4 [default = 0. ]; // mean of the random variable
+  optional float spread = 5 [default = 0. ]; // half of interval length for uniform; standard deviation for gaussian
+  optional float prob = 6 [default = 1.];
+  optional bool apply_schedule = 7 [default = true];
+  optional bool discretize = 8 [default = false]; //Discretize (Round) value from rng to INT
+  optional float multiplier = 9 [default = 1.]; //Final random value will be multiplied by this. (Useful for discrete distributions)
+}
 `);
 
 fs.writeFileSync(file, data, 'utf-8');

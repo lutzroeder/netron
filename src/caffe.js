@@ -3019,6 +3019,22 @@
             LayerParameter.prototype.normalize_bbox_param = null;
             LayerParameter.prototype.bn_param = null;
             LayerParameter.prototype.interp_param = null;
+            LayerParameter.prototype.coeff_schedule_param = null;
+            LayerParameter.prototype.augmentation_param = null;
+            LayerParameter.prototype.correlation_param = null;
+            LayerParameter.prototype.l1_loss_param = null;
+            LayerParameter.prototype.writer_param = null;
+            LayerParameter.prototype.reader_param = null;
+            LayerParameter.prototype.mean_param = null;
+            LayerParameter.prototype.resample_param = null;
+            LayerParameter.prototype.downsample_param = null;
+            LayerParameter.prototype.lpq_loss_param = null;
+            LayerParameter.prototype.flow_warp_param = null;
+            LayerParameter.prototype.accum_param = null;
+            LayerParameter.prototype.black_augmentation_param = null;
+            LayerParameter.prototype.reshape_every_iter = true;
+            LayerParameter.prototype.yolo_v2_loss_param = null;
+            LayerParameter.prototype.yolo_v3_loss_param = null;
             LayerParameter.prototype.force_backward = false;
     
             LayerParameter.create = function create(properties) {
@@ -3313,10 +3329,58 @@
                     case 1137:
                         message.bn_param = $root.caffe.BNParameter.decode(reader, reader.uint32());
                         break;
-                    case 1143:
+                    case 2143:
                         message.interp_param = $root.caffe.InterpParameter.decode(reader, reader.uint32());
                         break;
-                    case 8266713:
+                    case 3148:
+                        message.coeff_schedule_param = $root.caffe.CoeffScheduleParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3149:
+                        message.augmentation_param = $root.caffe.AugmentationParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3150:
+                        message.correlation_param = $root.caffe.CorrelationParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3151:
+                        message.l1_loss_param = $root.caffe.L1LossParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3152:
+                        message.writer_param = $root.caffe.WriterParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3153:
+                        message.reader_param = $root.caffe.ReaderParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3154:
+                        message.mean_param = $root.caffe.MeanParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3155:
+                        message.resample_param = $root.caffe.ResampleParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3156:
+                        message.downsample_param = $root.caffe.DownsampleParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3158:
+                        message.lpq_loss_param = $root.caffe.LpqLossParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3159:
+                        message.flow_warp_param = $root.caffe.FlowWarpParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3160:
+                        message.accum_param = $root.caffe.AccumParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3161:
+                        message.black_augmentation_param = $root.caffe.BlackAugmentationParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3157:
+                        message.reshape_every_iter = reader.bool();
+                        break;
+                    case 3198:
+                        message.yolo_v2_loss_param = $root.caffe.YoloV2LossParameter.decode(reader, reader.uint32());
+                        break;
+                    case 3199:
+                        message.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.decode(reader, reader.uint32());
+                        break;
+                    case 4000:
                         message.force_backward = reader.bool();
                         break;
                     default:
@@ -3608,6 +3672,54 @@
                         break;
                     case "interp_param":
                         message.interp_param = $root.caffe.InterpParameter.decodeText(reader, true);
+                        break;
+                    case "coeff_schedule_param":
+                        message.coeff_schedule_param = $root.caffe.CoeffScheduleParameter.decodeText(reader, true);
+                        break;
+                    case "augmentation_param":
+                        message.augmentation_param = $root.caffe.AugmentationParameter.decodeText(reader, true);
+                        break;
+                    case "correlation_param":
+                        message.correlation_param = $root.caffe.CorrelationParameter.decodeText(reader, true);
+                        break;
+                    case "l1_loss_param":
+                        message.l1_loss_param = $root.caffe.L1LossParameter.decodeText(reader, true);
+                        break;
+                    case "writer_param":
+                        message.writer_param = $root.caffe.WriterParameter.decodeText(reader, true);
+                        break;
+                    case "reader_param":
+                        message.reader_param = $root.caffe.ReaderParameter.decodeText(reader, true);
+                        break;
+                    case "mean_param":
+                        message.mean_param = $root.caffe.MeanParameter.decodeText(reader, true);
+                        break;
+                    case "resample_param":
+                        message.resample_param = $root.caffe.ResampleParameter.decodeText(reader, true);
+                        break;
+                    case "downsample_param":
+                        message.downsample_param = $root.caffe.DownsampleParameter.decodeText(reader, true);
+                        break;
+                    case "lpq_loss_param":
+                        message.lpq_loss_param = $root.caffe.LpqLossParameter.decodeText(reader, true);
+                        break;
+                    case "flow_warp_param":
+                        message.flow_warp_param = $root.caffe.FlowWarpParameter.decodeText(reader, true);
+                        break;
+                    case "accum_param":
+                        message.accum_param = $root.caffe.AccumParameter.decodeText(reader, true);
+                        break;
+                    case "black_augmentation_param":
+                        message.black_augmentation_param = $root.caffe.BlackAugmentationParameter.decodeText(reader, true);
+                        break;
+                    case "reshape_every_iter":
+                        message.reshape_every_iter = reader.bool();
+                        break;
+                    case "yolo_v2_loss_param":
+                        message.yolo_v2_loss_param = $root.caffe.YoloV2LossParameter.decodeText(reader, true);
+                        break;
+                    case "yolo_v3_loss_param":
+                        message.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.decodeText(reader, true);
                         break;
                     case "force_backward":
                         message.force_backward = reader.bool();
@@ -4074,6 +4186,84 @@
                     if (error)
                         return "interp_param." + error;
                 }
+                if (message.coeff_schedule_param != null && message.hasOwnProperty("coeff_schedule_param")) {
+                    var error = $root.caffe.CoeffScheduleParameter.verify(message.coeff_schedule_param);
+                    if (error)
+                        return "coeff_schedule_param." + error;
+                }
+                if (message.augmentation_param != null && message.hasOwnProperty("augmentation_param")) {
+                    var error = $root.caffe.AugmentationParameter.verify(message.augmentation_param);
+                    if (error)
+                        return "augmentation_param." + error;
+                }
+                if (message.correlation_param != null && message.hasOwnProperty("correlation_param")) {
+                    var error = $root.caffe.CorrelationParameter.verify(message.correlation_param);
+                    if (error)
+                        return "correlation_param." + error;
+                }
+                if (message.l1_loss_param != null && message.hasOwnProperty("l1_loss_param")) {
+                    var error = $root.caffe.L1LossParameter.verify(message.l1_loss_param);
+                    if (error)
+                        return "l1_loss_param." + error;
+                }
+                if (message.writer_param != null && message.hasOwnProperty("writer_param")) {
+                    var error = $root.caffe.WriterParameter.verify(message.writer_param);
+                    if (error)
+                        return "writer_param." + error;
+                }
+                if (message.reader_param != null && message.hasOwnProperty("reader_param")) {
+                    var error = $root.caffe.ReaderParameter.verify(message.reader_param);
+                    if (error)
+                        return "reader_param." + error;
+                }
+                if (message.mean_param != null && message.hasOwnProperty("mean_param")) {
+                    var error = $root.caffe.MeanParameter.verify(message.mean_param);
+                    if (error)
+                        return "mean_param." + error;
+                }
+                if (message.resample_param != null && message.hasOwnProperty("resample_param")) {
+                    var error = $root.caffe.ResampleParameter.verify(message.resample_param);
+                    if (error)
+                        return "resample_param." + error;
+                }
+                if (message.downsample_param != null && message.hasOwnProperty("downsample_param")) {
+                    var error = $root.caffe.DownsampleParameter.verify(message.downsample_param);
+                    if (error)
+                        return "downsample_param." + error;
+                }
+                if (message.lpq_loss_param != null && message.hasOwnProperty("lpq_loss_param")) {
+                    var error = $root.caffe.LpqLossParameter.verify(message.lpq_loss_param);
+                    if (error)
+                        return "lpq_loss_param." + error;
+                }
+                if (message.flow_warp_param != null && message.hasOwnProperty("flow_warp_param")) {
+                    var error = $root.caffe.FlowWarpParameter.verify(message.flow_warp_param);
+                    if (error)
+                        return "flow_warp_param." + error;
+                }
+                if (message.accum_param != null && message.hasOwnProperty("accum_param")) {
+                    var error = $root.caffe.AccumParameter.verify(message.accum_param);
+                    if (error)
+                        return "accum_param." + error;
+                }
+                if (message.black_augmentation_param != null && message.hasOwnProperty("black_augmentation_param")) {
+                    var error = $root.caffe.BlackAugmentationParameter.verify(message.black_augmentation_param);
+                    if (error)
+                        return "black_augmentation_param." + error;
+                }
+                if (message.reshape_every_iter != null && message.hasOwnProperty("reshape_every_iter"))
+                    if (typeof message.reshape_every_iter !== "boolean")
+                        return "reshape_every_iter: boolean expected";
+                if (message.yolo_v2_loss_param != null && message.hasOwnProperty("yolo_v2_loss_param")) {
+                    var error = $root.caffe.YoloV2LossParameter.verify(message.yolo_v2_loss_param);
+                    if (error)
+                        return "yolo_v2_loss_param." + error;
+                }
+                if (message.yolo_v3_loss_param != null && message.hasOwnProperty("yolo_v3_loss_param")) {
+                    var error = $root.caffe.YoloV3LossParameter.verify(message.yolo_v3_loss_param);
+                    if (error)
+                        return "yolo_v3_loss_param." + error;
+                }
                 if (message.force_backward != null && message.hasOwnProperty("force_backward"))
                     if (typeof message.force_backward !== "boolean")
                         return "force_backward: boolean expected";
@@ -4538,6 +4728,83 @@
                         throw TypeError(".caffe.LayerParameter.interp_param: object expected");
                     message.interp_param = $root.caffe.InterpParameter.fromObject(object.interp_param);
                 }
+                if (object.coeff_schedule_param != null) {
+                    if (typeof object.coeff_schedule_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.coeff_schedule_param: object expected");
+                    message.coeff_schedule_param = $root.caffe.CoeffScheduleParameter.fromObject(object.coeff_schedule_param);
+                }
+                if (object.augmentation_param != null) {
+                    if (typeof object.augmentation_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.augmentation_param: object expected");
+                    message.augmentation_param = $root.caffe.AugmentationParameter.fromObject(object.augmentation_param);
+                }
+                if (object.correlation_param != null) {
+                    if (typeof object.correlation_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.correlation_param: object expected");
+                    message.correlation_param = $root.caffe.CorrelationParameter.fromObject(object.correlation_param);
+                }
+                if (object.l1_loss_param != null) {
+                    if (typeof object.l1_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.l1_loss_param: object expected");
+                    message.l1_loss_param = $root.caffe.L1LossParameter.fromObject(object.l1_loss_param);
+                }
+                if (object.writer_param != null) {
+                    if (typeof object.writer_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.writer_param: object expected");
+                    message.writer_param = $root.caffe.WriterParameter.fromObject(object.writer_param);
+                }
+                if (object.reader_param != null) {
+                    if (typeof object.reader_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.reader_param: object expected");
+                    message.reader_param = $root.caffe.ReaderParameter.fromObject(object.reader_param);
+                }
+                if (object.mean_param != null) {
+                    if (typeof object.mean_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.mean_param: object expected");
+                    message.mean_param = $root.caffe.MeanParameter.fromObject(object.mean_param);
+                }
+                if (object.resample_param != null) {
+                    if (typeof object.resample_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.resample_param: object expected");
+                    message.resample_param = $root.caffe.ResampleParameter.fromObject(object.resample_param);
+                }
+                if (object.downsample_param != null) {
+                    if (typeof object.downsample_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.downsample_param: object expected");
+                    message.downsample_param = $root.caffe.DownsampleParameter.fromObject(object.downsample_param);
+                }
+                if (object.lpq_loss_param != null) {
+                    if (typeof object.lpq_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.lpq_loss_param: object expected");
+                    message.lpq_loss_param = $root.caffe.LpqLossParameter.fromObject(object.lpq_loss_param);
+                }
+                if (object.flow_warp_param != null) {
+                    if (typeof object.flow_warp_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.flow_warp_param: object expected");
+                    message.flow_warp_param = $root.caffe.FlowWarpParameter.fromObject(object.flow_warp_param);
+                }
+                if (object.accum_param != null) {
+                    if (typeof object.accum_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.accum_param: object expected");
+                    message.accum_param = $root.caffe.AccumParameter.fromObject(object.accum_param);
+                }
+                if (object.black_augmentation_param != null) {
+                    if (typeof object.black_augmentation_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.black_augmentation_param: object expected");
+                    message.black_augmentation_param = $root.caffe.BlackAugmentationParameter.fromObject(object.black_augmentation_param);
+                }
+                if (object.reshape_every_iter != null)
+                    message.reshape_every_iter = Boolean(object.reshape_every_iter);
+                if (object.yolo_v2_loss_param != null) {
+                    if (typeof object.yolo_v2_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.yolo_v2_loss_param: object expected");
+                    message.yolo_v2_loss_param = $root.caffe.YoloV2LossParameter.fromObject(object.yolo_v2_loss_param);
+                }
+                if (object.yolo_v3_loss_param != null) {
+                    if (typeof object.yolo_v3_loss_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.yolo_v3_loss_param: object expected");
+                    message.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.fromObject(object.yolo_v3_loss_param);
+                }
                 if (object.force_backward != null)
                     message.force_backward = Boolean(object.force_backward);
                 return message;
@@ -4634,9 +4901,25 @@
                     object.eval_detection_param = null;
                     object.bn_param = null;
                     object.interp_param = null;
+                    object.coeff_schedule_param = null;
+                    object.augmentation_param = null;
+                    object.correlation_param = null;
+                    object.l1_loss_param = null;
+                    object.writer_param = null;
+                    object.reader_param = null;
+                    object.mean_param = null;
+                    object.resample_param = null;
+                    object.downsample_param = null;
+                    object.reshape_every_iter = true;
+                    object.lpq_loss_param = null;
+                    object.flow_warp_param = null;
+                    object.accum_param = null;
+                    object.black_augmentation_param = null;
+                    object.yolo_v2_loss_param = null;
+                    object.yolo_v3_loss_param = null;
+                    object.force_backward = false;
                     object.roi_pooling_param_2 = null;
                     object.normalize_bbox_param = null;
-                    object.force_backward = false;
                 }
                 if (message.name != null && message.hasOwnProperty("name"))
                     object.name = message.name;
@@ -4830,12 +5113,44 @@
                     object.bn_param = $root.caffe.BNParameter.toObject(message.bn_param, options);
                 if (message.interp_param != null && message.hasOwnProperty("interp_param"))
                     object.interp_param = $root.caffe.InterpParameter.toObject(message.interp_param, options);
+                if (message.coeff_schedule_param != null && message.hasOwnProperty("coeff_schedule_param"))
+                    object.coeff_schedule_param = $root.caffe.CoeffScheduleParameter.toObject(message.coeff_schedule_param, options);
+                if (message.augmentation_param != null && message.hasOwnProperty("augmentation_param"))
+                    object.augmentation_param = $root.caffe.AugmentationParameter.toObject(message.augmentation_param, options);
+                if (message.correlation_param != null && message.hasOwnProperty("correlation_param"))
+                    object.correlation_param = $root.caffe.CorrelationParameter.toObject(message.correlation_param, options);
+                if (message.l1_loss_param != null && message.hasOwnProperty("l1_loss_param"))
+                    object.l1_loss_param = $root.caffe.L1LossParameter.toObject(message.l1_loss_param, options);
+                if (message.writer_param != null && message.hasOwnProperty("writer_param"))
+                    object.writer_param = $root.caffe.WriterParameter.toObject(message.writer_param, options);
+                if (message.reader_param != null && message.hasOwnProperty("reader_param"))
+                    object.reader_param = $root.caffe.ReaderParameter.toObject(message.reader_param, options);
+                if (message.mean_param != null && message.hasOwnProperty("mean_param"))
+                    object.mean_param = $root.caffe.MeanParameter.toObject(message.mean_param, options);
+                if (message.resample_param != null && message.hasOwnProperty("resample_param"))
+                    object.resample_param = $root.caffe.ResampleParameter.toObject(message.resample_param, options);
+                if (message.downsample_param != null && message.hasOwnProperty("downsample_param"))
+                    object.downsample_param = $root.caffe.DownsampleParameter.toObject(message.downsample_param, options);
+                if (message.reshape_every_iter != null && message.hasOwnProperty("reshape_every_iter"))
+                    object.reshape_every_iter = message.reshape_every_iter;
+                if (message.lpq_loss_param != null && message.hasOwnProperty("lpq_loss_param"))
+                    object.lpq_loss_param = $root.caffe.LpqLossParameter.toObject(message.lpq_loss_param, options);
+                if (message.flow_warp_param != null && message.hasOwnProperty("flow_warp_param"))
+                    object.flow_warp_param = $root.caffe.FlowWarpParameter.toObject(message.flow_warp_param, options);
+                if (message.accum_param != null && message.hasOwnProperty("accum_param"))
+                    object.accum_param = $root.caffe.AccumParameter.toObject(message.accum_param, options);
+                if (message.black_augmentation_param != null && message.hasOwnProperty("black_augmentation_param"))
+                    object.black_augmentation_param = $root.caffe.BlackAugmentationParameter.toObject(message.black_augmentation_param, options);
+                if (message.yolo_v2_loss_param != null && message.hasOwnProperty("yolo_v2_loss_param"))
+                    object.yolo_v2_loss_param = $root.caffe.YoloV2LossParameter.toObject(message.yolo_v2_loss_param, options);
+                if (message.yolo_v3_loss_param != null && message.hasOwnProperty("yolo_v3_loss_param"))
+                    object.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.toObject(message.yolo_v3_loss_param, options);
+                if (message.force_backward != null && message.hasOwnProperty("force_backward"))
+                    object.force_backward = message.force_backward;
                 if (message.roi_pooling_param_2 != null && message.hasOwnProperty("roi_pooling_param_2"))
                     object.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.toObject(message.roi_pooling_param_2, options);
                 if (message.normalize_bbox_param != null && message.hasOwnProperty("normalize_bbox_param"))
                     object.normalize_bbox_param = $root.caffe.NormalizeBBoxParameter.toObject(message.normalize_bbox_param, options);
-                if (message.force_backward != null && message.hasOwnProperty("force_backward"))
-                    object.force_backward = message.force_backward;
                 return object;
             };
     
@@ -8453,6 +8768,10 @@
         caffe.DataParameter = (function() {
     
             function DataParameter(properties) {
+                this.side = [];
+                this.slice_point = [];
+                this.encoding = [];
+                this.subtract = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -8469,6 +8788,23 @@
             DataParameter.prototype.mirror = false;
             DataParameter.prototype.force_encoded_color = false;
             DataParameter.prototype.prefetch = 4;
+            DataParameter.prototype.side = $util.emptyArray;
+            DataParameter.prototype.disk_reader_threads = 1;
+            DataParameter.prototype.huge_video_dataset = false;
+            DataParameter.prototype.limit_samples = -1;
+            DataParameter.prototype.preselection_file = "";
+            DataParameter.prototype.preselection_label = 0;
+            DataParameter.prototype.range_start = 0;
+            DataParameter.prototype.range_end = -1;
+            DataParameter.prototype.rand_permute = false;
+            DataParameter.prototype.rand_permute_order = 0;
+            DataParameter.prototype.rand_permute_seed = 0;
+            DataParameter.prototype.slice_point = $util.emptyArray;
+            DataParameter.prototype.encoding = $util.emptyArray;
+            DataParameter.prototype.verbose = false;
+            DataParameter.prototype.subtract = $util.emptyArray;
+            DataParameter.prototype.permute_every_iter = 0;
+            DataParameter.prototype.block_size = 0;
     
             DataParameter.create = function create(properties) {
                 return new DataParameter(properties);
@@ -8510,6 +8846,85 @@
                         break;
                     case 10:
                         message.prefetch = reader.uint32();
+                        break;
+                    case 11:
+                        if (!(message.side && message.side.length))
+                            message.side = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.side.push(reader.uint32());
+                        } else
+                            message.side.push(reader.uint32());
+                        break;
+                    case 4001:
+                        message.disk_reader_threads = reader.uint32();
+                        break;
+                    case 7000:
+                        message.huge_video_dataset = reader.bool();
+                        break;
+                    case 7001:
+                        message.limit_samples = reader.int32();
+                        break;
+                    case 3001:
+                        message.preselection_file = reader.string();
+                        break;
+                    case 3002:
+                        message.preselection_label = reader.int32();
+                        break;
+                    case 3003:
+                        message.range_start = reader.int32();
+                        break;
+                    case 3004:
+                        message.range_end = reader.int32();
+                        break;
+                    case 3005:
+                        message.rand_permute = reader.bool();
+                        break;
+                    case 3006:
+                        message.rand_permute_order = reader.int32();
+                        break;
+                    case 3007:
+                        message.rand_permute_seed = reader.uint32();
+                        break;
+                    case 3008:
+                        if (!(message.slice_point && message.slice_point.length))
+                            message.slice_point = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.slice_point.push(reader.uint32());
+                        } else
+                            message.slice_point.push(reader.uint32());
+                        break;
+                    case 3009:
+                        if (!(message.encoding && message.encoding.length))
+                            message.encoding = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.encoding.push(reader.int32());
+                        } else
+                            message.encoding.push(reader.int32());
+                        break;
+                    case 3010:
+                        message.verbose = reader.bool();
+                        break;
+                    case 3011:
+                        if (!(message.subtract && message.subtract.length))
+                            message.subtract = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.subtract.push(reader.float());
+                        } else
+                            message.subtract.push(reader.float());
+                        break;
+                    case 3012:
+                        message.permute_every_iter = reader.uint32();
+                        break;
+                    case 3013:
+                        message.block_size = reader.uint32();
                         break;
                     default:
                         reader.skipType(tag & 7);
@@ -8557,6 +8972,65 @@
                     case "prefetch":
                         message.prefetch = reader.uint32();
                         break;
+                    case "side":
+                        if (!(message.side && message.side.length))
+                            message.side = [];
+                        message.side.push(reader.uint32());
+                        break;
+                    case "disk_reader_threads":
+                        message.disk_reader_threads = reader.uint32();
+                        break;
+                    case "huge_video_dataset":
+                        message.huge_video_dataset = reader.bool();
+                        break;
+                    case "limit_samples":
+                        message.limit_samples = reader.int32();
+                        break;
+                    case "preselection_file":
+                        message.preselection_file = reader.string();
+                        break;
+                    case "preselection_label":
+                        message.preselection_label = reader.int32();
+                        break;
+                    case "range_start":
+                        message.range_start = reader.int32();
+                        break;
+                    case "range_end":
+                        message.range_end = reader.int32();
+                        break;
+                    case "rand_permute":
+                        message.rand_permute = reader.bool();
+                        break;
+                    case "rand_permute_order":
+                        message.rand_permute_order = reader.enum($root.caffe.DataParameter.RANDPERMORDER);
+                        break;
+                    case "rand_permute_seed":
+                        message.rand_permute_seed = reader.uint32();
+                        break;
+                    case "slice_point":
+                        if (!(message.slice_point && message.slice_point.length))
+                            message.slice_point = [];
+                        message.slice_point.push(reader.uint32());
+                        break;
+                    case "encoding":
+                        if (!(message.encoding && message.encoding.length))
+                            message.encoding = [];
+                        message.encoding.push(reader.enum($root.caffe.DataParameter.CHANNELENCODING));
+                        break;
+                    case "verbose":
+                        message.verbose = reader.bool();
+                        break;
+                    case "subtract":
+                        if (!(message.subtract && message.subtract.length))
+                            message.subtract = [];
+                        message.subtract.push(reader.float());
+                        break;
+                    case "permute_every_iter":
+                        message.permute_every_iter = reader.uint32();
+                        break;
+                    case "block_size":
+                        message.block_size = reader.uint32();
+                        break;
                     default:
                         reader.handle(tag);
                         break;
@@ -8603,6 +9077,84 @@
                 if (message.prefetch != null && message.hasOwnProperty("prefetch"))
                     if (!$util.isInteger(message.prefetch))
                         return "prefetch: integer expected";
+                if (message.side != null && message.hasOwnProperty("side")) {
+                    if (!Array.isArray(message.side))
+                        return "side: array expected";
+                    for (var i = 0; i < message.side.length; ++i)
+                        if (!$util.isInteger(message.side[i]))
+                            return "side: integer[] expected";
+                }
+                if (message.disk_reader_threads != null && message.hasOwnProperty("disk_reader_threads"))
+                    if (!$util.isInteger(message.disk_reader_threads))
+                        return "disk_reader_threads: integer expected";
+                if (message.huge_video_dataset != null && message.hasOwnProperty("huge_video_dataset"))
+                    if (typeof message.huge_video_dataset !== "boolean")
+                        return "huge_video_dataset: boolean expected";
+                if (message.limit_samples != null && message.hasOwnProperty("limit_samples"))
+                    if (!$util.isInteger(message.limit_samples))
+                        return "limit_samples: integer expected";
+                if (message.preselection_file != null && message.hasOwnProperty("preselection_file"))
+                    if (!$util.isString(message.preselection_file))
+                        return "preselection_file: string expected";
+                if (message.preselection_label != null && message.hasOwnProperty("preselection_label"))
+                    if (!$util.isInteger(message.preselection_label))
+                        return "preselection_label: integer expected";
+                if (message.range_start != null && message.hasOwnProperty("range_start"))
+                    if (!$util.isInteger(message.range_start))
+                        return "range_start: integer expected";
+                if (message.range_end != null && message.hasOwnProperty("range_end"))
+                    if (!$util.isInteger(message.range_end))
+                        return "range_end: integer expected";
+                if (message.rand_permute != null && message.hasOwnProperty("rand_permute"))
+                    if (typeof message.rand_permute !== "boolean")
+                        return "rand_permute: boolean expected";
+                if (message.rand_permute_order != null && message.hasOwnProperty("rand_permute_order"))
+                    switch (message.rand_permute_order) {
+                    default:
+                        return "rand_permute_order: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
+                if (message.rand_permute_seed != null && message.hasOwnProperty("rand_permute_seed"))
+                    if (!$util.isInteger(message.rand_permute_seed))
+                        return "rand_permute_seed: integer expected";
+                if (message.slice_point != null && message.hasOwnProperty("slice_point")) {
+                    if (!Array.isArray(message.slice_point))
+                        return "slice_point: array expected";
+                    for (var i = 0; i < message.slice_point.length; ++i)
+                        if (!$util.isInteger(message.slice_point[i]))
+                            return "slice_point: integer[] expected";
+                }
+                if (message.encoding != null && message.hasOwnProperty("encoding")) {
+                    if (!Array.isArray(message.encoding))
+                        return "encoding: array expected";
+                    for (var i = 0; i < message.encoding.length; ++i)
+                        switch (message.encoding[i]) {
+                        default:
+                            return "encoding: enum value[] expected";
+                        case 1:
+                        case 2:
+                        case 3:
+                            break;
+                        }
+                }
+                if (message.verbose != null && message.hasOwnProperty("verbose"))
+                    if (typeof message.verbose !== "boolean")
+                        return "verbose: boolean expected";
+                if (message.subtract != null && message.hasOwnProperty("subtract")) {
+                    if (!Array.isArray(message.subtract))
+                        return "subtract: array expected";
+                    for (var i = 0; i < message.subtract.length; ++i)
+                        if (typeof message.subtract[i] !== "number")
+                            return "subtract: number[] expected";
+                }
+                if (message.permute_every_iter != null && message.hasOwnProperty("permute_every_iter"))
+                    if (!$util.isInteger(message.permute_every_iter))
+                        return "permute_every_iter: integer expected";
+                if (message.block_size != null && message.hasOwnProperty("block_size"))
+                    if (!$util.isInteger(message.block_size))
+                        return "block_size: integer expected";
                 return null;
             };
     
@@ -8638,6 +9190,82 @@
                     message.force_encoded_color = Boolean(object.force_encoded_color);
                 if (object.prefetch != null)
                     message.prefetch = object.prefetch >>> 0;
+                if (object.side) {
+                    if (!Array.isArray(object.side))
+                        throw TypeError(".caffe.DataParameter.side: array expected");
+                    message.side = [];
+                    for (var i = 0; i < object.side.length; ++i)
+                        message.side[i] = object.side[i] >>> 0;
+                }
+                if (object.disk_reader_threads != null)
+                    message.disk_reader_threads = object.disk_reader_threads >>> 0;
+                if (object.huge_video_dataset != null)
+                    message.huge_video_dataset = Boolean(object.huge_video_dataset);
+                if (object.limit_samples != null)
+                    message.limit_samples = object.limit_samples | 0;
+                if (object.preselection_file != null)
+                    message.preselection_file = String(object.preselection_file);
+                if (object.preselection_label != null)
+                    message.preselection_label = object.preselection_label | 0;
+                if (object.range_start != null)
+                    message.range_start = object.range_start | 0;
+                if (object.range_end != null)
+                    message.range_end = object.range_end | 0;
+                if (object.rand_permute != null)
+                    message.rand_permute = Boolean(object.rand_permute);
+                switch (object.rand_permute_order) {
+                case "FIRST_PERMUTE_THEN_RANGE":
+                case 0:
+                    message.rand_permute_order = 0;
+                    break;
+                case "FIRST_RANGE_THEN_PERMUTE":
+                case 1:
+                    message.rand_permute_order = 1;
+                    break;
+                }
+                if (object.rand_permute_seed != null)
+                    message.rand_permute_seed = object.rand_permute_seed >>> 0;
+                if (object.slice_point) {
+                    if (!Array.isArray(object.slice_point))
+                        throw TypeError(".caffe.DataParameter.slice_point: array expected");
+                    message.slice_point = [];
+                    for (var i = 0; i < object.slice_point.length; ++i)
+                        message.slice_point[i] = object.slice_point[i] >>> 0;
+                }
+                if (object.encoding) {
+                    if (!Array.isArray(object.encoding))
+                        throw TypeError(".caffe.DataParameter.encoding: array expected");
+                    message.encoding = [];
+                    for (var i = 0; i < object.encoding.length; ++i)
+                        switch (object.encoding[i]) {
+                        default:
+                        case "UINT8":
+                        case 1:
+                            message.encoding[i] = 1;
+                            break;
+                        case "UINT16FLOW":
+                        case 2:
+                            message.encoding[i] = 2;
+                            break;
+                        case "BOOL1":
+                        case 3:
+                            message.encoding[i] = 3;
+                            break;
+                        }
+                }
+                if (object.verbose != null)
+                    message.verbose = Boolean(object.verbose);
+                if (object.subtract) {
+                    if (!Array.isArray(object.subtract))
+                        throw TypeError(".caffe.DataParameter.subtract: array expected");
+                    message.subtract = [];
+                    for (var i = 0; i < object.subtract.length; ++i)
+                        message.subtract[i] = Number(object.subtract[i]);
+                }
+                if (object.permute_every_iter != null)
+                    message.permute_every_iter = object.permute_every_iter >>> 0;
+                if (object.block_size != null)
+                    message.block_size = object.block_size >>> 0;
                 return message;
             };
     
@@ -8645,6 +9273,12 @@
                 if (!options)
                     options = {};
                 var object = {};
+                if (options.arrays || options.defaults) {
+                    object.side = [];
+                    object.slice_point = [];
+                    object.encoding = [];
+                    object.subtract = [];
+                }
                 if (options.defaults) {
                     object.source = "";
                     object.scale = 1;
@@ -8656,6 +9290,19 @@
                     object.backend = options.enums === String ? "LEVELDB" : 0;
                     object.force_encoded_color = false;
                     object.prefetch = 4;
+                    object.preselection_file = "";
+                    object.preselection_label = 0;
+                    object.range_start = 0;
+                    object.range_end = -1;
+                    object.rand_permute = false;
+                    object.rand_permute_order = options.enums === String ? "FIRST_PERMUTE_THEN_RANGE" : 0;
+                    object.rand_permute_seed = 0;
+                    object.verbose = false;
+                    object.permute_every_iter = 0;
+                    object.block_size = 0;
+                    object.disk_reader_threads = 1;
+                    object.huge_video_dataset = false;
+                    object.limit_samples = -1;
                 }
                 if (message.source != null && message.hasOwnProperty("source"))
                     object.source = message.source;
@@ -8677,6 +9324,52 @@
                     object.force_encoded_color = message.force_encoded_color;
                 if (message.prefetch != null && message.hasOwnProperty("prefetch"))
                     object.prefetch = message.prefetch;
+                if (message.side && message.side.length) {
+                    object.side = [];
+                    for (var j = 0; j < message.side.length; ++j)
+                        object.side[j] = message.side[j];
+                }
+                if (message.preselection_file != null && message.hasOwnProperty("preselection_file"))
+                    object.preselection_file = message.preselection_file;
+                if (message.preselection_label != null && message.hasOwnProperty("preselection_label"))
+                    object.preselection_label = message.preselection_label;
+                if (message.range_start != null && message.hasOwnProperty("range_start"))
+                    object.range_start = message.range_start;
+                if (message.range_end != null && message.hasOwnProperty("range_end"))
+                    object.range_end = message.range_end;
+                if (message.rand_permute != null && message.hasOwnProperty("rand_permute"))
+                    object.rand_permute = message.rand_permute;
+                if (message.rand_permute_order != null && message.hasOwnProperty("rand_permute_order"))
+                    object.rand_permute_order = options.enums === String ? $root.caffe.DataParameter.RANDPERMORDER[message.rand_permute_order] : message.rand_permute_order;
+                if (message.rand_permute_seed != null && message.hasOwnProperty("rand_permute_seed"))
+                    object.rand_permute_seed = message.rand_permute_seed;
+                if (message.slice_point && message.slice_point.length) {
+                    object.slice_point = [];
+                    for (var j = 0; j < message.slice_point.length; ++j)
+                        object.slice_point[j] = message.slice_point[j];
+                }
+                if (message.encoding && message.encoding.length) {
+                    object.encoding = [];
+                    for (var j = 0; j < message.encoding.length; ++j)
+                        object.encoding[j] = options.enums === String ? $root.caffe.DataParameter.CHANNELENCODING[message.encoding[j]] : message.encoding[j];
+                }
+                if (message.verbose != null && message.hasOwnProperty("verbose"))
+                    object.verbose = message.verbose;
+                if (message.subtract && message.subtract.length) {
+                    object.subtract = [];
+                    for (var j = 0; j < message.subtract.length; ++j)
+                        object.subtract[j] = options.json && !isFinite(message.subtract[j]) ? String(message.subtract[j]) : message.subtract[j];
+                }
+                if (message.permute_every_iter != null && message.hasOwnProperty("permute_every_iter"))
+                    object.permute_every_iter = message.permute_every_iter;
+                if (message.block_size != null && message.hasOwnProperty("block_size"))
+                    object.block_size = message.block_size;
+                if (message.disk_reader_threads != null && message.hasOwnProperty("disk_reader_threads"))
+                    object.disk_reader_threads = message.disk_reader_threads;
+                if (message.huge_video_dataset != null && message.hasOwnProperty("huge_video_dataset"))
+                    object.huge_video_dataset = message.huge_video_dataset;
+                if (message.limit_samples != null && message.hasOwnProperty("limit_samples"))
+                    object.limit_samples = message.limit_samples;
                 return object;
             };
     
@@ -8688,6 +9381,21 @@
                 var valuesById = {}, values = Object.create(valuesById);
                 values[valuesById[0] = "LEVELDB"] = 0;
                 values[valuesById[1] = "LMDB"] = 1;
+                return values;
+            })();
+    
+            DataParameter.RANDPERMORDER = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "FIRST_PERMUTE_THEN_RANGE"] = 0;
+                values[valuesById[1] = "FIRST_RANGE_THEN_PERMUTE"] = 1;
+                return values;
+            })();
+    
+            DataParameter.CHANNELENCODING = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[1] = "UINT8"] = 1;
+                values[valuesById[2] = "UINT16FLOW"] = 2;
+                values[valuesById[3] = "BOOL1"] = 3;
                 return values;
             })();
     
@@ -22079,6 +22787,3553 @@
             };
     
             return ShuffleChannelParameter;
+        })();
+    
+        caffe.CoeffScheduleParameter = (function() {
+    
+            function CoeffScheduleParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            CoeffScheduleParameter.prototype.half_life = 1;
+            CoeffScheduleParameter.prototype.initial_coeff = 1;
+            CoeffScheduleParameter.prototype.final_coeff = 1;
+    
+            CoeffScheduleParameter.create = function create(properties) {
+                return new CoeffScheduleParameter(properties);
+            };
+    
+            CoeffScheduleParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.CoeffScheduleParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.half_life = reader.float();
+                        break;
+                    case 2:
+                        message.initial_coeff = reader.float();
+                        break;
+                    case 3:
+                        message.final_coeff = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            CoeffScheduleParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.CoeffScheduleParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "half_life":
+                        message.half_life = reader.float();
+                        break;
+                    case "initial_coeff":
+                        message.initial_coeff = reader.float();
+                        break;
+                    case "final_coeff":
+                        message.final_coeff = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            CoeffScheduleParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.half_life != null && message.hasOwnProperty("half_life"))
+                    if (typeof message.half_life !== "number")
+                        return "half_life: number expected";
+                if (message.initial_coeff != null && message.hasOwnProperty("initial_coeff"))
+                    if (typeof message.initial_coeff !== "number")
+                        return "initial_coeff: number expected";
+                if (message.final_coeff != null && message.hasOwnProperty("final_coeff"))
+                    if (typeof message.final_coeff !== "number")
+                        return "final_coeff: number expected";
+                return null;
+            };
+    
+            CoeffScheduleParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.CoeffScheduleParameter)
+                    return object;
+                var message = new $root.caffe.CoeffScheduleParameter();
+                if (object.half_life != null)
+                    message.half_life = Number(object.half_life);
+                if (object.initial_coeff != null)
+                    message.initial_coeff = Number(object.initial_coeff);
+                if (object.final_coeff != null)
+                    message.final_coeff = Number(object.final_coeff);
+                return message;
+            };
+    
+            CoeffScheduleParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.half_life = 1;
+                    object.initial_coeff = 1;
+                    object.final_coeff = 1;
+                }
+                if (message.half_life != null && message.hasOwnProperty("half_life"))
+                    object.half_life = options.json && !isFinite(message.half_life) ? String(message.half_life) : message.half_life;
+                if (message.initial_coeff != null && message.hasOwnProperty("initial_coeff"))
+                    object.initial_coeff = options.json && !isFinite(message.initial_coeff) ? String(message.initial_coeff) : message.initial_coeff;
+                if (message.final_coeff != null && message.hasOwnProperty("final_coeff"))
+                    object.final_coeff = options.json && !isFinite(message.final_coeff) ? String(message.final_coeff) : message.final_coeff;
+                return object;
+            };
+    
+            CoeffScheduleParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return CoeffScheduleParameter;
+        })();
+    
+        caffe.AugmentationParameter = (function() {
+    
+            function AugmentationParameter(properties) {
+                this.mean = [];
+                this.chromatic_eigvec = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            AugmentationParameter.prototype.crop_width = 0;
+            AugmentationParameter.prototype.crop_height = 0;
+            AugmentationParameter.prototype.write_augmented = "";
+            AugmentationParameter.prototype.max_multiplier = 255;
+            AugmentationParameter.prototype.augment_during_test = false;
+            AugmentationParameter.prototype.recompute_mean = 0;
+            AugmentationParameter.prototype.write_mean = "";
+            AugmentationParameter.prototype.mean_per_pixel = true;
+            AugmentationParameter.prototype.mean = $util.emptyArray;
+            AugmentationParameter.prototype.mode = "add";
+            AugmentationParameter.prototype.bottomwidth = 0;
+            AugmentationParameter.prototype.bottomheight = 0;
+            AugmentationParameter.prototype.num = 0;
+            AugmentationParameter.prototype.chromatic_eigvec = $util.emptyArray;
+            AugmentationParameter.prototype.mirror = null;
+            AugmentationParameter.prototype.translate = null;
+            AugmentationParameter.prototype.rotate = null;
+            AugmentationParameter.prototype.zoom = null;
+            AugmentationParameter.prototype.squeeze = null;
+            AugmentationParameter.prototype.translate_x = null;
+            AugmentationParameter.prototype.translate_y = null;
+            AugmentationParameter.prototype.gamma = null;
+            AugmentationParameter.prototype.brightness = null;
+            AugmentationParameter.prototype.contrast = null;
+            AugmentationParameter.prototype.color = null;
+            AugmentationParameter.prototype.lmult_pow = null;
+            AugmentationParameter.prototype.lmult_mult = null;
+            AugmentationParameter.prototype.lmult_add = null;
+            AugmentationParameter.prototype.sat_pow = null;
+            AugmentationParameter.prototype.sat_mult = null;
+            AugmentationParameter.prototype.sat_add = null;
+            AugmentationParameter.prototype.col_pow = null;
+            AugmentationParameter.prototype.col_mult = null;
+            AugmentationParameter.prototype.col_add = null;
+            AugmentationParameter.prototype.ladd_pow = null;
+            AugmentationParameter.prototype.ladd_mult = null;
+            AugmentationParameter.prototype.ladd_add = null;
+            AugmentationParameter.prototype.col_rotate = null;
+            AugmentationParameter.prototype.fog_amount = null;
+            AugmentationParameter.prototype.fog_size = null;
+            AugmentationParameter.prototype.motion_blur_angle = null;
+            AugmentationParameter.prototype.motion_blur_size = null;
+            AugmentationParameter.prototype.shadow_angle = null;
+            AugmentationParameter.prototype.shadow_distance = null;
+            AugmentationParameter.prototype.shadow_strength = null;
+            AugmentationParameter.prototype.noise = null;
+    
+            AugmentationParameter.create = function create(properties) {
+                return new AugmentationParameter(properties);
+            };
+    
+            AugmentationParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.AugmentationParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 33:
+                        message.crop_width = reader.uint32();
+                        break;
+                    case 34:
+                        message.crop_height = reader.uint32();
+                        break;
+                    case 2:
+                        message.write_augmented = reader.string();
+                        break;
+                    case 3:
+                        message.max_multiplier = reader.float();
+                        break;
+                    case 4:
+                        message.augment_during_test = reader.bool();
+                        break;
+                    case 5:
+                        message.recompute_mean = reader.uint32();
+                        break;
+                    case 6:
+                        message.write_mean = reader.string();
+                        break;
+                    case 7:
+                        message.mean_per_pixel = reader.bool();
+                        break;
+                    case 18:
+                        if (!(message.mean && message.mean.length))
+                            message.mean = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.mean.push(reader.float());
+                        } else
+                            message.mean.push(reader.float());
+                        break;
+                    case 8:
+                        message.mode = reader.string();
+                        break;
+                    case 80:
+                        message.bottomwidth = reader.uint32();
+                        break;
+                    case 81:
+                        message.bottomheight = reader.uint32();
+                        break;
+                    case 82:
+                        message.num = reader.uint32();
+                        break;
+                    case 83:
+                        if (!(message.chromatic_eigvec && message.chromatic_eigvec.length))
+                            message.chromatic_eigvec = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.chromatic_eigvec.push(reader.float());
+                        } else
+                            message.chromatic_eigvec.push(reader.float());
+                        break;
+                    case 10:
+                        message.mirror = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 11:
+                        message.translate = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 12:
+                        message.rotate = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 13:
+                        message.zoom = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 14:
+                        message.squeeze = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 15:
+                        message.translate_x = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 16:
+                        message.translate_y = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 35:
+                        message.gamma = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 36:
+                        message.brightness = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 37:
+                        message.contrast = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 38:
+                        message.color = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 20:
+                        message.lmult_pow = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 21:
+                        message.lmult_mult = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 22:
+                        message.lmult_add = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 23:
+                        message.sat_pow = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 24:
+                        message.sat_mult = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 25:
+                        message.sat_add = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 26:
+                        message.col_pow = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 27:
+                        message.col_mult = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 28:
+                        message.col_add = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 29:
+                        message.ladd_pow = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 30:
+                        message.ladd_mult = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 31:
+                        message.ladd_add = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 32:
+                        message.col_rotate = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 100:
+                        message.fog_amount = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 101:
+                        message.fog_size = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 102:
+                        message.motion_blur_angle = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 103:
+                        message.motion_blur_size = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 104:
+                        message.shadow_angle = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 105:
+                        message.shadow_distance = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 106:
+                        message.shadow_strength = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 107:
+                        message.noise = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            AugmentationParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.AugmentationParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "crop_width":
+                        message.crop_width = reader.uint32();
+                        break;
+                    case "crop_height":
+                        message.crop_height = reader.uint32();
+                        break;
+                    case "write_augmented":
+                        message.write_augmented = reader.string();
+                        break;
+                    case "max_multiplier":
+                        message.max_multiplier = reader.float();
+                        break;
+                    case "augment_during_test":
+                        message.augment_during_test = reader.bool();
+                        break;
+                    case "recompute_mean":
+                        message.recompute_mean = reader.uint32();
+                        break;
+                    case "write_mean":
+                        message.write_mean = reader.string();
+                        break;
+                    case "mean_per_pixel":
+                        message.mean_per_pixel = reader.bool();
+                        break;
+                    case "mean":
+                        if (!(message.mean && message.mean.length))
+                            message.mean = [];
+                        message.mean.push(reader.float());
+                        break;
+                    case "mode":
+                        message.mode = reader.string();
+                        break;
+                    case "bottomwidth":
+                        message.bottomwidth = reader.uint32();
+                        break;
+                    case "bottomheight":
+                        message.bottomheight = reader.uint32();
+                        break;
+                    case "num":
+                        message.num = reader.uint32();
+                        break;
+                    case "chromatic_eigvec":
+                        if (!(message.chromatic_eigvec && message.chromatic_eigvec.length))
+                            message.chromatic_eigvec = [];
+                        message.chromatic_eigvec.push(reader.float());
+                        break;
+                    case "mirror":
+                        message.mirror = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "translate":
+                        message.translate = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "rotate":
+                        message.rotate = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "zoom":
+                        message.zoom = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "squeeze":
+                        message.squeeze = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "translate_x":
+                        message.translate_x = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "translate_y":
+                        message.translate_y = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "gamma":
+                        message.gamma = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "brightness":
+                        message.brightness = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "contrast":
+                        message.contrast = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "color":
+                        message.color = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "lmult_pow":
+                        message.lmult_pow = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "lmult_mult":
+                        message.lmult_mult = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "lmult_add":
+                        message.lmult_add = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "sat_pow":
+                        message.sat_pow = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "sat_mult":
+                        message.sat_mult = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "sat_add":
+                        message.sat_add = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "col_pow":
+                        message.col_pow = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "col_mult":
+                        message.col_mult = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "col_add":
+                        message.col_add = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "ladd_pow":
+                        message.ladd_pow = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "ladd_mult":
+                        message.ladd_mult = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "ladd_add":
+                        message.ladd_add = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "col_rotate":
+                        message.col_rotate = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "fog_amount":
+                        message.fog_amount = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "fog_size":
+                        message.fog_size = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "motion_blur_angle":
+                        message.motion_blur_angle = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "motion_blur_size":
+                        message.motion_blur_size = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "shadow_angle":
+                        message.shadow_angle = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "shadow_distance":
+                        message.shadow_distance = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "shadow_strength":
+                        message.shadow_strength = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "noise":
+                        message.noise = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            AugmentationParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.crop_width != null && message.hasOwnProperty("crop_width"))
+                    if (!$util.isInteger(message.crop_width))
+                        return "crop_width: integer expected";
+                if (message.crop_height != null && message.hasOwnProperty("crop_height"))
+                    if (!$util.isInteger(message.crop_height))
+                        return "crop_height: integer expected";
+                if (message.write_augmented != null && message.hasOwnProperty("write_augmented"))
+                    if (!$util.isString(message.write_augmented))
+                        return "write_augmented: string expected";
+                if (message.max_multiplier != null && message.hasOwnProperty("max_multiplier"))
+                    if (typeof message.max_multiplier !== "number")
+                        return "max_multiplier: number expected";
+                if (message.augment_during_test != null && message.hasOwnProperty("augment_during_test"))
+                    if (typeof message.augment_during_test !== "boolean")
+                        return "augment_during_test: boolean expected";
+                if (message.recompute_mean != null && message.hasOwnProperty("recompute_mean"))
+                    if (!$util.isInteger(message.recompute_mean))
+                        return "recompute_mean: integer expected";
+                if (message.write_mean != null && message.hasOwnProperty("write_mean"))
+                    if (!$util.isString(message.write_mean))
+                        return "write_mean: string expected";
+                if (message.mean_per_pixel != null && message.hasOwnProperty("mean_per_pixel"))
+                    if (typeof message.mean_per_pixel !== "boolean")
+                        return "mean_per_pixel: boolean expected";
+                if (message.mean != null && message.hasOwnProperty("mean")) {
+                    if (!Array.isArray(message.mean))
+                        return "mean: array expected";
+                    for (var i = 0; i < message.mean.length; ++i)
+                        if (typeof message.mean[i] !== "number")
+                            return "mean: number[] expected";
+                }
+                if (message.mode != null && message.hasOwnProperty("mode"))
+                    if (!$util.isString(message.mode))
+                        return "mode: string expected";
+                if (message.bottomwidth != null && message.hasOwnProperty("bottomwidth"))
+                    if (!$util.isInteger(message.bottomwidth))
+                        return "bottomwidth: integer expected";
+                if (message.bottomheight != null && message.hasOwnProperty("bottomheight"))
+                    if (!$util.isInteger(message.bottomheight))
+                        return "bottomheight: integer expected";
+                if (message.num != null && message.hasOwnProperty("num"))
+                    if (!$util.isInteger(message.num))
+                        return "num: integer expected";
+                if (message.chromatic_eigvec != null && message.hasOwnProperty("chromatic_eigvec")) {
+                    if (!Array.isArray(message.chromatic_eigvec))
+                        return "chromatic_eigvec: array expected";
+                    for (var i = 0; i < message.chromatic_eigvec.length; ++i)
+                        if (typeof message.chromatic_eigvec[i] !== "number")
+                            return "chromatic_eigvec: number[] expected";
+                }
+                if (message.mirror != null && message.hasOwnProperty("mirror")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.mirror);
+                    if (error)
+                        return "mirror." + error;
+                }
+                if (message.translate != null && message.hasOwnProperty("translate")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.translate);
+                    if (error)
+                        return "translate." + error;
+                }
+                if (message.rotate != null && message.hasOwnProperty("rotate")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.rotate);
+                    if (error)
+                        return "rotate." + error;
+                }
+                if (message.zoom != null && message.hasOwnProperty("zoom")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.zoom);
+                    if (error)
+                        return "zoom." + error;
+                }
+                if (message.squeeze != null && message.hasOwnProperty("squeeze")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.squeeze);
+                    if (error)
+                        return "squeeze." + error;
+                }
+                if (message.translate_x != null && message.hasOwnProperty("translate_x")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.translate_x);
+                    if (error)
+                        return "translate_x." + error;
+                }
+                if (message.translate_y != null && message.hasOwnProperty("translate_y")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.translate_y);
+                    if (error)
+                        return "translate_y." + error;
+                }
+                if (message.gamma != null && message.hasOwnProperty("gamma")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.gamma);
+                    if (error)
+                        return "gamma." + error;
+                }
+                if (message.brightness != null && message.hasOwnProperty("brightness")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.brightness);
+                    if (error)
+                        return "brightness." + error;
+                }
+                if (message.contrast != null && message.hasOwnProperty("contrast")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.contrast);
+                    if (error)
+                        return "contrast." + error;
+                }
+                if (message.color != null && message.hasOwnProperty("color")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.color);
+                    if (error)
+                        return "color." + error;
+                }
+                if (message.lmult_pow != null && message.hasOwnProperty("lmult_pow")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.lmult_pow);
+                    if (error)
+                        return "lmult_pow." + error;
+                }
+                if (message.lmult_mult != null && message.hasOwnProperty("lmult_mult")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.lmult_mult);
+                    if (error)
+                        return "lmult_mult." + error;
+                }
+                if (message.lmult_add != null && message.hasOwnProperty("lmult_add")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.lmult_add);
+                    if (error)
+                        return "lmult_add." + error;
+                }
+                if (message.sat_pow != null && message.hasOwnProperty("sat_pow")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.sat_pow);
+                    if (error)
+                        return "sat_pow." + error;
+                }
+                if (message.sat_mult != null && message.hasOwnProperty("sat_mult")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.sat_mult);
+                    if (error)
+                        return "sat_mult." + error;
+                }
+                if (message.sat_add != null && message.hasOwnProperty("sat_add")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.sat_add);
+                    if (error)
+                        return "sat_add." + error;
+                }
+                if (message.col_pow != null && message.hasOwnProperty("col_pow")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.col_pow);
+                    if (error)
+                        return "col_pow." + error;
+                }
+                if (message.col_mult != null && message.hasOwnProperty("col_mult")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.col_mult);
+                    if (error)
+                        return "col_mult." + error;
+                }
+                if (message.col_add != null && message.hasOwnProperty("col_add")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.col_add);
+                    if (error)
+                        return "col_add." + error;
+                }
+                if (message.ladd_pow != null && message.hasOwnProperty("ladd_pow")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.ladd_pow);
+                    if (error)
+                        return "ladd_pow." + error;
+                }
+                if (message.ladd_mult != null && message.hasOwnProperty("ladd_mult")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.ladd_mult);
+                    if (error)
+                        return "ladd_mult." + error;
+                }
+                if (message.ladd_add != null && message.hasOwnProperty("ladd_add")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.ladd_add);
+                    if (error)
+                        return "ladd_add." + error;
+                }
+                if (message.col_rotate != null && message.hasOwnProperty("col_rotate")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.col_rotate);
+                    if (error)
+                        return "col_rotate." + error;
+                }
+                if (message.fog_amount != null && message.hasOwnProperty("fog_amount")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.fog_amount);
+                    if (error)
+                        return "fog_amount." + error;
+                }
+                if (message.fog_size != null && message.hasOwnProperty("fog_size")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.fog_size);
+                    if (error)
+                        return "fog_size." + error;
+                }
+                if (message.motion_blur_angle != null && message.hasOwnProperty("motion_blur_angle")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.motion_blur_angle);
+                    if (error)
+                        return "motion_blur_angle." + error;
+                }
+                if (message.motion_blur_size != null && message.hasOwnProperty("motion_blur_size")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.motion_blur_size);
+                    if (error)
+                        return "motion_blur_size." + error;
+                }
+                if (message.shadow_angle != null && message.hasOwnProperty("shadow_angle")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.shadow_angle);
+                    if (error)
+                        return "shadow_angle." + error;
+                }
+                if (message.shadow_distance != null && message.hasOwnProperty("shadow_distance")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.shadow_distance);
+                    if (error)
+                        return "shadow_distance." + error;
+                }
+                if (message.shadow_strength != null && message.hasOwnProperty("shadow_strength")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.shadow_strength);
+                    if (error)
+                        return "shadow_strength." + error;
+                }
+                if (message.noise != null && message.hasOwnProperty("noise")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.noise);
+                    if (error)
+                        return "noise." + error;
+                }
+                return null;
+            };
+    
+            AugmentationParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.AugmentationParameter)
+                    return object;
+                var message = new $root.caffe.AugmentationParameter();
+                if (object.crop_width != null)
+                    message.crop_width = object.crop_width >>> 0;
+                if (object.crop_height != null)
+                    message.crop_height = object.crop_height >>> 0;
+                if (object.write_augmented != null)
+                    message.write_augmented = String(object.write_augmented);
+                if (object.max_multiplier != null)
+                    message.max_multiplier = Number(object.max_multiplier);
+                if (object.augment_during_test != null)
+                    message.augment_during_test = Boolean(object.augment_during_test);
+                if (object.recompute_mean != null)
+                    message.recompute_mean = object.recompute_mean >>> 0;
+                if (object.write_mean != null)
+                    message.write_mean = String(object.write_mean);
+                if (object.mean_per_pixel != null)
+                    message.mean_per_pixel = Boolean(object.mean_per_pixel);
+                if (object.mean) {
+                    if (!Array.isArray(object.mean))
+                        throw TypeError(".caffe.AugmentationParameter.mean: array expected");
+                    message.mean = [];
+                    for (var i = 0; i < object.mean.length; ++i)
+                        message.mean[i] = Number(object.mean[i]);
+                }
+                if (object.mode != null)
+                    message.mode = String(object.mode);
+                if (object.bottomwidth != null)
+                    message.bottomwidth = object.bottomwidth >>> 0;
+                if (object.bottomheight != null)
+                    message.bottomheight = object.bottomheight >>> 0;
+                if (object.num != null)
+                    message.num = object.num >>> 0;
+                if (object.chromatic_eigvec) {
+                    if (!Array.isArray(object.chromatic_eigvec))
+                        throw TypeError(".caffe.AugmentationParameter.chromatic_eigvec: array expected");
+                    message.chromatic_eigvec = [];
+                    for (var i = 0; i < object.chromatic_eigvec.length; ++i)
+                        message.chromatic_eigvec[i] = Number(object.chromatic_eigvec[i]);
+                }
+                if (object.mirror != null) {
+                    if (typeof object.mirror !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.mirror: object expected");
+                    message.mirror = $root.caffe.RandomGeneratorParameter.fromObject(object.mirror);
+                }
+                if (object.translate != null) {
+                    if (typeof object.translate !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.translate: object expected");
+                    message.translate = $root.caffe.RandomGeneratorParameter.fromObject(object.translate);
+                }
+                if (object.rotate != null) {
+                    if (typeof object.rotate !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.rotate: object expected");
+                    message.rotate = $root.caffe.RandomGeneratorParameter.fromObject(object.rotate);
+                }
+                if (object.zoom != null) {
+                    if (typeof object.zoom !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.zoom: object expected");
+                    message.zoom = $root.caffe.RandomGeneratorParameter.fromObject(object.zoom);
+                }
+                if (object.squeeze != null) {
+                    if (typeof object.squeeze !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.squeeze: object expected");
+                    message.squeeze = $root.caffe.RandomGeneratorParameter.fromObject(object.squeeze);
+                }
+                if (object.translate_x != null) {
+                    if (typeof object.translate_x !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.translate_x: object expected");
+                    message.translate_x = $root.caffe.RandomGeneratorParameter.fromObject(object.translate_x);
+                }
+                if (object.translate_y != null) {
+                    if (typeof object.translate_y !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.translate_y: object expected");
+                    message.translate_y = $root.caffe.RandomGeneratorParameter.fromObject(object.translate_y);
+                }
+                if (object.gamma != null) {
+                    if (typeof object.gamma !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.gamma: object expected");
+                    message.gamma = $root.caffe.RandomGeneratorParameter.fromObject(object.gamma);
+                }
+                if (object.brightness != null) {
+                    if (typeof object.brightness !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.brightness: object expected");
+                    message.brightness = $root.caffe.RandomGeneratorParameter.fromObject(object.brightness);
+                }
+                if (object.contrast != null) {
+                    if (typeof object.contrast !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.contrast: object expected");
+                    message.contrast = $root.caffe.RandomGeneratorParameter.fromObject(object.contrast);
+                }
+                if (object.color != null) {
+                    if (typeof object.color !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.color: object expected");
+                    message.color = $root.caffe.RandomGeneratorParameter.fromObject(object.color);
+                }
+                if (object.lmult_pow != null) {
+                    if (typeof object.lmult_pow !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.lmult_pow: object expected");
+                    message.lmult_pow = $root.caffe.RandomGeneratorParameter.fromObject(object.lmult_pow);
+                }
+                if (object.lmult_mult != null) {
+                    if (typeof object.lmult_mult !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.lmult_mult: object expected");
+                    message.lmult_mult = $root.caffe.RandomGeneratorParameter.fromObject(object.lmult_mult);
+                }
+                if (object.lmult_add != null) {
+                    if (typeof object.lmult_add !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.lmult_add: object expected");
+                    message.lmult_add = $root.caffe.RandomGeneratorParameter.fromObject(object.lmult_add);
+                }
+                if (object.sat_pow != null) {
+                    if (typeof object.sat_pow !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.sat_pow: object expected");
+                    message.sat_pow = $root.caffe.RandomGeneratorParameter.fromObject(object.sat_pow);
+                }
+                if (object.sat_mult != null) {
+                    if (typeof object.sat_mult !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.sat_mult: object expected");
+                    message.sat_mult = $root.caffe.RandomGeneratorParameter.fromObject(object.sat_mult);
+                }
+                if (object.sat_add != null) {
+                    if (typeof object.sat_add !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.sat_add: object expected");
+                    message.sat_add = $root.caffe.RandomGeneratorParameter.fromObject(object.sat_add);
+                }
+                if (object.col_pow != null) {
+                    if (typeof object.col_pow !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.col_pow: object expected");
+                    message.col_pow = $root.caffe.RandomGeneratorParameter.fromObject(object.col_pow);
+                }
+                if (object.col_mult != null) {
+                    if (typeof object.col_mult !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.col_mult: object expected");
+                    message.col_mult = $root.caffe.RandomGeneratorParameter.fromObject(object.col_mult);
+                }
+                if (object.col_add != null) {
+                    if (typeof object.col_add !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.col_add: object expected");
+                    message.col_add = $root.caffe.RandomGeneratorParameter.fromObject(object.col_add);
+                }
+                if (object.ladd_pow != null) {
+                    if (typeof object.ladd_pow !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.ladd_pow: object expected");
+                    message.ladd_pow = $root.caffe.RandomGeneratorParameter.fromObject(object.ladd_pow);
+                }
+                if (object.ladd_mult != null) {
+                    if (typeof object.ladd_mult !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.ladd_mult: object expected");
+                    message.ladd_mult = $root.caffe.RandomGeneratorParameter.fromObject(object.ladd_mult);
+                }
+                if (object.ladd_add != null) {
+                    if (typeof object.ladd_add !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.ladd_add: object expected");
+                    message.ladd_add = $root.caffe.RandomGeneratorParameter.fromObject(object.ladd_add);
+                }
+                if (object.col_rotate != null) {
+                    if (typeof object.col_rotate !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.col_rotate: object expected");
+                    message.col_rotate = $root.caffe.RandomGeneratorParameter.fromObject(object.col_rotate);
+                }
+                if (object.fog_amount != null) {
+                    if (typeof object.fog_amount !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.fog_amount: object expected");
+                    message.fog_amount = $root.caffe.RandomGeneratorParameter.fromObject(object.fog_amount);
+                }
+                if (object.fog_size != null) {
+                    if (typeof object.fog_size !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.fog_size: object expected");
+                    message.fog_size = $root.caffe.RandomGeneratorParameter.fromObject(object.fog_size);
+                }
+                if (object.motion_blur_angle != null) {
+                    if (typeof object.motion_blur_angle !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.motion_blur_angle: object expected");
+                    message.motion_blur_angle = $root.caffe.RandomGeneratorParameter.fromObject(object.motion_blur_angle);
+                }
+                if (object.motion_blur_size != null) {
+                    if (typeof object.motion_blur_size !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.motion_blur_size: object expected");
+                    message.motion_blur_size = $root.caffe.RandomGeneratorParameter.fromObject(object.motion_blur_size);
+                }
+                if (object.shadow_angle != null) {
+                    if (typeof object.shadow_angle !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.shadow_angle: object expected");
+                    message.shadow_angle = $root.caffe.RandomGeneratorParameter.fromObject(object.shadow_angle);
+                }
+                if (object.shadow_distance != null) {
+                    if (typeof object.shadow_distance !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.shadow_distance: object expected");
+                    message.shadow_distance = $root.caffe.RandomGeneratorParameter.fromObject(object.shadow_distance);
+                }
+                if (object.shadow_strength != null) {
+                    if (typeof object.shadow_strength !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.shadow_strength: object expected");
+                    message.shadow_strength = $root.caffe.RandomGeneratorParameter.fromObject(object.shadow_strength);
+                }
+                if (object.noise != null) {
+                    if (typeof object.noise !== "object")
+                        throw TypeError(".caffe.AugmentationParameter.noise: object expected");
+                    message.noise = $root.caffe.RandomGeneratorParameter.fromObject(object.noise);
+                }
+                return message;
+            };
+    
+            AugmentationParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.mean = [];
+                    object.chromatic_eigvec = [];
+                }
+                if (options.defaults) {
+                    object.write_augmented = "";
+                    object.max_multiplier = 255;
+                    object.augment_during_test = false;
+                    object.recompute_mean = 0;
+                    object.write_mean = "";
+                    object.mean_per_pixel = true;
+                    object.mode = "add";
+                    object.mirror = null;
+                    object.translate = null;
+                    object.rotate = null;
+                    object.zoom = null;
+                    object.squeeze = null;
+                    object.translate_x = null;
+                    object.translate_y = null;
+                    object.lmult_pow = null;
+                    object.lmult_mult = null;
+                    object.lmult_add = null;
+                    object.sat_pow = null;
+                    object.sat_mult = null;
+                    object.sat_add = null;
+                    object.col_pow = null;
+                    object.col_mult = null;
+                    object.col_add = null;
+                    object.ladd_pow = null;
+                    object.ladd_mult = null;
+                    object.ladd_add = null;
+                    object.col_rotate = null;
+                    object.crop_width = 0;
+                    object.crop_height = 0;
+                    object.gamma = null;
+                    object.brightness = null;
+                    object.contrast = null;
+                    object.color = null;
+                    object.bottomwidth = 0;
+                    object.bottomheight = 0;
+                    object.num = 0;
+                    object.fog_amount = null;
+                    object.fog_size = null;
+                    object.motion_blur_angle = null;
+                    object.motion_blur_size = null;
+                    object.shadow_angle = null;
+                    object.shadow_distance = null;
+                    object.shadow_strength = null;
+                    object.noise = null;
+                }
+                if (message.write_augmented != null && message.hasOwnProperty("write_augmented"))
+                    object.write_augmented = message.write_augmented;
+                if (message.max_multiplier != null && message.hasOwnProperty("max_multiplier"))
+                    object.max_multiplier = options.json && !isFinite(message.max_multiplier) ? String(message.max_multiplier) : message.max_multiplier;
+                if (message.augment_during_test != null && message.hasOwnProperty("augment_during_test"))
+                    object.augment_during_test = message.augment_during_test;
+                if (message.recompute_mean != null && message.hasOwnProperty("recompute_mean"))
+                    object.recompute_mean = message.recompute_mean;
+                if (message.write_mean != null && message.hasOwnProperty("write_mean"))
+                    object.write_mean = message.write_mean;
+                if (message.mean_per_pixel != null && message.hasOwnProperty("mean_per_pixel"))
+                    object.mean_per_pixel = message.mean_per_pixel;
+                if (message.mode != null && message.hasOwnProperty("mode"))
+                    object.mode = message.mode;
+                if (message.mirror != null && message.hasOwnProperty("mirror"))
+                    object.mirror = $root.caffe.RandomGeneratorParameter.toObject(message.mirror, options);
+                if (message.translate != null && message.hasOwnProperty("translate"))
+                    object.translate = $root.caffe.RandomGeneratorParameter.toObject(message.translate, options);
+                if (message.rotate != null && message.hasOwnProperty("rotate"))
+                    object.rotate = $root.caffe.RandomGeneratorParameter.toObject(message.rotate, options);
+                if (message.zoom != null && message.hasOwnProperty("zoom"))
+                    object.zoom = $root.caffe.RandomGeneratorParameter.toObject(message.zoom, options);
+                if (message.squeeze != null && message.hasOwnProperty("squeeze"))
+                    object.squeeze = $root.caffe.RandomGeneratorParameter.toObject(message.squeeze, options);
+                if (message.translate_x != null && message.hasOwnProperty("translate_x"))
+                    object.translate_x = $root.caffe.RandomGeneratorParameter.toObject(message.translate_x, options);
+                if (message.translate_y != null && message.hasOwnProperty("translate_y"))
+                    object.translate_y = $root.caffe.RandomGeneratorParameter.toObject(message.translate_y, options);
+                if (message.mean && message.mean.length) {
+                    object.mean = [];
+                    for (var j = 0; j < message.mean.length; ++j)
+                        object.mean[j] = options.json && !isFinite(message.mean[j]) ? String(message.mean[j]) : message.mean[j];
+                }
+                if (message.lmult_pow != null && message.hasOwnProperty("lmult_pow"))
+                    object.lmult_pow = $root.caffe.RandomGeneratorParameter.toObject(message.lmult_pow, options);
+                if (message.lmult_mult != null && message.hasOwnProperty("lmult_mult"))
+                    object.lmult_mult = $root.caffe.RandomGeneratorParameter.toObject(message.lmult_mult, options);
+                if (message.lmult_add != null && message.hasOwnProperty("lmult_add"))
+                    object.lmult_add = $root.caffe.RandomGeneratorParameter.toObject(message.lmult_add, options);
+                if (message.sat_pow != null && message.hasOwnProperty("sat_pow"))
+                    object.sat_pow = $root.caffe.RandomGeneratorParameter.toObject(message.sat_pow, options);
+                if (message.sat_mult != null && message.hasOwnProperty("sat_mult"))
+                    object.sat_mult = $root.caffe.RandomGeneratorParameter.toObject(message.sat_mult, options);
+                if (message.sat_add != null && message.hasOwnProperty("sat_add"))
+                    object.sat_add = $root.caffe.RandomGeneratorParameter.toObject(message.sat_add, options);
+                if (message.col_pow != null && message.hasOwnProperty("col_pow"))
+                    object.col_pow = $root.caffe.RandomGeneratorParameter.toObject(message.col_pow, options);
+                if (message.col_mult != null && message.hasOwnProperty("col_mult"))
+                    object.col_mult = $root.caffe.RandomGeneratorParameter.toObject(message.col_mult, options);
+                if (message.col_add != null && message.hasOwnProperty("col_add"))
+                    object.col_add = $root.caffe.RandomGeneratorParameter.toObject(message.col_add, options);
+                if (message.ladd_pow != null && message.hasOwnProperty("ladd_pow"))
+                    object.ladd_pow = $root.caffe.RandomGeneratorParameter.toObject(message.ladd_pow, options);
+                if (message.ladd_mult != null && message.hasOwnProperty("ladd_mult"))
+                    object.ladd_mult = $root.caffe.RandomGeneratorParameter.toObject(message.ladd_mult, options);
+                if (message.ladd_add != null && message.hasOwnProperty("ladd_add"))
+                    object.ladd_add = $root.caffe.RandomGeneratorParameter.toObject(message.ladd_add, options);
+                if (message.col_rotate != null && message.hasOwnProperty("col_rotate"))
+                    object.col_rotate = $root.caffe.RandomGeneratorParameter.toObject(message.col_rotate, options);
+                if (message.crop_width != null && message.hasOwnProperty("crop_width"))
+                    object.crop_width = message.crop_width;
+                if (message.crop_height != null && message.hasOwnProperty("crop_height"))
+                    object.crop_height = message.crop_height;
+                if (message.gamma != null && message.hasOwnProperty("gamma"))
+                    object.gamma = $root.caffe.RandomGeneratorParameter.toObject(message.gamma, options);
+                if (message.brightness != null && message.hasOwnProperty("brightness"))
+                    object.brightness = $root.caffe.RandomGeneratorParameter.toObject(message.brightness, options);
+                if (message.contrast != null && message.hasOwnProperty("contrast"))
+                    object.contrast = $root.caffe.RandomGeneratorParameter.toObject(message.contrast, options);
+                if (message.color != null && message.hasOwnProperty("color"))
+                    object.color = $root.caffe.RandomGeneratorParameter.toObject(message.color, options);
+                if (message.bottomwidth != null && message.hasOwnProperty("bottomwidth"))
+                    object.bottomwidth = message.bottomwidth;
+                if (message.bottomheight != null && message.hasOwnProperty("bottomheight"))
+                    object.bottomheight = message.bottomheight;
+                if (message.num != null && message.hasOwnProperty("num"))
+                    object.num = message.num;
+                if (message.chromatic_eigvec && message.chromatic_eigvec.length) {
+                    object.chromatic_eigvec = [];
+                    for (var j = 0; j < message.chromatic_eigvec.length; ++j)
+                        object.chromatic_eigvec[j] = options.json && !isFinite(message.chromatic_eigvec[j]) ? String(message.chromatic_eigvec[j]) : message.chromatic_eigvec[j];
+                }
+                if (message.fog_amount != null && message.hasOwnProperty("fog_amount"))
+                    object.fog_amount = $root.caffe.RandomGeneratorParameter.toObject(message.fog_amount, options);
+                if (message.fog_size != null && message.hasOwnProperty("fog_size"))
+                    object.fog_size = $root.caffe.RandomGeneratorParameter.toObject(message.fog_size, options);
+                if (message.motion_blur_angle != null && message.hasOwnProperty("motion_blur_angle"))
+                    object.motion_blur_angle = $root.caffe.RandomGeneratorParameter.toObject(message.motion_blur_angle, options);
+                if (message.motion_blur_size != null && message.hasOwnProperty("motion_blur_size"))
+                    object.motion_blur_size = $root.caffe.RandomGeneratorParameter.toObject(message.motion_blur_size, options);
+                if (message.shadow_angle != null && message.hasOwnProperty("shadow_angle"))
+                    object.shadow_angle = $root.caffe.RandomGeneratorParameter.toObject(message.shadow_angle, options);
+                if (message.shadow_distance != null && message.hasOwnProperty("shadow_distance"))
+                    object.shadow_distance = $root.caffe.RandomGeneratorParameter.toObject(message.shadow_distance, options);
+                if (message.shadow_strength != null && message.hasOwnProperty("shadow_strength"))
+                    object.shadow_strength = $root.caffe.RandomGeneratorParameter.toObject(message.shadow_strength, options);
+                if (message.noise != null && message.hasOwnProperty("noise"))
+                    object.noise = $root.caffe.RandomGeneratorParameter.toObject(message.noise, options);
+                return object;
+            };
+    
+            AugmentationParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return AugmentationParameter;
+        })();
+    
+        caffe.BlackAugmentationParameter = (function() {
+    
+            function BlackAugmentationParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            BlackAugmentationParameter.prototype.black = null;
+            BlackAugmentationParameter.prototype.border = null;
+    
+            BlackAugmentationParameter.create = function create(properties) {
+                return new BlackAugmentationParameter(properties);
+            };
+    
+            BlackAugmentationParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.BlackAugmentationParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 10:
+                        message.black = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    case 11:
+                        message.border = $root.caffe.RandomGeneratorParameter.decode(reader, reader.uint32());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BlackAugmentationParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.BlackAugmentationParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "black":
+                        message.black = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    case "border":
+                        message.border = $root.caffe.RandomGeneratorParameter.decodeText(reader, true);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BlackAugmentationParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.black != null && message.hasOwnProperty("black")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.black);
+                    if (error)
+                        return "black." + error;
+                }
+                if (message.border != null && message.hasOwnProperty("border")) {
+                    var error = $root.caffe.RandomGeneratorParameter.verify(message.border);
+                    if (error)
+                        return "border." + error;
+                }
+                return null;
+            };
+    
+            BlackAugmentationParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.BlackAugmentationParameter)
+                    return object;
+                var message = new $root.caffe.BlackAugmentationParameter();
+                if (object.black != null) {
+                    if (typeof object.black !== "object")
+                        throw TypeError(".caffe.BlackAugmentationParameter.black: object expected");
+                    message.black = $root.caffe.RandomGeneratorParameter.fromObject(object.black);
+                }
+                if (object.border != null) {
+                    if (typeof object.border !== "object")
+                        throw TypeError(".caffe.BlackAugmentationParameter.border: object expected");
+                    message.border = $root.caffe.RandomGeneratorParameter.fromObject(object.border);
+                }
+                return message;
+            };
+    
+            BlackAugmentationParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.black = null;
+                    object.border = null;
+                }
+                if (message.black != null && message.hasOwnProperty("black"))
+                    object.black = $root.caffe.RandomGeneratorParameter.toObject(message.black, options);
+                if (message.border != null && message.hasOwnProperty("border"))
+                    object.border = $root.caffe.RandomGeneratorParameter.toObject(message.border, options);
+                return object;
+            };
+    
+            BlackAugmentationParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return BlackAugmentationParameter;
+        })();
+    
+        caffe.CorrelationParameter = (function() {
+    
+            function CorrelationParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            CorrelationParameter.prototype.pad = 0;
+            CorrelationParameter.prototype.kernel_size = 0;
+            CorrelationParameter.prototype.max_displacement = 0;
+            CorrelationParameter.prototype.stride_1 = 1;
+            CorrelationParameter.prototype.stride_2 = 1;
+            CorrelationParameter.prototype.single_direction = 0;
+            CorrelationParameter.prototype.do_abs = false;
+            CorrelationParameter.prototype.correlation_type = 0;
+    
+            CorrelationParameter.create = function create(properties) {
+                return new CorrelationParameter(properties);
+            };
+    
+            CorrelationParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.CorrelationParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 2:
+                        message.pad = reader.uint32();
+                        break;
+                    case 3:
+                        message.kernel_size = reader.uint32();
+                        break;
+                    case 4:
+                        message.max_displacement = reader.uint32();
+                        break;
+                    case 5:
+                        message.stride_1 = reader.uint32();
+                        break;
+                    case 6:
+                        message.stride_2 = reader.uint32();
+                        break;
+                    case 8:
+                        message.single_direction = reader.int32();
+                        break;
+                    case 7:
+                        message.do_abs = reader.bool();
+                        break;
+                    case 15:
+                        message.correlation_type = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            CorrelationParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.CorrelationParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "pad":
+                        message.pad = reader.uint32();
+                        break;
+                    case "kernel_size":
+                        message.kernel_size = reader.uint32();
+                        break;
+                    case "max_displacement":
+                        message.max_displacement = reader.uint32();
+                        break;
+                    case "stride_1":
+                        message.stride_1 = reader.uint32();
+                        break;
+                    case "stride_2":
+                        message.stride_2 = reader.uint32();
+                        break;
+                    case "single_direction":
+                        message.single_direction = reader.int32();
+                        break;
+                    case "do_abs":
+                        message.do_abs = reader.bool();
+                        break;
+                    case "correlation_type":
+                        message.correlation_type = reader.enum($root.caffe.CorrelationParameter.CorrelationType);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            CorrelationParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.pad != null && message.hasOwnProperty("pad"))
+                    if (!$util.isInteger(message.pad))
+                        return "pad: integer expected";
+                if (message.kernel_size != null && message.hasOwnProperty("kernel_size"))
+                    if (!$util.isInteger(message.kernel_size))
+                        return "kernel_size: integer expected";
+                if (message.max_displacement != null && message.hasOwnProperty("max_displacement"))
+                    if (!$util.isInteger(message.max_displacement))
+                        return "max_displacement: integer expected";
+                if (message.stride_1 != null && message.hasOwnProperty("stride_1"))
+                    if (!$util.isInteger(message.stride_1))
+                        return "stride_1: integer expected";
+                if (message.stride_2 != null && message.hasOwnProperty("stride_2"))
+                    if (!$util.isInteger(message.stride_2))
+                        return "stride_2: integer expected";
+                if (message.single_direction != null && message.hasOwnProperty("single_direction"))
+                    if (!$util.isInteger(message.single_direction))
+                        return "single_direction: integer expected";
+                if (message.do_abs != null && message.hasOwnProperty("do_abs"))
+                    if (typeof message.do_abs !== "boolean")
+                        return "do_abs: boolean expected";
+                if (message.correlation_type != null && message.hasOwnProperty("correlation_type"))
+                    switch (message.correlation_type) {
+                    default:
+                        return "correlation_type: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
+                return null;
+            };
+    
+            CorrelationParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.CorrelationParameter)
+                    return object;
+                var message = new $root.caffe.CorrelationParameter();
+                if (object.pad != null)
+                    message.pad = object.pad >>> 0;
+                if (object.kernel_size != null)
+                    message.kernel_size = object.kernel_size >>> 0;
+                if (object.max_displacement != null)
+                    message.max_displacement = object.max_displacement >>> 0;
+                if (object.stride_1 != null)
+                    message.stride_1 = object.stride_1 >>> 0;
+                if (object.stride_2 != null)
+                    message.stride_2 = object.stride_2 >>> 0;
+                if (object.single_direction != null)
+                    message.single_direction = object.single_direction | 0;
+                if (object.do_abs != null)
+                    message.do_abs = Boolean(object.do_abs);
+                switch (object.correlation_type) {
+                case "MULTIPLY":
+                case 0:
+                    message.correlation_type = 0;
+                    break;
+                case "SUBTRACT":
+                case 1:
+                    message.correlation_type = 1;
+                    break;
+                }
+                return message;
+            };
+    
+            CorrelationParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.pad = 0;
+                    object.kernel_size = 0;
+                    object.max_displacement = 0;
+                    object.stride_1 = 1;
+                    object.stride_2 = 1;
+                    object.do_abs = false;
+                    object.single_direction = 0;
+                    object.correlation_type = options.enums === String ? "MULTIPLY" : 0;
+                }
+                if (message.pad != null && message.hasOwnProperty("pad"))
+                    object.pad = message.pad;
+                if (message.kernel_size != null && message.hasOwnProperty("kernel_size"))
+                    object.kernel_size = message.kernel_size;
+                if (message.max_displacement != null && message.hasOwnProperty("max_displacement"))
+                    object.max_displacement = message.max_displacement;
+                if (message.stride_1 != null && message.hasOwnProperty("stride_1"))
+                    object.stride_1 = message.stride_1;
+                if (message.stride_2 != null && message.hasOwnProperty("stride_2"))
+                    object.stride_2 = message.stride_2;
+                if (message.do_abs != null && message.hasOwnProperty("do_abs"))
+                    object.do_abs = message.do_abs;
+                if (message.single_direction != null && message.hasOwnProperty("single_direction"))
+                    object.single_direction = message.single_direction;
+                if (message.correlation_type != null && message.hasOwnProperty("correlation_type"))
+                    object.correlation_type = options.enums === String ? $root.caffe.CorrelationParameter.CorrelationType[message.correlation_type] : message.correlation_type;
+                return object;
+            };
+    
+            CorrelationParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            CorrelationParameter.CorrelationType = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[0] = "MULTIPLY"] = 0;
+                values[valuesById[1] = "SUBTRACT"] = 1;
+                return values;
+            })();
+    
+            return CorrelationParameter;
+        })();
+    
+        caffe.L1LossParameter = (function() {
+    
+            function L1LossParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            L1LossParameter.prototype.l2_per_location = false;
+            L1LossParameter.prototype.l2_prescale_by_channels = false;
+            L1LossParameter.prototype.normalize_by_num_entries = false;
+            L1LossParameter.prototype.epsilon = 0.01;
+            L1LossParameter.prototype.plateau = 0;
+    
+            L1LossParameter.create = function create(properties) {
+                return new L1LossParameter(properties);
+            };
+    
+            L1LossParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.L1LossParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.l2_per_location = reader.bool();
+                        break;
+                    case 2:
+                        message.l2_prescale_by_channels = reader.bool();
+                        break;
+                    case 3:
+                        message.normalize_by_num_entries = reader.bool();
+                        break;
+                    case 4:
+                        message.epsilon = reader.float();
+                        break;
+                    case 3001:
+                        message.plateau = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            L1LossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.L1LossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "l2_per_location":
+                        message.l2_per_location = reader.bool();
+                        break;
+                    case "l2_prescale_by_channels":
+                        message.l2_prescale_by_channels = reader.bool();
+                        break;
+                    case "normalize_by_num_entries":
+                        message.normalize_by_num_entries = reader.bool();
+                        break;
+                    case "epsilon":
+                        message.epsilon = reader.float();
+                        break;
+                    case "plateau":
+                        message.plateau = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            L1LossParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.l2_per_location != null && message.hasOwnProperty("l2_per_location"))
+                    if (typeof message.l2_per_location !== "boolean")
+                        return "l2_per_location: boolean expected";
+                if (message.l2_prescale_by_channels != null && message.hasOwnProperty("l2_prescale_by_channels"))
+                    if (typeof message.l2_prescale_by_channels !== "boolean")
+                        return "l2_prescale_by_channels: boolean expected";
+                if (message.normalize_by_num_entries != null && message.hasOwnProperty("normalize_by_num_entries"))
+                    if (typeof message.normalize_by_num_entries !== "boolean")
+                        return "normalize_by_num_entries: boolean expected";
+                if (message.epsilon != null && message.hasOwnProperty("epsilon"))
+                    if (typeof message.epsilon !== "number")
+                        return "epsilon: number expected";
+                if (message.plateau != null && message.hasOwnProperty("plateau"))
+                    if (typeof message.plateau !== "number")
+                        return "plateau: number expected";
+                return null;
+            };
+    
+            L1LossParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.L1LossParameter)
+                    return object;
+                var message = new $root.caffe.L1LossParameter();
+                if (object.l2_per_location != null)
+                    message.l2_per_location = Boolean(object.l2_per_location);
+                if (object.l2_prescale_by_channels != null)
+                    message.l2_prescale_by_channels = Boolean(object.l2_prescale_by_channels);
+                if (object.normalize_by_num_entries != null)
+                    message.normalize_by_num_entries = Boolean(object.normalize_by_num_entries);
+                if (object.epsilon != null)
+                    message.epsilon = Number(object.epsilon);
+                if (object.plateau != null)
+                    message.plateau = Number(object.plateau);
+                return message;
+            };
+    
+            L1LossParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.l2_per_location = false;
+                    object.l2_prescale_by_channels = false;
+                    object.normalize_by_num_entries = false;
+                    object.epsilon = 0.01;
+                    object.plateau = 0;
+                }
+                if (message.l2_per_location != null && message.hasOwnProperty("l2_per_location"))
+                    object.l2_per_location = message.l2_per_location;
+                if (message.l2_prescale_by_channels != null && message.hasOwnProperty("l2_prescale_by_channels"))
+                    object.l2_prescale_by_channels = message.l2_prescale_by_channels;
+                if (message.normalize_by_num_entries != null && message.hasOwnProperty("normalize_by_num_entries"))
+                    object.normalize_by_num_entries = message.normalize_by_num_entries;
+                if (message.epsilon != null && message.hasOwnProperty("epsilon"))
+                    object.epsilon = options.json && !isFinite(message.epsilon) ? String(message.epsilon) : message.epsilon;
+                if (message.plateau != null && message.hasOwnProperty("plateau"))
+                    object.plateau = options.json && !isFinite(message.plateau) ? String(message.plateau) : message.plateau;
+                return object;
+            };
+    
+            L1LossParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return L1LossParameter;
+        })();
+    
+        caffe.ReaderParameter = (function() {
+    
+            function ReaderParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            ReaderParameter.prototype.file = "";
+            ReaderParameter.prototype.num = 1;
+    
+            ReaderParameter.create = function create(properties) {
+                return new ReaderParameter(properties);
+            };
+    
+            ReaderParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.ReaderParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.file = reader.string();
+                        break;
+                    case 2:
+                        message.num = reader.uint32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("file"))
+                    throw $util.ProtocolError("missing required 'file'", { instance: message });
+                return message;
+            };
+    
+            ReaderParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ReaderParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "file":
+                        message.file = reader.string();
+                        break;
+                    case "num":
+                        message.num = reader.uint32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("file"))
+                    throw $util.ProtocolError("missing required 'file'", { instance: message });
+                return message;
+            };
+    
+            ReaderParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (!$util.isString(message.file))
+                    return "file: string expected";
+                if (message.num != null && message.hasOwnProperty("num"))
+                    if (!$util.isInteger(message.num))
+                        return "num: integer expected";
+                return null;
+            };
+    
+            ReaderParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.ReaderParameter)
+                    return object;
+                var message = new $root.caffe.ReaderParameter();
+                if (object.file != null)
+                    message.file = String(object.file);
+                if (object.num != null)
+                    message.num = object.num >>> 0;
+                return message;
+            };
+    
+            ReaderParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.file = "";
+                    object.num = 1;
+                }
+                if (message.file != null && message.hasOwnProperty("file"))
+                    object.file = message.file;
+                if (message.num != null && message.hasOwnProperty("num"))
+                    object.num = message.num;
+                return object;
+            };
+    
+            ReaderParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return ReaderParameter;
+        })();
+    
+        caffe.WriterParameter = (function() {
+    
+            function WriterParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            WriterParameter.prototype.file = "";
+            WriterParameter.prototype.folder = "";
+            WriterParameter.prototype.prefix = "";
+            WriterParameter.prototype.suffix = "";
+            WriterParameter.prototype.normalize = false;
+            WriterParameter.prototype.scale = 1;
+    
+            WriterParameter.create = function create(properties) {
+                return new WriterParameter(properties);
+            };
+    
+            WriterParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.WriterParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.file = reader.string();
+                        break;
+                    case 2:
+                        message.folder = reader.string();
+                        break;
+                    case 3:
+                        message.prefix = reader.string();
+                        break;
+                    case 4:
+                        message.suffix = reader.string();
+                        break;
+                    case 5:
+                        message.normalize = reader.bool();
+                        break;
+                    case 6:
+                        message.scale = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            WriterParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.WriterParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "file":
+                        message.file = reader.string();
+                        break;
+                    case "folder":
+                        message.folder = reader.string();
+                        break;
+                    case "prefix":
+                        message.prefix = reader.string();
+                        break;
+                    case "suffix":
+                        message.suffix = reader.string();
+                        break;
+                    case "normalize":
+                        message.normalize = reader.bool();
+                        break;
+                    case "scale":
+                        message.scale = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            WriterParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.file != null && message.hasOwnProperty("file"))
+                    if (!$util.isString(message.file))
+                        return "file: string expected";
+                if (message.folder != null && message.hasOwnProperty("folder"))
+                    if (!$util.isString(message.folder))
+                        return "folder: string expected";
+                if (message.prefix != null && message.hasOwnProperty("prefix"))
+                    if (!$util.isString(message.prefix))
+                        return "prefix: string expected";
+                if (message.suffix != null && message.hasOwnProperty("suffix"))
+                    if (!$util.isString(message.suffix))
+                        return "suffix: string expected";
+                if (message.normalize != null && message.hasOwnProperty("normalize"))
+                    if (typeof message.normalize !== "boolean")
+                        return "normalize: boolean expected";
+                if (message.scale != null && message.hasOwnProperty("scale"))
+                    if (typeof message.scale !== "number")
+                        return "scale: number expected";
+                return null;
+            };
+    
+            WriterParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.WriterParameter)
+                    return object;
+                var message = new $root.caffe.WriterParameter();
+                if (object.file != null)
+                    message.file = String(object.file);
+                if (object.folder != null)
+                    message.folder = String(object.folder);
+                if (object.prefix != null)
+                    message.prefix = String(object.prefix);
+                if (object.suffix != null)
+                    message.suffix = String(object.suffix);
+                if (object.normalize != null)
+                    message.normalize = Boolean(object.normalize);
+                if (object.scale != null)
+                    message.scale = Number(object.scale);
+                return message;
+            };
+    
+            WriterParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.file = "";
+                    object.folder = "";
+                    object.prefix = "";
+                    object.suffix = "";
+                    object.normalize = false;
+                    object.scale = 1;
+                }
+                if (message.file != null && message.hasOwnProperty("file"))
+                    object.file = message.file;
+                if (message.folder != null && message.hasOwnProperty("folder"))
+                    object.folder = message.folder;
+                if (message.prefix != null && message.hasOwnProperty("prefix"))
+                    object.prefix = message.prefix;
+                if (message.suffix != null && message.hasOwnProperty("suffix"))
+                    object.suffix = message.suffix;
+                if (message.normalize != null && message.hasOwnProperty("normalize"))
+                    object.normalize = message.normalize;
+                if (message.scale != null && message.hasOwnProperty("scale"))
+                    object.scale = options.json && !isFinite(message.scale) ? String(message.scale) : message.scale;
+                return object;
+            };
+    
+            WriterParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return WriterParameter;
+        })();
+    
+        caffe.MeanParameter = (function() {
+    
+            function MeanParameter(properties) {
+                this.value = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            MeanParameter.prototype.operation = 1;
+            MeanParameter.prototype.file = "";
+            MeanParameter.prototype.value = $util.emptyArray;
+            MeanParameter.prototype.mean_scale = 1;
+            MeanParameter.prototype.input_scale = 1;
+            MeanParameter.prototype.output_scale = 1;
+    
+            MeanParameter.create = function create(properties) {
+                return new MeanParameter(properties);
+            };
+    
+            MeanParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.MeanParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.operation = reader.int32();
+                        break;
+                    case 2:
+                        message.file = reader.string();
+                        break;
+                    case 3:
+                        if (!(message.value && message.value.length))
+                            message.value = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.value.push(reader.float());
+                        } else
+                            message.value.push(reader.float());
+                        break;
+                    case 4:
+                        message.mean_scale = reader.float();
+                        break;
+                    case 5:
+                        message.input_scale = reader.float();
+                        break;
+                    case 6:
+                        message.output_scale = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("operation"))
+                    throw $util.ProtocolError("missing required 'operation'", { instance: message });
+                return message;
+            };
+    
+            MeanParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.MeanParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "operation":
+                        message.operation = reader.enum($root.caffe.MeanParameter.MeanOperation);
+                        break;
+                    case "file":
+                        message.file = reader.string();
+                        break;
+                    case "value":
+                        if (!(message.value && message.value.length))
+                            message.value = [];
+                        message.value.push(reader.float());
+                        break;
+                    case "mean_scale":
+                        message.mean_scale = reader.float();
+                        break;
+                    case "input_scale":
+                        message.input_scale = reader.float();
+                        break;
+                    case "output_scale":
+                        message.output_scale = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("operation"))
+                    throw $util.ProtocolError("missing required 'operation'", { instance: message });
+                return message;
+            };
+    
+            MeanParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                switch (message.operation) {
+                default:
+                    return "operation: enum value expected";
+                case 1:
+                case 4:
+                    break;
+                }
+                if (message.file != null && message.hasOwnProperty("file"))
+                    if (!$util.isString(message.file))
+                        return "file: string expected";
+                if (message.value != null && message.hasOwnProperty("value")) {
+                    if (!Array.isArray(message.value))
+                        return "value: array expected";
+                    for (var i = 0; i < message.value.length; ++i)
+                        if (typeof message.value[i] !== "number")
+                            return "value: number[] expected";
+                }
+                if (message.mean_scale != null && message.hasOwnProperty("mean_scale"))
+                    if (typeof message.mean_scale !== "number")
+                        return "mean_scale: number expected";
+                if (message.input_scale != null && message.hasOwnProperty("input_scale"))
+                    if (typeof message.input_scale !== "number")
+                        return "input_scale: number expected";
+                if (message.output_scale != null && message.hasOwnProperty("output_scale"))
+                    if (typeof message.output_scale !== "number")
+                        return "output_scale: number expected";
+                return null;
+            };
+    
+            MeanParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.MeanParameter)
+                    return object;
+                var message = new $root.caffe.MeanParameter();
+                switch (object.operation) {
+                case "ADD":
+                case 1:
+                    message.operation = 1;
+                    break;
+                case "SUBTRACT":
+                case 4:
+                    message.operation = 4;
+                    break;
+                }
+                if (object.file != null)
+                    message.file = String(object.file);
+                if (object.value) {
+                    if (!Array.isArray(object.value))
+                        throw TypeError(".caffe.MeanParameter.value: array expected");
+                    message.value = [];
+                    for (var i = 0; i < object.value.length; ++i)
+                        message.value[i] = Number(object.value[i]);
+                }
+                if (object.mean_scale != null)
+                    message.mean_scale = Number(object.mean_scale);
+                if (object.input_scale != null)
+                    message.input_scale = Number(object.input_scale);
+                if (object.output_scale != null)
+                    message.output_scale = Number(object.output_scale);
+                return message;
+            };
+    
+            MeanParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.value = [];
+                if (options.defaults) {
+                    object.operation = options.enums === String ? "ADD" : 1;
+                    object.file = "";
+                    object.mean_scale = 1;
+                    object.input_scale = 1;
+                    object.output_scale = 1;
+                }
+                if (message.operation != null && message.hasOwnProperty("operation"))
+                    object.operation = options.enums === String ? $root.caffe.MeanParameter.MeanOperation[message.operation] : message.operation;
+                if (message.file != null && message.hasOwnProperty("file"))
+                    object.file = message.file;
+                if (message.value && message.value.length) {
+                    object.value = [];
+                    for (var j = 0; j < message.value.length; ++j)
+                        object.value[j] = options.json && !isFinite(message.value[j]) ? String(message.value[j]) : message.value[j];
+                }
+                if (message.mean_scale != null && message.hasOwnProperty("mean_scale"))
+                    object.mean_scale = options.json && !isFinite(message.mean_scale) ? String(message.mean_scale) : message.mean_scale;
+                if (message.input_scale != null && message.hasOwnProperty("input_scale"))
+                    object.input_scale = options.json && !isFinite(message.input_scale) ? String(message.input_scale) : message.input_scale;
+                if (message.output_scale != null && message.hasOwnProperty("output_scale"))
+                    object.output_scale = options.json && !isFinite(message.output_scale) ? String(message.output_scale) : message.output_scale;
+                return object;
+            };
+    
+            MeanParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            MeanParameter.MeanOperation = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[1] = "ADD"] = 1;
+                values[valuesById[4] = "SUBTRACT"] = 4;
+                return values;
+            })();
+    
+            return MeanParameter;
+        })();
+    
+        caffe.ResampleParameter = (function() {
+    
+            function ResampleParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            ResampleParameter.prototype.antialias = true;
+            ResampleParameter.prototype.width = 0;
+            ResampleParameter.prototype.height = 0;
+            ResampleParameter.prototype.type = 2;
+            ResampleParameter.prototype.factor = 1;
+    
+            ResampleParameter.create = function create(properties) {
+                return new ResampleParameter(properties);
+            };
+    
+            ResampleParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.ResampleParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 4:
+                        message.antialias = reader.bool();
+                        break;
+                    case 1:
+                        message.width = reader.uint32();
+                        break;
+                    case 2:
+                        message.height = reader.uint32();
+                        break;
+                    case 3:
+                        message.type = reader.int32();
+                        break;
+                    case 5:
+                        message.factor = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ResampleParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.ResampleParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "antialias":
+                        message.antialias = reader.bool();
+                        break;
+                    case "width":
+                        message.width = reader.uint32();
+                        break;
+                    case "height":
+                        message.height = reader.uint32();
+                        break;
+                    case "type":
+                        message.type = reader.enum($root.caffe.ResampleParameter.ResampleType);
+                        break;
+                    case "factor":
+                        message.factor = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            ResampleParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.antialias != null && message.hasOwnProperty("antialias"))
+                    if (typeof message.antialias !== "boolean")
+                        return "antialias: boolean expected";
+                if (message.width != null && message.hasOwnProperty("width"))
+                    if (!$util.isInteger(message.width))
+                        return "width: integer expected";
+                if (message.height != null && message.hasOwnProperty("height"))
+                    if (!$util.isInteger(message.height))
+                        return "height: integer expected";
+                if (message.type != null && message.hasOwnProperty("type"))
+                    switch (message.type) {
+                    default:
+                        return "type: enum value expected";
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        break;
+                    }
+                if (message.factor != null && message.hasOwnProperty("factor"))
+                    if (typeof message.factor !== "number")
+                        return "factor: number expected";
+                return null;
+            };
+    
+            ResampleParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.ResampleParameter)
+                    return object;
+                var message = new $root.caffe.ResampleParameter();
+                if (object.antialias != null)
+                    message.antialias = Boolean(object.antialias);
+                if (object.width != null)
+                    message.width = object.width >>> 0;
+                if (object.height != null)
+                    message.height = object.height >>> 0;
+                switch (object.type) {
+                case "NEAREST":
+                case 1:
+                    message.type = 1;
+                    break;
+                case "LINEAR":
+                case 2:
+                    message.type = 2;
+                    break;
+                case "CUBIC":
+                case 3:
+                    message.type = 3;
+                    break;
+                case "AREA":
+                case 4:
+                    message.type = 4;
+                    break;
+                }
+                if (object.factor != null)
+                    message.factor = Number(object.factor);
+                return message;
+            };
+    
+            ResampleParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.width = 0;
+                    object.height = 0;
+                    object.type = options.enums === String ? "LINEAR" : 2;
+                    object.antialias = true;
+                    object.factor = 1;
+                }
+                if (message.width != null && message.hasOwnProperty("width"))
+                    object.width = message.width;
+                if (message.height != null && message.hasOwnProperty("height"))
+                    object.height = message.height;
+                if (message.type != null && message.hasOwnProperty("type"))
+                    object.type = options.enums === String ? $root.caffe.ResampleParameter.ResampleType[message.type] : message.type;
+                if (message.antialias != null && message.hasOwnProperty("antialias"))
+                    object.antialias = message.antialias;
+                if (message.factor != null && message.hasOwnProperty("factor"))
+                    object.factor = options.json && !isFinite(message.factor) ? String(message.factor) : message.factor;
+                return object;
+            };
+    
+            ResampleParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            ResampleParameter.ResampleType = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[1] = "NEAREST"] = 1;
+                values[valuesById[2] = "LINEAR"] = 2;
+                values[valuesById[3] = "CUBIC"] = 3;
+                values[valuesById[4] = "AREA"] = 4;
+                return values;
+            })();
+    
+            return ResampleParameter;
+        })();
+    
+        caffe.DownsampleParameter = (function() {
+    
+            function DownsampleParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            DownsampleParameter.prototype.top_height = 0;
+            DownsampleParameter.prototype.top_width = 0;
+    
+            DownsampleParameter.create = function create(properties) {
+                return new DownsampleParameter(properties);
+            };
+    
+            DownsampleParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.DownsampleParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.top_height = reader.uint32();
+                        break;
+                    case 2:
+                        message.top_width = reader.uint32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            DownsampleParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.DownsampleParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "top_height":
+                        message.top_height = reader.uint32();
+                        break;
+                    case "top_width":
+                        message.top_width = reader.uint32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            DownsampleParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.top_height != null && message.hasOwnProperty("top_height"))
+                    if (!$util.isInteger(message.top_height))
+                        return "top_height: integer expected";
+                if (message.top_width != null && message.hasOwnProperty("top_width"))
+                    if (!$util.isInteger(message.top_width))
+                        return "top_width: integer expected";
+                return null;
+            };
+    
+            DownsampleParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.DownsampleParameter)
+                    return object;
+                var message = new $root.caffe.DownsampleParameter();
+                if (object.top_height != null)
+                    message.top_height = object.top_height >>> 0;
+                if (object.top_width != null)
+                    message.top_width = object.top_width >>> 0;
+                return message;
+            };
+    
+            DownsampleParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.top_height = 0;
+                    object.top_width = 0;
+                }
+                if (message.top_height != null && message.hasOwnProperty("top_height"))
+                    object.top_height = message.top_height;
+                if (message.top_width != null && message.hasOwnProperty("top_width"))
+                    object.top_width = message.top_width;
+                return object;
+            };
+    
+            DownsampleParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return DownsampleParameter;
+        })();
+    
+        caffe.LpqLossParameter = (function() {
+    
+            function LpqLossParameter(properties) {
+                this.pq_episode_starts_at_iter = [];
+                this.p = [];
+                this.q = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            LpqLossParameter.prototype.l2_prescale_by_channels = false;
+            LpqLossParameter.prototype.normalize_by_num_entries = false;
+            LpqLossParameter.prototype.p_epsilon = 0;
+            LpqLossParameter.prototype.q_epsilon = 0.01;
+            LpqLossParameter.prototype.pq_episode_starts_at_iter = $util.emptyArray;
+            LpqLossParameter.prototype.p = $util.emptyArray;
+            LpqLossParameter.prototype.q = $util.emptyArray;
+    
+            LpqLossParameter.create = function create(properties) {
+                return new LpqLossParameter(properties);
+            };
+    
+            LpqLossParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.LpqLossParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 4016:
+                        message.l2_prescale_by_channels = reader.bool();
+                        break;
+                    case 4017:
+                        message.normalize_by_num_entries = reader.bool();
+                        break;
+                    case 4013:
+                        message.p_epsilon = reader.float();
+                        break;
+                    case 4014:
+                        message.q_epsilon = reader.float();
+                        break;
+                    case 4010:
+                        if (!(message.pq_episode_starts_at_iter && message.pq_episode_starts_at_iter.length))
+                            message.pq_episode_starts_at_iter = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.pq_episode_starts_at_iter.push(reader.uint32());
+                        } else
+                            message.pq_episode_starts_at_iter.push(reader.uint32());
+                        break;
+                    case 4011:
+                        if (!(message.p && message.p.length))
+                            message.p = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.p.push(reader.float());
+                        } else
+                            message.p.push(reader.float());
+                        break;
+                    case 4012:
+                        if (!(message.q && message.q.length))
+                            message.q = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.q.push(reader.float());
+                        } else
+                            message.q.push(reader.float());
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LpqLossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.LpqLossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "l2_prescale_by_channels":
+                        message.l2_prescale_by_channels = reader.bool();
+                        break;
+                    case "normalize_by_num_entries":
+                        message.normalize_by_num_entries = reader.bool();
+                        break;
+                    case "p_epsilon":
+                        message.p_epsilon = reader.float();
+                        break;
+                    case "q_epsilon":
+                        message.q_epsilon = reader.float();
+                        break;
+                    case "pq_episode_starts_at_iter":
+                        if (!(message.pq_episode_starts_at_iter && message.pq_episode_starts_at_iter.length))
+                            message.pq_episode_starts_at_iter = [];
+                        message.pq_episode_starts_at_iter.push(reader.uint32());
+                        break;
+                    case "p":
+                        if (!(message.p && message.p.length))
+                            message.p = [];
+                        message.p.push(reader.float());
+                        break;
+                    case "q":
+                        if (!(message.q && message.q.length))
+                            message.q = [];
+                        message.q.push(reader.float());
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            LpqLossParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.l2_prescale_by_channels != null && message.hasOwnProperty("l2_prescale_by_channels"))
+                    if (typeof message.l2_prescale_by_channels !== "boolean")
+                        return "l2_prescale_by_channels: boolean expected";
+                if (message.normalize_by_num_entries != null && message.hasOwnProperty("normalize_by_num_entries"))
+                    if (typeof message.normalize_by_num_entries !== "boolean")
+                        return "normalize_by_num_entries: boolean expected";
+                if (message.p_epsilon != null && message.hasOwnProperty("p_epsilon"))
+                    if (typeof message.p_epsilon !== "number")
+                        return "p_epsilon: number expected";
+                if (message.q_epsilon != null && message.hasOwnProperty("q_epsilon"))
+                    if (typeof message.q_epsilon !== "number")
+                        return "q_epsilon: number expected";
+                if (message.pq_episode_starts_at_iter != null && message.hasOwnProperty("pq_episode_starts_at_iter")) {
+                    if (!Array.isArray(message.pq_episode_starts_at_iter))
+                        return "pq_episode_starts_at_iter: array expected";
+                    for (var i = 0; i < message.pq_episode_starts_at_iter.length; ++i)
+                        if (!$util.isInteger(message.pq_episode_starts_at_iter[i]))
+                            return "pq_episode_starts_at_iter: integer[] expected";
+                }
+                if (message.p != null && message.hasOwnProperty("p")) {
+                    if (!Array.isArray(message.p))
+                        return "p: array expected";
+                    for (var i = 0; i < message.p.length; ++i)
+                        if (typeof message.p[i] !== "number")
+                            return "p: number[] expected";
+                }
+                if (message.q != null && message.hasOwnProperty("q")) {
+                    if (!Array.isArray(message.q))
+                        return "q: array expected";
+                    for (var i = 0; i < message.q.length; ++i)
+                        if (typeof message.q[i] !== "number")
+                            return "q: number[] expected";
+                }
+                return null;
+            };
+    
+            LpqLossParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.LpqLossParameter)
+                    return object;
+                var message = new $root.caffe.LpqLossParameter();
+                if (object.l2_prescale_by_channels != null)
+                    message.l2_prescale_by_channels = Boolean(object.l2_prescale_by_channels);
+                if (object.normalize_by_num_entries != null)
+                    message.normalize_by_num_entries = Boolean(object.normalize_by_num_entries);
+                if (object.p_epsilon != null)
+                    message.p_epsilon = Number(object.p_epsilon);
+                if (object.q_epsilon != null)
+                    message.q_epsilon = Number(object.q_epsilon);
+                if (object.pq_episode_starts_at_iter) {
+                    if (!Array.isArray(object.pq_episode_starts_at_iter))
+                        throw TypeError(".caffe.LpqLossParameter.pq_episode_starts_at_iter: array expected");
+                    message.pq_episode_starts_at_iter = [];
+                    for (var i = 0; i < object.pq_episode_starts_at_iter.length; ++i)
+                        message.pq_episode_starts_at_iter[i] = object.pq_episode_starts_at_iter[i] >>> 0;
+                }
+                if (object.p) {
+                    if (!Array.isArray(object.p))
+                        throw TypeError(".caffe.LpqLossParameter.p: array expected");
+                    message.p = [];
+                    for (var i = 0; i < object.p.length; ++i)
+                        message.p[i] = Number(object.p[i]);
+                }
+                if (object.q) {
+                    if (!Array.isArray(object.q))
+                        throw TypeError(".caffe.LpqLossParameter.q: array expected");
+                    message.q = [];
+                    for (var i = 0; i < object.q.length; ++i)
+                        message.q[i] = Number(object.q[i]);
+                }
+                return message;
+            };
+    
+            LpqLossParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.pq_episode_starts_at_iter = [];
+                    object.p = [];
+                    object.q = [];
+                }
+                if (options.defaults) {
+                    object.p_epsilon = 0;
+                    object.q_epsilon = 0.01;
+                    object.l2_prescale_by_channels = false;
+                    object.normalize_by_num_entries = false;
+                }
+                if (message.pq_episode_starts_at_iter && message.pq_episode_starts_at_iter.length) {
+                    object.pq_episode_starts_at_iter = [];
+                    for (var j = 0; j < message.pq_episode_starts_at_iter.length; ++j)
+                        object.pq_episode_starts_at_iter[j] = message.pq_episode_starts_at_iter[j];
+                }
+                if (message.p && message.p.length) {
+                    object.p = [];
+                    for (var j = 0; j < message.p.length; ++j)
+                        object.p[j] = options.json && !isFinite(message.p[j]) ? String(message.p[j]) : message.p[j];
+                }
+                if (message.q && message.q.length) {
+                    object.q = [];
+                    for (var j = 0; j < message.q.length; ++j)
+                        object.q[j] = options.json && !isFinite(message.q[j]) ? String(message.q[j]) : message.q[j];
+                }
+                if (message.p_epsilon != null && message.hasOwnProperty("p_epsilon"))
+                    object.p_epsilon = options.json && !isFinite(message.p_epsilon) ? String(message.p_epsilon) : message.p_epsilon;
+                if (message.q_epsilon != null && message.hasOwnProperty("q_epsilon"))
+                    object.q_epsilon = options.json && !isFinite(message.q_epsilon) ? String(message.q_epsilon) : message.q_epsilon;
+                if (message.l2_prescale_by_channels != null && message.hasOwnProperty("l2_prescale_by_channels"))
+                    object.l2_prescale_by_channels = message.l2_prescale_by_channels;
+                if (message.normalize_by_num_entries != null && message.hasOwnProperty("normalize_by_num_entries"))
+                    object.normalize_by_num_entries = message.normalize_by_num_entries;
+                return object;
+            };
+    
+            LpqLossParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return LpqLossParameter;
+        })();
+    
+        caffe.FlowWarpParameter = (function() {
+    
+            function FlowWarpParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            FlowWarpParameter.prototype.fill_value = 1;
+    
+            FlowWarpParameter.create = function create(properties) {
+                return new FlowWarpParameter(properties);
+            };
+    
+            FlowWarpParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.FlowWarpParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.fill_value = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            FlowWarpParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.FlowWarpParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "fill_value":
+                        message.fill_value = reader.enum($root.caffe.FlowWarpParameter.FillParameter);
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            FlowWarpParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.fill_value != null && message.hasOwnProperty("fill_value"))
+                    switch (message.fill_value) {
+                    default:
+                        return "fill_value: enum value expected";
+                    case 1:
+                    case 2:
+                        break;
+                    }
+                return null;
+            };
+    
+            FlowWarpParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.FlowWarpParameter)
+                    return object;
+                var message = new $root.caffe.FlowWarpParameter();
+                switch (object.fill_value) {
+                case "ZERO":
+                case 1:
+                    message.fill_value = 1;
+                    break;
+                case "NOT_A_NUMBER":
+                case 2:
+                    message.fill_value = 2;
+                    break;
+                }
+                return message;
+            };
+    
+            FlowWarpParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults)
+                    object.fill_value = options.enums === String ? "ZERO" : 1;
+                if (message.fill_value != null && message.hasOwnProperty("fill_value"))
+                    object.fill_value = options.enums === String ? $root.caffe.FlowWarpParameter.FillParameter[message.fill_value] : message.fill_value;
+                return object;
+            };
+    
+            FlowWarpParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            FlowWarpParameter.FillParameter = (function() {
+                var valuesById = {}, values = Object.create(valuesById);
+                values[valuesById[1] = "ZERO"] = 1;
+                values[valuesById[2] = "NOT_A_NUMBER"] = 2;
+                return values;
+            })();
+    
+            return FlowWarpParameter;
+        })();
+    
+        caffe.AccumParameter = (function() {
+    
+            function AccumParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            AccumParameter.prototype.top_height = 0;
+            AccumParameter.prototype.top_width = 0;
+            AccumParameter.prototype.size_divisible_by = 0;
+            AccumParameter.prototype.have_reference = false;
+    
+            AccumParameter.create = function create(properties) {
+                return new AccumParameter(properties);
+            };
+    
+            AccumParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.AccumParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.top_height = reader.uint32();
+                        break;
+                    case 2:
+                        message.top_width = reader.uint32();
+                        break;
+                    case 3:
+                        message.size_divisible_by = reader.uint32();
+                        break;
+                    case 4:
+                        message.have_reference = reader.bool();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            AccumParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.AccumParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "top_height":
+                        message.top_height = reader.uint32();
+                        break;
+                    case "top_width":
+                        message.top_width = reader.uint32();
+                        break;
+                    case "size_divisible_by":
+                        message.size_divisible_by = reader.uint32();
+                        break;
+                    case "have_reference":
+                        message.have_reference = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            AccumParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.top_height != null && message.hasOwnProperty("top_height"))
+                    if (!$util.isInteger(message.top_height))
+                        return "top_height: integer expected";
+                if (message.top_width != null && message.hasOwnProperty("top_width"))
+                    if (!$util.isInteger(message.top_width))
+                        return "top_width: integer expected";
+                if (message.size_divisible_by != null && message.hasOwnProperty("size_divisible_by"))
+                    if (!$util.isInteger(message.size_divisible_by))
+                        return "size_divisible_by: integer expected";
+                if (message.have_reference != null && message.hasOwnProperty("have_reference"))
+                    if (typeof message.have_reference !== "boolean")
+                        return "have_reference: boolean expected";
+                return null;
+            };
+    
+            AccumParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.AccumParameter)
+                    return object;
+                var message = new $root.caffe.AccumParameter();
+                if (object.top_height != null)
+                    message.top_height = object.top_height >>> 0;
+                if (object.top_width != null)
+                    message.top_width = object.top_width >>> 0;
+                if (object.size_divisible_by != null)
+                    message.size_divisible_by = object.size_divisible_by >>> 0;
+                if (object.have_reference != null)
+                    message.have_reference = Boolean(object.have_reference);
+                return message;
+            };
+    
+            AccumParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.top_height = 0;
+                    object.top_width = 0;
+                    object.size_divisible_by = 0;
+                    object.have_reference = false;
+                }
+                if (message.top_height != null && message.hasOwnProperty("top_height"))
+                    object.top_height = message.top_height;
+                if (message.top_width != null && message.hasOwnProperty("top_width"))
+                    object.top_width = message.top_width;
+                if (message.size_divisible_by != null && message.hasOwnProperty("size_divisible_by"))
+                    object.size_divisible_by = message.size_divisible_by;
+                if (message.have_reference != null && message.hasOwnProperty("have_reference"))
+                    object.have_reference = message.have_reference;
+                return object;
+            };
+    
+            AccumParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return AccumParameter;
+        })();
+    
+        caffe.YoloV2LossParameter = (function() {
+    
+            function YoloV2LossParameter(properties) {
+                this.anchors = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            YoloV2LossParameter.prototype.anchors = $util.emptyArray;
+            YoloV2LossParameter.prototype.side = 0;
+            YoloV2LossParameter.prototype.num_classes = 0;
+            YoloV2LossParameter.prototype.num_object = 0;
+            YoloV2LossParameter.prototype.box_scale = 0.5;
+            YoloV2LossParameter.prototype.class_scale = 0.5;
+            YoloV2LossParameter.prototype.noobject_scale = 0.5;
+            YoloV2LossParameter.prototype.object_scale = 0.5;
+            YoloV2LossParameter.prototype.rescore = true;
+            YoloV2LossParameter.prototype.constraint = true;
+            YoloV2LossParameter.prototype.thresh = 0.7;
+    
+            YoloV2LossParameter.create = function create(properties) {
+                return new YoloV2LossParameter(properties);
+            };
+    
+            YoloV2LossParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.YoloV2LossParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.anchors && message.anchors.length))
+                            message.anchors = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.anchors.push(reader.float());
+                        } else
+                            message.anchors.push(reader.float());
+                        break;
+                    case 2:
+                        message.side = reader.int32();
+                        break;
+                    case 3:
+                        message.num_classes = reader.int32();
+                        break;
+                    case 4:
+                        message.num_object = reader.int32();
+                        break;
+                    case 5:
+                        message.box_scale = reader.float();
+                        break;
+                    case 6:
+                        message.class_scale = reader.float();
+                        break;
+                    case 7:
+                        message.noobject_scale = reader.float();
+                        break;
+                    case 8:
+                        message.object_scale = reader.float();
+                        break;
+                    case 9:
+                        message.rescore = reader.bool();
+                        break;
+                    case 10:
+                        message.constraint = reader.bool();
+                        break;
+                    case 11:
+                        message.thresh = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            YoloV2LossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.YoloV2LossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "anchors":
+                        if (!(message.anchors && message.anchors.length))
+                            message.anchors = [];
+                        message.anchors.push(reader.float());
+                        break;
+                    case "side":
+                        message.side = reader.int32();
+                        break;
+                    case "num_classes":
+                        message.num_classes = reader.int32();
+                        break;
+                    case "num_object":
+                        message.num_object = reader.int32();
+                        break;
+                    case "box_scale":
+                        message.box_scale = reader.float();
+                        break;
+                    case "class_scale":
+                        message.class_scale = reader.float();
+                        break;
+                    case "noobject_scale":
+                        message.noobject_scale = reader.float();
+                        break;
+                    case "object_scale":
+                        message.object_scale = reader.float();
+                        break;
+                    case "rescore":
+                        message.rescore = reader.bool();
+                        break;
+                    case "constraint":
+                        message.constraint = reader.bool();
+                        break;
+                    case "thresh":
+                        message.thresh = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            YoloV2LossParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.anchors != null && message.hasOwnProperty("anchors")) {
+                    if (!Array.isArray(message.anchors))
+                        return "anchors: array expected";
+                    for (var i = 0; i < message.anchors.length; ++i)
+                        if (typeof message.anchors[i] !== "number")
+                            return "anchors: number[] expected";
+                }
+                if (message.side != null && message.hasOwnProperty("side"))
+                    if (!$util.isInteger(message.side))
+                        return "side: integer expected";
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    if (!$util.isInteger(message.num_classes))
+                        return "num_classes: integer expected";
+                if (message.num_object != null && message.hasOwnProperty("num_object"))
+                    if (!$util.isInteger(message.num_object))
+                        return "num_object: integer expected";
+                if (message.box_scale != null && message.hasOwnProperty("box_scale"))
+                    if (typeof message.box_scale !== "number")
+                        return "box_scale: number expected";
+                if (message.class_scale != null && message.hasOwnProperty("class_scale"))
+                    if (typeof message.class_scale !== "number")
+                        return "class_scale: number expected";
+                if (message.noobject_scale != null && message.hasOwnProperty("noobject_scale"))
+                    if (typeof message.noobject_scale !== "number")
+                        return "noobject_scale: number expected";
+                if (message.object_scale != null && message.hasOwnProperty("object_scale"))
+                    if (typeof message.object_scale !== "number")
+                        return "object_scale: number expected";
+                if (message.rescore != null && message.hasOwnProperty("rescore"))
+                    if (typeof message.rescore !== "boolean")
+                        return "rescore: boolean expected";
+                if (message.constraint != null && message.hasOwnProperty("constraint"))
+                    if (typeof message.constraint !== "boolean")
+                        return "constraint: boolean expected";
+                if (message.thresh != null && message.hasOwnProperty("thresh"))
+                    if (typeof message.thresh !== "number")
+                        return "thresh: number expected";
+                return null;
+            };
+    
+            YoloV2LossParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.YoloV2LossParameter)
+                    return object;
+                var message = new $root.caffe.YoloV2LossParameter();
+                if (object.anchors) {
+                    if (!Array.isArray(object.anchors))
+                        throw TypeError(".caffe.YoloV2LossParameter.anchors: array expected");
+                    message.anchors = [];
+                    for (var i = 0; i < object.anchors.length; ++i)
+                        message.anchors[i] = Number(object.anchors[i]);
+                }
+                if (object.side != null)
+                    message.side = object.side | 0;
+                if (object.num_classes != null)
+                    message.num_classes = object.num_classes | 0;
+                if (object.num_object != null)
+                    message.num_object = object.num_object | 0;
+                if (object.box_scale != null)
+                    message.box_scale = Number(object.box_scale);
+                if (object.class_scale != null)
+                    message.class_scale = Number(object.class_scale);
+                if (object.noobject_scale != null)
+                    message.noobject_scale = Number(object.noobject_scale);
+                if (object.object_scale != null)
+                    message.object_scale = Number(object.object_scale);
+                if (object.rescore != null)
+                    message.rescore = Boolean(object.rescore);
+                if (object.constraint != null)
+                    message.constraint = Boolean(object.constraint);
+                if (object.thresh != null)
+                    message.thresh = Number(object.thresh);
+                return message;
+            };
+    
+            YoloV2LossParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults)
+                    object.anchors = [];
+                if (options.defaults) {
+                    object.side = 0;
+                    object.num_classes = 0;
+                    object.num_object = 0;
+                    object.box_scale = 0.5;
+                    object.class_scale = 0.5;
+                    object.noobject_scale = 0.5;
+                    object.object_scale = 0.5;
+                    object.rescore = true;
+                    object.constraint = true;
+                    object.thresh = 0.7;
+                }
+                if (message.anchors && message.anchors.length) {
+                    object.anchors = [];
+                    for (var j = 0; j < message.anchors.length; ++j)
+                        object.anchors[j] = options.json && !isFinite(message.anchors[j]) ? String(message.anchors[j]) : message.anchors[j];
+                }
+                if (message.side != null && message.hasOwnProperty("side"))
+                    object.side = message.side;
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    object.num_classes = message.num_classes;
+                if (message.num_object != null && message.hasOwnProperty("num_object"))
+                    object.num_object = message.num_object;
+                if (message.box_scale != null && message.hasOwnProperty("box_scale"))
+                    object.box_scale = options.json && !isFinite(message.box_scale) ? String(message.box_scale) : message.box_scale;
+                if (message.class_scale != null && message.hasOwnProperty("class_scale"))
+                    object.class_scale = options.json && !isFinite(message.class_scale) ? String(message.class_scale) : message.class_scale;
+                if (message.noobject_scale != null && message.hasOwnProperty("noobject_scale"))
+                    object.noobject_scale = options.json && !isFinite(message.noobject_scale) ? String(message.noobject_scale) : message.noobject_scale;
+                if (message.object_scale != null && message.hasOwnProperty("object_scale"))
+                    object.object_scale = options.json && !isFinite(message.object_scale) ? String(message.object_scale) : message.object_scale;
+                if (message.rescore != null && message.hasOwnProperty("rescore"))
+                    object.rescore = message.rescore;
+                if (message.constraint != null && message.hasOwnProperty("constraint"))
+                    object.constraint = message.constraint;
+                if (message.thresh != null && message.hasOwnProperty("thresh"))
+                    object.thresh = options.json && !isFinite(message.thresh) ? String(message.thresh) : message.thresh;
+                return object;
+            };
+    
+            YoloV2LossParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return YoloV2LossParameter;
+        })();
+    
+        caffe.YoloV3LossParameter = (function() {
+    
+            function YoloV3LossParameter(properties) {
+                this.anchors = [];
+                this.mask = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            YoloV3LossParameter.prototype.anchors = $util.emptyArray;
+            YoloV3LossParameter.prototype.mask = $util.emptyArray;
+            YoloV3LossParameter.prototype.side = 0;
+            YoloV3LossParameter.prototype.num_classes = 0;
+            YoloV3LossParameter.prototype.num_object = 0;
+            YoloV3LossParameter.prototype.total_object = 0;
+            YoloV3LossParameter.prototype.ignore_thresh = 0.7;
+            YoloV3LossParameter.prototype.truth_thresh = 1;
+            YoloV3LossParameter.prototype.net_w = 0;
+            YoloV3LossParameter.prototype.net_h = 0;
+    
+            YoloV3LossParameter.create = function create(properties) {
+                return new YoloV3LossParameter(properties);
+            };
+    
+            YoloV3LossParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.YoloV3LossParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        if (!(message.anchors && message.anchors.length))
+                            message.anchors = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.anchors.push(reader.int32());
+                        } else
+                            message.anchors.push(reader.int32());
+                        break;
+                    case 2:
+                        if (!(message.mask && message.mask.length))
+                            message.mask = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.mask.push(reader.int32());
+                        } else
+                            message.mask.push(reader.int32());
+                        break;
+                    case 3:
+                        message.side = reader.int32();
+                        break;
+                    case 4:
+                        message.num_classes = reader.int32();
+                        break;
+                    case 5:
+                        message.num_object = reader.int32();
+                        break;
+                    case 6:
+                        message.total_object = reader.int32();
+                        break;
+                    case 7:
+                        message.ignore_thresh = reader.float();
+                        break;
+                    case 8:
+                        message.truth_thresh = reader.float();
+                        break;
+                    case 9:
+                        message.net_w = reader.int32();
+                        break;
+                    case 10:
+                        message.net_h = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            YoloV3LossParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.YoloV3LossParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "anchors":
+                        if (!(message.anchors && message.anchors.length))
+                            message.anchors = [];
+                        message.anchors.push(reader.int32());
+                        break;
+                    case "mask":
+                        if (!(message.mask && message.mask.length))
+                            message.mask = [];
+                        message.mask.push(reader.int32());
+                        break;
+                    case "side":
+                        message.side = reader.int32();
+                        break;
+                    case "num_classes":
+                        message.num_classes = reader.int32();
+                        break;
+                    case "num_object":
+                        message.num_object = reader.int32();
+                        break;
+                    case "total_object":
+                        message.total_object = reader.int32();
+                        break;
+                    case "ignore_thresh":
+                        message.ignore_thresh = reader.float();
+                        break;
+                    case "truth_thresh":
+                        message.truth_thresh = reader.float();
+                        break;
+                    case "net_w":
+                        message.net_w = reader.int32();
+                        break;
+                    case "net_h":
+                        message.net_h = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            YoloV3LossParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.anchors != null && message.hasOwnProperty("anchors")) {
+                    if (!Array.isArray(message.anchors))
+                        return "anchors: array expected";
+                    for (var i = 0; i < message.anchors.length; ++i)
+                        if (!$util.isInteger(message.anchors[i]))
+                            return "anchors: integer[] expected";
+                }
+                if (message.mask != null && message.hasOwnProperty("mask")) {
+                    if (!Array.isArray(message.mask))
+                        return "mask: array expected";
+                    for (var i = 0; i < message.mask.length; ++i)
+                        if (!$util.isInteger(message.mask[i]))
+                            return "mask: integer[] expected";
+                }
+                if (message.side != null && message.hasOwnProperty("side"))
+                    if (!$util.isInteger(message.side))
+                        return "side: integer expected";
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    if (!$util.isInteger(message.num_classes))
+                        return "num_classes: integer expected";
+                if (message.num_object != null && message.hasOwnProperty("num_object"))
+                    if (!$util.isInteger(message.num_object))
+                        return "num_object: integer expected";
+                if (message.total_object != null && message.hasOwnProperty("total_object"))
+                    if (!$util.isInteger(message.total_object))
+                        return "total_object: integer expected";
+                if (message.ignore_thresh != null && message.hasOwnProperty("ignore_thresh"))
+                    if (typeof message.ignore_thresh !== "number")
+                        return "ignore_thresh: number expected";
+                if (message.truth_thresh != null && message.hasOwnProperty("truth_thresh"))
+                    if (typeof message.truth_thresh !== "number")
+                        return "truth_thresh: number expected";
+                if (message.net_w != null && message.hasOwnProperty("net_w"))
+                    if (!$util.isInteger(message.net_w))
+                        return "net_w: integer expected";
+                if (message.net_h != null && message.hasOwnProperty("net_h"))
+                    if (!$util.isInteger(message.net_h))
+                        return "net_h: integer expected";
+                return null;
+            };
+    
+            YoloV3LossParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.YoloV3LossParameter)
+                    return object;
+                var message = new $root.caffe.YoloV3LossParameter();
+                if (object.anchors) {
+                    if (!Array.isArray(object.anchors))
+                        throw TypeError(".caffe.YoloV3LossParameter.anchors: array expected");
+                    message.anchors = [];
+                    for (var i = 0; i < object.anchors.length; ++i)
+                        message.anchors[i] = object.anchors[i] | 0;
+                }
+                if (object.mask) {
+                    if (!Array.isArray(object.mask))
+                        throw TypeError(".caffe.YoloV3LossParameter.mask: array expected");
+                    message.mask = [];
+                    for (var i = 0; i < object.mask.length; ++i)
+                        message.mask[i] = object.mask[i] | 0;
+                }
+                if (object.side != null)
+                    message.side = object.side | 0;
+                if (object.num_classes != null)
+                    message.num_classes = object.num_classes | 0;
+                if (object.num_object != null)
+                    message.num_object = object.num_object | 0;
+                if (object.total_object != null)
+                    message.total_object = object.total_object | 0;
+                if (object.ignore_thresh != null)
+                    message.ignore_thresh = Number(object.ignore_thresh);
+                if (object.truth_thresh != null)
+                    message.truth_thresh = Number(object.truth_thresh);
+                if (object.net_w != null)
+                    message.net_w = object.net_w | 0;
+                if (object.net_h != null)
+                    message.net_h = object.net_h | 0;
+                return message;
+            };
+    
+            YoloV3LossParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.anchors = [];
+                    object.mask = [];
+                }
+                if (options.defaults) {
+                    object.side = 0;
+                    object.num_classes = 0;
+                    object.num_object = 0;
+                    object.total_object = 0;
+                    object.ignore_thresh = 0.7;
+                    object.truth_thresh = 1;
+                    object.net_w = 0;
+                    object.net_h = 0;
+                }
+                if (message.anchors && message.anchors.length) {
+                    object.anchors = [];
+                    for (var j = 0; j < message.anchors.length; ++j)
+                        object.anchors[j] = message.anchors[j];
+                }
+                if (message.mask && message.mask.length) {
+                    object.mask = [];
+                    for (var j = 0; j < message.mask.length; ++j)
+                        object.mask[j] = message.mask[j];
+                }
+                if (message.side != null && message.hasOwnProperty("side"))
+                    object.side = message.side;
+                if (message.num_classes != null && message.hasOwnProperty("num_classes"))
+                    object.num_classes = message.num_classes;
+                if (message.num_object != null && message.hasOwnProperty("num_object"))
+                    object.num_object = message.num_object;
+                if (message.total_object != null && message.hasOwnProperty("total_object"))
+                    object.total_object = message.total_object;
+                if (message.ignore_thresh != null && message.hasOwnProperty("ignore_thresh"))
+                    object.ignore_thresh = options.json && !isFinite(message.ignore_thresh) ? String(message.ignore_thresh) : message.ignore_thresh;
+                if (message.truth_thresh != null && message.hasOwnProperty("truth_thresh"))
+                    object.truth_thresh = options.json && !isFinite(message.truth_thresh) ? String(message.truth_thresh) : message.truth_thresh;
+                if (message.net_w != null && message.hasOwnProperty("net_w"))
+                    object.net_w = message.net_w;
+                if (message.net_h != null && message.hasOwnProperty("net_h"))
+                    object.net_h = message.net_h;
+                return object;
+            };
+    
+            YoloV3LossParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return YoloV3LossParameter;
+        })();
+    
+        caffe.RandomGeneratorParameter = (function() {
+    
+            function RandomGeneratorParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            RandomGeneratorParameter.prototype.rand_type = "uniform";
+            RandomGeneratorParameter.prototype.exp = false;
+            RandomGeneratorParameter.prototype.mean = 0;
+            RandomGeneratorParameter.prototype.spread = 0;
+            RandomGeneratorParameter.prototype.prob = 1;
+            RandomGeneratorParameter.prototype.apply_schedule = true;
+            RandomGeneratorParameter.prototype.discretize = false;
+            RandomGeneratorParameter.prototype.multiplier = 1;
+    
+            RandomGeneratorParameter.create = function create(properties) {
+                return new RandomGeneratorParameter(properties);
+            };
+    
+            RandomGeneratorParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.RandomGeneratorParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.rand_type = reader.string();
+                        break;
+                    case 2:
+                        message.exp = reader.bool();
+                        break;
+                    case 4:
+                        message.mean = reader.float();
+                        break;
+                    case 5:
+                        message.spread = reader.float();
+                        break;
+                    case 6:
+                        message.prob = reader.float();
+                        break;
+                    case 7:
+                        message.apply_schedule = reader.bool();
+                        break;
+                    case 8:
+                        message.discretize = reader.bool();
+                        break;
+                    case 9:
+                        message.multiplier = reader.float();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            RandomGeneratorParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.RandomGeneratorParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "rand_type":
+                        message.rand_type = reader.string();
+                        break;
+                    case "exp":
+                        message.exp = reader.bool();
+                        break;
+                    case "mean":
+                        message.mean = reader.float();
+                        break;
+                    case "spread":
+                        message.spread = reader.float();
+                        break;
+                    case "prob":
+                        message.prob = reader.float();
+                        break;
+                    case "apply_schedule":
+                        message.apply_schedule = reader.bool();
+                        break;
+                    case "discretize":
+                        message.discretize = reader.bool();
+                        break;
+                    case "multiplier":
+                        message.multiplier = reader.float();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            RandomGeneratorParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.rand_type != null && message.hasOwnProperty("rand_type"))
+                    if (!$util.isString(message.rand_type))
+                        return "rand_type: string expected";
+                if (message.exp != null && message.hasOwnProperty("exp"))
+                    if (typeof message.exp !== "boolean")
+                        return "exp: boolean expected";
+                if (message.mean != null && message.hasOwnProperty("mean"))
+                    if (typeof message.mean !== "number")
+                        return "mean: number expected";
+                if (message.spread != null && message.hasOwnProperty("spread"))
+                    if (typeof message.spread !== "number")
+                        return "spread: number expected";
+                if (message.prob != null && message.hasOwnProperty("prob"))
+                    if (typeof message.prob !== "number")
+                        return "prob: number expected";
+                if (message.apply_schedule != null && message.hasOwnProperty("apply_schedule"))
+                    if (typeof message.apply_schedule !== "boolean")
+                        return "apply_schedule: boolean expected";
+                if (message.discretize != null && message.hasOwnProperty("discretize"))
+                    if (typeof message.discretize !== "boolean")
+                        return "discretize: boolean expected";
+                if (message.multiplier != null && message.hasOwnProperty("multiplier"))
+                    if (typeof message.multiplier !== "number")
+                        return "multiplier: number expected";
+                return null;
+            };
+    
+            RandomGeneratorParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.RandomGeneratorParameter)
+                    return object;
+                var message = new $root.caffe.RandomGeneratorParameter();
+                if (object.rand_type != null)
+                    message.rand_type = String(object.rand_type);
+                if (object.exp != null)
+                    message.exp = Boolean(object.exp);
+                if (object.mean != null)
+                    message.mean = Number(object.mean);
+                if (object.spread != null)
+                    message.spread = Number(object.spread);
+                if (object.prob != null)
+                    message.prob = Number(object.prob);
+                if (object.apply_schedule != null)
+                    message.apply_schedule = Boolean(object.apply_schedule);
+                if (object.discretize != null)
+                    message.discretize = Boolean(object.discretize);
+                if (object.multiplier != null)
+                    message.multiplier = Number(object.multiplier);
+                return message;
+            };
+    
+            RandomGeneratorParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.rand_type = "uniform";
+                    object.exp = false;
+                    object.mean = 0;
+                    object.spread = 0;
+                    object.prob = 1;
+                    object.apply_schedule = true;
+                    object.discretize = false;
+                    object.multiplier = 1;
+                }
+                if (message.rand_type != null && message.hasOwnProperty("rand_type"))
+                    object.rand_type = message.rand_type;
+                if (message.exp != null && message.hasOwnProperty("exp"))
+                    object.exp = message.exp;
+                if (message.mean != null && message.hasOwnProperty("mean"))
+                    object.mean = options.json && !isFinite(message.mean) ? String(message.mean) : message.mean;
+                if (message.spread != null && message.hasOwnProperty("spread"))
+                    object.spread = options.json && !isFinite(message.spread) ? String(message.spread) : message.spread;
+                if (message.prob != null && message.hasOwnProperty("prob"))
+                    object.prob = options.json && !isFinite(message.prob) ? String(message.prob) : message.prob;
+                if (message.apply_schedule != null && message.hasOwnProperty("apply_schedule"))
+                    object.apply_schedule = message.apply_schedule;
+                if (message.discretize != null && message.hasOwnProperty("discretize"))
+                    object.discretize = message.discretize;
+                if (message.multiplier != null && message.hasOwnProperty("multiplier"))
+                    object.multiplier = options.json && !isFinite(message.multiplier) ? String(message.multiplier) : message.multiplier;
+                return object;
+            };
+    
+            RandomGeneratorParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return RandomGeneratorParameter;
         })();
     
         return caffe;
