@@ -727,7 +727,10 @@ class CntkTensorType {
                 this._shape = shape.dims;
                 break;
             case 2:
-                switch (dataType.toNumber()) {
+                if (dataType.__isLong__) {
+                    dataType = dataType.toNumber(); 
+                }
+                switch (dataType) {
                     case 1: this._dataType = 'float32'; break;
                 }
                 this._shape = shape.shape_dim.map((dimension) => {
