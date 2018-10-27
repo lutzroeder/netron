@@ -337,8 +337,12 @@ hdf5.Reader = class {
     }
 
     match(text) {
+        if (this._position + this._offset + text.length > this._buffer.length) {
+            throw new hdf5.Error("Invalid buffer offset while matching '" + text.replace(/[^\x20-\x7F]/g, '') + "'.");
+        }
+        var buffer = this.bytes(text.length);
         for (var i = 0; i < text.length; i++) {
-            if (text.charCodeAt(i) != this.byte()) {
+            if (text.charCodeAt(i) != buffer[i]) {
                 return false;
             }
         }
