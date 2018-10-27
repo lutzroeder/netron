@@ -381,7 +381,7 @@ class ConnectionView {
 
         var initializer = connection.initializer;
         if (initializer) {
-            this._element.style.backgroundColor = '#f4f4f4';
+            this._element.classList.add('sidebar-view-item-value-dark');
         }
 
         var quantization = connection.quantization;

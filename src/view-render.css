@@ -26,17 +26,17 @@
 .node-item-operator-control text { fill: #000; }
 .node-item-operator-control:hover path { fill: #fff; }
 
-.node-item-operator-layer path { fill: #358; }
-.node-item-operator-wrapper path { fill: #eee; }
-.node-item-operator-wrapper text { fill: #000; }
-.node-item-operator-activation path { fill: #4B1B16; }
-.node-item-operator-pool path { fill: #353; }
-.node-item-operator-normalization path { fill: #354; }
-.node-item-operator-dropout path { fill: #454770; }
-.node-item-operator-shape path { fill: #6C4F47; }
-.node-item-operator-tensor path { fill: #59423B; }
-.node-item-operator-transform path { fill: #354; }
-.node-item-operator-data path { fill: #555; }
+.node-item-operator-layer path { fill: rgb(51, 85, 136); }
+.node-item-operator-wrapper path { fill: rgb(238, 238, 238); }
+.node-item-operator-wrapper text { fill: rgb(0, 0, 0) }
+.node-item-operator-activation path { fill: rgb(75, 27, 22); }
+.node-item-operator-pool path { fill: rgb(51, 85, 51); }
+.node-item-operator-normalization path { fill: rgb(51, 85, 68); }
+.node-item-operator-dropout path { fill: rgb(69, 71, 112); }
+.node-item-operator-shape path { fill: rgb(108, 79, 71); }
+.node-item-operator-tensor path { fill: rgb(89, 66, 59); }
+.node-item-operator-transform path { fill: rgb(51, 85, 68); }
+.node-item-operator-data path { fill: rgb(85, 85, 85); }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }
@@ -65,6 +65,7 @@
 
 .edge-label text { font-family: 'Open Sans', --apple-system, "Helvetica Neue", Helvetica, Arial, sans-serf; font-size: 10px; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; }
+#arrowhead-vee { fill: #000; }
 
 .cluster rect { stroke: #000; fill: #000; fill-opacity: 0.02; stroke-opacity: 0.06; stroke-width: 1px; }
 
@@ -72,3 +73,56 @@
 .select.edge-path { stroke: #333; stroke-width: 2px; stroke-dasharray: 6px 3px; stroke-dashoffset: 0; animation: pulse 4s infinite linear; }
 
 @keyframes pulse { from { stroke-dashoffset: 100px; } to { stroke-dashoffset: 0; } }
+
+@media (prefers-color-scheme: dark) {
+
+    .edge-label text { fill: #b2b2b2; }
+    .edge-path { stroke: #666666; }
+    #arrowhead-vee { fill: #666666; }
+
+    .node path { stroke: #666666; }
+    .node line { stroke: #666666; }
+
+    .node-item-function path { fill: #404040; }
+    .node-item-function text { fill: #dfdfdfdf; }
+    .node-item-function:hover { cursor: hand; }
+    .node-item-function:hover path { fill: #666666; }
+    
+    .node-item-operator path { fill: #303030; }
+    .node-item-operator text { fill: #dfdfdf; }
+    .node-item-operator:hover { cursor: hand; }
+    .node-item-operator:hover path { fill: #808080; }
+    .node-item-operator:hover text { fill: #dfdfdf; }
+
+    .node-item path { stroke: #fff; }
+    .node-item text { fill: #dfdfdf; }
+
+    .node-attribute text { fill: #b2b2b2; }
+    .node-attribute path { fill: #404040; }
+    .node-attribute:hover path { fill: #666666; }
+
+    .graph-item-input path { fill: #404040; }
+    .graph-item-input:hover { cursor: hand; }
+    .graph-item-input:hover path { fill: #666666; }
+
+    .graph-item-output path { fill: #404040; }
+    .graph-item-output:hover { cursor: hand; }
+    .graph-item-output:hover path { fill: #666666; }
+
+    .node-item-input path { fill: #404040; }
+    .node-item-input:hover path { fill: #666666; }
+    .node-item-constant path { fill: #4b4b4b; }
+    .node-item-constant:hover path { fill: #666666; }
+
+    .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.5); }
+    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.5); }
+    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.5); }
+    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.5); }
+    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.5); }
+    .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.5); }
+    .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.5); }
+    .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.5); }
+    .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.5); }
+    .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.5); }
+    .node-item-operator-data path { fill: rgba(85, 85, 85, 0.5); }
+}

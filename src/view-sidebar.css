@@ -14,6 +14,7 @@
 .sidebar-view-item-name input { font-family: inherit; font-size: inherit; color: inherit; background-color: inherit; width: 100%; text-align: right; margin: 0; padding: 0; border: 0; outline: none; text-overflow: ellipsis; }
 .sidebar-view-item-value-list { margin: 0; margin-left: 105px; overflow: hidden; display: block; padding: 0; }
 .sidebar-view-item-value { font-size: 10px; background-color: #f8f8f8; border-radius: 4px; border: 1px solid #dedede; margin-top: 3px; margin-bottom: 3px; overflow: auto; }
+.sidebar-view-item-value-dark { background-color: #f4f4f4; }
 .sidebar-view-item-value b { font-weight: 600; }
 .sidebar-view-item-value code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; overflow: auto; white-space: pre-wrap; word-wrap: break-word; }
 .sidebar-view-item-value pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; margin: 0; overflow: auto; white-space: pre; word-wrap: normal; display: block; }
@@ -35,10 +36,28 @@
 .sidebar-view-documentation h3 { font-weight: 600; font-size: 11px; line-height: 1.25; }
 .sidebar-view-documentation p { margin-top: 2px; margin-bottom: 2px; maring-left: 0px; }
 .sidebar-view-documentation a { color: #237; }
-.sidebar-view-documentation code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px }
+.sidebar-view-documentation code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px; }
 .sidebar-view-documentation pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 10px; padding: 16px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; }
 .sidebar-view-documentation pre code { font-size: 11px; padding: 16px; line-height: 1.45; background-color: transparent; padding: 0; border-radius: 0; }
 .sidebar-view-documentation tt { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-weight: 600; font-size: 90%; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; padding: 0.2em 0.4em; margin: 0; }
 .sidebar-view-documentation dl dt { font-size: 11px; font-weight: 600; padding: 0; margin-top: 16px; margin-left: 0px; }
 .sidebar-view-documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
 .sidebar-view-documentation ul { margin-top: 6px; margin-bottom: 6px; padding-left: 20px; }
+
+
+@media (prefers-color-scheme: dark) {
+    .sidebar { background-color: #2d2d2d; color: #dfdfdf; border-left: 1px solid #000; }
+    .sidebar-view-item-value { background-color: #383838; border-color: #424242; }
+    .sidebar-view-item-value-dark { background-color: #3c3c3c; }
+
+    .sidebar-view-title { border-bottom-color: #424242; color: #dfdfdf; }
+    .sidebar-view-header { border-bottom-color: #424242; color: #dfdfdf; }
+
+    .sidebar-view-documentation h1 { border-bottom: 1px solid #424242; color: #dfdfdf; }
+    .sidebar-view-documentation h2 { border-bottom: 1px solid #424242; color: #dfdfdf; }
+
+    .sidebar-view-documentation p { color: #aaaaaa; }
+    .sidebar-view-documentation tt { background-color:#1e1e1e; }
+    .sidebar-view-documentation code { background-color: #1e1e1e; }
+    .sidebar-view-documentation pre { background-color: #1e1e1e; }
+}

@@ -133,3 +133,24 @@ body {
         height: 32px;
     }
 }
+
+@media (prefers-color-scheme: dark) {
+    .background {
+        background-color: #2d2d2d;
+    }    
+
+    .graph {
+        background-color: #404040;
+    }
+
+    .background button {
+        color: #dfdfdf;
+        background-color: #2d2d2d;
+        border-color: #dfdfdf;
+    }
+    
+    .background button:hover { 
+        color: #2d2d2d;
+        background-color: #dfdfdf;
+    }    
+}
