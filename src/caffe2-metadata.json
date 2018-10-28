@@ -951,5 +951,30 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "ONNXWhile",
+    "schema": {
+      "attributes": [
+      ],
+      "inputs": [
+        {
+          "name": "max_trip_count"
+        },
+        {
+          "name": "condition"
+        },
+        {
+          "name": "initial",
+          "option": "variadic"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "final_and_scan_outputs",
+          "option": "variadic"
+        }
+      ]
+    }
   }
 ]
