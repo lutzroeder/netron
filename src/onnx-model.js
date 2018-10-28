@@ -641,7 +641,7 @@ class OnnxTensor {
         this._tensor = tensor;
         this._id = id;
         this._kind = kind || null;
-        this._type = new OnnxTensorType(this._tensor.data_type, this._tensor.dims.map((dim) => dim), null);
+        this._type = new OnnxTensorType(this._tensor.data_type, new OnnxTensorShape(this._tensor.dims.map((dim) => dim)), null);
 
         if (this._tensor.data_type == onnx.TensorProto.DataType.FLOAT16 && this._tensor.int32_data && this._tensor.int32_data.length > 0) {
             var array = new Uint8Array(this._tensor.int32_data.length << 1);
@@ -714,7 +714,7 @@ class OnnxTensor {
         }
 
         context.dataType = this._type.dataType;
-        context.shape = this._type.shape;
+        context.shape = this._type.shape.dimensions;
 
         switch (this._tensor.data_type) {
             case onnx.TensorProto.DataType.FLOAT:
@@ -979,7 +979,7 @@ class OnnxTensor {
                         return dim.dim_param ? dim.dim_param : dim.dim_value;
                     });
                 }
-                return new OnnxTensorType(type.tensor_type.elem_type, shape, denotation);
+                return new OnnxTensorType(type.tensor_type.elem_type, new OnnxTensorShape(shape), denotation);
             case 'map_type':
                 return new OnnxMapType(type.map_type.key_type, OnnxTensor._formatType(type.map_type.value_type, imageFormat), denotation);
             case 'sequence_type':
@@ -1012,7 +1012,22 @@ class OnnxTensorType {
     }
 
     toString() {
-        return this.dataType + ((this._shape && this._shape.length) ? ('[' + this._shape.join(',') + ']') : '');
+        return this.dataType + this._shape.toString();
+    }
+}
+
+class OnnxTensorShape {
+
+    constructor(dimensions) {
+        this._dimensions = dimensions;
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return (this._dimensions && this._dimensions.length) ? ('[' + this._dimensions.join(',') + ']') : '';
     }
 }
 
