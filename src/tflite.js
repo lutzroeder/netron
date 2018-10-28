@@ -120,7 +120,8 @@ tflite.BuiltinOperator = {
   ZEROS_LIKE: 93, 93: 'ZEROS_LIKE',
   FILL: 94, 94: 'FILL',
   FLOOR_MOD: 95, 95: 'FLOOR_MOD',
-  RANGE: 96, 96: 'RANGE'
+  RANGE: 96, 96: 'RANGE',
+  RESIZE_NEAREST_NEIGHBOR: 97, 97: 'RESIZE_NEAREST_NEIGHBOR'
 };
 
 /**
@@ -200,7 +201,8 @@ tflite.BuiltinOptions = {
   BidirectionalSequenceRNNOptions: 70, 70: 'BidirectionalSequenceRNNOptions',
   UnidirectionalSequenceLSTMOptions: 71, 71: 'UnidirectionalSequenceLSTMOptions',
   FloorModOptions: 72, 72: 'FloorModOptions',
-  RangeOptions: 73, 73: 'RangeOptions'
+  RangeOptions: 73, 73: 'RangeOptions',
+  ResizeNearestNeighborOptions: 74, 74: 'ResizeNearestNeighborOptions'
 };
 
 /**
@@ -2698,6 +2700,73 @@ tflite.ResizeBilinearOptions.addAlignCorners = function(builder, alignCorners) {
  * @returns {flatbuffers.Offset}
  */
 tflite.ResizeBilinearOptions.endResizeBilinearOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
+tflite.ResizeNearestNeighborOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite.ResizeNearestNeighborOptions}
+ */
+tflite.ResizeNearestNeighborOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite.ResizeNearestNeighborOptions=} obj
+ * @returns {tflite.ResizeNearestNeighborOptions}
+ */
+tflite.ResizeNearestNeighborOptions.getRootAsResizeNearestNeighborOptions = function(bb, obj) {
+  return (obj || new tflite.ResizeNearestNeighborOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {boolean}
+ */
+tflite.ResizeNearestNeighborOptions.prototype.alignCorners = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} alignCorners
+ */
+tflite.ResizeNearestNeighborOptions.addAlignCorners = function(builder, alignCorners) {
+  builder.addFieldInt8(0, +alignCorners, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
