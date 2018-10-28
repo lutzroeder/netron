@@ -2183,7 +2183,7 @@
             values[valuesById[5] = "PROTO_IDEEP"] = 5;
             values[valuesById[6] = "PROTO_HIP"] = 6;
             values[valuesById[7] = "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES"] = 7;
-            values[valuesById[20901701] = "PROTO_ONLY_FOR_TEST"] = 20901701;
+            values[valuesById[20901] = "PROTO_ONLY_FOR_TEST"] = 20901;
             return values;
         })();
     
@@ -2201,6 +2201,7 @@
             DeviceOption.prototype.device_id = 0;
             DeviceOption.prototype.random_seed = 0;
             DeviceOption.prototype.node_name = "";
+            DeviceOption.prototype.numa_node_id = 0;
             DeviceOption.prototype.extra_info = $util.emptyArray;
     
             DeviceOption.create = function create(properties) {
@@ -2225,6 +2226,9 @@
                         break;
                     case 4:
                         message.node_name = reader.string();
+                        break;
+                    case 5:
+                        message.numa_node_id = reader.int32();
                         break;
                     case 6:
                         if (!(message.extra_info && message.extra_info.length))
@@ -2259,6 +2263,9 @@
                     case "node_name":
                         message.node_name = reader.string();
                         break;
+                    case "numa_node_id":
+                        message.numa_node_id = reader.int32();
+                        break;
                     case "extra_info":
                         if (!(message.extra_info && message.extra_info.length))
                             message.extra_info = [];
@@ -2287,6 +2294,9 @@
                 if (message.node_name != null && message.hasOwnProperty("node_name"))
                     if (!$util.isString(message.node_name))
                         return "node_name: string expected";
+                if (message.numa_node_id != null && message.hasOwnProperty("numa_node_id"))
+                    if (!$util.isInteger(message.numa_node_id))
+                        return "numa_node_id: integer expected";
                 if (message.extra_info != null && message.hasOwnProperty("extra_info")) {
                     if (!Array.isArray(message.extra_info))
                         return "extra_info: array expected";
@@ -2309,6 +2319,8 @@
                     message.random_seed = object.random_seed >>> 0;
                 if (object.node_name != null)
                     message.node_name = String(object.node_name);
+                if (object.numa_node_id != null)
+                    message.numa_node_id = object.numa_node_id | 0;
                 if (object.extra_info) {
                     if (!Array.isArray(object.extra_info))
                         throw TypeError(".caffe2.DeviceOption.extra_info: array expected");
@@ -2330,6 +2342,7 @@
                     object.device_id = 0;
                     object.random_seed = 0;
                     object.node_name = "";
+                    object.numa_node_id = 0;
                 }
                 if (message.device_type != null && message.hasOwnProperty("device_type"))
                     object.device_type = message.device_type;
@@ -2339,6 +2352,8 @@
                     object.random_seed = message.random_seed;
                 if (message.node_name != null && message.hasOwnProperty("node_name"))
                     object.node_name = message.node_name;
+                if (message.numa_node_id != null && message.hasOwnProperty("numa_node_id"))
+                    object.numa_node_id = message.numa_node_id;
                 if (message.extra_info && message.extra_info.length) {
                     object.extra_info = [];
                     for (var j = 0; j < message.extra_info.length; ++j)
