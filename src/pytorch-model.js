@@ -50,10 +50,6 @@ class PyTorchModelFactory {
                 return;
             }
             var sysInfo = unpickler.load();
-            if (!sysInfo.little_endian) {
-                callback(new PyTorchError('Unsupported endian format.'));
-                return;
-            }
             if (sysInfo.protocol_version != 1001) {
                 callback(new PyTorchError("Unsupported protocol version '" + sysInfo.protocol_version + "'.", null));
                 return;
@@ -209,7 +205,8 @@ class PyTorchModelFactory {
             });
 
             if (!root._modules) {
-                throw new PyTorchError('Root object does not contain modules.');
+                callback(new PyTorchError('Root object does not contain modules.'), null);
+                return;
             }
 
             var model = new PyTorchModel(sysInfo, root); 
@@ -218,6 +215,7 @@ class PyTorchModelFactory {
         catch (error) {
             host.exception(error, false);
             callback(new PyTorchError(error.message), null);
+            return;
         }
     }
 }
@@ -246,6 +244,7 @@ class PyTorchGraph {
         this._inputs = [];
         this._outputs = [];
         this._groups = true;
+        this._littleEndian = sysInfo.little_endian;
 
         var input = 'data';
         this._inputs.push(new PyTorchArgument(input, true, [ new PyTorchConnection(input, null, null) ]));
@@ -261,7 +260,7 @@ class PyTorchGraph {
         if (parent.__type__ &&
             !parent.__type__.startsWith('torch.nn.modules.container.') &&
             (!parent._modules || parent._modules.length == 0)) {
-            var node = new PyTorchNode(parent, groups, inputs);
+            var node = new PyTorchNode(parent, groups, inputs, this._littleEndian);
             this._nodes.push(node);
             return [];
         }
@@ -293,7 +292,7 @@ class PyTorchGraph {
                     groups.pop(module.__id__);
                     break; 
                 default:
-                    var node = new PyTorchNode(module, groups, inputs);
+                    var node = new PyTorchNode(module, groups, inputs, this._littleEndian);
                     this._nodes.push(node);
                     inputs = [ node.name ];
                     break;
@@ -382,7 +381,7 @@ class PyTorchConnection {
 
 class PyTorchNode {
 
-    constructor(module, groups, connections) {
+    constructor(module, groups, connections, littleEndian) {
         this._group = groups.join('/');
         groups.push(module.__id__);
         this._name = groups.join('/');
@@ -410,10 +409,10 @@ class PyTorchNode {
             if (parameter && (parameter.data || parameter.storage)) {
                 var initializer = null;
                 if (parameter.data) {
-                    initializer = new PyTorchTensor(parameter.data);
+                    initializer = new PyTorchTensor(parameter.data, littleEndian);
                 }
                 else if (parameter.storage) {
-                    initializer = new PyTorchTensor(parameter);
+                    initializer = new PyTorchTensor(parameter, littleEndian);
                 }
                 var visible = (this._operator != 'LSTM' || initializer == null);
                 this._inputs.push(new PyTorchArgument(parameter.__id__, visible, [ new PyTorchConnection(null, null, initializer) ]));
@@ -495,10 +494,11 @@ class PyTorchAttribute {
 }
 
 class PyTorchTensor {
-    constructor(tensor) {
+    constructor(tensor, littleEndian) {
         this._tensor = tensor;
         this._dataType = tensor.storage.dataType;
         this._shape = tensor.size;
+        this._littleEndian = littleEndian;
     }
 
     get kind() {
@@ -572,17 +572,17 @@ class PyTorchTensor {
                 switch (this._dataType)
                 {
                     case 'uint8':
-                        results.push(context.dataView.getUint8(context.index, true));
+                        results.push(context.dataView.getUint8(context.index, this._littleEndian));
                         context.index += 1;
                         context.count++;
                         break;
                     case 'float32':
-                        results.push(context.dataView.getFloat32(context.index, true));
+                        results.push(context.dataView.getFloat32(context.index, this._littleEndian));
                         context.index += 4;
                         context.count++;
                         break;
                     case 'float64':
-                        results.push(context.dataView.getFloat64(context.index, true));
+                        results.push(context.dataView.getFloat64(context.index, this._littleEndian));
                         context.index += 8;
                         context.count++;
                         break;
