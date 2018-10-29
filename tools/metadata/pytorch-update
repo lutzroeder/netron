@@ -2,6 +2,22 @@
 
 set -e
 
+if [ "$#" == 0 ]; then
+    __sync=true
+    __build=true
+    __update=true
+else
+    while test $# -gt 0
+    do
+        case "$1" in
+            sync) __sync=true;;
+            build) __build=true;;
+            update) __update=true;;
+        esac
+        shift
+    done
+fi
+
 root=$(cd $(dirname ${0})/../..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
@@ -13,19 +29,27 @@ python="python"
 pip="pip"
 
 identifier=pytorch
-repository=https://github.com/pytorch/pytorch.git
 
-mkdir -p ${third_party}
-
-if [ -d "${third_party}/${identifier}" ]; then
-    git -C "${third_party}/${identifier}" fetch -p
-    git -C "${third_party}/${identifier}" reset --hard origin/master
-else
-    echo "Clone ${repository}..."
-    git -C "${third_party}" clone --recursive ${repository}
+if [ ${__sync} ]; then
+    repository=https://github.com/pytorch/pytorch.git
+    mkdir -p ${third_party}
+    if [ -d "${third_party}/${identifier}" ]; then
+        git -C "${third_party}/${identifier}" fetch -p
+        git -C "${third_party}/${identifier}" reset --hard origin/master
+    else
+        echo "Clone ${repository}..."
+        git -C "${third_party}" clone --recursive ${repository}
+    fi
+    git submodule update --init
 fi
-git submodule update --init
 
+if [ ${__update} ]; then
+    echo "Generate 'caffe2.js'"
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
+    node ${tools}/metadata/update_pbjs.js enumeration ${src}/caffe2.js floats float 1
+fi
+
+if [ ${__build} ]; then
 echo "Install Caffe2"
 if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
 brew bundle --file=- <<-EOS
@@ -35,23 +59,30 @@ brew "gflags"
 brew "glog"
 EOS
 fi
+fi
 
 virtualenv=${build}/virtualenv/${identifier}
-virtualenv -p ${python} ${virtualenv}
-source ${virtualenv}/bin/activate
-${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
-pushd "${third_party}/pytorch" > /dev/null
-FULL_CAFFE2=1 ${python} setup.py install
-MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ ${python} setup.py install
-popd > /dev/null
+if [ ${__build} ]; then
+    virtualenv -p ${python} ${virtualenv}
+fi
+if [ -f ${virtualenv}/bin/activate ]; then
+    source ${virtualenv}/bin/activate
+fi
+if [ ${__build} ]; then
+    ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
+    pushd "${third_party}/pytorch" > /dev/null
+    ${python} setup.py install
+    # MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ ${python} setup.py install
+    popd > /dev/null
+fi
 
-echo "Generate 'caffe2-metadata.json'"
-pushd ${tools}/metadata > /dev/null
-${python} caffe2-metadata.py
-popd > /dev/null
+if [ ${__update} ]; then
+    echo "Generate 'caffe2-metadata.json'"
+    pushd ${tools}/metadata > /dev/null
+    ${python} caffe2-metadata.py
+    popd > /dev/null
+fi
 
-deactivate
-
-echo "Generate 'caffe2.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
-node ${tools}/metadata/update_pbjs.js enumeration ${src}/caffe2.js floats float 1
+if [ -f ${virtualenv}/bin/activate ]; then
+    deactivate
+fi

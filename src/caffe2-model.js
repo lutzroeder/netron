@@ -339,6 +339,9 @@ class Caffe2Attribute {
 
         var schema = Caffe2OperatorMetadata.operatorMetadata.getAttributeSchema(this._node.operator, this._name);
         if (schema) {
+            if (schema.hasOwnProperty('type')) {
+                this._type = schema.type;
+            }
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
             }
@@ -352,6 +355,10 @@ class Caffe2Attribute {
 
     get name() {
         return this._name;
+    }
+
+    get type() {
+        return this._type || null;
     }
 
     get value() {
