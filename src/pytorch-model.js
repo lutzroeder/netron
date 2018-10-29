@@ -496,8 +496,7 @@ class PyTorchAttribute {
 class PyTorchTensor {
     constructor(tensor, littleEndian) {
         this._tensor = tensor;
-        this._dataType = tensor.storage.dataType;
-        this._shape = tensor.size;
+        this._type = new PyTorchTensorType(tensor.storage.dataType, new PyTorchTensorShape(tensor.size));
         this._littleEndian = littleEndian;
     }
 
@@ -506,7 +505,7 @@ class PyTorchTensor {
     }
 
     get type() {
-        return new PyTorchTensorType(this._dataType, this._shape);
+        return this._type;
     }
 
     get state() {
@@ -542,11 +541,11 @@ class PyTorchTensor {
         context.index = 0;
         context.count = 0;
 
-        if (!this._dataType) {
+        if (!this._type.dataType) {
             context.state = 'Tensor has no data type.';
             return context;
         }
-        if (!this._shape) {
+        if (!this._type.shape) {
             context.state = 'Tensor has no dimensions.';
             return context;
         }
@@ -556,20 +555,22 @@ class PyTorchTensor {
         }
 
         context.data = this._tensor.storage.data;
+        context.dataType = this._type.dataType;
+        context.dimensions = this._type.shape.dimensions;
         context.dataView = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
         return context;
     }
 
     _decode(context, dimension) {
         var results = [];
-        var size = this._shape[dimension];
-        if (dimension == this._shape.length - 1) {
+        var size = context.dimensions[dimension];
+        if (dimension == context.dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
-                switch (this._dataType)
+                switch (context.dataType)
                 {
                     case 'uint8':
                         results.push(context.dataView.getUint8(context.index, this._littleEndian));
@@ -637,7 +638,22 @@ class PyTorchTensorType {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return this._dataType + this._shape.toString();
+    }
+}
+
+class PyTorchTensorShape {
+
+    constructor(dimensions) {
+        this._dimensions = dimensions;
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
 }
 
