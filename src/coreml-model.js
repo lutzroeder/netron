@@ -690,7 +690,7 @@ class CoreMLTensor {
             }
         }
 
-        this._type = new CoreMLTensorType(dataType, shape);
+        this._type = new CoreMLTensorType(dataType, new CoreMLTensorShape(shape));
     }
 
     get id() {
@@ -738,7 +738,7 @@ class CoreMLTensor {
         context.index = 0;
         context.count = 0;
         context.dataType = this._type.dataType;
-        context.shape = this._type.shape;
+        context.dimensions = this._type.shape.dimensions;
  
         if (!this._data) {
             context.state = 'Tensor data is empty.';
@@ -759,8 +759,8 @@ class CoreMLTensor {
 
     _decode(context, dimension) {
         var results = [];
-        var size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
+        var size = context.dimensions[dimension];
+        if (dimension == context.dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -808,9 +808,23 @@ class CoreMLTensorType {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return this.dataType + this._shape.toString();
+    }
+}
+
+class CoreMLTensorShape {
+
+    constructor(dimensions) {
+        this._dimensions = dimensions;
     }
 
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+    }
 }
 
 class CoreMLOperatorMetadata 
