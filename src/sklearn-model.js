@@ -645,7 +645,7 @@ class SklearnTensor {
         switch (value.__type__) {
             case 'numpy.ndarray':
                 this._kind = 'Array';
-                this._type = new SklearnTensorType(value.dtype.name, value.shape);
+                this._type = new SklearnTensorType(value.dtype.name, new SklearnTensorShape(value.shape));
                 this._data = value.data;
                 break;
             default:
@@ -713,7 +713,7 @@ class SklearnTensor {
         }
 
         context.dataType = this._type.dataType;
-        context.shape = this._type.shape;
+        context.dimensions = this._type.shape.dimensions;
 
         switch (context.dataType) {
             case 'float32':
@@ -736,8 +736,8 @@ class SklearnTensor {
 
     _decode(context, dimension) {
         var results = [];
-        var size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
+        var size = context.dimensions[dimension];
+        if (dimension == context.dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -821,7 +821,22 @@ class SklearnTensorType {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return this.dataType + this._shape.toString();
+    }
+}
+
+class SklearnTensorShape {
+
+    constructor(dimensions) {
+        this._dimensions = dimensions;
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
 }
 
