@@ -296,7 +296,7 @@ class MXNetGraph {
             var outputType = null;
             var outputSignature = outputs[outputName];
             if (outputSignature && outputSignature.data_shape) {
-                outputType = new MXNetTensorType(null, outputSignature.data_shape);
+                outputType = new MXNetTensorType(null, new MXNetTensorShape(outputSignature.data_shape));
             }
             this._outputs.push(new MXNetArgument(outputName, [ new MXNetConnection('[' + outputId.join(',') + ']', outputType, null) ]));
         });
@@ -317,7 +317,7 @@ class MXNetGraph {
                 var inputType = null;
                 var inputSignature = inputs[inputName];
                 if (inputSignature && inputSignature.data_shape) {
-                    inputType = new MXNetTensorType(null, inputSignature.data_shape);
+                    inputType = new MXNetTensorType(null, new MXNetTensorShape(inputSignature.data_shape));
                 }
                 this._inputs.push(new MXNetArgument(inputName, [ new MXNetConnection('[' + inputId.join(',') + ']', inputType) ]));
             }
@@ -648,7 +648,7 @@ class MXNetTensor {
         this._name = name;
         this._dataType = dataType;
         this._data = data;
-        this._type = new MXNetTensorType(dataType, shape);
+        this._type = new MXNetTensorType(dataType, new MXNetTensorShape(shape));
     }
 
     get kind() {
@@ -713,15 +713,15 @@ class MXNetTensor {
             return context;
         }
 
-        context.shape = this._type.shape;
+        context.dimensions = this._type.shape.dimensions;
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
         return context;
     }
 
     _decode(context, dimension) {
         var results = [];
-        var size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
+        var size = context.dimensions[dimension];
+        if (dimension == context.dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -819,7 +819,22 @@ class MXNetTensorType {
     }
 
     toString() {
-        return (this.dataType || '?') + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return (this.dataType || '?') + this._shape.toString();
+    }
+}
+
+class MXNetTensorShape {
+
+    constructor(dimensions) {
+        this._dimensions = dimensions;
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
 }
 
