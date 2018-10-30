@@ -690,12 +690,7 @@ class OnnxTensor {
         }
         context.limit = 10000;
         var value = this._decode(context, 0);
-        switch (this._tensor.data_type) {
-            case onnx.TensorProto.DataType.INT64:
-            case onnx.TensorProto.DataType.UINT64:
-                return OnnxTensor._stringify(value, '', '    ');
-        }
-        return JSON.stringify(value, null, 4);
+        return OnnxTensor._stringify(value, '', '    ');
     }
 
     _context() {

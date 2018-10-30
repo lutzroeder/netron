@@ -389,7 +389,7 @@ class Caffe2Tensor {
         if (args.values) {
             this._values = args.values;
         }
-        this._type = new Caffe2TensorType(tensor.dataType, shape ? new Caffe2TensorShape(shape) : null);
+        this._type = new Caffe2TensorType(tensor.dataType, new Caffe2TensorShape(shape));
     }
 
     get name() {
