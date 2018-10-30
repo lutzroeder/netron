@@ -911,7 +911,7 @@ class View {
                         var defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                         this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                             try {
-                                var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape);
+                                var array = new numpy.Array(tensor.value, tensor.type.dataType, tensor.type.shape.dimensions);
                                 this._host.export(file, new Blob([ array.toBuffer() ], { type: 'application/octet-stream' }));
                             }
                             catch (error) {

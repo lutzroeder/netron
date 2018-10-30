@@ -181,11 +181,11 @@ class CaffeGraph {
                 if (netParameter.input_shape && index < netParameter.input_shape.length) {
                     var blobShape = netParameter.input_shape[index];
                     if (blobShape && blobShape.dim) {
-                        inputType = new CaffeTensorType(null, blobShape.dim);
+                        inputType = new CaffeTensorType(null, new CaffeTensorShape(blobShape.dim));
                     }
                 }
                 if (inputType == null && netParameter.input.length == 1 && netParameter.input_dim && netParameter.input_dim.length > 0) {
-                    inputType = new CaffeTensorType(null, netParameter.input_dim);
+                    inputType = new CaffeTensorType(null, new CaffeTensorShape(netParameter.input_dim));
                 }
                 this._inputs.push(new CaffeArgument(input, [ new CaffeConnection(input, inputType, null) ]));
             });
@@ -532,7 +532,7 @@ class CaffeTensor {
             this._data = blob.double_data;
         }
 
-        this._type = new CaffeTensorType(dataType, shape);
+        this._type = new CaffeTensorType(dataType, new CaffeTensorShape(shape));
     }
 
     get kind() {
@@ -572,7 +572,7 @@ class CaffeTensor {
         context.index = 0;
         context.count = 0;
         context.data = this._data;
-        context.shape = this.type.shape;
+        context.dimensions = this.type.shape.dimensions;
         if (!this._data) {
             context.state = 'Tensor data is empty.';
         }
@@ -581,8 +581,8 @@ class CaffeTensor {
 
     _decode(context, dimension) {
         var results = [];
-        var size = context.shape[dimension];
-        if (dimension == context.shape.length - 1) {
+        var size = context.dimensions[dimension];
+        if (dimension == context.dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -610,12 +610,7 @@ class CaffeTensorType {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
-        this._shape = shape.map((dimension) => {
-            if (dimension && dimension.__isLong__) {
-                return dimension.toNumber();
-            }
-            return dimension;
-        });
+        this._shape = shape;
     }
 
     get dataType() {
@@ -627,9 +622,28 @@ class CaffeTensorType {
     }
 
     toString() {
-        return (this.dataType || '?') + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return (this.dataType || '?') + this._shape.toString();
+    }
+}
+
+class CaffeTensorShape {
+
+    constructor(dimensions) {
+        this._dimensions = dimensions.map((dimension) => {
+            if (dimension && dimension.__isLong__) {
+                return dimension.toNumber();
+            }
+            return dimension;
+        });
     }
 
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+    }
 }
 
 class CaffeOperatorMetadata 
