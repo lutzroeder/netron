@@ -515,22 +515,16 @@ class CntkAttribute {
         this._name = name;
         this._value = value;
         this._type = null;
-        if (this._value.constructor.name == 'NDShape') {
-            this._value = value.shape_dim.map((dimension) => {
-                if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
-                    return -1;
-                }
-                if (dimension && dimension.__isLong__) {
-                    return dimension.toNumber();
-                }
-                return dimension;
-            });
+        if (cntk_v1 && this._value instanceof cntk_v1.TensorShape) {
+            this._value = new CntkTensorShape(1, value);
+            this._type = 'shape';
         }
-        if (this._value.constructor.name == 'Axis') {
+        if (cntk_v2 && this._value instanceof cntk_v2.NDShape) {
+            this._value = new CntkTensorShape(2, value);
+            this._type = 'shape';
+        }
+        if (cntk_v2 && this._value instanceof cntk_v2.Axis) {
             this._value = () => '\'' + value.name + '\', ' + value.static_axis_idx + ', ' + value.is_ordered_dynamic_axis.toString();
-        }
-        if (this._value instanceof cntk_v1.TensorShape) {
-            this._value = value.dims;
         }
 
         var schema = CntkOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
@@ -551,18 +545,21 @@ class CntkAttribute {
                 if (typeof value == 'function') {
                     value = value();
                 }
+                if (this._type == 'shape') {
+                    value = value.dimensions;
+                }
                 if (value == defaultValue) {
                     this._visible = false;
                 }
-                else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                else if (Array.isArray(value) && Array.isArray(defaultValue)) {
                     defaultValue = defaultValue.slice(0, defaultValue.length);
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
-                        while (defaultValue.length < this._value.length) {
+                        while (defaultValue.length < value.length) {
                            defaultValue.push(defaultValue[defaultValue.length - 1]); 
                         }
                     }
-                    if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
+                    if (value.every((item, index) => { return item == defaultValue[index]; })) {
                         this._visible = false;
                     }
                 }
@@ -673,7 +670,7 @@ class CntkTensor {
         }
 
         context.dataType = this._type.dataType;
-        context.shape = this._type.shape;
+        context.shape = this._type.shape.dimensions;
         
         return context;
     }
@@ -724,7 +721,7 @@ class CntkTensorType {
                     case 'half': this._dataType = 'float16'; break;
                     case '': this._dataType = 'float32'; break;
                 }
-                this._shape = shape.dims;
+                this._shape = new CntkTensorShape(version, shape);
                 break;
             case 2:
                 if (dataType.__isLong__) {
@@ -733,12 +730,7 @@ class CntkTensorType {
                 switch (dataType) {
                     case 1: this._dataType = 'float32'; break;
                 }
-                this._shape = shape.shape_dim.map((dimension) => {
-                    if (dimension && dimension.__isLong__) {
-                        return dimension.toNumber();
-                    }
-                    return dimension;            
-                });
+                this._shape = new CntkTensorShape(version, shape);
                 break;                
         }
     }
@@ -752,7 +744,37 @@ class CntkTensorType {
     }
 
     toString() {
-        return this.dataType + ((this._shape && this._shape.length) ? ('[' + this._shape.join(',') + ']') : '');
+        return this._dataType + this._shape.toString();
+    }
+}
+
+class CntkTensorShape {
+
+    constructor(version, shape) {
+        switch (version) {
+            case 1:
+                this._dimensions = shape.dims;
+                break;
+            case 2:
+                this._dimensions = shape.shape_dim.map((dimension) => {
+                    if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
+                        return -1;
+                    }
+                    if (dimension && dimension.__isLong__) {
+                        return dimension.toNumber();
+                    }
+                    return dimension;            
+                });
+                break;
+        }
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return (this._dimensions && this._dimensions.length) ? ('[' + this._dimensions.join(',') + ']') : '';
     }
 }
 
