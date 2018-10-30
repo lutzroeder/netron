@@ -453,7 +453,7 @@ class TensorFlowLiteTensor {
         }
  
         context.dataType = this._type.dataType;
-        context.shape = this._type.shape;
+        context.dimensions = this._type.shape.dimensions;
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
 
         if (this._type.dataType == 'string') {
@@ -483,9 +483,9 @@ class TensorFlowLiteTensor {
     }
 
     _decode(context, dimension) {
-        var size = context.shape[dimension];
+        var size = context.dimensions[dimension];
         var results = [];
-        if (dimension == context.shape.length - 1) {
+        if (dimension == context.dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -545,13 +545,7 @@ class TensorFlowLiteTensorType {
     constructor(tensor) {
         var dataType = tflite.TensorType[tensor.type()]; 
         this._dataType = (dataType) ? dataType.toLowerCase() : '?';
-        this._shape = [];
-        var shapeLength = tensor.shapeLength();
-        if (shapeLength > 0) {
-            for (var i = 0; i < shapeLength; i++) {
-                this._shape.push(tensor.shape(i));
-            }
-        }
+        this._shape = new TensorFlowLiteTensorShape(tensor);
     }
 
     get dataType() {
@@ -563,9 +557,29 @@ class TensorFlowLiteTensorType {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return this.dataType + this._shape.toString();
+    }
+}
+
+class TensorFlowLiteTensorShape {
+
+    constructor(tensor) {
+        this._dimensions = [];
+        var shapeLength = tensor.shapeLength();
+        if (shapeLength > 0) {
+            for (var i = 0; i < shapeLength; i++) {
+                this._dimensions.push(tensor.shape(i));
+            }
+        }
     }
 
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+    }
 }
 
 class TensorFlowLiteOperatorMetadata {
