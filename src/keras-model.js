@@ -380,7 +380,7 @@ class KerasGraph {
                 shape = config.batch_input_shape.map(s => s == null ? '?' : s);
                 delete config.batch_input_shape;
             }
-            return new KerasTensorType(dataType, shape);
+            return new KerasTensorType(dataType, new KerasTensorShape(shape));
         }
         return null;
     }
@@ -700,7 +700,7 @@ class KerasTensor {
 
     constructor(name, type, shape, data, reference) {
         this._name = name;
-        this._type = new KerasTensorType(type, shape);
+        this._type = new KerasTensorType(type, new KerasTensorShape(shape));
         this._data = data;
         this._reference = reference;
     }
@@ -771,15 +771,15 @@ class KerasTensor {
                 context.state = 'Tensor data type is not supported.';
                 break;
         }
+        context.dimensions = this._type.shape.dimensions;
         context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
         return context;
     }
 
     _decode(context, dimension) {
         var results = [];
-        var shape = this._type.shape;
-        var size = shape[dimension];
-        if (dimension == shape.length - 1) {
+        var size = context.dimensions[dimension];
+        if (dimension == context.dimensions.length - 1) {
             for (var i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
@@ -859,9 +859,23 @@ class KerasTensorType {
     }
 
     toString() {
-        return this.dataType + (this._shape ? ('[' + this._shape.map((dimension) => dimension.toString()).join(',') + ']') : '');
+        return this._dataType + this._shape.toString();
+    }
+}
+
+class KerasTensorShape {
+
+    constructor(dimensions) {
+        this._dimensions = dimensions;
     }
 
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+    }
 }
 
 class KerasOperatorMetadata {
