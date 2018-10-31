@@ -364,6 +364,12 @@
         },
         {
           "name": "beta"
+        },
+        {
+          "name": "mean"
+        },
+        {
+          "name": "variance"
         }
       ]
     }
@@ -476,6 +482,24 @@
     "schema": {
       "attributes": [
         { "name": "scalar", "type": "float32" }
+      ]
+    }
+  },
+  {
+    "name": "broadcast_mul",
+    "schema": {
+      "inputs": [
+        { "name": "lhs" },
+        { "name": "rhs" }
+      ]
+    }
+  },
+  {
+    "name": "broadcast_add",
+    "schema": {
+      "inputs": [
+        { "name": "lhs" },
+        { "name": "rhs" }
       ]
     }
   }

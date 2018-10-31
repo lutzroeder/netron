@@ -450,11 +450,11 @@ class MXNetNode {
                     delete argumentMap[argumentNodeIndex];
                 }
                 else {
-                    var prefix = this._name + '_';
-                    if (prefix.endsWith('_fwd_')) {
-                        prefix = prefix.slice(0, -4);
+                    var prefix = this._name;
+                    if (prefix.endsWith('_fwd')) {
+                        prefix = prefix.slice(0, -3);
                     }
-                    if (argument.name && argument.name.startsWith(prefix)) {
+                    if (argument.name && (argument.name.startsWith(prefix + '_') || argument.name.startsWith(prefix + '.'))) {
                         var dataType = '?';
                         var shape = [];
                         if (argument.attrs && argument.attrs.__dtype__ && argument.attrs.__shape__) {
@@ -894,10 +894,20 @@ class MXNetOperatorMetadata {
                     results.push(input);
                 }
             });
+            if (index < inputs.length) {
+                inputs.slice(index, inputs.length).forEach((input) => {
+                    var argument = {};
+                    argument.name = index.toString();
+                    argument.connections = [];
+                    argument.connections.push({ id: input });
+                    index++;
+                    results.push(argument);
+                });
+            }
         }
         else {
             inputs.slice(index).forEach((input) => {
-                var name = (index == 0) ? 'input' : ('(' + index.toString() + ')');
+                var name = (index == 0) ? 'input' : index.toString();
                 results.push({
                     name: name,
                     connections: [ { id: input } ]
@@ -929,7 +939,7 @@ class MXNetOperatorMetadata {
         }
         else {
             outputs.slice(index).forEach((output) => {
-                var name = (index == 0) ? 'output' : ('(' + index.toString() + ')');
+                var name = (index == 0) ? 'output' : index.toString();
                 results.push({
                     name: name,
                     connections: [ { id: output } ]
