@@ -47,7 +47,7 @@ class OnnxModelFactory {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new OnnxError('File text format is not onnx.ModelProto (' + error.message + ').'), null);
+                    callback(new OnnxError("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }
             }
@@ -57,7 +57,7 @@ class OnnxModelFactory {
                     model = onnx.ModelProto.decode(context.buffer);
                 }
                 catch (error) {
-                    callback(new OnnxError('File format is not onnx.ModelProto (' + error.message + ').'), null);
+                    callback(new OnnxError("File format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }
             }

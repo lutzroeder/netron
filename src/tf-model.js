@@ -93,7 +93,7 @@ class TensorFlowModelFactory {
                     }
                 }
                 catch (error) {
-                    callback(new TensorFlowError('File format is not tensorflow.SavedModel (' + error.message + ').'), null);
+                    callback(new TensorFlowError("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }
                 try {
@@ -105,7 +105,7 @@ class TensorFlowModelFactory {
                     }
                 }
                 catch (error) {
-                    callback(new TensorFlowError('File format is not tensorflow.MetaGraphDef (' + error.message + ').'), null);
+                    callback(new TensorFlowError("File format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }
                 try {
@@ -119,7 +119,7 @@ class TensorFlowModelFactory {
                     }
                 }
                 catch (error) {
-                    callback(new TensorFlowError('File format is not tensorflow.GraphDef (' + error.message + ').'), null);
+                    callback(new TensorFlowError("File format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }
             }

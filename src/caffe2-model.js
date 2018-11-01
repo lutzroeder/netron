@@ -33,7 +33,7 @@ class Caffe2ModelFactory {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new Caffe2Error('File text format is not caffe2.NetDef (' + error.message + ').'), null);
+                    callback(new Caffe2Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }    
             }
@@ -43,7 +43,7 @@ class Caffe2ModelFactory {
                     netDef = caffe2.NetDef.decode(context.buffer);
                 }
                 catch (error) {
-                    callback(new Caffe2Error('File format is not caffe2.NetDef (' + error.message + ').'), null);
+                    callback(new Caffe2Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'."), null);
                     return;
                 }    
             }

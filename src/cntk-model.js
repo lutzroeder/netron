@@ -35,7 +35,7 @@ class CntkModelFactory {
                 }
             }
             catch (error) {
-                callback(new CntkError('File format is not CNTK v1 (' + error.message + ').'), null);
+                callback(new CntkError("File format is not CNTK v1 (" + error.message + ") in '" + context.identifier + "'."), null);
                 return;
             }
             try {
@@ -48,7 +48,7 @@ class CntkModelFactory {
                 }
             }
             catch (error) {
-                callback(new CntkError('File format is not cntk.Dictionary (' + error.message + ').'), null);
+                callback(new CntkError("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'."), null);
                 return;
             }
             CntkOperatorMetadata.open(host, (err, metadata) => {
