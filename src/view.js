@@ -321,6 +321,7 @@ class View {
                     case 'pb':
                     case 'pbtxt':
                     case 'prototxt':
+                    case 'pth':
                     case 'model':
                         callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
                         break;

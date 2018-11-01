@@ -110,6 +110,14 @@ class PyTorchModelFactory {
             constructorTable['torch.LongStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'int64'; };
             constructorTable['torch.FloatStorage'] = function (size) { this.size = size; this.dataTypeSize = 4; this.dataType = 'float32'; };
             constructorTable['torch.DoubleStorage'] = function (size) { this.size = size; this.dataTypeSize = 8; this.dataType = 'float64'; };
+            constructorTable['torch.FloatTensor'] = function () {
+                this.__setstate__ = function(state) {
+                    this.storage = state[0];
+                    this.storage_offset = state[1];
+                    this.size = state[2];
+                    this.stride = state[3];
+                };
+            };
 
             functionTable['torch._utils._rebuild_tensor'] = function (storage, storage_offset, size, stride) {
                 var obj = {};
@@ -203,6 +211,12 @@ class PyTorchModelFactory {
                     storage.data = unpickler.read(storage.dataTypeSize * storage.size);
                 }
             });
+
+            if ((Array.isArray(root) && root.every((item) => item.__type__ == 'torch.FloatTensor')) ||
+                (root != null && root.state_dict && Array.isArray(root.state_dict))) {
+                callback(new PyTorchError("File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data."), null);
+                return;
+            }
 
             if (!root._modules) {
                 callback(new PyTorchError('Root object does not contain modules.'), null);

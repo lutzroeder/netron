@@ -140,13 +140,27 @@ pickle.Unpickler = class {
                     var value = stack.pop();
                     var key = stack.pop();
                     var obj = stack[stack.length - 1];
-                    obj[key] = value;
+                    if (Array.isArray(obj)) {
+                        value.__id__ = key;
+                        obj.push(value);
+                    }
+                    else {
+                        obj[key] = value;
+                    }
                     break;
                 case pickle.OpCode.SETITEMS:
                     var index = marker.pop();
                     var obj = stack[index - 1];
-                    for (var position = index; position < stack.length; position += 2) {
-                        obj[stack[position]] = stack[position + 1];
+                    if (Array.isArray(obj)) {
+                        for (var position = index; position < stack.length; position += 2) {
+                            stack[position + 1].__id__ = stack[position];
+                            obj.push(stack[position + 1]);
+                        }
+                    }
+                    else {
+                        for (var position = index; position < stack.length; position += 2) {
+                            obj[stack[position]] = stack[position + 1];
+                        }
                     }
                     stack = stack.slice(0, index);
                     break;
