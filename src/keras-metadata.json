@@ -3725,7 +3725,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The function to be evaluated.\n    Takes input tensor as first argument.",
+          "description": "The function to be evaluated.\n    Takes input tensor or list of tensors as first argument.",
           "name": "function"
         },
         {
@@ -3744,6 +3744,9 @@
         },
         {
           "code": "# add a layer that returns the concatenation\n# of the positive part of the input and\n# the opposite of the negative part\n\ndef antirectifier(x):\n    x -= K.mean(x, axis=1, keepdims=True)\n    x = K.l2_normalize(x, axis=1)\n    pos = K.relu(x)\n    neg = K.relu(-x)\n    return K.concatenate([pos, neg], axis=1)\n\ndef antirectifier_output_shape(input_shape):\n    shape = list(input_shape)\n    assert len(shape) == 2  # only valid for 2D tensors\n    shape[-1] *= 2\n    return tuple(shape)\n\nmodel.add(Lambda(antirectifier,\n                 output_shape=antirectifier_output_shape))"
+        },
+        {
+          "code": "# add a layer that returns the hadamard product\n# and sum of it from two input tensors\n\ndef hadamard_product_sum(tensors):\n    out1 = tensors[0] * tensors[1]\n    out2 = K.sum(out1, axis=-1)\n    return [out1, out2]\n\ndef hadamard_product_sum_output_shape(input_shapes):\n    shape1 = list(input_shapes[0])\n    shape2 = list(input_shapes[1])\n    assert shape1 == shape2  # else hadamard product isn't possible\n    return [tuple(shape1), tuple(shape2[:-1])]\n\nx1 = Dense(32)(input_1)\nx2 = Dense(32)(input_2)\nlayer = Lambda(hadamard_product_sum, hadamard_product_sum_output_shape)\nx_hadamard, x_sum = layer([x1, x2])"
         }
       ],
       "inputs": [
