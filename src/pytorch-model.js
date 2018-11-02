@@ -119,6 +119,18 @@ class PyTorchModelFactory {
                 };
             };
 
+            functionTable['collections.OrderedDict'] = function(args) {
+                var obj = [];
+                obj.__setitem__ = function(key, value) {
+                    obj.push({ key: key, value: value });
+                };
+                if (args) {
+                    args.forEach((arg) => {
+                        obj.__setitem__(arg[0], arg[1]);
+                    });
+                }
+                return obj;
+            };
             functionTable['torch._utils._rebuild_tensor'] = function (storage, storage_offset, size, stride) {
                 var obj = {};
                 obj.__type__ = storage.__type__.replace('Storage', 'Tensor');
@@ -141,16 +153,6 @@ class PyTorchModelFactory {
             };
 
             var function_call = (name, args) => {
-                if (name == 'collections.OrderedDict') {
-                    if (args.length == 0) {
-                        return [];
-                    }
-                    return args[0].map((arg) => {
-                        var item = arg[1] || {};
-                        item.__id__ = arg[0];
-                        return item;
-                    });
-                }
                 var func = functionTable[name];
                 if (func) {
                     return func.apply(null, args);
@@ -212,7 +214,7 @@ class PyTorchModelFactory {
                 }
             });
 
-            if ((Array.isArray(root) && root.every((item) => item.__type__ == 'torch.FloatTensor')) ||
+            if ((Array.isArray(root) && root.__setitem__ && root.every((item) => item.value.__type__ == 'torch.FloatTensor')) ||
                 (root != null && root.state_dict && Array.isArray(root.state_dict))) {
                 callback(new PyTorchError("File does not contain a model graph. Use 'torch.save()' to save both the graph and tensor data."), null);
                 return;
@@ -284,11 +286,11 @@ class PyTorchGraph {
         }
 
         parent._modules.forEach((module) => {
-            switch (module.__type__) {
+            switch (module.value.__type__) {
                 case 'torch.nn.modules.container.Sequential':
-                    groups.push(module.__id__);
-                    inputs = this._loadModule(module, groups, inputs);
-                    groups.pop(module.__id__);
+                    groups.push(module.key);
+                    inputs = this._loadModule(module.value, groups, inputs);
+                    groups.pop(module.key);
                     break;
                 case 'torchvision.models.densenet._Transition':
                 case 'torchvision.models.resnet.Bottleneck':
@@ -301,9 +303,9 @@ class PyTorchGraph {
                 case 'torchvision.models.inception.InceptionC':
                 case 'torchvision.models.inception.InceptionD':
                 case 'torchvision.models.inception.InceptionE':
-                    groups.push(module.__id__);
+                    groups.push(module.key);
                     inputs = this._loadSource(module, groups, inputs);
-                    groups.pop(module.__id__);
+                    groups.pop(module.key);
                     break; 
                 default:
                     var node = new PyTorchNode(module, groups, inputs, this._littleEndian);
@@ -317,10 +319,6 @@ class PyTorchGraph {
     }
 
     _loadSource(parent, groups, inputs) {
-        var map = {};
-        parent._modules.forEach((module) => {
-            map[module.__id__] = module;
-        });
 
         var node = new PyTorchNode(parent, groups, inputs);
         this._nodes.push(node);
@@ -397,10 +395,11 @@ class PyTorchNode {
 
     constructor(module, groups, connections, littleEndian) {
         this._group = groups.join('/');
-        groups.push(module.__id__);
+        groups.push(module.key);
         this._name = groups.join('/');
         groups.pop();
-        this._operator = module.__type__.split('.').pop();
+        var obj = module.value;
+        this._operator = obj.__type__.split('.').pop();
 
         this._inputs = [];
         this._inputs.push(new PyTorchArgument('input', true, connections.map((connection) => {
@@ -408,28 +407,28 @@ class PyTorchNode {
         })));
 
         var initializers = [];
-        if (module._parameters) {
-            module._parameters.forEach((parameter) => {
+        if (obj._parameters) {
+            obj._parameters.forEach((parameter) => {
                 initializers.push(parameter);
             });
         }
-        if (module._buffers) {
-            module._buffers.forEach((buffer) => {
+        if (obj._buffers) {
+            obj._buffers.forEach((buffer) => {
                 initializers.push(buffer);
             });
         }
 
         initializers.forEach((parameter) => {
-            if (parameter && (parameter.data || parameter.storage)) {
+            if (parameter && parameter.value && (parameter.value.data || parameter.value.storage)) {
                 var initializer = null;
-                if (parameter.data) {
-                    initializer = new PyTorchTensor(parameter.data, littleEndian);
+                if (parameter.value.data) {
+                    initializer = new PyTorchTensor(parameter.value.data, littleEndian);
                 }
-                else if (parameter.storage) {
-                    initializer = new PyTorchTensor(parameter, littleEndian);
+                else if (parameter.value.storage) {
+                    initializer = new PyTorchTensor(parameter.value, littleEndian);
                 }
                 var visible = (this._operator != 'LSTM' || initializer == null);
-                this._inputs.push(new PyTorchArgument(parameter.__id__, visible, [ new PyTorchConnection(null, null, initializer) ]));
+                this._inputs.push(new PyTorchArgument(parameter.key, visible, [ new PyTorchConnection(null, null, initializer) ]));
             }
         });
 
@@ -437,9 +436,9 @@ class PyTorchNode {
         this._outputs.push(new PyTorchArgument('output', true, [ new PyTorchConnection(this._name, null, null) ]));
 
         this._attributes = [];
-        Object.keys(module).forEach((key) => {
+        Object.keys(obj).forEach((key) => {
             if (!key.startsWith('_')) {
-                this._attributes.push(new PyTorchAttribute(this, key, module[key]));
+                this._attributes.push(new PyTorchAttribute(this, key, obj[key]));
             }
         });
     }

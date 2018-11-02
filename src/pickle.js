@@ -140,9 +140,8 @@ pickle.Unpickler = class {
                     var value = stack.pop();
                     var key = stack.pop();
                     var obj = stack[stack.length - 1];
-                    if (Array.isArray(obj)) {
-                        value.__id__ = key;
-                        obj.push(value);
+                    if (obj.__setitem__) {
+                        obj.__setitem__(key, value);
                     }
                     else {
                         obj[key] = value;
@@ -151,10 +150,9 @@ pickle.Unpickler = class {
                 case pickle.OpCode.SETITEMS:
                     var index = marker.pop();
                     var obj = stack[index - 1];
-                    if (Array.isArray(obj)) {
+                    if (obj.__setitem__) {
                         for (var position = index; position < stack.length; position += 2) {
-                            stack[position + 1].__id__ = stack[position];
-                            obj.push(stack[position + 1]);
+                            obj.__setitem__(stack[position], stack[position + 1]);
                         }
                     }
                     else {
