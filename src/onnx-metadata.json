@@ -2709,7 +2709,7 @@
           "type": "T"
         },
         {
-          "description": "Optional 1D bias to be added to the convolution, has size of C.",
+          "description": "Optional 1D bias to be added to the convolution, has size of M.",
           "name": "B",
           "option": "optional",
           "type": "T"
