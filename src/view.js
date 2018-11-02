@@ -73,6 +73,7 @@ class View {
         if (page == 'Graph') {
             welcomeElement.style.display = 'none';
             openFileButton.style.display = 'none';
+            openFileButton.style.opacity = 0;
             spinnerElement.style.display = 'none';
             graphElement.style.display = 'block';
             graphElement.style.opacity = 1;
@@ -705,8 +706,9 @@ class View {
                     if (tuple.from != null) {
                         tuple.to.forEach((to) => {
                             var text = '';
-                            if (tuple.from.type && tuple.from.type.shape && tuple.from.type.shape.length > 0) {
-                                text = tuple.from.type.shape.join('\u00D7');
+                            var type = tuple.from.type;
+                            if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
+                                text = type.shape.dimensions.join('\u00D7');
                             }
                             else if (tuple.from.name && to.name) {
                                 text = tuple.from.name + ' \u21E8 ' + to.name;
