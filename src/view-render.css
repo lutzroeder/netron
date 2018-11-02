@@ -80,9 +80,12 @@
     .edge-path { stroke: #666666; }
     #arrowhead-vee { fill: #666666; }
 
-    .node path { stroke: #666666; }
-    .node line { stroke: #666666; }
+    .node path { stroke: #1d1d1d; }
+    .node line { stroke: #1d1d1d; }
 
+    .select .node.border { stroke: #dfdfdf; }
+    .select.edge-path { stroke: #dfdfdf; }
+    
     .node-item-function path { fill: #404040; }
     .node-item-function text { fill: #dfdfdfdf; }
     .node-item-function:hover { cursor: hand; }
@@ -98,7 +101,7 @@
     .node-item text { fill: #dfdfdf; }
 
     .node-attribute text { fill: #b2b2b2; }
-    .node-attribute path { fill: #404040; }
+    .node-attribute path { fill: #2d2d2d; }
     .node-attribute:hover path { fill: #666666; }
 
     .graph-item-input path { fill: #404040; }
@@ -114,15 +117,15 @@
     .node-item-constant path { fill: #4b4b4b; }
     .node-item-constant:hover path { fill: #666666; }
 
-    .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.5); }
-    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.5); }
-    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.5); }
-    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.5); }
-    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.5); }
-    .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.5); }
-    .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.5); }
-    .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.5); }
-    .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.5); }
-    .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.5); }
-    .node-item-operator-data path { fill: rgba(85, 85, 85, 0.5); }
+    .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.4); }
+    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.4); }
+    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.4); }
+    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.4); }
+    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.4); }
+    .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.4); }
+    .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.4); }
+    .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.4); }
+    .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.4); }
+    .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.4); }
+    .node-item-operator-data path { fill: rgba(85, 85, 85, 0.4); }
 }

@@ -55,9 +55,13 @@
 
     .sidebar-view-documentation h1 { border-bottom: 1px solid #424242; color: #dfdfdf; }
     .sidebar-view-documentation h2 { border-bottom: 1px solid #424242; color: #dfdfdf; }
-
     .sidebar-view-documentation p { color: #aaaaaa; }
     .sidebar-view-documentation tt { background-color:#1e1e1e; }
     .sidebar-view-documentation code { background-color: #1e1e1e; }
     .sidebar-view-documentation pre { background-color: #1e1e1e; }
+
+    .sidebar-view-find input[type=text] { background: #383838; border-color: #424242; }
+    .sidebar-view-find li:not(:first-child) { border-top: 1px solid #2a2a2a; }
+    .sidebar-view-find li:hover { background: #383838; }
+    
 }

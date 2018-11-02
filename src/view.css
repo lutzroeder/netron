@@ -40,9 +40,25 @@ body {
     height: 128px;
 }
 
+.logo .stroke {
+    stroke: #bbbbbb;
+}
+
+.logo .fill {
+    fill: #bbbbbb;
+}
+
+.logo .border {
+    stroke: #aaaaaa;
+}
+
 .spinner {
     -webkit-animation: orbit 0.5s infinite linear;
     animation: orbit 0.5s infinite linear;
+}
+
+.spinner .stroke {
+    stroke: #e6e6e6;
 }
 
 @-webkit-keyframes orbit {
@@ -118,13 +134,20 @@ body {
     height: 24px;
 }
 
-.toolbar button:hover {
-    fill: None;
-    stroke: #000;
-}
-
 .toolbar button:focus {
     outline: 0;
+}
+
+.icon .border { 
+    stroke: #fff;
+}
+
+.icon .stroke { 
+    stroke: #808080;
+}
+
+.icon:hover .stroke { 
+    stroke: #000000;
 }
 
 @media only screen and (max-device-width: 1024px) {
@@ -136,21 +159,49 @@ body {
 
 @media (prefers-color-scheme: dark) {
     .background {
-        background-color: #2d2d2d;
+        background-color: #1e1e1e;
     }    
+
+    .logo .stroke {
+        stroke: #666666;
+    }
+    
+    .logo .fill {
+        fill: #666666;
+    }
+    
+    .logo .border {
+        stroke: #000000;
+    }
+    
+    .spinner .stroke {
+        stroke: #2d2d2d;
+    }
 
     .graph {
         background-color: #404040;
     }
 
     .background button {
-        color: #dfdfdf;
-        background-color: #2d2d2d;
-        border-color: #dfdfdf;
+        color: #888888;
+        background-color: #1e1e1e;
+        border-color: #888888;
     }
     
     .background button:hover { 
-        color: #2d2d2d;
-        background-color: #dfdfdf;
+        color: #1e1e1e;
+        background-color: #aaaaaa;
     }    
+
+    .icon .border { 
+        stroke: #1d1d1d;
+    }    
+
+    .icon .stroke { 
+        stroke: #aaaaaa;
+    }
+
+    .icon:hover .stroke { 
+        stroke: #dfdfdf;
+    }
 }
