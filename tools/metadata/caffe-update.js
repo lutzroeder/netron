@@ -81,6 +81,8 @@ update(
   optional bool reshape_every_iter = 3157 [default = true]; // 162
   optional YoloV2LossParameter yolo_v2_loss_param = 3198; // 198
   optional YoloV3LossParameter yolo_v3_loss_param = 3199; // 199
+  optional BoxOutputParameter box_output_param = 4151; // 151 in gdlg/panoramic-object-detection
+  optional RingPadParameter ring_pad_param = 4158; // 158 in gdlg/panoramic-object-detection
   optional bool force_backward = 4000; // ???
 }`);
 
@@ -535,6 +537,8 @@ message ROIPoolingParameter {
   // input scale to the scale used when pooling
   optional float spatial_scale = 3 [default = 1];
   repeated uint32 pooled_size = 4; // pooled size for 3D blobs
+   optional float pad_ratio = 6 [default = 0]; // 4 in gdlg/panoramic-object-detection
+   optional bool ringpad = 5 [default = false]; // gdlg/panoramic-object-detection
 }
 
 message SpatialDropoutParameter {
@@ -1091,6 +1095,30 @@ message RandomGeneratorParameter {
   optional bool apply_schedule = 7 [default = true];
   optional bool discretize = 8 [default = false]; //Discretize (Round) value from rng to INT
   optional float multiplier = 9 [default = 1.]; //Final random value will be multiplied by this. (Useful for discrete distributions)
+}
+
+message RingPadParameter {
+  optional int32 axis = 1 [default = 1];
+  optional int32 pad = 2 [default = 1];
+}
+
+// Message that stores parameters used by BoxOutputLayer
+message BoxOutputParameter {
+  // Set the cutoff threshold
+  optional float fg_thr = 1 [default = 0];
+  optional float iou_thr = 2 [default = 0.5];
+  // Specifiy the number of coordinates
+  optional string nms_type = 3 [default = "IOU"];
+  repeated uint32 field_h = 4;
+  repeated uint32 field_w = 5;
+  repeated uint32 downsample_rate = 6;
+  optional float field_whr = 7 [default = 2]; 
+  optional float field_xyr = 8 [default = 2]; 
+  optional uint32 max_nms_num = 9 [default = 0];
+  optional uint32 max_post_nms_num = 10 [default = 0];
+  optional float min_size = 11 [default = 15]; 
+  optional uint32 num_param_set = 12 [default = 1];
+  optional bool ringpad = 13 [default = false];
 }
 `);
 

@@ -3035,6 +3035,8 @@
             LayerParameter.prototype.reshape_every_iter = true;
             LayerParameter.prototype.yolo_v2_loss_param = null;
             LayerParameter.prototype.yolo_v3_loss_param = null;
+            LayerParameter.prototype.box_output_param = null;
+            LayerParameter.prototype.ring_pad_param = null;
             LayerParameter.prototype.force_backward = false;
     
             LayerParameter.create = function create(properties) {
@@ -3380,6 +3382,12 @@
                     case 3199:
                         message.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.decode(reader, reader.uint32());
                         break;
+                    case 4151:
+                        message.box_output_param = $root.caffe.BoxOutputParameter.decode(reader, reader.uint32());
+                        break;
+                    case 4158:
+                        message.ring_pad_param = $root.caffe.RingPadParameter.decode(reader, reader.uint32());
+                        break;
                     case 4000:
                         message.force_backward = reader.bool();
                         break;
@@ -3720,6 +3728,12 @@
                         break;
                     case "yolo_v3_loss_param":
                         message.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.decodeText(reader, true);
+                        break;
+                    case "box_output_param":
+                        message.box_output_param = $root.caffe.BoxOutputParameter.decodeText(reader, true);
+                        break;
+                    case "ring_pad_param":
+                        message.ring_pad_param = $root.caffe.RingPadParameter.decodeText(reader, true);
                         break;
                     case "force_backward":
                         message.force_backward = reader.bool();
@@ -4264,6 +4278,16 @@
                     if (error)
                         return "yolo_v3_loss_param." + error;
                 }
+                if (message.box_output_param != null && message.hasOwnProperty("box_output_param")) {
+                    var error = $root.caffe.BoxOutputParameter.verify(message.box_output_param);
+                    if (error)
+                        return "box_output_param." + error;
+                }
+                if (message.ring_pad_param != null && message.hasOwnProperty("ring_pad_param")) {
+                    var error = $root.caffe.RingPadParameter.verify(message.ring_pad_param);
+                    if (error)
+                        return "ring_pad_param." + error;
+                }
                 if (message.force_backward != null && message.hasOwnProperty("force_backward"))
                     if (typeof message.force_backward !== "boolean")
                         return "force_backward: boolean expected";
@@ -4805,6 +4829,16 @@
                         throw TypeError(".caffe.LayerParameter.yolo_v3_loss_param: object expected");
                     message.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.fromObject(object.yolo_v3_loss_param);
                 }
+                if (object.box_output_param != null) {
+                    if (typeof object.box_output_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.box_output_param: object expected");
+                    message.box_output_param = $root.caffe.BoxOutputParameter.fromObject(object.box_output_param);
+                }
+                if (object.ring_pad_param != null) {
+                    if (typeof object.ring_pad_param !== "object")
+                        throw TypeError(".caffe.LayerParameter.ring_pad_param: object expected");
+                    message.ring_pad_param = $root.caffe.RingPadParameter.fromObject(object.ring_pad_param);
+                }
                 if (object.force_backward != null)
                     message.force_backward = Boolean(object.force_backward);
                 return message;
@@ -4918,6 +4952,8 @@
                     object.yolo_v2_loss_param = null;
                     object.yolo_v3_loss_param = null;
                     object.force_backward = false;
+                    object.box_output_param = null;
+                    object.ring_pad_param = null;
                     object.roi_pooling_param_2 = null;
                     object.normalize_bbox_param = null;
                 }
@@ -5147,6 +5183,10 @@
                     object.yolo_v3_loss_param = $root.caffe.YoloV3LossParameter.toObject(message.yolo_v3_loss_param, options);
                 if (message.force_backward != null && message.hasOwnProperty("force_backward"))
                     object.force_backward = message.force_backward;
+                if (message.box_output_param != null && message.hasOwnProperty("box_output_param"))
+                    object.box_output_param = $root.caffe.BoxOutputParameter.toObject(message.box_output_param, options);
+                if (message.ring_pad_param != null && message.hasOwnProperty("ring_pad_param"))
+                    object.ring_pad_param = $root.caffe.RingPadParameter.toObject(message.ring_pad_param, options);
                 if (message.roi_pooling_param_2 != null && message.hasOwnProperty("roi_pooling_param_2"))
                     object.roi_pooling_param_2 = $root.caffe.ROIPoolingParameter.toObject(message.roi_pooling_param_2, options);
                 if (message.normalize_bbox_param != null && message.hasOwnProperty("normalize_bbox_param"))
@@ -19057,6 +19097,8 @@
             ROIPoolingParameter.prototype.pooled_w = 0;
             ROIPoolingParameter.prototype.spatial_scale = 1;
             ROIPoolingParameter.prototype.pooled_size = $util.emptyArray;
+            ROIPoolingParameter.prototype.pad_ratio = 0;
+            ROIPoolingParameter.prototype.ringpad = false;
     
             ROIPoolingParameter.create = function create(properties) {
                 return new ROIPoolingParameter(properties);
@@ -19088,6 +19130,12 @@
                         } else
                             message.pooled_size.push(reader.uint32());
                         break;
+                    case 6:
+                        message.pad_ratio = reader.float();
+                        break;
+                    case 5:
+                        message.ringpad = reader.bool();
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -19118,6 +19166,12 @@
                             message.pooled_size = [];
                         message.pooled_size.push(reader.uint32());
                         break;
+                    case "pad_ratio":
+                        message.pad_ratio = reader.float();
+                        break;
+                    case "ringpad":
+                        message.ringpad = reader.bool();
+                        break;
                     default:
                         reader.handle(tag);
                         break;
@@ -19145,6 +19199,12 @@
                         if (!$util.isInteger(message.pooled_size[i]))
                             return "pooled_size: integer[] expected";
                 }
+                if (message.pad_ratio != null && message.hasOwnProperty("pad_ratio"))
+                    if (typeof message.pad_ratio !== "number")
+                        return "pad_ratio: number expected";
+                if (message.ringpad != null && message.hasOwnProperty("ringpad"))
+                    if (typeof message.ringpad !== "boolean")
+                        return "ringpad: boolean expected";
                 return null;
             };
     
@@ -19165,6 +19225,10 @@
                     for (var i = 0; i < object.pooled_size.length; ++i)
                         message.pooled_size[i] = object.pooled_size[i] >>> 0;
                 }
+                if (object.pad_ratio != null)
+                    message.pad_ratio = Number(object.pad_ratio);
+                if (object.ringpad != null)
+                    message.ringpad = Boolean(object.ringpad);
                 return message;
             };
     
@@ -19178,6 +19242,8 @@
                     object.pooled_h = 0;
                     object.pooled_w = 0;
                     object.spatial_scale = 1;
+                    object.ringpad = false;
+                    object.pad_ratio = 0;
                 }
                 if (message.pooled_h != null && message.hasOwnProperty("pooled_h"))
                     object.pooled_h = message.pooled_h;
@@ -19190,6 +19256,10 @@
                     for (var j = 0; j < message.pooled_size.length; ++j)
                         object.pooled_size[j] = message.pooled_size[j];
                 }
+                if (message.ringpad != null && message.hasOwnProperty("ringpad"))
+                    object.ringpad = message.ringpad;
+                if (message.pad_ratio != null && message.hasOwnProperty("pad_ratio"))
+                    object.pad_ratio = options.json && !isFinite(message.pad_ratio) ? String(message.pad_ratio) : message.pad_ratio;
                 return object;
             };
     
@@ -26334,6 +26404,447 @@
             };
     
             return RandomGeneratorParameter;
+        })();
+    
+        caffe.RingPadParameter = (function() {
+    
+            function RingPadParameter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            RingPadParameter.prototype.axis = 1;
+            RingPadParameter.prototype.pad = 1;
+    
+            RingPadParameter.create = function create(properties) {
+                return new RingPadParameter(properties);
+            };
+    
+            RingPadParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.RingPadParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.axis = reader.int32();
+                        break;
+                    case 2:
+                        message.pad = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            RingPadParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.RingPadParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "axis":
+                        message.axis = reader.int32();
+                        break;
+                    case "pad":
+                        message.pad = reader.int32();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            RingPadParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    if (!$util.isInteger(message.axis))
+                        return "axis: integer expected";
+                if (message.pad != null && message.hasOwnProperty("pad"))
+                    if (!$util.isInteger(message.pad))
+                        return "pad: integer expected";
+                return null;
+            };
+    
+            RingPadParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.RingPadParameter)
+                    return object;
+                var message = new $root.caffe.RingPadParameter();
+                if (object.axis != null)
+                    message.axis = object.axis | 0;
+                if (object.pad != null)
+                    message.pad = object.pad | 0;
+                return message;
+            };
+    
+            RingPadParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.axis = 1;
+                    object.pad = 1;
+                }
+                if (message.axis != null && message.hasOwnProperty("axis"))
+                    object.axis = message.axis;
+                if (message.pad != null && message.hasOwnProperty("pad"))
+                    object.pad = message.pad;
+                return object;
+            };
+    
+            RingPadParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return RingPadParameter;
+        })();
+    
+        caffe.BoxOutputParameter = (function() {
+    
+            function BoxOutputParameter(properties) {
+                this.field_h = [];
+                this.field_w = [];
+                this.downsample_rate = [];
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            BoxOutputParameter.prototype.fg_thr = 0;
+            BoxOutputParameter.prototype.iou_thr = 0.5;
+            BoxOutputParameter.prototype.nms_type = "IOU";
+            BoxOutputParameter.prototype.field_h = $util.emptyArray;
+            BoxOutputParameter.prototype.field_w = $util.emptyArray;
+            BoxOutputParameter.prototype.downsample_rate = $util.emptyArray;
+            BoxOutputParameter.prototype.field_whr = 2;
+            BoxOutputParameter.prototype.field_xyr = 2;
+            BoxOutputParameter.prototype.max_nms_num = 0;
+            BoxOutputParameter.prototype.max_post_nms_num = 0;
+            BoxOutputParameter.prototype.min_size = 15;
+            BoxOutputParameter.prototype.num_param_set = 1;
+            BoxOutputParameter.prototype.ringpad = false;
+    
+            BoxOutputParameter.create = function create(properties) {
+                return new BoxOutputParameter(properties);
+            };
+    
+            BoxOutputParameter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.caffe.BoxOutputParameter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.fg_thr = reader.float();
+                        break;
+                    case 2:
+                        message.iou_thr = reader.float();
+                        break;
+                    case 3:
+                        message.nms_type = reader.string();
+                        break;
+                    case 4:
+                        if (!(message.field_h && message.field_h.length))
+                            message.field_h = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.field_h.push(reader.uint32());
+                        } else
+                            message.field_h.push(reader.uint32());
+                        break;
+                    case 5:
+                        if (!(message.field_w && message.field_w.length))
+                            message.field_w = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.field_w.push(reader.uint32());
+                        } else
+                            message.field_w.push(reader.uint32());
+                        break;
+                    case 6:
+                        if (!(message.downsample_rate && message.downsample_rate.length))
+                            message.downsample_rate = [];
+                        if ((tag & 7) === 2) {
+                            var end2 = reader.uint32() + reader.pos;
+                            while (reader.pos < end2)
+                                message.downsample_rate.push(reader.uint32());
+                        } else
+                            message.downsample_rate.push(reader.uint32());
+                        break;
+                    case 7:
+                        message.field_whr = reader.float();
+                        break;
+                    case 8:
+                        message.field_xyr = reader.float();
+                        break;
+                    case 9:
+                        message.max_nms_num = reader.uint32();
+                        break;
+                    case 10:
+                        message.max_post_nms_num = reader.uint32();
+                        break;
+                    case 11:
+                        message.min_size = reader.float();
+                        break;
+                    case 12:
+                        message.num_param_set = reader.uint32();
+                        break;
+                    case 13:
+                        message.ringpad = reader.bool();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BoxOutputParameter.decodeText = function decodeText(reader, block) {
+                if (!(reader instanceof $TextReader))
+                    reader = $TextReader.create(reader);
+                var message = new $root.caffe.BoxOutputParameter();
+                reader.start(block);
+                while (!reader.end(block)) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "fg_thr":
+                        message.fg_thr = reader.float();
+                        break;
+                    case "iou_thr":
+                        message.iou_thr = reader.float();
+                        break;
+                    case "nms_type":
+                        message.nms_type = reader.string();
+                        break;
+                    case "field_h":
+                        if (!(message.field_h && message.field_h.length))
+                            message.field_h = [];
+                        message.field_h.push(reader.uint32());
+                        break;
+                    case "field_w":
+                        if (!(message.field_w && message.field_w.length))
+                            message.field_w = [];
+                        message.field_w.push(reader.uint32());
+                        break;
+                    case "downsample_rate":
+                        if (!(message.downsample_rate && message.downsample_rate.length))
+                            message.downsample_rate = [];
+                        message.downsample_rate.push(reader.uint32());
+                        break;
+                    case "field_whr":
+                        message.field_whr = reader.float();
+                        break;
+                    case "field_xyr":
+                        message.field_xyr = reader.float();
+                        break;
+                    case "max_nms_num":
+                        message.max_nms_num = reader.uint32();
+                        break;
+                    case "max_post_nms_num":
+                        message.max_post_nms_num = reader.uint32();
+                        break;
+                    case "min_size":
+                        message.min_size = reader.float();
+                        break;
+                    case "num_param_set":
+                        message.num_param_set = reader.uint32();
+                        break;
+                    case "ringpad":
+                        message.ringpad = reader.bool();
+                        break;
+                    default:
+                        reader.handle(tag);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            BoxOutputParameter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (message.fg_thr != null && message.hasOwnProperty("fg_thr"))
+                    if (typeof message.fg_thr !== "number")
+                        return "fg_thr: number expected";
+                if (message.iou_thr != null && message.hasOwnProperty("iou_thr"))
+                    if (typeof message.iou_thr !== "number")
+                        return "iou_thr: number expected";
+                if (message.nms_type != null && message.hasOwnProperty("nms_type"))
+                    if (!$util.isString(message.nms_type))
+                        return "nms_type: string expected";
+                if (message.field_h != null && message.hasOwnProperty("field_h")) {
+                    if (!Array.isArray(message.field_h))
+                        return "field_h: array expected";
+                    for (var i = 0; i < message.field_h.length; ++i)
+                        if (!$util.isInteger(message.field_h[i]))
+                            return "field_h: integer[] expected";
+                }
+                if (message.field_w != null && message.hasOwnProperty("field_w")) {
+                    if (!Array.isArray(message.field_w))
+                        return "field_w: array expected";
+                    for (var i = 0; i < message.field_w.length; ++i)
+                        if (!$util.isInteger(message.field_w[i]))
+                            return "field_w: integer[] expected";
+                }
+                if (message.downsample_rate != null && message.hasOwnProperty("downsample_rate")) {
+                    if (!Array.isArray(message.downsample_rate))
+                        return "downsample_rate: array expected";
+                    for (var i = 0; i < message.downsample_rate.length; ++i)
+                        if (!$util.isInteger(message.downsample_rate[i]))
+                            return "downsample_rate: integer[] expected";
+                }
+                if (message.field_whr != null && message.hasOwnProperty("field_whr"))
+                    if (typeof message.field_whr !== "number")
+                        return "field_whr: number expected";
+                if (message.field_xyr != null && message.hasOwnProperty("field_xyr"))
+                    if (typeof message.field_xyr !== "number")
+                        return "field_xyr: number expected";
+                if (message.max_nms_num != null && message.hasOwnProperty("max_nms_num"))
+                    if (!$util.isInteger(message.max_nms_num))
+                        return "max_nms_num: integer expected";
+                if (message.max_post_nms_num != null && message.hasOwnProperty("max_post_nms_num"))
+                    if (!$util.isInteger(message.max_post_nms_num))
+                        return "max_post_nms_num: integer expected";
+                if (message.min_size != null && message.hasOwnProperty("min_size"))
+                    if (typeof message.min_size !== "number")
+                        return "min_size: number expected";
+                if (message.num_param_set != null && message.hasOwnProperty("num_param_set"))
+                    if (!$util.isInteger(message.num_param_set))
+                        return "num_param_set: integer expected";
+                if (message.ringpad != null && message.hasOwnProperty("ringpad"))
+                    if (typeof message.ringpad !== "boolean")
+                        return "ringpad: boolean expected";
+                return null;
+            };
+    
+            BoxOutputParameter.fromObject = function fromObject(object) {
+                if (object instanceof $root.caffe.BoxOutputParameter)
+                    return object;
+                var message = new $root.caffe.BoxOutputParameter();
+                if (object.fg_thr != null)
+                    message.fg_thr = Number(object.fg_thr);
+                if (object.iou_thr != null)
+                    message.iou_thr = Number(object.iou_thr);
+                if (object.nms_type != null)
+                    message.nms_type = String(object.nms_type);
+                if (object.field_h) {
+                    if (!Array.isArray(object.field_h))
+                        throw TypeError(".caffe.BoxOutputParameter.field_h: array expected");
+                    message.field_h = [];
+                    for (var i = 0; i < object.field_h.length; ++i)
+                        message.field_h[i] = object.field_h[i] >>> 0;
+                }
+                if (object.field_w) {
+                    if (!Array.isArray(object.field_w))
+                        throw TypeError(".caffe.BoxOutputParameter.field_w: array expected");
+                    message.field_w = [];
+                    for (var i = 0; i < object.field_w.length; ++i)
+                        message.field_w[i] = object.field_w[i] >>> 0;
+                }
+                if (object.downsample_rate) {
+                    if (!Array.isArray(object.downsample_rate))
+                        throw TypeError(".caffe.BoxOutputParameter.downsample_rate: array expected");
+                    message.downsample_rate = [];
+                    for (var i = 0; i < object.downsample_rate.length; ++i)
+                        message.downsample_rate[i] = object.downsample_rate[i] >>> 0;
+                }
+                if (object.field_whr != null)
+                    message.field_whr = Number(object.field_whr);
+                if (object.field_xyr != null)
+                    message.field_xyr = Number(object.field_xyr);
+                if (object.max_nms_num != null)
+                    message.max_nms_num = object.max_nms_num >>> 0;
+                if (object.max_post_nms_num != null)
+                    message.max_post_nms_num = object.max_post_nms_num >>> 0;
+                if (object.min_size != null)
+                    message.min_size = Number(object.min_size);
+                if (object.num_param_set != null)
+                    message.num_param_set = object.num_param_set >>> 0;
+                if (object.ringpad != null)
+                    message.ringpad = Boolean(object.ringpad);
+                return message;
+            };
+    
+            BoxOutputParameter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.arrays || options.defaults) {
+                    object.field_h = [];
+                    object.field_w = [];
+                    object.downsample_rate = [];
+                }
+                if (options.defaults) {
+                    object.fg_thr = 0;
+                    object.iou_thr = 0.5;
+                    object.nms_type = "IOU";
+                    object.field_whr = 2;
+                    object.field_xyr = 2;
+                    object.max_nms_num = 0;
+                    object.max_post_nms_num = 0;
+                    object.min_size = 15;
+                    object.num_param_set = 1;
+                    object.ringpad = false;
+                }
+                if (message.fg_thr != null && message.hasOwnProperty("fg_thr"))
+                    object.fg_thr = options.json && !isFinite(message.fg_thr) ? String(message.fg_thr) : message.fg_thr;
+                if (message.iou_thr != null && message.hasOwnProperty("iou_thr"))
+                    object.iou_thr = options.json && !isFinite(message.iou_thr) ? String(message.iou_thr) : message.iou_thr;
+                if (message.nms_type != null && message.hasOwnProperty("nms_type"))
+                    object.nms_type = message.nms_type;
+                if (message.field_h && message.field_h.length) {
+                    object.field_h = [];
+                    for (var j = 0; j < message.field_h.length; ++j)
+                        object.field_h[j] = message.field_h[j];
+                }
+                if (message.field_w && message.field_w.length) {
+                    object.field_w = [];
+                    for (var j = 0; j < message.field_w.length; ++j)
+                        object.field_w[j] = message.field_w[j];
+                }
+                if (message.downsample_rate && message.downsample_rate.length) {
+                    object.downsample_rate = [];
+                    for (var j = 0; j < message.downsample_rate.length; ++j)
+                        object.downsample_rate[j] = message.downsample_rate[j];
+                }
+                if (message.field_whr != null && message.hasOwnProperty("field_whr"))
+                    object.field_whr = options.json && !isFinite(message.field_whr) ? String(message.field_whr) : message.field_whr;
+                if (message.field_xyr != null && message.hasOwnProperty("field_xyr"))
+                    object.field_xyr = options.json && !isFinite(message.field_xyr) ? String(message.field_xyr) : message.field_xyr;
+                if (message.max_nms_num != null && message.hasOwnProperty("max_nms_num"))
+                    object.max_nms_num = message.max_nms_num;
+                if (message.max_post_nms_num != null && message.hasOwnProperty("max_post_nms_num"))
+                    object.max_post_nms_num = message.max_post_nms_num;
+                if (message.min_size != null && message.hasOwnProperty("min_size"))
+                    object.min_size = options.json && !isFinite(message.min_size) ? String(message.min_size) : message.min_size;
+                if (message.num_param_set != null && message.hasOwnProperty("num_param_set"))
+                    object.num_param_set = message.num_param_set;
+                if (message.ringpad != null && message.hasOwnProperty("ringpad"))
+                    object.ringpad = message.ringpad;
+                return object;
+            };
+    
+            BoxOutputParameter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+    
+            return BoxOutputParameter;
         })();
     
         return caffe;
