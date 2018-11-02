@@ -26,6 +26,19 @@ class ElectronHost {
         window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
         };
+
+        this._updateTheme();
+        electron.remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => this._updateTheme());
+        document.body.style.opacity = 1;
+    }
+
+    _updateTheme() {
+        if (electron.remote.systemPreferences.isDarkMode()) {
+            document.body.classList.add('dark-mode');
+        }
+        else {
+            document.body.classList.remove('dark-mode');
+        }
     }
 
     get name() {

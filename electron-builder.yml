@@ -58,6 +58,8 @@ mac:
   target: 
   - dmg
   - zip
+  extendInfo:
+    NSRequiresAquaSystemAppearance: false
 linux:
   target:
   - AppImage

@@ -564,7 +564,7 @@ class View {
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
         var options = {};
         options.title = electron.app.getName(); 
-        options.backgroundColor = '#eeeeee';
+        options.backgroundColor = electron.systemPreferences.isDarkMode() ? '#1d1d1d' : '#e6e6e6';
         options.icon = electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
         options.minWidth = 600;
         options.minHeight = 400;
