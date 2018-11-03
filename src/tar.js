@@ -24,18 +24,18 @@ tar.Archive = class {
 tar.Entry = class {
 
     constructor(reader) {
-        this._name = reader.readString(100);
-        reader.readString(8); // file mode
-        reader.readString(8); // owner
-        reader.readString(8); // group
-        var size = parseInt(reader.readString(12), 8); // size
-        reader.readString(12); // timestamp
-        reader.readString(8); // checksum
-        reader.readString(1); // link indicator
-        reader.readString(100); // name of linked file
-        reader.read(255);
-        this._data = reader.read(size);
-        reader.read(((size % 512) != 0) ? (512 - (size % 512)) : 0);
+        this._name = reader.string(100);
+        reader.string(8); // file mode
+        reader.string(8); // owner
+        reader.string(8); // group
+        var size = parseInt(reader.string(12), 8); // size
+        reader.string(12); // timestamp
+        reader.string(8); // checksum
+        reader.string(1); // link indicator
+        reader.string(100); // name of linked file
+        reader.bytes(255);
+        this._data = reader.bytes(size);
+        reader.bytes(((size % 512) != 0) ? (512 - (size % 512)) : 0);
     }
 
     get name() {
@@ -69,7 +69,7 @@ tar.Reader = class {
         return false;
     }
 
-    read(size) {
+    bytes(size) {
         if (this._position + size > this._end) {
             throw new tar.Error('Data not available.');
         }
@@ -78,8 +78,8 @@ tar.Reader = class {
         return data;
     }
 
-    readString(size) {
-        var buffer = this.read(size);
+    string(size) {
+        var buffer = this.bytes(size);
         var position = 0;
         var str = '';
         for (var i = 0; i < size; i++) {
@@ -99,3 +99,7 @@ tar.Error = class extends Error {
         this.name = 'tar Error';
     }
 };
+
+var module = module || {};
+module.exports = module.exports || {};
+module.exports.Archive = tar.Archive;

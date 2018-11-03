@@ -236,7 +236,7 @@ class View {
                     archive = new tar.Archive(buffer);
                     break;
                 case 'zip':
-                    archive = new zip.Archive(buffer);
+                    archive = new zip.Archive(buffer, this._host.inflateRaw);
                     break;           
             }
     

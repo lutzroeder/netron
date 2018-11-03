@@ -96,7 +96,7 @@ setuptools.setup(
             'cntk-model.js', 'cntk.js', 'cntk-metadata.json',
             'pytorch-model.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn-model.js', 'sklearn-metadata.json',
-            'numpy.js', 'zip.js', 'tar.js',
+            'numpy.js', 'zip.js', 'tar.js', 'gzip.js',
             'view-browser.html', 'view-browser.js',
             'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',

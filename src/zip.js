@@ -21,7 +21,7 @@ zip.Archive = class {
             throw new zip.Error('End of central directory not found.');
         }
         reader.skip(12);
-        reader.position = reader.readUint32(); // central directory offset
+        reader.position = reader.uint32(); // central directory offset
         while (reader.match([ 0x50, 0x4B, 0x01, 0x02 ])) {
             this._entries.push(new zip.Entry(reader, inflateRaw));
         }
@@ -36,42 +36,42 @@ zip.Entry = class {
 
     constructor(reader, inflateRaw) {
         this._inflateRaw = inflateRaw;
-        reader.readUint16(); // version
+        reader.uint16(); // version
         reader.skip(2);
-        this._flags = reader.readUint16();
+        this._flags = reader.uint16();
         if ((this._flags & 1) == 1) {
             throw new zip.Error('Encrypted entries not supported.');
         }
-        this._compressionMethod = reader.readUint16();
-        reader.readUint32(); // date
-        reader.readUint32(); // crc32
-        this._compressedSize = reader.readUint32();
-        this._size = reader.readUint32();
-        var nameLength = reader.readUint16(); // file name length
-        var extraDataLength = reader.readUint16();
-        var commentLength = reader.readUint16();
-        reader.readUint16(); // disk number start
-        reader.readUint16(); // internal file attributes
-        reader.readUint32(); // external file attributes
-        var localHeaderOffset = reader.readUint32();
+        this._compressionMethod = reader.uint16();
+        reader.uint32(); // date
+        reader.uint32(); // crc32
+        this._compressedSize = reader.uint32();
+        this._size = reader.uint32();
+        var nameLength = reader.uint16(); // file name length
+        var extraDataLength = reader.uint16();
+        var commentLength = reader.uint16();
+        reader.uint16(); // disk number start
+        reader.uint16(); // internal file attributes
+        reader.uint32(); // external file attributes
+        var localHeaderOffset = reader.uint32();
         reader.skip(nameLength);
         reader.skip(extraDataLength);
-        reader.read(commentLength); // comment
+        reader.bytes(commentLength); // comment
         var position = reader.position;
         reader.position = localHeaderOffset;
         if (!reader.match([ 0x50, 0x4B, 0x03, 0x04 ])) {
             throw new zip.Error('Invalid local file header signature.');
         }
         reader.skip(22);
-        nameLength = reader.readUint16();
-        extraDataLength = reader.readUint16();
-        var nameBuffer = reader.read(nameLength);
+        nameLength = reader.uint16();
+        extraDataLength = reader.uint16();
+        var nameBuffer = reader.bytes(nameLength);
         this._name = '';
         nameBuffer.forEach((c) => {
             this._name += String.fromCharCode(c);
         });
         reader.skip(extraDataLength);
-        this._compressedData = reader.read(this._compressedSize);
+        this._compressedData = reader.bytes(this._compressedSize);
         reader.position = position;
     }
 
@@ -182,7 +182,7 @@ zip.Inflater = class {
 
         var type;
         do {
-            type = reader.readBits(3);
+            type = reader.bits(3);
             switch (type >>> 1) {
                 case 0: // uncompressed block
                     this._inflateUncompressedBlock(reader, output);
@@ -203,18 +203,18 @@ zip.Inflater = class {
     }
 
     _inflateUncompressedBlock(reader, output) {
-        while (reader.bits > 8) {
+        while (reader.data > 8) {
             reader.position--;
-            reader.bits -= 8;
+            reader.data -= 8;
         }
-        reader.bits = 0;
-        var length = reader.readUint16(); 
-        var inverseLength = reader.readUint16();
+        reader.data = 0;
+        var length = reader.uint16(); 
+        var inverseLength = reader.uint16();
         if (length !== (~inverseLength & 0x0000ffff)) {
             throw new Error('Invalid uncompressed block length.');
         }
 
-        var block = reader.read(length);
+        var block = reader.bytes(length);
         output.push(block);
  
         if (length > 32768) {
@@ -230,33 +230,33 @@ zip.Inflater = class {
 
     _decodeTrees(reader, lengthTree, distanceTree) {
 
-        var hlit = reader.readBits(5) + 257;
-        var hdist = reader.readBits(5) + 1;
-        var lengthCount = reader.readBits(4) + 4;
+        var hlit = reader.bits(5) + 257;
+        var hdist = reader.bits(5) + 1;
+        var lengthCount = reader.bits(4) + 4;
         for (var i = 0; i < 19; i++) {
             zip.Inflater._lengths[i] = 0;
         }
         for (var j = 0; j < lengthCount; j++) {
-            zip.Inflater._lengths[zip.Inflater._codeOrder[j]] = reader.readBits(3);
+            zip.Inflater._lengths[zip.Inflater._codeOrder[j]] = reader.bits(3);
         }
         zip.Inflater._codeTree.build(zip.Inflater._lengths, 0, 19);
         var length;  
         for (var position = 0; position < hlit + hdist;) {
-            var symbol = reader.readSymbol(zip.Inflater._codeTree);
+            var symbol = reader.symbol(zip.Inflater._codeTree);
             switch (symbol) {
                 case 16:
                     var prev = zip.Inflater._lengths[position - 1];
-                    for (length = reader.readBits(2) + 3; length; length--) {
+                    for (length = reader.bits(2) + 3; length; length--) {
                         zip.Inflater._lengths[position++] = prev;
                     }
                     break;
                 case 17:
-                    for (length = reader.readBits(3) + 3; length; length--) {
+                    for (length = reader.bits(3) + 3; length; length--) {
                         zip.Inflater._lengths[position++] = 0;
                     }
                     break;
                 case 18:
-                    for (length = reader.readBits(7) + 11; length; length--) {
+                    for (length = reader.bits(7) + 11; length; length--) {
                         zip.Inflater._lengths[position++] = 0;
                     }
                     break;
@@ -280,7 +280,7 @@ zip.Inflater = class {
                 position = output.reset();
                 start = position;
             }
-            var symbol = reader.readSymbol(lengthTree);
+            var symbol = reader.symbol(lengthTree);
             if (symbol === 256) {
                 output.position = position;
                 output.push(new Uint8Array(buffer.subarray(start, output.position)));
@@ -292,9 +292,9 @@ zip.Inflater = class {
             }
             else {
                 symbol -= 257;
-                var length = reader.readBitsBase(zip.Inflater._lengthBits[symbol], zip.Inflater._lengthBase[symbol]);
-                var distance = reader.readSymbol(distanceTree);
-                var offset = position - reader.readBitsBase(zip.Inflater._distanceBits[distance], zip.Inflater._distanceBase[distance]);
+                var length = reader.bitsBase(zip.Inflater._lengthBits[symbol], zip.Inflater._lengthBase[symbol]);
+                var distance = reader.symbol(distanceTree);
+                var offset = position - reader.bitsBase(zip.Inflater._distanceBits[distance], zip.Inflater._distanceBase[distance]);
                 for (var i = 0; i < length; i++) {
                     buffer[position++] = buffer[offset++];
                 }
@@ -358,51 +358,51 @@ zip.BitReader = class {
     constructor(buffer) {
         this.buffer = buffer;
         this.position = 0;
-        this.bits = 0;
+        this.data = 0;
         this.value = 0;
     }
 
-    readBits(count) {
-        while (this.bits < 24) {
-            this.value |= this.buffer[this.position++] << this.bits;
-            this.bits += 8;
+    bits(count) {
+        while (this.data < 24) {
+            this.value |= this.buffer[this.position++] << this.data;
+            this.data += 8;
         }
         var value = this.value & (0xffff >>> (16 - count));
         this.value >>>= count;
-        this.bits -= count;
+        this.data -= count;
         return value;
     }
 
-    readBitsBase(count, base) {
+    bitsBase(count, base) {
         if (count == 0) {
             return base;
         }
-        while (this.bits < 24) {
-            this.value |= this.buffer[this.position++] << this.bits;
-            this.bits += 8;
+        while (this.data < 24) {
+            this.value |= this.buffer[this.position++] << this.data;
+            this.data += 8;
         }
         var value = this.value & (0xffff >>> (16 - count));
         this.value >>>= count;
-        this.bits -= count;
+        this.data -= count;
         return value + base;
     }
 
-    read(size) {
+    bytes(size) {
         var value = this.buffer.subarray(this.position, this.position + size);
         reader.position += size;
         return value;
     }
 
-    readUint16() {
+    uint16() {
         var value = this.buffer[this.position] | (this.buffer[this.position + 1] << 8);
         this.position += 2;
         return value;
     }
 
-    readSymbol(tree) {
-        while (this.bits < 24) {
-            this.value |= this.buffer[this.position++] << this.bits;
-            this.bits += 8;
+    symbol(tree) {
+        while (this.data < 24) {
+            this.value |= this.buffer[this.position++] << this.data;
+            this.data += 8;
         }
         var sum = 0;
         var current = 0;
@@ -417,7 +417,7 @@ zip.BitReader = class {
             current -= table[length];
         } while (current >= 0);
         this.value = value;
-        this.bits -= length;
+        this.data -= length;
         return tree.symbol[sum + current];
     }
 
@@ -462,7 +462,7 @@ zip.Reader = class {
         this._position += size;
     }
 
-    read(size) {
+    bytes(size) {
         if (this._position + size > this._end) {
             throw new zip.Error('Data not available.');
         }
@@ -472,16 +472,7 @@ zip.Reader = class {
         return data;
     }
 
-    readByte() {
-        if (this._position + 1 > this._end) {
-            throw new zip.Error('Data not available.');
-        }
-        var value = this._buffer[this._position];
-        this._position++;
-        return value;
-    }
-
-    readUint16() {
+    uint16() {
         if (this._position + 2 > this._end) {
             throw new zip.Error('Data not available.');
         }
@@ -490,23 +481,9 @@ zip.Reader = class {
         return value;
     }
 
-    readUint32() {
-        return this.readUint16() | (this.readUint16() << 16);
+    uint32() {
+        return this.uint16() | (this.uint16() << 16);
     }
-
-    readString() {
-        var result = '';
-        var end = this._buffer.indexOf(0x00, this._position);
-        if (end < 0) {
-            throw new zip.Error('End of string not found.');
-        }
-        while (this._position < end) {
-            result += String.fromCharCode(this._buffer[this._position++]);
-        }
-        this._position++;
-        return result;
-    }
-
 };
 
 zip.Error = class extends Error {
@@ -516,73 +493,6 @@ zip.Error = class extends Error {
     }
 };
 
-var gzip = gzip || {};
-
-gzip.Archive = class {
-
-    // inflate (optional): optimized inflater callback like require('zlib').inflateRawSync or pako.inflateRa
-    constructor(buffer, inflateRaw) {
-        this._entries = [];
-        if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {
-            throw new zip.Error('Invalid GZIP archive.');
-        }
-        var reader = new zip.Reader(buffer, 0, buffer.length);
-        this._entries.push(new gzip.Entry(reader, inflateRaw));
-    }
-
-    get entries() {
-        return this._entries;
-    }
-};
-
-gzip.Entry = class {
-
-    constructor(reader, inflateRaw) {
-        if (!reader.match([ 0x1f, 0x8b ])) {
-            throw new zip.Error('Invalid GZIP signature.');
-        }
-        var compressionMethod = reader.readByte();
-        if (compressionMethod != 8) {
-            throw new zip.Error('Invalid compression method ' + compressionMethod.toString() + "'.");
-        }
-        var flags = reader.readByte();
-        reader.readUint32(); // MTIME
-        var xflags = reader.readByte();
-        reader.readByte(); // OS
-        if ((flags & 4) != 0) {
-            var xlen = reader.readUint16();
-            reader.skip(xlen);
-        }
-        if ((flags & 8) != 0) {
-            this._name = reader.readString();
-        }
-        if ((flags & 16) != 0) { // FLG.FCOMMENT
-            reader.readString();
-        }
-        if ((flags & 1) != 0) {
-            reader.readUint16(); // CRC16
-        }
-        var compressedData = reader.read();
-        if (inflateRaw) {
-            this._data = inflateRaw(compressedData);
-        }
-        else {
-            this._data = new zip.Inflater().inflateRaw(compressedData);
-        }
-        reader.position = -8;
-        reader.readUint32(); // CRC32
-        var size = reader.readUint32();
-        if (size != this._data.length) {
-            throw new zip.Error('Invalid size.');
-        }
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get data() {
-        return this._data;
-    }
-
-};
+var module = module || {};
+module.exports = module.exports || {};
+module.exports.Archive = zip.Archive;
