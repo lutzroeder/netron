@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
-class View {
+var view = view || {};
+
+view.View = class {
 
     constructor(host) {
         this._host = host;
@@ -461,7 +463,7 @@ class View {
     
                 nodes.forEach((node) => {
     
-                    var formatter = new NodeFormatter();
+                    var formatter = new grapher.NodeElement();
 
                     if (node.function) {
                         formatter.addItem('+', null, [ 'node-item-function' ], null, () => { 
@@ -593,7 +595,7 @@ class View {
                                         attributeValue = '[...]';
                                     }
                                     else {
-                                        attributeValue = View.formatAttributeValue(attribute.value, attribute.type);
+                                        attributeValue = view.View.formatAttributeValue(attribute.value, attribute.type);
                                     }
                                     if (attributeValue && attributeValue.length > 25) {
                                         attributeValue = attributeValue.substring(0, 25) + '...';
@@ -664,7 +666,7 @@ class View {
                     });
                     var types = input.connections.map(connection => connection.type || '').join('\n');
     
-                    var formatter = new NodeFormatter();
+                    var formatter = new grapher.NodeElement();
                     formatter.addItem(input.name, null, [ 'graph-item-input' ], types, () => {
                         this.showModelProperties();
                     });
@@ -682,7 +684,7 @@ class View {
                     });
                     var types = output.connections.map(connection => connection.type || '').join('\n');
             
-                    var formatter = new NodeFormatter();
+                    var formatter = new grapher.NodeElement();
                     formatter.addItem(output.name, null, [ 'graph-item-output' ], types, () => {
                         this.showModelProperties();
                     });
@@ -751,7 +753,7 @@ class View {
 
                 setTimeout(() => {
                     try {
-                        var graphRenderer = new GraphRenderer(originElement);
+                        var graphRenderer = new grapher.Renderer(originElement);
                         graphRenderer.render(g);
             
                         var svgSize = graphElement.getBoundingClientRect();
@@ -965,9 +967,7 @@ class View {
         }
         return JSON.stringify(value);
     }
-}
-
-window.view = new View(window.host);
+};
 
 class Int64 {
 
@@ -1207,4 +1207,8 @@ class ModelFactoryService {
     filter(context, host) {
         return this._factories.filter((factory) => factory.match(context, host));        
     }
+}
+
+if (module && module.exports) {
+    module.exports.View = view.View;
 }

@@ -839,3 +839,7 @@ hdf5.Error = class extends Error {
         this.name = 'HDF5 Error';
     }
 };
+
+if (module && module.exports) {
+    module.exports.File = hdf5.File; 
+}

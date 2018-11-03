@@ -100,6 +100,6 @@ tar.Error = class extends Error {
     }
 };
 
-var module = module || {};
-module.exports = module.exports || {};
-module.exports.Archive = tar.Archive;
+if (module && module.exports) {
+    module.exports.Archive = tar.Archive;
+}

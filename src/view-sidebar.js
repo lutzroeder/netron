@@ -289,7 +289,7 @@ class NodeAttributeView {
             value = '[...]';
         }
         else {
-            value = View.formatAttributeValue(this._attribute.value, this._attribute.type);
+            value = view.View.formatAttributeValue(this._attribute.value, this._attribute.type);
         }
         if (value && value.length > 1000) {
             value = value.substring(0, 1000) + '...';

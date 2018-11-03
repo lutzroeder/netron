@@ -493,6 +493,6 @@ zip.Error = class extends Error {
     }
 };
 
-var module = module || {};
-module.exports = module.exports || {};
-module.exports.Archive = zip.Archive;
+if (module && module.exports) {
+    module.exports.Archive = zip.Archive;
+}

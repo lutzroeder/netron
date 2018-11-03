@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
-class BrowserHost {
+var host = host || {};
+
+host.BrowserHost = class {
 
     constructor() {
         if (!window.ga) {
@@ -539,4 +541,4 @@ class BrowserContext {
     }
 }
 
-window.host = new BrowserHost();
+window.__view__ = new view.View(new host.BrowserHost());

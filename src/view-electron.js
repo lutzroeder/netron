@@ -1,12 +1,14 @@
 /*jshint esversion: 6 */
 
+var host = host || {};
+
 const electron = require('electron');
 const fs = require('fs');
 const process = require('process');
 const path = require('path');
 const protobuf = require('protobufjs');
 
-class ElectronHost {
+host.ElectronHost = class {
 
     constructor() {
         this._isDev = ('ELECTRON_IS_DEV' in process.env) ?
@@ -403,4 +405,4 @@ class ElectonContext {
     }
 }
 
-window.host = new ElectronHost();
+window.__view__ = new view.View(new host.ElectronHost());

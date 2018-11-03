@@ -165,6 +165,6 @@ gzip.Error = class extends Error {
     }
 };
 
-var module = module || {};
-module.exports = module.exports || {};
-module.exports.Archive = gzip.Archive;
+if (module && module.exports) {
+    module.exports.Archive = gzip.Archive;
+}
