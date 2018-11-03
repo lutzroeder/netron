@@ -98,7 +98,7 @@ setuptools.setup(
             'sklearn-model.js', 'sklearn-metadata.json',
             'numpy.js', 'zip.js', 'tar.js',
             'view-browser.html', 'view-browser.js',
-            'view-render.css', 'view-render.js',
+            'view-grapher.css', 'view-grapher.js',
             'view-sidebar.css', 'view-sidebar.js',
             'view.js', 'view.css',
             'server.py'

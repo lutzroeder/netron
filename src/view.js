@@ -823,7 +823,7 @@ class View {
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
             var graphElement = document.getElementById('graph');
             var exportElement = graphElement.cloneNode(true);
-            this.applyStyleSheet(exportElement, 'view-render.css');
+            this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
