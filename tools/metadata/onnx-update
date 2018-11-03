@@ -2,6 +2,22 @@
 
 set -e
 
+if [ "$#" == 0 ]; then
+    __sync=true
+    __build=true
+    __update=true
+else
+    while test $# -gt 0
+    do
+        case "$1" in
+            sync) __sync=true;;
+            build) __build=true;;
+            update) __update=true;;
+        esac
+        shift
+    done
+fi
+
 root=$(cd $(dirname ${0})/../..; pwd)
 build=${root}/build
 node_modules=${root}/node_modules
@@ -13,34 +29,47 @@ python=${python:-python}
 pip=${pip:-pip}
 
 identifier=onnx
-repository=https://github.com/onnx/${identifier}.git
 
-mkdir -p ${third_party}
-
-if [ -d "${third_party}/${identifier}" ]; then
-    git -C "${third_party}/${identifier}" fetch -p
-    git -C "${third_party}/${identifier}" reset --hard origin/master
-else
-    echo "Clone ${repository}..."
-    git -C "${third_party}" clone --recursive ${repository}
+if [ ${__sync} ]; then
+    repository=https://github.com/onnx/${identifier}.git
+    mkdir -p ${third_party}
+    if [ -d "${third_party}/${identifier}" ]; then
+        git -C "${third_party}/${identifier}" fetch -p
+        git -C "${third_party}/${identifier}" reset --hard origin/master
+    else
+        echo "Clone ${repository}..."
+        git -C "${third_party}" clone --recursive ${repository}
+    fi
 fi
 
 echo "Install ONNX"
 virtualenv=${build}/virtualenv/${identifier}
-virtualenv -p ${python} ${virtualenv}
-source ${virtualenv}/bin/activate
-export ONNX_ML=1
-export ONNX_NAMESPACE=onnx
-${pip} install ${third_party}/${identifier}
+if [ ${__build} ]; then
+    virtualenv -p ${python} ${virtualenv}
+fi
+if [ -f ${virtualenv}/bin/activate ]; then
+    source ${virtualenv}/bin/activate
+fi
+if [ ${__build} ]; then
+    export ONNX_ML=1
+    export ONNX_NAMESPACE=onnx
+    ${pip} install ${third_party}/${identifier}
+fi
 
-echo "Generate 'onnx-metadata.json'"
-pushd ${tools}/metadata > /dev/null
-${python} onnx-metadata.py
-popd > /dev/null
+if [ ${__update} ]; then
+    echo "Generate 'onnx-metadata.json'"
+    pushd ${tools}/metadata > /dev/null
+    ${python} onnx-metadata.py
+    popd > /dev/null
+fi
 
-deactivate
+if [ -f ${virtualenv}/bin/activate ]; then
+    deactivate
+fi
 
-echo "Generate 'onnx.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
-node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js float_data float 1
-node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js double_data double 1
+if [ ${__update} ]; then
+    echo "Generate 'onnx.js'"
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
+    node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js float_data float 1
+    node ${tools}/metadata/update_pbjs.js array ${src}/onnx.js double_data double 1
+fi
