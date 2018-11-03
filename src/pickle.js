@@ -13,9 +13,9 @@ pickle.Unpickler = class {
         var stack = [];
         var marker = [];
         var table = {};    
-        while (reader.offset < reader.length) {
+        while (reader.position < reader.length) {
             var opcode = reader.byte();
-            // console.log(reader.offset.toString() + ': ' + opcode + ' ' + String.fromCharCode(opcode));
+            // console.log(reader.position.toString() + ': ' + opcode + ' ' + String.fromCharCode(opcode));
             switch (opcode) {
                 case pickle.OpCode.PROTO:
                     var version = reader.byte();
@@ -328,7 +328,7 @@ pickle.Reader = class {
         if (buffer) {
             this._buffer = buffer;
             this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            this._offset = 0;
+            this._position = 0;
         }
         pickle.Reader._utf8Decoder = pickle.Reader._utf8Decoder || new TextDecoder('utf-8');
         pickle.Reader._asciiDecoder = pickle.Reader._asciiDecoder || new TextDecoder('ascii');
@@ -338,54 +338,54 @@ pickle.Reader = class {
         return this._buffer.byteLength;
     }
 
-    get offset() {
-        return this._offset;
+    get position() {
+        return this._position;
     }
 
     byte() {
-        var value = this._dataView.getUint8(this._offset);
-        this._offset++;
+        var value = this._dataView.getUint8(this._position);
+        this._position++;
         return value;
     }
 
     bytes(length) {
-        var data = this._buffer.subarray(this._offset, this._offset + length);
-        this._offset += length;
+        var data = this._buffer.subarray(this._position, this._position + length);
+        this._position += length;
         return data;
     }
 
     uint16() {
-        var value = this._dataView.getUint16(this._offset, true);
-        this._offset += 2;
+        var value = this._dataView.getUint16(this._position, true);
+        this._position += 2;
         return value;
     }
 
     int32() {
-        var value = this._dataView.getInt32(this._offset, true);
-        this._offset += 4;
+        var value = this._dataView.getInt32(this._position, true);
+        this._position += 4;
         return value;
     }
 
     uint32() {
-        var value = this._dataView.getUint32(this._offset, true);
-        this._offset += 4;
+        var value = this._dataView.getUint32(this._position, true);
+        this._position += 4;
         return value;
     }
 
     float32() {
-        var value = this._dataView.getFloat32(this._offset, true);
-        this._offset += 4;
+        var value = this._dataView.getFloat32(this._position, true);
+        this._position += 4;
         return value;
     }
 
     float64() {
-        var value = this._dataView.getFloat64(this._offset, false);
-        this._offset += 8;
+        var value = this._dataView.getFloat64(this._position, false);
+        this._position += 8;
         return value;
     }
 
     seek(offset) {
-        this._offset += offset;
+        this._position += offset;
     }
 
     string(size, encoding) {
@@ -397,11 +397,11 @@ pickle.Reader = class {
     }
 
     line() {
-        var index = this._buffer.indexOf(0x0A, this._offset);
+        var index = this._buffer.indexOf(0x0A, this._position);
         if (index == -1) {
             throw new pickle.Error("Could not find end of line.");
         }
-        var size = index - this._offset;
+        var size = index - this._position;
         var text = this.string(size, 'ascii');
         this.seek(1);
         return text;
@@ -415,3 +415,7 @@ pickle.Error = class extends Error {
         this.name = 'Unpickle Error';
     }
 };
+
+var module = module || {};
+module.exports = module.exports || {};
+module.exports.Unpickler = pickle.Unpickler;
