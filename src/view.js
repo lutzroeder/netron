@@ -202,19 +202,7 @@ class View {
     }
 
     loadContext(context, callback) {
-        var modelFactoryRegistry = [
-            new OnnxModelFactory(),
-            new MXNetModelFactory(),
-            new KerasModelFactory(),
-            new CoreMLModelFactory(),
-            new CaffeModelFactory(),
-            new Caffe2ModelFactory(), 
-            new PyTorchModelFactory(),
-            new TensorFlowLiteModelFactory(),
-            new TensorFlowModelFactory(),
-            new SklearnModelFactory(),
-            new CntkModelFactory()
-        ];
+        var modelFactoryService = new ModelFactoryService();
 
         try {
             var extension;
@@ -268,7 +256,7 @@ class View {
                     if (entry.name.startsWith(rootFolder)) {
                         var identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                            return modelFactoryRegistry.some((factory) => factory.match(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host));
+                            return modelFactoryService.some(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host);
                         }
                     }
                     return false;
@@ -293,7 +281,7 @@ class View {
         }
 
         var errorList = [];
-        var factoryList = modelFactoryRegistry.filter((factory) => factory.match(context, this._host));
+        var factoryList = modelFactoryService.filter(context, this._host);
         var factoryCount = factoryList.length;
         var next = () => {
             if (factoryList.length > 0) {
@@ -1191,5 +1179,32 @@ class ModelError extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading model.'; 
+    }
+}
+
+class ModelFactoryService {
+
+    constructor() {
+        this._factories = [
+            new OnnxModelFactory(),
+            new MXNetModelFactory(),
+            new KerasModelFactory(),
+            new CoreMLModelFactory(),
+            new CaffeModelFactory(),
+            new Caffe2ModelFactory(), 
+            new PyTorchModelFactory(),
+            new TensorFlowLiteModelFactory(),
+            new TensorFlowModelFactory(),
+            new SklearnModelFactory(),
+            new CntkModelFactory()
+        ];
+    }
+
+    some(context, host) {
+        return this._factories.some((factory) => factory.match(context, host));
+    }
+
+    filter(context, host) {
+        return this._factories.filter((factory) => factory.match(context, host));        
     }
 }
