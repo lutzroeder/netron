@@ -102,6 +102,7 @@ class PyTorchModelFactory {
             constructorTable['torchvision.models.inception.InceptionD'] = function () {};
             constructorTable['torchvision.models.inception.InceptionE'] = function () {};
             constructorTable['torchvision.models.resnet.Bottleneck'] = function () {};
+            constructorTable['torchvision.models.resnet.BasicBlock'] = function() {};
             constructorTable['torchvision.models.resnet.ResNet'] = function () {};
             constructorTable['torchvision.models.vgg.VGG'] = function () {};
             constructorTable['torch.nn.backends.thnn._get_thnn_function_backend'] = function () {};
