@@ -117,17 +117,17 @@
     .node-item-constant path { fill: #4b4b4b; }
     .node-item-constant:hover path { fill: #666666; }
 
-    .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.4); }
-    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.4); }
-    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.4); }
-    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.4); }
-    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.4); }
-    .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.4); }
-    .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.4); }
-    .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.4); }
-    .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.4); }
-    .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.4); }
-    .node-item-operator-data path { fill: rgba(85, 85, 85, 0.4); }
+    .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.7); }
+    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
+    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
+    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
+    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
+    .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.7); }
+    .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.7); }
+    .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.7); }
+    .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.7); }
+    .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.7); }
+    .node-item-operator-data path { fill: rgba(85, 85, 85, 0.7); }
 }
 
 .dark-mode .edge-label text { fill: #b2b2b2; }
@@ -171,14 +171,14 @@
 .dark-mode .node-item-constant path { fill: #4b4b4b; }
 .dark-mode .node-item-constant:hover path { fill: #666666; }
 
-.dark-mode .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.4); }
-.dark-mode .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.4); }
-.dark-mode .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.4); }
-.dark-mode .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.4); }
-.dark-mode .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.4); }
-.dark-mode .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.4); }
-.dark-mode .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.4); }
-.dark-mode .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.4); }
-.dark-mode .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.4); }
-.dark-mode .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.4); }
-.dark-mode .node-item-operator-data path { fill: rgba(85, 85, 85, 0.4); }
+.dark-mode .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.7); }
+.dark-mode .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
+.dark-mode .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
+.dark-mode .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
+.dark-mode .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
+.dark-mode .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.7); }
+.dark-mode .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.7); }
+.dark-mode .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.7); }
+.dark-mode .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.7); }
+.dark-mode .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.7); }
+.dark-mode .node-item-operator-data path { fill: rgba(85, 85, 85, 0.7); }
