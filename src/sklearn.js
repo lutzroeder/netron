@@ -2,7 +2,9 @@
 
 // Experimental
 
-class SklearnModelFactory {
+var sklearn = sklearn || {};
+
+sklearn.ModelFactory = class {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop();
@@ -56,7 +58,7 @@ class SklearnModelFactory {
                                 this.name = 'object';
                             }
                             else {
-                                throw new SklearnError("Unknown dtype '" + obj.toString() + "'.");
+                                throw new sklearn.Error("Unknown dtype '" + obj.toString() + "'.");
                             }
                             break;
                     }
@@ -75,7 +77,7 @@ class SklearnModelFactory {
                                 this.int_dtypeflags = state[7];
                                 break;
                             default:
-                                throw new SklearnError("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                                throw new sklearn.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                         }
                     };
                 };
@@ -96,7 +98,7 @@ class SklearnModelFactory {
                         array.dtype = this.typecode;
                         array.shape = this.shape;
                         if (typeof this.rawdata == 'string') {
-                            array.data = SklearnModelFactory._unescape(this.rawdata);
+                            array.data = sklearn.ModelFactory._unescape(this.rawdata);
                         }
                         else {
                             debugger;
@@ -187,7 +189,7 @@ class SklearnModelFactory {
                         obj.__type__ = cls;
                         return obj;
                     }
-                    throw new SklearnError("Unknown base type '" + base + "'.");
+                    throw new sklearn.Error("Unknown base type '" + base + "'.");
                 };
                 functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
                     var data = rawData;
@@ -206,7 +208,7 @@ class SklearnModelFactory {
                             // return new Int64(new Uint8Array(dataView.buffer.slice(offset, offset + dtype.itemsize)));
                             return new Int64(data.subarray(0, dtype.itemsize));
                     }
-                    throw new SklearnError("Unknown scalar type '" + dtype.name + "'.");
+                    throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
                 };
                 functionTable['numpy.ma.core._mareconstruct'] = function(subtype, baseclass, baseshape, basetype) {
                     // _data = ndarray.__new__(baseclass, baseshape, basetype)
@@ -234,17 +236,17 @@ class SklearnModelFactory {
                         constructor.apply(obj, args);
                     }
                     else {
-                        host.exception(new SklearnError("Unknown function '" + name + "' in '" + identifier + "'."), false);
+                        host.exception(new sklearn.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                     }
                     return obj;
                 };
 
                 obj = unpickler.load(function_call, null);
                 if (obj && Array.isArray(obj)) {
-                    throw new SklearnError('Array is not a valid root object.');
+                    throw new sklearn.Error('Array is not a valid root object.');
                 }
                 if (!obj || !obj.__type__) {
-                    throw new SklearnError('Root object has no type.');
+                    throw new sklearn.Error('Root object has no type.');
                 }
             }
             catch (error) {
@@ -252,14 +254,14 @@ class SklearnModelFactory {
                 return;
             }
 
-            SklearnOperatorMetadata.open(host, (err, metadata) => {
+            sklearn.OperatorMetadata.open(host, (err, metadata) => {
                 try {
-                    var model = new SklearnModel(obj);
+                    var model = new sklearn.Model(obj);
                     callback(null, model);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new SklearnError(error.message), null);
+                    callback(new sklearn.Error(error.message), null);
                     return;
                 }
             });
@@ -278,7 +280,7 @@ class SklearnModelFactory {
             }
             else {
                 if (i >= length) {
-                    throw new SklearnError("Unexpected end of bytes string.");
+                    throw new sklearn.Error("Unexpected end of bytes string.");
                 }
                 c = token.charCodeAt(i++);
                 switch (c) {
@@ -293,12 +295,12 @@ class SklearnModelFactory {
                     case 0x78: // X
                         for (var xi = 0; xi < 2; xi++) {
                             if (i >= length) {
-                                throw new SklearnError("Unexpected end of bytes string.");
+                                throw new sklearn.Error("Unexpected end of bytes string.");
                             }
                             var xd = token.charCodeAt(i++);
                             xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
                             if (xd === -1) {
-                                throw new SklearnError("Unexpected hex digit '" + xd + "' in bytes string.");
+                                throw new sklearn.Error("Unexpected hex digit '" + xd + "' in bytes string.");
                             }
                             a[o] = a[o] << 4 | xd;
                         }
@@ -306,16 +308,16 @@ class SklearnModelFactory {
                         break;
                     default:
                         if (c < 48 || c > 57) { // 0-9
-                            throw new SklearnError("Unexpected character '" + c + "' in bytes string.");
+                            throw new sklearn.Error("Unexpected character '" + c + "' in bytes string.");
                         }
                         i--;
                         for (var oi = 0; oi < 3; oi++) {
                             if (i >= length) {
-                                throw new SklearnError("Unexpected end of bytes string.");
+                                throw new sklearn.Error("Unexpected end of bytes string.");
                             }
                             var od = token.charCodeAt(i++);
                             if (od < 48 || od > 57) {
-                                throw new SklearnError("Unexpected octal digit '" + od + "' in bytes string.");
+                                throw new sklearn.Error("Unexpected octal digit '" + od + "' in bytes string.");
                             }
                             a[o] = a[o] << 3 | od - 48;
                         }
@@ -326,9 +328,9 @@ class SklearnModelFactory {
         }
         return a.slice(0, o);
     }
-}
+};
 
-class SklearnModel {
+sklearn.Model = class {
 
     constructor(obj) {
         this._format = 'scikit-learn';
@@ -337,7 +339,7 @@ class SklearnModel {
         }
 
         this._graphs = [];
-        this._graphs.push(new SklearnGraph(obj));
+        this._graphs.push(new sklearn.Graph(obj));
     }
 
     get format() {
@@ -347,10 +349,9 @@ class SklearnModel {
     get graphs() {
         return this._graphs;
     }
+};
 
-}
-
-class SklearnGraph {
+sklearn.Graph = class {
 
     constructor(obj) {
         this._nodes = [];
@@ -361,12 +362,12 @@ class SklearnGraph {
             case 'sklearn.pipeline.Pipeline':
                 this._groups = true;
                 for (var step of obj.steps) {
-                    this._nodes.push(new SklearnNode('pipeline', step[0], step[1], [ input ], [ step[0] ]));
+                    this._nodes.push(new sklearn.Node('pipeline', step[0], step[1], [ input ], [ step[0] ]));
                     input = step[0];
                 }
                 break;
             default:
-                this._nodes.push(new SklearnNode(null, null, obj, [], []));
+                this._nodes.push(new sklearn.Node(null, null, obj, [], []));
                 break;
         }
 
@@ -387,10 +388,9 @@ class SklearnGraph {
     get nodes() { 
         return this._nodes;
     }
+};
 
-}
-
-class SklearnArgument {
+sklearn.Argument = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -407,9 +407,9 @@ class SklearnArgument {
     get connections() {
         return this._connections;
     }
-}
+};
 
-class SklearnConnection {
+sklearn.Connection = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -430,9 +430,9 @@ class SklearnConnection {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
-class SklearnNode {
+sklearn.Node = class {
 
     constructor(group, name, obj, inputs, outputs) {
         if (group) {
@@ -452,15 +452,15 @@ class SklearnNode {
                 var value = obj[key];
 
                 if (Array.isArray(value) || Number.isInteger(value) || value == null) {
-                    this._attributes.push(new SklearnAttribute(this, key, value));
+                    this._attributes.push(new sklearn.Attribute(this, key, value));
                 }
                 else {
                     switch (value.__type__) {
                         case 'numpy.ndarray':
-                            this._initializers.push(new SklearnTensor(key, value));
+                            this._initializers.push(new sklearn.Tensor(key, value));
                             break;
                         default: 
-                            this._attributes.push(new SklearnAttribute(this, key, value));
+                            this._attributes.push(new sklearn.Attribute(this, key, value));
                     }
                 }
             }
@@ -480,7 +480,7 @@ class SklearnNode {
     }
 
     get documentation() {
-        var schema = SklearnOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = sklearn.OperatorMetadata.operatorMetadata.getSchema(this.operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this.operator;
@@ -521,38 +521,38 @@ class SklearnNode {
     }
 
     get category() {
-        var schema = SklearnOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = sklearn.OperatorMetadata.operatorMetadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
     get inputs() {
         var inputs = this._inputs.map((input) => {
-            return new SklearnArgument(input, [ new SklearnConnection(input, null, null) ]);
+            return new sklearn.Argument(input, [ new sklearn.Connection(input, null, null) ]);
         });
         this._initializers.forEach((initializer) => {
-            inputs.push(new SklearnArgument(initializer.name, [ new SklearnConnection(null, null, initializer) ]));
+            inputs.push(new sklearn.Argument(initializer.name, [ new sklearn.Connection(null, null, initializer) ]));
         });
         return inputs;
     }
 
     get outputs() {
         return this._outputs.map((output) => {
-            return new SklearnArgument(output, [ new SklearnConnection(output, null, null) ]);
+            return new sklearn.Argument(output, [ new sklearn.Connection(output, null, null) ]);
         });
     }
 
     get attributes() {
         return this._attributes;
     }
-}
+};
 
-class SklearnAttribute {
+sklearn.Attribute = class {
 
     constructor(node, name, value) {
         this._name = name;
         this._value = value;
 
-        var schema = SklearnOperatorMetadata.operatorMetadata.getAttributeSchema(node.operator, this._name);
+        var schema = sklearn.OperatorMetadata.operatorMetadata.getAttributeSchema(node.operator, this._name);
         if (schema) {
             if (schema.hasOwnProperty('option') && schema.option == 'optional' && this._value == null) {
                 this._visible = false;
@@ -561,7 +561,7 @@ class SklearnAttribute {
                 this._visible = false;
             }
             else if (schema.hasOwnProperty('default')) {
-                if (SklearnAttribute._isEquivalent(schema.default, this._value)) {
+                if (sklearn.Attribute._isEquivalent(schema.default, this._value)) {
                     this._visible = false;
                 }
             }
@@ -616,7 +616,7 @@ class SklearnAttribute {
                     return false;
                 }
                 while (length--) {
-                    if (!SklearnAttribute._isEquivalent(a[length], b[length])) {
+                    if (!sklearn.Attribute._isEquivalent(a[length], b[length])) {
                         return false;
                     }
                 }
@@ -630,26 +630,26 @@ class SklearnAttribute {
         } 
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && SklearnAttribute._isEquivalent(a[key], b[key]))) {
+            if (!(b.hasOwnProperty(key) && sklearn.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }
         return true;
     }
-}
+};
 
-class SklearnTensor {
+sklearn.Tensor = class {
 
     constructor(name, value) {
         this._name = name;
         switch (value.__type__) {
             case 'numpy.ndarray':
                 this._kind = 'Array';
-                this._type = new SklearnTensorType(value.dtype.name, new SklearnTensorShape(value.shape));
+                this._type = new sklearn.TensorType(value.dtype.name, new sklearn.TensorShape(value.shape));
                 this._data = value.data;
                 break;
             default:
-                throw new SklearnError("Unknown tensor type '" + value.__type__ + "'.");
+                throw new sklearn.Error("Unknown tensor type '" + value.__type__ + "'.");
         }
     }
 
@@ -692,7 +692,7 @@ class SklearnTensor {
         switch (this._type.dataType) {
             case 'int64':
             case 'uint64':
-                return SklearnTensor._stringify(value, '', '    ');
+                return sklearn.Tensor._stringify(value, '', '    ');
         }
         return JSON.stringify(value, null, 4);
     }
@@ -794,7 +794,7 @@ class SklearnTensor {
         if (Array.isArray(value)) {
             var result = [];
             result.push('[');
-            var items = value.map((item) => SklearnTensor._stringify(item, indentation + indent, indent));
+            var items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -803,9 +803,9 @@ class SklearnTensor {
         }
         return indentation + value.toString();
     }
-}
+};
 
-class SklearnTensorType {
+sklearn.TensorType = class {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
@@ -823,9 +823,9 @@ class SklearnTensorType {
     toString() {
         return this.dataType + this._shape.toString();
     }
-}
+};
 
-class SklearnTensorShape {
+sklearn.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions;
@@ -838,18 +838,18 @@ class SklearnTensorShape {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
-class SklearnOperatorMetadata {
+sklearn.OperatorMetadata = class {
 
     static open(host, callback) {
-        if (SklearnOperatorMetadata.operatorMetadata) {
-            callback(null, SklearnOperatorMetadata.operatorMetadata);
+        if (sklearn.OperatorMetadata.operatorMetadata) {
+            callback(null, sklearn.OperatorMetadata.operatorMetadata);
         }
         else {
             host.request(null, 'sklearn-metadata.json', 'utf-8', (err, data) => {
-                SklearnOperatorMetadata.operatorMetadata = new SklearnOperatorMetadata(data);
-                callback(null, SklearnOperatorMetadata.operatorMetadata);
+                sklearn.OperatorMetadata.operatorMetadata = new sklearn.OperatorMetadata(data);
+                callback(null, sklearn.OperatorMetadata.operatorMetadata);
             });    
         }
     }
@@ -886,11 +886,16 @@ class SklearnOperatorMetadata {
         }
         return null;
     }
-}
+};
 
-class SklearnError extends Error {
+sklearn.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading scikit-learn model.';
     }
+};
+
+if (module && module.exports) {
+    module.exports.ModelFactory = sklearn.ModelFactory;
 }

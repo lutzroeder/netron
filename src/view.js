@@ -1195,7 +1195,7 @@ class ModelFactoryService {
             new pytorch.ModelFactory(),
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),
-            new SklearnModelFactory(),
+            new sklearn.ModelFactory(),
             new CntkModelFactory()
         ];
     }
