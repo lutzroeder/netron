@@ -1186,7 +1186,7 @@ class ModelFactoryService {
 
     constructor() {
         this._factories = [
-            new OnnxModelFactory(),
+            new onnx.ModelFactory(),
             new MXNetModelFactory(),
             new KerasModelFactory(),
             new CoreMLModelFactory(),

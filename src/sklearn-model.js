@@ -692,7 +692,7 @@ class SklearnTensor {
         switch (this._type.dataType) {
             case 'int64':
             case 'uint64':
-                return OnnxTensor._stringify(value, '', '    ');
+                return SklearnTensor._stringify(value, '', '    ');
         }
         return JSON.stringify(value, null, 4);
     }
@@ -794,7 +794,7 @@ class SklearnTensor {
         if (Array.isArray(value)) {
             var result = [];
             result.push('[');
-            var items = value.map((item) => OnnxTensor._stringify(item, indentation + indent, indent));
+            var items = value.map((item) => SklearnTensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }

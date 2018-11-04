@@ -544,7 +544,7 @@ class PyTorchTensor {
         var value = this._decode(context, 0);
         switch (this.dataType) {
             case 'int64':
-                return OnnxTensor._stringify(value, '', '    ');
+                return PyTorchTensor._stringify(value, '', '    ');
         }
         return JSON.stringify(value, null, 4);
     }
@@ -625,7 +625,7 @@ class PyTorchTensor {
         if (Array.isArray(value)) {
             var result = [];
             result.push('[');
-            var items = value.map((item) => OnnxTensor._stringify(item, indentation + indent, indent));
+            var items = value.map((item) => PyTorchTensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }

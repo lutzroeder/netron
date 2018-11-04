@@ -85,7 +85,7 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'favicon.ico', 'icon.png',
-            'onnx-model.js', 'onnx.js', 'onnx-metadata.json',
+            'onnx.js', 'onnx.js', 'onnx-metadata.json',
             'tf-model.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite-model.js', 'tflite-metadata.json', 'tflite-schema.js', 
             'keras-model.js', 'keras-metadata.json', 'hdf5.js',
