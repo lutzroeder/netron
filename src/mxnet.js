@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
-class MXNetModelFactory {
+var mxnet = mxnet || {};
+
+mxnet.ModelFactory = class {
 
     match(context, host) {
         if (context.identifier.endsWith('-symbol.json')) {
@@ -26,17 +28,17 @@ class MXNetModelFactory {
         var extension = context.identifier.split('.').pop();
         switch (extension) {
             case 'json':
-                MXNetOperatorMetadata.open(host, (err, metadata) => {
+                mxnet.OperatorMetadata.open(host, (err, metadata) => {
                     this._openSymbol(context, callback);
                 });
                 break;
             case 'model':
-                MXNetOperatorMetadata.open(host, (err, metadata) => {
+                mxnet.OperatorMetadata.open(host, (err, metadata) => {
                     this._openModel(context, host, callback);
                 });
                 break;
             default:
-                callback(new MXNetError('Unsupported file extension.'));
+                callback(new mxnet.Error('Unsupported file extension.'));
                 break;
         }
     }
@@ -44,12 +46,12 @@ class MXNetModelFactory {
     _openSymbol(context, callback) {
         try {
             var symbol = JSON.parse(context.text);
-            var model = new MXNetModel(null, symbol, null, {});
+            var model = new mxnet.Model(null, symbol, null, {});
             callback(null, model);
         }
         catch (error) {
             host.exception(error, false);
-            callback(new MXNetError(error.message), null);
+            callback(new mxnet.Error(error.message), null);
         }
     }
 
@@ -62,7 +64,7 @@ class MXNetModelFactory {
             });
         }
         catch (err) {
-            callback(new MXNetError('Failed to decompress ZIP archive. ' + err.message), null);
+            callback(new mxnet.Error('Failed to decompress ZIP archive. ' + err.message), null);
             return;
         }
 
@@ -71,7 +73,7 @@ class MXNetModelFactory {
         if (!manifestEntry) {
             var folders = Object.keys(entries).filter((name) => name.endsWith('/')).filter((name) => entries[name + 'MANIFEST.json']);
             if (folders.length != 1) {
-                callback(new MXNetError('Manifest not found.'), null);
+                callback(new mxnet.Error('Manifest not found.'), null);
                 return;
             }
             rootFolder = folders[0];
@@ -84,23 +86,23 @@ class MXNetModelFactory {
             manifest = JSON.parse(decoder.decode(manifestEntry.data));
         }
         catch (err) {
-            callback(new MXNetError('Failed to read manifest. ' + err.message), null);
+            callback(new mxnet.Error('Failed to read manifest. ' + err.message), null);
             return;
         }
 
         if (!manifest.Model) {
-            callback(new MXNetError('Manifest does not contain model.'), null);
+            callback(new mxnet.Error('Manifest does not contain model.'), null);
             return;
         }
 
         var modelFormat = manifest.Model['Model-Format'];
         if (modelFormat && modelFormat != 'MXNet-Symbolic') {
-            callback(new MXNetError('Model format \'' + modelFormat + '\' not supported.'), null);
+            callback(new mxnet.Error('Model format \'' + modelFormat + '\' not supported.'), null);
             return;
         }
 
         if (!manifest.Model.Symbol) {
-            callback(new MXNetError('Manifest does not contain symbol entry.'), null);
+            callback(new mxnet.Error('Manifest does not contain symbol entry.'), null);
             return;
         }
 
@@ -110,7 +112,7 @@ class MXNetModelFactory {
             symbol = JSON.parse(decoder.decode(symbolEntry.data));
         }
         catch (err) {
-            callback(new MXNetError('Failed to load symbol entry. ' + err.message), null);
+            callback(new mxnet.Error('Failed to load symbol entry. ' + err.message), null);
             return;
         }
 
@@ -147,31 +149,31 @@ class MXNetModelFactory {
         }
 
         try {
-            var model = new MXNetModel(manifest, symbol, signature, parameters);
-            MXNetOperatorMetadata.open(host, (err, metadata) => {
+            var model = new mxnet.Model(manifest, symbol, signature, parameters);
+            mxnet.OperatorMetadata.open(host, (err, metadata) => {
                 callback(null, model);
             });
         } 
         catch (err) {
-            callback(new MXNetError(err.message), null);
+            callback(new mxnet.Error(err.message), null);
         }
     }
-}
+};
 
-class MXNetModel {
+mxnet.Model = class {
 
     constructor(manifest, symbol, signature, parameters) {
         if (!symbol) {
-            throw new MXNetError('JSON file does not contain MXNet data.');
+            throw new mxnet.Error('JSON file does not contain MXNet data.');
         }
         if (!symbol.hasOwnProperty('nodes')) {
-            throw new MXNetError('JSON file does not contain an MXNet \'nodes\' property.');
+            throw new mxnet.Error('JSON file does not contain an MXNet \'nodes\' property.');
         }
         if (!symbol.hasOwnProperty('arg_nodes')) {
-            throw new MXNetError('JSON file does not contain an MXNet \'arg_nodes\' property.');
+            throw new mxnet.Error('JSON file does not contain an MXNet \'arg_nodes\' property.');
         }
         if (!symbol.hasOwnProperty('heads')) {
-            throw new MXNetError('JSON file does not contain an MXNet \'heads\' property.');
+            throw new mxnet.Error('JSON file does not contain an MXNet \'heads\' property.');
         }
 
         if (manifest) {
@@ -186,14 +188,14 @@ class MXNetModel {
                 this._description = manifest.Model.Description;
             }
             if (manifest.Engine && manifest.Engine.MXNet) {
-                var engineVersion = MXNetModel._convert_version(manifest.Engine.MXNet);
+                var engineVersion = mxnet.Model._convert_version(manifest.Engine.MXNet);
                 this._engine = 'MXNet v' + (engineVersion ? engineVersion : manifest.Engine.MXNet.toString());
             }
         }
 
         if (!this._format) {
             if (symbol.attrs && symbol.attrs.mxnet_version) {
-                var version = MXNetModel._convert_version(symbol.attrs.mxnet_version);
+                var version = mxnet.Model._convert_version(symbol.attrs.mxnet_version);
                 if (version) {
                     this._format = 'MXNet v' + version;
                 }
@@ -204,7 +206,7 @@ class MXNetModel {
             this._format = 'MXNet';
         }
 
-        this._graphs = [ new MXNetGraph(manifest, symbol, signature, parameters) ];
+        this._graphs = [ new mxnet.Graph(manifest, symbol, signature, parameters) ];
     }
 
     get name() {
@@ -238,9 +240,9 @@ class MXNetModel {
         }
         return null;
     }
-}
+};
 
-class MXNetGraph {
+mxnet.Graph = class {
 
     constructor(manifest, symbol, signature, parameters)
     {
@@ -273,7 +275,7 @@ class MXNetGraph {
         });
         nodes.forEach((node) => {
             node.inputs = node.inputs.map((input) => {
-                return MXNetGraph._updateOutput(nodes, input);
+                return mxnet.Graph._updateOutput(nodes, input);
             });
         });
 
@@ -291,19 +293,19 @@ class MXNetGraph {
 
         this._outputs = [];
         symbol.heads.forEach((head, index) => {
-            var outputId = MXNetGraph._updateOutput(nodes, head);
+            var outputId = mxnet.Graph._updateOutput(nodes, head);
             var outputName = nodes[outputId[0]] ? nodes[outputId[0]].name : ('output' + ((index == 0) ? '' : (index + 1).toString()));
             var outputType = null;
             var outputSignature = outputs[outputName];
             if (outputSignature && outputSignature.data_shape) {
-                outputType = new MXNetTensorType(null, new MXNetTensorShape(outputSignature.data_shape));
+                outputType = new mxnet.TensorType(null, new mxnet.TensorShape(outputSignature.data_shape));
             }
-            this._outputs.push(new MXNetArgument(outputName, [ new MXNetConnection('[' + outputId.join(',') + ']', outputType, null) ]));
+            this._outputs.push(new mxnet.Argument(outputName, [ new mxnet.Connection('[' + outputId.join(',') + ']', outputType, null) ]));
         });
 
         nodes.forEach((node, index) => {
             if (!argumentMap[index]) {
-                this._nodes.push(new MXNetNode(node, argumentMap, parameters));
+                this._nodes.push(new mxnet.Node(node, argumentMap, parameters));
             }
         });
 
@@ -317,9 +319,9 @@ class MXNetGraph {
                 var inputType = null;
                 var inputSignature = inputs[inputName];
                 if (inputSignature && inputSignature.data_shape) {
-                    inputType = new MXNetTensorType(null, new MXNetTensorShape(inputSignature.data_shape));
+                    inputType = new mxnet.TensorType(null, new mxnet.TensorShape(inputSignature.data_shape));
                 }
-                this._inputs.push(new MXNetArgument(inputName, [ new MXNetConnection('[' + inputId.join(',') + ']', inputType) ]));
+                this._inputs.push(new mxnet.Argument(inputName, [ new mxnet.Connection('[' + inputId.join(',') + ']', inputType) ]));
             }
         });
     }
@@ -353,9 +355,9 @@ class MXNetGraph {
         }
         return [ nodeIndex, outputIndex ];
     }
-}
+};
 
-class MXNetArgument {
+mxnet.Argument = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -372,9 +374,9 @@ class MXNetArgument {
     get connections() {
         return this._connections;
     }
-}
+};
 
-class MXNetConnection {
+mxnet.Connection = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -398,9 +400,9 @@ class MXNetConnection {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
-class MXNetNode {
+mxnet.Node = class {
 
     constructor(json, argumentMap, parameters) {
         this._operator = json.op;
@@ -418,7 +420,7 @@ class MXNetNode {
         if (attrs) {
             Object.keys(attrs).forEach((key) => {
                 var value = attrs[key];
-                this._attributes.push(new MXNetAttribute(this.operator, key, value));
+                this._attributes.push(new mxnet.Attribute(this.operator, key, value));
             });
         }
         if (this._operator == 'RNN') {
@@ -427,7 +429,7 @@ class MXNetNode {
                 var argument = argumentMap[argumentNodeIndex];
                 if (argument && argument.op == 'null' && argument.name &&
                     argument.name.endsWith('_parameters') && argument.attr && argument.attr.__init__) {
-                    this._attributes.push(new MXNetAttribute(this.operator, argument.name, argument.attr.__init__));
+                    this._attributes.push(new mxnet.Attribute(this.operator, argument.name, argument.attr.__init__));
                     delete argumentMap[argumentNodeIndex];
                     return null;
                 }
@@ -446,7 +448,7 @@ class MXNetNode {
                 var id = '[' + input.join(',') + ']';
                 var parameter = parameters[argument.name];
                 if (parameter) {
-                    this._initializers[id] = new MXNetTensor('Initializer', argument.name, parameter.dataType, parameter.shape.dimensions, parameter.data);
+                    this._initializers[id] = new mxnet.Tensor('Initializer', argument.name, parameter.dataType, parameter.shape.dimensions, parameter.data);
                     delete argumentMap[argumentNodeIndex];
                 }
                 else {
@@ -465,7 +467,7 @@ class MXNetNode {
                             catch (err) {
                             }
                         }
-                        this._initializers[id] = new MXNetTensor('Initializer', argument.name, dataType, shape, null);
+                        this._initializers[id] = new mxnet.Tensor('Initializer', argument.name, dataType, shape, null);
                         delete argumentMap[argumentNodeIndex];
                     }
                 }
@@ -478,7 +480,7 @@ class MXNetNode {
     }
 
     get category() {
-        var schema = MXNetOperatorMetadata.operatorMetadata.getSchema(this._operator); 
+        var schema = mxnet.OperatorMetadata.operatorMetadata.getSchema(this._operator); 
         if (schema && schema.category) {
             return schema.category;
         }
@@ -486,7 +488,7 @@ class MXNetNode {
     }
 
     get documentation() {
-        var schema = MXNetOperatorMetadata.operatorMetadata.getSchema(this._operator); 
+        var schema = mxnet.OperatorMetadata.operatorMetadata.getSchema(this._operator); 
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
@@ -524,23 +526,23 @@ class MXNetNode {
     }
 
     get inputs() {
-        var inputs = MXNetOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs.map((inputs) => {
+        var inputs = mxnet.OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs.map((inputs) => {
             return '[' + inputs.join(',') + ']'; 
         }));
         return inputs.map((input) => {
-            return new MXNetArgument(input.name, input.connections.map((connection) => {
-                return new MXNetConnection(connection.id, null, this._initializers[connection.id]);
+            return new mxnet.Argument(input.name, input.connections.map((connection) => {
+                return new mxnet.Connection(connection.id, null, this._initializers[connection.id]);
             }));
         });
     }
 
     get outputs() {
-        var outputs = MXNetOperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs.map((output) => {
+        var outputs = mxnet.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs.map((output) => {
             return '[' + output.join(',') + ']'; 
         }));
         return outputs.map((output) => {
-            return new MXNetArgument(output.name, output.connections.map((connection) => {
-                return new MXNetConnection(connection.id, null, null);
+            return new mxnet.Argument(output.name, output.connections.map((connection) => {
+                return new mxnet.Connection(connection.id, null, null);
             }));
         });
     }
@@ -548,15 +550,15 @@ class MXNetNode {
     get attributes() {
         return this._attributes;
     }
-}
+};
 
-class MXNetAttribute {
+mxnet.Attribute = class {
 
     constructor(operator, name, value) {
         this._name = name;
         this._value = value;
 
-        var schema = MXNetOperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
+        var schema = mxnet.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, name);
         if (schema && schema.type) {
             switch (schema.type) {
                 case 'bool':
@@ -639,16 +641,16 @@ class MXNetAttribute {
     get visible() {
         return this._visible == false ? false : true;
     }
-}
+};
 
-class MXNetTensor {
+mxnet.Tensor = class {
     
     constructor(kind, name, dataType, shape, data) {
         this._kind = kind;
         this._name = name;
         this._dataType = dataType;
         this._data = data;
-        this._type = new MXNetTensorType(dataType, new MXNetTensorShape(shape));
+        this._type = new mxnet.TensorType(dataType, new mxnet.TensorShape(shape));
     }
 
     get kind() {
@@ -740,7 +742,7 @@ class MXNetTensor {
                         context.count++;
                         break;
                     case 2: // float16:
-                        results.push(MXNetTensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
+                        results.push(mxnet.Tensor._decodeNumberFromFloat16(context.data.getUint16(context.index, true)));
                         context.index += 2;
                         context.count++;
                         break;
@@ -791,12 +793,12 @@ class MXNetTensor {
         }
         return (s ? -1 : 1) * Math.pow(2, e-15) * (1 + (f / Math.pow(2, 10)));
     }
-}
+};
 
-class MXNetTensorType {
+mxnet.TensorType = class {
 
     constructor(dataType, shape) {
-        MXNetTensorType._dataTypeNameTable = MXNetTensor._dataTypeTable || [ 'float32', 'float64', 'float16', 'uint8', 'int32', 'int8', 'int64' ];
+        mxnet.TensorType._dataTypeNameTable = mxnet.Tensor._dataTypeTable || [ 'float32', 'float64', 'float16', 'uint8', 'int32', 'int8', 'int64' ];
         this._dataType = dataType;
         this._shape = shape;
     }
@@ -804,8 +806,8 @@ class MXNetTensorType {
     get dataType() {
         var dataType = '?';
         if (this._dataType || this._dataType === 0) {
-            if (this._dataType < MXNetTensorType._dataTypeNameTable.length) {
-                dataType = MXNetTensorType._dataTypeNameTable[this._dataType];
+            if (this._dataType < mxnet.TensorType._dataTypeNameTable.length) {
+                dataType = mxnet.TensorType._dataTypeNameTable[this._dataType];
             }
             else {
                 dataType = this._dataType.toString();
@@ -821,9 +823,9 @@ class MXNetTensorType {
     toString() {
         return (this.dataType || '?') + this._shape.toString();
     }
-}
+};
 
-class MXNetTensorShape {
+mxnet.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions;
@@ -836,18 +838,18 @@ class MXNetTensorShape {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
-class MXNetOperatorMetadata {
+mxnet.OperatorMetadata = class {
 
     static open(host, callback) {
-        if (MXNetOperatorMetadata.operatorMetadata) {
-            callback(null, MXNetOperatorMetadata.operatorMetadata);
+        if (mxnet.OperatorMetadata.operatorMetadata) {
+            callback(null, mxnet.OperatorMetadata.operatorMetadata);
         }
         else {
             host.request(null, 'mxnet-metadata.json', 'utf-8', (err, data) => {
-                MXNetOperatorMetadata.operatorMetadata = new MXNetOperatorMetadata(data);
-                callback(null, MXNetOperatorMetadata.operatorMetadata);
+                mxnet.OperatorMetadata.operatorMetadata = new mxnet.OperatorMetadata(data);
+                callback(null, mxnet.OperatorMetadata.operatorMetadata);
             });
         }
     }
@@ -964,14 +966,15 @@ class MXNetOperatorMetadata {
         }
         return null;
     }
-}
+};
 
-class MXNetError extends Error {
+mxnet.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading MXNet model.';
     }
-}
+};
 
 var ndarray = ndarray || {};
 
@@ -1184,3 +1187,7 @@ ndarray.Error = class extends Error {
         this.name = 'NDArray Error';
     }
 };
+
+if (module && module.exports) {
+    module.exports.ModelFactory = mxnet.ModelFactory;
+}

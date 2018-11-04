@@ -92,7 +92,7 @@ setuptools.setup(
             'coreml-model.js', 'coreml-metadata.json', 'coreml-proto.js',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2-model.js', 'caffe2-metadata.json', 'caffe2-proto.js',
-            'mxnet-model.js', 'mxnet-metadata.json',
+            'mxnet.js', 'mxnet-metadata.json',
             'cntk-model.js', 'cntk-metadata.json', 'cntk-proto.js',
             'pytorch-model.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn-model.js', 'sklearn-metadata.json',
