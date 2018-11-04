@@ -24,6 +24,6 @@ echo "Generate 'caffe.js'"
 mkdir -p ${tools}/metadata/caffe
 cp ${third_party}/${identifier}/src/caffe/proto/caffe.proto ${tools}/metadata/caffe/caffe.proto
 node ${tools}/metadata/caffe-update.js ${tools}/metadata/caffe/caffe.proto
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe -o ${src}/caffe.js ${tools}/metadata/caffe/caffe.proto
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe -o ${src}/caffe-proto.js ${tools}/metadata/caffe/caffe.proto
+node ${tools}/metadata/update_pbjs.js array ${src}/caffe-proto.js data float 1
 rm -rf ${tools}/metadata/caffe
-node ${tools}/metadata/update_pbjs.js array ${src}/caffe.js data float 1

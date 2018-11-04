@@ -22,5 +22,5 @@ else
 fi
 
 echo "Generate 'coreml.js'"
-${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r coreml -o ${src}/coreml.js ${third_party}/${identifier}/mlmodel/format/Model.proto
-node ${tools}/metadata/update_pbjs.js array ${src}/coreml.js floatValue float 2
+${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r coreml -o ${src}/coreml-proto.js ${third_party}/${identifier}/mlmodel/format/Model.proto
+node ${tools}/metadata/update_pbjs.js array ${src}/coreml-proto.js floatValue float 2

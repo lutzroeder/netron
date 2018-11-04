@@ -45,8 +45,8 @@ fi
 
 if [ ${__update} ]; then
     echo "Generate 'caffe2.js'"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
-    node ${tools}/metadata/update_pbjs.js enumeration ${src}/caffe2.js floats float 1
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2-proto.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
+    node ${tools}/metadata/update_pbjs.js enumeration ${src}/caffe2-proto.js floats float 1
 fi
 
 if [ ${__build} ]; then

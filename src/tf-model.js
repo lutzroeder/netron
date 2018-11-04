@@ -30,7 +30,7 @@ class TensorFlowModelFactory {
     }
 
     open(context, host, callback) { 
-        host.require('tf', (err) => {
+        host.require('tf-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;

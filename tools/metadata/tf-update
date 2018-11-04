@@ -44,7 +44,7 @@ fi
 
 if [ ${__update} ]; then
     echo "Generate 'tf.js'"
-    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r tf -o ${src}/tf.js \
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r tf -o ${src}/tf-proto.js \
         ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
         ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
         ${third_party}/${identifier}/tensorflow/core/protobuf/saver.proto \

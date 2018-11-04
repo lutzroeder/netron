@@ -38,4 +38,4 @@ fi
 
 echo "Generate '../src/tflite.js'"
 ${third_party}/flatbuffers/flatc --js ${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs 
-mv ./schema_generated.js ${src}/tflite.js
+mv ./schema_generated.js ${src}/tflite-schema.js

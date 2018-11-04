@@ -19,7 +19,7 @@ class Caffe2ModelFactory {
     }    
 
     open(context, host, callback) {
-        host.require('caffe2', (err) => {
+        host.require('caffe2-proto', (err) => {
             if (err) {
                 callback(err, null);
                 return;
