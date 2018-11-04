@@ -1192,7 +1192,7 @@ class ModelFactoryService {
             new CoreMLModelFactory(),
             new caffe.ModelFactory(),
             new Caffe2ModelFactory(), 
-            new PyTorchModelFactory(),
+            new pytorch.ModelFactory(),
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),
             new SklearnModelFactory(),
