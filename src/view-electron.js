@@ -30,12 +30,15 @@ host.ElectronHost = class {
         };
 
         this._updateTheme();
-        electron.remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => this._updateTheme());
+        if (electron.remote.systemPreferences.subscribeNotification) {
+            electron.remote.systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', () => this._updateTheme());
+        }
         document.body.style.opacity = 1;
     }
 
     _updateTheme() {
-        if (electron.remote.systemPreferences.isDarkMode()) {
+        if (electron.remote.systemPreferences.isDarkMode &&
+            electron.remote.systemPreferences.isDarkMode()) {
             document.body.classList.add('dark-mode');
         }
         else {
@@ -353,7 +356,7 @@ host.ElectronHost = class {
     _update(name, value) {
         electron.ipcRenderer.send('update', { name: name, value: value });
     }
-}
+};
 
 class ElectonContext {
 
