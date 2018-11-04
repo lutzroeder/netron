@@ -222,3 +222,7 @@ numpy.Error = class extends Error {
         this.name = 'NumPy Error';
     }
 };
+
+if (module && module.exports) {
+    module.exports.Array = numpy.Array;
+}
