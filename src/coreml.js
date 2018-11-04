@@ -1,8 +1,8 @@
 /*jshint esversion: 6 */
 
-var coreml = null;
+var coreml = coreml || {};
 
-class CoreMLModelFactory {
+coreml.ModelFactory = class {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop();
@@ -17,33 +17,33 @@ class CoreMLModelFactory {
             }
             var decodedBuffer = null;
             try {
-                coreml = protobuf.roots.coreml.CoreML.Specification;
-                decodedBuffer = coreml.Model.decode(context.buffer);
+                coreml.proto = protobuf.roots.coreml.CoreML.Specification;
+                decodedBuffer = coreml.proto.Model.decode(context.buffer);
             }
             catch (error) {
-                callback(new CoreMLError('File format is not coreml.Model (' + error.message + ').'), null);
+                callback(new coreml.Error('File format is not coreml.Model (' + error.message + ').'), null);
                 return;
             }
-            CoreMLOperatorMetadata.open(host, (err, metadata) => {
+            coreml.OperatorMetadata.open(host, (err, metadata) => {
                 try {
-                    var model = new CoreMLModel(decodedBuffer);
+                    var model = new coreml.Model(decodedBuffer);
                     callback(null, model);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new CoreMLError(error.message), null);
+                    callback(new coreml.Error(error.message), null);
                     return;
                 }
             });
         });
     }
-}
+};
 
-class CoreMLModel {
+coreml.Model = class {
 
     constructor(model) {
         this._specificationVersion = model.specificationVersion;
-        this._graphs = [ new CoreMLGraph(model) ];
+        this._graphs = [ new coreml.Graph(model) ];
         if (model.description && model.description.metadata) {
             var metadata = model.description.metadata;
             if (metadata.versionString) {
@@ -87,9 +87,9 @@ class CoreMLModel {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
-class CoreMLGraph {
+coreml.Graph = class {
 
     constructor(model)
     {
@@ -102,13 +102,13 @@ class CoreMLGraph {
 
         if (this._description) {
             this._inputs = this._description.input.map((input) => {
-                var connection = new CoreMLConnection(input.name, CoreMLGraph._formatFeatureType(input.type), input.shortDescription, null);
-                return new CoreMLArgument(input.name, true, [ connection ]);
+                var connection = new coreml.Connection(input.name, coreml.Graph._formatFeatureType(input.type), input.shortDescription, null);
+                return new coreml.Argument(input.name, true, [ connection ]);
             });
 
             this._outputs = this._description.output.map((output) => {
-                var connection = new CoreMLConnection(output.name, CoreMLGraph._formatFeatureType(output.type), output.shortDescription, null);
-                return new CoreMLArgument(output.name, true, [ connection ]);
+                var connection = new coreml.Connection(output.name, coreml.Graph._formatFeatureType(output.type), output.shortDescription, null);
+                return new coreml.Argument(output.name, true, [ connection ]);
             });
         }
 
@@ -163,7 +163,7 @@ class CoreMLGraph {
             var labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
             var operator = classifier.ClassLabels;
             this._operators[operator] = (this._operators[operator] || 0) + 1;
-            this._nodes.push(new CoreMLNode(group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
+            this._nodes.push(new coreml.Node(group, operator, null, classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
     }
 
@@ -265,7 +265,7 @@ class CoreMLGraph {
         }
         else if (model.featureVectorizer) {
             this._createNode(scope, group, 'featureVectorizer', null, model.featureVectorizer, 
-            CoreMLGraph.formatFeatureDescriptionList(model.description.input),
+            coreml.Graph.formatFeatureDescriptionList(model.description.input),
             [ model.description.output[0].name ]);
             return 'Feature Vectorizer';
         }
@@ -363,7 +363,7 @@ class CoreMLGraph {
             return output;
         });
 
-        var node = new CoreMLNode(group, operator, name, data, inputs, outputs);
+        var node = new coreml.Node(group, operator, name, data, inputs, outputs);
         this._nodes.push(node);
         return node;
     }
@@ -372,13 +372,13 @@ class CoreMLGraph {
         var result = '';
         switch (type.Type) {
             case 'multiArrayType':
-                result = CoreMLGraph.formatArrayDataType(type.multiArrayType.dataType);
+                result = coreml.Graph.formatArrayDataType(type.multiArrayType.dataType);
                 if (type.multiArrayType.shape && type.multiArrayType.shape.length > 0) {
                     result += '[' + type.multiArrayType.shape.map(dimension => dimension.toString()).join(',') + ']';
                 }
                 break;
             case 'imageType':
-                result = 'image(' + CoreMLGraph.formatColorSpace(type.imageType.colorSpace) + ',' + type.imageType.width.toString() + 'x' + type.imageType.height.toString() + ')';
+                result = 'image(' + coreml.Graph.formatColorSpace(type.imageType.colorSpace) + ',' + type.imageType.width.toString() + 'x' + type.imageType.height.toString() + ')';
                 break;
             case 'dictionaryType':
                 result = 'map<' + type.dictionaryType.KeyType.replace('KeyType', '') + ',float64>';
@@ -401,11 +401,11 @@ class CoreMLGraph {
 
     static formatArrayDataType(dataType) {
         switch (dataType) {
-            case coreml.ArrayFeatureType.ArrayDataType.FLOAT32:
+            case coreml.proto.ArrayFeatureType.ArrayDataType.FLOAT32:
                 return 'float32';
-            case coreml.ArrayFeatureType.ArrayDataType.INT32:
+            case coreml.proto.ArrayFeatureType.ArrayDataType.INT32:
                 return 'int32';
-            case coreml.ArrayFeatureType.ArrayDataType.DOUBLE:
+            case coreml.proto.ArrayFeatureType.ArrayDataType.DOUBLE:
                 return 'float64';
         }
         return '?';
@@ -413,11 +413,11 @@ class CoreMLGraph {
 
     static formatColorSpace(colorSpace) {
         switch (colorSpace) {
-            case coreml.ImageFeatureType.ColorSpace.GRAYSCALE:
+            case coreml.proto.ImageFeatureType.ColorSpace.GRAYSCALE:
                 return 'Grayscale';
-            case coreml.ImageFeatureType.ColorSpace.RGB:
+            case coreml.proto.ImageFeatureType.ColorSpace.RGB:
                 return 'RGB';
-            case coreml.ImageFeatureType.ColorSpace.BGR:
+            case coreml.proto.ImageFeatureType.ColorSpace.BGR:
                 return 'BGR';
         }
         return '?';
@@ -426,9 +426,9 @@ class CoreMLGraph {
     static formatFeatureDescriptionList(list) {
         return list.map((item) => item.name);
     }
-}
+};
 
-class CoreMLArgument {
+coreml.Argument = class {
     constructor(name, visible, connections) {
         this._name = name;
         this._visible = visible;
@@ -446,9 +446,9 @@ class CoreMLArgument {
     get connections() {
         return this._connections;
     }
-}
+};
 
-class CoreMLConnection {
+coreml.Connection = class {
     constructor(id, type, description, initializer) {
         this._id = id;
         this._type = type;
@@ -474,9 +474,9 @@ class CoreMLConnection {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
-class CoreMLNode {
+coreml.Node = class {
 
     constructor(group, operator, name, data, inputs, outputs) {
         if (group) {
@@ -492,7 +492,7 @@ class CoreMLNode {
             var initializerMap = this.initializer(data);
             Object.keys(data).forEach((key) => {
                 if (!initializerMap[key]) {
-                    this._attributes.push(new CoreMLAttribute(this.operator, key, data[key]));
+                    this._attributes.push(new coreml.Attribute(this.operator, key, data[key]));
                 }
             });
         }
@@ -507,7 +507,7 @@ class CoreMLNode {
     }
 
     get category() {
-        return CoreMLOperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
+        return coreml.OperatorMetadata.operatorMetadata.getOperatorCategory(this.operator);
     }
 
     get group() {
@@ -515,27 +515,27 @@ class CoreMLNode {
     }
 
     get documentation() {
-        return CoreMLOperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
+        return coreml.OperatorMetadata.operatorMetadata.getOperatorDocumentation(this.operator);
     }
 
     get inputs() {
-        var inputs = CoreMLOperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).map((input) => {
-            return new CoreMLArgument(input.name, true, input.connections.map((connection) => {
-                return new CoreMLConnection(connection.id, connection.type, null, null);
+        var inputs = coreml.OperatorMetadata.operatorMetadata.getInputs(this._operator, this._inputs).map((input) => {
+            return new coreml.Argument(input.name, true, input.connections.map((connection) => {
+                return new coreml.Connection(connection.id, connection.type, null, null);
             }));
         });
         this._initializers.forEach((initializer) => {
-            var connection = new CoreMLConnection(null, null, null, initializer);
-            var visible = CoreMLOperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name);
-            inputs.push(new CoreMLArgument(initializer.name, visible, [ connection ]));
+            var connection = new coreml.Connection(null, null, null, initializer);
+            var visible = coreml.OperatorMetadata.operatorMetadata.getInputVisible(this._operator, initializer.name);
+            inputs.push(new coreml.Argument(initializer.name, visible, [ connection ]));
         });
         return inputs;
     }
 
     get outputs() {
         return this._outputs.map((output, index) => {
-            var name = CoreMLOperatorMetadata.operatorMetadata.getOutputName(this._operator, index);
-            return new CoreMLArgument(name, true, [ new CoreMLConnection(output, null, null, null) ]);
+            var name = coreml.OperatorMetadata.operatorMetadata.getOutputName(this._operator, index);
+            return new coreml.Argument(name, true, [ new coreml.Connection(output, null, null, null) ]);
         });
     }
 
@@ -551,60 +551,60 @@ class CoreMLNode {
                     weightsShape[0] = data.kernelChannels;
                     weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
                 }    
-                this._initializers.push(new CoreMLTensor('Weights', 'weights', weightsShape, data.weights));
+                this._initializers.push(new coreml.Tensor('Weights', 'weights', weightsShape, data.weights));
                 if (data.hasBias) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'bias', [ data.outputChannels ], data.bias));
+                    this._initializers.push(new coreml.Tensor('Weights', 'bias', [ data.outputChannels ], data.bias));
                 }
                 return { 'weights': true, 'bias': data.hasBias };
             case 'innerProduct':
-                this._initializers.push(new CoreMLTensor('Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights));
+                this._initializers.push(new coreml.Tensor('Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights));
                 if (data.hasBias) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'bias', [ data.outputChannels ], data.bias));
+                    this._initializers.push(new coreml.Tensor('Weights', 'bias', [ data.outputChannels ], data.bias));
                 }
                 return { 'weights': true, 'bias': data.hasBias };
             case 'batchnorm':
-                this._initializers.push(new CoreMLTensor('Weights', 'gamma', [ data.channels ], data.gamma));
-                this._initializers.push(new CoreMLTensor('Weights', 'beta', [ data.channels ], data.beta));
+                this._initializers.push(new coreml.Tensor('Weights', 'gamma', [ data.channels ], data.gamma));
+                this._initializers.push(new coreml.Tensor('Weights', 'beta', [ data.channels ], data.beta));
                 if (data.mean) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'mean', [ data.channels ], data.mean));
+                    this._initializers.push(new coreml.Tensor('Weights', 'mean', [ data.channels ], data.mean));
                 }
                 if (data.variance) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'variance', [ data.channels ], data.variance));
+                    this._initializers.push(new coreml.Tensor('Weights', 'variance', [ data.channels ], data.variance));
                 }
                 return { 'gamma': true, 'beta': true, 'mean': true, 'variance': true };
             case 'embedding':
-                this._initializers.push(new CoreMLTensor('Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights));
+                this._initializers.push(new coreml.Tensor('Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights));
                 return { 'weights': true };
             case 'loadConstant':    
-                this._initializers.push(new CoreMLTensor('Weights', 'data', data.shape, data.data));            
+                this._initializers.push(new coreml.Tensor('Weights', 'data', data.shape, data.data));            
                 return { 'data': true };
             case 'scale':
-                this._initializers.push(new CoreMLTensor('Weights', 'scale', data.shapeScale, data.scale));
+                this._initializers.push(new coreml.Tensor('Weights', 'scale', data.shapeScale, data.scale));
                 if (data.hasBias) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'bias', data.shapeBias, data.bias));
+                    this._initializers.push(new coreml.Tensor('Weights', 'bias', data.shapeBias, data.bias));
                 }
                 return { 'scale': true, 'bias': data.hasBias };
             case 'bias':
-                this._initializers.push(new CoreMLTensor('Weights', 'bias', data.shapeBias, data.bias));
+                this._initializers.push(new coreml.Tensor('Weights', 'bias', data.shapeBias, data.bias));
                 return { 'bias': true };
             case 'simpleRecurrentLayer':
-                this._initializers.push(new CoreMLTensor('Weights', 'weights', null, data.weightMatrix));
-                this._initializers.push(new CoreMLTensor('Weights', 'recurrent', null, data.recursionMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'weights', null, data.weightMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'recurrent', null, data.recursionMatrix));
                 if (data.hasBiasVectors) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'bias', null, data.biasVector));
+                    this._initializers.push(new coreml.Tensor('Weights', 'bias', null, data.biasVector));
                 }
                 return { 'weightMatrix': true, 'recursionMatrix': true, 'biasVector': data.hasBiasVectors };
             case 'gru':
-                this._initializers.push(new CoreMLTensor('Weights', 'updateGateWeightMatrix', null, data.updateGateWeightMatrix));
-                this._initializers.push(new CoreMLTensor('Weights', 'resetGateWeightMatrix', null, data.resetGateWeightMatrix));
-                this._initializers.push(new CoreMLTensor('Weights', 'outputGateWeightMatrix', null, data.outputGateWeightMatrix));
-                this._initializers.push(new CoreMLTensor('Weights', 'updateGateRecursionMatrix', null, data.updateGateRecursionMatrix));
-                this._initializers.push(new CoreMLTensor('Weights', 'resetGateRecursionMatrix', null, data.resetGateRecursionMatrix));
-                this._initializers.push(new CoreMLTensor('Weights', 'outputGateRecursionMatrix', null, data.outputGateRecursionMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'updateGateWeightMatrix', null, data.updateGateWeightMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'resetGateWeightMatrix', null, data.resetGateWeightMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'outputGateWeightMatrix', null, data.outputGateWeightMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'updateGateRecursionMatrix', null, data.updateGateRecursionMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'resetGateRecursionMatrix', null, data.resetGateRecursionMatrix));
+                this._initializers.push(new coreml.Tensor('Weights', 'outputGateRecursionMatrix', null, data.outputGateRecursionMatrix));
                 if (data.hasBiasVectors) {
-                    this._initializers.push(new CoreMLTensor('Weights', 'updateGateBiasVector', null, data.updateGateBiasVector));
-                    this._initializers.push(new CoreMLTensor('Weights', 'resetGateBiasVector', null, data.resetGateBiasVector));
-                    this._initializers.push(new CoreMLTensor('Weights', 'outputGateBiasVector', null, data.outputGateBiasVector));
+                    this._initializers.push(new coreml.Tensor('Weights', 'updateGateBiasVector', null, data.updateGateBiasVector));
+                    this._initializers.push(new coreml.Tensor('Weights', 'resetGateBiasVector', null, data.resetGateBiasVector));
+                    this._initializers.push(new coreml.Tensor('Weights', 'outputGateBiasVector', null, data.outputGateBiasVector));
                 }  
                 return {
                     'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true, 
@@ -618,38 +618,38 @@ class CoreMLNode {
                 for (var i = 0; i < count; i++) {
                     var weights = count == 1 ? data.weightParams : data.weightParams[i];
                     var suffix = (i == 0) ? '' : '_rev';
-                    this._initializers.push(new CoreMLTensor('Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix));
-                    this._initializers.push(new CoreMLTensor('Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix));
-                    this._initializers.push(new CoreMLTensor('Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix));
-                    this._initializers.push(new CoreMLTensor('Weights', 'outputGateWeightMatrix' + suffix, matrixShape, weights.outputGateWeightMatrix));
-                    this._initializers.push(new CoreMLTensor('Weights', 'inputGateRecursionMatrix' + suffix, matrixShape, weights.inputGateRecursionMatrix));
-                    this._initializers.push(new CoreMLTensor('Weights', 'forgetGateRecursionMatrix' + suffix, matrixShape,weights.forgetGateRecursionMatrix));
-                    this._initializers.push(new CoreMLTensor('Weights', 'blockInputRecursionMatrix' + suffix, matrixShape, weights.blockInputRecursionMatrix));
-                    this._initializers.push(new CoreMLTensor('Weights', 'outputGateRecursionMatrix' + suffix, matrixShape, weights.outputGateRecursionMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'outputGateWeightMatrix' + suffix, matrixShape, weights.outputGateWeightMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'inputGateRecursionMatrix' + suffix, matrixShape, weights.inputGateRecursionMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'forgetGateRecursionMatrix' + suffix, matrixShape,weights.forgetGateRecursionMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'blockInputRecursionMatrix' + suffix, matrixShape, weights.blockInputRecursionMatrix));
+                    this._initializers.push(new coreml.Tensor('Weights', 'outputGateRecursionMatrix' + suffix, matrixShape, weights.outputGateRecursionMatrix));
                     if (data.params.hasBiasVectors) {
-                        this._initializers.push(new CoreMLTensor('Weights', 'inputGateBiasVector' + suffix, vectorShape, weights.inputGateBiasVector));
-                        this._initializers.push(new CoreMLTensor('Weights', 'forgetGateBiasVector' + suffix, vectorShape, weights.forgetGateBiasVector));
-                        this._initializers.push(new CoreMLTensor('Weights', 'blockInputBiasVector' + suffix, vectorShape, weights.blockInputBiasVector));
-                        this._initializers.push(new CoreMLTensor('Weights', 'outputGateBiasVector' + suffix, vectorShape, weights.outputGateBiasVector));
+                        this._initializers.push(new coreml.Tensor('Weights', 'inputGateBiasVector' + suffix, vectorShape, weights.inputGateBiasVector));
+                        this._initializers.push(new coreml.Tensor('Weights', 'forgetGateBiasVector' + suffix, vectorShape, weights.forgetGateBiasVector));
+                        this._initializers.push(new coreml.Tensor('Weights', 'blockInputBiasVector' + suffix, vectorShape, weights.blockInputBiasVector));
+                        this._initializers.push(new coreml.Tensor('Weights', 'outputGateBiasVector' + suffix, vectorShape, weights.outputGateBiasVector));
                     }
                     if (data.params.hasPeepholeVectors) {
-                        this._initializers.push(new CoreMLTensor('Weights', 'inputGatePeepholeVector' + suffix, vectorShape, weights.inputGatePeepholeVector));
-                        this._initializers.push(new CoreMLTensor('Weights', 'forgetGatePeepholeVector' + suffix, vectorShape, weights.forgetGatePeepholeVector));
-                        this._initializers.push(new CoreMLTensor('Weights', 'outputGatePeepholeVector' + suffix, vectorShape, weights.outputGatePeepholeVector));
+                        this._initializers.push(new coreml.Tensor('Weights', 'inputGatePeepholeVector' + suffix, vectorShape, weights.inputGatePeepholeVector));
+                        this._initializers.push(new coreml.Tensor('Weights', 'forgetGatePeepholeVector' + suffix, vectorShape, weights.forgetGatePeepholeVector));
+                        this._initializers.push(new coreml.Tensor('Weights', 'outputGatePeepholeVector' + suffix, vectorShape, weights.outputGatePeepholeVector));
                     }
                 }
                 return { 'weightParams': true };
         }
         return {};
     }
-}
+};
 
-class CoreMLAttribute {
+coreml.Attribute = class {
 
     constructor(operator, name, value) {
         this._name = name;
         this._value = value;
-        if (!CoreMLOperatorMetadata.operatorMetadata.getAttributeVisible(operator, this._name, this._value)) {
+        if (!coreml.OperatorMetadata.operatorMetadata.getAttributeVisible(operator, this._name, this._value)) {
             this._visible = false;
         }
     }
@@ -665,9 +665,9 @@ class CoreMLAttribute {
     get visible() {
         return this._visible == false ? false : true;
     }
-}
+};
 
-class CoreMLTensor {
+coreml.Tensor = class {
 
     constructor(kind, name, shape, data) {
         this._kind = kind;
@@ -690,7 +690,7 @@ class CoreMLTensor {
             }
         }
 
-        this._type = new CoreMLTensorType(dataType, new CoreMLTensorShape(shape));
+        this._type = new coreml.TensorType(dataType, new coreml.TensorShape(shape));
     }
 
     get id() {
@@ -790,9 +790,9 @@ class CoreMLTensor {
         }
         return results;
     }
-}
+};
 
-class CoreMLTensorType {
+coreml.TensorType = class {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
@@ -810,9 +810,9 @@ class CoreMLTensorType {
     toString() {
         return this.dataType + this._shape.toString();
     }
-}
+};
 
-class CoreMLTensorShape {
+coreml.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions;
@@ -825,19 +825,18 @@ class CoreMLTensorShape {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
-class CoreMLOperatorMetadata 
-{
+coreml.OperatorMetadata = class {
 
     static open(host, callback) {
-        if (CoreMLOperatorMetadata.operatorMetadata) {
-            callback(null, CoreMLOperatorMetadata.operatorMetadata);
+        if (coreml.OperatorMetadata.operatorMetadata) {
+            callback(null, coreml.OperatorMetadata.operatorMetadata);
         }
         else {
             host.request(null, 'coreml-metadata.json', 'utf-8', (err, data) => {
-                CoreMLOperatorMetadata.operatorMetadata = new CoreMLOperatorMetadata(data);
-                callback(null, CoreMLOperatorMetadata.operatorMetadata);
+                coreml.OperatorMetadata.operatorMetadata = new coreml.OperatorMetadata(data);
+                callback(null, coreml.OperatorMetadata.operatorMetadata);
             });
         }    
     }
@@ -1001,11 +1000,15 @@ class CoreMLOperatorMetadata
         }
         return '';
     }
-}
+};
 
-class CoreMLError extends Error {
+coreml.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading CoreML model.';
     }
+};
+
+if (module && module.exports) {
+    module.exports.ModelFactory = coreml.ModelFactory;
 }

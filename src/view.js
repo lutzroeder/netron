@@ -1189,7 +1189,7 @@ class ModelFactoryService {
             new onnx.ModelFactory(),
             new mxnet.ModelFactory(),
             new keras.ModelFactory(),
-            new CoreMLModelFactory(),
+            new coreml.ModelFactory(),
             new caffe.ModelFactory(),
             new Caffe2ModelFactory(), 
             new pytorch.ModelFactory(),
