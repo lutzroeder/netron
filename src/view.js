@@ -1194,7 +1194,7 @@ class ModelFactoryService {
             new caffe2.ModelFactory(), 
             new pytorch.ModelFactory(),
             new TensorFlowLiteModelFactory(),
-            new TensorFlowModelFactory(),
+            new tf.ModelFactory(),
             new sklearn.ModelFactory(),
             new cntk.ModelFactory()
         ];

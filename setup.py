@@ -86,7 +86,7 @@ setuptools.setup(
         'netron': [ 
             'favicon.ico', 'icon.png',
             'onnx.js', 'onnx.js', 'onnx-metadata.json',
-            'tf-model.js', 'tf-metadata.json', 'tf-proto.js', 
+            'tf.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite-model.js', 'tflite-metadata.json', 'tflite-schema.js', 
             'keras.js', 'keras-metadata.json', 'hdf5.js',
             'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
