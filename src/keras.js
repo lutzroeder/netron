@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
-class KerasModelFactory {
+var keras = keras || {};
+
+keras.ModelFactory = class {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop();
@@ -42,7 +44,7 @@ class KerasModelFactory {
                     var file = new hdf5.File(context.buffer);
                     rootGroup = file.rootGroup;
                     if (!rootGroup.attributes.model_config) {
-                        callback(new KerasError('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
+                        callback(new keras.Error('HDF5 file does not contain a Keras \'model_config\' graph. Use \'save()\' instead of \'save_weights()\' to save both the graph and weights.'), null);
                         return;
                     }
                     model_config = JSON.parse(rootGroup.attributes.model_config);
@@ -59,34 +61,34 @@ class KerasModelFactory {
             }
             catch (error) {
                 host.exception(error, false);
-                callback(new KerasError(error.message), null);
+                callback(new keras.Error(error.message), null);
                 return;
             }
 
             if (!model_config) {
-                callback(new KerasError('\'model_config\' is not present.'));
+                callback(new keras.Error('\'model_config\' is not present.'));
                 return;
             }
             if (!model_config.class_name) {
-                callback(new KerasError('\'class_name\' is not present.'), null);
+                callback(new keras.Error('\'class_name\' is not present.'), null);
                 return;
             }
 
-            KerasOperatorMetadata.open(host, (err, metadata) => {
+            keras.OperatorMetadata.open(host, (err, metadata) => {
                 try {
-                    var model = new KerasModel(format, model_config, rootGroup, rootJson);
+                    var model = new keras.Model(format, model_config, rootGroup, rootJson);
                     callback(null, model);
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new KerasError(error.message), null);
+                    callback(new keras.Error(error.message), null);
                 }
             });
         });
     }
-}
+};
 
-class KerasModel {
+keras.Model = class {
 
     constructor(format, model_config, rootGroup, rootJson) {
         this._format = format;
@@ -132,7 +134,7 @@ class KerasModel {
             }
         }
 
-        this._activeGraph = new KerasGraph(model_config, model_weights, weightsManifest);
+        this._activeGraph = new keras.Graph(model_config, model_weights, weightsManifest);
         this._graphs.push(this._activeGraph);
     }
 
@@ -155,9 +157,9 @@ class KerasModel {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
-class KerasGraph {
+keras.Graph = class {
 
     constructor(model, model_weights, weightsManifest) {
         if (model.name) {
@@ -180,7 +182,7 @@ class KerasGraph {
                 this._loadModel(model.config, model_weights, weightsManifest, '', null, null);
                 break;
             default:
-                throw new KerasError('\'' + model.class_name + '\' is not supported.');
+                throw new keras.Error('\'' + model.class_name + '\' is not supported.');
         }
     }
 
@@ -269,7 +271,7 @@ class KerasGraph {
                     }            
                 }
                 else {
-                    this._inputs.push(new KerasArgument(name, true, [ new KerasConnection(name, type, null) ])); 
+                    this._inputs.push(new keras.Argument(name, true, [ new keras.Connection(name, type, null) ])); 
                 }
             });
         }
@@ -293,7 +295,7 @@ class KerasGraph {
                     inputNode._outputs[inputIndex] = inputName;
                 }
                 if (addGraphOutput) {
-                    this._outputs.push(new KerasArgument(inputName, true, [ new KerasConnection(inputName, null, null) ]));
+                    this._outputs.push(new keras.Argument(inputName, true, [ new keras.Connection(inputName, null, null) ]));
                 }
             });
         }
@@ -344,10 +346,10 @@ class KerasGraph {
             this._loadNode(layer, nodeInputs, nodeOutputs, model_weights, weightsManifest, group);
         });
         if (!inputs) {
-            this._inputs.push(new KerasArgument(inputName, true, [ new KerasConnection(inputName, inputType, null) ]));
+            this._inputs.push(new keras.Argument(inputName, true, [ new keras.Connection(inputName, inputType, null) ]));
         }
         if (connection) {
-            this._outputs.push(new KerasArgument(connection, true, [ new KerasConnection(connection, null, null) ]));
+            this._outputs.push(new keras.Argument(connection, true, [ new keras.Connection(connection, null, null) ]));
         }
     }
 
@@ -362,7 +364,7 @@ class KerasGraph {
                 break;
             default:
                 var config = layer.config;
-                this._nodes.push(new KerasNode(class_name, config, inputs, outputs, group, model_weights, weightsManifest));
+                this._nodes.push(new keras.Node(class_name, config, inputs, outputs, group, model_weights, weightsManifest));
                 break;
         }
     }
@@ -380,13 +382,13 @@ class KerasGraph {
                 shape = config.batch_input_shape.map(s => s == null ? '?' : s);
                 delete config.batch_input_shape;
             }
-            return new KerasTensorType(dataType, new KerasTensorShape(shape));
+            return new keras.TensorType(dataType, new keras.TensorShape(shape));
         }
         return null;
     }
-}
+};
 
-class KerasArgument {
+keras.Argument = class {
     constructor(name, visible, connections) {
         this._name = name;
         this._visible = visible;
@@ -404,9 +406,9 @@ class KerasArgument {
     get connections() {
         return this._connections;
     }
-}
+};
 
-class KerasConnection {
+keras.Connection = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -427,9 +429,9 @@ class KerasConnection {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
-class KerasNode {
+keras.Node = class {
 
     constructor(operator, config, inputs, outputs, group, model_weights, weightsManifest) {
         if (group) {
@@ -444,7 +446,7 @@ class KerasNode {
         if (operator == 'Bidirectional' || operator == 'TimeDistributed') {
             if (this._config && this._config.layer) {
                 var inner = this._config.layer;
-                this._inner = new KerasNode(inner.class_name, inner.config, [], [], null, null);
+                this._inner = new keras.Node(inner.class_name, inner.config, [], [], null, null);
             }
         }
 
@@ -471,7 +473,7 @@ class KerasNode {
                             var variable = weight_variable.value;
                             if (variable) {
                                 this._inputs.push(weight_name);
-                                this._initializers[weight_name] = new KerasTensor(weight_name, variable.type, variable.shape, variable.rawData, '');
+                                this._initializers[weight_name] = new keras.Tensor(weight_name, variable.type, variable.shape, variable.rawData, '');
                             }
                         }
                     });
@@ -484,7 +486,7 @@ class KerasNode {
                 manifest.weights.forEach((weights) => {
                     if (weights.name) {
                         this._inputs.push(weights.name);
-                        this._initializers[weights.name] = new KerasTensor(weights.name, weights.dtype, weights.shape, null, manifest.paths.join(';'));
+                        this._initializers[weights.name] = new keras.Tensor(weights.name, weights.dtype, weights.shape, null, manifest.paths.join(';'));
                     }
                 });
             } 
@@ -494,7 +496,7 @@ class KerasNode {
             Object.keys(this._config).forEach((name) => {
                 var value = this._config[name];
                 if (name != 'name' && value != null) {
-                    this._attributes.push(new KerasAttribute(this.operator, name, value));
+                    this._attributes.push(new keras.Attribute(this.operator, name, value));
                 }
             });
         }
@@ -516,12 +518,12 @@ class KerasNode {
     }
 
     get category() {
-        var schema = KerasOperatorMetadata.operatorMetadata.getSchema(this._operator);
+        var schema = keras.OperatorMetadata.operatorMetadata.getSchema(this._operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
     get documentation() {
-        var schema = KerasOperatorMetadata.operatorMetadata.getSchema(this._operator);
+        var schema = keras.OperatorMetadata.operatorMetadata.getSchema(this._operator);
         if (schema) {
             schema = JSON.parse(JSON.stringify(schema));
             schema.name = this._operator;
@@ -562,10 +564,10 @@ class KerasNode {
     }
 
     get inputs() {
-        var inputs = KerasOperatorMetadata.operatorMetadata.getInputs(this, this._inputs);
+        var inputs = keras.OperatorMetadata.operatorMetadata.getInputs(this, this._inputs);
         return inputs.map((input) => {
-            return new KerasArgument(input.name, input.visible != false, input.connections.map((connection) => {
-                return new KerasConnection(connection.id, null, this._initializers[connection.id]);
+            return new keras.Argument(input.name, input.visible != false, input.connections.map((connection) => {
+                return new keras.Connection(connection.id, null, this._initializers[connection.id]);
             }));
         });
     }
@@ -573,8 +575,8 @@ class KerasNode {
     get outputs() {
         return this._outputs.map((output, index) => {
             var result = { connections: [] };
-            var outputName = KerasOperatorMetadata.operatorMetadata.getOutputName(this.operator, index);
-            return new KerasArgument(outputName, true, [ new KerasConnection(output, null, null) ]);            
+            var outputName = keras.OperatorMetadata.operatorMetadata.getOutputName(this.operator, index);
+            return new keras.Argument(outputName, true, [ new keras.Connection(output, null, null) ]);            
         });
     }
 
@@ -589,9 +591,9 @@ class KerasNode {
     get inner() {
         return this._inner;
     }
-}
+};
 
-class KerasAttribute {
+keras.Attribute = class {
 
     constructor(operator, name, value) {
         this._name = name;
@@ -612,13 +614,13 @@ class KerasAttribute {
             this._visible = false;
         }
         else {
-            var schema = KerasOperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name)
+            var schema = keras.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name);
             if (schema) {
                 if (schema.hasOwnProperty('visible') && !schema.visible) {
                     this._visible = false;
                 }
                 else if (schema.hasOwnProperty('default')) {
-                    if (KerasAttribute._isEquivalent(schema.default, value)) {
+                    if (keras.Attribute._isEquivalent(schema.default, value)) {
                         this._visible = false;
                     }
                 }
@@ -674,7 +676,7 @@ class KerasAttribute {
                     return false;
                 }
                 while (length--) {
-                    if (!KerasAttribute._isEquivalent(a[length], b[length])) {
+                    if (!keras.Attribute._isEquivalent(a[length], b[length])) {
                         return false;
                     }
                 }
@@ -688,19 +690,19 @@ class KerasAttribute {
         } 
         while (size--) {
             var key = keys[size];
-            if (!(b.hasOwnProperty(key) && KerasAttribute._isEquivalent(a[key], b[key]))) {
+            if (!(b.hasOwnProperty(key) && keras.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }
         }
         return true;
     }
-}
+};
 
-class KerasTensor {
+keras.Tensor = class {
 
     constructor(name, type, shape, data, reference) {
         this._name = name;
-        this._type = new KerasTensorType(type, new KerasTensorShape(shape));
+        this._type = new keras.TensorType(type, new keras.TensorShape(shape));
         this._data = data;
         this._reference = reference;
     }
@@ -741,7 +743,7 @@ class KerasTensor {
         }
         context.limit = 10000;
         var value = this._decode(context, 0);
-        return KerasTensor._stringify(value, '', '    ');
+        return keras.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
@@ -820,7 +822,7 @@ class KerasTensor {
         if (Array.isArray(value)) {
             var result = [];
             result.push(indentation + '[');
-            var items = value.map((item) => KerasTensor._stringify(item, indentation + indent, indent));
+            var items = value.map((item) => keras.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -841,9 +843,9 @@ class KerasTensor {
         }
         return indentation + value.toString();
     }
-}
+};
 
-class KerasTensorType {
+keras.TensorType = class {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
@@ -861,9 +863,9 @@ class KerasTensorType {
     toString() {
         return this._dataType + this._shape.toString();
     }
-}
+};
 
-class KerasTensorShape {
+keras.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions;
@@ -876,18 +878,18 @@ class KerasTensorShape {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
-class KerasOperatorMetadata {
+keras.OperatorMetadata = class {
 
     static open(host, callback) {
-        if (KerasOperatorMetadata.operatorMetadata) {
-            callback(null, KerasOperatorMetadata.operatorMetadata);
+        if (keras.OperatorMetadata.operatorMetadata) {
+            callback(null, keras.OperatorMetadata.operatorMetadata);
         }
         else {
             host.request(null, 'keras-metadata.json', 'utf-8', (err, data) => {
-                KerasOperatorMetadata.operatorMetadata = new KerasOperatorMetadata(data);
-                callback(null, KerasOperatorMetadata.operatorMetadata);
+                keras.OperatorMetadata.operatorMetadata = new keras.OperatorMetadata(data);
+                callback(null, keras.OperatorMetadata.operatorMetadata);
             });    
         }
     }
@@ -998,11 +1000,16 @@ class KerasOperatorMetadata {
         }
         return null;
     }
-}
+};
 
-class KerasError extends Error {
+keras.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading Keras model.';
     }
+};
+
+if (module && module.exports) {
+    module.exports.ModelFactory = keras.ModelFactory;
 }

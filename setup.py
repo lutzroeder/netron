@@ -88,7 +88,7 @@ setuptools.setup(
             'onnx.js', 'onnx.js', 'onnx-metadata.json',
             'tf-model.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite-model.js', 'tflite-metadata.json', 'tflite-schema.js', 
-            'keras-model.js', 'keras-metadata.json', 'hdf5.js',
+            'keras.js', 'keras-metadata.json', 'hdf5.js',
             'coreml-model.js', 'coreml-metadata.json', 'coreml-proto.js',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2-model.js', 'caffe2-metadata.json', 'caffe2-proto.js',

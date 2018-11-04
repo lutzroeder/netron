@@ -1188,7 +1188,7 @@ class ModelFactoryService {
         this._factories = [
             new onnx.ModelFactory(),
             new mxnet.ModelFactory(),
-            new KerasModelFactory(),
+            new keras.ModelFactory(),
             new CoreMLModelFactory(),
             new caffe.ModelFactory(),
             new Caffe2ModelFactory(), 
