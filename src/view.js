@@ -1191,7 +1191,7 @@ class ModelFactoryService {
             new keras.ModelFactory(),
             new coreml.ModelFactory(),
             new caffe.ModelFactory(),
-            new Caffe2ModelFactory(), 
+            new caffe2.ModelFactory(), 
             new pytorch.ModelFactory(),
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),

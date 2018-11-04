@@ -91,7 +91,7 @@ setuptools.setup(
             'keras.js', 'keras-metadata.json', 'hdf5.js',
             'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
-            'caffe2-model.js', 'caffe2-metadata.json', 'caffe2-proto.js',
+            'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
             'mxnet.js', 'mxnet-metadata.json',
             'cntk-model.js', 'cntk-metadata.json', 'cntk-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
