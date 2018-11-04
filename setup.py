@@ -90,7 +90,7 @@ setuptools.setup(
             'tflite-model.js', 'tflite-metadata.json', 'tflite-schema.js', 
             'keras-model.js', 'keras-metadata.json', 'hdf5.js',
             'coreml-model.js', 'coreml-metadata.json', 'coreml-proto.js',
-            'caffe-model.js', 'caffe-metadata.json', 'caffe-proto.js',
+            'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2-model.js', 'caffe2-metadata.json', 'caffe2-proto.js',
             'mxnet-model.js', 'mxnet-metadata.json',
             'cntk-model.js', 'cntk-metadata.json', 'cntk-proto.js',

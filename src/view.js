@@ -1190,7 +1190,7 @@ class ModelFactoryService {
             new MXNetModelFactory(),
             new KerasModelFactory(),
             new CoreMLModelFactory(),
-            new CaffeModelFactory(),
+            new caffe.ModelFactory(),
             new Caffe2ModelFactory(), 
             new PyTorchModelFactory(),
             new TensorFlowLiteModelFactory(),

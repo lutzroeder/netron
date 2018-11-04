@@ -1,8 +1,8 @@
 /*jshint esversion: 6 */
 
-var caffe = null;
+var caffe = caffe || {};
 
-class CaffeModelFactory {
+caffe.ModelFactory = class {
 
     match(context, host) {
         var identifier = context.identifier;
@@ -29,14 +29,14 @@ class CaffeModelFactory {
                 callback(err, null);
                 return;
             }
-            caffe = protobuf.roots.caffe.caffe;
-            CaffeOperatorMetadata.open(host, (err, metadata) => {
+            caffe.proto = protobuf.roots.caffe.caffe;
+            caffe.OperatorMetadata.open(host, (err, metadata) => {
                 var extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt') {
                     var tags = context.tags;
                     if (tags.net || tags.train_net || tags.net_param) {
                         try { 
-                            var solver = caffe.SolverParameter.decodeText(context.text);
+                            var solver = caffe.proto.SolverParameter.decodeText(context.text);
                             if (solver.net_param) {
                                 this._openNetParameter(solver.net_param, callback);
                                 return;
@@ -48,7 +48,7 @@ class CaffeModelFactory {
                                     if (err) {
                                         var message = err && err.message ? err.message : err.toString();
                                         message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                                        callback(new CaffeError("Failed to load '" + file + "' (" + message + ")."), null);
+                                        callback(new caffe.Error("Failed to load '" + file + "' (" + message + ")."), null);
                                         return;
                                     }
                                     this._openNetParameterText(context.identifier, text, callback);
@@ -70,41 +70,41 @@ class CaffeModelFactory {
 
     _openNetParameterBuffer(identifier, buffer, callback) {
         try {
-            var netParameter = caffe.NetParameter.decode(buffer);
+            var netParameter = caffe.proto.NetParameter.decode(buffer);
             this._openNetParameter(netParameter, callback);
         }
         catch (error) {
             host.exception(error, false);
-            callback(new CaffeError("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
+            callback(new caffe.Error("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
             return;
         }
     }
 
     _openNetParameterText(identifier, text, callback) {
         try {
-            var netParameter = caffe.NetParameter.decodeText(text);
+            var netParameter = caffe.proto.NetParameter.decodeText(text);
             this._openNetParameter(netParameter, callback);
         }
         catch (error) {
             host.exception(error, false);
-            callback(new CaffeError("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
+            callback(new caffe.Error("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'."), null);
         }
     }
 
     _openNetParameter(netParameter, callback) {
         try {
-            var model = new CaffeModel(netParameter);
+            var model = new caffe.Model(netParameter);
             callback(null, model);
         }
         catch (error) {
             host.exception(error, false);
-            callback(new CaffeError(error.message), null);
+            callback(new caffe.Error(error.message), null);
             return;
         }
     }
-}
+};
 
-class CaffeModel {
+caffe.Model = class {
 
     constructor(netParameter) {
         this._name = netParameter.name;
@@ -119,7 +119,7 @@ class CaffeModel {
         else if (netParameter.layer && netParameter.layer.length > 0) {
             this._version = 2;
         }
-        var graph = new CaffeGraph(netParameter, this._version);
+        var graph = new caffe.Graph(netParameter, this._version);
         this._graphs = [ graph ];
     }
 
@@ -130,10 +130,9 @@ class CaffeModel {
     get graphs() {
         return this._graphs;
     }
+};
 
-}
-
-class CaffeGraph {
+caffe.Graph = class {
 
     constructor(netParameter, version)
     {
@@ -168,7 +167,7 @@ class CaffeGraph {
         });
 
         layers.forEach((layer) => {
-            var node = new CaffeNode(layer, version);
+            var node = new caffe.Node(layer, version);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             if (!this.translateInput(node)) {
                 this._nodes.push(node);
@@ -181,13 +180,13 @@ class CaffeGraph {
                 if (netParameter.input_shape && index < netParameter.input_shape.length) {
                     var blobShape = netParameter.input_shape[index];
                     if (blobShape && blobShape.dim) {
-                        inputType = new CaffeTensorType(null, new CaffeTensorShape(blobShape.dim));
+                        inputType = new caffe.TensorType(null, new caffe.TensorShape(blobShape.dim));
                     }
                 }
                 if (inputType == null && netParameter.input.length == 1 && netParameter.input_dim && netParameter.input_dim.length > 0) {
-                    inputType = new CaffeTensorType(null, new CaffeTensorShape(netParameter.input_dim));
+                    inputType = new caffe.TensorType(null, new caffe.TensorShape(netParameter.input_dim));
                 }
-                this._inputs.push(new CaffeArgument(input, [ new CaffeConnection(input, inputType, null) ]));
+                this._inputs.push(new caffe.Argument(input, [ new caffe.Connection(input, inputType, null) ]));
             });
         }
 
@@ -220,11 +219,11 @@ class CaffeGraph {
             });
             var keys = Object.keys(nodeMap);
             if (keys.length == 1) {
-                this._outputs.push(new CaffeArgument(keys[0], [ new CaffeConnection(keys[0], null) ]));
+                this._outputs.push(new caffe.Argument(keys[0], [ new caffe.Connection(keys[0], null) ]));
             }
             else if (outputs.length == 1) {
                 outputs[0]._outputs = [ 'output' ];
-                this._outputs.push(new CaffeArgument('output', [ new CaffeConnection('output', null) ]));
+                this._outputs.push(new caffe.Argument('output', [ new caffe.Connection('output', null) ]));
             }
         }
     }
@@ -262,8 +261,8 @@ class CaffeGraph {
                     if (attribute.name == 'shape') {
                         if (attribute._value.length == 1 && attribute._value[0].dim) {
                             var input = node._outputs[0];
-                            var type = new CaffeTensorType(null, attribute._value[0].dim);
-                            this._inputs.push(new CaffeArgument(input, [ new CaffeConnection(input, type) ]));
+                            var type = new caffe.TensorType(null, attribute._value[0].dim);
+                            this._inputs.push(new caffe.Argument(input, [ new caffe.Connection(input, type) ]));
                             return true;
                         }
                     }
@@ -272,9 +271,9 @@ class CaffeGraph {
         }
         return false;
     }
-}
+};
 
-class CaffeArgument {
+caffe.Argument = class {
     constructor(name, connections) {
         this._name = name;
         this._connections = connections;
@@ -291,9 +290,9 @@ class CaffeArgument {
     get connections() {
         return this._connections;
     }
-}
+};
 
-class CaffeConnection {
+caffe.Connection = class {
     constructor(id, type, initializer) {
         this._id = id;
         this._type = type || null;
@@ -314,9 +313,9 @@ class CaffeConnection {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
-class CaffeNode {
+caffe.Node = class {
 
     constructor(layer, version) {
 
@@ -326,7 +325,7 @@ class CaffeNode {
                 this._name = layer.layer.name;
                 break;
             case 1:
-                this._type = CaffeNode.getOperator(layer.type);
+                this._type = caffe.Node.getOperator(layer.type);
                 this._name = layer.name;
                 break;
             case 2:
@@ -345,11 +344,11 @@ class CaffeNode {
                 Object.keys(layer.layer).forEach((attributeName) => {
                     if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
                         var attributeValue = layer.layer[attributeName];
-                        this._attributes.push(new CaffeAttribute(this.operator, attributeName, attributeValue));
+                        this._attributes.push(new caffe.Attribute(this.operator, attributeName, attributeValue));
                     }
                 });
                 layer.layer.blobs.forEach((blob) => {
-                    this._initializers.push(new CaffeTensor(blob));
+                    this._initializers.push(new caffe.Tensor(blob));
                 });
                 break;
             case 1:
@@ -367,23 +366,23 @@ class CaffeNode {
                                 var defaultValue = prototype[name];
                                 var value = param[name];
                                 if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
-                                    this._attributes.push(new CaffeAttribute(this.operator, name, value));
+                                    this._attributes.push(new caffe.Attribute(this.operator, name, value));
                                 }
                             });
                         }
                     }
                 });
                 if (layer.include && layer.include.length > 0) {
-                    this._attributes.push(new CaffeAttribute(this.operator, 'include', layer.include));
+                    this._attributes.push(new caffe.Attribute(this.operator, 'include', layer.include));
                 }
                 if (layer.exclude && layer.exclude.length > 0) {
-                    this._attributes.push(new CaffeAttribute(this.operator, 'exclude', layer.exclude));
+                    this._attributes.push(new caffe.Attribute(this.operator, 'exclude', layer.exclude));
                 }
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
-                    this._attributes.push(new CaffeAttribute(this.operator, 'shape', layer.input_param.shape));
+                    this._attributes.push(new caffe.Attribute(this.operator, 'shape', layer.input_param.shape));
                 }
                 layer.blobs.forEach((blob) => {
-                    this._initializers.push(new CaffeTensor(blob));
+                    this._initializers.push(new caffe.Tensor(blob));
                 });
                 break;
         }
@@ -394,7 +393,7 @@ class CaffeNode {
     }
 
     get category() {
-        var schema = CaffeOperatorMetadata.operatorMetadata.getSchema(this._type);
+        var schema = caffe.OperatorMetadata.operatorMetadata.getSchema(this._type);
         return (schema && schema.category) ? schema.category : null;
     }
 
@@ -404,22 +403,22 @@ class CaffeNode {
 
     get inputs() {
         var list = this._inputs.concat(this._initializers);
-        var inputs = CaffeOperatorMetadata.operatorMetadata.getInputs(this._type, list);
+        var inputs = caffe.OperatorMetadata.operatorMetadata.getInputs(this._type, list);
         return inputs.map((input) => {
-            return new CaffeArgument(input.name, input.connections.map((connection) => {
-                if (connection.id instanceof CaffeTensor) {
-                    return new CaffeConnection('', null, connection.id);
+            return new caffe.Argument(input.name, input.connections.map((connection) => {
+                if (connection.id instanceof caffe.Tensor) {
+                    return new caffe.Connection('', null, connection.id);
                 }
-                return new CaffeConnection(connection.id, null, null);
+                return new caffe.Connection(connection.id, null, null);
             }));
         });
     }
 
     get outputs() {
-        var outputs = CaffeOperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs);
+        var outputs = caffe.OperatorMetadata.operatorMetadata.getOutputs(this._type, this._outputs);
         return outputs.map((output) => {
-            return new CaffeArgument(output.name, output.connections.map((connection) => {
-                return new CaffeConnection(connection.id, null, null);
+            return new caffe.Argument(output.name, output.connections.map((connection) => {
+                return new caffe.Connection(connection.id, null, null);
             }));
         });
     }
@@ -429,12 +428,12 @@ class CaffeNode {
     }
 
     static getOperator(index) {
-        if (!CaffeNode._operatorMap) {
-            CaffeNode._operatorMap = {};
+        if (!caffe.Node._operatorMap) {
+            caffe.Node._operatorMap = {};
             var known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
-            Object.keys(caffe.V1LayerParameter.LayerType).forEach((key) => {
-                var index = caffe.V1LayerParameter.LayerType[key];
-                CaffeNode._operatorMap[index] = key.split('_').map((item) => {
+            Object.keys(caffe.proto.V1LayerParameter.LayerType).forEach((key) => {
+                var index = caffe.proto.V1LayerParameter.LayerType[key];
+                caffe.Node._operatorMap[index] = key.split('_').map((item) => {
                     return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
                 }).join('');
             });
@@ -442,27 +441,27 @@ class CaffeNode {
         if (index === undefined) {
             return '?';
         }
-        var type = CaffeNode._operatorMap[index];
+        var type = caffe.Node._operatorMap[index];
         if (type) {
             return type;
         }
         return index.toString();
     }
-}
+};
 
-class CaffeAttribute {
+caffe.Attribute = class {
 
     constructor(operator, name, value) {
         this._name = name;
         this._value = value;
 
-        if (value instanceof caffe.BlobShape) {
+        if (value instanceof caffe.proto.BlobShape) {
             this._value = () => {
                 return JSON.stringify(value.dim);
             };
         }
 
-        var schema = CaffeOperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name);
+        var schema = caffe.OperatorMetadata.operatorMetadata.getAttributeSchema(operator, this._name);
         if (schema) {
             if (schema.hasOwnProperty('visible') && !schema.visible) {
                 this._visible = false;
@@ -495,9 +494,9 @@ class CaffeAttribute {
     get visible() {
         return this._visible == false ? false : true;
     }
-}
+};
 
-class CaffeTensor {
+caffe.Tensor = class {
 
     constructor(blob) {
         this._blob = blob;
@@ -532,7 +531,7 @@ class CaffeTensor {
             this._data = blob.double_data;
         }
 
-        this._type = new CaffeTensorType(dataType, new CaffeTensorShape(shape));
+        this._type = new caffe.TensorType(dataType, new caffe.TensorShape(shape));
     }
 
     get kind() {
@@ -604,9 +603,9 @@ class CaffeTensor {
         }
         return results;
     }
-}
+};
 
-class CaffeTensorType {
+caffe.TensorType = class {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
@@ -624,9 +623,9 @@ class CaffeTensorType {
     toString() {
         return (this.dataType || '?') + this._shape.toString();
     }
-}
+};
 
-class CaffeTensorShape {
+caffe.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions.map((dimension) => {
@@ -644,19 +643,18 @@ class CaffeTensorShape {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
-class CaffeOperatorMetadata 
-{
+caffe.OperatorMetadata = class {
 
     static open(host, callback) {
-        if (CaffeOperatorMetadata.operatorMetadata) {
-            callback(null, CaffeOperatorMetadata.operatorMetadata);
+        if (caffe.OperatorMetadata.operatorMetadata) {
+            callback(null, caffe.OperatorMetadata.operatorMetadata);
         }
         else {
             host.request(null, 'caffe-metadata.json', 'utf-8', (err, data) => {
-                CaffeOperatorMetadata.operatorMetadata = new CaffeOperatorMetadata(data);
-                callback(null, CaffeOperatorMetadata.operatorMetadata);
+                caffe.OperatorMetadata.operatorMetadata = new caffe.OperatorMetadata(data);
+                callback(null, caffe.OperatorMetadata.operatorMetadata);
             });
         }
     }
@@ -761,11 +759,15 @@ class CaffeOperatorMetadata
         }
         return null;
     }
-}
+};
 
-class CaffeError extends Error {
+caffe.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading Caffe model.';
     }
+};
+
+if (module && module.exports) {
+    module.exports.ModelFactory = caffe.ModelFactory;
 }
