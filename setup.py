@@ -93,7 +93,7 @@ setuptools.setup(
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
             'mxnet.js', 'mxnet-metadata.json',
-            'cntk-model.js', 'cntk-metadata.json', 'cntk-proto.js',
+            'cntk.js', 'cntk-metadata.json', 'cntk-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'pickle.js',
             'sklearn.js', 'sklearn-metadata.json',
             'numpy.js', 'zip.js', 'tar.js', 'gzip.js',

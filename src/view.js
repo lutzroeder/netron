@@ -1196,7 +1196,7 @@ class ModelFactoryService {
             new TensorFlowLiteModelFactory(),
             new TensorFlowModelFactory(),
             new sklearn.ModelFactory(),
-            new CntkModelFactory()
+            new cntk.ModelFactory()
         ];
     }
 
