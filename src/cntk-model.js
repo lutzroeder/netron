@@ -1169,7 +1169,7 @@ cntk_v1.Reader = class {
 
     assert(text) {
         if (!this.match(text)) {
-            throw new CntkError("Invalid '" + text + "' signature.");
+            throw new cntk_v1.Error("Invalid '" + text + "' signature.");
         }
     }
 
@@ -1223,7 +1223,7 @@ cntk_v1.Reader = class {
         var low = this.uint32();
         var hi = this.uint32();
         if (hi > 65536) {
-            throw new CntkError('Value not in 48-bit range.');
+            throw new cntk_v1.Error('Value not in 48-bit range.');
         }
         return (hi << 32) | low;
     }
@@ -1307,9 +1307,9 @@ cntk_v1.Matrix = class {
                 reader.assert('EMAT');
                 break;
             case 115: // sparse
-                throw new CntkError('Matrix sparse type not implemented.');
+                throw new cntk_v1.Error('Matrix sparse type not implemented.');
             default:
-                throw new CntkError("Matrix type '" + type.toString() + "' not implemented.");
+                throw new cntk_v1.Error("Matrix type '" + type.toString() + "' not implemented.");
         }
     }
 };
@@ -1323,6 +1323,13 @@ cntk_v1.PoolKind = {
     0: 'None',
     1: 'Max',
     2: 'Average'
+};
+
+cntk_v1.Error = class extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'Error loading CNTK v1 model.';
+    }
 };
 
 class CntkError extends Error {
