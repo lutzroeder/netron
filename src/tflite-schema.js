@@ -7,9 +7,15 @@
 var tflite = tflite || {};
 
 /**
+ * @const
+ * @namespace
+ */
+tflite.schema = tflite.schema || {};
+
+/**
  * @enum
  */
-tflite.TensorType = {
+tflite.schema.TensorType = {
   FLOAT32: 0, 0: 'FLOAT32',
   FLOAT16: 1, 1: 'FLOAT16',
   INT32: 2, 2: 'INT32',
@@ -24,7 +30,7 @@ tflite.TensorType = {
 /**
  * @enum
  */
-tflite.BuiltinOperator = {
+tflite.schema.BuiltinOperator = {
   ADD: 0, 0: 'ADD',
   AVERAGE_POOL_2D: 1, 1: 'AVERAGE_POOL_2D',
   CONCATENATION: 2, 2: 'CONCATENATION',
@@ -127,7 +133,7 @@ tflite.BuiltinOperator = {
 /**
  * @enum
  */
-tflite.BuiltinOptions = {
+tflite.schema.BuiltinOptions = {
   NONE: 0, 0: 'NONE',
   Conv2DOptions: 1, 1: 'Conv2DOptions',
   DepthwiseConv2DOptions: 2, 2: 'DepthwiseConv2DOptions',
@@ -208,7 +214,7 @@ tflite.BuiltinOptions = {
 /**
  * @enum
  */
-tflite.Padding = {
+tflite.schema.Padding = {
   SAME: 0, 0: 'SAME',
   VALID: 1, 1: 'VALID'
 };
@@ -216,7 +222,7 @@ tflite.Padding = {
 /**
  * @enum
  */
-tflite.ActivationFunctionType = {
+tflite.schema.ActivationFunctionType = {
   NONE: 0, 0: 'NONE',
   RELU: 1, 1: 'RELU',
   RELU_N1_TO_1: 2, 2: 'RELU_N1_TO_1',
@@ -228,7 +234,7 @@ tflite.ActivationFunctionType = {
 /**
  * @enum
  */
-tflite.LSHProjectionType = {
+tflite.schema.LSHProjectionType = {
   UNKNOWN: 0, 0: 'UNKNOWN',
   SPARSE: 1, 1: 'SPARSE',
   DENSE: 2, 2: 'DENSE'
@@ -237,7 +243,7 @@ tflite.LSHProjectionType = {
 /**
  * @enum
  */
-tflite.FullyConnectedOptionsWeightsFormat = {
+tflite.schema.FullyConnectedOptionsWeightsFormat = {
   DEFAULT: 0, 0: 'DEFAULT',
   SHUFFLED4x16INT8: 1, 1: 'SHUFFLED4x16INT8'
 };
@@ -245,7 +251,7 @@ tflite.FullyConnectedOptionsWeightsFormat = {
 /**
  * @enum
  */
-tflite.LSTMKernelType = {
+tflite.schema.LSTMKernelType = {
   FULL: 0, 0: 'FULL',
   BASIC: 1, 1: 'BASIC'
 };
@@ -253,7 +259,7 @@ tflite.LSTMKernelType = {
 /**
  * @enum
  */
-tflite.CombinerType = {
+tflite.schema.CombinerType = {
   SUM: 0, 0: 'SUM',
   MEAN: 1, 1: 'MEAN',
   SQRTN: 2, 2: 'SQRTN'
@@ -262,14 +268,14 @@ tflite.CombinerType = {
 /**
  * @enum
  */
-tflite.CustomOptionsFormat = {
+tflite.schema.CustomOptionsFormat = {
   FLEXBUFFERS: 0, 0: 'FLEXBUFFERS'
 };
 
 /**
  * @constructor
  */
-tflite.QuantizationParameters = function() {
+tflite.schema.QuantizationParameters = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -284,9 +290,9 @@ tflite.QuantizationParameters = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.QuantizationParameters}
+ * @returns {tflite.schema.QuantizationParameters}
  */
-tflite.QuantizationParameters.prototype.__init = function(i, bb) {
+tflite.schema.QuantizationParameters.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -294,18 +300,18 @@ tflite.QuantizationParameters.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.QuantizationParameters=} obj
- * @returns {tflite.QuantizationParameters}
+ * @param {tflite.schema.QuantizationParameters=} obj
+ * @returns {tflite.schema.QuantizationParameters}
  */
-tflite.QuantizationParameters.getRootAsQuantizationParameters = function(bb, obj) {
-  return (obj || new tflite.QuantizationParameters).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.QuantizationParameters.getRootAsQuantizationParameters = function(bb, obj) {
+  return (obj || new tflite.schema.QuantizationParameters).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {number} index
  * @returns {number}
  */
-tflite.QuantizationParameters.prototype.min = function(index) {
+tflite.schema.QuantizationParameters.prototype.min = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -313,7 +319,7 @@ tflite.QuantizationParameters.prototype.min = function(index) {
 /**
  * @returns {number}
  */
-tflite.QuantizationParameters.prototype.minLength = function() {
+tflite.schema.QuantizationParameters.prototype.minLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -321,7 +327,7 @@ tflite.QuantizationParameters.prototype.minLength = function() {
 /**
  * @returns {Float32Array}
  */
-tflite.QuantizationParameters.prototype.minArray = function() {
+tflite.schema.QuantizationParameters.prototype.minArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -330,7 +336,7 @@ tflite.QuantizationParameters.prototype.minArray = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.QuantizationParameters.prototype.max = function(index) {
+tflite.schema.QuantizationParameters.prototype.max = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -338,7 +344,7 @@ tflite.QuantizationParameters.prototype.max = function(index) {
 /**
  * @returns {number}
  */
-tflite.QuantizationParameters.prototype.maxLength = function() {
+tflite.schema.QuantizationParameters.prototype.maxLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -346,7 +352,7 @@ tflite.QuantizationParameters.prototype.maxLength = function() {
 /**
  * @returns {Float32Array}
  */
-tflite.QuantizationParameters.prototype.maxArray = function() {
+tflite.schema.QuantizationParameters.prototype.maxArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -355,7 +361,7 @@ tflite.QuantizationParameters.prototype.maxArray = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.QuantizationParameters.prototype.scale = function(index) {
+tflite.schema.QuantizationParameters.prototype.scale = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -363,7 +369,7 @@ tflite.QuantizationParameters.prototype.scale = function(index) {
 /**
  * @returns {number}
  */
-tflite.QuantizationParameters.prototype.scaleLength = function() {
+tflite.schema.QuantizationParameters.prototype.scaleLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -371,7 +377,7 @@ tflite.QuantizationParameters.prototype.scaleLength = function() {
 /**
  * @returns {Float32Array}
  */
-tflite.QuantizationParameters.prototype.scaleArray = function() {
+tflite.schema.QuantizationParameters.prototype.scaleArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -380,7 +386,7 @@ tflite.QuantizationParameters.prototype.scaleArray = function() {
  * @param {number} index
  * @returns {flatbuffers.Long}
  */
-tflite.QuantizationParameters.prototype.zeroPoint = function(index) {
+tflite.schema.QuantizationParameters.prototype.zeroPoint = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.readInt64(this.bb.__vector(this.bb_pos + offset) + index * 8) : this.bb.createLong(0, 0);
 };
@@ -388,7 +394,7 @@ tflite.QuantizationParameters.prototype.zeroPoint = function(index) {
 /**
  * @returns {number}
  */
-tflite.QuantizationParameters.prototype.zeroPointLength = function() {
+tflite.schema.QuantizationParameters.prototype.zeroPointLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -396,7 +402,7 @@ tflite.QuantizationParameters.prototype.zeroPointLength = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.QuantizationParameters.startQuantizationParameters = function(builder) {
+tflite.schema.QuantizationParameters.startQuantizationParameters = function(builder) {
   builder.startObject(4);
 };
 
@@ -404,7 +410,7 @@ tflite.QuantizationParameters.startQuantizationParameters = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} minOffset
  */
-tflite.QuantizationParameters.addMin = function(builder, minOffset) {
+tflite.schema.QuantizationParameters.addMin = function(builder, minOffset) {
   builder.addFieldOffset(0, minOffset, 0);
 };
 
@@ -413,7 +419,7 @@ tflite.QuantizationParameters.addMin = function(builder, minOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.QuantizationParameters.createMinVector = function(builder, data) {
+tflite.schema.QuantizationParameters.createMinVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addFloat32(data[i]);
@@ -425,7 +431,7 @@ tflite.QuantizationParameters.createMinVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.QuantizationParameters.startMinVector = function(builder, numElems) {
+tflite.schema.QuantizationParameters.startMinVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -433,7 +439,7 @@ tflite.QuantizationParameters.startMinVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} maxOffset
  */
-tflite.QuantizationParameters.addMax = function(builder, maxOffset) {
+tflite.schema.QuantizationParameters.addMax = function(builder, maxOffset) {
   builder.addFieldOffset(1, maxOffset, 0);
 };
 
@@ -442,7 +448,7 @@ tflite.QuantizationParameters.addMax = function(builder, maxOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.QuantizationParameters.createMaxVector = function(builder, data) {
+tflite.schema.QuantizationParameters.createMaxVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addFloat32(data[i]);
@@ -454,7 +460,7 @@ tflite.QuantizationParameters.createMaxVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.QuantizationParameters.startMaxVector = function(builder, numElems) {
+tflite.schema.QuantizationParameters.startMaxVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -462,7 +468,7 @@ tflite.QuantizationParameters.startMaxVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} scaleOffset
  */
-tflite.QuantizationParameters.addScale = function(builder, scaleOffset) {
+tflite.schema.QuantizationParameters.addScale = function(builder, scaleOffset) {
   builder.addFieldOffset(2, scaleOffset, 0);
 };
 
@@ -471,7 +477,7 @@ tflite.QuantizationParameters.addScale = function(builder, scaleOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.QuantizationParameters.createScaleVector = function(builder, data) {
+tflite.schema.QuantizationParameters.createScaleVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addFloat32(data[i]);
@@ -483,7 +489,7 @@ tflite.QuantizationParameters.createScaleVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.QuantizationParameters.startScaleVector = function(builder, numElems) {
+tflite.schema.QuantizationParameters.startScaleVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -491,7 +497,7 @@ tflite.QuantizationParameters.startScaleVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} zeroPointOffset
  */
-tflite.QuantizationParameters.addZeroPoint = function(builder, zeroPointOffset) {
+tflite.schema.QuantizationParameters.addZeroPoint = function(builder, zeroPointOffset) {
   builder.addFieldOffset(3, zeroPointOffset, 0);
 };
 
@@ -500,7 +506,7 @@ tflite.QuantizationParameters.addZeroPoint = function(builder, zeroPointOffset) 
  * @param {Array.<flatbuffers.Long>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.QuantizationParameters.createZeroPointVector = function(builder, data) {
+tflite.schema.QuantizationParameters.createZeroPointVector = function(builder, data) {
   builder.startVector(8, data.length, 8);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt64(data[i]);
@@ -512,7 +518,7 @@ tflite.QuantizationParameters.createZeroPointVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.QuantizationParameters.startZeroPointVector = function(builder, numElems) {
+tflite.schema.QuantizationParameters.startZeroPointVector = function(builder, numElems) {
   builder.startVector(8, numElems, 8);
 };
 
@@ -520,7 +526,7 @@ tflite.QuantizationParameters.startZeroPointVector = function(builder, numElems)
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.QuantizationParameters.endQuantizationParameters = function(builder) {
+tflite.schema.QuantizationParameters.endQuantizationParameters = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -528,7 +534,7 @@ tflite.QuantizationParameters.endQuantizationParameters = function(builder) {
 /**
  * @constructor
  */
-tflite.Tensor = function() {
+tflite.schema.Tensor = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -543,9 +549,9 @@ tflite.Tensor = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.Tensor}
+ * @returns {tflite.schema.Tensor}
  */
-tflite.Tensor.prototype.__init = function(i, bb) {
+tflite.schema.Tensor.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -553,18 +559,18 @@ tflite.Tensor.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.Tensor=} obj
- * @returns {tflite.Tensor}
+ * @param {tflite.schema.Tensor=} obj
+ * @returns {tflite.schema.Tensor}
  */
-tflite.Tensor.getRootAsTensor = function(bb, obj) {
-  return (obj || new tflite.Tensor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.Tensor.getRootAsTensor = function(bb, obj) {
+  return (obj || new tflite.schema.Tensor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {number} index
  * @returns {number}
  */
-tflite.Tensor.prototype.shape = function(index) {
+tflite.schema.Tensor.prototype.shape = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -572,7 +578,7 @@ tflite.Tensor.prototype.shape = function(index) {
 /**
  * @returns {number}
  */
-tflite.Tensor.prototype.shapeLength = function() {
+tflite.schema.Tensor.prototype.shapeLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -580,23 +586,23 @@ tflite.Tensor.prototype.shapeLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.Tensor.prototype.shapeArray = function() {
+tflite.schema.Tensor.prototype.shapeArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * @returns {tflite.TensorType}
+ * @returns {tflite.schema.TensorType}
  */
-tflite.Tensor.prototype.type = function() {
+tflite.schema.Tensor.prototype.type = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+  return offset ? /** @type {tflite.schema.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.TensorType.FLOAT32;
 };
 
 /**
  * @returns {number}
  */
-tflite.Tensor.prototype.buffer = function() {
+tflite.schema.Tensor.prototype.buffer = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
@@ -605,24 +611,24 @@ tflite.Tensor.prototype.buffer = function() {
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array|null}
  */
-tflite.Tensor.prototype.name = function(optionalEncoding) {
+tflite.schema.Tensor.prototype.name = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
 /**
- * @param {tflite.QuantizationParameters=} obj
- * @returns {tflite.QuantizationParameters|null}
+ * @param {tflite.schema.QuantizationParameters=} obj
+ * @returns {tflite.schema.QuantizationParameters|null}
  */
-tflite.Tensor.prototype.quantization = function(obj) {
+tflite.schema.Tensor.prototype.quantization = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? (obj || new tflite.QuantizationParameters).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+  return offset ? (obj || new tflite.schema.QuantizationParameters).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
 };
 
 /**
  * @returns {boolean}
  */
-tflite.Tensor.prototype.isVariable = function() {
+tflite.schema.Tensor.prototype.isVariable = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -630,7 +636,7 @@ tflite.Tensor.prototype.isVariable = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.Tensor.startTensor = function(builder) {
+tflite.schema.Tensor.startTensor = function(builder) {
   builder.startObject(6);
 };
 
@@ -638,7 +644,7 @@ tflite.Tensor.startTensor = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} shapeOffset
  */
-tflite.Tensor.addShape = function(builder, shapeOffset) {
+tflite.schema.Tensor.addShape = function(builder, shapeOffset) {
   builder.addFieldOffset(0, shapeOffset, 0);
 };
 
@@ -647,7 +653,7 @@ tflite.Tensor.addShape = function(builder, shapeOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Tensor.createShapeVector = function(builder, data) {
+tflite.schema.Tensor.createShapeVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -659,23 +665,23 @@ tflite.Tensor.createShapeVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Tensor.startShapeVector = function(builder, numElems) {
+tflite.schema.Tensor.startShapeVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.TensorType} type
+ * @param {tflite.schema.TensorType} type
  */
-tflite.Tensor.addType = function(builder, type) {
-  builder.addFieldInt8(1, type, tflite.TensorType.FLOAT32);
+tflite.schema.Tensor.addType = function(builder, type) {
+  builder.addFieldInt8(1, type, tflite.schema.TensorType.FLOAT32);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} buffer
  */
-tflite.Tensor.addBuffer = function(builder, buffer) {
+tflite.schema.Tensor.addBuffer = function(builder, buffer) {
   builder.addFieldInt32(2, buffer, 0);
 };
 
@@ -683,7 +689,7 @@ tflite.Tensor.addBuffer = function(builder, buffer) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} nameOffset
  */
-tflite.Tensor.addName = function(builder, nameOffset) {
+tflite.schema.Tensor.addName = function(builder, nameOffset) {
   builder.addFieldOffset(3, nameOffset, 0);
 };
 
@@ -691,7 +697,7 @@ tflite.Tensor.addName = function(builder, nameOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} quantizationOffset
  */
-tflite.Tensor.addQuantization = function(builder, quantizationOffset) {
+tflite.schema.Tensor.addQuantization = function(builder, quantizationOffset) {
   builder.addFieldOffset(4, quantizationOffset, 0);
 };
 
@@ -699,7 +705,7 @@ tflite.Tensor.addQuantization = function(builder, quantizationOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} isVariable
  */
-tflite.Tensor.addIsVariable = function(builder, isVariable) {
+tflite.schema.Tensor.addIsVariable = function(builder, isVariable) {
   builder.addFieldInt8(5, +isVariable, +false);
 };
 
@@ -707,7 +713,7 @@ tflite.Tensor.addIsVariable = function(builder, isVariable) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.Tensor.endTensor = function(builder) {
+tflite.schema.Tensor.endTensor = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -715,7 +721,7 @@ tflite.Tensor.endTensor = function(builder) {
 /**
  * @constructor
  */
-tflite.Conv2DOptions = function() {
+tflite.schema.Conv2DOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -730,9 +736,9 @@ tflite.Conv2DOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.Conv2DOptions}
+ * @returns {tflite.schema.Conv2DOptions}
  */
-tflite.Conv2DOptions.prototype.__init = function(i, bb) {
+tflite.schema.Conv2DOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -740,25 +746,25 @@ tflite.Conv2DOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.Conv2DOptions=} obj
- * @returns {tflite.Conv2DOptions}
+ * @param {tflite.schema.Conv2DOptions=} obj
+ * @returns {tflite.schema.Conv2DOptions}
  */
-tflite.Conv2DOptions.getRootAsConv2DOptions = function(bb, obj) {
-  return (obj || new tflite.Conv2DOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.Conv2DOptions.getRootAsConv2DOptions = function(bb, obj) {
+  return (obj || new tflite.schema.Conv2DOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.Padding}
+ * @returns {tflite.schema.Padding}
  */
-tflite.Conv2DOptions.prototype.padding = function() {
+tflite.schema.Conv2DOptions.prototype.padding = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.Padding.SAME;
+  return offset ? /** @type {tflite.schema.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.Padding.SAME;
 };
 
 /**
  * @returns {number}
  */
-tflite.Conv2DOptions.prototype.strideW = function() {
+tflite.schema.Conv2DOptions.prototype.strideW = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -766,23 +772,23 @@ tflite.Conv2DOptions.prototype.strideW = function() {
 /**
  * @returns {number}
  */
-tflite.Conv2DOptions.prototype.strideH = function() {
+tflite.schema.Conv2DOptions.prototype.strideH = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.Conv2DOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.Conv2DOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @returns {number}
  */
-tflite.Conv2DOptions.prototype.dilationWFactor = function() {
+tflite.schema.Conv2DOptions.prototype.dilationWFactor = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
 };
@@ -790,7 +796,7 @@ tflite.Conv2DOptions.prototype.dilationWFactor = function() {
 /**
  * @returns {number}
  */
-tflite.Conv2DOptions.prototype.dilationHFactor = function() {
+tflite.schema.Conv2DOptions.prototype.dilationHFactor = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
 };
@@ -798,23 +804,23 @@ tflite.Conv2DOptions.prototype.dilationHFactor = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.Conv2DOptions.startConv2DOptions = function(builder) {
+tflite.schema.Conv2DOptions.startConv2DOptions = function(builder) {
   builder.startObject(6);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.Padding} padding
+ * @param {tflite.schema.Padding} padding
  */
-tflite.Conv2DOptions.addPadding = function(builder, padding) {
-  builder.addFieldInt8(0, padding, tflite.Padding.SAME);
+tflite.schema.Conv2DOptions.addPadding = function(builder, padding) {
+  builder.addFieldInt8(0, padding, tflite.schema.Padding.SAME);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} strideW
  */
-tflite.Conv2DOptions.addStrideW = function(builder, strideW) {
+tflite.schema.Conv2DOptions.addStrideW = function(builder, strideW) {
   builder.addFieldInt32(1, strideW, 0);
 };
 
@@ -822,23 +828,23 @@ tflite.Conv2DOptions.addStrideW = function(builder, strideW) {
  * @param {flatbuffers.Builder} builder
  * @param {number} strideH
  */
-tflite.Conv2DOptions.addStrideH = function(builder, strideH) {
+tflite.schema.Conv2DOptions.addStrideH = function(builder, strideH) {
   builder.addFieldInt32(2, strideH, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.Conv2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(3, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.Conv2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(3, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} dilationWFactor
  */
-tflite.Conv2DOptions.addDilationWFactor = function(builder, dilationWFactor) {
+tflite.schema.Conv2DOptions.addDilationWFactor = function(builder, dilationWFactor) {
   builder.addFieldInt32(4, dilationWFactor, 1);
 };
 
@@ -846,7 +852,7 @@ tflite.Conv2DOptions.addDilationWFactor = function(builder, dilationWFactor) {
  * @param {flatbuffers.Builder} builder
  * @param {number} dilationHFactor
  */
-tflite.Conv2DOptions.addDilationHFactor = function(builder, dilationHFactor) {
+tflite.schema.Conv2DOptions.addDilationHFactor = function(builder, dilationHFactor) {
   builder.addFieldInt32(5, dilationHFactor, 1);
 };
 
@@ -854,7 +860,7 @@ tflite.Conv2DOptions.addDilationHFactor = function(builder, dilationHFactor) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.Conv2DOptions.endConv2DOptions = function(builder) {
+tflite.schema.Conv2DOptions.endConv2DOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -862,7 +868,7 @@ tflite.Conv2DOptions.endConv2DOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.Pool2DOptions = function() {
+tflite.schema.Pool2DOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -877,9 +883,9 @@ tflite.Pool2DOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.Pool2DOptions}
+ * @returns {tflite.schema.Pool2DOptions}
  */
-tflite.Pool2DOptions.prototype.__init = function(i, bb) {
+tflite.schema.Pool2DOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -887,25 +893,25 @@ tflite.Pool2DOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.Pool2DOptions=} obj
- * @returns {tflite.Pool2DOptions}
+ * @param {tflite.schema.Pool2DOptions=} obj
+ * @returns {tflite.schema.Pool2DOptions}
  */
-tflite.Pool2DOptions.getRootAsPool2DOptions = function(bb, obj) {
-  return (obj || new tflite.Pool2DOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.Pool2DOptions.getRootAsPool2DOptions = function(bb, obj) {
+  return (obj || new tflite.schema.Pool2DOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.Padding}
+ * @returns {tflite.schema.Padding}
  */
-tflite.Pool2DOptions.prototype.padding = function() {
+tflite.schema.Pool2DOptions.prototype.padding = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.Padding.SAME;
+  return offset ? /** @type {tflite.schema.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.Padding.SAME;
 };
 
 /**
  * @returns {number}
  */
-tflite.Pool2DOptions.prototype.strideW = function() {
+tflite.schema.Pool2DOptions.prototype.strideW = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -913,7 +919,7 @@ tflite.Pool2DOptions.prototype.strideW = function() {
 /**
  * @returns {number}
  */
-tflite.Pool2DOptions.prototype.strideH = function() {
+tflite.schema.Pool2DOptions.prototype.strideH = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -921,7 +927,7 @@ tflite.Pool2DOptions.prototype.strideH = function() {
 /**
  * @returns {number}
  */
-tflite.Pool2DOptions.prototype.filterWidth = function() {
+tflite.schema.Pool2DOptions.prototype.filterWidth = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -929,39 +935,39 @@ tflite.Pool2DOptions.prototype.filterWidth = function() {
 /**
  * @returns {number}
  */
-tflite.Pool2DOptions.prototype.filterHeight = function() {
+tflite.schema.Pool2DOptions.prototype.filterHeight = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.Pool2DOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.Pool2DOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.Pool2DOptions.startPool2DOptions = function(builder) {
+tflite.schema.Pool2DOptions.startPool2DOptions = function(builder) {
   builder.startObject(6);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.Padding} padding
+ * @param {tflite.schema.Padding} padding
  */
-tflite.Pool2DOptions.addPadding = function(builder, padding) {
-  builder.addFieldInt8(0, padding, tflite.Padding.SAME);
+tflite.schema.Pool2DOptions.addPadding = function(builder, padding) {
+  builder.addFieldInt8(0, padding, tflite.schema.Padding.SAME);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} strideW
  */
-tflite.Pool2DOptions.addStrideW = function(builder, strideW) {
+tflite.schema.Pool2DOptions.addStrideW = function(builder, strideW) {
   builder.addFieldInt32(1, strideW, 0);
 };
 
@@ -969,7 +975,7 @@ tflite.Pool2DOptions.addStrideW = function(builder, strideW) {
  * @param {flatbuffers.Builder} builder
  * @param {number} strideH
  */
-tflite.Pool2DOptions.addStrideH = function(builder, strideH) {
+tflite.schema.Pool2DOptions.addStrideH = function(builder, strideH) {
   builder.addFieldInt32(2, strideH, 0);
 };
 
@@ -977,7 +983,7 @@ tflite.Pool2DOptions.addStrideH = function(builder, strideH) {
  * @param {flatbuffers.Builder} builder
  * @param {number} filterWidth
  */
-tflite.Pool2DOptions.addFilterWidth = function(builder, filterWidth) {
+tflite.schema.Pool2DOptions.addFilterWidth = function(builder, filterWidth) {
   builder.addFieldInt32(3, filterWidth, 0);
 };
 
@@ -985,23 +991,23 @@ tflite.Pool2DOptions.addFilterWidth = function(builder, filterWidth) {
  * @param {flatbuffers.Builder} builder
  * @param {number} filterHeight
  */
-tflite.Pool2DOptions.addFilterHeight = function(builder, filterHeight) {
+tflite.schema.Pool2DOptions.addFilterHeight = function(builder, filterHeight) {
   builder.addFieldInt32(4, filterHeight, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.Pool2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(5, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.Pool2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(5, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.Pool2DOptions.endPool2DOptions = function(builder) {
+tflite.schema.Pool2DOptions.endPool2DOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1009,7 +1015,7 @@ tflite.Pool2DOptions.endPool2DOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.DepthwiseConv2DOptions = function() {
+tflite.schema.DepthwiseConv2DOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1024,9 +1030,9 @@ tflite.DepthwiseConv2DOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.DepthwiseConv2DOptions}
+ * @returns {tflite.schema.DepthwiseConv2DOptions}
  */
-tflite.DepthwiseConv2DOptions.prototype.__init = function(i, bb) {
+tflite.schema.DepthwiseConv2DOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1034,25 +1040,25 @@ tflite.DepthwiseConv2DOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.DepthwiseConv2DOptions=} obj
- * @returns {tflite.DepthwiseConv2DOptions}
+ * @param {tflite.schema.DepthwiseConv2DOptions=} obj
+ * @returns {tflite.schema.DepthwiseConv2DOptions}
  */
-tflite.DepthwiseConv2DOptions.getRootAsDepthwiseConv2DOptions = function(bb, obj) {
-  return (obj || new tflite.DepthwiseConv2DOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.DepthwiseConv2DOptions.getRootAsDepthwiseConv2DOptions = function(bb, obj) {
+  return (obj || new tflite.schema.DepthwiseConv2DOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.Padding}
+ * @returns {tflite.schema.Padding}
  */
-tflite.DepthwiseConv2DOptions.prototype.padding = function() {
+tflite.schema.DepthwiseConv2DOptions.prototype.padding = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.Padding.SAME;
+  return offset ? /** @type {tflite.schema.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.Padding.SAME;
 };
 
 /**
  * @returns {number}
  */
-tflite.DepthwiseConv2DOptions.prototype.strideW = function() {
+tflite.schema.DepthwiseConv2DOptions.prototype.strideW = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -1060,7 +1066,7 @@ tflite.DepthwiseConv2DOptions.prototype.strideW = function() {
 /**
  * @returns {number}
  */
-tflite.DepthwiseConv2DOptions.prototype.strideH = function() {
+tflite.schema.DepthwiseConv2DOptions.prototype.strideH = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -1068,23 +1074,23 @@ tflite.DepthwiseConv2DOptions.prototype.strideH = function() {
 /**
  * @returns {number}
  */
-tflite.DepthwiseConv2DOptions.prototype.depthMultiplier = function() {
+tflite.schema.DepthwiseConv2DOptions.prototype.depthMultiplier = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.DepthwiseConv2DOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.DepthwiseConv2DOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @returns {number}
  */
-tflite.DepthwiseConv2DOptions.prototype.dilationWFactor = function() {
+tflite.schema.DepthwiseConv2DOptions.prototype.dilationWFactor = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
 };
@@ -1092,7 +1098,7 @@ tflite.DepthwiseConv2DOptions.prototype.dilationWFactor = function() {
 /**
  * @returns {number}
  */
-tflite.DepthwiseConv2DOptions.prototype.dilationHFactor = function() {
+tflite.schema.DepthwiseConv2DOptions.prototype.dilationHFactor = function() {
   var offset = this.bb.__offset(this.bb_pos, 16);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
 };
@@ -1100,23 +1106,23 @@ tflite.DepthwiseConv2DOptions.prototype.dilationHFactor = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.DepthwiseConv2DOptions.startDepthwiseConv2DOptions = function(builder) {
+tflite.schema.DepthwiseConv2DOptions.startDepthwiseConv2DOptions = function(builder) {
   builder.startObject(7);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.Padding} padding
+ * @param {tflite.schema.Padding} padding
  */
-tflite.DepthwiseConv2DOptions.addPadding = function(builder, padding) {
-  builder.addFieldInt8(0, padding, tflite.Padding.SAME);
+tflite.schema.DepthwiseConv2DOptions.addPadding = function(builder, padding) {
+  builder.addFieldInt8(0, padding, tflite.schema.Padding.SAME);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} strideW
  */
-tflite.DepthwiseConv2DOptions.addStrideW = function(builder, strideW) {
+tflite.schema.DepthwiseConv2DOptions.addStrideW = function(builder, strideW) {
   builder.addFieldInt32(1, strideW, 0);
 };
 
@@ -1124,7 +1130,7 @@ tflite.DepthwiseConv2DOptions.addStrideW = function(builder, strideW) {
  * @param {flatbuffers.Builder} builder
  * @param {number} strideH
  */
-tflite.DepthwiseConv2DOptions.addStrideH = function(builder, strideH) {
+tflite.schema.DepthwiseConv2DOptions.addStrideH = function(builder, strideH) {
   builder.addFieldInt32(2, strideH, 0);
 };
 
@@ -1132,23 +1138,23 @@ tflite.DepthwiseConv2DOptions.addStrideH = function(builder, strideH) {
  * @param {flatbuffers.Builder} builder
  * @param {number} depthMultiplier
  */
-tflite.DepthwiseConv2DOptions.addDepthMultiplier = function(builder, depthMultiplier) {
+tflite.schema.DepthwiseConv2DOptions.addDepthMultiplier = function(builder, depthMultiplier) {
   builder.addFieldInt32(3, depthMultiplier, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.DepthwiseConv2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(4, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.DepthwiseConv2DOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(4, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} dilationWFactor
  */
-tflite.DepthwiseConv2DOptions.addDilationWFactor = function(builder, dilationWFactor) {
+tflite.schema.DepthwiseConv2DOptions.addDilationWFactor = function(builder, dilationWFactor) {
   builder.addFieldInt32(5, dilationWFactor, 1);
 };
 
@@ -1156,7 +1162,7 @@ tflite.DepthwiseConv2DOptions.addDilationWFactor = function(builder, dilationWFa
  * @param {flatbuffers.Builder} builder
  * @param {number} dilationHFactor
  */
-tflite.DepthwiseConv2DOptions.addDilationHFactor = function(builder, dilationHFactor) {
+tflite.schema.DepthwiseConv2DOptions.addDilationHFactor = function(builder, dilationHFactor) {
   builder.addFieldInt32(6, dilationHFactor, 1);
 };
 
@@ -1164,7 +1170,7 @@ tflite.DepthwiseConv2DOptions.addDilationHFactor = function(builder, dilationHFa
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.DepthwiseConv2DOptions.endDepthwiseConv2DOptions = function(builder) {
+tflite.schema.DepthwiseConv2DOptions.endDepthwiseConv2DOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1172,7 +1178,7 @@ tflite.DepthwiseConv2DOptions.endDepthwiseConv2DOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ConcatEmbeddingsOptions = function() {
+tflite.schema.ConcatEmbeddingsOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1187,9 +1193,9 @@ tflite.ConcatEmbeddingsOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ConcatEmbeddingsOptions}
+ * @returns {tflite.schema.ConcatEmbeddingsOptions}
  */
-tflite.ConcatEmbeddingsOptions.prototype.__init = function(i, bb) {
+tflite.schema.ConcatEmbeddingsOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1197,17 +1203,17 @@ tflite.ConcatEmbeddingsOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ConcatEmbeddingsOptions=} obj
- * @returns {tflite.ConcatEmbeddingsOptions}
+ * @param {tflite.schema.ConcatEmbeddingsOptions=} obj
+ * @returns {tflite.schema.ConcatEmbeddingsOptions}
  */
-tflite.ConcatEmbeddingsOptions.getRootAsConcatEmbeddingsOptions = function(bb, obj) {
-  return (obj || new tflite.ConcatEmbeddingsOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ConcatEmbeddingsOptions.getRootAsConcatEmbeddingsOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ConcatEmbeddingsOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.ConcatEmbeddingsOptions.prototype.numChannels = function() {
+tflite.schema.ConcatEmbeddingsOptions.prototype.numChannels = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -1216,7 +1222,7 @@ tflite.ConcatEmbeddingsOptions.prototype.numChannels = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.ConcatEmbeddingsOptions.prototype.numColumnsPerChannel = function(index) {
+tflite.schema.ConcatEmbeddingsOptions.prototype.numColumnsPerChannel = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -1224,7 +1230,7 @@ tflite.ConcatEmbeddingsOptions.prototype.numColumnsPerChannel = function(index) 
 /**
  * @returns {number}
  */
-tflite.ConcatEmbeddingsOptions.prototype.numColumnsPerChannelLength = function() {
+tflite.schema.ConcatEmbeddingsOptions.prototype.numColumnsPerChannelLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -1232,7 +1238,7 @@ tflite.ConcatEmbeddingsOptions.prototype.numColumnsPerChannelLength = function()
 /**
  * @returns {Int32Array}
  */
-tflite.ConcatEmbeddingsOptions.prototype.numColumnsPerChannelArray = function() {
+tflite.schema.ConcatEmbeddingsOptions.prototype.numColumnsPerChannelArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -1241,7 +1247,7 @@ tflite.ConcatEmbeddingsOptions.prototype.numColumnsPerChannelArray = function() 
  * @param {number} index
  * @returns {number}
  */
-tflite.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannel = function(index) {
+tflite.schema.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannel = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -1249,7 +1255,7 @@ tflite.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannel = function(index
 /**
  * @returns {number}
  */
-tflite.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannelLength = function() {
+tflite.schema.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannelLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -1257,7 +1263,7 @@ tflite.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannelLength = function
 /**
  * @returns {Int32Array}
  */
-tflite.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannelArray = function() {
+tflite.schema.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannelArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -1265,7 +1271,7 @@ tflite.ConcatEmbeddingsOptions.prototype.embeddingDimPerChannelArray = function(
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ConcatEmbeddingsOptions.startConcatEmbeddingsOptions = function(builder) {
+tflite.schema.ConcatEmbeddingsOptions.startConcatEmbeddingsOptions = function(builder) {
   builder.startObject(3);
 };
 
@@ -1273,7 +1279,7 @@ tflite.ConcatEmbeddingsOptions.startConcatEmbeddingsOptions = function(builder) 
  * @param {flatbuffers.Builder} builder
  * @param {number} numChannels
  */
-tflite.ConcatEmbeddingsOptions.addNumChannels = function(builder, numChannels) {
+tflite.schema.ConcatEmbeddingsOptions.addNumChannels = function(builder, numChannels) {
   builder.addFieldInt32(0, numChannels, 0);
 };
 
@@ -1281,7 +1287,7 @@ tflite.ConcatEmbeddingsOptions.addNumChannels = function(builder, numChannels) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} numColumnsPerChannelOffset
  */
-tflite.ConcatEmbeddingsOptions.addNumColumnsPerChannel = function(builder, numColumnsPerChannelOffset) {
+tflite.schema.ConcatEmbeddingsOptions.addNumColumnsPerChannel = function(builder, numColumnsPerChannelOffset) {
   builder.addFieldOffset(1, numColumnsPerChannelOffset, 0);
 };
 
@@ -1290,7 +1296,7 @@ tflite.ConcatEmbeddingsOptions.addNumColumnsPerChannel = function(builder, numCo
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.ConcatEmbeddingsOptions.createNumColumnsPerChannelVector = function(builder, data) {
+tflite.schema.ConcatEmbeddingsOptions.createNumColumnsPerChannelVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -1302,7 +1308,7 @@ tflite.ConcatEmbeddingsOptions.createNumColumnsPerChannelVector = function(build
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.ConcatEmbeddingsOptions.startNumColumnsPerChannelVector = function(builder, numElems) {
+tflite.schema.ConcatEmbeddingsOptions.startNumColumnsPerChannelVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -1310,7 +1316,7 @@ tflite.ConcatEmbeddingsOptions.startNumColumnsPerChannelVector = function(builde
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} embeddingDimPerChannelOffset
  */
-tflite.ConcatEmbeddingsOptions.addEmbeddingDimPerChannel = function(builder, embeddingDimPerChannelOffset) {
+tflite.schema.ConcatEmbeddingsOptions.addEmbeddingDimPerChannel = function(builder, embeddingDimPerChannelOffset) {
   builder.addFieldOffset(2, embeddingDimPerChannelOffset, 0);
 };
 
@@ -1319,7 +1325,7 @@ tflite.ConcatEmbeddingsOptions.addEmbeddingDimPerChannel = function(builder, emb
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.ConcatEmbeddingsOptions.createEmbeddingDimPerChannelVector = function(builder, data) {
+tflite.schema.ConcatEmbeddingsOptions.createEmbeddingDimPerChannelVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -1331,7 +1337,7 @@ tflite.ConcatEmbeddingsOptions.createEmbeddingDimPerChannelVector = function(bui
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.ConcatEmbeddingsOptions.startEmbeddingDimPerChannelVector = function(builder, numElems) {
+tflite.schema.ConcatEmbeddingsOptions.startEmbeddingDimPerChannelVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -1339,7 +1345,7 @@ tflite.ConcatEmbeddingsOptions.startEmbeddingDimPerChannelVector = function(buil
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ConcatEmbeddingsOptions.endConcatEmbeddingsOptions = function(builder) {
+tflite.schema.ConcatEmbeddingsOptions.endConcatEmbeddingsOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1347,7 +1353,7 @@ tflite.ConcatEmbeddingsOptions.endConcatEmbeddingsOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LSHProjectionOptions = function() {
+tflite.schema.LSHProjectionOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1362,9 +1368,9 @@ tflite.LSHProjectionOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LSHProjectionOptions}
+ * @returns {tflite.schema.LSHProjectionOptions}
  */
-tflite.LSHProjectionOptions.prototype.__init = function(i, bb) {
+tflite.schema.LSHProjectionOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1372,41 +1378,41 @@ tflite.LSHProjectionOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LSHProjectionOptions=} obj
- * @returns {tflite.LSHProjectionOptions}
+ * @param {tflite.schema.LSHProjectionOptions=} obj
+ * @returns {tflite.schema.LSHProjectionOptions}
  */
-tflite.LSHProjectionOptions.getRootAsLSHProjectionOptions = function(bb, obj) {
-  return (obj || new tflite.LSHProjectionOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LSHProjectionOptions.getRootAsLSHProjectionOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LSHProjectionOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.LSHProjectionType}
+ * @returns {tflite.schema.LSHProjectionType}
  */
-tflite.LSHProjectionOptions.prototype.type = function() {
+tflite.schema.LSHProjectionOptions.prototype.type = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.LSHProjectionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.LSHProjectionType.UNKNOWN;
+  return offset ? /** @type {tflite.schema.LSHProjectionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.LSHProjectionType.UNKNOWN;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LSHProjectionOptions.startLSHProjectionOptions = function(builder) {
+tflite.schema.LSHProjectionOptions.startLSHProjectionOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.LSHProjectionType} type
+ * @param {tflite.schema.LSHProjectionType} type
  */
-tflite.LSHProjectionOptions.addType = function(builder, type) {
-  builder.addFieldInt8(0, type, tflite.LSHProjectionType.UNKNOWN);
+tflite.schema.LSHProjectionOptions.addType = function(builder, type) {
+  builder.addFieldInt8(0, type, tflite.schema.LSHProjectionType.UNKNOWN);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LSHProjectionOptions.endLSHProjectionOptions = function(builder) {
+tflite.schema.LSHProjectionOptions.endLSHProjectionOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1414,7 +1420,7 @@ tflite.LSHProjectionOptions.endLSHProjectionOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SVDFOptions = function() {
+tflite.schema.SVDFOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1429,9 +1435,9 @@ tflite.SVDFOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SVDFOptions}
+ * @returns {tflite.schema.SVDFOptions}
  */
-tflite.SVDFOptions.prototype.__init = function(i, bb) {
+tflite.schema.SVDFOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1439,33 +1445,33 @@ tflite.SVDFOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SVDFOptions=} obj
- * @returns {tflite.SVDFOptions}
+ * @param {tflite.schema.SVDFOptions=} obj
+ * @returns {tflite.schema.SVDFOptions}
  */
-tflite.SVDFOptions.getRootAsSVDFOptions = function(bb, obj) {
-  return (obj || new tflite.SVDFOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SVDFOptions.getRootAsSVDFOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SVDFOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.SVDFOptions.prototype.rank = function() {
+tflite.schema.SVDFOptions.prototype.rank = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.SVDFOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.SVDFOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SVDFOptions.startSVDFOptions = function(builder) {
+tflite.schema.SVDFOptions.startSVDFOptions = function(builder) {
   builder.startObject(2);
 };
 
@@ -1473,23 +1479,23 @@ tflite.SVDFOptions.startSVDFOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} rank
  */
-tflite.SVDFOptions.addRank = function(builder, rank) {
+tflite.schema.SVDFOptions.addRank = function(builder, rank) {
   builder.addFieldInt32(0, rank, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.SVDFOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(1, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.SVDFOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(1, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SVDFOptions.endSVDFOptions = function(builder) {
+tflite.schema.SVDFOptions.endSVDFOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1497,7 +1503,7 @@ tflite.SVDFOptions.endSVDFOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.RNNOptions = function() {
+tflite.schema.RNNOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1512,9 +1518,9 @@ tflite.RNNOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.RNNOptions}
+ * @returns {tflite.schema.RNNOptions}
  */
-tflite.RNNOptions.prototype.__init = function(i, bb) {
+tflite.schema.RNNOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1522,41 +1528,41 @@ tflite.RNNOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.RNNOptions=} obj
- * @returns {tflite.RNNOptions}
+ * @param {tflite.schema.RNNOptions=} obj
+ * @returns {tflite.schema.RNNOptions}
  */
-tflite.RNNOptions.getRootAsRNNOptions = function(bb, obj) {
-  return (obj || new tflite.RNNOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.RNNOptions.getRootAsRNNOptions = function(bb, obj) {
+  return (obj || new tflite.schema.RNNOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.RNNOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.RNNOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.RNNOptions.startRNNOptions = function(builder) {
+tflite.schema.RNNOptions.startRNNOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.RNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.RNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.RNNOptions.endRNNOptions = function(builder) {
+tflite.schema.RNNOptions.endRNNOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1564,7 +1570,7 @@ tflite.RNNOptions.endRNNOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SequenceRNNOptions = function() {
+tflite.schema.SequenceRNNOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1579,9 +1585,9 @@ tflite.SequenceRNNOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SequenceRNNOptions}
+ * @returns {tflite.schema.SequenceRNNOptions}
  */
-tflite.SequenceRNNOptions.prototype.__init = function(i, bb) {
+tflite.schema.SequenceRNNOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1589,33 +1595,33 @@ tflite.SequenceRNNOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SequenceRNNOptions=} obj
- * @returns {tflite.SequenceRNNOptions}
+ * @param {tflite.schema.SequenceRNNOptions=} obj
+ * @returns {tflite.schema.SequenceRNNOptions}
  */
-tflite.SequenceRNNOptions.getRootAsSequenceRNNOptions = function(bb, obj) {
-  return (obj || new tflite.SequenceRNNOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SequenceRNNOptions.getRootAsSequenceRNNOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SequenceRNNOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {boolean}
  */
-tflite.SequenceRNNOptions.prototype.timeMajor = function() {
+tflite.schema.SequenceRNNOptions.prototype.timeMajor = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.SequenceRNNOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.SequenceRNNOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SequenceRNNOptions.startSequenceRNNOptions = function(builder) {
+tflite.schema.SequenceRNNOptions.startSequenceRNNOptions = function(builder) {
   builder.startObject(2);
 };
 
@@ -1623,23 +1629,23 @@ tflite.SequenceRNNOptions.startSequenceRNNOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} timeMajor
  */
-tflite.SequenceRNNOptions.addTimeMajor = function(builder, timeMajor) {
+tflite.schema.SequenceRNNOptions.addTimeMajor = function(builder, timeMajor) {
   builder.addFieldInt8(0, +timeMajor, +false);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.SequenceRNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(1, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.SequenceRNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(1, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SequenceRNNOptions.endSequenceRNNOptions = function(builder) {
+tflite.schema.SequenceRNNOptions.endSequenceRNNOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1647,7 +1653,7 @@ tflite.SequenceRNNOptions.endSequenceRNNOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.BidirectionalSequenceRNNOptions = function() {
+tflite.schema.BidirectionalSequenceRNNOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1662,9 +1668,9 @@ tflite.BidirectionalSequenceRNNOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.BidirectionalSequenceRNNOptions}
+ * @returns {tflite.schema.BidirectionalSequenceRNNOptions}
  */
-tflite.BidirectionalSequenceRNNOptions.prototype.__init = function(i, bb) {
+tflite.schema.BidirectionalSequenceRNNOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1672,33 +1678,33 @@ tflite.BidirectionalSequenceRNNOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.BidirectionalSequenceRNNOptions=} obj
- * @returns {tflite.BidirectionalSequenceRNNOptions}
+ * @param {tflite.schema.BidirectionalSequenceRNNOptions=} obj
+ * @returns {tflite.schema.BidirectionalSequenceRNNOptions}
  */
-tflite.BidirectionalSequenceRNNOptions.getRootAsBidirectionalSequenceRNNOptions = function(bb, obj) {
-  return (obj || new tflite.BidirectionalSequenceRNNOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.BidirectionalSequenceRNNOptions.getRootAsBidirectionalSequenceRNNOptions = function(bb, obj) {
+  return (obj || new tflite.schema.BidirectionalSequenceRNNOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {boolean}
  */
-tflite.BidirectionalSequenceRNNOptions.prototype.timeMajor = function() {
+tflite.schema.BidirectionalSequenceRNNOptions.prototype.timeMajor = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.BidirectionalSequenceRNNOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.BidirectionalSequenceRNNOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @returns {boolean}
  */
-tflite.BidirectionalSequenceRNNOptions.prototype.mergeOutputs = function() {
+tflite.schema.BidirectionalSequenceRNNOptions.prototype.mergeOutputs = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -1706,7 +1712,7 @@ tflite.BidirectionalSequenceRNNOptions.prototype.mergeOutputs = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.BidirectionalSequenceRNNOptions.startBidirectionalSequenceRNNOptions = function(builder) {
+tflite.schema.BidirectionalSequenceRNNOptions.startBidirectionalSequenceRNNOptions = function(builder) {
   builder.startObject(3);
 };
 
@@ -1714,23 +1720,23 @@ tflite.BidirectionalSequenceRNNOptions.startBidirectionalSequenceRNNOptions = fu
  * @param {flatbuffers.Builder} builder
  * @param {boolean} timeMajor
  */
-tflite.BidirectionalSequenceRNNOptions.addTimeMajor = function(builder, timeMajor) {
+tflite.schema.BidirectionalSequenceRNNOptions.addTimeMajor = function(builder, timeMajor) {
   builder.addFieldInt8(0, +timeMajor, +false);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.BidirectionalSequenceRNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(1, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.BidirectionalSequenceRNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(1, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {boolean} mergeOutputs
  */
-tflite.BidirectionalSequenceRNNOptions.addMergeOutputs = function(builder, mergeOutputs) {
+tflite.schema.BidirectionalSequenceRNNOptions.addMergeOutputs = function(builder, mergeOutputs) {
   builder.addFieldInt8(2, +mergeOutputs, +false);
 };
 
@@ -1738,7 +1744,7 @@ tflite.BidirectionalSequenceRNNOptions.addMergeOutputs = function(builder, merge
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions = function(builder) {
+tflite.schema.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1746,7 +1752,7 @@ tflite.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions = func
 /**
  * @constructor
  */
-tflite.FullyConnectedOptions = function() {
+tflite.schema.FullyConnectedOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1761,9 +1767,9 @@ tflite.FullyConnectedOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.FullyConnectedOptions}
+ * @returns {tflite.schema.FullyConnectedOptions}
  */
-tflite.FullyConnectedOptions.prototype.__init = function(i, bb) {
+tflite.schema.FullyConnectedOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1771,57 +1777,57 @@ tflite.FullyConnectedOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.FullyConnectedOptions=} obj
- * @returns {tflite.FullyConnectedOptions}
+ * @param {tflite.schema.FullyConnectedOptions=} obj
+ * @returns {tflite.schema.FullyConnectedOptions}
  */
-tflite.FullyConnectedOptions.getRootAsFullyConnectedOptions = function(bb, obj) {
-  return (obj || new tflite.FullyConnectedOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.FullyConnectedOptions.getRootAsFullyConnectedOptions = function(bb, obj) {
+  return (obj || new tflite.schema.FullyConnectedOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.FullyConnectedOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.FullyConnectedOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
- * @returns {tflite.FullyConnectedOptionsWeightsFormat}
+ * @returns {tflite.schema.FullyConnectedOptionsWeightsFormat}
  */
-tflite.FullyConnectedOptions.prototype.weightsFormat = function() {
+tflite.schema.FullyConnectedOptions.prototype.weightsFormat = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {tflite.FullyConnectedOptionsWeightsFormat} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.FullyConnectedOptionsWeightsFormat.DEFAULT;
+  return offset ? /** @type {tflite.schema.FullyConnectedOptionsWeightsFormat} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.FullyConnectedOptionsWeightsFormat.DEFAULT;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.FullyConnectedOptions.startFullyConnectedOptions = function(builder) {
+tflite.schema.FullyConnectedOptions.startFullyConnectedOptions = function(builder) {
   builder.startObject(2);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.FullyConnectedOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.FullyConnectedOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.FullyConnectedOptionsWeightsFormat} weightsFormat
+ * @param {tflite.schema.FullyConnectedOptionsWeightsFormat} weightsFormat
  */
-tflite.FullyConnectedOptions.addWeightsFormat = function(builder, weightsFormat) {
-  builder.addFieldInt8(1, weightsFormat, tflite.FullyConnectedOptionsWeightsFormat.DEFAULT);
+tflite.schema.FullyConnectedOptions.addWeightsFormat = function(builder, weightsFormat) {
+  builder.addFieldInt8(1, weightsFormat, tflite.schema.FullyConnectedOptionsWeightsFormat.DEFAULT);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.FullyConnectedOptions.endFullyConnectedOptions = function(builder) {
+tflite.schema.FullyConnectedOptions.endFullyConnectedOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1829,7 +1835,7 @@ tflite.FullyConnectedOptions.endFullyConnectedOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SoftmaxOptions = function() {
+tflite.schema.SoftmaxOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1844,9 +1850,9 @@ tflite.SoftmaxOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SoftmaxOptions}
+ * @returns {tflite.schema.SoftmaxOptions}
  */
-tflite.SoftmaxOptions.prototype.__init = function(i, bb) {
+tflite.schema.SoftmaxOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1854,17 +1860,17 @@ tflite.SoftmaxOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SoftmaxOptions=} obj
- * @returns {tflite.SoftmaxOptions}
+ * @param {tflite.schema.SoftmaxOptions=} obj
+ * @returns {tflite.schema.SoftmaxOptions}
  */
-tflite.SoftmaxOptions.getRootAsSoftmaxOptions = function(bb, obj) {
-  return (obj || new tflite.SoftmaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SoftmaxOptions.getRootAsSoftmaxOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SoftmaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.SoftmaxOptions.prototype.beta = function() {
+tflite.schema.SoftmaxOptions.prototype.beta = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -1872,7 +1878,7 @@ tflite.SoftmaxOptions.prototype.beta = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SoftmaxOptions.startSoftmaxOptions = function(builder) {
+tflite.schema.SoftmaxOptions.startSoftmaxOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -1880,7 +1886,7 @@ tflite.SoftmaxOptions.startSoftmaxOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} beta
  */
-tflite.SoftmaxOptions.addBeta = function(builder, beta) {
+tflite.schema.SoftmaxOptions.addBeta = function(builder, beta) {
   builder.addFieldFloat32(0, beta, 0.0);
 };
 
@@ -1888,7 +1894,7 @@ tflite.SoftmaxOptions.addBeta = function(builder, beta) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SoftmaxOptions.endSoftmaxOptions = function(builder) {
+tflite.schema.SoftmaxOptions.endSoftmaxOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1896,7 +1902,7 @@ tflite.SoftmaxOptions.endSoftmaxOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ConcatenationOptions = function() {
+tflite.schema.ConcatenationOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1911,9 +1917,9 @@ tflite.ConcatenationOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ConcatenationOptions}
+ * @returns {tflite.schema.ConcatenationOptions}
  */
-tflite.ConcatenationOptions.prototype.__init = function(i, bb) {
+tflite.schema.ConcatenationOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -1921,33 +1927,33 @@ tflite.ConcatenationOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ConcatenationOptions=} obj
- * @returns {tflite.ConcatenationOptions}
+ * @param {tflite.schema.ConcatenationOptions=} obj
+ * @returns {tflite.schema.ConcatenationOptions}
  */
-tflite.ConcatenationOptions.getRootAsConcatenationOptions = function(bb, obj) {
-  return (obj || new tflite.ConcatenationOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ConcatenationOptions.getRootAsConcatenationOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ConcatenationOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.ConcatenationOptions.prototype.axis = function() {
+tflite.schema.ConcatenationOptions.prototype.axis = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.ConcatenationOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.ConcatenationOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ConcatenationOptions.startConcatenationOptions = function(builder) {
+tflite.schema.ConcatenationOptions.startConcatenationOptions = function(builder) {
   builder.startObject(2);
 };
 
@@ -1955,23 +1961,23 @@ tflite.ConcatenationOptions.startConcatenationOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} axis
  */
-tflite.ConcatenationOptions.addAxis = function(builder, axis) {
+tflite.schema.ConcatenationOptions.addAxis = function(builder, axis) {
   builder.addFieldInt32(0, axis, 0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.ConcatenationOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(1, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.ConcatenationOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(1, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ConcatenationOptions.endConcatenationOptions = function(builder) {
+tflite.schema.ConcatenationOptions.endConcatenationOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -1979,7 +1985,7 @@ tflite.ConcatenationOptions.endConcatenationOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.AddOptions = function() {
+tflite.schema.AddOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -1994,9 +2000,9 @@ tflite.AddOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.AddOptions}
+ * @returns {tflite.schema.AddOptions}
  */
-tflite.AddOptions.prototype.__init = function(i, bb) {
+tflite.schema.AddOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2004,41 +2010,41 @@ tflite.AddOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.AddOptions=} obj
- * @returns {tflite.AddOptions}
+ * @param {tflite.schema.AddOptions=} obj
+ * @returns {tflite.schema.AddOptions}
  */
-tflite.AddOptions.getRootAsAddOptions = function(bb, obj) {
-  return (obj || new tflite.AddOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.AddOptions.getRootAsAddOptions = function(bb, obj) {
+  return (obj || new tflite.schema.AddOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.AddOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.AddOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.AddOptions.startAddOptions = function(builder) {
+tflite.schema.AddOptions.startAddOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.AddOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.AddOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.AddOptions.endAddOptions = function(builder) {
+tflite.schema.AddOptions.endAddOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2046,7 +2052,7 @@ tflite.AddOptions.endAddOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.MulOptions = function() {
+tflite.schema.MulOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2061,9 +2067,9 @@ tflite.MulOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.MulOptions}
+ * @returns {tflite.schema.MulOptions}
  */
-tflite.MulOptions.prototype.__init = function(i, bb) {
+tflite.schema.MulOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2071,41 +2077,41 @@ tflite.MulOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.MulOptions=} obj
- * @returns {tflite.MulOptions}
+ * @param {tflite.schema.MulOptions=} obj
+ * @returns {tflite.schema.MulOptions}
  */
-tflite.MulOptions.getRootAsMulOptions = function(bb, obj) {
-  return (obj || new tflite.MulOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.MulOptions.getRootAsMulOptions = function(bb, obj) {
+  return (obj || new tflite.schema.MulOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.MulOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.MulOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.MulOptions.startMulOptions = function(builder) {
+tflite.schema.MulOptions.startMulOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.MulOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.MulOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.MulOptions.endMulOptions = function(builder) {
+tflite.schema.MulOptions.endMulOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2113,7 +2119,7 @@ tflite.MulOptions.endMulOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.L2NormOptions = function() {
+tflite.schema.L2NormOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2128,9 +2134,9 @@ tflite.L2NormOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.L2NormOptions}
+ * @returns {tflite.schema.L2NormOptions}
  */
-tflite.L2NormOptions.prototype.__init = function(i, bb) {
+tflite.schema.L2NormOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2138,41 +2144,41 @@ tflite.L2NormOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.L2NormOptions=} obj
- * @returns {tflite.L2NormOptions}
+ * @param {tflite.schema.L2NormOptions=} obj
+ * @returns {tflite.schema.L2NormOptions}
  */
-tflite.L2NormOptions.getRootAsL2NormOptions = function(bb, obj) {
-  return (obj || new tflite.L2NormOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.L2NormOptions.getRootAsL2NormOptions = function(bb, obj) {
+  return (obj || new tflite.schema.L2NormOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.L2NormOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.L2NormOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.L2NormOptions.startL2NormOptions = function(builder) {
+tflite.schema.L2NormOptions.startL2NormOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.L2NormOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.L2NormOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.L2NormOptions.endL2NormOptions = function(builder) {
+tflite.schema.L2NormOptions.endL2NormOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2180,7 +2186,7 @@ tflite.L2NormOptions.endL2NormOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LocalResponseNormalizationOptions = function() {
+tflite.schema.LocalResponseNormalizationOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2195,9 +2201,9 @@ tflite.LocalResponseNormalizationOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LocalResponseNormalizationOptions}
+ * @returns {tflite.schema.LocalResponseNormalizationOptions}
  */
-tflite.LocalResponseNormalizationOptions.prototype.__init = function(i, bb) {
+tflite.schema.LocalResponseNormalizationOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2205,17 +2211,17 @@ tflite.LocalResponseNormalizationOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LocalResponseNormalizationOptions=} obj
- * @returns {tflite.LocalResponseNormalizationOptions}
+ * @param {tflite.schema.LocalResponseNormalizationOptions=} obj
+ * @returns {tflite.schema.LocalResponseNormalizationOptions}
  */
-tflite.LocalResponseNormalizationOptions.getRootAsLocalResponseNormalizationOptions = function(bb, obj) {
-  return (obj || new tflite.LocalResponseNormalizationOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LocalResponseNormalizationOptions.getRootAsLocalResponseNormalizationOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LocalResponseNormalizationOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.LocalResponseNormalizationOptions.prototype.radius = function() {
+tflite.schema.LocalResponseNormalizationOptions.prototype.radius = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -2223,7 +2229,7 @@ tflite.LocalResponseNormalizationOptions.prototype.radius = function() {
 /**
  * @returns {number}
  */
-tflite.LocalResponseNormalizationOptions.prototype.bias = function() {
+tflite.schema.LocalResponseNormalizationOptions.prototype.bias = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2231,7 +2237,7 @@ tflite.LocalResponseNormalizationOptions.prototype.bias = function() {
 /**
  * @returns {number}
  */
-tflite.LocalResponseNormalizationOptions.prototype.alpha = function() {
+tflite.schema.LocalResponseNormalizationOptions.prototype.alpha = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2239,7 +2245,7 @@ tflite.LocalResponseNormalizationOptions.prototype.alpha = function() {
 /**
  * @returns {number}
  */
-tflite.LocalResponseNormalizationOptions.prototype.beta = function() {
+tflite.schema.LocalResponseNormalizationOptions.prototype.beta = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2247,7 +2253,7 @@ tflite.LocalResponseNormalizationOptions.prototype.beta = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LocalResponseNormalizationOptions.startLocalResponseNormalizationOptions = function(builder) {
+tflite.schema.LocalResponseNormalizationOptions.startLocalResponseNormalizationOptions = function(builder) {
   builder.startObject(4);
 };
 
@@ -2255,7 +2261,7 @@ tflite.LocalResponseNormalizationOptions.startLocalResponseNormalizationOptions 
  * @param {flatbuffers.Builder} builder
  * @param {number} radius
  */
-tflite.LocalResponseNormalizationOptions.addRadius = function(builder, radius) {
+tflite.schema.LocalResponseNormalizationOptions.addRadius = function(builder, radius) {
   builder.addFieldInt32(0, radius, 0);
 };
 
@@ -2263,7 +2269,7 @@ tflite.LocalResponseNormalizationOptions.addRadius = function(builder, radius) {
  * @param {flatbuffers.Builder} builder
  * @param {number} bias
  */
-tflite.LocalResponseNormalizationOptions.addBias = function(builder, bias) {
+tflite.schema.LocalResponseNormalizationOptions.addBias = function(builder, bias) {
   builder.addFieldFloat32(1, bias, 0.0);
 };
 
@@ -2271,7 +2277,7 @@ tflite.LocalResponseNormalizationOptions.addBias = function(builder, bias) {
  * @param {flatbuffers.Builder} builder
  * @param {number} alpha
  */
-tflite.LocalResponseNormalizationOptions.addAlpha = function(builder, alpha) {
+tflite.schema.LocalResponseNormalizationOptions.addAlpha = function(builder, alpha) {
   builder.addFieldFloat32(2, alpha, 0.0);
 };
 
@@ -2279,7 +2285,7 @@ tflite.LocalResponseNormalizationOptions.addAlpha = function(builder, alpha) {
  * @param {flatbuffers.Builder} builder
  * @param {number} beta
  */
-tflite.LocalResponseNormalizationOptions.addBeta = function(builder, beta) {
+tflite.schema.LocalResponseNormalizationOptions.addBeta = function(builder, beta) {
   builder.addFieldFloat32(3, beta, 0.0);
 };
 
@@ -2287,7 +2293,7 @@ tflite.LocalResponseNormalizationOptions.addBeta = function(builder, beta) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LocalResponseNormalizationOptions.endLocalResponseNormalizationOptions = function(builder) {
+tflite.schema.LocalResponseNormalizationOptions.endLocalResponseNormalizationOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2295,7 +2301,7 @@ tflite.LocalResponseNormalizationOptions.endLocalResponseNormalizationOptions = 
 /**
  * @constructor
  */
-tflite.LSTMOptions = function() {
+tflite.schema.LSTMOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2310,9 +2316,9 @@ tflite.LSTMOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LSTMOptions}
+ * @returns {tflite.schema.LSTMOptions}
  */
-tflite.LSTMOptions.prototype.__init = function(i, bb) {
+tflite.schema.LSTMOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2320,25 +2326,25 @@ tflite.LSTMOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LSTMOptions=} obj
- * @returns {tflite.LSTMOptions}
+ * @param {tflite.schema.LSTMOptions=} obj
+ * @returns {tflite.schema.LSTMOptions}
  */
-tflite.LSTMOptions.getRootAsLSTMOptions = function(bb, obj) {
-  return (obj || new tflite.LSTMOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LSTMOptions.getRootAsLSTMOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LSTMOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.LSTMOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.LSTMOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @returns {number}
  */
-tflite.LSTMOptions.prototype.cellClip = function() {
+tflite.schema.LSTMOptions.prototype.cellClip = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2346,39 +2352,39 @@ tflite.LSTMOptions.prototype.cellClip = function() {
 /**
  * @returns {number}
  */
-tflite.LSTMOptions.prototype.projClip = function() {
+tflite.schema.LSTMOptions.prototype.projClip = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
 
 /**
- * @returns {tflite.LSTMKernelType}
+ * @returns {tflite.schema.LSTMKernelType}
  */
-tflite.LSTMOptions.prototype.kernelType = function() {
+tflite.schema.LSTMOptions.prototype.kernelType = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? /** @type {tflite.LSTMKernelType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.LSTMKernelType.FULL;
+  return offset ? /** @type {tflite.schema.LSTMKernelType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.LSTMKernelType.FULL;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LSTMOptions.startLSTMOptions = function(builder) {
+tflite.schema.LSTMOptions.startLSTMOptions = function(builder) {
   builder.startObject(4);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.LSTMOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.LSTMOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} cellClip
  */
-tflite.LSTMOptions.addCellClip = function(builder, cellClip) {
+tflite.schema.LSTMOptions.addCellClip = function(builder, cellClip) {
   builder.addFieldFloat32(1, cellClip, 0.0);
 };
 
@@ -2386,23 +2392,23 @@ tflite.LSTMOptions.addCellClip = function(builder, cellClip) {
  * @param {flatbuffers.Builder} builder
  * @param {number} projClip
  */
-tflite.LSTMOptions.addProjClip = function(builder, projClip) {
+tflite.schema.LSTMOptions.addProjClip = function(builder, projClip) {
   builder.addFieldFloat32(2, projClip, 0.0);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.LSTMKernelType} kernelType
+ * @param {tflite.schema.LSTMKernelType} kernelType
  */
-tflite.LSTMOptions.addKernelType = function(builder, kernelType) {
-  builder.addFieldInt8(3, kernelType, tflite.LSTMKernelType.FULL);
+tflite.schema.LSTMOptions.addKernelType = function(builder, kernelType) {
+  builder.addFieldInt8(3, kernelType, tflite.schema.LSTMKernelType.FULL);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LSTMOptions.endLSTMOptions = function(builder) {
+tflite.schema.LSTMOptions.endLSTMOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2410,7 +2416,7 @@ tflite.LSTMOptions.endLSTMOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.UnidirectionalSequenceLSTMOptions = function() {
+tflite.schema.UnidirectionalSequenceLSTMOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2425,9 +2431,9 @@ tflite.UnidirectionalSequenceLSTMOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.UnidirectionalSequenceLSTMOptions}
+ * @returns {tflite.schema.UnidirectionalSequenceLSTMOptions}
  */
-tflite.UnidirectionalSequenceLSTMOptions.prototype.__init = function(i, bb) {
+tflite.schema.UnidirectionalSequenceLSTMOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2435,25 +2441,25 @@ tflite.UnidirectionalSequenceLSTMOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.UnidirectionalSequenceLSTMOptions=} obj
- * @returns {tflite.UnidirectionalSequenceLSTMOptions}
+ * @param {tflite.schema.UnidirectionalSequenceLSTMOptions=} obj
+ * @returns {tflite.schema.UnidirectionalSequenceLSTMOptions}
  */
-tflite.UnidirectionalSequenceLSTMOptions.getRootAsUnidirectionalSequenceLSTMOptions = function(bb, obj) {
-  return (obj || new tflite.UnidirectionalSequenceLSTMOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.UnidirectionalSequenceLSTMOptions.getRootAsUnidirectionalSequenceLSTMOptions = function(bb, obj) {
+  return (obj || new tflite.schema.UnidirectionalSequenceLSTMOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.UnidirectionalSequenceLSTMOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.UnidirectionalSequenceLSTMOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @returns {number}
  */
-tflite.UnidirectionalSequenceLSTMOptions.prototype.cellClip = function() {
+tflite.schema.UnidirectionalSequenceLSTMOptions.prototype.cellClip = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2461,7 +2467,7 @@ tflite.UnidirectionalSequenceLSTMOptions.prototype.cellClip = function() {
 /**
  * @returns {number}
  */
-tflite.UnidirectionalSequenceLSTMOptions.prototype.projClip = function() {
+tflite.schema.UnidirectionalSequenceLSTMOptions.prototype.projClip = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2469,7 +2475,7 @@ tflite.UnidirectionalSequenceLSTMOptions.prototype.projClip = function() {
 /**
  * @returns {boolean}
  */
-tflite.UnidirectionalSequenceLSTMOptions.prototype.timeMajor = function() {
+tflite.schema.UnidirectionalSequenceLSTMOptions.prototype.timeMajor = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -2477,23 +2483,23 @@ tflite.UnidirectionalSequenceLSTMOptions.prototype.timeMajor = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.UnidirectionalSequenceLSTMOptions.startUnidirectionalSequenceLSTMOptions = function(builder) {
+tflite.schema.UnidirectionalSequenceLSTMOptions.startUnidirectionalSequenceLSTMOptions = function(builder) {
   builder.startObject(4);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.UnidirectionalSequenceLSTMOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.UnidirectionalSequenceLSTMOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} cellClip
  */
-tflite.UnidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellClip) {
+tflite.schema.UnidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellClip) {
   builder.addFieldFloat32(1, cellClip, 0.0);
 };
 
@@ -2501,7 +2507,7 @@ tflite.UnidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellCli
  * @param {flatbuffers.Builder} builder
  * @param {number} projClip
  */
-tflite.UnidirectionalSequenceLSTMOptions.addProjClip = function(builder, projClip) {
+tflite.schema.UnidirectionalSequenceLSTMOptions.addProjClip = function(builder, projClip) {
   builder.addFieldFloat32(2, projClip, 0.0);
 };
 
@@ -2509,7 +2515,7 @@ tflite.UnidirectionalSequenceLSTMOptions.addProjClip = function(builder, projCli
  * @param {flatbuffers.Builder} builder
  * @param {boolean} timeMajor
  */
-tflite.UnidirectionalSequenceLSTMOptions.addTimeMajor = function(builder, timeMajor) {
+tflite.schema.UnidirectionalSequenceLSTMOptions.addTimeMajor = function(builder, timeMajor) {
   builder.addFieldInt8(3, +timeMajor, +false);
 };
 
@@ -2517,7 +2523,7 @@ tflite.UnidirectionalSequenceLSTMOptions.addTimeMajor = function(builder, timeMa
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOptions = function(builder) {
+tflite.schema.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2525,7 +2531,7 @@ tflite.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOptions = 
 /**
  * @constructor
  */
-tflite.BidirectionalSequenceLSTMOptions = function() {
+tflite.schema.BidirectionalSequenceLSTMOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2540,9 +2546,9 @@ tflite.BidirectionalSequenceLSTMOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.BidirectionalSequenceLSTMOptions}
+ * @returns {tflite.schema.BidirectionalSequenceLSTMOptions}
  */
-tflite.BidirectionalSequenceLSTMOptions.prototype.__init = function(i, bb) {
+tflite.schema.BidirectionalSequenceLSTMOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2550,25 +2556,25 @@ tflite.BidirectionalSequenceLSTMOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.BidirectionalSequenceLSTMOptions=} obj
- * @returns {tflite.BidirectionalSequenceLSTMOptions}
+ * @param {tflite.schema.BidirectionalSequenceLSTMOptions=} obj
+ * @returns {tflite.schema.BidirectionalSequenceLSTMOptions}
  */
-tflite.BidirectionalSequenceLSTMOptions.getRootAsBidirectionalSequenceLSTMOptions = function(bb, obj) {
-  return (obj || new tflite.BidirectionalSequenceLSTMOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.BidirectionalSequenceLSTMOptions.getRootAsBidirectionalSequenceLSTMOptions = function(bb, obj) {
+  return (obj || new tflite.schema.BidirectionalSequenceLSTMOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.BidirectionalSequenceLSTMOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.BidirectionalSequenceLSTMOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @returns {number}
  */
-tflite.BidirectionalSequenceLSTMOptions.prototype.cellClip = function() {
+tflite.schema.BidirectionalSequenceLSTMOptions.prototype.cellClip = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2576,7 +2582,7 @@ tflite.BidirectionalSequenceLSTMOptions.prototype.cellClip = function() {
 /**
  * @returns {number}
  */
-tflite.BidirectionalSequenceLSTMOptions.prototype.projClip = function() {
+tflite.schema.BidirectionalSequenceLSTMOptions.prototype.projClip = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -2584,7 +2590,7 @@ tflite.BidirectionalSequenceLSTMOptions.prototype.projClip = function() {
 /**
  * @returns {boolean}
  */
-tflite.BidirectionalSequenceLSTMOptions.prototype.mergeOutputs = function() {
+tflite.schema.BidirectionalSequenceLSTMOptions.prototype.mergeOutputs = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -2592,23 +2598,23 @@ tflite.BidirectionalSequenceLSTMOptions.prototype.mergeOutputs = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.BidirectionalSequenceLSTMOptions.startBidirectionalSequenceLSTMOptions = function(builder) {
+tflite.schema.BidirectionalSequenceLSTMOptions.startBidirectionalSequenceLSTMOptions = function(builder) {
   builder.startObject(4);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.BidirectionalSequenceLSTMOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.BidirectionalSequenceLSTMOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} cellClip
  */
-tflite.BidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellClip) {
+tflite.schema.BidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellClip) {
   builder.addFieldFloat32(1, cellClip, 0.0);
 };
 
@@ -2616,7 +2622,7 @@ tflite.BidirectionalSequenceLSTMOptions.addCellClip = function(builder, cellClip
  * @param {flatbuffers.Builder} builder
  * @param {number} projClip
  */
-tflite.BidirectionalSequenceLSTMOptions.addProjClip = function(builder, projClip) {
+tflite.schema.BidirectionalSequenceLSTMOptions.addProjClip = function(builder, projClip) {
   builder.addFieldFloat32(2, projClip, 0.0);
 };
 
@@ -2624,7 +2630,7 @@ tflite.BidirectionalSequenceLSTMOptions.addProjClip = function(builder, projClip
  * @param {flatbuffers.Builder} builder
  * @param {boolean} mergeOutputs
  */
-tflite.BidirectionalSequenceLSTMOptions.addMergeOutputs = function(builder, mergeOutputs) {
+tflite.schema.BidirectionalSequenceLSTMOptions.addMergeOutputs = function(builder, mergeOutputs) {
   builder.addFieldInt8(3, +mergeOutputs, +false);
 };
 
@@ -2632,7 +2638,7 @@ tflite.BidirectionalSequenceLSTMOptions.addMergeOutputs = function(builder, merg
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions = function(builder) {
+tflite.schema.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2640,7 +2646,7 @@ tflite.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions = fu
 /**
  * @constructor
  */
-tflite.ResizeBilinearOptions = function() {
+tflite.schema.ResizeBilinearOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2655,9 +2661,9 @@ tflite.ResizeBilinearOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ResizeBilinearOptions}
+ * @returns {tflite.schema.ResizeBilinearOptions}
  */
-tflite.ResizeBilinearOptions.prototype.__init = function(i, bb) {
+tflite.schema.ResizeBilinearOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2665,17 +2671,17 @@ tflite.ResizeBilinearOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ResizeBilinearOptions=} obj
- * @returns {tflite.ResizeBilinearOptions}
+ * @param {tflite.schema.ResizeBilinearOptions=} obj
+ * @returns {tflite.schema.ResizeBilinearOptions}
  */
-tflite.ResizeBilinearOptions.getRootAsResizeBilinearOptions = function(bb, obj) {
-  return (obj || new tflite.ResizeBilinearOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ResizeBilinearOptions.getRootAsResizeBilinearOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ResizeBilinearOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {boolean}
  */
-tflite.ResizeBilinearOptions.prototype.alignCorners = function() {
+tflite.schema.ResizeBilinearOptions.prototype.alignCorners = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -2683,7 +2689,7 @@ tflite.ResizeBilinearOptions.prototype.alignCorners = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ResizeBilinearOptions.startResizeBilinearOptions = function(builder) {
+tflite.schema.ResizeBilinearOptions.startResizeBilinearOptions = function(builder) {
   builder.startObject(3);
 };
 
@@ -2691,7 +2697,7 @@ tflite.ResizeBilinearOptions.startResizeBilinearOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} alignCorners
  */
-tflite.ResizeBilinearOptions.addAlignCorners = function(builder, alignCorners) {
+tflite.schema.ResizeBilinearOptions.addAlignCorners = function(builder, alignCorners) {
   builder.addFieldInt8(2, +alignCorners, +false);
 };
 
@@ -2699,7 +2705,7 @@ tflite.ResizeBilinearOptions.addAlignCorners = function(builder, alignCorners) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ResizeBilinearOptions.endResizeBilinearOptions = function(builder) {
+tflite.schema.ResizeBilinearOptions.endResizeBilinearOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2707,7 +2713,7 @@ tflite.ResizeBilinearOptions.endResizeBilinearOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ResizeNearestNeighborOptions = function() {
+tflite.schema.ResizeNearestNeighborOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2722,9 +2728,9 @@ tflite.ResizeNearestNeighborOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ResizeNearestNeighborOptions}
+ * @returns {tflite.schema.ResizeNearestNeighborOptions}
  */
-tflite.ResizeNearestNeighborOptions.prototype.__init = function(i, bb) {
+tflite.schema.ResizeNearestNeighborOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2732,17 +2738,17 @@ tflite.ResizeNearestNeighborOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ResizeNearestNeighborOptions=} obj
- * @returns {tflite.ResizeNearestNeighborOptions}
+ * @param {tflite.schema.ResizeNearestNeighborOptions=} obj
+ * @returns {tflite.schema.ResizeNearestNeighborOptions}
  */
-tflite.ResizeNearestNeighborOptions.getRootAsResizeNearestNeighborOptions = function(bb, obj) {
-  return (obj || new tflite.ResizeNearestNeighborOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ResizeNearestNeighborOptions.getRootAsResizeNearestNeighborOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ResizeNearestNeighborOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {boolean}
  */
-tflite.ResizeNearestNeighborOptions.prototype.alignCorners = function() {
+tflite.schema.ResizeNearestNeighborOptions.prototype.alignCorners = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -2750,7 +2756,7 @@ tflite.ResizeNearestNeighborOptions.prototype.alignCorners = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions = function(builder) {
+tflite.schema.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -2758,7 +2764,7 @@ tflite.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions = function
  * @param {flatbuffers.Builder} builder
  * @param {boolean} alignCorners
  */
-tflite.ResizeNearestNeighborOptions.addAlignCorners = function(builder, alignCorners) {
+tflite.schema.ResizeNearestNeighborOptions.addAlignCorners = function(builder, alignCorners) {
   builder.addFieldInt8(0, +alignCorners, +false);
 };
 
@@ -2766,7 +2772,7 @@ tflite.ResizeNearestNeighborOptions.addAlignCorners = function(builder, alignCor
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions = function(builder) {
+tflite.schema.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2774,7 +2780,7 @@ tflite.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions = function(b
 /**
  * @constructor
  */
-tflite.CallOptions = function() {
+tflite.schema.CallOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2789,9 +2795,9 @@ tflite.CallOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.CallOptions}
+ * @returns {tflite.schema.CallOptions}
  */
-tflite.CallOptions.prototype.__init = function(i, bb) {
+tflite.schema.CallOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2799,17 +2805,17 @@ tflite.CallOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.CallOptions=} obj
- * @returns {tflite.CallOptions}
+ * @param {tflite.schema.CallOptions=} obj
+ * @returns {tflite.schema.CallOptions}
  */
-tflite.CallOptions.getRootAsCallOptions = function(bb, obj) {
-  return (obj || new tflite.CallOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.CallOptions.getRootAsCallOptions = function(bb, obj) {
+  return (obj || new tflite.schema.CallOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.CallOptions.prototype.subgraph = function() {
+tflite.schema.CallOptions.prototype.subgraph = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
@@ -2817,7 +2823,7 @@ tflite.CallOptions.prototype.subgraph = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.CallOptions.startCallOptions = function(builder) {
+tflite.schema.CallOptions.startCallOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -2825,7 +2831,7 @@ tflite.CallOptions.startCallOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} subgraph
  */
-tflite.CallOptions.addSubgraph = function(builder, subgraph) {
+tflite.schema.CallOptions.addSubgraph = function(builder, subgraph) {
   builder.addFieldInt32(0, subgraph, 0);
 };
 
@@ -2833,7 +2839,7 @@ tflite.CallOptions.addSubgraph = function(builder, subgraph) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.CallOptions.endCallOptions = function(builder) {
+tflite.schema.CallOptions.endCallOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2841,7 +2847,7 @@ tflite.CallOptions.endCallOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.PadOptions = function() {
+tflite.schema.PadOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2856,9 +2862,9 @@ tflite.PadOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.PadOptions}
+ * @returns {tflite.schema.PadOptions}
  */
-tflite.PadOptions.prototype.__init = function(i, bb) {
+tflite.schema.PadOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2866,17 +2872,17 @@ tflite.PadOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.PadOptions=} obj
- * @returns {tflite.PadOptions}
+ * @param {tflite.schema.PadOptions=} obj
+ * @returns {tflite.schema.PadOptions}
  */
-tflite.PadOptions.getRootAsPadOptions = function(bb, obj) {
-  return (obj || new tflite.PadOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.PadOptions.getRootAsPadOptions = function(bb, obj) {
+  return (obj || new tflite.schema.PadOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.PadOptions.startPadOptions = function(builder) {
+tflite.schema.PadOptions.startPadOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -2884,7 +2890,7 @@ tflite.PadOptions.startPadOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.PadOptions.endPadOptions = function(builder) {
+tflite.schema.PadOptions.endPadOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2892,7 +2898,7 @@ tflite.PadOptions.endPadOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.PadV2Options = function() {
+tflite.schema.PadV2Options = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2907,9 +2913,9 @@ tflite.PadV2Options = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.PadV2Options}
+ * @returns {tflite.schema.PadV2Options}
  */
-tflite.PadV2Options.prototype.__init = function(i, bb) {
+tflite.schema.PadV2Options.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2917,17 +2923,17 @@ tflite.PadV2Options.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.PadV2Options=} obj
- * @returns {tflite.PadV2Options}
+ * @param {tflite.schema.PadV2Options=} obj
+ * @returns {tflite.schema.PadV2Options}
  */
-tflite.PadV2Options.getRootAsPadV2Options = function(bb, obj) {
-  return (obj || new tflite.PadV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.PadV2Options.getRootAsPadV2Options = function(bb, obj) {
+  return (obj || new tflite.schema.PadV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.PadV2Options.startPadV2Options = function(builder) {
+tflite.schema.PadV2Options.startPadV2Options = function(builder) {
   builder.startObject(0);
 };
 
@@ -2935,7 +2941,7 @@ tflite.PadV2Options.startPadV2Options = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.PadV2Options.endPadV2Options = function(builder) {
+tflite.schema.PadV2Options.endPadV2Options = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -2943,7 +2949,7 @@ tflite.PadV2Options.endPadV2Options = function(builder) {
 /**
  * @constructor
  */
-tflite.ReshapeOptions = function() {
+tflite.schema.ReshapeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -2958,9 +2964,9 @@ tflite.ReshapeOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ReshapeOptions}
+ * @returns {tflite.schema.ReshapeOptions}
  */
-tflite.ReshapeOptions.prototype.__init = function(i, bb) {
+tflite.schema.ReshapeOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -2968,18 +2974,18 @@ tflite.ReshapeOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ReshapeOptions=} obj
- * @returns {tflite.ReshapeOptions}
+ * @param {tflite.schema.ReshapeOptions=} obj
+ * @returns {tflite.schema.ReshapeOptions}
  */
-tflite.ReshapeOptions.getRootAsReshapeOptions = function(bb, obj) {
-  return (obj || new tflite.ReshapeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ReshapeOptions.getRootAsReshapeOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ReshapeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {number} index
  * @returns {number}
  */
-tflite.ReshapeOptions.prototype.newShape = function(index) {
+tflite.schema.ReshapeOptions.prototype.newShape = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -2987,7 +2993,7 @@ tflite.ReshapeOptions.prototype.newShape = function(index) {
 /**
  * @returns {number}
  */
-tflite.ReshapeOptions.prototype.newShapeLength = function() {
+tflite.schema.ReshapeOptions.prototype.newShapeLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -2995,7 +3001,7 @@ tflite.ReshapeOptions.prototype.newShapeLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.ReshapeOptions.prototype.newShapeArray = function() {
+tflite.schema.ReshapeOptions.prototype.newShapeArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -3003,7 +3009,7 @@ tflite.ReshapeOptions.prototype.newShapeArray = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ReshapeOptions.startReshapeOptions = function(builder) {
+tflite.schema.ReshapeOptions.startReshapeOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -3011,7 +3017,7 @@ tflite.ReshapeOptions.startReshapeOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} newShapeOffset
  */
-tflite.ReshapeOptions.addNewShape = function(builder, newShapeOffset) {
+tflite.schema.ReshapeOptions.addNewShape = function(builder, newShapeOffset) {
   builder.addFieldOffset(0, newShapeOffset, 0);
 };
 
@@ -3020,7 +3026,7 @@ tflite.ReshapeOptions.addNewShape = function(builder, newShapeOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.ReshapeOptions.createNewShapeVector = function(builder, data) {
+tflite.schema.ReshapeOptions.createNewShapeVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3032,7 +3038,7 @@ tflite.ReshapeOptions.createNewShapeVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.ReshapeOptions.startNewShapeVector = function(builder, numElems) {
+tflite.schema.ReshapeOptions.startNewShapeVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -3040,7 +3046,7 @@ tflite.ReshapeOptions.startNewShapeVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ReshapeOptions.endReshapeOptions = function(builder) {
+tflite.schema.ReshapeOptions.endReshapeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3048,7 +3054,7 @@ tflite.ReshapeOptions.endReshapeOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SpaceToBatchNDOptions = function() {
+tflite.schema.SpaceToBatchNDOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3063,9 +3069,9 @@ tflite.SpaceToBatchNDOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SpaceToBatchNDOptions}
+ * @returns {tflite.schema.SpaceToBatchNDOptions}
  */
-tflite.SpaceToBatchNDOptions.prototype.__init = function(i, bb) {
+tflite.schema.SpaceToBatchNDOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3073,17 +3079,17 @@ tflite.SpaceToBatchNDOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SpaceToBatchNDOptions=} obj
- * @returns {tflite.SpaceToBatchNDOptions}
+ * @param {tflite.schema.SpaceToBatchNDOptions=} obj
+ * @returns {tflite.schema.SpaceToBatchNDOptions}
  */
-tflite.SpaceToBatchNDOptions.getRootAsSpaceToBatchNDOptions = function(bb, obj) {
-  return (obj || new tflite.SpaceToBatchNDOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SpaceToBatchNDOptions.getRootAsSpaceToBatchNDOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SpaceToBatchNDOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SpaceToBatchNDOptions.startSpaceToBatchNDOptions = function(builder) {
+tflite.schema.SpaceToBatchNDOptions.startSpaceToBatchNDOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -3091,7 +3097,7 @@ tflite.SpaceToBatchNDOptions.startSpaceToBatchNDOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SpaceToBatchNDOptions.endSpaceToBatchNDOptions = function(builder) {
+tflite.schema.SpaceToBatchNDOptions.endSpaceToBatchNDOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3099,7 +3105,7 @@ tflite.SpaceToBatchNDOptions.endSpaceToBatchNDOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.BatchToSpaceNDOptions = function() {
+tflite.schema.BatchToSpaceNDOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3114,9 +3120,9 @@ tflite.BatchToSpaceNDOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.BatchToSpaceNDOptions}
+ * @returns {tflite.schema.BatchToSpaceNDOptions}
  */
-tflite.BatchToSpaceNDOptions.prototype.__init = function(i, bb) {
+tflite.schema.BatchToSpaceNDOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3124,17 +3130,17 @@ tflite.BatchToSpaceNDOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.BatchToSpaceNDOptions=} obj
- * @returns {tflite.BatchToSpaceNDOptions}
+ * @param {tflite.schema.BatchToSpaceNDOptions=} obj
+ * @returns {tflite.schema.BatchToSpaceNDOptions}
  */
-tflite.BatchToSpaceNDOptions.getRootAsBatchToSpaceNDOptions = function(bb, obj) {
-  return (obj || new tflite.BatchToSpaceNDOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.BatchToSpaceNDOptions.getRootAsBatchToSpaceNDOptions = function(bb, obj) {
+  return (obj || new tflite.schema.BatchToSpaceNDOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.BatchToSpaceNDOptions.startBatchToSpaceNDOptions = function(builder) {
+tflite.schema.BatchToSpaceNDOptions.startBatchToSpaceNDOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -3142,7 +3148,7 @@ tflite.BatchToSpaceNDOptions.startBatchToSpaceNDOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.BatchToSpaceNDOptions.endBatchToSpaceNDOptions = function(builder) {
+tflite.schema.BatchToSpaceNDOptions.endBatchToSpaceNDOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3150,7 +3156,7 @@ tflite.BatchToSpaceNDOptions.endBatchToSpaceNDOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SkipGramOptions = function() {
+tflite.schema.SkipGramOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3165,9 +3171,9 @@ tflite.SkipGramOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SkipGramOptions}
+ * @returns {tflite.schema.SkipGramOptions}
  */
-tflite.SkipGramOptions.prototype.__init = function(i, bb) {
+tflite.schema.SkipGramOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3175,17 +3181,17 @@ tflite.SkipGramOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SkipGramOptions=} obj
- * @returns {tflite.SkipGramOptions}
+ * @param {tflite.schema.SkipGramOptions=} obj
+ * @returns {tflite.schema.SkipGramOptions}
  */
-tflite.SkipGramOptions.getRootAsSkipGramOptions = function(bb, obj) {
-  return (obj || new tflite.SkipGramOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SkipGramOptions.getRootAsSkipGramOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SkipGramOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.SkipGramOptions.prototype.ngramSize = function() {
+tflite.schema.SkipGramOptions.prototype.ngramSize = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -3193,7 +3199,7 @@ tflite.SkipGramOptions.prototype.ngramSize = function() {
 /**
  * @returns {number}
  */
-tflite.SkipGramOptions.prototype.maxSkipSize = function() {
+tflite.schema.SkipGramOptions.prototype.maxSkipSize = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -3201,7 +3207,7 @@ tflite.SkipGramOptions.prototype.maxSkipSize = function() {
 /**
  * @returns {boolean}
  */
-tflite.SkipGramOptions.prototype.includeAllNgrams = function() {
+tflite.schema.SkipGramOptions.prototype.includeAllNgrams = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -3209,7 +3215,7 @@ tflite.SkipGramOptions.prototype.includeAllNgrams = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SkipGramOptions.startSkipGramOptions = function(builder) {
+tflite.schema.SkipGramOptions.startSkipGramOptions = function(builder) {
   builder.startObject(3);
 };
 
@@ -3217,7 +3223,7 @@ tflite.SkipGramOptions.startSkipGramOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} ngramSize
  */
-tflite.SkipGramOptions.addNgramSize = function(builder, ngramSize) {
+tflite.schema.SkipGramOptions.addNgramSize = function(builder, ngramSize) {
   builder.addFieldInt32(0, ngramSize, 0);
 };
 
@@ -3225,7 +3231,7 @@ tflite.SkipGramOptions.addNgramSize = function(builder, ngramSize) {
  * @param {flatbuffers.Builder} builder
  * @param {number} maxSkipSize
  */
-tflite.SkipGramOptions.addMaxSkipSize = function(builder, maxSkipSize) {
+tflite.schema.SkipGramOptions.addMaxSkipSize = function(builder, maxSkipSize) {
   builder.addFieldInt32(1, maxSkipSize, 0);
 };
 
@@ -3233,7 +3239,7 @@ tflite.SkipGramOptions.addMaxSkipSize = function(builder, maxSkipSize) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} includeAllNgrams
  */
-tflite.SkipGramOptions.addIncludeAllNgrams = function(builder, includeAllNgrams) {
+tflite.schema.SkipGramOptions.addIncludeAllNgrams = function(builder, includeAllNgrams) {
   builder.addFieldInt8(2, +includeAllNgrams, +false);
 };
 
@@ -3241,7 +3247,7 @@ tflite.SkipGramOptions.addIncludeAllNgrams = function(builder, includeAllNgrams)
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SkipGramOptions.endSkipGramOptions = function(builder) {
+tflite.schema.SkipGramOptions.endSkipGramOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3249,7 +3255,7 @@ tflite.SkipGramOptions.endSkipGramOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SpaceToDepthOptions = function() {
+tflite.schema.SpaceToDepthOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3264,9 +3270,9 @@ tflite.SpaceToDepthOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SpaceToDepthOptions}
+ * @returns {tflite.schema.SpaceToDepthOptions}
  */
-tflite.SpaceToDepthOptions.prototype.__init = function(i, bb) {
+tflite.schema.SpaceToDepthOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3274,17 +3280,17 @@ tflite.SpaceToDepthOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SpaceToDepthOptions=} obj
- * @returns {tflite.SpaceToDepthOptions}
+ * @param {tflite.schema.SpaceToDepthOptions=} obj
+ * @returns {tflite.schema.SpaceToDepthOptions}
  */
-tflite.SpaceToDepthOptions.getRootAsSpaceToDepthOptions = function(bb, obj) {
-  return (obj || new tflite.SpaceToDepthOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SpaceToDepthOptions.getRootAsSpaceToDepthOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SpaceToDepthOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.SpaceToDepthOptions.prototype.blockSize = function() {
+tflite.schema.SpaceToDepthOptions.prototype.blockSize = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -3292,7 +3298,7 @@ tflite.SpaceToDepthOptions.prototype.blockSize = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SpaceToDepthOptions.startSpaceToDepthOptions = function(builder) {
+tflite.schema.SpaceToDepthOptions.startSpaceToDepthOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -3300,7 +3306,7 @@ tflite.SpaceToDepthOptions.startSpaceToDepthOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} blockSize
  */
-tflite.SpaceToDepthOptions.addBlockSize = function(builder, blockSize) {
+tflite.schema.SpaceToDepthOptions.addBlockSize = function(builder, blockSize) {
   builder.addFieldInt32(0, blockSize, 0);
 };
 
@@ -3308,7 +3314,7 @@ tflite.SpaceToDepthOptions.addBlockSize = function(builder, blockSize) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SpaceToDepthOptions.endSpaceToDepthOptions = function(builder) {
+tflite.schema.SpaceToDepthOptions.endSpaceToDepthOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3316,7 +3322,7 @@ tflite.SpaceToDepthOptions.endSpaceToDepthOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SubOptions = function() {
+tflite.schema.SubOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3331,9 +3337,9 @@ tflite.SubOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SubOptions}
+ * @returns {tflite.schema.SubOptions}
  */
-tflite.SubOptions.prototype.__init = function(i, bb) {
+tflite.schema.SubOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3341,41 +3347,41 @@ tflite.SubOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SubOptions=} obj
- * @returns {tflite.SubOptions}
+ * @param {tflite.schema.SubOptions=} obj
+ * @returns {tflite.schema.SubOptions}
  */
-tflite.SubOptions.getRootAsSubOptions = function(bb, obj) {
-  return (obj || new tflite.SubOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SubOptions.getRootAsSubOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SubOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.SubOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.SubOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SubOptions.startSubOptions = function(builder) {
+tflite.schema.SubOptions.startSubOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.SubOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.SubOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SubOptions.endSubOptions = function(builder) {
+tflite.schema.SubOptions.endSubOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3383,7 +3389,7 @@ tflite.SubOptions.endSubOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.DivOptions = function() {
+tflite.schema.DivOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3398,9 +3404,9 @@ tflite.DivOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.DivOptions}
+ * @returns {tflite.schema.DivOptions}
  */
-tflite.DivOptions.prototype.__init = function(i, bb) {
+tflite.schema.DivOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3408,41 +3414,41 @@ tflite.DivOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.DivOptions=} obj
- * @returns {tflite.DivOptions}
+ * @param {tflite.schema.DivOptions=} obj
+ * @returns {tflite.schema.DivOptions}
  */
-tflite.DivOptions.getRootAsDivOptions = function(bb, obj) {
-  return (obj || new tflite.DivOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.DivOptions.getRootAsDivOptions = function(bb, obj) {
+  return (obj || new tflite.schema.DivOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.ActivationFunctionType}
+ * @returns {tflite.schema.ActivationFunctionType}
  */
-tflite.DivOptions.prototype.fusedActivationFunction = function() {
+tflite.schema.DivOptions.prototype.fusedActivationFunction = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.ActivationFunctionType.NONE;
+  return offset ? /** @type {tflite.schema.ActivationFunctionType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.ActivationFunctionType.NONE;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.DivOptions.startDivOptions = function(builder) {
+tflite.schema.DivOptions.startDivOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.ActivationFunctionType} fusedActivationFunction
+ * @param {tflite.schema.ActivationFunctionType} fusedActivationFunction
  */
-tflite.DivOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
-  builder.addFieldInt8(0, fusedActivationFunction, tflite.ActivationFunctionType.NONE);
+tflite.schema.DivOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
+  builder.addFieldInt8(0, fusedActivationFunction, tflite.schema.ActivationFunctionType.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.DivOptions.endDivOptions = function(builder) {
+tflite.schema.DivOptions.endDivOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3450,7 +3456,7 @@ tflite.DivOptions.endDivOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.TopKV2Options = function() {
+tflite.schema.TopKV2Options = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3465,9 +3471,9 @@ tflite.TopKV2Options = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.TopKV2Options}
+ * @returns {tflite.schema.TopKV2Options}
  */
-tflite.TopKV2Options.prototype.__init = function(i, bb) {
+tflite.schema.TopKV2Options.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3475,17 +3481,17 @@ tflite.TopKV2Options.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.TopKV2Options=} obj
- * @returns {tflite.TopKV2Options}
+ * @param {tflite.schema.TopKV2Options=} obj
+ * @returns {tflite.schema.TopKV2Options}
  */
-tflite.TopKV2Options.getRootAsTopKV2Options = function(bb, obj) {
-  return (obj || new tflite.TopKV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.TopKV2Options.getRootAsTopKV2Options = function(bb, obj) {
+  return (obj || new tflite.schema.TopKV2Options).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.TopKV2Options.startTopKV2Options = function(builder) {
+tflite.schema.TopKV2Options.startTopKV2Options = function(builder) {
   builder.startObject(0);
 };
 
@@ -3493,7 +3499,7 @@ tflite.TopKV2Options.startTopKV2Options = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.TopKV2Options.endTopKV2Options = function(builder) {
+tflite.schema.TopKV2Options.endTopKV2Options = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3501,7 +3507,7 @@ tflite.TopKV2Options.endTopKV2Options = function(builder) {
 /**
  * @constructor
  */
-tflite.EmbeddingLookupSparseOptions = function() {
+tflite.schema.EmbeddingLookupSparseOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3516,9 +3522,9 @@ tflite.EmbeddingLookupSparseOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.EmbeddingLookupSparseOptions}
+ * @returns {tflite.schema.EmbeddingLookupSparseOptions}
  */
-tflite.EmbeddingLookupSparseOptions.prototype.__init = function(i, bb) {
+tflite.schema.EmbeddingLookupSparseOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3526,41 +3532,41 @@ tflite.EmbeddingLookupSparseOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.EmbeddingLookupSparseOptions=} obj
- * @returns {tflite.EmbeddingLookupSparseOptions}
+ * @param {tflite.schema.EmbeddingLookupSparseOptions=} obj
+ * @returns {tflite.schema.EmbeddingLookupSparseOptions}
  */
-tflite.EmbeddingLookupSparseOptions.getRootAsEmbeddingLookupSparseOptions = function(bb, obj) {
-  return (obj || new tflite.EmbeddingLookupSparseOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.EmbeddingLookupSparseOptions.getRootAsEmbeddingLookupSparseOptions = function(bb, obj) {
+  return (obj || new tflite.schema.EmbeddingLookupSparseOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.CombinerType}
+ * @returns {tflite.schema.CombinerType}
  */
-tflite.EmbeddingLookupSparseOptions.prototype.combiner = function() {
+tflite.schema.EmbeddingLookupSparseOptions.prototype.combiner = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.CombinerType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.CombinerType.SUM;
+  return offset ? /** @type {tflite.schema.CombinerType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.CombinerType.SUM;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.EmbeddingLookupSparseOptions.startEmbeddingLookupSparseOptions = function(builder) {
+tflite.schema.EmbeddingLookupSparseOptions.startEmbeddingLookupSparseOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.CombinerType} combiner
+ * @param {tflite.schema.CombinerType} combiner
  */
-tflite.EmbeddingLookupSparseOptions.addCombiner = function(builder, combiner) {
-  builder.addFieldInt8(0, combiner, tflite.CombinerType.SUM);
+tflite.schema.EmbeddingLookupSparseOptions.addCombiner = function(builder, combiner) {
+  builder.addFieldInt8(0, combiner, tflite.schema.CombinerType.SUM);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.EmbeddingLookupSparseOptions.endEmbeddingLookupSparseOptions = function(builder) {
+tflite.schema.EmbeddingLookupSparseOptions.endEmbeddingLookupSparseOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3568,7 +3574,7 @@ tflite.EmbeddingLookupSparseOptions.endEmbeddingLookupSparseOptions = function(b
 /**
  * @constructor
  */
-tflite.GatherOptions = function() {
+tflite.schema.GatherOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3583,9 +3589,9 @@ tflite.GatherOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.GatherOptions}
+ * @returns {tflite.schema.GatherOptions}
  */
-tflite.GatherOptions.prototype.__init = function(i, bb) {
+tflite.schema.GatherOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3593,17 +3599,17 @@ tflite.GatherOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.GatherOptions=} obj
- * @returns {tflite.GatherOptions}
+ * @param {tflite.schema.GatherOptions=} obj
+ * @returns {tflite.schema.GatherOptions}
  */
-tflite.GatherOptions.getRootAsGatherOptions = function(bb, obj) {
-  return (obj || new tflite.GatherOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.GatherOptions.getRootAsGatherOptions = function(bb, obj) {
+  return (obj || new tflite.schema.GatherOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.GatherOptions.prototype.axis = function() {
+tflite.schema.GatherOptions.prototype.axis = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -3611,7 +3617,7 @@ tflite.GatherOptions.prototype.axis = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.GatherOptions.startGatherOptions = function(builder) {
+tflite.schema.GatherOptions.startGatherOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -3619,7 +3625,7 @@ tflite.GatherOptions.startGatherOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} axis
  */
-tflite.GatherOptions.addAxis = function(builder, axis) {
+tflite.schema.GatherOptions.addAxis = function(builder, axis) {
   builder.addFieldInt32(0, axis, 0);
 };
 
@@ -3627,7 +3633,7 @@ tflite.GatherOptions.addAxis = function(builder, axis) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.GatherOptions.endGatherOptions = function(builder) {
+tflite.schema.GatherOptions.endGatherOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3635,7 +3641,7 @@ tflite.GatherOptions.endGatherOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.TransposeOptions = function() {
+tflite.schema.TransposeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3650,9 +3656,9 @@ tflite.TransposeOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.TransposeOptions}
+ * @returns {tflite.schema.TransposeOptions}
  */
-tflite.TransposeOptions.prototype.__init = function(i, bb) {
+tflite.schema.TransposeOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3660,17 +3666,17 @@ tflite.TransposeOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.TransposeOptions=} obj
- * @returns {tflite.TransposeOptions}
+ * @param {tflite.schema.TransposeOptions=} obj
+ * @returns {tflite.schema.TransposeOptions}
  */
-tflite.TransposeOptions.getRootAsTransposeOptions = function(bb, obj) {
-  return (obj || new tflite.TransposeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.TransposeOptions.getRootAsTransposeOptions = function(bb, obj) {
+  return (obj || new tflite.schema.TransposeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.TransposeOptions.startTransposeOptions = function(builder) {
+tflite.schema.TransposeOptions.startTransposeOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -3678,7 +3684,7 @@ tflite.TransposeOptions.startTransposeOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.TransposeOptions.endTransposeOptions = function(builder) {
+tflite.schema.TransposeOptions.endTransposeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3686,7 +3692,7 @@ tflite.TransposeOptions.endTransposeOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ExpOptions = function() {
+tflite.schema.ExpOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3701,9 +3707,9 @@ tflite.ExpOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ExpOptions}
+ * @returns {tflite.schema.ExpOptions}
  */
-tflite.ExpOptions.prototype.__init = function(i, bb) {
+tflite.schema.ExpOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3711,17 +3717,17 @@ tflite.ExpOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ExpOptions=} obj
- * @returns {tflite.ExpOptions}
+ * @param {tflite.schema.ExpOptions=} obj
+ * @returns {tflite.schema.ExpOptions}
  */
-tflite.ExpOptions.getRootAsExpOptions = function(bb, obj) {
-  return (obj || new tflite.ExpOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ExpOptions.getRootAsExpOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ExpOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ExpOptions.startExpOptions = function(builder) {
+tflite.schema.ExpOptions.startExpOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -3729,7 +3735,7 @@ tflite.ExpOptions.startExpOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ExpOptions.endExpOptions = function(builder) {
+tflite.schema.ExpOptions.endExpOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3737,7 +3743,7 @@ tflite.ExpOptions.endExpOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ReducerOptions = function() {
+tflite.schema.ReducerOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3752,9 +3758,9 @@ tflite.ReducerOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ReducerOptions}
+ * @returns {tflite.schema.ReducerOptions}
  */
-tflite.ReducerOptions.prototype.__init = function(i, bb) {
+tflite.schema.ReducerOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3762,17 +3768,17 @@ tflite.ReducerOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ReducerOptions=} obj
- * @returns {tflite.ReducerOptions}
+ * @param {tflite.schema.ReducerOptions=} obj
+ * @returns {tflite.schema.ReducerOptions}
  */
-tflite.ReducerOptions.getRootAsReducerOptions = function(bb, obj) {
-  return (obj || new tflite.ReducerOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ReducerOptions.getRootAsReducerOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ReducerOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {boolean}
  */
-tflite.ReducerOptions.prototype.keepDims = function() {
+tflite.schema.ReducerOptions.prototype.keepDims = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -3780,7 +3786,7 @@ tflite.ReducerOptions.prototype.keepDims = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ReducerOptions.startReducerOptions = function(builder) {
+tflite.schema.ReducerOptions.startReducerOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -3788,7 +3794,7 @@ tflite.ReducerOptions.startReducerOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} keepDims
  */
-tflite.ReducerOptions.addKeepDims = function(builder, keepDims) {
+tflite.schema.ReducerOptions.addKeepDims = function(builder, keepDims) {
   builder.addFieldInt8(0, +keepDims, +false);
 };
 
@@ -3796,7 +3802,7 @@ tflite.ReducerOptions.addKeepDims = function(builder, keepDims) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ReducerOptions.endReducerOptions = function(builder) {
+tflite.schema.ReducerOptions.endReducerOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3804,7 +3810,7 @@ tflite.ReducerOptions.endReducerOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SqueezeOptions = function() {
+tflite.schema.SqueezeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3819,9 +3825,9 @@ tflite.SqueezeOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SqueezeOptions}
+ * @returns {tflite.schema.SqueezeOptions}
  */
-tflite.SqueezeOptions.prototype.__init = function(i, bb) {
+tflite.schema.SqueezeOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3829,18 +3835,18 @@ tflite.SqueezeOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SqueezeOptions=} obj
- * @returns {tflite.SqueezeOptions}
+ * @param {tflite.schema.SqueezeOptions=} obj
+ * @returns {tflite.schema.SqueezeOptions}
  */
-tflite.SqueezeOptions.getRootAsSqueezeOptions = function(bb, obj) {
-  return (obj || new tflite.SqueezeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SqueezeOptions.getRootAsSqueezeOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SqueezeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {number} index
  * @returns {number}
  */
-tflite.SqueezeOptions.prototype.squeezeDims = function(index) {
+tflite.schema.SqueezeOptions.prototype.squeezeDims = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -3848,7 +3854,7 @@ tflite.SqueezeOptions.prototype.squeezeDims = function(index) {
 /**
  * @returns {number}
  */
-tflite.SqueezeOptions.prototype.squeezeDimsLength = function() {
+tflite.schema.SqueezeOptions.prototype.squeezeDimsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -3856,7 +3862,7 @@ tflite.SqueezeOptions.prototype.squeezeDimsLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.SqueezeOptions.prototype.squeezeDimsArray = function() {
+tflite.schema.SqueezeOptions.prototype.squeezeDimsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -3864,7 +3870,7 @@ tflite.SqueezeOptions.prototype.squeezeDimsArray = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SqueezeOptions.startSqueezeOptions = function(builder) {
+tflite.schema.SqueezeOptions.startSqueezeOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -3872,7 +3878,7 @@ tflite.SqueezeOptions.startSqueezeOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} squeezeDimsOffset
  */
-tflite.SqueezeOptions.addSqueezeDims = function(builder, squeezeDimsOffset) {
+tflite.schema.SqueezeOptions.addSqueezeDims = function(builder, squeezeDimsOffset) {
   builder.addFieldOffset(0, squeezeDimsOffset, 0);
 };
 
@@ -3881,7 +3887,7 @@ tflite.SqueezeOptions.addSqueezeDims = function(builder, squeezeDimsOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.SqueezeOptions.createSqueezeDimsVector = function(builder, data) {
+tflite.schema.SqueezeOptions.createSqueezeDimsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -3893,7 +3899,7 @@ tflite.SqueezeOptions.createSqueezeDimsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.SqueezeOptions.startSqueezeDimsVector = function(builder, numElems) {
+tflite.schema.SqueezeOptions.startSqueezeDimsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -3901,7 +3907,7 @@ tflite.SqueezeOptions.startSqueezeDimsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SqueezeOptions.endSqueezeOptions = function(builder) {
+tflite.schema.SqueezeOptions.endSqueezeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3909,7 +3915,7 @@ tflite.SqueezeOptions.endSqueezeOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SplitOptions = function() {
+tflite.schema.SplitOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3924,9 +3930,9 @@ tflite.SplitOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SplitOptions}
+ * @returns {tflite.schema.SplitOptions}
  */
-tflite.SplitOptions.prototype.__init = function(i, bb) {
+tflite.schema.SplitOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -3934,17 +3940,17 @@ tflite.SplitOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SplitOptions=} obj
- * @returns {tflite.SplitOptions}
+ * @param {tflite.schema.SplitOptions=} obj
+ * @returns {tflite.schema.SplitOptions}
  */
-tflite.SplitOptions.getRootAsSplitOptions = function(bb, obj) {
-  return (obj || new tflite.SplitOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SplitOptions.getRootAsSplitOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SplitOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.SplitOptions.prototype.numSplits = function() {
+tflite.schema.SplitOptions.prototype.numSplits = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -3952,7 +3958,7 @@ tflite.SplitOptions.prototype.numSplits = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SplitOptions.startSplitOptions = function(builder) {
+tflite.schema.SplitOptions.startSplitOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -3960,7 +3966,7 @@ tflite.SplitOptions.startSplitOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numSplits
  */
-tflite.SplitOptions.addNumSplits = function(builder, numSplits) {
+tflite.schema.SplitOptions.addNumSplits = function(builder, numSplits) {
   builder.addFieldInt32(0, numSplits, 0);
 };
 
@@ -3968,7 +3974,7 @@ tflite.SplitOptions.addNumSplits = function(builder, numSplits) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SplitOptions.endSplitOptions = function(builder) {
+tflite.schema.SplitOptions.endSplitOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -3976,7 +3982,7 @@ tflite.SplitOptions.endSplitOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.StridedSliceOptions = function() {
+tflite.schema.StridedSliceOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -3991,9 +3997,9 @@ tflite.StridedSliceOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.StridedSliceOptions}
+ * @returns {tflite.schema.StridedSliceOptions}
  */
-tflite.StridedSliceOptions.prototype.__init = function(i, bb) {
+tflite.schema.StridedSliceOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4001,17 +4007,17 @@ tflite.StridedSliceOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.StridedSliceOptions=} obj
- * @returns {tflite.StridedSliceOptions}
+ * @param {tflite.schema.StridedSliceOptions=} obj
+ * @returns {tflite.schema.StridedSliceOptions}
  */
-tflite.StridedSliceOptions.getRootAsStridedSliceOptions = function(bb, obj) {
-  return (obj || new tflite.StridedSliceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.StridedSliceOptions.getRootAsStridedSliceOptions = function(bb, obj) {
+  return (obj || new tflite.schema.StridedSliceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.StridedSliceOptions.prototype.beginMask = function() {
+tflite.schema.StridedSliceOptions.prototype.beginMask = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -4019,7 +4025,7 @@ tflite.StridedSliceOptions.prototype.beginMask = function() {
 /**
  * @returns {number}
  */
-tflite.StridedSliceOptions.prototype.endMask = function() {
+tflite.schema.StridedSliceOptions.prototype.endMask = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -4027,7 +4033,7 @@ tflite.StridedSliceOptions.prototype.endMask = function() {
 /**
  * @returns {number}
  */
-tflite.StridedSliceOptions.prototype.ellipsisMask = function() {
+tflite.schema.StridedSliceOptions.prototype.ellipsisMask = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -4035,7 +4041,7 @@ tflite.StridedSliceOptions.prototype.ellipsisMask = function() {
 /**
  * @returns {number}
  */
-tflite.StridedSliceOptions.prototype.newAxisMask = function() {
+tflite.schema.StridedSliceOptions.prototype.newAxisMask = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -4043,7 +4049,7 @@ tflite.StridedSliceOptions.prototype.newAxisMask = function() {
 /**
  * @returns {number}
  */
-tflite.StridedSliceOptions.prototype.shrinkAxisMask = function() {
+tflite.schema.StridedSliceOptions.prototype.shrinkAxisMask = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -4051,7 +4057,7 @@ tflite.StridedSliceOptions.prototype.shrinkAxisMask = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.StridedSliceOptions.startStridedSliceOptions = function(builder) {
+tflite.schema.StridedSliceOptions.startStridedSliceOptions = function(builder) {
   builder.startObject(5);
 };
 
@@ -4059,7 +4065,7 @@ tflite.StridedSliceOptions.startStridedSliceOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} beginMask
  */
-tflite.StridedSliceOptions.addBeginMask = function(builder, beginMask) {
+tflite.schema.StridedSliceOptions.addBeginMask = function(builder, beginMask) {
   builder.addFieldInt32(0, beginMask, 0);
 };
 
@@ -4067,7 +4073,7 @@ tflite.StridedSliceOptions.addBeginMask = function(builder, beginMask) {
  * @param {flatbuffers.Builder} builder
  * @param {number} endMask
  */
-tflite.StridedSliceOptions.addEndMask = function(builder, endMask) {
+tflite.schema.StridedSliceOptions.addEndMask = function(builder, endMask) {
   builder.addFieldInt32(1, endMask, 0);
 };
 
@@ -4075,7 +4081,7 @@ tflite.StridedSliceOptions.addEndMask = function(builder, endMask) {
  * @param {flatbuffers.Builder} builder
  * @param {number} ellipsisMask
  */
-tflite.StridedSliceOptions.addEllipsisMask = function(builder, ellipsisMask) {
+tflite.schema.StridedSliceOptions.addEllipsisMask = function(builder, ellipsisMask) {
   builder.addFieldInt32(2, ellipsisMask, 0);
 };
 
@@ -4083,7 +4089,7 @@ tflite.StridedSliceOptions.addEllipsisMask = function(builder, ellipsisMask) {
  * @param {flatbuffers.Builder} builder
  * @param {number} newAxisMask
  */
-tflite.StridedSliceOptions.addNewAxisMask = function(builder, newAxisMask) {
+tflite.schema.StridedSliceOptions.addNewAxisMask = function(builder, newAxisMask) {
   builder.addFieldInt32(3, newAxisMask, 0);
 };
 
@@ -4091,7 +4097,7 @@ tflite.StridedSliceOptions.addNewAxisMask = function(builder, newAxisMask) {
  * @param {flatbuffers.Builder} builder
  * @param {number} shrinkAxisMask
  */
-tflite.StridedSliceOptions.addShrinkAxisMask = function(builder, shrinkAxisMask) {
+tflite.schema.StridedSliceOptions.addShrinkAxisMask = function(builder, shrinkAxisMask) {
   builder.addFieldInt32(4, shrinkAxisMask, 0);
 };
 
@@ -4099,7 +4105,7 @@ tflite.StridedSliceOptions.addShrinkAxisMask = function(builder, shrinkAxisMask)
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.StridedSliceOptions.endStridedSliceOptions = function(builder) {
+tflite.schema.StridedSliceOptions.endStridedSliceOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4107,7 +4113,7 @@ tflite.StridedSliceOptions.endStridedSliceOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LogSoftmaxOptions = function() {
+tflite.schema.LogSoftmaxOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4122,9 +4128,9 @@ tflite.LogSoftmaxOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LogSoftmaxOptions}
+ * @returns {tflite.schema.LogSoftmaxOptions}
  */
-tflite.LogSoftmaxOptions.prototype.__init = function(i, bb) {
+tflite.schema.LogSoftmaxOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4132,17 +4138,17 @@ tflite.LogSoftmaxOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LogSoftmaxOptions=} obj
- * @returns {tflite.LogSoftmaxOptions}
+ * @param {tflite.schema.LogSoftmaxOptions=} obj
+ * @returns {tflite.schema.LogSoftmaxOptions}
  */
-tflite.LogSoftmaxOptions.getRootAsLogSoftmaxOptions = function(bb, obj) {
-  return (obj || new tflite.LogSoftmaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LogSoftmaxOptions.getRootAsLogSoftmaxOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LogSoftmaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LogSoftmaxOptions.startLogSoftmaxOptions = function(builder) {
+tflite.schema.LogSoftmaxOptions.startLogSoftmaxOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4150,7 +4156,7 @@ tflite.LogSoftmaxOptions.startLogSoftmaxOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LogSoftmaxOptions.endLogSoftmaxOptions = function(builder) {
+tflite.schema.LogSoftmaxOptions.endLogSoftmaxOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4158,7 +4164,7 @@ tflite.LogSoftmaxOptions.endLogSoftmaxOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.CastOptions = function() {
+tflite.schema.CastOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4173,9 +4179,9 @@ tflite.CastOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.CastOptions}
+ * @returns {tflite.schema.CastOptions}
  */
-tflite.CastOptions.prototype.__init = function(i, bb) {
+tflite.schema.CastOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4183,57 +4189,57 @@ tflite.CastOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.CastOptions=} obj
- * @returns {tflite.CastOptions}
+ * @param {tflite.schema.CastOptions=} obj
+ * @returns {tflite.schema.CastOptions}
  */
-tflite.CastOptions.getRootAsCastOptions = function(bb, obj) {
-  return (obj || new tflite.CastOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.CastOptions.getRootAsCastOptions = function(bb, obj) {
+  return (obj || new tflite.schema.CastOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.TensorType}
+ * @returns {tflite.schema.TensorType}
  */
-tflite.CastOptions.prototype.inDataType = function() {
+tflite.schema.CastOptions.prototype.inDataType = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+  return offset ? /** @type {tflite.schema.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.TensorType.FLOAT32;
 };
 
 /**
- * @returns {tflite.TensorType}
+ * @returns {tflite.schema.TensorType}
  */
-tflite.CastOptions.prototype.outDataType = function() {
+tflite.schema.CastOptions.prototype.outDataType = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+  return offset ? /** @type {tflite.schema.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.TensorType.FLOAT32;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.CastOptions.startCastOptions = function(builder) {
+tflite.schema.CastOptions.startCastOptions = function(builder) {
   builder.startObject(2);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.TensorType} inDataType
+ * @param {tflite.schema.TensorType} inDataType
  */
-tflite.CastOptions.addInDataType = function(builder, inDataType) {
-  builder.addFieldInt8(0, inDataType, tflite.TensorType.FLOAT32);
+tflite.schema.CastOptions.addInDataType = function(builder, inDataType) {
+  builder.addFieldInt8(0, inDataType, tflite.schema.TensorType.FLOAT32);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.TensorType} outDataType
+ * @param {tflite.schema.TensorType} outDataType
  */
-tflite.CastOptions.addOutDataType = function(builder, outDataType) {
-  builder.addFieldInt8(1, outDataType, tflite.TensorType.FLOAT32);
+tflite.schema.CastOptions.addOutDataType = function(builder, outDataType) {
+  builder.addFieldInt8(1, outDataType, tflite.schema.TensorType.FLOAT32);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.CastOptions.endCastOptions = function(builder) {
+tflite.schema.CastOptions.endCastOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4241,7 +4247,7 @@ tflite.CastOptions.endCastOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.DequantizeOptions = function() {
+tflite.schema.DequantizeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4256,9 +4262,9 @@ tflite.DequantizeOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.DequantizeOptions}
+ * @returns {tflite.schema.DequantizeOptions}
  */
-tflite.DequantizeOptions.prototype.__init = function(i, bb) {
+tflite.schema.DequantizeOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4266,17 +4272,17 @@ tflite.DequantizeOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.DequantizeOptions=} obj
- * @returns {tflite.DequantizeOptions}
+ * @param {tflite.schema.DequantizeOptions=} obj
+ * @returns {tflite.schema.DequantizeOptions}
  */
-tflite.DequantizeOptions.getRootAsDequantizeOptions = function(bb, obj) {
-  return (obj || new tflite.DequantizeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.DequantizeOptions.getRootAsDequantizeOptions = function(bb, obj) {
+  return (obj || new tflite.schema.DequantizeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.DequantizeOptions.startDequantizeOptions = function(builder) {
+tflite.schema.DequantizeOptions.startDequantizeOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4284,7 +4290,7 @@ tflite.DequantizeOptions.startDequantizeOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.DequantizeOptions.endDequantizeOptions = function(builder) {
+tflite.schema.DequantizeOptions.endDequantizeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4292,7 +4298,7 @@ tflite.DequantizeOptions.endDequantizeOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.MaximumMinimumOptions = function() {
+tflite.schema.MaximumMinimumOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4307,9 +4313,9 @@ tflite.MaximumMinimumOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.MaximumMinimumOptions}
+ * @returns {tflite.schema.MaximumMinimumOptions}
  */
-tflite.MaximumMinimumOptions.prototype.__init = function(i, bb) {
+tflite.schema.MaximumMinimumOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4317,17 +4323,17 @@ tflite.MaximumMinimumOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.MaximumMinimumOptions=} obj
- * @returns {tflite.MaximumMinimumOptions}
+ * @param {tflite.schema.MaximumMinimumOptions=} obj
+ * @returns {tflite.schema.MaximumMinimumOptions}
  */
-tflite.MaximumMinimumOptions.getRootAsMaximumMinimumOptions = function(bb, obj) {
-  return (obj || new tflite.MaximumMinimumOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.MaximumMinimumOptions.getRootAsMaximumMinimumOptions = function(bb, obj) {
+  return (obj || new tflite.schema.MaximumMinimumOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.MaximumMinimumOptions.startMaximumMinimumOptions = function(builder) {
+tflite.schema.MaximumMinimumOptions.startMaximumMinimumOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4335,7 +4341,7 @@ tflite.MaximumMinimumOptions.startMaximumMinimumOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.MaximumMinimumOptions.endMaximumMinimumOptions = function(builder) {
+tflite.schema.MaximumMinimumOptions.endMaximumMinimumOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4343,7 +4349,7 @@ tflite.MaximumMinimumOptions.endMaximumMinimumOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.TileOptions = function() {
+tflite.schema.TileOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4358,9 +4364,9 @@ tflite.TileOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.TileOptions}
+ * @returns {tflite.schema.TileOptions}
  */
-tflite.TileOptions.prototype.__init = function(i, bb) {
+tflite.schema.TileOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4368,17 +4374,17 @@ tflite.TileOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.TileOptions=} obj
- * @returns {tflite.TileOptions}
+ * @param {tflite.schema.TileOptions=} obj
+ * @returns {tflite.schema.TileOptions}
  */
-tflite.TileOptions.getRootAsTileOptions = function(bb, obj) {
-  return (obj || new tflite.TileOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.TileOptions.getRootAsTileOptions = function(bb, obj) {
+  return (obj || new tflite.schema.TileOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.TileOptions.startTileOptions = function(builder) {
+tflite.schema.TileOptions.startTileOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4386,7 +4392,7 @@ tflite.TileOptions.startTileOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.TileOptions.endTileOptions = function(builder) {
+tflite.schema.TileOptions.endTileOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4394,7 +4400,7 @@ tflite.TileOptions.endTileOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ArgMaxOptions = function() {
+tflite.schema.ArgMaxOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4409,9 +4415,9 @@ tflite.ArgMaxOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ArgMaxOptions}
+ * @returns {tflite.schema.ArgMaxOptions}
  */
-tflite.ArgMaxOptions.prototype.__init = function(i, bb) {
+tflite.schema.ArgMaxOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4419,41 +4425,41 @@ tflite.ArgMaxOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ArgMaxOptions=} obj
- * @returns {tflite.ArgMaxOptions}
+ * @param {tflite.schema.ArgMaxOptions=} obj
+ * @returns {tflite.schema.ArgMaxOptions}
  */
-tflite.ArgMaxOptions.getRootAsArgMaxOptions = function(bb, obj) {
-  return (obj || new tflite.ArgMaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ArgMaxOptions.getRootAsArgMaxOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ArgMaxOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.TensorType}
+ * @returns {tflite.schema.TensorType}
  */
-tflite.ArgMaxOptions.prototype.outputType = function() {
+tflite.schema.ArgMaxOptions.prototype.outputType = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+  return offset ? /** @type {tflite.schema.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.TensorType.FLOAT32;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ArgMaxOptions.startArgMaxOptions = function(builder) {
+tflite.schema.ArgMaxOptions.startArgMaxOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.TensorType} outputType
+ * @param {tflite.schema.TensorType} outputType
  */
-tflite.ArgMaxOptions.addOutputType = function(builder, outputType) {
-  builder.addFieldInt8(0, outputType, tflite.TensorType.FLOAT32);
+tflite.schema.ArgMaxOptions.addOutputType = function(builder, outputType) {
+  builder.addFieldInt8(0, outputType, tflite.schema.TensorType.FLOAT32);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ArgMaxOptions.endArgMaxOptions = function(builder) {
+tflite.schema.ArgMaxOptions.endArgMaxOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4461,7 +4467,7 @@ tflite.ArgMaxOptions.endArgMaxOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ArgMinOptions = function() {
+tflite.schema.ArgMinOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4476,9 +4482,9 @@ tflite.ArgMinOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ArgMinOptions}
+ * @returns {tflite.schema.ArgMinOptions}
  */
-tflite.ArgMinOptions.prototype.__init = function(i, bb) {
+tflite.schema.ArgMinOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4486,41 +4492,41 @@ tflite.ArgMinOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ArgMinOptions=} obj
- * @returns {tflite.ArgMinOptions}
+ * @param {tflite.schema.ArgMinOptions=} obj
+ * @returns {tflite.schema.ArgMinOptions}
  */
-tflite.ArgMinOptions.getRootAsArgMinOptions = function(bb, obj) {
-  return (obj || new tflite.ArgMinOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ArgMinOptions.getRootAsArgMinOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ArgMinOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.TensorType}
+ * @returns {tflite.schema.TensorType}
  */
-tflite.ArgMinOptions.prototype.outputType = function() {
+tflite.schema.ArgMinOptions.prototype.outputType = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+  return offset ? /** @type {tflite.schema.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.TensorType.FLOAT32;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ArgMinOptions.startArgMinOptions = function(builder) {
+tflite.schema.ArgMinOptions.startArgMinOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.TensorType} outputType
+ * @param {tflite.schema.TensorType} outputType
  */
-tflite.ArgMinOptions.addOutputType = function(builder, outputType) {
-  builder.addFieldInt8(0, outputType, tflite.TensorType.FLOAT32);
+tflite.schema.ArgMinOptions.addOutputType = function(builder, outputType) {
+  builder.addFieldInt8(0, outputType, tflite.schema.TensorType.FLOAT32);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ArgMinOptions.endArgMinOptions = function(builder) {
+tflite.schema.ArgMinOptions.endArgMinOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4528,7 +4534,7 @@ tflite.ArgMinOptions.endArgMinOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.GreaterOptions = function() {
+tflite.schema.GreaterOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4543,9 +4549,9 @@ tflite.GreaterOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.GreaterOptions}
+ * @returns {tflite.schema.GreaterOptions}
  */
-tflite.GreaterOptions.prototype.__init = function(i, bb) {
+tflite.schema.GreaterOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4553,17 +4559,17 @@ tflite.GreaterOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.GreaterOptions=} obj
- * @returns {tflite.GreaterOptions}
+ * @param {tflite.schema.GreaterOptions=} obj
+ * @returns {tflite.schema.GreaterOptions}
  */
-tflite.GreaterOptions.getRootAsGreaterOptions = function(bb, obj) {
-  return (obj || new tflite.GreaterOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.GreaterOptions.getRootAsGreaterOptions = function(bb, obj) {
+  return (obj || new tflite.schema.GreaterOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.GreaterOptions.startGreaterOptions = function(builder) {
+tflite.schema.GreaterOptions.startGreaterOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4571,7 +4577,7 @@ tflite.GreaterOptions.startGreaterOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.GreaterOptions.endGreaterOptions = function(builder) {
+tflite.schema.GreaterOptions.endGreaterOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4579,7 +4585,7 @@ tflite.GreaterOptions.endGreaterOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.GreaterEqualOptions = function() {
+tflite.schema.GreaterEqualOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4594,9 +4600,9 @@ tflite.GreaterEqualOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.GreaterEqualOptions}
+ * @returns {tflite.schema.GreaterEqualOptions}
  */
-tflite.GreaterEqualOptions.prototype.__init = function(i, bb) {
+tflite.schema.GreaterEqualOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4604,17 +4610,17 @@ tflite.GreaterEqualOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.GreaterEqualOptions=} obj
- * @returns {tflite.GreaterEqualOptions}
+ * @param {tflite.schema.GreaterEqualOptions=} obj
+ * @returns {tflite.schema.GreaterEqualOptions}
  */
-tflite.GreaterEqualOptions.getRootAsGreaterEqualOptions = function(bb, obj) {
-  return (obj || new tflite.GreaterEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.GreaterEqualOptions.getRootAsGreaterEqualOptions = function(bb, obj) {
+  return (obj || new tflite.schema.GreaterEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.GreaterEqualOptions.startGreaterEqualOptions = function(builder) {
+tflite.schema.GreaterEqualOptions.startGreaterEqualOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4622,7 +4628,7 @@ tflite.GreaterEqualOptions.startGreaterEqualOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.GreaterEqualOptions.endGreaterEqualOptions = function(builder) {
+tflite.schema.GreaterEqualOptions.endGreaterEqualOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4630,7 +4636,7 @@ tflite.GreaterEqualOptions.endGreaterEqualOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LessOptions = function() {
+tflite.schema.LessOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4645,9 +4651,9 @@ tflite.LessOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LessOptions}
+ * @returns {tflite.schema.LessOptions}
  */
-tflite.LessOptions.prototype.__init = function(i, bb) {
+tflite.schema.LessOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4655,17 +4661,17 @@ tflite.LessOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LessOptions=} obj
- * @returns {tflite.LessOptions}
+ * @param {tflite.schema.LessOptions=} obj
+ * @returns {tflite.schema.LessOptions}
  */
-tflite.LessOptions.getRootAsLessOptions = function(bb, obj) {
-  return (obj || new tflite.LessOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LessOptions.getRootAsLessOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LessOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LessOptions.startLessOptions = function(builder) {
+tflite.schema.LessOptions.startLessOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4673,7 +4679,7 @@ tflite.LessOptions.startLessOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LessOptions.endLessOptions = function(builder) {
+tflite.schema.LessOptions.endLessOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4681,7 +4687,7 @@ tflite.LessOptions.endLessOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LessEqualOptions = function() {
+tflite.schema.LessEqualOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4696,9 +4702,9 @@ tflite.LessEqualOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LessEqualOptions}
+ * @returns {tflite.schema.LessEqualOptions}
  */
-tflite.LessEqualOptions.prototype.__init = function(i, bb) {
+tflite.schema.LessEqualOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4706,17 +4712,17 @@ tflite.LessEqualOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LessEqualOptions=} obj
- * @returns {tflite.LessEqualOptions}
+ * @param {tflite.schema.LessEqualOptions=} obj
+ * @returns {tflite.schema.LessEqualOptions}
  */
-tflite.LessEqualOptions.getRootAsLessEqualOptions = function(bb, obj) {
-  return (obj || new tflite.LessEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LessEqualOptions.getRootAsLessEqualOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LessEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LessEqualOptions.startLessEqualOptions = function(builder) {
+tflite.schema.LessEqualOptions.startLessEqualOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4724,7 +4730,7 @@ tflite.LessEqualOptions.startLessEqualOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LessEqualOptions.endLessEqualOptions = function(builder) {
+tflite.schema.LessEqualOptions.endLessEqualOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4732,7 +4738,7 @@ tflite.LessEqualOptions.endLessEqualOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.NegOptions = function() {
+tflite.schema.NegOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4747,9 +4753,9 @@ tflite.NegOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.NegOptions}
+ * @returns {tflite.schema.NegOptions}
  */
-tflite.NegOptions.prototype.__init = function(i, bb) {
+tflite.schema.NegOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4757,17 +4763,17 @@ tflite.NegOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.NegOptions=} obj
- * @returns {tflite.NegOptions}
+ * @param {tflite.schema.NegOptions=} obj
+ * @returns {tflite.schema.NegOptions}
  */
-tflite.NegOptions.getRootAsNegOptions = function(bb, obj) {
-  return (obj || new tflite.NegOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.NegOptions.getRootAsNegOptions = function(bb, obj) {
+  return (obj || new tflite.schema.NegOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.NegOptions.startNegOptions = function(builder) {
+tflite.schema.NegOptions.startNegOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4775,7 +4781,7 @@ tflite.NegOptions.startNegOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.NegOptions.endNegOptions = function(builder) {
+tflite.schema.NegOptions.endNegOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4783,7 +4789,7 @@ tflite.NegOptions.endNegOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SelectOptions = function() {
+tflite.schema.SelectOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4798,9 +4804,9 @@ tflite.SelectOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SelectOptions}
+ * @returns {tflite.schema.SelectOptions}
  */
-tflite.SelectOptions.prototype.__init = function(i, bb) {
+tflite.schema.SelectOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4808,17 +4814,17 @@ tflite.SelectOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SelectOptions=} obj
- * @returns {tflite.SelectOptions}
+ * @param {tflite.schema.SelectOptions=} obj
+ * @returns {tflite.schema.SelectOptions}
  */
-tflite.SelectOptions.getRootAsSelectOptions = function(bb, obj) {
-  return (obj || new tflite.SelectOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SelectOptions.getRootAsSelectOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SelectOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SelectOptions.startSelectOptions = function(builder) {
+tflite.schema.SelectOptions.startSelectOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4826,7 +4832,7 @@ tflite.SelectOptions.startSelectOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SelectOptions.endSelectOptions = function(builder) {
+tflite.schema.SelectOptions.endSelectOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4834,7 +4840,7 @@ tflite.SelectOptions.endSelectOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SliceOptions = function() {
+tflite.schema.SliceOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4849,9 +4855,9 @@ tflite.SliceOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SliceOptions}
+ * @returns {tflite.schema.SliceOptions}
  */
-tflite.SliceOptions.prototype.__init = function(i, bb) {
+tflite.schema.SliceOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4859,17 +4865,17 @@ tflite.SliceOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SliceOptions=} obj
- * @returns {tflite.SliceOptions}
+ * @param {tflite.schema.SliceOptions=} obj
+ * @returns {tflite.schema.SliceOptions}
  */
-tflite.SliceOptions.getRootAsSliceOptions = function(bb, obj) {
-  return (obj || new tflite.SliceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SliceOptions.getRootAsSliceOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SliceOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SliceOptions.startSliceOptions = function(builder) {
+tflite.schema.SliceOptions.startSliceOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -4877,7 +4883,7 @@ tflite.SliceOptions.startSliceOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SliceOptions.endSliceOptions = function(builder) {
+tflite.schema.SliceOptions.endSliceOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4885,7 +4891,7 @@ tflite.SliceOptions.endSliceOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.TransposeConvOptions = function() {
+tflite.schema.TransposeConvOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4900,9 +4906,9 @@ tflite.TransposeConvOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.TransposeConvOptions}
+ * @returns {tflite.schema.TransposeConvOptions}
  */
-tflite.TransposeConvOptions.prototype.__init = function(i, bb) {
+tflite.schema.TransposeConvOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -4910,25 +4916,25 @@ tflite.TransposeConvOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.TransposeConvOptions=} obj
- * @returns {tflite.TransposeConvOptions}
+ * @param {tflite.schema.TransposeConvOptions=} obj
+ * @returns {tflite.schema.TransposeConvOptions}
  */
-tflite.TransposeConvOptions.getRootAsTransposeConvOptions = function(bb, obj) {
-  return (obj || new tflite.TransposeConvOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.TransposeConvOptions.getRootAsTransposeConvOptions = function(bb, obj) {
+  return (obj || new tflite.schema.TransposeConvOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.Padding}
+ * @returns {tflite.schema.Padding}
  */
-tflite.TransposeConvOptions.prototype.padding = function() {
+tflite.schema.TransposeConvOptions.prototype.padding = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.Padding.SAME;
+  return offset ? /** @type {tflite.schema.Padding} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.Padding.SAME;
 };
 
 /**
  * @returns {number}
  */
-tflite.TransposeConvOptions.prototype.strideW = function() {
+tflite.schema.TransposeConvOptions.prototype.strideW = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -4936,7 +4942,7 @@ tflite.TransposeConvOptions.prototype.strideW = function() {
 /**
  * @returns {number}
  */
-tflite.TransposeConvOptions.prototype.strideH = function() {
+tflite.schema.TransposeConvOptions.prototype.strideH = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -4944,23 +4950,23 @@ tflite.TransposeConvOptions.prototype.strideH = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.TransposeConvOptions.startTransposeConvOptions = function(builder) {
+tflite.schema.TransposeConvOptions.startTransposeConvOptions = function(builder) {
   builder.startObject(3);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.Padding} padding
+ * @param {tflite.schema.Padding} padding
  */
-tflite.TransposeConvOptions.addPadding = function(builder, padding) {
-  builder.addFieldInt8(0, padding, tflite.Padding.SAME);
+tflite.schema.TransposeConvOptions.addPadding = function(builder, padding) {
+  builder.addFieldInt8(0, padding, tflite.schema.Padding.SAME);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {number} strideW
  */
-tflite.TransposeConvOptions.addStrideW = function(builder, strideW) {
+tflite.schema.TransposeConvOptions.addStrideW = function(builder, strideW) {
   builder.addFieldInt32(1, strideW, 0);
 };
 
@@ -4968,7 +4974,7 @@ tflite.TransposeConvOptions.addStrideW = function(builder, strideW) {
  * @param {flatbuffers.Builder} builder
  * @param {number} strideH
  */
-tflite.TransposeConvOptions.addStrideH = function(builder, strideH) {
+tflite.schema.TransposeConvOptions.addStrideH = function(builder, strideH) {
   builder.addFieldInt32(2, strideH, 0);
 };
 
@@ -4976,7 +4982,7 @@ tflite.TransposeConvOptions.addStrideH = function(builder, strideH) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.TransposeConvOptions.endTransposeConvOptions = function(builder) {
+tflite.schema.TransposeConvOptions.endTransposeConvOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -4984,7 +4990,7 @@ tflite.TransposeConvOptions.endTransposeConvOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ExpandDimsOptions = function() {
+tflite.schema.ExpandDimsOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -4999,9 +5005,9 @@ tflite.ExpandDimsOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ExpandDimsOptions}
+ * @returns {tflite.schema.ExpandDimsOptions}
  */
-tflite.ExpandDimsOptions.prototype.__init = function(i, bb) {
+tflite.schema.ExpandDimsOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5009,17 +5015,17 @@ tflite.ExpandDimsOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ExpandDimsOptions=} obj
- * @returns {tflite.ExpandDimsOptions}
+ * @param {tflite.schema.ExpandDimsOptions=} obj
+ * @returns {tflite.schema.ExpandDimsOptions}
  */
-tflite.ExpandDimsOptions.getRootAsExpandDimsOptions = function(bb, obj) {
-  return (obj || new tflite.ExpandDimsOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ExpandDimsOptions.getRootAsExpandDimsOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ExpandDimsOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ExpandDimsOptions.startExpandDimsOptions = function(builder) {
+tflite.schema.ExpandDimsOptions.startExpandDimsOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5027,7 +5033,7 @@ tflite.ExpandDimsOptions.startExpandDimsOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ExpandDimsOptions.endExpandDimsOptions = function(builder) {
+tflite.schema.ExpandDimsOptions.endExpandDimsOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5035,7 +5041,7 @@ tflite.ExpandDimsOptions.endExpandDimsOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SparseToDenseOptions = function() {
+tflite.schema.SparseToDenseOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5050,9 +5056,9 @@ tflite.SparseToDenseOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SparseToDenseOptions}
+ * @returns {tflite.schema.SparseToDenseOptions}
  */
-tflite.SparseToDenseOptions.prototype.__init = function(i, bb) {
+tflite.schema.SparseToDenseOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5060,17 +5066,17 @@ tflite.SparseToDenseOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SparseToDenseOptions=} obj
- * @returns {tflite.SparseToDenseOptions}
+ * @param {tflite.schema.SparseToDenseOptions=} obj
+ * @returns {tflite.schema.SparseToDenseOptions}
  */
-tflite.SparseToDenseOptions.getRootAsSparseToDenseOptions = function(bb, obj) {
-  return (obj || new tflite.SparseToDenseOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SparseToDenseOptions.getRootAsSparseToDenseOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SparseToDenseOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {boolean}
  */
-tflite.SparseToDenseOptions.prototype.validateIndices = function() {
+tflite.schema.SparseToDenseOptions.prototype.validateIndices = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -5078,7 +5084,7 @@ tflite.SparseToDenseOptions.prototype.validateIndices = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SparseToDenseOptions.startSparseToDenseOptions = function(builder) {
+tflite.schema.SparseToDenseOptions.startSparseToDenseOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -5086,7 +5092,7 @@ tflite.SparseToDenseOptions.startSparseToDenseOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} validateIndices
  */
-tflite.SparseToDenseOptions.addValidateIndices = function(builder, validateIndices) {
+tflite.schema.SparseToDenseOptions.addValidateIndices = function(builder, validateIndices) {
   builder.addFieldInt8(0, +validateIndices, +false);
 };
 
@@ -5094,7 +5100,7 @@ tflite.SparseToDenseOptions.addValidateIndices = function(builder, validateIndic
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SparseToDenseOptions.endSparseToDenseOptions = function(builder) {
+tflite.schema.SparseToDenseOptions.endSparseToDenseOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5102,7 +5108,7 @@ tflite.SparseToDenseOptions.endSparseToDenseOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.EqualOptions = function() {
+tflite.schema.EqualOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5117,9 +5123,9 @@ tflite.EqualOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.EqualOptions}
+ * @returns {tflite.schema.EqualOptions}
  */
-tflite.EqualOptions.prototype.__init = function(i, bb) {
+tflite.schema.EqualOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5127,17 +5133,17 @@ tflite.EqualOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.EqualOptions=} obj
- * @returns {tflite.EqualOptions}
+ * @param {tflite.schema.EqualOptions=} obj
+ * @returns {tflite.schema.EqualOptions}
  */
-tflite.EqualOptions.getRootAsEqualOptions = function(bb, obj) {
-  return (obj || new tflite.EqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.EqualOptions.getRootAsEqualOptions = function(bb, obj) {
+  return (obj || new tflite.schema.EqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.EqualOptions.startEqualOptions = function(builder) {
+tflite.schema.EqualOptions.startEqualOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5145,7 +5151,7 @@ tflite.EqualOptions.startEqualOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.EqualOptions.endEqualOptions = function(builder) {
+tflite.schema.EqualOptions.endEqualOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5153,7 +5159,7 @@ tflite.EqualOptions.endEqualOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.NotEqualOptions = function() {
+tflite.schema.NotEqualOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5168,9 +5174,9 @@ tflite.NotEqualOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.NotEqualOptions}
+ * @returns {tflite.schema.NotEqualOptions}
  */
-tflite.NotEqualOptions.prototype.__init = function(i, bb) {
+tflite.schema.NotEqualOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5178,17 +5184,17 @@ tflite.NotEqualOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.NotEqualOptions=} obj
- * @returns {tflite.NotEqualOptions}
+ * @param {tflite.schema.NotEqualOptions=} obj
+ * @returns {tflite.schema.NotEqualOptions}
  */
-tflite.NotEqualOptions.getRootAsNotEqualOptions = function(bb, obj) {
-  return (obj || new tflite.NotEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.NotEqualOptions.getRootAsNotEqualOptions = function(bb, obj) {
+  return (obj || new tflite.schema.NotEqualOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.NotEqualOptions.startNotEqualOptions = function(builder) {
+tflite.schema.NotEqualOptions.startNotEqualOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5196,7 +5202,7 @@ tflite.NotEqualOptions.startNotEqualOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.NotEqualOptions.endNotEqualOptions = function(builder) {
+tflite.schema.NotEqualOptions.endNotEqualOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5204,7 +5210,7 @@ tflite.NotEqualOptions.endNotEqualOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ShapeOptions = function() {
+tflite.schema.ShapeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5219,9 +5225,9 @@ tflite.ShapeOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ShapeOptions}
+ * @returns {tflite.schema.ShapeOptions}
  */
-tflite.ShapeOptions.prototype.__init = function(i, bb) {
+tflite.schema.ShapeOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5229,41 +5235,41 @@ tflite.ShapeOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ShapeOptions=} obj
- * @returns {tflite.ShapeOptions}
+ * @param {tflite.schema.ShapeOptions=} obj
+ * @returns {tflite.schema.ShapeOptions}
  */
-tflite.ShapeOptions.getRootAsShapeOptions = function(bb, obj) {
-  return (obj || new tflite.ShapeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ShapeOptions.getRootAsShapeOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ShapeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.TensorType}
+ * @returns {tflite.schema.TensorType}
  */
-tflite.ShapeOptions.prototype.outType = function() {
+tflite.schema.ShapeOptions.prototype.outType = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.TensorType.FLOAT32;
+  return offset ? /** @type {tflite.schema.TensorType} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.TensorType.FLOAT32;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ShapeOptions.startShapeOptions = function(builder) {
+tflite.schema.ShapeOptions.startShapeOptions = function(builder) {
   builder.startObject(1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.TensorType} outType
+ * @param {tflite.schema.TensorType} outType
  */
-tflite.ShapeOptions.addOutType = function(builder, outType) {
-  builder.addFieldInt8(0, outType, tflite.TensorType.FLOAT32);
+tflite.schema.ShapeOptions.addOutType = function(builder, outType) {
+  builder.addFieldInt8(0, outType, tflite.schema.TensorType.FLOAT32);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ShapeOptions.endShapeOptions = function(builder) {
+tflite.schema.ShapeOptions.endShapeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5271,7 +5277,7 @@ tflite.ShapeOptions.endShapeOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.PowOptions = function() {
+tflite.schema.PowOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5286,9 +5292,9 @@ tflite.PowOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.PowOptions}
+ * @returns {tflite.schema.PowOptions}
  */
-tflite.PowOptions.prototype.__init = function(i, bb) {
+tflite.schema.PowOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5296,17 +5302,17 @@ tflite.PowOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.PowOptions=} obj
- * @returns {tflite.PowOptions}
+ * @param {tflite.schema.PowOptions=} obj
+ * @returns {tflite.schema.PowOptions}
  */
-tflite.PowOptions.getRootAsPowOptions = function(bb, obj) {
-  return (obj || new tflite.PowOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.PowOptions.getRootAsPowOptions = function(bb, obj) {
+  return (obj || new tflite.schema.PowOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.PowOptions.startPowOptions = function(builder) {
+tflite.schema.PowOptions.startPowOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5314,7 +5320,7 @@ tflite.PowOptions.startPowOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.PowOptions.endPowOptions = function(builder) {
+tflite.schema.PowOptions.endPowOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5322,7 +5328,7 @@ tflite.PowOptions.endPowOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.FakeQuantOptions = function() {
+tflite.schema.FakeQuantOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5337,9 +5343,9 @@ tflite.FakeQuantOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.FakeQuantOptions}
+ * @returns {tflite.schema.FakeQuantOptions}
  */
-tflite.FakeQuantOptions.prototype.__init = function(i, bb) {
+tflite.schema.FakeQuantOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5347,17 +5353,17 @@ tflite.FakeQuantOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.FakeQuantOptions=} obj
- * @returns {tflite.FakeQuantOptions}
+ * @param {tflite.schema.FakeQuantOptions=} obj
+ * @returns {tflite.schema.FakeQuantOptions}
  */
-tflite.FakeQuantOptions.getRootAsFakeQuantOptions = function(bb, obj) {
-  return (obj || new tflite.FakeQuantOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.FakeQuantOptions.getRootAsFakeQuantOptions = function(bb, obj) {
+  return (obj || new tflite.schema.FakeQuantOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.FakeQuantOptions.prototype.min = function() {
+tflite.schema.FakeQuantOptions.prototype.min = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -5365,7 +5371,7 @@ tflite.FakeQuantOptions.prototype.min = function() {
 /**
  * @returns {number}
  */
-tflite.FakeQuantOptions.prototype.max = function() {
+tflite.schema.FakeQuantOptions.prototype.max = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
 };
@@ -5373,7 +5379,7 @@ tflite.FakeQuantOptions.prototype.max = function() {
 /**
  * @returns {number}
  */
-tflite.FakeQuantOptions.prototype.numBits = function() {
+tflite.schema.FakeQuantOptions.prototype.numBits = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -5381,7 +5387,7 @@ tflite.FakeQuantOptions.prototype.numBits = function() {
 /**
  * @returns {boolean}
  */
-tflite.FakeQuantOptions.prototype.narrowRange = function() {
+tflite.schema.FakeQuantOptions.prototype.narrowRange = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -5389,7 +5395,7 @@ tflite.FakeQuantOptions.prototype.narrowRange = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.FakeQuantOptions.startFakeQuantOptions = function(builder) {
+tflite.schema.FakeQuantOptions.startFakeQuantOptions = function(builder) {
   builder.startObject(4);
 };
 
@@ -5397,7 +5403,7 @@ tflite.FakeQuantOptions.startFakeQuantOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} min
  */
-tflite.FakeQuantOptions.addMin = function(builder, min) {
+tflite.schema.FakeQuantOptions.addMin = function(builder, min) {
   builder.addFieldFloat32(0, min, 0.0);
 };
 
@@ -5405,7 +5411,7 @@ tflite.FakeQuantOptions.addMin = function(builder, min) {
  * @param {flatbuffers.Builder} builder
  * @param {number} max
  */
-tflite.FakeQuantOptions.addMax = function(builder, max) {
+tflite.schema.FakeQuantOptions.addMax = function(builder, max) {
   builder.addFieldFloat32(1, max, 0.0);
 };
 
@@ -5413,7 +5419,7 @@ tflite.FakeQuantOptions.addMax = function(builder, max) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numBits
  */
-tflite.FakeQuantOptions.addNumBits = function(builder, numBits) {
+tflite.schema.FakeQuantOptions.addNumBits = function(builder, numBits) {
   builder.addFieldInt32(2, numBits, 0);
 };
 
@@ -5421,7 +5427,7 @@ tflite.FakeQuantOptions.addNumBits = function(builder, numBits) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} narrowRange
  */
-tflite.FakeQuantOptions.addNarrowRange = function(builder, narrowRange) {
+tflite.schema.FakeQuantOptions.addNarrowRange = function(builder, narrowRange) {
   builder.addFieldInt8(3, +narrowRange, +false);
 };
 
@@ -5429,7 +5435,7 @@ tflite.FakeQuantOptions.addNarrowRange = function(builder, narrowRange) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.FakeQuantOptions.endFakeQuantOptions = function(builder) {
+tflite.schema.FakeQuantOptions.endFakeQuantOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5437,7 +5443,7 @@ tflite.FakeQuantOptions.endFakeQuantOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.PackOptions = function() {
+tflite.schema.PackOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5452,9 +5458,9 @@ tflite.PackOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.PackOptions}
+ * @returns {tflite.schema.PackOptions}
  */
-tflite.PackOptions.prototype.__init = function(i, bb) {
+tflite.schema.PackOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5462,17 +5468,17 @@ tflite.PackOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.PackOptions=} obj
- * @returns {tflite.PackOptions}
+ * @param {tflite.schema.PackOptions=} obj
+ * @returns {tflite.schema.PackOptions}
  */
-tflite.PackOptions.getRootAsPackOptions = function(bb, obj) {
-  return (obj || new tflite.PackOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.PackOptions.getRootAsPackOptions = function(bb, obj) {
+  return (obj || new tflite.schema.PackOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.PackOptions.prototype.valuesCount = function() {
+tflite.schema.PackOptions.prototype.valuesCount = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -5480,7 +5486,7 @@ tflite.PackOptions.prototype.valuesCount = function() {
 /**
  * @returns {number}
  */
-tflite.PackOptions.prototype.axis = function() {
+tflite.schema.PackOptions.prototype.axis = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -5488,7 +5494,7 @@ tflite.PackOptions.prototype.axis = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.PackOptions.startPackOptions = function(builder) {
+tflite.schema.PackOptions.startPackOptions = function(builder) {
   builder.startObject(2);
 };
 
@@ -5496,7 +5502,7 @@ tflite.PackOptions.startPackOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} valuesCount
  */
-tflite.PackOptions.addValuesCount = function(builder, valuesCount) {
+tflite.schema.PackOptions.addValuesCount = function(builder, valuesCount) {
   builder.addFieldInt32(0, valuesCount, 0);
 };
 
@@ -5504,7 +5510,7 @@ tflite.PackOptions.addValuesCount = function(builder, valuesCount) {
  * @param {flatbuffers.Builder} builder
  * @param {number} axis
  */
-tflite.PackOptions.addAxis = function(builder, axis) {
+tflite.schema.PackOptions.addAxis = function(builder, axis) {
   builder.addFieldInt32(1, axis, 0);
 };
 
@@ -5512,7 +5518,7 @@ tflite.PackOptions.addAxis = function(builder, axis) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.PackOptions.endPackOptions = function(builder) {
+tflite.schema.PackOptions.endPackOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5520,7 +5526,7 @@ tflite.PackOptions.endPackOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LogicalOrOptions = function() {
+tflite.schema.LogicalOrOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5535,9 +5541,9 @@ tflite.LogicalOrOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LogicalOrOptions}
+ * @returns {tflite.schema.LogicalOrOptions}
  */
-tflite.LogicalOrOptions.prototype.__init = function(i, bb) {
+tflite.schema.LogicalOrOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5545,17 +5551,17 @@ tflite.LogicalOrOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LogicalOrOptions=} obj
- * @returns {tflite.LogicalOrOptions}
+ * @param {tflite.schema.LogicalOrOptions=} obj
+ * @returns {tflite.schema.LogicalOrOptions}
  */
-tflite.LogicalOrOptions.getRootAsLogicalOrOptions = function(bb, obj) {
-  return (obj || new tflite.LogicalOrOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LogicalOrOptions.getRootAsLogicalOrOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LogicalOrOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LogicalOrOptions.startLogicalOrOptions = function(builder) {
+tflite.schema.LogicalOrOptions.startLogicalOrOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5563,7 +5569,7 @@ tflite.LogicalOrOptions.startLogicalOrOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LogicalOrOptions.endLogicalOrOptions = function(builder) {
+tflite.schema.LogicalOrOptions.endLogicalOrOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5571,7 +5577,7 @@ tflite.LogicalOrOptions.endLogicalOrOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.OneHotOptions = function() {
+tflite.schema.OneHotOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5586,9 +5592,9 @@ tflite.OneHotOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.OneHotOptions}
+ * @returns {tflite.schema.OneHotOptions}
  */
-tflite.OneHotOptions.prototype.__init = function(i, bb) {
+tflite.schema.OneHotOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5596,17 +5602,17 @@ tflite.OneHotOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.OneHotOptions=} obj
- * @returns {tflite.OneHotOptions}
+ * @param {tflite.schema.OneHotOptions=} obj
+ * @returns {tflite.schema.OneHotOptions}
  */
-tflite.OneHotOptions.getRootAsOneHotOptions = function(bb, obj) {
-  return (obj || new tflite.OneHotOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.OneHotOptions.getRootAsOneHotOptions = function(bb, obj) {
+  return (obj || new tflite.schema.OneHotOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.OneHotOptions.prototype.axis = function() {
+tflite.schema.OneHotOptions.prototype.axis = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -5614,7 +5620,7 @@ tflite.OneHotOptions.prototype.axis = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.OneHotOptions.startOneHotOptions = function(builder) {
+tflite.schema.OneHotOptions.startOneHotOptions = function(builder) {
   builder.startObject(1);
 };
 
@@ -5622,7 +5628,7 @@ tflite.OneHotOptions.startOneHotOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} axis
  */
-tflite.OneHotOptions.addAxis = function(builder, axis) {
+tflite.schema.OneHotOptions.addAxis = function(builder, axis) {
   builder.addFieldInt32(0, axis, 0);
 };
 
@@ -5630,7 +5636,7 @@ tflite.OneHotOptions.addAxis = function(builder, axis) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.OneHotOptions.endOneHotOptions = function(builder) {
+tflite.schema.OneHotOptions.endOneHotOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5638,7 +5644,7 @@ tflite.OneHotOptions.endOneHotOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LogicalAndOptions = function() {
+tflite.schema.LogicalAndOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5653,9 +5659,9 @@ tflite.LogicalAndOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LogicalAndOptions}
+ * @returns {tflite.schema.LogicalAndOptions}
  */
-tflite.LogicalAndOptions.prototype.__init = function(i, bb) {
+tflite.schema.LogicalAndOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5663,17 +5669,17 @@ tflite.LogicalAndOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LogicalAndOptions=} obj
- * @returns {tflite.LogicalAndOptions}
+ * @param {tflite.schema.LogicalAndOptions=} obj
+ * @returns {tflite.schema.LogicalAndOptions}
  */
-tflite.LogicalAndOptions.getRootAsLogicalAndOptions = function(bb, obj) {
-  return (obj || new tflite.LogicalAndOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LogicalAndOptions.getRootAsLogicalAndOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LogicalAndOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LogicalAndOptions.startLogicalAndOptions = function(builder) {
+tflite.schema.LogicalAndOptions.startLogicalAndOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5681,7 +5687,7 @@ tflite.LogicalAndOptions.startLogicalAndOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LogicalAndOptions.endLogicalAndOptions = function(builder) {
+tflite.schema.LogicalAndOptions.endLogicalAndOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5689,7 +5695,7 @@ tflite.LogicalAndOptions.endLogicalAndOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.LogicalNotOptions = function() {
+tflite.schema.LogicalNotOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5704,9 +5710,9 @@ tflite.LogicalNotOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.LogicalNotOptions}
+ * @returns {tflite.schema.LogicalNotOptions}
  */
-tflite.LogicalNotOptions.prototype.__init = function(i, bb) {
+tflite.schema.LogicalNotOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5714,17 +5720,17 @@ tflite.LogicalNotOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.LogicalNotOptions=} obj
- * @returns {tflite.LogicalNotOptions}
+ * @param {tflite.schema.LogicalNotOptions=} obj
+ * @returns {tflite.schema.LogicalNotOptions}
  */
-tflite.LogicalNotOptions.getRootAsLogicalNotOptions = function(bb, obj) {
-  return (obj || new tflite.LogicalNotOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.LogicalNotOptions.getRootAsLogicalNotOptions = function(bb, obj) {
+  return (obj || new tflite.schema.LogicalNotOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.LogicalNotOptions.startLogicalNotOptions = function(builder) {
+tflite.schema.LogicalNotOptions.startLogicalNotOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5732,7 +5738,7 @@ tflite.LogicalNotOptions.startLogicalNotOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.LogicalNotOptions.endLogicalNotOptions = function(builder) {
+tflite.schema.LogicalNotOptions.endLogicalNotOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5740,7 +5746,7 @@ tflite.LogicalNotOptions.endLogicalNotOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.UnpackOptions = function() {
+tflite.schema.UnpackOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5755,9 +5761,9 @@ tflite.UnpackOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.UnpackOptions}
+ * @returns {tflite.schema.UnpackOptions}
  */
-tflite.UnpackOptions.prototype.__init = function(i, bb) {
+tflite.schema.UnpackOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5765,17 +5771,17 @@ tflite.UnpackOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.UnpackOptions=} obj
- * @returns {tflite.UnpackOptions}
+ * @param {tflite.schema.UnpackOptions=} obj
+ * @returns {tflite.schema.UnpackOptions}
  */
-tflite.UnpackOptions.getRootAsUnpackOptions = function(bb, obj) {
-  return (obj || new tflite.UnpackOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.UnpackOptions.getRootAsUnpackOptions = function(bb, obj) {
+  return (obj || new tflite.schema.UnpackOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.UnpackOptions.prototype.num = function() {
+tflite.schema.UnpackOptions.prototype.num = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -5783,7 +5789,7 @@ tflite.UnpackOptions.prototype.num = function() {
 /**
  * @returns {number}
  */
-tflite.UnpackOptions.prototype.axis = function() {
+tflite.schema.UnpackOptions.prototype.axis = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
@@ -5791,7 +5797,7 @@ tflite.UnpackOptions.prototype.axis = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.UnpackOptions.startUnpackOptions = function(builder) {
+tflite.schema.UnpackOptions.startUnpackOptions = function(builder) {
   builder.startObject(2);
 };
 
@@ -5799,7 +5805,7 @@ tflite.UnpackOptions.startUnpackOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} num
  */
-tflite.UnpackOptions.addNum = function(builder, num) {
+tflite.schema.UnpackOptions.addNum = function(builder, num) {
   builder.addFieldInt32(0, num, 0);
 };
 
@@ -5807,7 +5813,7 @@ tflite.UnpackOptions.addNum = function(builder, num) {
  * @param {flatbuffers.Builder} builder
  * @param {number} axis
  */
-tflite.UnpackOptions.addAxis = function(builder, axis) {
+tflite.schema.UnpackOptions.addAxis = function(builder, axis) {
   builder.addFieldInt32(1, axis, 0);
 };
 
@@ -5815,7 +5821,7 @@ tflite.UnpackOptions.addAxis = function(builder, axis) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.UnpackOptions.endUnpackOptions = function(builder) {
+tflite.schema.UnpackOptions.endUnpackOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5823,7 +5829,7 @@ tflite.UnpackOptions.endUnpackOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.FloorDivOptions = function() {
+tflite.schema.FloorDivOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5838,9 +5844,9 @@ tflite.FloorDivOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.FloorDivOptions}
+ * @returns {tflite.schema.FloorDivOptions}
  */
-tflite.FloorDivOptions.prototype.__init = function(i, bb) {
+tflite.schema.FloorDivOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5848,17 +5854,17 @@ tflite.FloorDivOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.FloorDivOptions=} obj
- * @returns {tflite.FloorDivOptions}
+ * @param {tflite.schema.FloorDivOptions=} obj
+ * @returns {tflite.schema.FloorDivOptions}
  */
-tflite.FloorDivOptions.getRootAsFloorDivOptions = function(bb, obj) {
-  return (obj || new tflite.FloorDivOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.FloorDivOptions.getRootAsFloorDivOptions = function(bb, obj) {
+  return (obj || new tflite.schema.FloorDivOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.FloorDivOptions.startFloorDivOptions = function(builder) {
+tflite.schema.FloorDivOptions.startFloorDivOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5866,7 +5872,7 @@ tflite.FloorDivOptions.startFloorDivOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.FloorDivOptions.endFloorDivOptions = function(builder) {
+tflite.schema.FloorDivOptions.endFloorDivOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5874,7 +5880,7 @@ tflite.FloorDivOptions.endFloorDivOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.SquareOptions = function() {
+tflite.schema.SquareOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5889,9 +5895,9 @@ tflite.SquareOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SquareOptions}
+ * @returns {tflite.schema.SquareOptions}
  */
-tflite.SquareOptions.prototype.__init = function(i, bb) {
+tflite.schema.SquareOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5899,17 +5905,17 @@ tflite.SquareOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SquareOptions=} obj
- * @returns {tflite.SquareOptions}
+ * @param {tflite.schema.SquareOptions=} obj
+ * @returns {tflite.schema.SquareOptions}
  */
-tflite.SquareOptions.getRootAsSquareOptions = function(bb, obj) {
-  return (obj || new tflite.SquareOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SquareOptions.getRootAsSquareOptions = function(bb, obj) {
+  return (obj || new tflite.schema.SquareOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SquareOptions.startSquareOptions = function(builder) {
+tflite.schema.SquareOptions.startSquareOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5917,7 +5923,7 @@ tflite.SquareOptions.startSquareOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SquareOptions.endSquareOptions = function(builder) {
+tflite.schema.SquareOptions.endSquareOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5925,7 +5931,7 @@ tflite.SquareOptions.endSquareOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.ZerosLikeOptions = function() {
+tflite.schema.ZerosLikeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5940,9 +5946,9 @@ tflite.ZerosLikeOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.ZerosLikeOptions}
+ * @returns {tflite.schema.ZerosLikeOptions}
  */
-tflite.ZerosLikeOptions.prototype.__init = function(i, bb) {
+tflite.schema.ZerosLikeOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -5950,17 +5956,17 @@ tflite.ZerosLikeOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.ZerosLikeOptions=} obj
- * @returns {tflite.ZerosLikeOptions}
+ * @param {tflite.schema.ZerosLikeOptions=} obj
+ * @returns {tflite.schema.ZerosLikeOptions}
  */
-tflite.ZerosLikeOptions.getRootAsZerosLikeOptions = function(bb, obj) {
-  return (obj || new tflite.ZerosLikeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.ZerosLikeOptions.getRootAsZerosLikeOptions = function(bb, obj) {
+  return (obj || new tflite.schema.ZerosLikeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.ZerosLikeOptions.startZerosLikeOptions = function(builder) {
+tflite.schema.ZerosLikeOptions.startZerosLikeOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -5968,7 +5974,7 @@ tflite.ZerosLikeOptions.startZerosLikeOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.ZerosLikeOptions.endZerosLikeOptions = function(builder) {
+tflite.schema.ZerosLikeOptions.endZerosLikeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -5976,7 +5982,7 @@ tflite.ZerosLikeOptions.endZerosLikeOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.FillOptions = function() {
+tflite.schema.FillOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -5991,9 +5997,9 @@ tflite.FillOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.FillOptions}
+ * @returns {tflite.schema.FillOptions}
  */
-tflite.FillOptions.prototype.__init = function(i, bb) {
+tflite.schema.FillOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6001,17 +6007,17 @@ tflite.FillOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.FillOptions=} obj
- * @returns {tflite.FillOptions}
+ * @param {tflite.schema.FillOptions=} obj
+ * @returns {tflite.schema.FillOptions}
  */
-tflite.FillOptions.getRootAsFillOptions = function(bb, obj) {
-  return (obj || new tflite.FillOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.FillOptions.getRootAsFillOptions = function(bb, obj) {
+  return (obj || new tflite.schema.FillOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.FillOptions.startFillOptions = function(builder) {
+tflite.schema.FillOptions.startFillOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -6019,7 +6025,7 @@ tflite.FillOptions.startFillOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.FillOptions.endFillOptions = function(builder) {
+tflite.schema.FillOptions.endFillOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -6027,7 +6033,7 @@ tflite.FillOptions.endFillOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.FloorModOptions = function() {
+tflite.schema.FloorModOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -6042,9 +6048,9 @@ tflite.FloorModOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.FloorModOptions}
+ * @returns {tflite.schema.FloorModOptions}
  */
-tflite.FloorModOptions.prototype.__init = function(i, bb) {
+tflite.schema.FloorModOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6052,17 +6058,17 @@ tflite.FloorModOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.FloorModOptions=} obj
- * @returns {tflite.FloorModOptions}
+ * @param {tflite.schema.FloorModOptions=} obj
+ * @returns {tflite.schema.FloorModOptions}
  */
-tflite.FloorModOptions.getRootAsFloorModOptions = function(bb, obj) {
-  return (obj || new tflite.FloorModOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.FloorModOptions.getRootAsFloorModOptions = function(bb, obj) {
+  return (obj || new tflite.schema.FloorModOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.FloorModOptions.startFloorModOptions = function(builder) {
+tflite.schema.FloorModOptions.startFloorModOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -6070,7 +6076,7 @@ tflite.FloorModOptions.startFloorModOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.FloorModOptions.endFloorModOptions = function(builder) {
+tflite.schema.FloorModOptions.endFloorModOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -6078,7 +6084,7 @@ tflite.FloorModOptions.endFloorModOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.RangeOptions = function() {
+tflite.schema.RangeOptions = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -6093,9 +6099,9 @@ tflite.RangeOptions = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.RangeOptions}
+ * @returns {tflite.schema.RangeOptions}
  */
-tflite.RangeOptions.prototype.__init = function(i, bb) {
+tflite.schema.RangeOptions.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6103,17 +6109,17 @@ tflite.RangeOptions.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.RangeOptions=} obj
- * @returns {tflite.RangeOptions}
+ * @param {tflite.schema.RangeOptions=} obj
+ * @returns {tflite.schema.RangeOptions}
  */
-tflite.RangeOptions.getRootAsRangeOptions = function(bb, obj) {
-  return (obj || new tflite.RangeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.RangeOptions.getRootAsRangeOptions = function(bb, obj) {
+  return (obj || new tflite.schema.RangeOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.RangeOptions.startRangeOptions = function(builder) {
+tflite.schema.RangeOptions.startRangeOptions = function(builder) {
   builder.startObject(0);
 };
 
@@ -6121,7 +6127,7 @@ tflite.RangeOptions.startRangeOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.RangeOptions.endRangeOptions = function(builder) {
+tflite.schema.RangeOptions.endRangeOptions = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -6129,7 +6135,7 @@ tflite.RangeOptions.endRangeOptions = function(builder) {
 /**
  * @constructor
  */
-tflite.OperatorCode = function() {
+tflite.schema.OperatorCode = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -6144,9 +6150,9 @@ tflite.OperatorCode = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.OperatorCode}
+ * @returns {tflite.schema.OperatorCode}
  */
-tflite.OperatorCode.prototype.__init = function(i, bb) {
+tflite.schema.OperatorCode.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6154,26 +6160,26 @@ tflite.OperatorCode.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.OperatorCode=} obj
- * @returns {tflite.OperatorCode}
+ * @param {tflite.schema.OperatorCode=} obj
+ * @returns {tflite.schema.OperatorCode}
  */
-tflite.OperatorCode.getRootAsOperatorCode = function(bb, obj) {
-  return (obj || new tflite.OperatorCode).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.OperatorCode.getRootAsOperatorCode = function(bb, obj) {
+  return (obj || new tflite.schema.OperatorCode).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
- * @returns {tflite.BuiltinOperator}
+ * @returns {tflite.schema.BuiltinOperator}
  */
-tflite.OperatorCode.prototype.builtinCode = function() {
+tflite.schema.OperatorCode.prototype.builtinCode = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? /** @type {tflite.BuiltinOperator} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.BuiltinOperator.ADD;
+  return offset ? /** @type {tflite.schema.BuiltinOperator} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.BuiltinOperator.ADD;
 };
 
 /**
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array|null}
  */
-tflite.OperatorCode.prototype.customCode = function(optionalEncoding) {
+tflite.schema.OperatorCode.prototype.customCode = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
@@ -6181,7 +6187,7 @@ tflite.OperatorCode.prototype.customCode = function(optionalEncoding) {
 /**
  * @returns {number}
  */
-tflite.OperatorCode.prototype.version = function() {
+tflite.schema.OperatorCode.prototype.version = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb_pos + offset) : 1;
 };
@@ -6189,23 +6195,23 @@ tflite.OperatorCode.prototype.version = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.OperatorCode.startOperatorCode = function(builder) {
+tflite.schema.OperatorCode.startOperatorCode = function(builder) {
   builder.startObject(3);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.BuiltinOperator} builtinCode
+ * @param {tflite.schema.BuiltinOperator} builtinCode
  */
-tflite.OperatorCode.addBuiltinCode = function(builder, builtinCode) {
-  builder.addFieldInt8(0, builtinCode, tflite.BuiltinOperator.ADD);
+tflite.schema.OperatorCode.addBuiltinCode = function(builder, builtinCode) {
+  builder.addFieldInt8(0, builtinCode, tflite.schema.BuiltinOperator.ADD);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} customCodeOffset
  */
-tflite.OperatorCode.addCustomCode = function(builder, customCodeOffset) {
+tflite.schema.OperatorCode.addCustomCode = function(builder, customCodeOffset) {
   builder.addFieldOffset(1, customCodeOffset, 0);
 };
 
@@ -6213,7 +6219,7 @@ tflite.OperatorCode.addCustomCode = function(builder, customCodeOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {number} version
  */
-tflite.OperatorCode.addVersion = function(builder, version) {
+tflite.schema.OperatorCode.addVersion = function(builder, version) {
   builder.addFieldInt32(2, version, 1);
 };
 
@@ -6221,7 +6227,7 @@ tflite.OperatorCode.addVersion = function(builder, version) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.OperatorCode.endOperatorCode = function(builder) {
+tflite.schema.OperatorCode.endOperatorCode = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -6229,7 +6235,7 @@ tflite.OperatorCode.endOperatorCode = function(builder) {
 /**
  * @constructor
  */
-tflite.Operator = function() {
+tflite.schema.Operator = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -6244,9 +6250,9 @@ tflite.Operator = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.Operator}
+ * @returns {tflite.schema.Operator}
  */
-tflite.Operator.prototype.__init = function(i, bb) {
+tflite.schema.Operator.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6254,17 +6260,17 @@ tflite.Operator.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.Operator=} obj
- * @returns {tflite.Operator}
+ * @param {tflite.schema.Operator=} obj
+ * @returns {tflite.schema.Operator}
  */
-tflite.Operator.getRootAsOperator = function(bb, obj) {
-  return (obj || new tflite.Operator).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.Operator.getRootAsOperator = function(bb, obj) {
+  return (obj || new tflite.schema.Operator).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @returns {number}
  */
-tflite.Operator.prototype.opcodeIndex = function() {
+tflite.schema.Operator.prototype.opcodeIndex = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
@@ -6273,7 +6279,7 @@ tflite.Operator.prototype.opcodeIndex = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.Operator.prototype.inputs = function(index) {
+tflite.schema.Operator.prototype.inputs = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -6281,7 +6287,7 @@ tflite.Operator.prototype.inputs = function(index) {
 /**
  * @returns {number}
  */
-tflite.Operator.prototype.inputsLength = function() {
+tflite.schema.Operator.prototype.inputsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6289,7 +6295,7 @@ tflite.Operator.prototype.inputsLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.Operator.prototype.inputsArray = function() {
+tflite.schema.Operator.prototype.inputsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -6298,7 +6304,7 @@ tflite.Operator.prototype.inputsArray = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.Operator.prototype.outputs = function(index) {
+tflite.schema.Operator.prototype.outputs = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -6306,7 +6312,7 @@ tflite.Operator.prototype.outputs = function(index) {
 /**
  * @returns {number}
  */
-tflite.Operator.prototype.outputsLength = function() {
+tflite.schema.Operator.prototype.outputsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6314,24 +6320,24 @@ tflite.Operator.prototype.outputsLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.Operator.prototype.outputsArray = function() {
+tflite.schema.Operator.prototype.outputsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * @returns {tflite.BuiltinOptions}
+ * @returns {tflite.schema.BuiltinOptions}
  */
-tflite.Operator.prototype.builtinOptionsType = function() {
+tflite.schema.Operator.prototype.builtinOptionsType = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? /** @type {tflite.BuiltinOptions} */ (this.bb.readUint8(this.bb_pos + offset)) : tflite.BuiltinOptions.NONE;
+  return offset ? /** @type {tflite.schema.BuiltinOptions} */ (this.bb.readUint8(this.bb_pos + offset)) : tflite.schema.BuiltinOptions.NONE;
 };
 
 /**
  * @param {flatbuffers.Table} obj
  * @returns {?flatbuffers.Table}
  */
-tflite.Operator.prototype.builtinOptions = function(obj) {
+tflite.schema.Operator.prototype.builtinOptions = function(obj) {
   var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
 };
@@ -6340,7 +6346,7 @@ tflite.Operator.prototype.builtinOptions = function(obj) {
  * @param {number} index
  * @returns {number}
  */
-tflite.Operator.prototype.customOptions = function(index) {
+tflite.schema.Operator.prototype.customOptions = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
 };
@@ -6348,7 +6354,7 @@ tflite.Operator.prototype.customOptions = function(index) {
 /**
  * @returns {number}
  */
-tflite.Operator.prototype.customOptionsLength = function() {
+tflite.schema.Operator.prototype.customOptionsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6356,24 +6362,24 @@ tflite.Operator.prototype.customOptionsLength = function() {
 /**
  * @returns {Uint8Array}
  */
-tflite.Operator.prototype.customOptionsArray = function() {
+tflite.schema.Operator.prototype.customOptionsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
- * @returns {tflite.CustomOptionsFormat}
+ * @returns {tflite.schema.CustomOptionsFormat}
  */
-tflite.Operator.prototype.customOptionsFormat = function() {
+tflite.schema.Operator.prototype.customOptionsFormat = function() {
   var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? /** @type {tflite.CustomOptionsFormat} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.CustomOptionsFormat.FLEXBUFFERS;
+  return offset ? /** @type {tflite.schema.CustomOptionsFormat} */ (this.bb.readInt8(this.bb_pos + offset)) : tflite.schema.CustomOptionsFormat.FLEXBUFFERS;
 };
 
 /**
  * @param {number} index
  * @returns {boolean}
  */
-tflite.Operator.prototype.mutatingVariableInputs = function(index) {
+tflite.schema.Operator.prototype.mutatingVariableInputs = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? !!this.bb.readInt8(this.bb.__vector(this.bb_pos + offset) + index) : false;
 };
@@ -6381,7 +6387,7 @@ tflite.Operator.prototype.mutatingVariableInputs = function(index) {
 /**
  * @returns {number}
  */
-tflite.Operator.prototype.mutatingVariableInputsLength = function() {
+tflite.schema.Operator.prototype.mutatingVariableInputsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6389,7 +6395,7 @@ tflite.Operator.prototype.mutatingVariableInputsLength = function() {
 /**
  * @returns {Int8Array}
  */
-tflite.Operator.prototype.mutatingVariableInputsArray = function() {
+tflite.schema.Operator.prototype.mutatingVariableInputsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 18);
   return offset ? new Int8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -6397,7 +6403,7 @@ tflite.Operator.prototype.mutatingVariableInputsArray = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.Operator.startOperator = function(builder) {
+tflite.schema.Operator.startOperator = function(builder) {
   builder.startObject(8);
 };
 
@@ -6405,7 +6411,7 @@ tflite.Operator.startOperator = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} opcodeIndex
  */
-tflite.Operator.addOpcodeIndex = function(builder, opcodeIndex) {
+tflite.schema.Operator.addOpcodeIndex = function(builder, opcodeIndex) {
   builder.addFieldInt32(0, opcodeIndex, 0);
 };
 
@@ -6413,7 +6419,7 @@ tflite.Operator.addOpcodeIndex = function(builder, opcodeIndex) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} inputsOffset
  */
-tflite.Operator.addInputs = function(builder, inputsOffset) {
+tflite.schema.Operator.addInputs = function(builder, inputsOffset) {
   builder.addFieldOffset(1, inputsOffset, 0);
 };
 
@@ -6422,7 +6428,7 @@ tflite.Operator.addInputs = function(builder, inputsOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Operator.createInputsVector = function(builder, data) {
+tflite.schema.Operator.createInputsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -6434,7 +6440,7 @@ tflite.Operator.createInputsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Operator.startInputsVector = function(builder, numElems) {
+tflite.schema.Operator.startInputsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -6442,7 +6448,7 @@ tflite.Operator.startInputsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} outputsOffset
  */
-tflite.Operator.addOutputs = function(builder, outputsOffset) {
+tflite.schema.Operator.addOutputs = function(builder, outputsOffset) {
   builder.addFieldOffset(2, outputsOffset, 0);
 };
 
@@ -6451,7 +6457,7 @@ tflite.Operator.addOutputs = function(builder, outputsOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Operator.createOutputsVector = function(builder, data) {
+tflite.schema.Operator.createOutputsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -6463,23 +6469,23 @@ tflite.Operator.createOutputsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Operator.startOutputsVector = function(builder, numElems) {
+tflite.schema.Operator.startOutputsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.BuiltinOptions} builtinOptionsType
+ * @param {tflite.schema.BuiltinOptions} builtinOptionsType
  */
-tflite.Operator.addBuiltinOptionsType = function(builder, builtinOptionsType) {
-  builder.addFieldInt8(3, builtinOptionsType, tflite.BuiltinOptions.NONE);
+tflite.schema.Operator.addBuiltinOptionsType = function(builder, builtinOptionsType) {
+  builder.addFieldInt8(3, builtinOptionsType, tflite.schema.BuiltinOptions.NONE);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} builtinOptionsOffset
  */
-tflite.Operator.addBuiltinOptions = function(builder, builtinOptionsOffset) {
+tflite.schema.Operator.addBuiltinOptions = function(builder, builtinOptionsOffset) {
   builder.addFieldOffset(4, builtinOptionsOffset, 0);
 };
 
@@ -6487,7 +6493,7 @@ tflite.Operator.addBuiltinOptions = function(builder, builtinOptionsOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} customOptionsOffset
  */
-tflite.Operator.addCustomOptions = function(builder, customOptionsOffset) {
+tflite.schema.Operator.addCustomOptions = function(builder, customOptionsOffset) {
   builder.addFieldOffset(5, customOptionsOffset, 0);
 };
 
@@ -6496,7 +6502,7 @@ tflite.Operator.addCustomOptions = function(builder, customOptionsOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Operator.createCustomOptionsVector = function(builder, data) {
+tflite.schema.Operator.createCustomOptionsVector = function(builder, data) {
   builder.startVector(1, data.length, 1);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt8(data[i]);
@@ -6508,23 +6514,23 @@ tflite.Operator.createCustomOptionsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Operator.startCustomOptionsVector = function(builder, numElems) {
+tflite.schema.Operator.startCustomOptionsVector = function(builder, numElems) {
   builder.startVector(1, numElems, 1);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {tflite.CustomOptionsFormat} customOptionsFormat
+ * @param {tflite.schema.CustomOptionsFormat} customOptionsFormat
  */
-tflite.Operator.addCustomOptionsFormat = function(builder, customOptionsFormat) {
-  builder.addFieldInt8(6, customOptionsFormat, tflite.CustomOptionsFormat.FLEXBUFFERS);
+tflite.schema.Operator.addCustomOptionsFormat = function(builder, customOptionsFormat) {
+  builder.addFieldInt8(6, customOptionsFormat, tflite.schema.CustomOptionsFormat.FLEXBUFFERS);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} mutatingVariableInputsOffset
  */
-tflite.Operator.addMutatingVariableInputs = function(builder, mutatingVariableInputsOffset) {
+tflite.schema.Operator.addMutatingVariableInputs = function(builder, mutatingVariableInputsOffset) {
   builder.addFieldOffset(7, mutatingVariableInputsOffset, 0);
 };
 
@@ -6533,7 +6539,7 @@ tflite.Operator.addMutatingVariableInputs = function(builder, mutatingVariableIn
  * @param {Array.<boolean>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Operator.createMutatingVariableInputsVector = function(builder, data) {
+tflite.schema.Operator.createMutatingVariableInputsVector = function(builder, data) {
   builder.startVector(1, data.length, 1);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt8(+data[i]);
@@ -6545,7 +6551,7 @@ tflite.Operator.createMutatingVariableInputsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Operator.startMutatingVariableInputsVector = function(builder, numElems) {
+tflite.schema.Operator.startMutatingVariableInputsVector = function(builder, numElems) {
   builder.startVector(1, numElems, 1);
 };
 
@@ -6553,7 +6559,7 @@ tflite.Operator.startMutatingVariableInputsVector = function(builder, numElems) 
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.Operator.endOperator = function(builder) {
+tflite.schema.Operator.endOperator = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -6561,7 +6567,7 @@ tflite.Operator.endOperator = function(builder) {
 /**
  * @constructor
  */
-tflite.SubGraph = function() {
+tflite.schema.SubGraph = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -6576,9 +6582,9 @@ tflite.SubGraph = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.SubGraph}
+ * @returns {tflite.schema.SubGraph}
  */
-tflite.SubGraph.prototype.__init = function(i, bb) {
+tflite.schema.SubGraph.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6586,27 +6592,27 @@ tflite.SubGraph.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.SubGraph=} obj
- * @returns {tflite.SubGraph}
+ * @param {tflite.schema.SubGraph=} obj
+ * @returns {tflite.schema.SubGraph}
  */
-tflite.SubGraph.getRootAsSubGraph = function(bb, obj) {
-  return (obj || new tflite.SubGraph).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.SubGraph.getRootAsSubGraph = function(bb, obj) {
+  return (obj || new tflite.schema.SubGraph).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {number} index
- * @param {tflite.Tensor=} obj
- * @returns {tflite.Tensor}
+ * @param {tflite.schema.Tensor=} obj
+ * @returns {tflite.schema.Tensor}
  */
-tflite.SubGraph.prototype.tensors = function(index, obj) {
+tflite.schema.SubGraph.prototype.tensors = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? (obj || new tflite.Tensor).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? (obj || new tflite.schema.Tensor).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-tflite.SubGraph.prototype.tensorsLength = function() {
+tflite.schema.SubGraph.prototype.tensorsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6615,7 +6621,7 @@ tflite.SubGraph.prototype.tensorsLength = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.SubGraph.prototype.inputs = function(index) {
+tflite.schema.SubGraph.prototype.inputs = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -6623,7 +6629,7 @@ tflite.SubGraph.prototype.inputs = function(index) {
 /**
  * @returns {number}
  */
-tflite.SubGraph.prototype.inputsLength = function() {
+tflite.schema.SubGraph.prototype.inputsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6631,7 +6637,7 @@ tflite.SubGraph.prototype.inputsLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.SubGraph.prototype.inputsArray = function() {
+tflite.schema.SubGraph.prototype.inputsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -6640,7 +6646,7 @@ tflite.SubGraph.prototype.inputsArray = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.SubGraph.prototype.outputs = function(index) {
+tflite.schema.SubGraph.prototype.outputs = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -6648,7 +6654,7 @@ tflite.SubGraph.prototype.outputs = function(index) {
 /**
  * @returns {number}
  */
-tflite.SubGraph.prototype.outputsLength = function() {
+tflite.schema.SubGraph.prototype.outputsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6656,25 +6662,25 @@ tflite.SubGraph.prototype.outputsLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.SubGraph.prototype.outputsArray = function() {
+tflite.schema.SubGraph.prototype.outputsArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
 
 /**
  * @param {number} index
- * @param {tflite.Operator=} obj
- * @returns {tflite.Operator}
+ * @param {tflite.schema.Operator=} obj
+ * @returns {tflite.schema.Operator}
  */
-tflite.SubGraph.prototype.operators = function(index, obj) {
+tflite.schema.SubGraph.prototype.operators = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? (obj || new tflite.Operator).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? (obj || new tflite.schema.Operator).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-tflite.SubGraph.prototype.operatorsLength = function() {
+tflite.schema.SubGraph.prototype.operatorsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6683,7 +6689,7 @@ tflite.SubGraph.prototype.operatorsLength = function() {
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array|null}
  */
-tflite.SubGraph.prototype.name = function(optionalEncoding) {
+tflite.schema.SubGraph.prototype.name = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
@@ -6691,7 +6697,7 @@ tflite.SubGraph.prototype.name = function(optionalEncoding) {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.SubGraph.startSubGraph = function(builder) {
+tflite.schema.SubGraph.startSubGraph = function(builder) {
   builder.startObject(5);
 };
 
@@ -6699,7 +6705,7 @@ tflite.SubGraph.startSubGraph = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} tensorsOffset
  */
-tflite.SubGraph.addTensors = function(builder, tensorsOffset) {
+tflite.schema.SubGraph.addTensors = function(builder, tensorsOffset) {
   builder.addFieldOffset(0, tensorsOffset, 0);
 };
 
@@ -6708,7 +6714,7 @@ tflite.SubGraph.addTensors = function(builder, tensorsOffset) {
  * @param {Array.<flatbuffers.Offset>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.SubGraph.createTensorsVector = function(builder, data) {
+tflite.schema.SubGraph.createTensorsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]);
@@ -6720,7 +6726,7 @@ tflite.SubGraph.createTensorsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.SubGraph.startTensorsVector = function(builder, numElems) {
+tflite.schema.SubGraph.startTensorsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -6728,7 +6734,7 @@ tflite.SubGraph.startTensorsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} inputsOffset
  */
-tflite.SubGraph.addInputs = function(builder, inputsOffset) {
+tflite.schema.SubGraph.addInputs = function(builder, inputsOffset) {
   builder.addFieldOffset(1, inputsOffset, 0);
 };
 
@@ -6737,7 +6743,7 @@ tflite.SubGraph.addInputs = function(builder, inputsOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.SubGraph.createInputsVector = function(builder, data) {
+tflite.schema.SubGraph.createInputsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -6749,7 +6755,7 @@ tflite.SubGraph.createInputsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.SubGraph.startInputsVector = function(builder, numElems) {
+tflite.schema.SubGraph.startInputsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -6757,7 +6763,7 @@ tflite.SubGraph.startInputsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} outputsOffset
  */
-tflite.SubGraph.addOutputs = function(builder, outputsOffset) {
+tflite.schema.SubGraph.addOutputs = function(builder, outputsOffset) {
   builder.addFieldOffset(2, outputsOffset, 0);
 };
 
@@ -6766,7 +6772,7 @@ tflite.SubGraph.addOutputs = function(builder, outputsOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.SubGraph.createOutputsVector = function(builder, data) {
+tflite.schema.SubGraph.createOutputsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -6778,7 +6784,7 @@ tflite.SubGraph.createOutputsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.SubGraph.startOutputsVector = function(builder, numElems) {
+tflite.schema.SubGraph.startOutputsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -6786,7 +6792,7 @@ tflite.SubGraph.startOutputsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} operatorsOffset
  */
-tflite.SubGraph.addOperators = function(builder, operatorsOffset) {
+tflite.schema.SubGraph.addOperators = function(builder, operatorsOffset) {
   builder.addFieldOffset(3, operatorsOffset, 0);
 };
 
@@ -6795,7 +6801,7 @@ tflite.SubGraph.addOperators = function(builder, operatorsOffset) {
  * @param {Array.<flatbuffers.Offset>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.SubGraph.createOperatorsVector = function(builder, data) {
+tflite.schema.SubGraph.createOperatorsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]);
@@ -6807,7 +6813,7 @@ tflite.SubGraph.createOperatorsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.SubGraph.startOperatorsVector = function(builder, numElems) {
+tflite.schema.SubGraph.startOperatorsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -6815,7 +6821,7 @@ tflite.SubGraph.startOperatorsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} nameOffset
  */
-tflite.SubGraph.addName = function(builder, nameOffset) {
+tflite.schema.SubGraph.addName = function(builder, nameOffset) {
   builder.addFieldOffset(4, nameOffset, 0);
 };
 
@@ -6823,7 +6829,7 @@ tflite.SubGraph.addName = function(builder, nameOffset) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.SubGraph.endSubGraph = function(builder) {
+tflite.schema.SubGraph.endSubGraph = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -6831,7 +6837,7 @@ tflite.SubGraph.endSubGraph = function(builder) {
 /**
  * @constructor
  */
-tflite.Buffer = function() {
+tflite.schema.Buffer = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -6846,9 +6852,9 @@ tflite.Buffer = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.Buffer}
+ * @returns {tflite.schema.Buffer}
  */
-tflite.Buffer.prototype.__init = function(i, bb) {
+tflite.schema.Buffer.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6856,18 +6862,18 @@ tflite.Buffer.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.Buffer=} obj
- * @returns {tflite.Buffer}
+ * @param {tflite.schema.Buffer=} obj
+ * @returns {tflite.schema.Buffer}
  */
-tflite.Buffer.getRootAsBuffer = function(bb, obj) {
-  return (obj || new tflite.Buffer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.Buffer.getRootAsBuffer = function(bb, obj) {
+  return (obj || new tflite.schema.Buffer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {number} index
  * @returns {number}
  */
-tflite.Buffer.prototype.data = function(index) {
+tflite.schema.Buffer.prototype.data = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint8(this.bb.__vector(this.bb_pos + offset) + index) : 0;
 };
@@ -6875,7 +6881,7 @@ tflite.Buffer.prototype.data = function(index) {
 /**
  * @returns {number}
  */
-tflite.Buffer.prototype.dataLength = function() {
+tflite.schema.Buffer.prototype.dataLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -6883,7 +6889,7 @@ tflite.Buffer.prototype.dataLength = function() {
 /**
  * @returns {Uint8Array}
  */
-tflite.Buffer.prototype.dataArray = function() {
+tflite.schema.Buffer.prototype.dataArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? new Uint8Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -6891,7 +6897,7 @@ tflite.Buffer.prototype.dataArray = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.Buffer.startBuffer = function(builder) {
+tflite.schema.Buffer.startBuffer = function(builder) {
   builder.startObject(1);
 };
 
@@ -6899,7 +6905,7 @@ tflite.Buffer.startBuffer = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} dataOffset
  */
-tflite.Buffer.addData = function(builder, dataOffset) {
+tflite.schema.Buffer.addData = function(builder, dataOffset) {
   builder.addFieldOffset(0, dataOffset, 0);
 };
 
@@ -6908,7 +6914,7 @@ tflite.Buffer.addData = function(builder, dataOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Buffer.createDataVector = function(builder, data) {
+tflite.schema.Buffer.createDataVector = function(builder, data) {
   builder.startVector(1, data.length, 1);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt8(data[i]);
@@ -6920,7 +6926,7 @@ tflite.Buffer.createDataVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Buffer.startDataVector = function(builder, numElems) {
+tflite.schema.Buffer.startDataVector = function(builder, numElems) {
   builder.startVector(1, numElems, 1);
 };
 
@@ -6928,7 +6934,7 @@ tflite.Buffer.startDataVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.Buffer.endBuffer = function(builder) {
+tflite.schema.Buffer.endBuffer = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -6936,7 +6942,7 @@ tflite.Buffer.endBuffer = function(builder) {
 /**
  * @constructor
  */
-tflite.Model = function() {
+tflite.schema.Model = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
    */
@@ -6951,9 +6957,9 @@ tflite.Model = function() {
 /**
  * @param {number} i
  * @param {flatbuffers.ByteBuffer} bb
- * @returns {tflite.Model}
+ * @returns {tflite.schema.Model}
  */
-tflite.Model.prototype.__init = function(i, bb) {
+tflite.schema.Model.prototype.__init = function(i, bb) {
   this.bb_pos = i;
   this.bb = bb;
   return this;
@@ -6961,61 +6967,61 @@ tflite.Model.prototype.__init = function(i, bb) {
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
- * @param {tflite.Model=} obj
- * @returns {tflite.Model}
+ * @param {tflite.schema.Model=} obj
+ * @returns {tflite.schema.Model}
  */
-tflite.Model.getRootAsModel = function(bb, obj) {
-  return (obj || new tflite.Model).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+tflite.schema.Model.getRootAsModel = function(bb, obj) {
+  return (obj || new tflite.schema.Model).__init(bb.readInt32(bb.position()) + bb.position(), bb);
 };
 
 /**
  * @param {flatbuffers.ByteBuffer} bb
  * @returns {boolean}
  */
-tflite.Model.bufferHasIdentifier = function(bb) {
+tflite.schema.Model.bufferHasIdentifier = function(bb) {
   return bb.__has_identifier('TFL3');
 };
 
 /**
  * @returns {number}
  */
-tflite.Model.prototype.version = function() {
+tflite.schema.Model.prototype.version = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
 };
 
 /**
  * @param {number} index
- * @param {tflite.OperatorCode=} obj
- * @returns {tflite.OperatorCode}
+ * @param {tflite.schema.OperatorCode=} obj
+ * @returns {tflite.schema.OperatorCode}
  */
-tflite.Model.prototype.operatorCodes = function(index, obj) {
+tflite.schema.Model.prototype.operatorCodes = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? (obj || new tflite.OperatorCode).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? (obj || new tflite.schema.OperatorCode).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-tflite.Model.prototype.operatorCodesLength = function() {
+tflite.schema.Model.prototype.operatorCodesLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
 
 /**
  * @param {number} index
- * @param {tflite.SubGraph=} obj
- * @returns {tflite.SubGraph}
+ * @param {tflite.schema.SubGraph=} obj
+ * @returns {tflite.schema.SubGraph}
  */
-tflite.Model.prototype.subgraphs = function(index, obj) {
+tflite.schema.Model.prototype.subgraphs = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? (obj || new tflite.SubGraph).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? (obj || new tflite.schema.SubGraph).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-tflite.Model.prototype.subgraphsLength = function() {
+tflite.schema.Model.prototype.subgraphsLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 8);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -7024,25 +7030,25 @@ tflite.Model.prototype.subgraphsLength = function() {
  * @param {flatbuffers.Encoding=} optionalEncoding
  * @returns {string|Uint8Array|null}
  */
-tflite.Model.prototype.description = function(optionalEncoding) {
+tflite.schema.Model.prototype.description = function(optionalEncoding) {
   var offset = this.bb.__offset(this.bb_pos, 10);
   return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
 };
 
 /**
  * @param {number} index
- * @param {tflite.Buffer=} obj
- * @returns {tflite.Buffer}
+ * @param {tflite.schema.Buffer=} obj
+ * @returns {tflite.schema.Buffer}
  */
-tflite.Model.prototype.buffers = function(index, obj) {
+tflite.schema.Model.prototype.buffers = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? (obj || new tflite.Buffer).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? (obj || new tflite.schema.Buffer).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-tflite.Model.prototype.buffersLength = function() {
+tflite.schema.Model.prototype.buffersLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -7051,7 +7057,7 @@ tflite.Model.prototype.buffersLength = function() {
  * @param {number} index
  * @returns {number}
  */
-tflite.Model.prototype.metadataBuffer = function(index) {
+tflite.schema.Model.prototype.metadataBuffer = function(index) {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
 };
@@ -7059,7 +7065,7 @@ tflite.Model.prototype.metadataBuffer = function(index) {
 /**
  * @returns {number}
  */
-tflite.Model.prototype.metadataBufferLength = function() {
+tflite.schema.Model.prototype.metadataBufferLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -7067,7 +7073,7 @@ tflite.Model.prototype.metadataBufferLength = function() {
 /**
  * @returns {Int32Array}
  */
-tflite.Model.prototype.metadataBufferArray = function() {
+tflite.schema.Model.prototype.metadataBufferArray = function() {
   var offset = this.bb.__offset(this.bb_pos, 14);
   return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
 };
@@ -7075,7 +7081,7 @@ tflite.Model.prototype.metadataBufferArray = function() {
 /**
  * @param {flatbuffers.Builder} builder
  */
-tflite.Model.startModel = function(builder) {
+tflite.schema.Model.startModel = function(builder) {
   builder.startObject(6);
 };
 
@@ -7083,7 +7089,7 @@ tflite.Model.startModel = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} version
  */
-tflite.Model.addVersion = function(builder, version) {
+tflite.schema.Model.addVersion = function(builder, version) {
   builder.addFieldInt32(0, version, 0);
 };
 
@@ -7091,7 +7097,7 @@ tflite.Model.addVersion = function(builder, version) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} operatorCodesOffset
  */
-tflite.Model.addOperatorCodes = function(builder, operatorCodesOffset) {
+tflite.schema.Model.addOperatorCodes = function(builder, operatorCodesOffset) {
   builder.addFieldOffset(1, operatorCodesOffset, 0);
 };
 
@@ -7100,7 +7106,7 @@ tflite.Model.addOperatorCodes = function(builder, operatorCodesOffset) {
  * @param {Array.<flatbuffers.Offset>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Model.createOperatorCodesVector = function(builder, data) {
+tflite.schema.Model.createOperatorCodesVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]);
@@ -7112,7 +7118,7 @@ tflite.Model.createOperatorCodesVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Model.startOperatorCodesVector = function(builder, numElems) {
+tflite.schema.Model.startOperatorCodesVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -7120,7 +7126,7 @@ tflite.Model.startOperatorCodesVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} subgraphsOffset
  */
-tflite.Model.addSubgraphs = function(builder, subgraphsOffset) {
+tflite.schema.Model.addSubgraphs = function(builder, subgraphsOffset) {
   builder.addFieldOffset(2, subgraphsOffset, 0);
 };
 
@@ -7129,7 +7135,7 @@ tflite.Model.addSubgraphs = function(builder, subgraphsOffset) {
  * @param {Array.<flatbuffers.Offset>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Model.createSubgraphsVector = function(builder, data) {
+tflite.schema.Model.createSubgraphsVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]);
@@ -7141,7 +7147,7 @@ tflite.Model.createSubgraphsVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Model.startSubgraphsVector = function(builder, numElems) {
+tflite.schema.Model.startSubgraphsVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -7149,7 +7155,7 @@ tflite.Model.startSubgraphsVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} descriptionOffset
  */
-tflite.Model.addDescription = function(builder, descriptionOffset) {
+tflite.schema.Model.addDescription = function(builder, descriptionOffset) {
   builder.addFieldOffset(3, descriptionOffset, 0);
 };
 
@@ -7157,7 +7163,7 @@ tflite.Model.addDescription = function(builder, descriptionOffset) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} buffersOffset
  */
-tflite.Model.addBuffers = function(builder, buffersOffset) {
+tflite.schema.Model.addBuffers = function(builder, buffersOffset) {
   builder.addFieldOffset(4, buffersOffset, 0);
 };
 
@@ -7166,7 +7172,7 @@ tflite.Model.addBuffers = function(builder, buffersOffset) {
  * @param {Array.<flatbuffers.Offset>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Model.createBuffersVector = function(builder, data) {
+tflite.schema.Model.createBuffersVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]);
@@ -7178,7 +7184,7 @@ tflite.Model.createBuffersVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Model.startBuffersVector = function(builder, numElems) {
+tflite.schema.Model.startBuffersVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -7186,7 +7192,7 @@ tflite.Model.startBuffersVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} metadataBufferOffset
  */
-tflite.Model.addMetadataBuffer = function(builder, metadataBufferOffset) {
+tflite.schema.Model.addMetadataBuffer = function(builder, metadataBufferOffset) {
   builder.addFieldOffset(5, metadataBufferOffset, 0);
 };
 
@@ -7195,7 +7201,7 @@ tflite.Model.addMetadataBuffer = function(builder, metadataBufferOffset) {
  * @param {Array.<number>} data
  * @returns {flatbuffers.Offset}
  */
-tflite.Model.createMetadataBufferVector = function(builder, data) {
+tflite.schema.Model.createMetadataBufferVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addInt32(data[i]);
@@ -7207,7 +7213,7 @@ tflite.Model.createMetadataBufferVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-tflite.Model.startMetadataBufferVector = function(builder, numElems) {
+tflite.schema.Model.startMetadataBufferVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -7215,7 +7221,7 @@ tflite.Model.startMetadataBufferVector = function(builder, numElems) {
  * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
-tflite.Model.endModel = function(builder) {
+tflite.schema.Model.endModel = function(builder) {
   var offset = builder.endObject();
   return offset;
 };
@@ -7224,7 +7230,7 @@ tflite.Model.endModel = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} offset
  */
-tflite.Model.finishModelBuffer = function(builder, offset) {
+tflite.schema.Model.finishModelBuffer = function(builder, offset) {
   builder.finish(offset, 'TFL3');
 };
 

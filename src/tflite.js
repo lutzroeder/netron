@@ -1,7 +1,8 @@
 /*jshint esversion: 6 */
 
-class TensorFlowLiteModelFactory {
+var tflite = tflite || {};
 
+tflite.ModelFactory = class {
 
     match(context, host) {
         var extension = context.identifier.split('.').pop();
@@ -19,33 +20,33 @@ class TensorFlowLiteModelFactory {
             try {
                 var buffer = context.buffer;
                 var byteBuffer = new flatbuffers.ByteBuffer(buffer);
-                if (!tflite.Model.bufferHasIdentifier(byteBuffer))
+                if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
                 {
                     var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
-                    callback(new TensorFlowLiteError("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
+                    callback(new tflite.Error("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
                     return;
                 }
-                model = tflite.Model.getRootAsModel(byteBuffer);
+                model = tflite.schema.Model.getRootAsModel(byteBuffer);
             }
             catch (error) {
                 host.exception(error, false);
-                callback(new TensorFlowLiteError(error.message), null);
+                callback(new tflite.Error(error.message), null);
             }
 
-            TensorFlowLiteOperatorMetadata.open(host, (err, metadata) => {
+            tflite.OperatorMetadata.open(host, (err, metadata) => {
                 try {
-                    callback(null, new TensorFlowLiteModel(model));
+                    callback(null, new tflite.Model(model));
                 }
                 catch (error) {
                     host.exception(error, false);
-                    callback(new TensorFlowLiteError(error.message), null);
+                    callback(new tflite.Error(error.message), null);
                 }
             });
         });
     }
-}
+};
 
-class TensorFlowLiteModel {
+tflite.Model = class {
 
     constructor(model) {
         this._graphs = [];
@@ -54,9 +55,9 @@ class TensorFlowLiteModel {
         this._description = (description && description.length > 0) ? description : null;
         var operatorCodeList = [];
         var builtinOperatorMap = {};
-        Object.keys(tflite.BuiltinOperator).forEach(function (key) {
+        Object.keys(tflite.schema.BuiltinOperator).forEach(function (key) {
             var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
-            var builtinOperatorIndex = tflite.BuiltinOperator[key]; 
+            var builtinOperatorIndex = tflite.schema.BuiltinOperator[key]; 
             builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
                 return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
             }).join('');
@@ -64,12 +65,12 @@ class TensorFlowLiteModel {
         for (var operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {
             var operatorCode = model.operatorCodes(operatorIndex);
             var builtinCode = operatorCode.builtinCode();
-            operatorCodeList.push((builtinCode == tflite.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
+            operatorCodeList.push((builtinCode == tflite.schema.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
         }
         var subgraphsLength = model.subgraphsLength();
         for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
             var name = (subgraphsLength > 1) ? ('(' + subgraph.toString() + ')') : '';
-            this._graphs.push(new TensorFlowLiteGraph(model.subgraphs(subgraph), name, operatorCodeList, model));
+            this._graphs.push(new tflite.Graph(model.subgraphs(subgraph), name, operatorCodeList, model));
         }
     }
 
@@ -84,9 +85,9 @@ class TensorFlowLiteModel {
     get graphs() {
         return this._graphs;
     }
-} 
+}; 
 
-class TensorFlowLiteGraph {
+tflite.Graph = class {
 
     constructor(graph, name, operatorCodeList, model) {
         this._graph = graph;
@@ -102,26 +103,26 @@ class TensorFlowLiteGraph {
             var initializer = null;
             var buffer = model.buffers(tensor.buffer());
             if (buffer.dataLength() > 0) {
-                initializer = new TensorFlowLiteTensor(tensor, i, buffer);
+                initializer = new tflite.Tensor(tensor, i, buffer);
             }
-            connections.push(new TensorFlowLiteConnection(tensor, i, initializer));
+            connections.push(new tflite.Connection(tensor, i, initializer));
             names.push(tensor.name());
         }
         for (var j = 0; j < this._graph.operatorsLength(); j++) {
             var operator = this._graph.operators(j);
             var opcodeIndex = operator.opcodeIndex();
             var operatorName = (opcodeIndex < operatorCodeList.length) ? operatorCodeList[opcodeIndex] : ('(' + opcodeIndex.toString() + ')');
-            var node = new TensorFlowLiteNode(operator, operatorName, connections);
+            var node = new tflite.Node(operator, operatorName, connections);
             this._operators[node.operator] = (this._operators[node.operator] || 0) + 1;
             this._nodes.push(node);
         }
         for (var k = 0; k < graph.inputsLength(); k++) {
             var inputIndex = graph.inputs(k);
-            this._inputs.push(new TensorFlowLiteArgument(names[inputIndex], true, [ connections[inputIndex] ]));
+            this._inputs.push(new tflite.Argument(names[inputIndex], true, [ connections[inputIndex] ]));
         }
         for (var l = 0; l < graph.outputsLength(); l++) {
             var outputIndex = graph.outputs(l);
-            this._outputs.push(new TensorFlowLiteArgument(names[outputIndex], true, [ connections[outputIndex] ]));
+            this._outputs.push(new tflite.Argument(names[outputIndex], true, [ connections[outputIndex] ]));
         }
     }
 
@@ -148,16 +149,16 @@ class TensorFlowLiteGraph {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
-class TensorFlowLiteNode {
+tflite.Node = class {
 
     constructor(node, operator, connections) {
         this._operator = operator;
 
-        var inputs = TensorFlowLiteOperatorMetadata.operatorMetadata.getInputs(node, this.operator);
+        var inputs = tflite.OperatorMetadata.operatorMetadata.getInputs(node, this.operator);
         this._inputs = inputs.map((input) => {
-            return new TensorFlowLiteArgument(input.name, input.visible != false, input.connections.map((connection) => {
+            return new tflite.Argument(input.name, input.visible != false, input.connections.map((connection) => {
                 return connections[connection.id];
             }));
         });
@@ -165,14 +166,14 @@ class TensorFlowLiteNode {
         for (var i = 0; i < node.outputsLength(); i++) {
             var index = node.outputs(i);
             var connection = connections[index];
-            var name = TensorFlowLiteOperatorMetadata.operatorMetadata.getOutputName(this.operator, i);
-            this._outputs.push(new TensorFlowLiteArgument(name, true, [ connection ]));
+            var name = tflite.OperatorMetadata.operatorMetadata.getOutputName(this.operator, i);
+            this._outputs.push(new tflite.Argument(name, true, [ connection ]));
         }
 
         this._attributes = [];
-        var metadata = TensorFlowLiteOperatorMetadata.operatorMetadata;
-        var optionsTypeName = 'tflite.' + this._operator + 'Options';
-        var optionsType = TensorFlowLiteNode._getType(optionsTypeName);
+        var metadata = tflite.OperatorMetadata.operatorMetadata;
+        var optionsTypeName = 'tflite.schema.' + this._operator + 'Options';
+        var optionsType = tflite.Node._getType(optionsTypeName);
         if (typeof optionsType === 'function') {
             var options = Reflect.construct(optionsType, []);
             node.builtinOptions(options);
@@ -206,7 +207,7 @@ class TensorFlowLiteNode {
                     else {
                         value = options[name]();
                     }
-                    this._attributes.push(new TensorFlowLiteAttribute(metadata, operator, name, value));
+                    this._attributes.push(new tflite.Attribute(metadata, operator, name, value));
                 }
             });
         }
@@ -237,7 +238,7 @@ class TensorFlowLiteNode {
     }
 
     get category() {
-        var schema = TensorFlowLiteOperatorMetadata.operatorMetadata.getSchema(this.operator);
+        var schema = tflite.OperatorMetadata.operatorMetadata.getSchema(this.operator);
         return (schema && schema.category) ? schema.category : null;
     }
 
@@ -272,9 +273,9 @@ class TensorFlowLiteNode {
         }
         return type;
     }
-}
+};
 
-class TensorFlowLiteAttribute {
+tflite.Attribute = class {
 
     constructor(metadata, operator, name, value) {
         this._type = null;
@@ -291,7 +292,7 @@ class TensorFlowLiteAttribute {
                 this._type = schema.type;
             }
             if (this._type && tflite) {
-                var type = tflite[this._type];
+                var type = tflite.schema[this._type];
                 if (type && type[this.value]) {
                     this._value = type[this.value];
                 }
@@ -326,9 +327,10 @@ class TensorFlowLiteAttribute {
     get visible() {
         return this._visible == false ? false : true;
     }
-}
+};
 
-class TensorFlowLiteArgument {
+tflite.Argument = class {
+
     constructor(name, visible, connections) {
         this._name = name;
         this._visible = visible;
@@ -346,13 +348,13 @@ class TensorFlowLiteArgument {
     get connections() {
         return this._connections;
     }
-}
+};
 
-class TensorFlowLiteConnection {
+tflite.Connection = class {
 
     constructor(tensor, index, initializer) {
         this._id = tensor.name() || index.toString();
-        this._type = initializer ? null : new TensorFlowLiteTensorType(tensor);
+        this._type = initializer ? null : new tflite.TensorType(tensor);
         this._initializer = initializer;
         var quantization = tensor.quantization();
         if (quantization) {
@@ -395,14 +397,14 @@ class TensorFlowLiteConnection {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
-class TensorFlowLiteTensor {
+tflite.Tensor = class {
 
     constructor(tensor, index, buffer) {
         this._id = index;
         this._name = tensor.name();
-        this._type = new TensorFlowLiteTensorType(tensor);
+        this._type = new tflite.TensorType(tensor);
         this._data = buffer.dataLength() > 0 ? buffer.dataArray() : null;
     }
 
@@ -538,14 +540,14 @@ class TensorFlowLiteTensor {
         }
         return results;
     }
-}
+};
 
-class TensorFlowLiteTensorType {
+tflite.TensorType = class {
 
     constructor(tensor) {
-        var dataType = tflite.TensorType[tensor.type()]; 
+        var dataType = tflite.schema.TensorType[tensor.type()]; 
         this._dataType = (dataType) ? dataType.toLowerCase() : '?';
-        this._shape = new TensorFlowLiteTensorShape(tensor);
+        this._shape = new tflite.TensorShape(tensor);
     }
 
     get dataType() {
@@ -559,9 +561,9 @@ class TensorFlowLiteTensorType {
     toString() {
         return this.dataType + this._shape.toString();
     }
-}
+};
 
-class TensorFlowLiteTensorShape {
+tflite.TensorShape = class {
 
     constructor(tensor) {
         this._dimensions = [];
@@ -580,18 +582,18 @@ class TensorFlowLiteTensorShape {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
-class TensorFlowLiteOperatorMetadata {
+tflite.OperatorMetadata = class {
 
     static open(host, callback) {
-        if (TensorFlowLiteOperatorMetadata.operatorMetadata) {
-            callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
+        if (tflite.OperatorMetadata.operatorMetadata) {
+            callback(null, tflite.OperatorMetadata.operatorMetadata);
         }
         else {
             host.request(null, 'tflite-metadata.json', 'utf-8', (err, data) => {
-                TensorFlowLiteOperatorMetadata.operatorMetadata = new TensorFlowLiteOperatorMetadata(data);
-                callback(null, TensorFlowLiteOperatorMetadata.operatorMetadata);
+                tflite.OperatorMetadata.operatorMetadata = new tflite.OperatorMetadata(data);
+                callback(null, tflite.OperatorMetadata.operatorMetadata);
             });    
         }
     }
@@ -689,11 +691,16 @@ class TensorFlowLiteOperatorMetadata {
         }
         return null;
     }
-}
+};
 
-class TensorFlowLiteError extends Error {
+tflite.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading TensorFlow Lite model.';
     }
+};
+
+if (module && module.exports) {
+    module.exports.ModelFactory = tflite.ModelFactory;
 }

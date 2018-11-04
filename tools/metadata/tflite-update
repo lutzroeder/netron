@@ -2,6 +2,22 @@
 
 set -e
 
+if [ "$#" == 0 ]; then
+    __sync=true
+    __build=true
+    __update=true
+else
+    while test $# -gt 0
+    do
+        case "$1" in
+            sync) __sync=true;;
+            build) __build=true;;
+            update) __update=true;;
+        esac
+        shift
+    done
+fi
+
 root=$(cd $(dirname ${0})/../..; pwd)
 src=${root}/src
 tools=${root}/tools
@@ -9,33 +25,40 @@ third_party=${root}/third_party
 
 mkdir -p ${third_party}
 
-identifier=flatbuffers
-repository=https://github.com/google/${identifier}.git
-
-if [ -d "${third_party}/${identifier}" ]; then
-    git -C "${third_party}/${identifier}" fetch -p
-    git -C "${third_party}/${identifier}" reset --hard origin/master
-else
-    echo "Clone ${repository}..."
-    git -C "${third_party}" clone --recursive ${repository}
-fi
-
-pushd "${third_party}/${identifier}" > /dev/null
-cmake -G "Unix Makefiles"
-make
-popd > /dev/null
-
 identifier=tensorflow
-repository=https://github.com/tensorflow/${identifier}.git
 
-if [ -d "${third_party}/${identifier}" ]; then
-    git -C "${third_party}/${identifier}" fetch -p
-    git -C "${third_party}/${identifier}" reset --hard origin/master
-else
-    echo "Clone ${repository}..."
-    git -C "${third_party}" clone --recursive ${repository}
+if [ ${__sync} ]; then
+    repository=https://github.com/google/flatbuffers.git
+    if [ -d "${third_party}/flatbuffers" ]; then
+        git -C "${third_party}/flatbuffers" fetch -p
+        git -C "${third_party}/flatbuffers" reset --hard origin/master
+    else
+        echo "Clone ${repository}..."
+        git -C "${third_party}" clone --recursive ${repository}
+    fi
+
+    repository=https://github.com/tensorflow/${identifier}.git
+    if [ -d "${third_party}/${identifier}" ]; then
+        git -C "${third_party}/${identifier}" fetch -p
+        git -C "${third_party}/${identifier}" reset --hard origin/master
+    else
+        echo "Clone ${repository}..."
+        git -C "${third_party}" clone --recursive ${repository}
+    fi
 fi
 
-echo "Generate '../src/tflite.js'"
-${third_party}/flatbuffers/flatc --js ${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs 
-mv ./schema_generated.js ${src}/tflite-schema.js
+if [ ${__build} ]; then
+    pushd "${third_party}/flatbuffers" > /dev/null
+    cmake -G "Unix Makefiles"
+    make
+    popd > /dev/null
+fi
+
+if [ ${__update} ]; then
+    echo "Generate '../src/tflite-schema.js'"
+    cp ${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs ${tools}/metadata/tflite.schema.fbs
+    sed -i 's/namespace tflite\;/namespace tflite.schema\;/' ${tools}/metadata/tflite.schema.fbs
+    ${third_party}/flatbuffers/flatc --js ${tools}/metadata/tflite.schema.fbs
+    mv ./tflite.schema_generated.js ${src}/tflite-schema.js
+    rm ${tools}/metadata/tflite.schema.fbs
+fi
