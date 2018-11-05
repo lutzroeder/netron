@@ -3,5 +3,6 @@
 build/*
 node_modules/*
 third_party/*
+test/data/*
 package-lock.json
 *.pyc
