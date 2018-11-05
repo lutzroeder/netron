@@ -1065,16 +1065,16 @@ view.ModelFactoryService = class {
                     archive = null;
                 }
             }
-    
+
             switch (identifier.split('.').pop()) {
                 case 'tar':
                     archive = new tar.Archive(buffer);
                     break;
                 case 'zip':
                     archive = new zip.Archive(buffer, this._host.inflateRaw);
-                    break;           
+                    break;
             }
-    
+
             if (archive) {
                 var folders = {};
                 archive.entries.forEach((entry) => {
@@ -1082,7 +1082,7 @@ view.ModelFactoryService = class {
                         folders[entry.name.split('/').shift() + '/'] = true;
                     }
                     else {
-                        folders['/'] = true;    
+                        folders['/'] = true;
                     }
                 });
                 var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';

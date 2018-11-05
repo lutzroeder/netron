@@ -7228,3 +7228,6 @@ tflite_schema.Model.finishModelBuffer = function(builder, offset) {
   builder.finish(offset, 'TFL3');
 };
 
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports = tflite_schema;
+}

@@ -61,4 +61,9 @@ if [ ${__update} ]; then
     ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/metadata/tflite.schema.fbs
     mv ./tflite.schema_generated.js ${src}/tflite-schema.js
     rm ${tools}/metadata/tflite.schema.fbs
+cat <<EOT >> ${src}/tflite-schema.js
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports = tflite_schema;
+}
+EOT
 fi
