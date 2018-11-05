@@ -82,6 +82,6 @@
 .dark-mode .sidebar-view-documentation code { background-color: #1e1e1e; }
 .dark-mode .sidebar-view-documentation pre { background-color: #1e1e1e; }
 
-.dark-mode .sidebar-view-find input[type=text] { background: #383838; border-color: #424242; }
+.dark-mode .sidebar-view-find input[type=text] { color: #dfdfdf; background: #383838; border-color: #424242; }
 .dark-mode .sidebar-view-find li:not(:first-child) { border-top: 1px solid #2a2a2a; }
 .dark-mode .sidebar-view-find li:hover { background: #383838; }
