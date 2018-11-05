@@ -2,6 +2,26 @@
 
 var view = view || {};
 
+var base = base || require('./base');
+var zip = zip || require('./zip');
+var gzip = gzip || require('./gzip');
+var tar = tar || require('./tar');
+
+var caffe = caffe || require('./caffe');
+var caffe2 = caffe2 || require('./caffe2');
+var cntk = cntk || require('./cntk');
+var coreml = coreml || require('./coreml');
+var keras = keras || require('./keras');
+var mxnet = mxnet || require('./mxnet');
+var onnx = onnx || require('./onnx');
+var pytorch = pytorch || require('./pytorch');
+var sklearn = sklearn || require('./sklearn');
+var tf = tf || require('./tf');
+var tflite = tflite || require('./tflite');
+
+var d3 = d3 || require('d3');
+var dagre = dagre || require('dagre');
+
 view.View = class {
 
     constructor(host) {
@@ -204,125 +224,8 @@ view.View = class {
     }
 
     loadContext(context, callback) {
-        var modelFactoryService = new ModelFactoryService();
-
-        try {
-            var extension;
-            var archive;
-            var entry;
-    
-            var identifier = context.identifier;
-            var buffer = context.buffer;
-
-            extension = identifier.split('.').pop();
-            if (extension == 'gz' || extension == 'tgz') {
-                archive = new gzip.Archive(buffer, this._host.inflateRaw);
-                if (archive.entries.length == 1) {
-                    entry = archive.entries[0];
-                    if (entry.name) {
-                        identifier = entry.name;
-                    }
-                    else {
-                        identifier = identifier.substring(0, identifier.lastIndexOf('.'));
-                        if (extension == 'tgz') {
-                            identifier += '.tar';
-                        }
-                    }
-                    buffer = entry.data;
-                    archive = null;
-                }
-            }
-    
-            switch (identifier.split('.').pop()) {
-                case 'tar':
-                    archive = new tar.Archive(buffer);
-                    break;
-                case 'zip':
-                    archive = new zip.Archive(buffer, this._host.inflateRaw);
-                    break;           
-            }
-    
-            if (archive) {
-                var folders = {};
-                archive.entries.forEach((entry) => {
-                    if (entry.name.indexOf('/') != -1) {
-                        folders[entry.name.split('/').shift() + '/'] = true;
-                    }
-                    else {
-                        folders['/'] = true;    
-                    }
-                });
-                var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
-                rootFolder = rootFolder == '/' ? '' : rootFolder;
-                var entries = archive.entries.filter((entry) => {
-                    if (entry.name.startsWith(rootFolder)) {
-                        var identifier = entry.name.substring(rootFolder.length);
-                        if (identifier.length > 0 && identifier.indexOf('/') < 0) {
-                            return modelFactoryService.some(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host);
-                        }
-                    }
-                    return false;
-                });
-                if (entries.length == 0) {
-                    callback(new ArchiveError('Root does not contain model file.'), null);
-                    return;
-                }
-                else if (entries.length > 1) {
-                    callback(new ArchiveError('Root contains multiple model files.'), null);
-                    return;
-                }
-                else {
-                    entry = entries[0];
-                    context = new ArchiveContext(entries, rootFolder, entry.name, entry.data);
-                }
-            }
-        }
-        catch (err) {
-            callback(new ArchiveError(err.message), null);
-            return;
-        }
-
-        var errorList = [];
-        var factoryList = modelFactoryService.filter(context, this._host);
-        var factoryCount = factoryList.length;
-        var next = () => {
-            if (factoryList.length > 0) {
-                var modelFactory = factoryList.shift();
-                modelFactory.open(context, this._host, (err, model) => {
-                    if (err) {
-                        errorList.push(err);
-                    }
-                    if (model || factoryList.length == 0) {
-                        if (!model && factoryCount > 1 && errorList.length > 1) {
-                            callback(new ModelError(errorList.map((err) => err.message).join('\n')), null);
-                        }
-                        else {
-                            callback(err, model);
-                        }
-                    }
-                    else {
-                        next();
-                    }
-                });
-            }
-            else {
-                var extension = context.identifier.split('.').pop();
-                switch (extension) {
-                    case 'json':
-                    case 'pb':
-                    case 'pbtxt':
-                    case 'prototxt':
-                    case 'pth':
-                    case 'model':
-                        callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
-                        break;
-                    default:
-                        callback(new ModelError("Unsupported file extension '." + extension + "'."), null);
-                        break;
-                }
-            }
-        };
-        next();
+        var modelFactoryService = new view.ModelFactoryService(this._host);
+        modelFactoryService.create(context, callback);
     }
 
     error(message, err) {
@@ -942,7 +845,7 @@ view.View = class {
         if (value && value.__isLong__) {
             return value.toString();
         }
-        if (value && value.constructor.name == 'Int64') {
+        if (value instanceof base.Int64 || value instanceof base.Uint64) {
             return value.toString();
         }
         if (Number.isNaN(value)) {
@@ -968,80 +871,6 @@ view.View = class {
         return JSON.stringify(value);
     }
 };
-
-class Int64 {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-    }
-
-    toString(radix) {
-        var high = this._readInt32(4);
-        var low = this._readInt32(0);
-        var str = '';
-        var sign = high & 0x80000000;
-        if (sign) {
-            high = ~high;
-            low = 0x100000000 - low;
-        }
-        radix = radix || 10;
-        while (true) {
-            var mod = (high % radix) * 0x100000000 + low;
-            high = Math.floor(high / radix);
-            low = Math.floor(mod / radix);
-            str = (mod % radix).toString(radix) + str;
-            if (!high && !low) 
-            {
-                break;
-            }
-        }
-        if (sign) {
-            str = "-" + str;
-        }
-        return str;
-    }
-
-    toBuffer() {
-        return this._buffer;
-    }
-
-    _readInt32(offset) {
-      return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
-    }
-}
-
-class Uint64 {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-    }
-
-    toString(radix) {
-        var high = this._readInt32(4);
-        var low = this._readInt32(0);
-        var str = '';
-        radix = radix || 10;
-        while (true) {
-            var mod = (high % radix) * 0x100000000 + low;
-            high = Math.floor(high / radix);
-            low = Math.floor(mod / radix);
-            str = (mod % radix).toString(radix) + str;
-            if (!high && !low) 
-            {
-                break;
-            }
-        }
-        return str;
-    }
-
-    toBuffer() {
-        return this._buffer;
-    }
-
-    _readInt32(offset) {
-        return (this._buffer[offset + 3] * 0x1000000) + (this._buffer[offset + 2] << 16) + (this._buffer[offset + 1] << 8) + this._buffer[offset + 0];
-    }
-}
 
 class ArchiveContext {
 
@@ -1182,9 +1011,10 @@ class ModelError extends Error {
     }
 }
 
-class ModelFactoryService {
+view.ModelFactoryService = class {
 
-    constructor() {
+    constructor(host) {
+        this._host = host;
         this._factories = [
             new onnx.ModelFactory(),
             new mxnet.ModelFactory(),
@@ -1200,15 +1030,136 @@ class ModelFactoryService {
         ];
     }
 
-    some(context, host) {
-        return this._factories.some((factory) => factory.match(context, host));
+    some(context) {
+        return this._factories.some((factory) => factory.match(context, this._host));
     }
 
-    filter(context, host) {
-        return this._factories.filter((factory) => factory.match(context, host));        
+    filter(context) {
+        return this._factories.filter((factory) => factory.match(context, this._host));        
     }
-}
 
-if (module && module.exports) {
+    create(context, callback) {
+        try {
+            var extension;
+            var archive;
+            var entry;
+    
+            var identifier = context.identifier;
+            var buffer = context.buffer;
+
+            extension = identifier.split('.').pop();
+            if (extension == 'gz' || extension == 'tgz') {
+                archive = new gzip.Archive(buffer, this._host.inflateRaw);
+                if (archive.entries.length == 1) {
+                    entry = archive.entries[0];
+                    if (entry.name) {
+                        identifier = entry.name;
+                    }
+                    else {
+                        identifier = identifier.substring(0, identifier.lastIndexOf('.'));
+                        if (extension == 'tgz') {
+                            identifier += '.tar';
+                        }
+                    }
+                    buffer = entry.data;
+                    archive = null;
+                }
+            }
+    
+            switch (identifier.split('.').pop()) {
+                case 'tar':
+                    archive = new tar.Archive(buffer);
+                    break;
+                case 'zip':
+                    archive = new zip.Archive(buffer, this._host.inflateRaw);
+                    break;           
+            }
+    
+            if (archive) {
+                var folders = {};
+                archive.entries.forEach((entry) => {
+                    if (entry.name.indexOf('/') != -1) {
+                        folders[entry.name.split('/').shift() + '/'] = true;
+                    }
+                    else {
+                        folders['/'] = true;    
+                    }
+                });
+                var rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
+                rootFolder = rootFolder == '/' ? '' : rootFolder;
+                var entries = archive.entries.filter((entry) => {
+                    if (entry.name.startsWith(rootFolder)) {
+                        var identifier = entry.name.substring(rootFolder.length);
+                        if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                            return this.some(new ArchiveContext(null, rootFolder, identifier, entry.data), this._host);
+                        }
+                    }
+                    return false;
+                });
+                if (entries.length == 0) {
+                    callback(new ArchiveError('Root does not contain model file.'), null);
+                    return;
+                }
+                else if (entries.length > 1) {
+                    callback(new ArchiveError('Root contains multiple model files.'), null);
+                    return;
+                }
+                else {
+                    entry = entries[0];
+                    context = new ArchiveContext(entries, rootFolder, entry.name, entry.data);
+                }
+            }
+        }
+        catch (err) {
+            callback(new ArchiveError(err.message), null);
+            return;
+        }
+
+        var errorList = [];
+        var factoryList = this.filter(context, this._host);
+        var factoryCount = factoryList.length;
+        var next = () => {
+            if (factoryList.length > 0) {
+                var modelFactory = factoryList.shift();
+                modelFactory.open(context, this._host, (err, model) => {
+                    if (err) {
+                        errorList.push(err);
+                    }
+                    if (model || factoryList.length == 0) {
+                        if (!model && factoryCount > 1 && errorList.length > 1) {
+                            callback(new ModelError(errorList.map((err) => err.message).join('\n')), null);
+                        }
+                        else {
+                            callback(err, model);
+                        }
+                    }
+                    else {
+                        next();
+                    }
+                });
+            }
+            else {
+                var extension = context.identifier.split('.').pop();
+                switch (extension) {
+                    case 'json':
+                    case 'pb':
+                    case 'pbtxt':
+                    case 'prototxt':
+                    case 'pth':
+                    case 'model':
+                        callback(new ModelError("Unsupported file content for extension '." + extension + "' in '" + context.identifier + "'."), null);
+                        break;
+                    default:
+                        callback(new ModelError("Unsupported file extension '." + extension + "'."), null);
+                        break;
+                }
+            }
+        };
+        next();
+    }
+};
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.View = view.View;
+    module.exports.ModelFactoryService = view.ModelFactoryService;
 }

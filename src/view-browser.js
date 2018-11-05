@@ -423,7 +423,7 @@ host.BrowserHost = class {
             }
         }
     }
-}
+};
 
 if (!window.TextDecoder) {
     window.TextDecoder = class {

@@ -493,6 +493,7 @@ zip.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Archive = zip.Archive;
+    module.exports.Inflater = zip.Inflater;
 }

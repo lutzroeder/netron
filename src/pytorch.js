@@ -3,6 +3,7 @@
 // Experimental
 
 var pytorch = pytorch || {};
+var base = base || require('./base');
 
 pytorch.ModelFactory = class {
 
@@ -609,7 +610,7 @@ pytorch.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new Int64(context.data.subarray(context.index, context.index + 8)));
+                        results.push(new base.Int64(context.data.subarray(context.index, context.index + 8)));
                         context.index += 8;
                         context.count++;
                         break;
@@ -735,6 +736,6 @@ pytorch.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = pytorch.ModelFactory;
 }

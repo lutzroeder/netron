@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
 var caffe2 = caffe2 || {};
+var protobuf = protobuf || require('protobufjs');
+var marked = marked || require('marked');
 
 caffe2.ModelFactory = class {
 
@@ -697,6 +699,6 @@ caffe2.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = caffe2.ModelFactory;
 }

@@ -1,5 +1,7 @@
 /*jshint esversion: 6 */
 
+var Handlebars = Handlebars || require('handlebars');
+
 class Sidebar {
     
     constructor() {

@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 var cntk = cntk || {};
+var protobuf = protobuf || require('protobufjs');
 
 var cntk_v1 = {};
 var cntk_v2 = null;
@@ -405,7 +406,7 @@ cntk.Node = class {
                 else {
                     this._operator = cntk.OperatorMetadata.operatorMetadata.getOperatorName(obj.op);
                     if (this._operator == null) {
-                        this._operator = node.op.toString();
+                        this._operator = obj.op.toString();
                     }                
                 }
                 Object.keys(obj.attributes).forEach((key) => {
@@ -1340,6 +1341,6 @@ cntk.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = cntk.ModelFactory;
 }

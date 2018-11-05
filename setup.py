@@ -107,8 +107,8 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'favicon.ico', 'icon.png',
-            'numpy.js', 'zip.js', 'tar.js', 'gzip.js',
-            'onnx.js', 'onnx.js', 'onnx-metadata.json',
+            'numpy.js', 'base.js', 'zip.js', 'tar.js', 'gzip.js',
+            'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
             'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',

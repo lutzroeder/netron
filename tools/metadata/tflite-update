@@ -57,8 +57,8 @@ fi
 if [ ${__update} ]; then
     echo "Generate '../src/tflite-schema.js'"
     cp ${third_party}/tensorflow/tensorflow/lite/schema/schema.fbs ${tools}/metadata/tflite.schema.fbs
-    sed -i 's/namespace tflite\;/namespace tflite.schema\;/' ${tools}/metadata/tflite.schema.fbs
-    ${third_party}/flatbuffers/flatc --js ${tools}/metadata/tflite.schema.fbs
+    sed -i 's/namespace tflite\;/namespace tflite_schema\;/' ${tools}/metadata/tflite.schema.fbs
+    ${third_party}/flatbuffers/flatc --no-js-exports --js ${tools}/metadata/tflite.schema.fbs
     mv ./tflite.schema_generated.js ${src}/tflite-schema.js
     rm ${tools}/metadata/tflite.schema.fbs
 fi

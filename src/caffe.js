@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
 var caffe = caffe || {};
+var protobuf = protobuf || require('protobufjs');
+var marked = marked || require('marked');
 
 caffe.ModelFactory = class {
 
@@ -38,7 +40,7 @@ caffe.ModelFactory = class {
                         try { 
                             var solver = caffe.proto.SolverParameter.decodeText(context.text);
                             if (solver.net_param) {
-                                this._openNetParameter(solver.net_param, callback);
+                                this._openNetParameter(solver.net_param, host, callback);
                                 return;
                             }
                             else if (solver.net || solver.train_net) {
@@ -51,7 +53,7 @@ caffe.ModelFactory = class {
                                         callback(new caffe.Error("Failed to load '" + file + "' (" + message + ")."), null);
                                         return;
                                     }
-                                    this._openNetParameterText(context.identifier, text, callback);
+                                    this._openNetParameterText(context.identifier, text, host, callback);
                                 });
                                 return;
                             }
@@ -59,19 +61,19 @@ caffe.ModelFactory = class {
                         catch (error) {
                         }
                     }
-                    this._openNetParameterText(context.identifier, context.text, callback);
+                    this._openNetParameterText(context.identifier, context.text, host, callback);
                 }
                 else {
-                    this._openNetParameterBuffer(context.identifier, context.buffer, callback);
+                    this._openNetParameterBuffer(context.identifier, context.buffer, host, callback);
                 }
             });
         });
     }
 
-    _openNetParameterBuffer(identifier, buffer, callback) {
+    _openNetParameterBuffer(identifier, buffer, host, callback) {
         try {
             var netParameter = caffe.proto.NetParameter.decode(buffer);
-            this._openNetParameter(netParameter, callback);
+            this._openNetParameter(netParameter, host, callback);
         }
         catch (error) {
             host.exception(error, false);
@@ -80,10 +82,10 @@ caffe.ModelFactory = class {
         }
     }
 
-    _openNetParameterText(identifier, text, callback) {
+    _openNetParameterText(identifier, text, host, callback) {
         try {
             var netParameter = caffe.proto.NetParameter.decodeText(text);
-            this._openNetParameter(netParameter, callback);
+            this._openNetParameter(netParameter, host, callback);
         }
         catch (error) {
             host.exception(error, false);
@@ -91,7 +93,7 @@ caffe.ModelFactory = class {
         }
     }
 
-    _openNetParameter(netParameter, callback) {
+    _openNetParameter(netParameter, host, callback) {
         try {
             var model = new caffe.Model(netParameter);
             callback(null, model);
@@ -768,6 +770,6 @@ caffe.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = caffe.ModelFactory;
 }

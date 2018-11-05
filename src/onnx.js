@@ -1,6 +1,9 @@
 /*jshint esversion: 6 */
 
 var onnx = onnx || {};
+var protobuf = protobuf || require('protobufjs');
+var marked = marked || require('marked');
+var base = base || require('./base');
 
 onnx.ModelFactory = class {
 
@@ -61,17 +64,16 @@ onnx.ModelFactory = class {
                     return;
                 }
             }
-            var result = null;
-            try {
-                result = new onnx.Model(model);
-            }
-            catch (error) {
-                host.exception(error, false);
-                callback(new onnx.Error(error.message), null);
-                return;
-            }
             onnx.OperatorMetadata.open(host, (err, metadata) => {
-                callback(null, result);
+                try {
+                    var result = new onnx.Model(model);
+                    callback(null, result);
+                }
+                catch (error) {
+                    host.exception(error, false);
+                    callback(new onnx.Error(error.message), null);
+                    return;
+                }
             });
         });
     }
@@ -80,7 +82,7 @@ onnx.ModelFactory = class {
 onnx.Model = class {
 
     constructor(model) {
-        this._model = model;
+        this._graphs = [];
         this._irVersion = model.ir_version;
         this._opsetImport = model.opset_import;
         this._producerName = model.producer_name;
@@ -121,6 +123,12 @@ onnx.Model = class {
                 }
             });
             this._imageFormat = [ imageMetadata['Image.BitmapPixelFormat'], imageMetadata['Image.ColorSpaceGamma'], imageMetadata['Image.NominalPixelRange'] ].filter((item) => item);
+        }
+        this._graphs = [];
+        if (model && model.graph) {
+            var metadata = new onnx.GraphOperatorMetadata(this._opsetImport);
+            var graph = new onnx.Graph(metadata, model.graph, 0, this._imageFormat);
+            this._graphs.push(graph);
         }
     }
 
@@ -200,15 +208,6 @@ onnx.Model = class {
     }
 
     get graphs() {
-        if (this._model) {
-            this._graphs = [];
-            if (this._model.graph) {
-                var metadata = new onnx.GraphOperatorMetadata(this._opsetImport);
-                var graph = new onnx.Graph(metadata, this._model.graph, 0, this._imageFormat);
-                this._graphs.push(graph);
-            }
-            delete this._model;
-        }
         return this._graphs;
     }
 };
@@ -865,12 +864,12 @@ onnx.Tensor = class {
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT64:
-                            results.push(new Int64(context.rawData.subarray(context.index, context.index + 8)));
+                            results.push(new base.Int64(context.rawData.subarray(context.index, context.index + 8)));
                             context.index += 8;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT64:
-                            results.push(new Uint64(context.rawData.subarray(context.index, context.index + 8)));
+                            results.push(new base.Uint64(context.rawData.subarray(context.index, context.index + 8)));
                             context.index += 8;
                             context.count++;
                             break;
@@ -1266,6 +1265,6 @@ onnx.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = onnx.ModelFactory;   
 }

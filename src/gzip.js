@@ -165,6 +165,6 @@ gzip.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Archive = gzip.Archive;
 }

@@ -1,0 +1,222 @@
+[
+  {
+    "target": "onnx/bvlc_alexnet_opset_3.tar.gz",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz"
+  },
+  {
+    "target": "onnx/bvlc_alexnet_opset_9.tar.gz",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_alexnet.tar.gz"
+  },
+  {
+    "target": "onnx/inception_v2_opset_8.tar.gz",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_8/inception_v2.tar.gz"
+  },
+  {
+    "target": "caffe/bvlc_alexnet.caffemodel",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/original.caffemodel"
+  },
+  {
+    "target": "keras/tiny-yolo-voc.h5",
+    "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5"
+  },
+  {
+    "target": "cntk/v1/Fast-RCNN.model",
+    "source": "https://www.cntk.ai/Models/FRCN_Pascal/Fast-RCNN.model"
+  },
+  {
+    "target": "cntk/v1/Fast-RCNN_grocery100.model",
+    "source": "https://www.cntk.ai/Models/FRCN_Grocery/Fast-RCNN_grocery100.model"
+  },
+  {
+    "target": "cntk/v2/AlexNet_ImageNet_CNTK.model",
+    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/AlexNet_ImageNet_CNTK.model"
+  },
+  {
+    "target": "cntk/v2/ResNet18_ImageNet_CNTK.model",
+    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet18_ImageNet_CNTK.model"
+  },
+  {
+    "target": "cntk/v2/VGG16_ImageNet_Caffe.model",
+    "source": "https://www.cntk.ai/Models/Caffe_Converted/VGG16_ImageNet_Caffe.model"
+  },
+  {
+    "target": "cntk/v2/VGG19_ImageNet_Caffe.model",
+    "source": "https://www.cntk.ai/Models/Caffe_Converted/VGG19_ImageNet_Caffe.model"
+  },
+  {
+    "target": "coreml/AgeNet.mlmodel",
+    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/AgeNet.mlmodel"
+  },
+  {
+    "target": "coreml/AnimeScale2x.mlmodel",
+    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/AnimeScale2x.mlmodel"
+  },
+  {
+    "target": "coreml/CNNEmotions.mlmodel",
+    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/CNNEmotions.mlmodel"
+  },
+  {
+    "target": "coreml/FlickrStyle.mlmodel",
+    "source": "https://s3-us-west-2.amazonaws.com/coreml-models/FlickrStyle.mlmodel"
+  },
+  {
+    "target": "coreml/MobileNet.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/MobileNet.mlmodel"
+  },
+  {
+    "target": "coreml/SqueezeNet.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/SqueezeNet.mlmodel"
+  },
+  {
+    "target": "coreml/GoogLeNetPlaces.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/GoogLeNetPlaces.mlmodel"
+  },
+  {
+    "target": "coreml/Resnet50.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Resnet50.mlmodel"
+  },
+  {
+    "target": "coreml/Inceptionv3.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel"
+  },
+  {
+    "target": "coreml/VGG16.mlmodel",
+    "source": "https://docs-assets.developer.apple.com/coreml/models/VGG16.mlmodel"
+  },
+  {
+    "target": "mxnet/arcface-resnet100.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-arcface/arcface-resnet100.model"
+  },
+  {
+    "target": "mxnet/caffenet.model",
+    "source": "https://s3.amazonaws.com/model-server/models/caffenet/caffenet.model"
+  },
+  {
+    "target": "mxnet/ferplus.model",
+    "source": "https://s3.amazonaws.com/model-server/models/FERPlus/ferplus.model"
+  },
+  {
+    "target": "mxnet/inception_v1.model",
+    "source": "https://s3.amazonaws.com/model-server/models/onnx-inception_v1/inception_v1.model"
+  },
+  {
+    "target": "mxnet/Inception-BN.model",
+    "source": "https://s3.amazonaws.com/model-server/models/inception-bn/Inception-BN.model"
+  },
+  {
+    "target": "mxnet/lstm_ptb.model",
+    "source": "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb.model"
+  },
+  {
+    "target": "mxnet/nin.model",
+    "source": "https://s3.amazonaws.com/model-server/models/nin/nin.model"
+  },
+  {
+    "target": "mxnet/resnet-18.model",
+    "source": "https://s3.amazonaws.com/model-server/models/resnet-18/resnet-18.model"
+  },
+  {
+    "target": "mxnet/resnet-152.model",
+    "source": "https://s3.amazonaws.com/model-server/models/resnet-152/resnet-152.model"
+  },
+  {
+    "target": "mxnet/resnet50_ssd_model.model",
+    "source": "https://s3.amazonaws.com/model-server/models/resnet50_ssd/resnet50_ssd_model.model"
+  },
+  {
+    "target": "mxnet/ResNet_DUC_HDC.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-duc/ResNet_DUC_HDC.model"
+  },
+  {
+    "target": "mxnet/mobilenetv2-1.0.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-mobilenet/mobilenetv2-1.0.model"
+  },
+  {
+    "target": "mxnet/resnet101v1.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet101v1.model"
+  },
+  {
+    "target": "mxnet/resnet101v2.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet101v2.model"
+  },
+  {
+    "target": "mxnet/resnet152v1.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet152v1.model"
+  },
+  {
+    "target": "mxnet/resnet152v2.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet152v2.model"
+  },
+  {
+    "target": "mxnet/resnet18v1.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet18v1.model"
+  },
+  {
+    "target": "mxnet/resnet18v2.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet18v2.model"
+  },
+  {
+    "target": "mxnet/resnet34v1.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet34v1.model"
+  },
+  {
+    "target": "mxnet/resnet34v2.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet34v2.model"
+  },
+  {
+    "target": "mxnet/resnet50v1.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet50v1.model"
+  },
+  {
+    "target": "mxnet/resnet50v2.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet50v2.model"
+  },
+  {
+    "target": "mxnet/resnext-101-64x4d.model",
+    "source": "https://s3.amazonaws.com/model-server/models/resnext-101-64x4d/resnext-101-64x4d.model"
+  },
+  {
+    "target": "mxnet/squeezenet.model",
+    "source": "https://s3.amazonaws.com/model-server/models/onnx-squeezenet/squeezenet.model"
+  },
+  {
+    "target": "mxnet/squeezenet_v1.1.model",
+    "source": "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model"
+  },
+  {
+    "target": "mxnet/vgg16.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16/vgg16.model"
+  },
+  {
+    "target": "mxnet/vgg16_bn.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16_bn/vgg16_bn.model"
+  },
+  {
+    "target": "mxnet/vgg19.model",
+    "source": "https://s3.amazonaws.com/model-server/models/onnx-vgg19/vgg19.model"
+  },
+  {   
+    "target": "mxnet/vgg19_bn.model",
+    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
+  },
+  {
+    "target": "tflite/speech_hotword_model_rank1_2017_11_14.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_hotword_model_rank1_2017_11_14.tflite"
+  },
+  {
+    "target": "tflite/speech_hotword_model_rank2_2017_11_14.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_hotword_model_rank2_2017_11_14.tflite"
+  },
+  {
+    "target": "tflite/speech_speakerid_model_2017_11_14.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_speakerid_model_2017_11_14.tflite"
+  },
+  {
+    "target": "tflite/speech_tts_model_2017_11_14.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_tts_model_2017_11_14.tflite"
+  },
+  {
+    "target": "tflite/speech_terse_am_model_2017_11_14.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_terse_am_model_2017_11_14.tflite"
+  }
+]

@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
 var tflite = tflite || {};
+var flatbuffers = flatbuffers || require('flatbuffers').flatbuffers;
+var base = base || require('./base');
 
 tflite.ModelFactory = class {
 
@@ -20,13 +22,13 @@ tflite.ModelFactory = class {
             try {
                 var buffer = context.buffer;
                 var byteBuffer = new flatbuffers.ByteBuffer(buffer);
-                if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer))
+                if (!tflite_schema.Model.bufferHasIdentifier(byteBuffer))
                 {
                     var identifier = (buffer && buffer.length >= 8 && buffer.slice(4, 8).every((c) => c >= 32 && c <= 127)) ? String.fromCharCode.apply(null, buffer.slice(4, 8)) : '';
                     callback(new tflite.Error("Invalid FlatBuffers identifier '" + identifier + "' in '" + context.identifier + "'."));
                     return;
                 }
-                model = tflite.schema.Model.getRootAsModel(byteBuffer);
+                model = tflite_schema.Model.getRootAsModel(byteBuffer);
             }
             catch (error) {
                 host.exception(error, false);
@@ -55,9 +57,9 @@ tflite.Model = class {
         this._description = (description && description.length > 0) ? description : null;
         var operatorCodeList = [];
         var builtinOperatorMap = {};
-        Object.keys(tflite.schema.BuiltinOperator).forEach(function (key) {
+        Object.keys(tflite_schema.BuiltinOperator).forEach(function (key) {
             var upperCase = { '2D': true, 'LSH': true, 'SVDF': true, 'RNN': true, 'L2': true, 'LSTM': true };
-            var builtinOperatorIndex = tflite.schema.BuiltinOperator[key]; 
+            var builtinOperatorIndex = tflite_schema.BuiltinOperator[key]; 
             builtinOperatorMap[builtinOperatorIndex] = key.split('_').map((s) => {
                 return (s.length < 1 || upperCase[s]) ? s : s.substring(0, 1) + s.substring(1).toLowerCase();
             }).join('');
@@ -65,7 +67,7 @@ tflite.Model = class {
         for (var operatorIndex = 0; operatorIndex < model.operatorCodesLength(); operatorIndex++) {
             var operatorCode = model.operatorCodes(operatorIndex);
             var builtinCode = operatorCode.builtinCode();
-            operatorCodeList.push((builtinCode == tflite.schema.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
+            operatorCodeList.push((builtinCode == tflite_schema.BuiltinOperator.CUSTOM) ? operatorCode.customCode() : builtinOperatorMap[builtinCode]);
         }
         var subgraphsLength = model.subgraphsLength();
         for (var subgraph = 0; subgraph < subgraphsLength; subgraph++) {
@@ -172,7 +174,7 @@ tflite.Node = class {
 
         this._attributes = [];
         var metadata = tflite.OperatorMetadata.operatorMetadata;
-        var optionsTypeName = 'tflite.schema.' + this._operator + 'Options';
+        var optionsTypeName = this._operator + 'Options';
         var optionsType = tflite.Node._getType(optionsTypeName);
         if (typeof optionsType === 'function') {
             var options = Reflect.construct(optionsType, []);
@@ -260,7 +262,7 @@ tflite.Node = class {
 
     static _getType(name) {
         var list = name.split('.');
-        var type = window;
+        var type = tflite_schema;
         while (list.length > 0) {
             var item = list.shift();
             type = type[item];
@@ -268,7 +270,7 @@ tflite.Node = class {
                 return null;
             }
         }
-        if (type == window) {
+        if (type == tflite_schema) {
             return null;
         }
         return type;
@@ -292,7 +294,7 @@ tflite.Attribute = class {
                 this._type = schema.type;
             }
             if (this._type && tflite) {
-                var type = tflite.schema[this._type];
+                var type = tflite_schema[this._type];
                 if (type && type[this.value]) {
                     this._value = type[this.value];
                 }
@@ -459,7 +461,7 @@ tflite.Tensor = class {
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
 
         if (this._type.dataType == 'string') {
-            var utf8Decoder = window.TextDecoder ? new TextDecoder('utf-8') : null;
+            var utf8Decoder = new TextDecoder('utf-8');
             var offset = 0;
             var count = context.data.getInt32(0, true);
             offset += 4;
@@ -506,7 +508,7 @@ tflite.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new Int64(context.data.getInt64(context.index, true)));
+                        results.push(new base.Int64(context.data.getInt64(context.index, true)));
                         context.index += 8;
                         context.count++;
                         break;
@@ -545,7 +547,7 @@ tflite.Tensor = class {
 tflite.TensorType = class {
 
     constructor(tensor) {
-        var dataType = tflite.schema.TensorType[tensor.type()]; 
+        var dataType = tflite_schema.TensorType[tensor.type()]; 
         this._dataType = (dataType) ? dataType.toLowerCase() : '?';
         this._shape = new tflite.TensorShape(tensor);
     }
@@ -701,6 +703,6 @@ tflite.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = tflite.ModelFactory;
 }

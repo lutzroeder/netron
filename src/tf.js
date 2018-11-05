@@ -3,6 +3,8 @@
 // Experimental
 
 var tf = tf || {};
+var protobuf = protobuf || require('protobufjs');
+var marked = marked || require('marked');
 
 tf.ModelFactory = class {
 
@@ -1295,6 +1297,6 @@ tf.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = tf.ModelFactory;
 }

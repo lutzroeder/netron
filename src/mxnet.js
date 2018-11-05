@@ -1,6 +1,9 @@
 /*jshint esversion: 6 */
 
 var mxnet = mxnet || {};
+var marked = marked || require('marked');
+var base = base || require('./base');
+var zip = zip || require('./zip');
 
 mxnet.ModelFactory = class {
 
@@ -762,7 +765,7 @@ mxnet.Tensor = class {
                         context.count++;
                         break;
                     case 6: // int64
-                        results.push(new Int64(context.data.subarray(context.index, context.index + 8)));
+                        results.push(new base.Int64(context.data.subarray(context.index, context.index + 8)));
                         context.index += 8;
                         context.count++;
                         break;
@@ -1188,6 +1191,6 @@ ndarray.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = mxnet.ModelFactory;
 }

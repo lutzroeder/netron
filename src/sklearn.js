@@ -3,6 +3,8 @@
 // Experimental
 
 var sklearn = sklearn || {};
+var marked = marked || require('marked');
+var base = base || require('./base');
 
 sklearn.ModelFactory = class {
 
@@ -205,8 +207,8 @@ sklearn.ModelFactory = class {
                             return dataView.getFloat64(0, true);
                         case 'int64':
                             // var offset = (position * dtype.itemsize) + dataView.byteOffset;
-                            // return new Int64(new Uint8Array(dataView.buffer.slice(offset, offset + dtype.itemsize)));
-                            return new Int64(data.subarray(0, dtype.itemsize));
+                            // return new base.Int64(new Uint8Array(dataView.buffer.slice(offset, offset + dtype.itemsize)));
+                            return new base.Int64(data.subarray(0, dtype.itemsize));
                     }
                     throw new sklearn.Error("Unknown scalar type '" + dtype.name + "'.");
                 };
@@ -766,12 +768,12 @@ sklearn.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new Int64(context.rawData.subarray(context.index, context.index + 8)));
+                        results.push(new base.Int64(context.rawData.subarray(context.index, context.index + 8)));
                         context.index += 8;
                         context.count++;
                         break;
                     case 'uint64':
-                        results.push(new Uint64(context.rawData.subarray(context.index, context.index + 8)));
+                        results.push(new base.Uint64(context.rawData.subarray(context.index, context.index + 8)));
                         context.index += 8;
                         context.count++;
                         break;
@@ -896,6 +898,6 @@ sklearn.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = sklearn.ModelFactory;
 }

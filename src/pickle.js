@@ -416,6 +416,6 @@ pickle.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Unpickler = pickle.Unpickler;
 }

@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
 var coreml = coreml || {};
+var protobuf = protobuf || require('protobufjs');
+var marked = marked || require('marked');
 
 coreml.ModelFactory = class {
 
@@ -1009,6 +1011,6 @@ coreml.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = coreml.ModelFactory;
 }

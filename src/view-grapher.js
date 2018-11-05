@@ -2,6 +2,8 @@
 
 var grapher = grapher || {};
 
+var dagre = dagre || require('dagre');
+
 grapher.Renderer = class {
 
     constructor(svgElement) {
@@ -539,7 +541,7 @@ class Curve {
     }
 }
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Renderer = grapher.Renderer;
     module.exports.NodeElement = grapher.NodeElement;
 }

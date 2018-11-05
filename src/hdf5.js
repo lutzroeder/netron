@@ -840,6 +840,6 @@ hdf5.Error = class extends Error {
     }
 };
 
-if (module && module.exports) {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.File = hdf5.File; 
 }
