@@ -45,10 +45,6 @@ class TestHost {
         });
     }
 
-    inflateRaw(data) {
-        return require('zlib').inflateRawSync(data);
-    }
-
     exception(err, fatal) {
         console.log("ERROR: " + err.toString());
     }
@@ -158,7 +154,7 @@ function decompressSync(buffer, identifier) {
     var archive = null;
     extension = identifier.split('.').pop();
     if (extension == 'gz' || extension == 'tgz') {
-        archive = new gzip.Archive(buffer, require('zlib').inflateRawSync);
+        archive = new gzip.Archive(buffer);
         if (archive.entries.length == 1) {
             entry = archive.entries[0];
             if (entry.name) {
@@ -180,7 +176,7 @@ function decompressSync(buffer, identifier) {
             archive = new tar.Archive(buffer);
             break;
         case 'zip':
-            archive = new zip.Archive(buffer, require('zlib').inflateRawSync);
+            archive = new zip.Archive(buffer);
             break;
     }
     return archive;

@@ -233,10 +233,6 @@ host.ElectronHost = class {
         electron.shell.openExternal(url);
     }
 
-    inflateRaw(data) {
-        return require('zlib').inflateRawSync(data);
-    }
-
     exception(err, fatal) {
         if (this._telemetry) {
             try {

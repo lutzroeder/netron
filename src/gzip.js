@@ -5,13 +5,13 @@ var gzip = gzip || {};
 gzip.Archive = class {
 
     // inflate (optional): optimized inflater callback like require('zlib').inflateRawSync or pako.inflateRa
-    constructor(buffer, inflateRaw) {
+    constructor(buffer) {
         this._entries = [];
         if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {
             throw new gzip.Error('Invalid GZIP archive.');
         }
         var reader = new gzip.Reader(buffer, 0, buffer.length);
-        this._entries.push(new gzip.Entry(reader, inflateRaw));
+        this._entries.push(new gzip.Entry(reader));
     }
 
     get entries() {
@@ -21,7 +21,7 @@ gzip.Archive = class {
 
 gzip.Entry = class {
 
-    constructor(reader, inflateRaw) {
+    constructor(reader) {
         if (!reader.match([ 0x1f, 0x8b ])) {
             throw new gzip.Error('Invalid GZIP signature.');
         }
@@ -47,12 +47,14 @@ gzip.Entry = class {
             reader.uint16(); // CRC16
         }
         var compressedData = reader.bytes();
-        if (inflateRaw) {
-            this._data = inflateRaw(compressedData);
+        if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
+            this._data = require('zlib').inflateRawSync(compressedData);
+        }
+        else if (typeof pako !== 'undefined') {
+            this._data = pako.inflateRaw(compressedData);
         }
         else {
-            var zip = zip || require('./zip');
-            this._data = new zip.Inflater().inflateRaw(compressedData);
+            this._data = new require('./zip').Inflater().inflateRaw(compressedData);
         }
         reader.position = -8;
         reader.uint32(); // CRC32

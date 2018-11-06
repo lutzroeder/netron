@@ -4,8 +4,7 @@ var zip = zip || {};
 
 zip.Archive = class {
 
-    // inflateRaw (optional): optimized inflate callback. For example, require('zlib').inflateRawSync or pako.inflateRaw.
-    constructor(buffer, inflateRaw) {
+    constructor(buffer) {
         this._entries = [];
         if (buffer.length < 4 || buffer[0] != 0x50 || buffer[1] != 0x4B) {
             throw new zip.Error('Invalid ZIP archive.');
@@ -23,7 +22,7 @@ zip.Archive = class {
         reader.skip(12);
         reader.position = reader.uint32(); // central directory offset
         while (reader.match([ 0x50, 0x4B, 0x01, 0x02 ])) {
-            this._entries.push(new zip.Entry(reader, inflateRaw));
+            this._entries.push(new zip.Entry(reader));
         }
     }
 
@@ -34,8 +33,7 @@ zip.Archive = class {
 
 zip.Entry = class {
 
-    constructor(reader, inflateRaw) {
-        this._inflateRaw = inflateRaw;
+    constructor(reader) {
         reader.uint16(); // version
         reader.skip(2);
         this._flags = reader.uint16();
@@ -91,8 +89,11 @@ zip.Entry = class {
                     this._data.set(this._compressedData);
                     break;
                 case 8: // Deflate
-                    if (this._inflateRaw) {
-                        this._data = this._inflateRaw(this._compressedData);
+                    if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
+                        this._data = require('zlib').inflateRawSync(this._compressedData);
+                    }
+                    else if (typeof pako !== 'undefined') {
+                        this._data = pako.inflateRaw(this._compressedData);
                     }
                     else {
                         this._data = new zip.Inflater().inflateRaw(this._compressedData);
