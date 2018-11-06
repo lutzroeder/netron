@@ -50,6 +50,8 @@ fileAssociations:
     ext: prototxt
   - name: "Caffe Model"
     ext: prototxt
+  - name: "PyTorch Model"
+    ext: pth
 publish:
   - provider: github
     releaseType: release

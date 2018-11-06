@@ -25,14 +25,14 @@ for entry in json_root:
     schema = entry['schema']
     if 'package' in schema:
         class_name = schema['package'] + '.' + name
-        print(class_name)
+        # print(class_name)
         class_definition = pydoc.locate(class_name)
         if not class_definition:
             raise Exception('\'' + class_name + '\' not found.')
         docstring = class_definition.__doc__
         if not docstring:
             raise Exception('\'' + class_name + '\' missing __doc__.')
-        print(docstring)
+        # print(docstring)
 
 with io.open(json_file, 'w', newline='') as fout:
     json_data = json.dumps(json_root, sort_keys=True, indent=2)

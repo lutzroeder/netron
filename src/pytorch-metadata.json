@@ -154,6 +154,19 @@
     }
   },
   {
+    "name": "LeakyReLU",
+    "schema": {
+      "attributes": [
+        {
+          "name": "training",
+          "visible": false
+        }
+      ],
+      "category": "Activation",
+      "package": "torch.nn.modules.activation"
+    }
+  },
+  {
     "name": "MaxPool2d",
     "schema": {
       "attributes": [
@@ -208,7 +221,7 @@
     }
   },
   {
-    "name": "BatchNorm1",
+    "name": "BatchNorm1d",
     "schema": {
       "attributes": [
         {
@@ -247,6 +260,13 @@
       ],
       "category": "Normalization",
       "package": "torch.nn.modules.batchnorm"
+    }
+  },
+  {
+    "name": "GroupNorm",
+    "schema": {
+      "category": "Normalization",
+      "package": "torch.nn.modules.normalization"
     }
   },
   {
@@ -294,31 +314,74 @@
   {
     "name": "LSTM",
     "schema": {
-      "category": "Layer",
-      "package": "torch.nn.modules.rnn",
       "attributes": [
-        { "name": "training", "visible": false },
-        { "name": "dropout", "default": 0 },
-        { "name": "dropout_state", "default": {} },
-        { "name": "num_layers", "default": 1 },
-        { "name": "batch_first", "visible": false },
-        { "name": "bidirectional", "visible": false }
-      ]
+        {
+          "name": "training",
+          "visible": false
+        },
+        {
+          "default": 0,
+          "name": "dropout"
+        },
+        {
+          "default": {},
+          "name": "dropout_state"
+        },
+        {
+          "default": 1,
+          "name": "num_layers"
+        },
+        {
+          "name": "batch_first",
+          "visible": false
+        },
+        {
+          "name": "bidirectional",
+          "visible": false
+        }
+      ],
+      "category": "Layer",
+      "package": "torch.nn.modules.rnn"
     }
   },
   {
     "name": "Embedding",
     "schema": {
-      "category": "Transform",
-      "package": "torch.nn.modules.sparse",
       "attributes": [
-        { "name": "training", "visible": false },
-        { "name": "norm_type", "default": 2 },
-        { "name": "scale_grad_by_freq", "default": false },
-        { "name": "sparse", "default": false },
-        { "name": "max_norm", "default": null },
-        { "name": "padding_idx", "default": null }
-      ]
+        {
+          "name": "training",
+          "visible": false
+        },
+        {
+          "default": 2,
+          "name": "norm_type"
+        },
+        {
+          "default": false,
+          "name": "scale_grad_by_freq"
+        },
+        {
+          "default": false,
+          "name": "sparse"
+        },
+        {
+          "default": null,
+          "name": "max_norm"
+        },
+        {
+          "default": null,
+          "name": "padding_idx"
+        }
+      ],
+      "category": "Transform",
+      "package": "torch.nn.modules.sparse"
+    }
+  },
+  {
+    "name": "ReflectionPad2d",
+    "schema": {
+      "category": "Tensor",
+      "package": "torch.nn.modules.padding"
     }
   }
 ]

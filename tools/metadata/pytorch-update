@@ -77,9 +77,11 @@ if [ ${__build} ]; then
 fi
 
 if [ ${__update} ]; then
-    echo "Generate 'caffe2-metadata.json'"
     pushd ${tools}/metadata > /dev/null
+    echo "Generate 'caffe2-metadata.json'"
     ${python} caffe2-metadata.py
+    echo "Generate 'pytorch-metadata.json'"
+    ${python} pytorch-metadata.py
     popd > /dev/null
 fi
 
