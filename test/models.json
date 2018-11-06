@@ -127,6 +127,36 @@
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]"
   },
   {
+    "target": "caffe/1D_lstm.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/1D_lstm.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/age_net.caffemodel",
+    "source": "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/age_net.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/eveningglow/age-and-gender-classification"
+  },
+  {
+    "target": "caffe/alexnet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/alexnet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/AlexNet_SalObjSub.caffemodel",
+    "source": "http://www.cs.bu.edu/groups/ivc/data/SOS/AlexNet_SalObjSub.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/natanielruiz/net-archive/tree/master/salient-object-alexnet"
+  },
+  {
+    "target": "caffe/AlexNet_SalObjSub_deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/natanielruiz/net-archive/master/salient-object-alexnet/deploy.prototxt",
+    "format": "Caffe v1",
+    "link":   "https://github.com/natanielruiz/net-archive/tree/master/salient-object-alexnet"
+  },
+  {
     "target": "caffe/bvlc_alexnet.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/bvlc_alexnet.caffemodel",
     "format": "Caffe v1",
@@ -157,6 +187,48 @@
     "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_rcnn_ilsvrc13"
   },
   {
+    "target": "caffe/caffenet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/caffenet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/googlenet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/googlenet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/fasterRCNN_AlexNet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fasterRCNN_AlexNet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/fasterRCNN_ResNet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fasterRCNN_ResNet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/fasterRCNN_VGG.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fasterRCNN_VGG.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/fasterRCNN_ZynqNet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fasterRCNN_ZynqNet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/fcn-16s.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fcn-16s.prototxt",
+    "format": "Caffe v1",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
     "target": "caffe/fcn8s-heavy-pascal.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/fcn8s-heavy-pascal.caffemodel",
     "format": "Caffe v2"
@@ -178,7 +250,55 @@
     "format": "Caffe v1",
     "link":   "https://github.com/BVLC/caffe/tree/master/models/finetune_flickr_style"
   },
-  { 
+  {
+    "target": "caffe/gender_net.caffemodel",
+    "source": "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/gender_net.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/eveningglow/age-and-gender-classification"
+  },
+  {
+    "target": "caffe/inceptionv3.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/inceptionv3_orig.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3_orig.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/inceptionv4.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/inceptionv4_resnet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4_resnet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/inceptionv4_resnet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv4_resnet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/lstm.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/lstm.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/nin.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/nin.prototxt",
+    "format": "Caffe v1",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
     "target": "caffe/pascalcontext-fcn32s-heavy.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/pascalcontext-fcn32s-heavy.caffemodel",
     "format": "Caffe v2"
@@ -189,6 +309,42 @@
     "format": "Caffe v1",
     "link":   "https://github.com/truongthanhdat/Video2Text",
     "status": "fail"
+  },
+  {
+    "target": "caffe/seq2seq_train_ep7_tar.prototxt",
+    "source": "https://raw.githubusercontent.com/jasjeetIM/Seq2Seq/master/models/s2s/train_ep7_tar.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/jasjeetIM/Seq2Seq"
+  },
+  {
+    "target": "caffe/sq11b2a_e3.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/sq11b2a_e3.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/squeezenet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/squeezenet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/squeezenet_v11.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/squeezenet_v11.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/SSD300.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/SSD300.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/vgg-16.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/vgg-16.prototxt",
+    "format": "Caffe v1",
+    "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "target": "caffe/VGG_CNN_M_2048.caffemodel",
@@ -203,9 +359,27 @@
     "link":   "https://github.com/natanielruiz/net-archive"
   },
   {
+    "target": "caffe/VGG_VOC0712Plus_SSD_300x300_ft_deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/VGG_VOC0712Plus_SSD_300x300_ft_deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
     "target": "caffe/VGG_ILSVRC_19_layers.caffemodel",
     "source": "http://www.robots.ox.ac.uk/~vgg/software/very_deep/caffe/VGG_ILSVRC_19_layers.caffemodel",
     "format": "Caffe v1"
+  },
+  {
+    "target": "caffe/YOLO.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/YOLO.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/zynqnet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/zynqnet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "target": "keras/tiny-yolo-voc.h5",
@@ -480,6 +654,36 @@
   {
     "target": "coreml/Oxford102.mlmodel",
     "source": "https://s3-us-west-2.amazonaws.com/coreml-models/Oxford102.mlmodel"
+  },
+  {
+    "target": "caffe/ResNet-18-deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-18-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/ResNet-34.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-34.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/resnet-50.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-50.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/ResNet-101-deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/resnet-152.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
   },
   {
     "target": "coreml/RN1015k500.mlmodel",
