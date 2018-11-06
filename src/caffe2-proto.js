@@ -2182,7 +2182,8 @@
             values[valuesById[4] = "PROTO_OPENCL"] = 4;
             values[valuesById[5] = "PROTO_IDEEP"] = 5;
             values[valuesById[6] = "PROTO_HIP"] = 6;
-            values[valuesById[7] = "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES"] = 7;
+            values[valuesById[7] = "PROTO_FPGA"] = 7;
+            values[valuesById[8] = "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES"] = 8;
             values[valuesById[20901] = "PROTO_ONLY_FOR_TEST"] = 20901;
             return values;
         })();
