@@ -6,6 +6,7 @@ const process = require('process');
 const vm = require('vm');
 const http = require('http');
 const https = require('https');
+const url = require('url');
 const protobuf = require('protobufjs');
 const view = require('../src/view.js');
 const zip = require('../src/zip');
@@ -107,50 +108,60 @@ function makeDir(dir) {
     }
 }
 
-function loadFile(target, next) {
+function loadModel(target, item, callback) {
     var host = new TestHost();
     var folder = path.dirname(target);
     var identifier = path.basename(target);
-    var buffer = fs.readFileSync(folder + '/' + identifier, null);
+    var size = fs.statSync(target).size;
+    var buffer = new Uint8Array(size);
+    var fd = fs.openSync(target, 'r');
+    fs.readSync(fd, buffer, 0, size, 0);
+    fs.closeSync(fd);
     var context = new TestContext(host, folder, identifier, buffer);
     var modelFactoryService = new view.ModelFactoryService(host);
     modelFactoryService.create(context, (err, model) => {
         if (err) {
-            console.log('ERROR: ' + err.toString());
+            callback(err, null);
             return;
         }
-        else if (!model.format) {
-            console.log('ERROR: No model format.');
+        if (!model.format || (item.format && model.format != item.format)) {
+            callback(new Error("ERROR: Invalid model format '" + model.format + "'."), null);
+            return;
         }
         else {
-            model.graphs.forEach((graph) => {
-                graph.inputs.forEach((input) => {
-                });
-                graph.outputs.forEach((output) => {
-                });
-                graph.nodes.forEach((node) => {
-                    node.attributes.forEach((attribute) => {
+            try {
+                model.graphs.forEach((graph) => {
+                    graph.inputs.forEach((input) => {
                     });
-                    node.inputs.forEach((input) => {
-                        input.connections.forEach((connection) => {
-                            if (connection.initializer) {
-                                var value = connection.initializer.toString();
-                            }
+                    graph.outputs.forEach((output) => {
+                    });
+                    graph.nodes.forEach((node) => {
+                        node.attributes.forEach((attribute) => {
+                        });
+                        node.inputs.forEach((input) => {
+                            input.connections.forEach((connection) => {
+                                if (connection.initializer) {
+                                    var value = connection.initializer.toString();
+                                }
+                            });
+                        });
+                        node.outputs.forEach((output) => {
+                            output.connections.forEach((connection) => {
+                            });
                         });
                     });
-                    node.outputs.forEach((output) => {
-                        output.connections.forEach((connection) => {
-                        });
-                    });
                 });
-            });
-
-            next();
+            }
+            catch (error) {
+                callback(error, null);
+                return;
+            }
+            callback(null, model);
         }
     });
 }
 
-function decompressSync(buffer, identifier) {
+function decompress(buffer, identifier) {
     var archive = null;
     extension = identifier.split('.').pop();
     if (extension == 'gz' || extension == 'tgz') {
@@ -182,13 +193,62 @@ function decompressSync(buffer, identifier) {
     return archive;
 }
 
+function request(location, callback) {
+    var data = [];
+    var position = 0;
+    var protocol = url.parse(location).protocol;
+    var httpModules = { 'http:': http, 'https:': https };
+    var httpModule = httpModules[protocol];
+
+    var httpRequest = httpModule.request(location);
+    httpRequest.on('response', (response) => {
+        if (response.statusCode == 301 || response.statusCode == 302) {
+            if (url.parse(response.headers.location).hostname) {
+                location = response.headers.location;
+            }
+            else {
+                location = url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
+            }
+            request(location, callback);
+        }
+        else {
+            var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
+            response.on("data", (chunk) => {
+                position += chunk.length;
+                if (length >= 0) {
+                    var label = location.length > 70 ? location.substring(0, 67) + '...' : location; 
+                    process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
+                }
+                else {
+                    process.stdout.write(position + '\r');
+                }
+                data.push(chunk);
+            });
+            response.on("end", () => {
+                callback(null, Buffer.concat(data));
+            });
+            response.on("error", (err) => {
+                callback(err, null);
+            });
+        }
+    });
+    httpRequest.on('error', (err) => {
+        callback(err, null);
+    });
+    httpRequest.end();
+}
+
 function next() {
     if (models.length > 0) {
-        var model = models.shift();
-        // if (model.target != 'coreml/GestureAI.mlmodel') { next(); return; }
-        // if (!model.target.startsWith('onnx/')) { next(); return; }
-        var targets = model.target.split(',');
-        var source = model.source;
+        var item = models.shift();
+        if (item.status && item.status == 'fail') {
+            next();
+            return;
+        }
+        // if (item.target != 'coreml/GestureAI.mlmodel') { next(); return; }
+        // if (!item.target.startsWith('onnx/')) { next(); return; }
+        var targets = item.target.split(',');
+        var source = item.source;
         var files = [];
         var index = source.indexOf('[');
         if (index != -1) {
@@ -204,64 +264,58 @@ function next() {
         process.stdout.write(targets[0] + '\n');
         if (!targets.every((target) => fs.existsSync(testRootFolder + '/' + target))) {
             targets.forEach((target) => makeDir(path.dirname(testRootFolder + '/' + target)));
-            var data = [];
-            var position = 0;
-            var web = null;
-            if (source.startsWith('http://')) {
-                web = http;
-            }
-            else if (source.startsWith('https://')) {
-                web = https;
-            }
-            web.get(source, (response) => {
-                var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
-                response.on("data", (chunk) => {
-                    position += chunk.length;
-                    if (length >= 0) {
-                        process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + source + '\r');
-                    }
-                    else {
-                        process.stdout.write(position + '\r');
-                    }
-                    data.push(chunk);
-                });
-                response.on("end", () => {
-                    var buffer = Buffer.concat(data);
-                    if (files.length > 0) {
-                        if (process.stdout.clearLine) {
-                            process.stdout.clearLine();
-                        }
-                        process.stdout.write('  decompress...\r');
-                        var archive = decompressSync(buffer, source.split('/').pop());
-                        // console.log(archive);
-                        files.forEach((file, index) => {
-                            if (process.stdout.clearLine) {
-                                process.stdout.clearLine();
-                            }
-                            process.stdout.write('  write ' + file + '\n');
-                            var entry = archive.entries.filter((entry) => entry.name == file)[0];
-                            fs.writeFileSync(testRootFolder + '/' + targets[index], entry.data, null);
-                        });
-                    }
-                    else {
-                        if (process.stdout.clearLine) {
-                            process.stdout.clearLine();
-                        }
-                        process.stdout.write('  write ' + targets[0] + '\r');
-                        fs.writeFileSync(testRootFolder + '/' + targets[0], buffer, null);
-                    }
+            request(source, (err, data) => {
+                if (err) {
+                    console.log("ERROR: " + err.toString());
+                    return;
+                }
+
+                if (files.length > 0) {
                     if (process.stdout.clearLine) {
                         process.stdout.clearLine();
                     }
-                    loadFile(testRootFolder + '/' + targets[0], next);
-                });
-                response.on("error", (err) => {
-                    console.log("ERROR: " + err.toString());
+                    process.stdout.write('  decompress...\r');
+                    var archive = decompress(data, source.split('/').pop());
+                    // console.log(archive);
+                    files.forEach((file, index) => {
+                        if (process.stdout.clearLine) {
+                            process.stdout.clearLine();
+                        }
+                        process.stdout.write('  write ' + file + '\n');
+                        var entry = archive.entries.filter((entry) => entry.name == file)[0];
+                        if (!entry) {
+                            console.log("ERROR: Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                        }
+                        fs.writeFileSync(testRootFolder + '/' + targets[index], entry.data, null);
+                    });
+                }
+                else {
+                    if (process.stdout.clearLine) {
+                        process.stdout.clearLine();
+                    }
+                    process.stdout.write('  write ' + targets[0] + '\r');
+                    fs.writeFileSync(testRootFolder + '/' + targets[0], data, null);
+                }
+                if (process.stdout.clearLine) {
+                    process.stdout.clearLine();
+                }
+                loadModel(testRootFolder + '/' + targets[0], item, (err, model) => {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    next();
                 });
             });
         }
         else {
-            loadFile(testRootFolder + '/' + targets[0], next);
+            loadModel(testRootFolder + '/' + targets[0], item, (err, model) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                next();
+            });
         }
     }
 }

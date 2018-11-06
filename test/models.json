@@ -1,23 +1,29 @@
 [
   {
     "target": "onnx/arcface-resnet100.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx"
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/models/face_recognition/ArcFace"
   },
   {
     "target": "onnx/shufflenet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/model.onnx]"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/shufflenet"
   },
   {
     "target": "onnx/bvlc_alexnet_opset_3.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
   },
   {
     "target": "onnx/bvlc_alexnet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
   },
   {
     "target": "onnx/bvlc_googlenet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_googlenet.tar.gz[bvlc_googlenet/model.onnx]"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_googlenet.tar.gz[bvlc_googlenet/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_googlenet"
   },
   {
     "target": "onnx/bvlc_reference_caffenet_opset_9.onnx",
@@ -25,7 +31,12 @@
   },
   {
     "target": "onnx/bvlc_reference_rcnn_ilsvrc13_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_rcnn_ilsvrc13.tar.gz[bvlc_reference_rcnn_ilsvrc13/model.onnx]"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_rcnn_ilsvrc13.tar.gz[bvlc_reference_rcnn_ilsvrc13/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/bvlc_reference_rcnn_ilsvrc13"
+  },
+  {
+    "target": "onnx/densenet121_opset_9.tar.gz",
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz"
   },
   {
     "target": "onnx/densenet121_opset_9.onnx",
@@ -89,19 +100,23 @@
   },
   {
     "target": "onnx/vgg16.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.onnx"
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
   },
   {
     "target": "onnx/vgg16-bn.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16-bn/vgg16-bn.onnx"
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16-bn/vgg16-bn.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
   },
   {
     "target": "onnx/vgg19.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19/vgg19.onnx"
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19/vgg19.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
   },
   {
     "target": "onnx/vgg19-bn.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19-bn/vgg19-bn.onnx"
+    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19-bn/vgg19-bn.onnx",
+    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
   },
   {
     "target": "onnx/vgg19_opset_9.onnx",
@@ -113,35 +128,173 @@
   },
   {
     "target": "caffe/bvlc_alexnet.caffemodel",
-    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/original.caffemodel"
+    "source": "http://dl.caffe.berkeleyvision.org/bvlc_alexnet.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet"
+  },
+  {
+    "target": "caffe/bvlc_alexnet_deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/BVLC/caffe/master/models/bvlc_alexnet/deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_alexnet"
+  },
+  {
+    "target": "caffe/bvlc_googlenet.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/bvlc_googlenet.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_googlenet"
+  },
+  {
+    "target": "caffe/bvlc_reference_caffenet.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_caffenet"
+  },
+  {
+    "target": "caffe/bvlc_reference_rcnn_ilsvrc13.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/bvlc_reference_rcnn_ilsvrc13.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_rcnn_ilsvrc13"
+  },
+  {
+    "target": "caffe/fcn8s-heavy-pascal.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/fcn8s-heavy-pascal.caffemodel",
+    "format": "Caffe v2"
+  },
+  {
+    "target": "caffe/fcn16s-heavy-pascal.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/fcn16s-heavy-pascal.caffemodel",
+    "format": "Caffe v2"
+  },
+  {
+    "target": "caffe/fcn32s-heavy-pascal.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/fcn32s-heavy-pascal.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shelhamer/fcn.berkeleyvision.org"
+  },
+  {
+    "target": "caffe/finetune_flickr_style.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/finetune_flickr_style.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/BVLC/caffe/tree/master/models/finetune_flickr_style"
+  },
+  { 
+    "target": "caffe/pascalcontext-fcn32s-heavy.caffemodel",
+    "source": "http://dl.caffe.berkeleyvision.org/pascalcontext-fcn32s-heavy.caffemodel",
+    "format": "Caffe v2"
+  },
+  {
+    "target": "caffe/s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
+    "source": "https://www.dropbox.com/s/raw/wn6k2oqurxzt6e2/s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/truongthanhdat/Video2Text",
+    "status": "fail"
+  },
+  {
+    "target": "caffe/VGG_CNN_M_2048.caffemodel",
+    "source": "http://www.robots.ox.ac.uk/~vgg/software/deep_eval/releases/bvlc/VGG_CNN_M_2048.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://github.com/natanielruiz/net-archive"
+  },
+  {
+    "target": "caffe/VGG_CNN_M_2048_deploy.prototxt",
+    "source": "https://raw.githubusercontent.com/natanielruiz/net-archive/master/vgg_cnn_m_2048/VGG_CNN_M_2048_deploy.prototxt",
+    "format": "Caffe v1",
+    "link":   "https://github.com/natanielruiz/net-archive"
+  },
+  {
+    "target": "caffe/VGG_ILSVRC_19_layers.caffemodel",
+    "source": "http://www.robots.ox.ac.uk/~vgg/software/very_deep/caffe/VGG_ILSVRC_19_layers.caffemodel",
+    "format": "Caffe v1"
   },
   {
     "target": "keras/tiny-yolo-voc.h5",
     "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5"
   },
   {
+    "target": "cntk/v1/AlexNet.model",
+    "source": "https://www.cntk.ai/Models/AlexNet/AlexNet.model",
+    "format": "CNTK v1.14"
+  },
+  {
+    "target": "cntk/v1/AlexNetBS.model",
+    "source": "https://www.cntk.ai/Models/AlexNet/AlexNetBS.model",
+    "format": "CNTK v1.15"
+  },
+  {
+    "target": "cntk/v1/ResNet_18.model",
+    "source": "https://www.cntk.ai/Models/ResNet/ResNet_18.model",
+    "format": "CNTK v1.17"
+  },
+  {
     "target": "cntk/v1/Fast-RCNN.model",
-    "source": "https://www.cntk.ai/Models/FRCN_Pascal/Fast-RCNN.model"
+    "source": "https://www.cntk.ai/Models/FRCN_Pascal/Fast-RCNN.model",
+    "format": "CNTK v1.15",
+    "link":   "https://github.com/Microsoft/CNTK/blob/7c838d3b6c448004e5a06aa00c984a629f880416/PretrainedModels/download_model.py"
   },
   {
     "target": "cntk/v1/Fast-RCNN_grocery100.model",
-    "source": "https://www.cntk.ai/Models/FRCN_Grocery/Fast-RCNN_grocery100.model"
+    "source": "https://www.cntk.ai/Models/FRCN_Grocery/Fast-RCNN_grocery100.model",
+    "format": "CNTK v1.15",
+    "link":   "https://github.com/Microsoft/CNTK/blob/7c838d3b6c448004e5a06aa00c984a629f880416/PretrainedModels/download_model.py"
+  },
+  {
+    "target": "cntk/v2/AlexNet_ImageNet_Caffe.model",
+    "source": "https://www.cntk.ai/Models/Caffe_Converted/AlexNet_ImageNet_Caffe.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/download_model.py"
   },
   {
     "target": "cntk/v2/AlexNet_ImageNet_CNTK.model",
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/AlexNet_ImageNet_CNTK.model"
   },
   {
-    "target": "cntk/vs/InceptionV3_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/InceptionV3_ImageNet_CNTK.model"
+    "target": "cntk/v2/Bean.model",
+    "source": "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/Bean/Bean.cntk.zip[Bean.cntk]",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/ELL-models"
+  },
+  {
+    "target": "cntk/v2/BNInception_ImageNet_Caffe.model",
+    "source": "https://www.cntk.ai/Models/Caffe_Converted/BNInception_ImageNet_Caffe.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/download_model.py"
+  },
+  {
+    "target": "cntk/v2/Chalta.model",
+    "source": "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/Chalta/Chalta.cntk.zip[Chalta.cntk]",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/ELL-models"
+  },
+  {
+    "target": "cntk/v2/d_I160x160x3CMCMCMCMCMCMC1AS.model",
+    "source": "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/d_I160x160x3CMCMCMCMCMCMC1AS/d_I160x160x3CMCMCMCMCMCMC1AS.cntk.zip[d_I160x160x3CMCMCMCMCMCMC1AS.cntk]",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/ELL-models/tree/master/models/ILSVRC2012/d_I160x160x3CMCMCMCMCMCMC1AS"
+  },
+  {
+    "target": "cntk/v2/DRNN.model",
+    "source": "https://www.cntk.ai/Models/SuperResolution/DRNN.model",
+    "format": "CNTK v2",
+    "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
+  },
+  {
+    "target": "cntk/v2/InceptionV3_ImageNet_CNTK.model",
+    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/InceptionV3_ImageNet_CNTK.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/MMdnn/blob/master/mmdnn/conversion/examples/cntk/extract_model.py"
   },
   {
     "target": "cntk/v2/ResNet18_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet18_ImageNet_CNTK.model"
+    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet18_ImageNet_CNTK.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
   },
   {
-    "target": "cntk/v2/ResNet18_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet18_ImageNet_CNTK.model"
+    "target": "cntk/v2/ResNet20_CIFAR10_CNTK.model",
+    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet20_CIFAR10_CNTK.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
   },
   {
     "target": "cntk/v2/ResNet34_ImageNet_CNTK.model",
@@ -152,12 +305,43 @@
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet50_ImageNet_CNTK.model"
   },
   {
+    "target": "cntk/v2/ResNet110_CIFAR10_CNTK.model",
+    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet110_CIFAR10_CNTK.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
+  },
+  {
     "target": "cntk/v2/ResNet101_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet101_ImageNet_CNTK.model"
+    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet101_ImageNet_CNTK.model",
+    "format": "CNTK v2"
+  },
+  {
+    "target": "cntk/v2/ResNet101_ImageNet_Caffe.model",
+    "source": "https://www.cntk.ai/Models/Caffe_Converted/ResNet101_ImageNet_Caffe.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
+  },
+  {
+    "target": "cntk/v2/ResNet152_ImageNet_Caffe.model",
+    "source": "https://www.cntk.ai/Models/Caffe_Converted/ResNet152_ImageNet_Caffe.model",
+    "format": "CNTK v2",
+    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
   },
   {
     "target": "cntk/v2/ResNet152_ImageNet_CNTK.model",
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet152_ImageNet_CNTK.model"
+  },
+  {
+    "target": "cntk/v2/SRGAN.model",
+    "source": "https://www.cntk.ai/Models/SuperResolution/SRGAN.model",
+    "format": "CNTK v2",
+    "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
+  },
+  {
+    "target": "cntk/v2/SRResNet.model",
+    "source": "https://www.cntk.ai/Models/SuperResolution/SRResNet.model",
+    "format": "CNTK v2",
+    "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
   },
   {
     "target": "cntk/v2/VGG16_ImageNet_Caffe.model",
@@ -166,6 +350,12 @@
   {
     "target": "cntk/v2/VGG19_ImageNet_Caffe.model",
     "source": "https://www.cntk.ai/Models/Caffe_Converted/VGG19_ImageNet_Caffe.model"
+  },
+  {
+    "target": "cntk/v2/VDSR.model",
+    "source": "https://www.cntk.ai/Models/SuperResolution/VDSR.model",
+    "format": "CNTK v2",
+    "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
   },
   {
     "target": "coreml/AgeNet.mlmodel",
@@ -449,11 +639,25 @@
   },
   {
     "target": "tf/mobilenet_v1_1.0_224_frozen.pb",
-    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224_frozen.pb]"
+    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224_frozen.pb]",
+    "format": "TensorFlow Graph"
   },
   {
     "target": "tf/mobilenet_v1_1.0_224_eval.pbtxt",
-    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224_eval.pbtxt]"
+    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224_eval.pbtxt]",
+    "format": "TensorFlow Graph"
+  },
+  {
+    "target": "tf/mnasnet_0.5_224.pb",
+    "source": "http://download.tensorflow.org/models/tflite/mnasnet_0.5_224_09_07_2018.tgz[mnasnet_0.5_224/mnasnet_0.5_224.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tf/mnasnet_1.3_224.pb",
+    "source": "http://download.tensorflow.org/models/tflite/mnasnet_1.3_224_09_07_2018.tgz[mnasnet_1.3_224/mnasnet_1.3_224.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://www.tensorflow.org/lite/models"
   },
   {
     "target": "tf/squeezenet.pb",
@@ -473,15 +677,26 @@
   },
   {
     "target": "tflite/inception_v4.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v4_2018_04_27.tgz[./inception_v4.tflite]"
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v4_2018_04_27.tgz[./inception_v4.tflite]",
+    "format": "TensorFlow Lite v3"
   },
   {
     "target": "tflite/mobilenet_v1_1.0_224.tflite",
-    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224.tflite]"
+    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tflite/mobilenet_v1_1.0_224.lite",
+    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
   },
   {
     "target": "tflite/mobilenet_v1_1.0_224_quant.tflite",
-    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224_quant.tgz[./mobilenet_v1_1.0_224_quant.tflite]"
+    "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224_quant.tgz[./mobilenet_v1_1.0_224_quant.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
   },
   {
     "target": "tflite/mobilenet_v2_0.4_224.tflite",
@@ -490,6 +705,30 @@
   {
     "target": "tflite/mobilenet_v2_1.4_224.tflite",
     "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.tflite]"
+  },
+  {
+    "target": "tflite/mnasnet_0.5_224.tflite",
+    "source": "http://download.tensorflow.org/models/tflite/mnasnet_0.5_224_09_07_2018.tgz[mnasnet_0.5_224/mnasnet_0.5_224.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tflite/mnasnet_1.3_224.tflite",
+    "source": "http://download.tensorflow.org/models/tflite/mnasnet_1.3_224_09_07_2018.tgz[mnasnet_1.3_224/mnasnet_1.3_224.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tflite/nasnet_mobile.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_mobile_2018_04_27.tgz[./nasnet_mobile.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tflite/nasnet_large.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_large_2018_04_27.tgz[./nasnet_large.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
   },
   {
     "target": "tflite/smartreply.tflite",
