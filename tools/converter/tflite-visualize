@@ -1,0 +1,20 @@
+#!/bin/bash
+
+ScriptPath="`cd $(dirname ${BASH_SOURCE[0]});pwd`"
+
+root=$(cd $(dirname ${0})/../..; pwd)
+build=${root}/build
+
+python=${python:-python}
+
+identifier=tflite
+
+virtualenv=${build}/virtualenv/${identifier}
+virtualenv -p ${python} ${virtualenv}
+source ${virtualenv}/bin/activate
+
+pip install --quiet tensorflow
+
+python ${ScriptPath}/../../third_party/tensorflow/tensorflow/lite/tools/visualize.py $@
+
+deactivate
