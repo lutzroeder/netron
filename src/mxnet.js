@@ -32,7 +32,7 @@ mxnet.ModelFactory = class {
         switch (extension) {
             case 'json':
                 mxnet.OperatorMetadata.open(host, (err, metadata) => {
-                    this._openSymbol(context, callback);
+                    this._openSymbol(context, host, callback);
                 });
                 break;
             case 'model':
@@ -46,7 +46,7 @@ mxnet.ModelFactory = class {
         }
     }
 
-    _openSymbol(context, callback) {
+    _openSymbol(context, host, callback) {
         try {
             var symbol = JSON.parse(context.text);
             var model = new mxnet.Model(null, symbol, null, {});
