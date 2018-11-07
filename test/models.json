@@ -193,10 +193,46 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
-    "target": "caffe/googlenet.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/googlenet.prototxt",
+    "target": "caffe/DenseNet_121.caffemodel",
+    "source": "https://drive.google.com/uc?export=download&id=0B7ubpZO7HnlCcHlfNmJkU2VPelE",
     "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
+    "link":   "https://github.com/shicai/DenseNet-Caffe"
+  },
+  {
+    "target": "caffe/DenseNet_121.prototxt",
+    "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_121.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/DenseNet-Caffe"
+  },
+  {
+    "target": "caffe/DenseNet_161.prototxt",
+    "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_161.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/DenseNet-Caffe"
+  },
+  {
+    "target": "caffe/DenseNet_169.prototxt",
+    "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_169.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/DenseNet-Caffe"
+  },
+  {
+    "target": "caffe/DenseNet_169.prototxt",
+    "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_169.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/shicai/DenseNet-Caffe"
+  },
+  {
+    "target": "caffe/dpn92.caffemodel",
+    "source": "https://drive.google.com/uc?export=download&id=0B9mkjlmP0d7zTmh2M3RKSVFTWjQ",
+    "format": "Caffe v2",
+    "link":   "https://github.com/soeaver/caffe-model/tree/master/cls#performance-on-imagenet-validation"
+  },
+  {
+    "target": "caffe/EmotiW_VGG_S.caffemodel",
+    "source": "https://drive.google.com/uc?export=download&id=0BydFau0VP3XSNVYtWnNPMU1TOGM",
+    "format": "Caffe v2",
+    "link":   "https://gist.github.com/GilLevi/54aee1b8b0397721aa4b"
   },
   {
     "target": "caffe/fasterRCNN_AlexNet.prototxt",
@@ -257,6 +293,42 @@
     "link":   "https://github.com/eveningglow/age-and-gender-classification"
   },
   {
+    "target": "caffe/googlenet.prototxt",
+    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/googlenet.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/googlenet_finetune_web_car_iter_10000.caffemodel",
+    "source": "http://mmlab.ie.cuhk.edu.hk/datasets/comp_cars/googlenet_finetune_web_car_iter_10000.caffemodel",
+    "format": "Caffe v1",
+    "link":   "https://gist.github.com/bogger/b90eb88e31cd745525ae"
+  },
+  {
+    "target": "caffe/googlelet_places205_train_iter_2400000.caffemodel",
+    "source": "http://places.csail.mit.edu/model/googlenet_places205.tar.gz[googlenet_places205/googlelet_places205_train_iter_2400000.caffemodel]",
+    "format": "Caffe v2",
+    "link":   "http://places.csail.mit.edu/downloadCNN.html"
+  },
+  {
+    "target": "caffe/hybridCNN_iter_700000_upgraded.caffemodel",
+    "source": "http://places.csail.mit.edu/model/hybridCNN_upgraded.tar.gz[hybridCNN_iter_700000_upgraded.caffemodel]",
+    "format": "Caffe v1",
+    "link":   "http://places.csail.mit.edu/downloadCNN.html"
+  },
+  {
+    "target": "caffe/inception-v3.caffemodel",
+    "source": "https://drive.google.com/uc?export=download&id=0B9mkjlmP0d7zRktmbmNZeTVBZVk",
+    "format": "Caffe v2",
+    "link":   "https://github.com/soeaver/caffe-model/tree/master/cls#performance-on-imagenet-validation"
+  },
+  {
+    "target": "caffe/inception-v4.caffemodel",
+    "source": "https://drive.google.com/uc?export=download&id=0B9mkjlmP0d7zNWZEaU8wMEQ2dWM",
+    "format": "Caffe v2",
+    "link":   "https://github.com/soeaver/caffe-model/tree/master/cls#performance-on-imagenet-validation"
+  },
+  {
     "target": "caffe/inceptionv3.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3.prototxt",
     "format": "Caffe v2",
@@ -302,6 +374,12 @@
     "target": "caffe/pascalcontext-fcn32s-heavy.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/pascalcontext-fcn32s-heavy.caffemodel",
     "format": "Caffe v2"
+  },
+  {
+    "target": "caffe/places205CNN_iter_300000_upgraded.caffemodel",
+    "source": "http://places.csail.mit.edu/model/placesCNN_upgraded.tar.gz[places205CNN_iter_300000_upgraded.caffemodel]",
+    "format": "Caffe v1",
+    "link":   "http://places.csail.mit.edu/downloadCNN.html"
   },
   {
     "target": "caffe/s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
@@ -380,6 +458,120 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/zynqnet.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe2/bvlc_alexnet/predict_net.pb,caffe2/bvlc_alexnet/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/bvlc_alexnet/predict_net.pbtxt,caffe2/bvlc_alexnet/init_net.pb",
+    "source": "https://raw.githubusercontent.com/caffe2/models/master/bvlc_alexnet/predict_net.pbtxt,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_alexnet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/bvlc_googlenet/predict_net.pb,caffe2/bvlc_googlenet/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_googlenet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_googlenet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/bvlc_reference_caffenet/predict_net.pb,caffe2/bvlc_reference_caffenet/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_reference_caffenet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_reference_caffenet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/bvlc_reference_rcnn_ilsvrc13/predict_net.pb,caffe2/bvlc_reference_rcnn_ilsvrc13/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/bvlc_reference_rcnn_ilsvrc13/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/bvlc_reference_rcnn_ilsvrc13/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/densenet121/predict_net.pb,caffe2/densenet121/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/densenet121/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/densenet121/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/detectron/predict_net.pb,caffe2/detectron/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/detectron/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/detectron/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/finetune_flickr_style/predict_net.pb,caffe2/finetune_flickr_style/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/zyddawn/caffe2-models/master/finetune_flickr_style/predict_net.pb,https://media.githubusercontent.com/media/zyddawn/caffe2-models/master/finetune_flickr_style/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/zyddawn/caffe2-models"
+  },
+  {
+    "target": "caffe2/inception_v1/predict_net.pb,caffe2/inception_v1/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/inception_v1/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/inception_v1/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/inception_v2/predict_net.pb,caffe2/inception_v2/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/inception_v2/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/inception_v2/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/mobilenet_v2/predict_net.pb,caffe2/mobilenet_v2/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/mobilenet_v2/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/mobilenet_v2/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/mobilenet_v2/predict_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/mobilenet_v2/predict_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/mobilenet_v2_quantized/predict_net.pb,caffe2/mobilenet_v2_quantized/init_net.pb",
+    "source": "https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2_1.0_224_quant/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2_1.0_224_quant/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/onnx_while/predict_net.pb,caffe2/onnx_while/inits_net.pb",
+    "source": "https://github.com/lutzroeder/netron/files/2522635/onnxwhile.zip[predict_net.pb,init_net.pb]",
+    "format": "Caffe2",
+    "link":   "https://github.com/lutzroeder/netron/issues/168"
+  },
+  {
+    "target": "caffe2/resnet50/predict_net.pb,caffe2/resnet50/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/resnet50/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/resnet50/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/shufflenet/predict_net.pb,caffe2/shufflenet/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/zyddawn/caffe2-models/master/shufflenet/predict_net.pb,https://media.githubusercontent.com/media/zyddawn/caffe2-models/master/shufflenet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/zyddawn/caffe2-models"
+  },
+  {
+    "target": "caffe2/squeezenet/predict_net.pb,caffe2/squeezenet/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/squeezenet/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/squeezenet/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/vgg19/predict_net.pb,caffe2/vgg19/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/vgg19/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/vgg19/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "target": "caffe2/zfnet512/predict_net.pb,caffe2/zfnet512/init_net.pb",
+    "source": "https://media.githubusercontent.com/media/caffe2/models/master/zfnet512/predict_net.pb,https://media.githubusercontent.com/media/caffe2/models/master/zfnet512/init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models"
   },
   {
     "target": "keras/tiny-yolo-voc.h5",
@@ -674,10 +866,40 @@
     "link":   "https://github.com/cwlacewe/netscope"
   },
   {
+    "target": "caffe/ResNet-50-model.caffemodel",
+    "source": "https://deepdetect.com/models/resnet/ResNet-50-model.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/ResNet-50-deploy.prototxt",
+    "source": "https://deepdetect.com/models/resnet/ResNet-50-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
     "target": "caffe/ResNet-101-deploy.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
+  },
+  {
+    "target": "caffe/ResNet-101-model.caffemodel",
+    "source": "https://deepdetect.com/models/resnet/ResNet-101-model.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/ResNet-152-model.caffemodel",
+    "source": "https://deepdetect.com/models/resnet/ResNet-152-model.caffemodel",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
+  },
+  {
+    "target": "caffe/ResNet-152-deploy.prototxt",
+    "source": "https://deepdetect.com/models/resnet/ResNet-152-deploy.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://deepdetect.com/models/resnet/"
   },
   {
     "target": "caffe/resnet-152.prototxt",
@@ -706,36 +928,114 @@
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-arcface/arcface-resnet100.model"
   },
   {
+    "target": "mxnet/bvlc_alexnet-symbol.json",
+    "source": "http://s3.amazonaws.com/store.carml.org/models/mxnet/bvlc_alexnet/bvlc_alexnet-symbol.json",
+    "format": "MXNet v0.10.0",
+    "link":   "https://github.com/rai-project/mxnet/blob/master/builtin_models/BVLC-AlexNet.yml"
+  },
+  {
     "target": "mxnet/caffenet.model",
     "source": "https://s3.amazonaws.com/model-server/models/caffenet/caffenet.model"
+  },
+  {
+    "target": "mxnet/caffenet-symbol.json",
+    "source": "http://data.dmlc.ml/mxnet/models/imagenet/caffenet/caffenet-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
+  {
+    "target": "mxnet/deep3d-symbol.json",
+    "source": "https://raw.githubusercontent.com/dmlc/mxnet-gtc-tutorial/master/deep3d/deep3d-symbol.json",
+    "format": "MXNet",
+    "link":   "https://github.com/dmlc/mxnet-gtc-tutorial/tree/master/deep3d"
+  },
+  {
+    "target": "mxnet/dpn68-symbol.json",
+    "source": "http://s3.amazonaws.com/store.carml.org/models/mxnet/dpn68/dpn68-symbol.json",
+    "format": "MXNet",
+    "link":   "https://github.com/rai-project/mxnet/blob/master/builtin_models/DPN68.yml"
   },
   {
     "target": "mxnet/ferplus.model",
     "source": "https://s3.amazonaws.com/model-server/models/FERPlus/ferplus.model"
   },
   {
+    "target": "mxnet/inception_resnet_v2-symbol.json",
+    "source": "https://raw.githubusercontent.com/soeaver/mxnet-model/master/cls/inception/inception_resnet_v2-symbol.json",
+    "format": "MXNet v1.0.1",
+    "link":   "https://github.com/soeaver/mxnet-model/tree/master/cls"
+  },
+  {
     "target": "mxnet/inception_v1.model",
     "source": "https://s3.amazonaws.com/model-server/models/onnx-inception_v1/inception_v1.model"
+  },
+  {
+    "target": "mxnet/inception_v3-symbol.json",
+    "source": "https://raw.githubusercontent.com/soeaver/mxnet-model/master/cls/inception/inception_v3-symbol.json",
+    "format": "MXNet v0.11.0",
+    "link":   "https://github.com/soeaver/mxnet-model/tree/master/cls"
+  },
+  {
+    "target": "mxnet/Inception-7-symbol.json",
+    "source": "https://raw.githubusercontent.com/bzshang/yelp-photo-classification/master/mxnet_model/inception_v3/Inception-7-symbol.json",
+    "format": "MXNet",
+    "link":   "https://github.com/bzshang/yelp-photo-classification/tree/master/mxnet_model/inception_v3"
   },
   {
     "target": "mxnet/Inception-BN.model",
     "source": "https://s3.amazonaws.com/model-server/models/inception-bn/Inception-BN.model"
   },
   {
+    "target": "mxnet/Inception-BN-symbol.json",
+    "source": "http://data.dmlc.ml/models/imagenet/inception-bn/Inception-BN-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
+  {
     "target": "mxnet/lstm_ptb.model",
     "source": "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb.model"
+  },
+  {
+    "target": "mxnet/lstm_ptb-symbol.json",
+    "source": "https://s3.amazonaws.com/model-server/models/lstm_ptb/lstm_ptb-symbol.json",
+    "format": "MXNet v0.11.0",
+    "link":   "https://github.com/awslabs/mxnet-model-server/tree/master/examples/lstm_ptb"
   },
   {
     "target": "mxnet/nin.model",
     "source": "https://s3.amazonaws.com/model-server/models/nin/nin.model"
   },
   {
+    "target": "mxnet/nin-symbol.json",
+    "source": "http://data.dmlc.ml/models/imagenet/nin/nin-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
+  {
     "target": "mxnet/resnet-18.model",
     "source": "https://s3.amazonaws.com/model-server/models/resnet-18/resnet-18.model"
   },
   {
+    "target": "mxnet/resnet-50-symbol.json",
+    "source": "http://data.mxnet.io/models/imagenet/resnet/50-layers/resnet-50-symbol.json",
+    "format": "MXNet",
+    "link":   "https://github.com/awslabs/deeplearning-benchmark/blob/master/image_classification/common/modelzoo.py"
+  },
+  {
+    "target": "mxnet/resnet-101-symbol.json",
+    "source": "http://data.mxnet.io/models/imagenet/resnet/101-layers/resnet-101-symbol.json",
+    "format": "MXNet",
+    "link":   "https://github.com/awslabs/deeplearning-benchmark/blob/master/image_classification/common/modelzoo.py"
+  },
+  {
     "target": "mxnet/resnet-152.model",
     "source": "https://s3.amazonaws.com/model-server/models/resnet-152/resnet-152.model"
+  },
+  {
+    "target": "mxnet/resnet-152-symbol.json",
+    "source": "http://data.mxnet.io/models/imagenet/resnet/152-layers/resnet-152-symbol.json",
+    "format": "MXNet",
+    "link":   "https://github.com/awslabs/deeplearning-benchmark/blob/master/image_classification/common/modelzoo.py"
   },
   {
     "target": "mxnet/resnet50_ssd_model.model",
@@ -744,6 +1044,12 @@
   {
     "target": "mxnet/ResNet_DUC_HDC.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-duc/ResNet_DUC_HDC.model"
+  },
+  {
+    "target": "mxnet/RN101-5k500-symbol.json,mxnet/RN101-5k500-0012.params",
+    "source": "https://s3.amazonaws.com/mmcommons-tutorial/models/RN101-5k500-symbol.json,https://s3.amazonaws.com/mmcommons-tutorial/models/RN101-5k500-0012.params",
+    "format": "MXNet v0.9.4",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
   },
   {
     "target": "mxnet/mobilenetv2-1.0.model",
@@ -794,6 +1100,18 @@
     "source": "https://s3.amazonaws.com/model-server/models/resnext-101-64x4d/resnext-101-64x4d.model"
   },
   {
+    "target": "mxnet/resnext-101-64x4d-symbol.json",
+    "source": "http://data.dmlc.ml/models/imagenet/resnext/101-layers/resnext-101-64x4d-symbol.json",
+    "format": "MXNet v0.9.4",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
+  {
+    "target": "mxnet/resnet-152-symbol.json",
+    "source": "http://data.dmlc.ml/models/imagenet/resnet/152-layers/resnet-152-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
+  {
     "target": "mxnet/squeezenet.model",
     "source": "https://s3.amazonaws.com/model-server/models/onnx-squeezenet/squeezenet.model"
   },
@@ -802,8 +1120,20 @@
     "source": "https://s3.amazonaws.com/model-server/models/squeezenet_v1.1/squeezenet_v1.1.model"
   },
   {
+    "target": "mxnet/squeezenet_v1.1-symbol.json",
+    "source": "http://data.dmlc.ml/models/imagenet/squeezenet/squeezenet_v1.1-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
+  {
     "target": "mxnet/vgg16.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16/vgg16.model"
+  },
+  {
+    "target": "mxnet/vgg16-symbol.json",
+    "source": "http://data.dmlc.ml/models/imagenet/vgg/vgg16-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
   },
   {
     "target": "mxnet/vgg16_bn.model",
@@ -813,9 +1143,21 @@
     "target": "mxnet/vgg19.model",
     "source": "https://s3.amazonaws.com/model-server/models/onnx-vgg19/vgg19.model"
   },
+  {
+    "target": "mxnet/vgg19-symbol.json",
+    "source": "http://data.dmlc.ml/models/imagenet/vgg/vgg19-symbol.json",
+    "format": "MXNet",
+    "link":   "https://mxnet.apache.org/model_zoo/index.html"
+  },
   {   
     "target": "mxnet/vgg19_bn.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
+  },
+  {
+    "target": "mxnet/xSRResNet_4x-symbol.json",
+    "source": "https://mailacid-my.sharepoint.com/personal/mma_mail_ac_id/_layouts/15/download.aspx?UniqueId=bca30ce3-ce72-4ac7-886a-4a616f065665&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvbWFpbGFjaWQtbXkuc2hhcmVwb2ludC5jb21ANTg1ZGI1ZGMtZmEyNS00MmRjLWE2M2QtZjBlMmNkYzkyZjk3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTU0MTU3NjA3NSIsImV4cCI6IjE1NDE1Nzk2NzUiLCJlbmRwb2ludHVybCI6Ikl4LzdSYnZ6KzFreUxEdjF6Ymo3OFFxSEFjTU9tS2ZPMnhuUW54MHFwNlk9IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNDYiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IlptWTNOV0U0WXpNdE5HUmhPQzAwTjJWa0xUaGlPR0V0TXpSaU1UYzRabVJsTjJJeiIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJOekExWkRjeFlURXRPR1V3WXkwMFlUaGpMVGczTjJJdFlqRmtaVGhtWW1ZMk9HVXkiLCJhcHBfZGlzcGxheW5hbWUiOiJvbmVpbmRleCIsImFwcGlkIjoiMzdiMDlkMjUtN2Y3OC00MTFmLWIzNmEtYTQwZWNjNzI4MTg3IiwidGlkIjoiNTg1ZGI1ZGMtZmEyNS00MmRjLWE2M2QtZjBlMmNkYzkyZjk3IiwidXBuIjoibW1hQG1haWwuYWMuaWQiLCJwdWlkIjoiMTAwMzdGRkVBQzFBNjIyNCIsInNjcCI6ImFsbGZpbGVzLndyaXRlIiwidHQiOiIyIiwidXNlUGVyc2lzdGVudENvb2tpZSI6bnVsbH0.ckpuYU5zakxKVG9XMldIak1mdDJxUkRYMUZXN0ZUWVdFWVdrWGNmNDF1VT0&ApiVersion=2.0",
+    "format": "MXNet v1.3.0",
+    "link":   "https://m.vers.site/Resources/Error/"
   },
   {
     "target": "tf/densenet.pb",
@@ -880,8 +1222,19 @@
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.tflite]"
   },
   {
+    "target": "tflite/inception_v3_quant.tflite",
+    "source": "http://download.tensorflow.org/models/tflite_11_05_08/inception_v3_quant.tgz[inception_v3_quant.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
     "target": "tflite/inception_v4.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v4_2018_04_27.tgz[./inception_v4.tflite]",
+    "format": "TensorFlow Lite v3"
+  },
+  {
+    "target": "tflite/inceptionv3_slim_2016.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/inception_v3_slim_2016_android_2017_11_10.zip[inceptionv3_slim_2016.tflite]",
     "format": "TensorFlow Lite v3"
   },
   {
@@ -931,6 +1284,18 @@
   {
     "target": "tflite/nasnet_large.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_large_2018_04_27.tgz[./nasnet_large.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tflite/resnet_v2_50.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/resnet_v2_50_2018_03_27.zip[resnet_v2_50.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/models.md"
+  },
+  {
+    "target": "tflite/resnet_v2_101.tflite",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/resnet_v2_101_2018_03_27.zip[resnet_v2_101.tflite]",
     "format": "TensorFlow Lite v3",
     "link":   "https://www.tensorflow.org/lite/models"
   },

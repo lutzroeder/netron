@@ -16,7 +16,7 @@ const tar = require('../src/tar');
 global.TextDecoder = require('util').TextDecoder;
 
 var models = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
-var testRootFolder = __dirname + '/data';
+var folder = __dirname + '/data';
 
 class TestHost {
 
@@ -28,7 +28,7 @@ class TestHost {
     }
 
     request(base, file, encoding, callback) {
-        var pathname = path.join(path.join(__dirname, '../src'), file);
+        var pathname = path.join(base || path.join(__dirname, '../src'), file);
         fs.exists(pathname, (exists) => {
             if (!exists) {
                 callback(new Error('File not found.'), null);
@@ -193,15 +193,26 @@ function decompress(buffer, identifier) {
     return archive;
 }
 
-function request(location, callback) {
+function request(location, cookie, callback) {
     var data = [];
     var position = 0;
     var protocol = url.parse(location).protocol;
     var httpModules = { 'http:': http, 'https:': https };
     var httpModule = httpModules[protocol];
-
     var httpRequest = httpModule.request(location);
+    if (cookie.length > 0) {
+        httpRequest.setHeader('Cookie', cookie);
+    }
     httpRequest.on('response', (response) => {
+        if (response.statusCode == 200 && url.parse(location).hostname == 'drive.google.com' && 
+            response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
+            cookie = response.headers['set-cookie'];
+            var download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
+            var confirmToken = download.split(';').shift().split('=').pop();
+            location = location + '&confirm=' + confirmToken;
+            request(location, cookie, callback);
+            return;
+        }
         if (response.statusCode == 301 || response.statusCode == 302) {
             if (url.parse(response.headers.location).hostname) {
                 location = response.headers.location;
@@ -209,28 +220,27 @@ function request(location, callback) {
             else {
                 location = url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
             }
-            request(location, callback);
+            request(location, cookie, callback);
+            return;
         }
-        else {
-            var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
-            response.on("data", (chunk) => {
-                position += chunk.length;
-                if (length >= 0) {
-                    var label = location.length > 70 ? location.substring(0, 67) + '...' : location; 
-                    process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
-                }
-                else {
-                    process.stdout.write(position + '\r');
-                }
-                data.push(chunk);
-            });
-            response.on("end", () => {
-                callback(null, Buffer.concat(data));
-            });
-            response.on("error", (err) => {
-                callback(err, null);
-            });
-        }
+        var length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
+        response.on("data", (chunk) => {
+            position += chunk.length;
+            if (length >= 0) {
+                var label = location.length > 70 ? location.substring(0, 67) + '...' : location; 
+                process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
+            }
+            else {
+                process.stdout.write('  ' + position + ' bytes\r');
+            }
+            data.push(chunk);
+        });
+        response.on("end", () => {
+            callback(null, Buffer.concat(data));
+        });
+        response.on("error", (err) => {
+            callback(err, null);
+        });
     });
     httpRequest.on('error', (err) => {
         callback(err, null);
@@ -238,86 +248,109 @@ function request(location, callback) {
     httpRequest.end();
 }
 
-function next() {
-    if (models.length > 0) {
-        var item = models.shift();
-        if (item.status && item.status == 'fail') {
-            next();
+function download(folder, targets, sources, completed, callback) {
+    if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
+        callback(null, targets);
+        return;
+    }
+    var source = '';
+    var sourceFiles = [];
+    var startIndex = sources.indexOf('[');
+    var endIndex = sources.indexOf(']');
+    if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
+        sourceFiles = sources.substring(startIndex + 1, endIndex).split(',').map((sourceFile) => sourceFile.trim());
+        source = sources.substring(0, startIndex);
+        sources = sources.substring(endIndex + 1);
+        if (sources.startsWith(',')) {
+            sources = sources.substring(1);
+        }
+    }
+    else {
+        var commaIndex = sources.indexOf(',');
+        if (commaIndex != -1) {
+            source = sources.substring(0, commaIndex);
+            sources = sources.substring(commaIndex + 1);
+        }
+        else {
+            source = sources;
+            sources = '';
+        }
+    }
+    targets.forEach((target) => {
+        makeDir(path.dirname(folder + '/' + target));
+    });
+    request(source, [], (err, data) => {
+        if (err) {
+            console.log("ERROR: " + err.toString());
             return;
         }
-        // if (item.target != 'coreml/GestureAI.mlmodel') { next(); return; }
-        // if (!item.target.startsWith('onnx/')) { next(); return; }
-        var targets = item.target.split(',');
-        var source = item.source;
-        var files = [];
-        var index = source.indexOf('[');
-        if (index != -1) {
-            var contents = source.substring(index);
-            if (contents.startsWith('[') && contents.endsWith(']')) {
-                files = contents.substring(1, contents.length - 1).split(',').map((file) => file.trim());
+        if (sourceFiles.length > 0) {
+            if (process.stdout.clearLine) {
+                process.stdout.clearLine();
             }
-            source = source.substring(0, index);
+            process.stdout.write('  decompress...\r');
+            var archive = decompress(data, source.split('/').pop());
+            // console.log(archive);
+            sourceFiles.forEach((file, index) => {
+                if (process.stdout.clearLine) {
+                    process.stdout.clearLine();
+                }
+                process.stdout.write('  write ' + file + '\n');
+                var entry = archive.entries.filter((entry) => entry.name == file)[0];
+                if (!entry) {
+                    console.log("ERROR: Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                }
+                var target = targets.shift();
+                fs.writeFileSync(folder + '/' + target, entry.data, null);
+                completed.push(target);
+            });
+        }
+        else {
+            var target = targets.shift();
+            if (process.stdout.clearLine) {
+                process.stdout.clearLine();
+            }
+            process.stdout.write('  write ' + target + '\r');
+            fs.writeFileSync(folder + '/' + target, data, null);
+            completed.push(target);
         }
         if (process.stdout.clearLine) {
             process.stdout.clearLine();
         }
-        process.stdout.write(targets[0] + '\n');
-        if (!targets.every((target) => fs.existsSync(testRootFolder + '/' + target))) {
-            targets.forEach((target) => makeDir(path.dirname(testRootFolder + '/' + target)));
-            request(source, (err, data) => {
-                if (err) {
-                    console.log("ERROR: " + err.toString());
-                    return;
-                }
+        if (sources.length > 0) {
+            download(folder, targets, sources, completed, callback);
+            return;
+        }
+        callback(null, completed);
+    });
+}
 
-                if (files.length > 0) {
-                    if (process.stdout.clearLine) {
-                        process.stdout.clearLine();
-                    }
-                    process.stdout.write('  decompress...\r');
-                    var archive = decompress(data, source.split('/').pop());
-                    // console.log(archive);
-                    files.forEach((file, index) => {
-                        if (process.stdout.clearLine) {
-                            process.stdout.clearLine();
-                        }
-                        process.stdout.write('  write ' + file + '\n');
-                        var entry = archive.entries.filter((entry) => entry.name == file)[0];
-                        if (!entry) {
-                            console.log("ERROR: Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
-                        }
-                        fs.writeFileSync(testRootFolder + '/' + targets[index], entry.data, null);
-                    });
-                }
-                else {
-                    if (process.stdout.clearLine) {
-                        process.stdout.clearLine();
-                    }
-                    process.stdout.write('  write ' + targets[0] + '\r');
-                    fs.writeFileSync(testRootFolder + '/' + targets[0], data, null);
-                }
-                if (process.stdout.clearLine) {
-                    process.stdout.clearLine();
-                }
-                loadModel(testRootFolder + '/' + targets[0], item, (err, model) => {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    next();
-                });
-            });
-        }
-        else {
-            loadModel(testRootFolder + '/' + targets[0], item, (err, model) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                next();
-            });
-        }
+function next() {
+    if (models.length == 0) {
+        return;
     }
+    var item = models.shift();
+    if (item.status && item.status == 'fail') {
+        next();
+        return;
+    }
+    // if (item.target != 'coreml/GestureAI.mlmodel') { next(); return; }
+    // if (!item.target.startsWith('onnx/')) { next(); return; }
+    var targets = item.target.split(',');
+    if (process.stdout.clearLine) {
+        process.stdout.clearLine();
+    }
+    process.stdout.write(targets[0] + '\n');
+    var sources = item.source;
+    download(folder, targets, sources, [], (err, completed) => {
+        loadModel(folder + '/' + completed[0], item, (err, model) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+            next();
+        });
+    });
 }
 
 next();
