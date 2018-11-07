@@ -9010,6 +9010,102 @@
     }
   },
   {
+    "name": "OneHot",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "description": "(Optional) Axis along which one-hot representation in added. Default: axis=-1. axis=-1 means that the additional dimension will be inserted as the innermost/last dimension in the output tensor.",
+          "name": "axis",
+          "required": false,
+          "type": "int"
+        }
+      ],
+      "description": "Produces a one-hot tensor based on inputs.\n    The locations represented by the index values in the 'indices' input tensor will have 'on_value' \n    and the other locations will have 'off_value' in the output tensor, where 'on_value' and 'off_value' \n    are specified as part of required input argument 'values', which is a two-element tensor of format  \n    [off_value, on_value]. The rank of the output tensor will be one greater than the rank of the \n    input tensor. The additional dimension is for one-hot representation. The additional dimension will \n    be inserted at the position specified by 'axis'. If 'axis' is not specified then then additional \n    dimension will be inserted as the innermost dimension, i.e. axis=-1. The size of the additional \n    dimension is specified by required scalar input 'depth'. The type of the output tensor is the same \n    as the type of the 'values' input. Any entries in the 'indices' input tensor with values outside \n    the range [0, depth) will result in one-hot representation with all 'off_value' values in the \n    output tensor.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([[1, 9],\n                    [2, 4]], dtype=np.float32)\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_with_axis')",
+          "summary": "with_axis"
+        },
+        {
+          "code": "on_value = 5\noff_value = 2\noutput_type = np.int32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y']\n)\nindices = np.array([0, 7, 8], dtype=np.int64)\ndepth = np.array([12], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_without_axis')",
+          "summary": "without_axis"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor containing indices. The values must be non-negative integers. Any entries in the 'indices' input tensor with values outside the range [0, depth) will result in one-hot representation with all 'off_value' values in the output tensor.In case 'indices' is of non-integer type, the values will be casted to int64 before use.",
+          "name": "indices",
+          "type": "T1"
+        },
+        {
+          "description": "Scalar specifying the number of classes in one-hot tensor. This is also the size of the one-hot dimension (specified by 'axis' attribute) added on in the output tensor and the values in the 'indices' input tensor are expected to be in the range [0, depth). TheIn case 'depth' is of non-integer type, it will be casted to int64 before use.",
+          "name": "depth",
+          "type": "T1"
+        },
+        {
+          "description": "Rank 1 tensor containing exactly two elements, in the format [off_value, on_value], where 'on_value' is the value used for filling locations specified in 'indices' input tensor, and 'off_value' is the value used for filling locations other than those specified in 'indices' input tensor. ",
+          "name": "values",
+          "type": "T2"
+        }
+      ],
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Tensor of rank one greater than input tensor 'indices', i.e. rank(output) = rank(indices) + 1. The data type for the elements of the output tensor is the same as the type of input 'values' is used.",
+          "name": "output",
+          "type": "T2"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrains input to only numeric types.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain to any tensor type.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
     "name": "OneHotEncoder",
     "schema": {
       "attributes": [
