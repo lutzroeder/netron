@@ -6,6 +6,7 @@ print(onnx.__file__)
 
 import json
 import io
+import os
 import sys
 
 from onnx import defs
@@ -229,6 +230,6 @@ def convert():
             text_file.write(text)
 
 if __name__ == '__main__':
-    command_table = { 'metadata': metadata }
+    command_table = { 'metadata': metadata, 'convert': convert }
     command = sys.argv[1];
     command_table[command]()
