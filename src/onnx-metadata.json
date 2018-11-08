@@ -191,6 +191,50 @@
     }
   },
   {
+    "name": "Acosh",
+    "schema": {
+      "description": "Calculates the hyperbolic arccosine of the given input tensor element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Acosh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([10, np.e, 1]).astype(np.float32)\ny = np.arccosh(x)  # expected output [2.99322295,  1.65745449,  0.]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_acosh_example')\n\nx = np.random.uniform(1.0, 10.0, (3, 4, 5)).astype(np.float32)\ny = np.arccosh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_acosh')",
+          "summary": "acosh"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The hyperbolic arccosine values of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Add",
     "schema": {
       "attributes": [
@@ -816,6 +860,50 @@
     }
   },
   {
+    "name": "Asinh",
+    "schema": {
+      "description": "Calculates the hyperbolic arcsine of the given input tensor element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Asinh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.arcsinh(x)  # expected output [-0.88137358,  0.,  0.88137358]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_asinh_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.arcsinh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_asinh')",
+          "summary": "asinh"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The hyperbolic arcsine values of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Atan",
     "schema": {
       "description": "Calculates the arctangent (inverse of tangent) of the given input tensor, element-wise.\n",
@@ -845,6 +933,50 @@
         }
       ],
       "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Atanh",
+    "schema": {
+      "description": "Calculates the hyperbolic arctangent of the given input tensor element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Atanh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-0.5, 0, 0.5]).astype(np.float32)\ny = np.arctanh(x)  # expected output [-0.54930615,  0.,  0.54930615]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_atanh_example')\n\nx = np.random.uniform(0.0, 1.0, (3, 4, 5)).astype(np.float32)\ny = np.arctanh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_atanh')",
+          "summary": "atanh"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The hyperbolic arctangent values of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
       "support_level": "common",
       "type_constraints": [
         {
@@ -2771,6 +2903,50 @@
         }
       ],
       "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Cosh",
+    "schema": {
+      "description": "Calculates the hyperbolic cosine of the given input tensor element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Cosh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.cosh(x)  # expected output [1.54308069,  1.,  1.54308069]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_cosh_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.cosh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_cosh')",
+          "summary": "cosh"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The hyperbolic cosine values of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
       "support_level": "common",
       "type_constraints": [
         {
@@ -12212,6 +12388,50 @@
         }
       ],
       "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sinh",
+    "schema": {
+      "description": "Calculates the hyperbolic sine of the given input tensor element-wise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Sinh',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([-1, 0, 1]).astype(np.float32)\ny = np.sinh(x)  # expected output [-1.17520118,  0.,  1.17520118]\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sinh_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.sinh(x)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_sinh')",
+          "summary": "sinh"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "input",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "The hyperbolic sine values of the input tensor computed element-wise",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 9,
       "support_level": "common",
       "type_constraints": [
         {
