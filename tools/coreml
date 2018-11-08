@@ -3,14 +3,13 @@
 set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
-build=${root}/build
 node_modules=${root}/node_modules
 src=${root}/src
 tools=${root}/tools
 third_party=${root}/third_party
 
 identifier=coremltools
-virtualenv=${build}/virtualenv/${identifier}
+virtualenv=${root}/build/virtualenv/${identifier}
 
 python=${python:-python}
 pip=${pip:-pip}
@@ -30,8 +29,8 @@ sync() {
     git_sync coremltools https://github.com/apple/coremltools.git
 }
 
-build() {
-    echo "Build coremltools.."
+install() {
+    echo "Install coremltools"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     ${pip} install --quiet ${third_party}/${identifier}
@@ -41,7 +40,7 @@ build() {
 schema() {
     echo "Generate 'coreml.js'"
     ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r coreml -o ${src}/coreml-proto.js ${third_party}/${identifier}/mlmodel/format/Model.proto
-    node ${tools}/metadata/update_pbjs.js array ${src}/coreml-proto.js floatValue float 2
+    node ${tools}/update_pbjs.js array ${src}/coreml-proto.js floatValue float 2
 }
 
 convert() {
@@ -56,7 +55,7 @@ while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
         "sync") sync;;
-        "build") build;;
+        "install") install;;
         "schema") schema;;
         "convert") convert ${1} && shift;;
     esac

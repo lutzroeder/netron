@@ -1,0 +1,88 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+node_modules=${root}/node_modules
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+identifier=tensorflow
+virtualenv=${build}/virtualenv/${identifier}
+
+python=${python:-python}
+pip=${pip:-pip}
+
+git_sync () {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2}
+    fi
+}
+
+sync() {
+    git_sync tensorflow https://github.com/tensorflow/tensorflow.git
+}
+
+install() {
+    virtualenv --quiet -p ${python} ${virtualenv}
+    source ${virtualenv}/bin/activate
+    echo "Install protobuf"
+    ${pip} install --quiet protobuf
+    deactivate
+}
+
+schema() {
+    echo "Generate 'tf-proto.js'"
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r tf -o ${src}/tf-proto.js \
+        ${third_party}/${identifier}/tensorflow/core/protobuf/saved_model.proto \
+        ${third_party}/${identifier}/tensorflow/core/protobuf/meta_graph.proto \
+        ${third_party}/${identifier}/tensorflow/core/protobuf/saver.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/graph.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/op_def.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/tensor_shape.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/types.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/node_def.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/versions.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/function.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/attr_value.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/tensor.proto \
+        ${third_party}/${identifier}/tensorflow/core/framework/resource_handle.proto
+}
+
+metadata() {
+    echo "Generate 'tf-metadata.json'"
+    source ${virtualenv}/bin/activate
+    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/attr_value.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/types.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/tensor_shape.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/resource_handle.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/api_def.proto --python_out=${tools}
+    protoc --proto_path ${third_party}/${identifier} tensorflow/core/framework/op_def.proto --python_out=${tools}
+    touch ${tools}/tensorflow/__init__.py
+    touch ${tools}/tensorflow/core/__init__.py
+    touch ${tools}/tensorflow/core/framework/__init__.py
+    pushd ${tools} > /dev/null
+    ${python} tf-script.py
+    popd > /dev/null
+    rm -rf ${tools}/tensorflow
+    deactivate
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "sync") sync;;
+        "install") install;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done
+

@@ -15,7 +15,7 @@ virtualenv=${build}/virtualenv/${identifier}
 python=${python:-python}
 pip=${pip:-pip}
 
-git_sync () {
+git_sync() {
     mkdir -p "${third_party}"
     if [ -d "${third_party}/${1}" ]; then
         git -C "${third_party}/${1}" fetch -p --quiet
@@ -24,6 +24,7 @@ git_sync () {
         echo "Clone ${2}..."
         git -C "${third_party}" clone --recursive ${2}
     fi
+    git submodule update --init
 }
 
 sync() {
@@ -31,8 +32,8 @@ sync() {
     git_sync onnxmltools https://github.com/onnx/onnxmltools.git
 }
 
-build() {
-    echo "Build ONNX"
+install() {
+    echo "Install ONNX"
     virtualenv --quiet -p ${python} ${virtualenv}
     source ${virtualenv}/bin/activate
     export ONNX_ML=1
@@ -45,8 +46,8 @@ schema() {
     echo "Generate 'onnx-proto.js'"
     source ${virtualenv}/bin/activate
     ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx-proto.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
-    node ${tools}/metadata/update_pbjs.js array ${src}/onnx-proto.js float_data float 1
-    node ${tools}/metadata/update_pbjs.js array ${src}/onnx-proto.js double_data double 1
+    node ${tools}/update_pbjs.js array ${src}/onnx-proto.js float_data float 1
+    node ${tools}/update_pbjs.js array ${src}/onnx-proto.js double_data double 1
     deactivate
 }
 
@@ -75,7 +76,7 @@ while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
         "sync") sync;;
-        "build") build;;
+        "install") install;;
         "schema") schema;;
         "metadata") metadata;;
         "convert") convert ${1} && shift;;

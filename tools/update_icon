@@ -2,13 +2,10 @@
 
 set -e
 
-root=$(cd $(dirname ${0})/../..; pwd)
-build=${root}/build
+root=$(cd $(dirname ${0})/..; pwd)
 setup=${root}/setup
 src=${root}/src
-tools=${root}/tools
-
-icon=${build}/icon-update
+icon=${root}/build/icon-update
 
 mkdir -p ${icon}
 pushd ${icon} > /dev/null

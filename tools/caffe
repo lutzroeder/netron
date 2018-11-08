@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+node_modules=${root}/node_modules
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+identifier=caffe
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2}
+    fi
+    git submodule update --init
+}
+
+sync() {
+    git_sync caffe https://github.com/BVLC/caffe.git
+}
+
+schema() {
+    echo "Generate 'caffe.js'"
+    cp ${third_party}/${identifier}/src/caffe/proto/caffe.proto ${tools}/caffe.proto
+    node ${tools}/caffe-schema.js ${tools}/caffe.proto
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe -o ${src}/caffe-proto.js ${tools}/caffe.proto
+    node ${tools}/update_pbjs.js array ${src}/caffe-proto.js data float 1
+    rm -rf ${tools}/caffe.proto
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done

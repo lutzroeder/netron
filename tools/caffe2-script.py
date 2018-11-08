@@ -10,7 +10,7 @@ import re
 import sys
 import caffe2.python.core
 
-json_file = '../../src/caffe2-metadata.json'
+json_file = '../src/caffe2-metadata.json'
 json_data = open(json_file).read()
 json_root = json.loads(json_data)
 

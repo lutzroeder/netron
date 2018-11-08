@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+node_modules=${root}/node_modules
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+identifier=cntk
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2} ${1}
+    fi
+    git submodule update --init
+}
+
+sync() {
+    git_sync cntk https://github.com/Microsoft/CNTK.git
+}
+
+schema() {
+    echo "Generate 'cntk.js'"
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r cntk -o ${src}/cntk-proto.js ${third_party}/${identifier}/Source/CNTKv2LibraryDll/proto/CNTK.proto
+    node ${tools}/update_pbjs.js array ${src}/cntk-proto.js value float 1
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done

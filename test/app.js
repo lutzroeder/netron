@@ -252,7 +252,8 @@ function request(location, cookie, callback) {
 
 function download(folder, targets, sources, completed, callback) {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
-        callback(null, targets);
+        targets.forEach((target) => completed.push(target));
+        callback(null, completed);
         return;
     }
     var source = '';

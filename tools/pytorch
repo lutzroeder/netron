@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+node_modules=${root}/node_modules
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+identifier=pytorch
+virtualenv=${build}/virtualenv/${identifier}
+
+python="python"
+pip="pip"
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2}
+    fi
+    git submodule update --init
+}
+
+sync() {
+    git_sync pytorch https://github.com/pytorch/pytorch.git
+}
+
+install() {
+echo "Install Caffe2"
+if [ "$(uname -s)" == "Darwin" ] && [ "$(which brew)" != "" ]; then
+brew bundle --file=- <<-EOS
+brew "automake"
+brew "cmake"
+brew "gflags"
+brew "glog"
+EOS
+fi
+    virtualenv --quiet -p ${python} ${virtualenv}
+    source ${virtualenv}/bin/activate
+    ${pip} install --quiet future leveldb numpy protobuf pydot python-gflags pyyaml scikit-image setuptools six hypothesis typing
+    pushd "${third_party}/pytorch" > /dev/null
+    ${python} setup.py install
+    popd > /dev/null
+    deactivate
+}
+
+schema() {
+    echo "Generate 'caffe2.js'"
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r caffe2 -o ${src}/caffe2-proto.js ${third_party}/pytorch/caffe2/proto/caffe2.proto
+    node ${tools}/update_pbjs.js enumeration ${src}/caffe2-proto.js floats float 1
+}
+
+metadata() {
+    source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
+    echo "Generate 'caffe2-metadata.json'"
+    ${python} caffe2-script.py
+    echo "Generate 'pytorch-metadata.json'"
+    ${python} pytorch-script.py
+    popd > /dev/null
+    deactivate
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "sync") sync;;
+        "install") install;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done

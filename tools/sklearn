@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+virtualenv=${root}/build/virtualenv/scikit-learn
+tools=${root}/tools
+third_party=${root}/third_party
+
+python=${python:-python}
+pip=${pip:-pip}
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2} ${1}
+    fi
+    git submodule update --init
+}
+
+sync() {
+    git_sync scikit-learn https://github.com/scikit-learn/scikit-learn.git
+    git_sync lightgbm https://github.com/Microsoft/LightGBM.git
+    git_sync xgboost https://github.com/dmlc/xgboost.git
+}
+
+install() {
+    virtualenv --quiet -p ${python} ${virtualenv}
+    source ${virtualenv}/bin/activate
+    echo "Install scikit-learn"
+    ${pip} install --quiet Cython
+    ${pip} install --quiet numpy
+    ${pip} install --quiet ${third_party}/scikit-learn
+    deactivate
+}
+
+metadata() {
+    source ${virtualenv}/bin/activate
+    echo "Update 'sklearn-metadata.json'"
+    pushd ${tools} > /dev/null
+    ${python} sklearn-script.py
+    popd > /dev/null
+    deactivate
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "sync") sync;;
+        "install") install;;
+        "metadata") metadata;;
+    esac
+done

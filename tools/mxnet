@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+python=${python:-python}
+pip=${pip:-pip}
+
+identifier=mxnet
+
+git_sync() {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2} ${1}
+    fi
+    git submodule update --init
+}
+
+sync() {
+    git_sync mxnet https://github.com/apache/incubator-mxnet.git
+}
+
+metadata() {
+    echo "Update 'mxnet-script.json'"
+    # ${python} mxnet-script.py
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "sync") sync;;
+        "metadata") metadata;;
+    esac
+done

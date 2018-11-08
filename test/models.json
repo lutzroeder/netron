@@ -1160,12 +1160,6 @@
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg19_bn/vgg19_bn.model"
   },
   {
-    "target": "mxnet/xSRResNet_4x-symbol.json",
-    "source": "https://mailacid-my.sharepoint.com/personal/mma_mail_ac_id/_layouts/15/download.aspx?UniqueId=bca30ce3-ce72-4ac7-886a-4a616f065665&Translate=false&tempauth=eyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvbWFpbGFjaWQtbXkuc2hhcmVwb2ludC5jb21ANTg1ZGI1ZGMtZmEyNS00MmRjLWE2M2QtZjBlMmNkYzkyZjk3IiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTU0MTU3NjA3NSIsImV4cCI6IjE1NDE1Nzk2NzUiLCJlbmRwb2ludHVybCI6Ikl4LzdSYnZ6KzFreUxEdjF6Ymo3OFFxSEFjTU9tS2ZPMnhuUW54MHFwNlk9IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxNDYiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IlptWTNOV0U0WXpNdE5HUmhPQzAwTjJWa0xUaGlPR0V0TXpSaU1UYzRabVJsTjJJeiIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJOekExWkRjeFlURXRPR1V3WXkwMFlUaGpMVGczTjJJdFlqRmtaVGhtWW1ZMk9HVXkiLCJhcHBfZGlzcGxheW5hbWUiOiJvbmVpbmRleCIsImFwcGlkIjoiMzdiMDlkMjUtN2Y3OC00MTFmLWIzNmEtYTQwZWNjNzI4MTg3IiwidGlkIjoiNTg1ZGI1ZGMtZmEyNS00MmRjLWE2M2QtZjBlMmNkYzkyZjk3IiwidXBuIjoibW1hQG1haWwuYWMuaWQiLCJwdWlkIjoiMTAwMzdGRkVBQzFBNjIyNCIsInNjcCI6ImFsbGZpbGVzLndyaXRlIiwidHQiOiIyIiwidXNlUGVyc2lzdGVudENvb2tpZSI6bnVsbH0.ckpuYU5zakxKVG9XMldIak1mdDJxUkRYMUZXN0ZUWVdFWVdrWGNmNDF1VT0&ApiVersion=2.0",
-    "format": "MXNet v1.3.0",
-    "link":   "https://m.vers.site/Resources/Error/"
-  },
-  {
     "target": "tf/densenet.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.pb]"
   },
