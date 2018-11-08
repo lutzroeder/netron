@@ -26,10 +26,10 @@ echo "Update MXNet"
 ${tools}/metadata/mxnet-update
 
 echo "Update ONNX"
-${tools}/metadata/onnx-update
+${tools}/onnx sync build schema metadata
 
 echo "Update TensorFlow Lite"
-${tools}/metadata/tflite-update
+${tools}/tflite-update
 
 echo "Update scikit-learn"
 ${tools}/metadata/sklearn-update

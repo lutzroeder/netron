@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+node_modules=${root}/node_modules
+src=${root}/src
+third_party=${root}/third_party
+tools=${root}/tools
+
+identifier=onnx
+virtualenv=${build}/virtualenv/${identifier}
+
+python=${python:-python}
+pip=${pip:-pip}
+
+git_sync () {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2}
+    fi
+}
+
+sync() {
+    git_sync onnx https://github.com/onnx/onnx.git
+    git_sync onnxmltools https://github.com/onnx/onnxmltools.git
+}
+
+build() {
+    echo "Build ONNX"
+    virtualenv --quiet -p ${python} ${virtualenv}
+    source ${virtualenv}/bin/activate
+    export ONNX_ML=1
+    export ONNX_NAMESPACE=onnx
+    ${pip} install --quiet ${third_party}/onnx
+    deactivate
+}
+
+schema() {
+    echo "Generate 'onnx-proto.js'"
+    source ${virtualenv}/bin/activate
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case --decode-text -r onnx -o ${src}/onnx-proto.js ${third_party}/${identifier}/onnx/onnx-ml.proto ${third_party}/${identifier}/onnx/onnx-operators-ml.proto
+    node ${tools}/metadata/update_pbjs.js array ${src}/onnx-proto.js float_data float 1
+    node ${tools}/metadata/update_pbjs.js array ${src}/onnx-proto.js double_data double 1
+    deactivate
+}
+
+metadata() {
+    echo "Generate 'onnx-metadata.json'"
+    source ${virtualenv}/bin/activate
+    pushd ${tools} > /dev/null
+    ${python} onnx-script.py metadata
+    popd > /dev/null
+    deactivate
+}
+
+convert() {
+    source ${virtualenv}/bin/activate
+    ${pip} install --quiet ${third_party}/onnxmltools
+
+    deactivate
+}
+
+while [ "$#" != 0 ]; do
+    command="$1"
+    shift
+    case "${command}" in
+        "sync") sync;;
+        "build") build;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done
