@@ -7331,7 +7331,7 @@
       "description": "An op that returns a list of float tensors, where each tensor represents the\nbucketized values for a single feature.",
       "inputs": [
         {
-          "description": "float; List of Rank 2 Tensor each containing float values for a single feature.",
+          "description": "float; List of Rank 1 Tensor each containing float values for a single feature.",
           "name": "float_values",
           "numberAttr": "num_features",
           "type": 1
@@ -7345,7 +7345,7 @@
       ],
       "outputs": [
         {
-          "description": "int; List of Rank 2 Tensors each containing the bucketized values for a single feature.",
+          "description": "int; List of Rank 1 Tensors each containing the bucketized values for a single feature.",
           "name": "buckets",
           "type": 3
         }
@@ -7666,10 +7666,10 @@
           "type": "int"
         }
       ],
-      "description": "An op that takes a list of tensors and outputs the quantile summaries for each tensor.",
+      "description": "An op that takes a list of tensors (one tensor per feature) and outputs the\nquantile summaries for each tensor.",
       "inputs": [
         {
-          "description": "float; List of Rank 2 Tensors each containing values for a single feature.",
+          "description": "float; List of Rank 1 Tensors each containing values for a single feature.",
           "name": "float_values",
           "numberAttr": "num_features",
           "type": 1
@@ -7687,7 +7687,7 @@
       ],
       "outputs": [
         {
-          "description": "float; List of Rank 2 Tensors each containing the quantile summary (value, weight,\nmin_rank, max_rank) of a single feature.",
+          "description": "float; List of Rank 2 Tensors each containing the quantile summary\n(value, weight, min_rank, max_rank) of a single feature.",
           "name": "summaries",
           "type": 1
         }
@@ -7816,6 +7816,34 @@
         }
       ],
       "summary": "Add the quantile summaries to each quantile stream resource."
+    }
+  },
+  {
+    "name": "BoostedTreesQuantileStreamResourceDeserialize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "inferred int; number of features to get bucket boundaries for.",
+          "minimum": 1,
+          "name": "num_streams",
+          "type": "int"
+        }
+      ],
+      "description": "An op that deserializes bucket boundaries and are boundaries ready flag into current QuantileAccumulator.",
+      "inputs": [
+        {
+          "description": "resource handle referring to a QuantileStreamResource.",
+          "name": "quantile_stream_resource_handle",
+          "type": 20
+        },
+        {
+          "description": "float; List of Rank 1 Tensors each containing the bucket boundaries for a feature.",
+          "name": "bucket_boundaries",
+          "numberAttr": "num_streams",
+          "type": 1
+        }
+      ],
+      "summary": "Deserialize bucket boundaries and ready flag into current QuantileAccumulator."
     }
   },
   {
@@ -14720,6 +14748,10 @@
         {
           "name": "element_shape",
           "typeAttr": "shape_type"
+        },
+        {
+          "name": "max_num_elements",
+          "type": 3
         }
       ],
       "outputs": [
