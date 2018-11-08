@@ -229,7 +229,7 @@ function request(location, cookie, callback) {
         response.on("data", (chunk) => {
             position += chunk.length;
             if (length >= 0) {
-                var label = location.length > 70 ? location.substring(0, 67) + '...' : location; 
+                var label = location.length > 70 ? location.substring(0, 66) + '...' : location; 
                 process.stdout.write('  (' + ('  ' + Math.floor(100 * (position / length))).slice(-3) + '%) ' + label + '\r');
             }
             else {

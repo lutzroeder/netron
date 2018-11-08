@@ -72,8 +72,7 @@ convert() {
 }
 
 while [ "$#" != 0 ]; do
-    command="$1"
-    shift
+    command="$1" && shift
     case "${command}" in
         "sync") sync;;
         "build") build;;
