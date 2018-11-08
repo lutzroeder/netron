@@ -1,0 +1,63 @@
+#!/bin/bash
+
+set -e
+
+root=$(cd $(dirname ${0})/..; pwd)
+build=${root}/build
+node_modules=${root}/node_modules
+src=${root}/src
+tools=${root}/tools
+third_party=${root}/third_party
+
+identifier=coremltools
+virtualenv=${build}/virtualenv/${identifier}
+
+python=${python:-python}
+pip=${pip:-pip}
+
+git_sync () {
+    mkdir -p "${third_party}"
+    if [ -d "${third_party}/${1}" ]; then
+        git -C "${third_party}/${1}" fetch -p --quiet
+        git -C "${third_party}/${1}" reset --quiet --hard origin/master
+    else
+        echo "Clone ${2}..."
+        git -C "${third_party}" clone --recursive ${2}
+    fi
+}
+
+sync() {
+    git_sync coremltools https://github.com/apple/coremltools.git
+}
+
+build() {
+    echo "Build coremltools.."
+    virtualenv --quiet -p ${python} ${virtualenv}
+    source ${virtualenv}/bin/activate
+    ${pip} install --quiet ${third_party}/${identifier}
+    deactivate
+}
+
+schema() {
+    echo "Generate 'coreml.js'"
+    ${node_modules}/protobufjs/bin/pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --keep-case -r coreml -o ${src}/coreml-proto.js ${third_party}/${identifier}/mlmodel/format/Model.proto
+    node ${tools}/metadata/update_pbjs.js array ${src}/coreml-proto.js floatValue float 2
+}
+
+convert() {
+    source ${virtualenv}/bin/activate
+    ${pip} install --quiet onnx
+    ${pip} install --quiet sklearn
+    ${python} ${tools}/coreml-script.py convert ${1}
+    deactivate
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "sync") sync;;
+        "build") build;;
+        "schema") schema;;
+        "convert") convert ${1} && shift;;
+    esac
+done

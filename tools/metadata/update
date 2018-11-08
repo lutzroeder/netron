@@ -17,7 +17,7 @@ echo "Update Keras"
 ${tools}/metadata/keras-update
 
 echo "Update CoreML"
-${tools}/metadata/coreml-update
+${tools}/coreml sync build schema
 
 echo "Update Caffe"
 ${tools}/metadata/caffe-update
