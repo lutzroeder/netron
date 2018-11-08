@@ -67,6 +67,12 @@
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/inception_v2.tar.gz[inception_v2/model.onnx]"
   },
   {
+    "target": "onnx/Kmeans.onnx",
+    "source": "https://raw.githubusercontent.com/dotnet/machinelearning/master/test/BaselineOutput/Common/Onnx/Cluster/BreastCancer/Kmeans.onnx",
+    "format": "ONNX v3", "producer": "ML.NET 0.7.27009.0",
+    "link":   "https://github.com/dotnet/machinelearning/tree/master/test/BaselineOutput/Common/Onnx/Cluster/BreastCancer"
+  },
+  {
     "target": "onnx/mnist_opset_9.onnx",
     "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/mnist/mnist.tar.gz[mnist/model.onnx]"
   },

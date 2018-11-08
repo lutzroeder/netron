@@ -128,36 +128,38 @@ function loadModel(target, item, callback) {
             callback(new Error("ERROR: Invalid model format '" + model.format + "'."), null);
             return;
         }
-        else {
-            try {
-                model.graphs.forEach((graph) => {
-                    graph.inputs.forEach((input) => {
+        if (item.producer && model.producer != item.producer) {
+            callback(new Error("ERROR: Invalid producer '" + model.producer + "'."), null);
+            return;
+        }
+        try {
+            model.graphs.forEach((graph) => {
+                graph.inputs.forEach((input) => {
+                });
+                graph.outputs.forEach((output) => {
+                });
+                graph.nodes.forEach((node) => {
+                    node.attributes.forEach((attribute) => {
                     });
-                    graph.outputs.forEach((output) => {
+                    node.inputs.forEach((input) => {
+                        input.connections.forEach((connection) => {
+                            if (connection.initializer) {
+                                var value = connection.initializer.toString();
+                            }
+                        });
                     });
-                    graph.nodes.forEach((node) => {
-                        node.attributes.forEach((attribute) => {
-                        });
-                        node.inputs.forEach((input) => {
-                            input.connections.forEach((connection) => {
-                                if (connection.initializer) {
-                                    var value = connection.initializer.toString();
-                                }
-                            });
-                        });
-                        node.outputs.forEach((output) => {
-                            output.connections.forEach((connection) => {
-                            });
+                    node.outputs.forEach((output) => {
+                        output.connections.forEach((connection) => {
                         });
                     });
                 });
-            }
-            catch (error) {
-                callback(error, null);
-                return;
-            }
-            callback(null, model);
+            });
         }
+        catch (error) {
+            callback(error, null);
+            return;
+        }
+        callback(null, model);
     });
 }
 
