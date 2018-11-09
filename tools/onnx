@@ -72,6 +72,18 @@ convert() {
     deactivate
 }
 
+infer() {
+    source ${virtualenv}/bin/activate
+    ${python} ${tools}/onnx-script.py infer ${1}
+    deactivate
+}
+
+optimize() {
+    source ${virtualenv}/bin/activate
+    ${python} ${tools}/onnx-script.py optimize ${1}
+    deactivate
+}
+
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
@@ -80,5 +92,7 @@ while [ "$#" != 0 ]; do
         "schema") schema;;
         "metadata") metadata;;
         "convert") convert ${1} && shift;;
+        "infer") infer ${1} && shift;;
+        "optimize") optimize ${1} && shift;;
     esac
 done
