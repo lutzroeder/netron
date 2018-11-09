@@ -1164,6 +1164,24 @@
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.pb]"
   },
   {
+    "target": "tf/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_saved_model.pb",
+    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/saved_model/saved_model.pb]",
+    "format": "TensorFlow Saved Model v1",
+    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
+  },
+  {
+    "target": "tf/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference_graph.pb",
+    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
+  },
+  {
+    "target": "tf/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.ckpt.meta",
+    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/model.ckpt.meta]",
+    "format": "TensorFlow MetaGraph",
+    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
+  },
+  {
     "target": "tf/inception_v3.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.pb]"
   },
@@ -1194,6 +1212,24 @@
     "format": "TensorFlow Graph"
   },
   {
+    "target": "tf/mobilenet_v2_1.4_224_frozen.pb",
+    "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224_frozen.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tf/mobilenet_v2_1.4_224.ckpt.meta",
+    "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.ckpt.meta]",
+    "format": "TensorFlow MetaGraph",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "target": "tf/mobilenet_v2_1.4_224_eval.pbtxt",
+    "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224_eval.pbtxt]",
+    "format": "TensorFlow Graph",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
     "target": "tf/mnasnet_0.5_224.pb",
     "source": "http://download.tensorflow.org/models/tflite/mnasnet_0.5_224_09_07_2018.tgz[mnasnet_0.5_224/mnasnet_0.5_224.pb]",
     "format": "TensorFlow Graph",
@@ -1206,8 +1242,62 @@
     "link":   "https://www.tensorflow.org/lite/models"
   },
   {
+    "target": "tf/nasnet_large.pb",
+    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_large_2018_04_27.tgz[./nasnet_large.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+ {
+    "target": "tf/resnet_v1_50.pb",
+    "source": "https://deepdetect.com/models/tf/resnet_v1_50/resnet_v1_50.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://deepdetect.com/models/tf"
+  },
+  {
+    "target": "tf/resnet_v1_101.pb",
+    "source": "https://deepdetect.com/models/tf/resnet_v1_101/resnet_v1_101.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://deepdetect.com/models/tf"
+  },
+  {
+    "target": "tf/resnet_v1_152.pb",
+    "source": "https://deepdetect.com/models/tf/resnet_v1_152/resnet_v1_152.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://deepdetect.com/models/tf"
+  },
+  {
     "target": "tf/squeezenet.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/squeezenet_2018_04_27.tgz[./squeezenet.pb]"
+  },
+  {
+    "target": "tf/ssd_mobilenet_v1_coco_11_06_2017_graph.pbtxt",
+    "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/graph.pbtxt]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
+  },
+  {
+    "target": "tf/ssd_mobilenet_v1_coco_11_06_2017_frozen_inference_graph.pb",
+    "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/frozen_inference_graph.pb]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
+  },
+  {
+    "target": "tf/ssd_mobilenet_v1_coco_11_06_2017.ckpt.meta",
+    "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/model.ckpt.meta]",
+    "format": "TensorFlow MetaGraph",
+    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
+  },
+  {
+    "target": "tf/vgg_16.pb",
+    "source": "https://deepdetect.com/models/tf/vgg_16/vgg_16.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://deepdetect.com/models/tf"
+  },
+  {
+    "target": "tf/vgg_19.pb",
+    "source": "https://deepdetect.com/models/tf/vgg_19/vgg_19.pb",
+    "format": "TensorFlow Graph",
+    "link":   "https://deepdetect.com/models/tf"
   },
   {
     "target": "tflite/densenet.tflite",
