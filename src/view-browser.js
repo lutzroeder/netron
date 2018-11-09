@@ -421,45 +421,115 @@ host.BrowserHost = class {
     }
 };
 
-if (!window.TextDecoder) {
-    window.TextDecoder = class {
-        constructor(encoding) {
-            this._encoding = encoding;
+if (typeof TextDecoder === "undefined") {
+    TextDecoder = function TextDecoder(encoding) {
+        this._encoding = encoding;
+    };
+    TextDecoder.prototype.decode = function decode(buffer) {
+        var result = '';
+        var length = buffer.length;
+        var i = 0;
+        switch (this._encoding) {
+            case 'utf-8':
+                while (i < length) {
+                    var c = buffer[i++];
+                    switch(c >> 4)
+                    { 
+                        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+                            result += String.fromCharCode(c);
+                            break;
+                        case 12: case 13:
+                            c2 = buffer[i++];
+                            result += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
+                            break;
+                        case 14:
+                            var c2 = buffer[i++];
+                            var c3 = buffer[i++];
+                            result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
+                            break;
+                    }
+                }
+                break;
+            case 'ascii':
+                while (i < length) {
+                    result += String.fromCharCode(buffer[i++]);
+                }
+                break;
         }
-        decode(buffer) {
-            var result = '';
-            var length = buffer.length;
-            var i = 0;
-            switch (this._encoding) {
-                case 'utf-8':
-                    while (i < length) {
-                        var c = buffer[i++];
-                        switch(c >> 4)
-                        { 
-                            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-                                result += String.fromCharCode(c);
-                                break;
-                            case 12: case 13:
-                                c2 = buffer[i++];
-                                result += String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
-                                break;
-                            case 14:
-                                var c2 = buffer[i++];
-                                var c3 = buffer[i++];
-                                result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
-                                break;
-                        }
+        return result;
+    };
+}
+
+if (typeof TextEncoder === "undefined") {
+    TextEncoder = function TextEncoder() {
+    };
+    TextEncoder.prototype.encode = function encode(str) {
+        "use strict";
+        var length = str.length, resPos = -1;
+        var resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
+        for (var point = 0, nextcode = 0, i = 0; i !== length; ) {
+            point = str.charCodeAt(i);
+            i += 1;
+            if (point >= 0xD800 && point <= 0xDBFF) {
+                if (i === length) {
+                    resArr[resPos += 1] = 0xef; resArr[resPos += 1] = 0xbf;
+                    resArr[resPos += 1] = 0xbd; break;
+                }
+                nextcode = str.charCodeAt(i);
+                if (nextcode >= 0xDC00 && nextcode <= 0xDFFF) {
+                    point = (point - 0xD800) * 0x400 + nextcode - 0xDC00 + 0x10000;
+                    i += 1;
+                    if (point > 0xffff) {
+                        resArr[resPos += 1] = (0x1e<<3) | (point>>>18);
+                        resArr[resPos += 1] = (0x2<<6) | ((point>>>12)&0x3f);
+                        resArr[resPos += 1] = (0x2<<6) | ((point>>>6)&0x3f);
+                        resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
+                        continue;
                     }
-                    break;
-                case 'ascii':
-                    while (i < length) {
-                        result += String.fromCharCode(buffer[i++]);
-                    }
-                    break;
+                } else {
+                    resArr[resPos += 1] = 0xef; resArr[resPos += 1] = 0xbf;
+                    resArr[resPos += 1] = 0xbd; continue;
+                }
             }
-            return result;
+            if (point <= 0x007f) {
+                resArr[resPos += 1] = (0x0<<7) | point;
+            } else if (point <= 0x07ff) {
+                resArr[resPos += 1] = (0x6<<5) | (point>>>6);
+                resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
+            } else {
+                resArr[resPos += 1] = (0xe<<4) | (point>>>12);
+                resArr[resPos += 1] = (0x2<<6) | ((point>>>6)&0x3f);
+                resArr[resPos += 1] = (0x2<<6) | (point&0x3f);
+            }
+        }
+        if (typeof Uint8Array!=="undefined") {
+            return new Uint8Array(resArr.buffer.slice(0, resPos+1));
+        }
+        else {
+            return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
         }
     };
+    TextEncoder.prototype.toString = function() { 
+        return "[object TextEncoder]"
+    };
+    try {
+        Object.defineProperty(TextEncoder.prototype,"encoding", {
+            get:function() {
+                if (TextEncoder.prototype.isPrototypeOf(this)) {
+                    return"utf-8";
+                }
+                else {
+                    throw TypeError("Illegal invocation");
+                }
+            }
+        });
+    }
+    catch (e) {
+        TextEncoder.prototype.encoding = "utf-8";
+    }
+    if (typeof Symbol !== "undefined") {
+        TextEncoder.prototype[Symbol.toStringTag] = "TextEncoder";
+    }
 }
 
 if (!HTMLCanvasElement.prototype.toBlob) {
