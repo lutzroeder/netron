@@ -100,6 +100,7 @@ pytorch.ModelFactory = class {
             constructorTable['torch.nn.modules.pooling.MaxPool2d'] = function() {};
             constructorTable['torch.nn.modules.rnn.LSTM'] = function () {};
             constructorTable['torch.nn.modules.sparse.Embedding'] = function () {};
+            constructorTable['torch.nn.modules.upsampling.Upsample'] = function() {};
             constructorTable['torchvision.models.alexnet.AlexNet'] = function () {};
             constructorTable['torchvision.models.densenet.DenseNet'] = function () {};
             constructorTable['torchvision.models.densenet._DenseBlock'] = function () {};
