@@ -166,6 +166,13 @@ pytorch.ModelFactory = class {
                 obj.backward_hooks =  backward_hooks;
                 return obj;
             };
+            functionTable['torch._utils._rebuild_parameter'] = function(data, requires_grad, backward_hooks) {
+                var obj = {};
+                obj.__type__ = 'torch.nn.parameter.Parameter';
+                constructorTable[obj.__type__].apply(obj, [ data, requires_grad ]);
+                obj.backward_hooks = backward_hooks;
+                return obj;
+            };
 
             var function_call = (name, args) => {
                 var func = functionTable[name];
@@ -178,6 +185,7 @@ pytorch.ModelFactory = class {
                     constructor.apply(obj, args);
                 }
                 else {
+                    debugger;
                     host.exception(new pytorch.Error("Unknown function '" + name + "' in '" + identifier + "'."), false);
                 }
                 return obj;
