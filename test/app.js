@@ -140,6 +140,10 @@ function loadModel(target, item, callback) {
                 });
                 graph.nodes.forEach((node) => {
                     node.attributes.forEach((attribute) => {
+                        var value = view.View.formatAttributeValue(attribute.value, attribute.type)
+                        if (value && value.length > 1000) {
+                            value = value.substring(0, 1000) + '...';
+                        }
                     });
                     node.inputs.forEach((input) => {
                         input.connections.forEach((connection) => {
