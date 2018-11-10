@@ -592,20 +592,64 @@
     "link":   "https://github.com/caffe2/models"
   },
   {
+    "target": "keras/DenseNet121.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "../tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/InceptionResNetV2.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "../tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/InceptionV3.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "../tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
     "target": "keras/mimo.h5",
     "source": "https://github.com/lutzroeder/netron/files/2565761/mimo.h5.zip[mimo.h5]",
     "format": "Keras v2.2.0",
     "link":   "https://github.com/lutzroeder/netron/issues/138"
   },
   {
+    "target": "keras/MobileNetV2.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "../tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/NASNetMobile.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "../tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
     "target": "keras/tiny-yolo-voc.h5",
-    "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5"
+    "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/Convert/yad2k/model_data/tiny-yolo-voc.h5",
+    "format": "Keras v1.2.2",
+    "link":   "https://github.com/hollance/YOLO-CoreML-MPSNNGraph/tree/master/Convert/yad2k/model_data"
   },
   {
     "target": "keras/tiramisu_fc_dense103_model.json",
     "source": "https://raw.githubusercontent.com/0bserver07/One-Hundred-Layers-Tiramisu/master/tiramisu_fc_dense103_model.json",
     "format": "Keras",
     "link":   "https://github.com/0bserver07/One-Hundred-Layers-Tiramisu"
+  },
+  {
+    "target": "keras/VGG16.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "../tools/keras", "sync install zoo" ],
+    "status": "script"
+  },
+  {
+    "target": "keras/VGG19.h5",
+    "link":   "https://keras.io/applications",
+    "script": [ "../tools/keras", "sync install zoo" ],
+    "status": "script"
   },
   {
     "target": "cntk/v1/AlexNet.model",

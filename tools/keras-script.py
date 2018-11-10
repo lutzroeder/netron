@@ -4,9 +4,12 @@ from __future__ import print_function
 
 import io
 import json
+import os
 import pydoc
 import re
 import sys
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def count_leading_spaces(s):
     ws = re.search(r'\S', s)
@@ -319,12 +322,27 @@ for entry in json_root:
         if len(headers) > 0:
             raise Exception('\'' + class_name + '.__doc__\' contains unprocessed headers.')
  
-with io.open(json_file, 'w', newline='') as fout:
-    json_data = json.dumps(json_root, sort_keys=True, indent=2)
-    for line in json_data.splitlines():
-        line = line.rstrip()
-        if sys.version_info[0] < 3:
-            line = unicode(line)
-        fout.write(line)
-        fout.write('\n')
+def metadata():
+    with io.open(json_file, 'w', newline='') as fout:
+        json_data = json.dumps(json_root, sort_keys=True, indent=2)
+        for line in json_data.splitlines():
+            line = line.rstrip()
+            if sys.version_info[0] < 3:
+                line = unicode(line)
+            fout.write(line)
+            fout.write('\n')
 
+def zoo():
+    from pydoc import locate
+    type = sys.argv[2];
+    file = sys.argv[3];
+    directory = os.path.dirname(file);
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    model = locate(type)()
+    model.save(file);
+
+if __name__ == '__main__':
+    command_table = { 'metadata': metadata, 'zoo': zoo }
+    command = sys.argv[1];
+    command_table[command]()

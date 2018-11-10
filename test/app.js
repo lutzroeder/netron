@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
+const child_process = require('child_process');
 const vm = require('vm');
 const http = require('http');
 const https = require('https');
@@ -47,7 +48,7 @@ class TestHost {
     }
 
     exception(err, fatal) {
-        console.log("ERROR: " + err.toString());
+        console.log(err.toString());
     }
 }
 
@@ -260,6 +261,10 @@ function download(folder, targets, sources, completed, callback) {
         callback(null, completed);
         return;
     }
+    if (!sources) {
+        callback(new Error('Download source not specified.'), null);
+        return;
+    }
     var source = '';
     var sourceFiles = [];
     var startIndex = sources.indexOf('[');
@@ -288,7 +293,7 @@ function download(folder, targets, sources, completed, callback) {
     });
     request(source, [], (err, data) => {
         if (err) {
-            console.log("ERROR: " + err.toString());
+            callback(err, null);
             return;
         }
         if (sourceFiles.length > 0) {
@@ -305,7 +310,7 @@ function download(folder, targets, sources, completed, callback) {
                 process.stdout.write('  write ' + file + '\n');
                 var entry = archive.entries.filter((entry) => entry.name == file)[0];
                 if (!entry) {
-                    console.log("ERROR: Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                    callback(new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " ."), null);
                 }
                 var target = targets.shift();
                 fs.writeFileSync(folder + '/' + target, entry.data, null);
@@ -350,6 +355,24 @@ function next() {
     process.stdout.write(targets[0] + '\n');
     var sources = item.source;
     download(folder, targets, sources, [], (err, completed) => {
+        if (err) {
+            if (item.status == 'script' && item.script) {
+                try { 
+                    var command = path.join(__dirname, item.script[0]) + ' ' + item.script[1];
+                    console.log('  ' + command);
+                    child_process.execSync(command, { stdio: [ 0, 1 , 2] });
+                    completed = targets;
+                }
+                catch (err) {
+                    console.log(err);
+                    return;
+                }
+            }
+            else {
+                console.log(err);
+                return;
+            }
+        }
         loadModel(folder + '/' + completed[0], item, (err, model) => {
             if (err) {
                 console.log(err);
